@@ -177,6 +177,8 @@ Breaking changes accepted in 3.0:
   - conformances respected (#560).
 - **Xcode projects:** support `PBXFileSystemSynchronizedRootGroup` (#524), or drop XcodeProj in favour of plugin-provided file lists.
 - **Linux:** make the generator build there (`gl_pathc` instead of `gl_matchc`, `FileManager`-based globbing).
+- **Mock dependency types by module name:** let a Cuckoofile entry say `dependencies = ["Alamofire"]` (or `sources = ["@Alamofire/**"]`). The build plugin resolves the module's source files from the SwiftPM or Xcode package graph, so nobody has to hard-code `.build/checkouts` or DerivedData paths. Only protocols and `open` classes from another module can be mocked, because Swift forbids subclassing `public` non-`open` classes across modules.
+- **Mocks from `.swiftinterface` files:** parse the textual interfaces of binary `.xcframework`s, so closed-source Swift SDKs can be mocked too (protocols and `open` classes). Swift interfaces are ordinary Swift syntax, so the existing crawler mostly applies.
 - **Distribution:** ship the generator as a prebuilt `artifactbundle` `binaryTarget`, so consumers stop compiling swift-syntax. Fix `Version.swift` (#601) by generating it at build time from a single source of truth.
 - **Performance:** cache crawl results by file content hash in the plugin work directory, and emit one file per input when requested.
 
