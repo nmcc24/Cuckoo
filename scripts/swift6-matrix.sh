@@ -35,8 +35,11 @@ if [[ -d "$ROOT/.build/out/Products/Debug" ]]; then
   MOD_FLAGS+=(-I "$ROOT/.build/out/Products/Debug" -F "$ROOT/.build/out/Products/Debug")
 fi
 if command -v xcrun >/dev/null; then
-  SWIFTC=(xcrun swiftc)
-  P="$(xcrun --show-sdk-platform-path)/Developer"
+  # Name the SDK explicitly: an inherited SDKROOT can point at a Command Line Tools SDK that
+  # doesn't exist, and then the platform path (with Testing and XCTest) can't be resolved.
+  SDK="$(xcrun --sdk macosx --show-sdk-path)" || exit 2
+  P="$(xcrun --sdk macosx --show-sdk-platform-path)/Developer" || exit 2
+  SWIFTC=(xcrun --sdk macosx swiftc -sdk "$SDK")
   MOD_FLAGS+=(-F "$P/Library/Frameworks" -I "$P/usr/lib" -target "$(uname -m)-apple-macos14")
 else
   SWIFTC=(swiftc)
