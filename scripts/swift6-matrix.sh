@@ -3,15 +3,22 @@
 # fixture + its mock in Swift 6 language mode. Prints one line per fixture.
 #
 # Usage: scripts/swift6-matrix.sh [extra swiftc flags, e.g. -default-isolation MainActor]
-# Exit code: 0 if every fixture typechecks, 1 otherwise.
+# Fixtures listed in Fixtures/Swift6/expected-failures.txt are expected to fail.
+# Exit code: 0 if every fixture behaves as expected, 1 on a new failure or an
+# expected failure that now passes (remove it from the list), 2 if the build fails.
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="${SWIFT6_MATRIX_WORK:-$ROOT/.build/swift6-matrix}"
 mkdir -p "$WORK/gen" "$WORK/logs"
 
-swift build --package-path "$ROOT" --product CuckooGenerator >/dev/null
-swift build --package-path "$ROOT" --target Cuckoo >/dev/null
+for args in "--product CuckooGenerator" "--target Cuckoo"; do
+  # shellcheck disable=SC2086
+  if ! swift build --package-path "$ROOT" $args > "$WORK/logs/build.log" 2>&1; then
+    cat "$WORK/logs/build.log"
+    exit 2
+  fi
+done
 BIN="$(swift build --package-path "$ROOT" --show-bin-path)"
 GEN="$BIN/CuckooGenerator"
 
@@ -28,6 +35,8 @@ else
   SWIFTC=(swiftc)
 fi
 
+EXPECTED_FAILURES="$(grep -v '^#' "$ROOT/Fixtures/Swift6/expected-failures.txt" 2>/dev/null || true)"
+
 status=0
 for f in "$ROOT"/Fixtures/Swift6/*.swift; do
   n="$(basename "$f" .swift)"
@@ -41,9 +50,13 @@ EOF
   "${SWIFTC[@]}" -typecheck -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" \
     "$f" "$WORK/gen/$n.mock.swift" > "$WORK/logs/$n.tc.log" 2>&1
   errors="$(grep -c "error:" "$WORK/logs/$n.tc.log")"
-  [[ "$errors" == "0" ]] || status=1
-  first="$(grep -m1 "error:" "$WORK/logs/$n.tc.log" | sed -E 's/.*error: //' | cut -c1-100)"
-  printf "%-36s errors=%-3s %s\n" "$n" "$errors" "$first"
+  if grep -qx "$n" <<< "$EXPECTED_FAILURES"; then
+    if [[ "$errors" == "0" ]]; then result="XPASS"; status=1; else result="xfail"; fi
+  else
+    if [[ "$errors" == "0" ]]; then result="ok"; else result="FAIL"; status=1; fi
+  fi
+  first="$(grep -m1 "error:" "$WORK/logs/$n.tc.log" | sed -E 's/.*error: //' | cut -c1-90)"
+  printf "%-5s %-36s errors=%-3s %s\n" "$result" "$n" "$errors" "$first"
 done
 echo "Logs: $WORK/logs"
 exit $status
