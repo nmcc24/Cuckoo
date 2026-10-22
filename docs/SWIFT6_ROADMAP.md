@@ -268,6 +268,11 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
 3. ☁️ Synchronized-group Xcode project support (#524), or a documented plugin-only path.
 4. ☁️ DocC documentation, a migration guide from 2.x, and a cookbook (MainActor view models, actors, Swift Testing).
 5. ☁️ Optional `@Mockable` macro front-end that shares the model (§3.5).
+6. 🍎 Bring the OCMock bridge (`OCMock/`, `OCMockWrapper/`, `Tests/OCMock/`) back as an opt-in SwiftPM product, e.g. `CuckooOCMock`:
+   - Gate the OCMock dependency behind a **package trait** (SwiftPM traits, Swift 6.1+), so only consumers that enable `.traits(["OCMock"])` resolve and download it. If traits turn out not to fit, fall back to a small companion package.
+   - Check that OCMock's own SwiftPM support works on current Xcode. Upstream removed the bridge from SwiftPM in 2.x ("Temporarily omit OCMock from SPM"), so find out why first.
+   - Re-enable the commented-out OCMock targets in `Project.swift` and run `Tests/OCMock` in CI.
+   - Update the API for Swift 6: `Sendable`-correct `objcStub`/`objcVerify`, MainActor-safe use with UIKit classes, and typed helpers to reduce the untyped `args[0] as! T` casts.
 
 ### Phase 6: Release and upstreaming
 - 3.0.0-beta tags on the fork.
@@ -280,7 +285,7 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
 - **D1 (decided 2026-10-22):** keep the name **Cuckoo**. 3.0 is a major version of the same package, developed in the fork and offered upstream.
 - **D2 (decided 2026-10-22):** baseline **iOS 17 / macOS 14 / tvOS 17 / watchOS 10**, with newer compiler and OS versions unlocking extra features (§3.4). A higher floor isn't needed for fixture 17: projects annotate APIs like `any AsyncSequence<_, Never>` with `@available`, and Cuckoo propagates that.
 - **D3 (decided 2026-10-22):** drop CocoaPods, the podspec and the `run` script. SwiftPM build-tool plugins plus a prebuilt generator binary are the only distribution.
-- **D4 (open):** the OCMock bridge is CocoaPods-only today (it is not in `Package.swift`; upstream removed it from SwiftPM in 2.x), so D3 removes its only distribution channel. Options: drop it in 3.0, or move it to a separate optional SwiftPM package.
+- **D4 (decided 2026-10-22):** **keep the OCMock bridge** for mocking Objective-C third-party dependencies, which Cuckoo's Swift-only generator can't read. It moves from CocoaPods to SwiftPM as an opt-in product, so projects that don't use it never download OCMock (Phase 5, item 6).
 
 ## 6. Working remotely
 - Cloud sessions run on Linux: no Xcode, no Apple simulators.
