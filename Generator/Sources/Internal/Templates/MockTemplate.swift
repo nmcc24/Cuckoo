@@ -70,9 +70,11 @@ extension {{ container.parentFullyQualifiedName }} {
     {% if debug %}
     // {{ property }}
     {% endif %}
+    {% if keepDocumentation %}
     {% for docString in property.documentation %}
     /// {{ docString }}
     {% endfor %}
+    {% endif %}
     {% for attribute in property.attributes %}
     {{ attribute }}
     {% endfor %}
@@ -109,9 +111,11 @@ extension {{ container.parentFullyQualifiedName }} {
     {% if debug %}
     // {{ initializer }}
     {% endif %}
+    {% if keepDocumentation %}
     {% for docString in initializer.documentation %}
     /// {{ docString }}
     {% endfor %}
+    {% endif %}
     {{ initializer.accessibility|withSpace }}required init{{initializer.signature}} {}
     {% endfor %}
     {% for method in container.methods %}
@@ -119,9 +123,11 @@ extension {{ container.parentFullyQualifiedName }} {
     {% if debug %}
     // {{method}}
     {% endif %}
+    {% if keepDocumentation %}
     {% for docString in method.documentation %}
     /// {{ docString }}
     {% endfor %}
+    {% endif %}
     {% for attribute in method.attributes %}
     {{ attribute }}
     {% endfor %}
