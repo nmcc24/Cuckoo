@@ -22,8 +22,8 @@ jobs:
         run: scripts/swift6-matrix.sh
 
   generator_macOS:
-    name: Generator tests and Swift 6 matrix on macOS (newest Xcode)
-    runs-on: macos-26
+    name: Generator tests and Swift 6 matrix on macOS 27 (Xcode 27)
+    runs-on: xcode-27
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -40,7 +40,7 @@ jobs:
 
   build_macOS:
     name: Build Package on macOS
-    runs-on: macos-15
+    runs-on: xcode-27
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -53,7 +53,7 @@ jobs:
 
   test_macOS:
     name: Build and Test on macOS
-    runs-on: macos-15
+    runs-on: xcode-27
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -73,7 +73,7 @@ jobs:
 
   test_iOS:
     name: Build and Test on iOS simulator
-    runs-on: macos-15
+    runs-on: xcode-27
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -88,6 +88,9 @@ jobs:
       - name: Test
         run: |
           make
+          # Use whichever iPhone simulator the image ships, rather than pinning a model and OS.
+          SIMULATOR_ID="$(xcrun simctl list devices available iPhone | grep -m1 -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')"
+          echo "::notice title=Simulator::$(xcrun simctl list devices available | grep "$SIMULATOR_ID")"
           set -o pipefail && xcodebuild test -scheme "Cuckoo-iOS" -workspace Cuckoo.xcworkspace \
-            -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             | xcbeautify --renderer github-actions

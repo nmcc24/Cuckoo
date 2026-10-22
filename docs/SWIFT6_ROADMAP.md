@@ -226,7 +226,7 @@ Legend: ☁️ can be done entirely in a Linux cloud session (code plus Linux bu
 
 Exit criteria: CI is green on Linux and macOS; a cloud session can change the generator and see snapshot and matrix results without a Mac.
 
-**Status (2026-10-22): items 1–4 and 6 done, item 5 mostly done. CI is green on every job.**
+**Status (2026-10-22): all six items done.**
 - Linux: the generator and the runtime build on Swift 6.2, 6.3 and 6.4. FileKit was replaced by a small Foundation `Path`/`TextFile`, Glob reads `gl_pathc`, and `OrderedSet` is now a pure-Swift value type.
 - `swift test` runs `CuckooGeneratorTests` (Generator/Tests):
   - one snapshot per `Fixtures/Swift6` file;
@@ -237,11 +237,11 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
 - `scripts/swift6-matrix.sh` reads `Fixtures/Swift6/expected-failures.txt`. It fails on a new failure, or on a listed fixture that now passes. Set `SWIFT_BUILD_FLAGS=--build-system native` to reproduce the pre-6.4 build layout.
 - CI (`.github/workflows/test.yml`):
   - Linux jobs in `swift:6.2`/`6.3`/`6.4` containers;
-  - a macOS job on `macos-26` with the newest installed Xcode;
+  - a macOS generator job on the newest installed Xcode;
   - the existing Tuist jobs, now at the D2 deployment targets;
   - `workflow_dispatch`.
-- Hosted macOS runners stop at Swift 6.3: the newest Xcode on `macos-26` is 26.6, with Swift 6.3.3. Xcode 27 (Swift 6.4) isn't installed yet, so Swift 6.4 is covered only on Linux in CI, and locally on a Mac. The macOS job prints its toolchain as an annotation; switch to Xcode 27 when the runner image gets it.
-- Remaining for item 5: move the Tuist jobs from `macos-15` to `macos-26` (new simulator destination).
+- All macOS jobs run on the `xcode-27` runner image (macOS 27, Xcode 27, Swift 6.4, Apple Silicon), which GitHub made generally available on 2026-10-15. It's selected by Xcode label, not by a `macos-NN` label; `macos-26` only goes up to Xcode 26.6 / Swift 6.3.3. The iOS job uses whichever iPhone simulator the image ships. The macOS generator job prints its toolchain as an annotation.
+- Swift 6.2 and 6.3 are covered on Linux only. Add an Apple job on an older image when the runtime gets OS-tier code (§3.4) worth testing there.
 
 ### Phase 1: Parser and syntax modernization (≈1 week)
 1. ☁️ swift-syntax range `600.1.0..<605.0.0`, CI-tested at both ends. Replace deprecated API uses.
