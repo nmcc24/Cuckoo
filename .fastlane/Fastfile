@@ -54,7 +54,7 @@ platform :mac do
 
     # Update version files to sync generator version by.
     File.write('../version', version)
-    File.write('../Generator/Sources/CLI/Version.swift', "let version = \"#{version}\"")
+    File.write('../Generator/Sources/CLI/Version.swift', "let version = \"#{version}\"\n")
 
     # Build Cuckoonator
     sh('../build_generator')
@@ -71,7 +71,7 @@ platform :mac do
 
     sh(%Q[echo "$(echo '#{changelog}\\n' | cat - ../CHANGELOG.md)" > ../CHANGELOG.md])
 
-    git_commit(path: ['./Cuckoo.podspec', 'version', 'CHANGELOG.md'], message: "Bump version.")
+    git_commit(path: ['./Cuckoo.podspec', 'version', 'Generator/Sources/CLI/Version.swift', 'CHANGELOG.md'], message: "Bump version.")
     add_git_tag(tag: version)
     push_to_git_remote
 
