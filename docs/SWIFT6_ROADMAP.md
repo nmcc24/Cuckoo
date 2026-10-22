@@ -96,7 +96,7 @@ A brand-new name or repo is still an option at the end of Phase 3 if the API div
 
 Breaking changes accepted in 3.0:
 - Swift 6 language mode only; Swift 6.2 toolchain minimum (needed for `nonisolated(nonsending)` and isolated conformances); tested on 6.2, 6.3 and 6.4.
-- Minimum OS: iOS 16, macOS 13, tvOS 16, watchOS 9 (primary associated types, `any P<T>`). Decision **D2**.
+- Minimum OS: iOS 17, macOS 14, tvOS 17, watchOS 10 (parameter-pack generic types need this runtime). Newer OS and compiler versions unlock extra features on top (§3.4). Decision **D2**.
 - SwiftPM only. CocoaPods trunk is moving to read-only, and the `run` script and podspec go away. Decision **D3**.
 - The OCMock bridge moves to an optional separate package, or is dropped. Decision **D4**.
 
@@ -182,7 +182,28 @@ Breaking changes accepted in 3.0:
 - **Distribution:** ship the generator as a prebuilt `artifactbundle` `binaryTarget`, so consumers stop compiling swift-syntax. Fix `Version.swift` (#601) by generating it at build time from a single source of truth.
 - **Performance:** cache crawl results by file content hash in the plugin work directory, and emit one file per input when requested.
 
-### 3.4 Optional macro front-end (Phase 5)
+### 3.4 Capability tiers (newer Swift and OS versions unlock more)
+The baseline must be complete on its own. Newer tiers only **add** APIs or faster paths; they never change behaviour, so a test means the same thing on every tier.
+
+**Compiler tiers (the Swift version that builds the tests).**
+- The runtime guards newer language features with `#if compiler(>=6.3)` / `#if compiler(>=6.4)`. Example: Swift 6.4's `~Sendable` marker for types that must never cross threads, such as recorded-call buffers.
+- The generator emits syntax the consumer's compiler understands. The build plugin passes the toolchain version in, or the generated code wraps newer syntax in `#if compiler(>=…)`.
+- Mocks for source that uses 6.3/6.4-only syntax work automatically, because that source only builds on those compilers anyway.
+
+**Runtime/OS tiers (the OS the tests run on).**
+- Extra runtime APIs are marked `@available(iOS 18, macOS 15, tvOS 18, watchOS 11, *)` or newer, for example:
+  - typed storage for non-copyable (`~Copyable`) arguments;
+  - `Mutex`-based internals where they measurably help;
+  - Swift 6.2-runtime (iOS 26) helpers for isolated conformances.
+- Generated mocks inherit the `@available` of the declaration they mock (already true today; fixture 17). A mock for an iOS 18-only protocol can therefore use iOS 18-only runtime helpers without extra checks.
+- If a mocked declaration needs a feature above its availability, the generator falls back to the baseline form, such as `any()`-only matching for that parameter, and emits a diagnostic saying which OS unlocks the full form.
+
+**Testing.**
+- CI runs the suite at the lowest tier (iOS 17 / macOS 14 deployment target) and the highest (newest OS and toolchain).
+- Fixtures cover each tier boundary.
+- Whether iOS 17 simulator runtimes are available on the CI image needs checking. If they aren't, cover the lowest tier by building with that deployment target and running tests on the newest simulator.
+
+### 3.5 Optional macro front-end (Phase 5)
 - A `@Mockable` attached macro that reuses the same token model and code writer. It gives zero-config mocks for first-party protocols that opt in.
 - The build plugin stays for third-party and unannotated types. Both produce identical APIs.
 
@@ -246,7 +267,7 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
 2. 🍎 Prebuilt `artifactbundle` for the generator, released by GitHub Actions (replaces fastlane). Plugin consumers no longer compile swift-syntax.
 3. ☁️ Synchronized-group Xcode project support (#524), or a documented plugin-only path.
 4. ☁️ DocC documentation, a migration guide from 2.x, and a cookbook (MainActor view models, actors, Swift Testing).
-5. ☁️ Optional `@Mockable` macro front-end that shares the model (§3.4).
+5. ☁️ Optional `@Mockable` macro front-end that shares the model (§3.5).
 
 ### Phase 6: Release and upstreaming
 - 3.0.0-beta tags on the fork.
@@ -257,8 +278,7 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
 
 ## 5. Decisions
 - **D1 (decided 2026-10-22):** keep the name **Cuckoo**. 3.0 is a major version of the same package, developed in the fork and offered upstream.
-- **D2 (open):** note that fixture 17 does not need a higher floor: projects already annotate APIs like `any AsyncSequence<_, Never>` with `@available`, and Cuckoo propagates that.
-  Options: minimum OS: iOS 16 / macOS 13, or iOS 17 / macOS 14 / tvOS 17 / watchOS 10. iOS 17 would let the runtime use variadic generic types (parameter packs), which need the Swift 5.9 runtime and can't back-deploy. That allows typed, tuple-free stub and call storage and real matching for pack-based methods.
+- **D2 (decided 2026-10-22):** baseline **iOS 17 / macOS 14 / tvOS 17 / watchOS 10**, with newer compiler and OS versions unlocking extra features (§3.4). A higher floor isn't needed for fixture 17: projects annotate APIs like `any AsyncSequence<_, Never>` with `@available`, and Cuckoo propagates that.
 - **D3 (decided 2026-10-22):** drop CocoaPods, the podspec and the `run` script. SwiftPM build-tool plugins plus a prebuilt generator binary are the only distribution.
 - **D4 (open):** the OCMock bridge is CocoaPods-only today (it is not in `Package.swift`; upstream removed it from SwiftPM in 2.x), so D3 removes its only distribution channel. Options: drop it in 3.0, or move it to a separate optional SwiftPM package.
 
