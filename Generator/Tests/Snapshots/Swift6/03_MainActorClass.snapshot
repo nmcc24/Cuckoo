@@ -1,0 +1,149 @@
+import Cuckoo
+import Foundation
+
+class MockViewModel: ViewModel, Cuckoo.ClassMock, @unchecked Sendable {
+    typealias MocksType = ViewModel
+    typealias Stubbing = __StubbingProxy_ViewModel
+    typealias Verification = __VerificationProxy_ViewModel
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    private var __defaultImplStub: ViewModel?
+
+    func enableDefaultImplementation(_ stub: ViewModel) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    override var state: String {
+        get {
+            return cuckoo_manager.getter(
+                "state",
+                superclassCall: super.state,
+                defaultCall: __defaultImplStub!.state
+            )
+        }
+        set {
+            cuckoo_manager.setter(
+                "state",
+                value: newValue,
+                superclassCall: super.state = newValue,
+                defaultCall: __defaultImplStub!.state = newValue
+            )
+        }
+    }
+
+
+    override func reload() async {
+        return await cuckoo_manager.call(
+            "reload() async",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: await super.reload(),
+            defaultCall: await __defaultImplStub!.reload()
+        )
+    }
+
+    override func select(index p0: Int) -> Bool {
+        return cuckoo_manager.call(
+            "select(index p0: Int) -> Bool",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: super.select(index: p0),
+            defaultCall: __defaultImplStub!.select(index: p0)
+        )
+    }
+
+    struct __StubbingProxy_ViewModel: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        var state: Cuckoo.ClassToBeStubbedProperty<MockViewModel,String> {
+            return .init(manager: cuckoo_manager, name: "state")
+        }
+        
+        func reload() -> Cuckoo.ClassStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockViewModel.self,
+                method: "reload() async",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func select<M1: Cuckoo.Matchable>(index p0: M1) -> Cuckoo.ClassStubFunction<(Int), Bool> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockViewModel.self,
+                method: "select(index p0: Int) -> Bool",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_ViewModel: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        var state: Cuckoo.VerifyProperty<String> {
+            return .init(manager: cuckoo_manager, name: "state", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
+        @discardableResult
+        func reload() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "reload() async",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func select<M1: Cuckoo.Matchable>(index p0: M1) -> Cuckoo.__DoNotUse<(Int), Bool> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "select(index p0: Int) -> Bool",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class ViewModelStub:ViewModel, @unchecked Sendable {
+    
+    override var state: String {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (String).self)
+        }
+        set {}
+    }
+
+
+    
+    override func reload() async {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    override func select(index p0: Int) -> Bool {
+        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+    }
+}
+
+
+

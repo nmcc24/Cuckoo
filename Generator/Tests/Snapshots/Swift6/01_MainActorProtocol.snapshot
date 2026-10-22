@@ -1,0 +1,150 @@
+import Cuckoo
+import Foundation
+
+class MockMainActorService: MainActorService, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any MainActorService
+    typealias Stubbing = __StubbingProxy_MainActorService
+    typealias Verification = __VerificationProxy_MainActorService
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any MainActorService)?
+
+    func enableDefaultImplementation(_ stub: any MainActorService) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    var title: String {
+        get {
+            return cuckoo_manager.getter(
+                "title",
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub!.title
+            )
+        }
+        set {
+            cuckoo_manager.setter(
+                "title",
+                value: newValue,
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub!.title = newValue
+            )
+        }
+    }
+
+
+    func load(id p0: Int) -> String {
+        return cuckoo_manager.call(
+            "load(id p0: Int) -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.load(id: p0)
+        )
+    }
+
+    func refresh() async throws {
+        return try await cuckoo_manager.callThrows(
+            "refresh() async throws",
+            parameters: (),
+            escapingParameters: (),
+            errorType: Swift.Error.self,
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await __defaultImplStub!.refresh()
+        )
+    }
+
+    struct __StubbingProxy_MainActorService: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        var title: Cuckoo.ProtocolToBeStubbedProperty<MockMainActorService,String> {
+            return .init(manager: cuckoo_manager, name: "title")
+        }
+        
+        func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), String> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockMainActorService.self,
+                method: "load(id p0: Int) -> String",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func refresh() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockMainActorService.self,
+                method: "refresh() async throws",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_MainActorService: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        var title: Cuckoo.VerifyProperty<String> {
+            return .init(manager: cuckoo_manager, name: "title", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
+        @discardableResult
+        func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "load(id p0: Int) -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func refresh() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "refresh() async throws",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class MainActorServiceStub:MainActorService, @unchecked Sendable {
+    
+    var title: String {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (String).self)
+        }
+        set {}
+    }
+
+
+    
+    func load(id p0: Int) -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+    
+    func refresh() async throws {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+
+

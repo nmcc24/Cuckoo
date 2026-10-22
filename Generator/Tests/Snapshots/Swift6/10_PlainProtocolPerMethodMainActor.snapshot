@@ -1,0 +1,106 @@
+import Cuckoo
+import Foundation
+
+class MockAnalytics: Analytics, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Analytics
+    typealias Stubbing = __StubbingProxy_Analytics
+    typealias Verification = __VerificationProxy_Analytics
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Analytics)?
+
+    func enableDefaultImplementation(_ stub: any Analytics) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    var lastEvent: String? {
+        get {
+            return cuckoo_manager.getter(
+                "lastEvent",
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub!.lastEvent
+            )
+        }
+    }
+
+
+    func track(event p0: String) {
+        return cuckoo_manager.call(
+            "track(event p0: String)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.track(event: p0)
+        )
+    }
+
+    struct __StubbingProxy_Analytics: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        var lastEvent: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAnalytics,String?> {
+            return .init(manager: cuckoo_manager, name: "lastEvent")
+        }
+        
+        func track<M1: Cuckoo.Matchable>(event p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockAnalytics.self,
+                method: "track(event p0: String)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Analytics: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        var lastEvent: Cuckoo.VerifyReadOnlyProperty<String?> {
+            return .init(manager: cuckoo_manager, name: "lastEvent", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
+        @discardableResult
+        func track<M1: Cuckoo.Matchable>(event p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "track(event p0: String)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class AnalyticsStub:Analytics, @unchecked Sendable {
+    
+    var lastEvent: String? {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (String?).self)
+        }
+    }
+
+
+    
+    func track(event p0: String) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+
+

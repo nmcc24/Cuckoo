@@ -49,12 +49,6 @@ let package = Package(
             path: "Source",
             exclude: ["Info.plist"]
         ),
-        .testTarget(
-            name: "CuckooTests",
-            dependencies: ["Cuckoo"],
-            path: "Tests",
-            exclude: ["Info.plist"]
-        ),
         .executableTarget(
             name: "CuckooGenerator",
             dependencies: [
@@ -68,6 +62,12 @@ let package = Package(
                 .product(name: "Rainbow", package: "Rainbow"),
             ],
             path: "Generator/Sources"
+        ),
+        .testTarget(
+            name: "CuckooGeneratorTests",
+            dependencies: ["CuckooGenerator"],
+            path: "Generator/Tests",
+            exclude: ["Snapshots"]
         ),
         .plugin(
             name: "CuckooPluginSingleFile",

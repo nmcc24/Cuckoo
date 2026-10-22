@@ -1,0 +1,82 @@
+import Cuckoo
+import Foundation
+
+class MockSorter: Sorter, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Sorter
+    typealias Stubbing = __StubbingProxy_Sorter
+    typealias Verification = __VerificationProxy_Sorter
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Sorter)?
+
+    func enableDefaultImplementation(_ stub: any Sorter) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func sort(_ p0: some Collection<Int>) -> [Int] {
+        return cuckoo_manager.call(
+            "sort(_ p0: some Collection<Int>) -> [Int]",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.sort(p0)
+        )
+    }
+
+    struct __StubbingProxy_Sorter: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func sort<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(some Collection<Int>), [Int]> where M1.MatchedType == some Collection<Int> {
+            let matchers: [Cuckoo.ParameterMatcher<(some Collection<Int>)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockSorter.self,
+                method: "sort(_ p0: some Collection<Int>) -> [Int]",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Sorter: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func sort<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(some Collection<Int>), [Int]> where M1.MatchedType == some Collection<Int> {
+            let matchers: [Cuckoo.ParameterMatcher<(some Collection<Int>)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "sort(_ p0: some Collection<Int>) -> [Int]",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class SorterStub:Sorter, @unchecked Sendable {
+
+
+    
+    func sort(_ p0: some Collection<Int>) -> [Int] {
+        return DefaultValueRegistry.defaultValue(for: ([Int]).self)
+    }
+}
+
+
+

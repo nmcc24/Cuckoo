@@ -1,4 +1,8 @@
 import XCTest
+#if canImport(CuckooGenerator)
+// SwiftPM tests the executable target; the Tuist test target compiles the generator sources in directly.
+@testable import CuckooGenerator
+#endif
 
 final class OrderedSetTest: XCTestCase {
     func testInitializers() {
