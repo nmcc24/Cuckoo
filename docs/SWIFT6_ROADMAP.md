@@ -36,7 +36,7 @@ Run `scripts/swift6-matrix.sh` to reproduce. It generates mocks for each file in
 | 14 parameter packs (`each T`) | 58 | Not modeled |
 | 15 `~Copyable` + `consuming`/`borrowing` | 48 | Matchers and recorded calls require `Copyable` |
 | 16 typed throws | 0 | ok |
-| 17 `AsyncSequence<Int, Never>` | 2 | Availability not propagated (`Failure` needs macOS 15) |
+| 17 `AsyncSequence<Int, Never>` (protocol marked `@available(macOS 15, iOS 18, …)`) | 0 | ok. Cuckoo copies `@available` onto the mock and the stub. (An earlier version of this fixture lacked the annotation and failed in its own source, not in the mock.) |
 | 18 plain protocol | 0 | ok |
 | 18 with `-default-isolation MainActor` | 0 | compiles; the mock becomes MainActor-bound implicitly (untested at runtime) |
 
@@ -210,10 +210,10 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
 2. ☁️ Attribute and specifier model:
    - isolation, `sending`, `isolated`, `nonisolated(nonsending)`, `@concurrent`, `consuming`, `borrowing`, `inout`, `some`;
    - strip correctly from matcher, tuple and generic positions (fixtures 07, 09, 10, 11).
-3. ☁️ Mirror `#if` into the output (#471). Propagate `@available` (fixture 17, #599).
+3. ☁️ Mirror `#if` into the output (#471). Fix `@available(..., unavailable)` handling (#599); container-level availability already propagates (fixture 17).
 4. ☁️ Replace the crawler's `fatalError`s with diagnostics.
 
-Exit criteria: fixtures 07, 09, 10, 11 and 17 typecheck, with snapshot tests for each.
+Exit criteria: fixtures 07, 09, 10 and 11 typecheck, with snapshot tests for each.
 
 ### Phase 2: Concurrency-correct runtime (≈2 weeks)
 1. ☁️ `Sendable` `MockManager` with `Locked<State>`, `nonisolated` protocol requirements, honest `Sendable` mocks (drop `@unchecked`).
@@ -257,7 +257,8 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
 
 ## 5. Decisions
 - **D1 (decided 2026-10-22):** keep the name **Cuckoo**. 3.0 is a major version of the same package, developed in the fork and offered upstream.
-- **D2 (open):** minimum OS: iOS 16 / macOS 13, or iOS 17 / macOS 14 / tvOS 17 / watchOS 10. iOS 17 would let the runtime use variadic generic types (parameter packs), which need the Swift 5.9 runtime and can't back-deploy. That allows typed, tuple-free stub and call storage and real matching for pack-based methods.
+- **D2 (open):** note that fixture 17 does not need a higher floor: projects already annotate APIs like `any AsyncSequence<_, Never>` with `@available`, and Cuckoo propagates that.
+  Options: minimum OS: iOS 16 / macOS 13, or iOS 17 / macOS 14 / tvOS 17 / watchOS 10. iOS 17 would let the runtime use variadic generic types (parameter packs), which need the Swift 5.9 runtime and can't back-deploy. That allows typed, tuple-free stub and call storage and real matching for pack-based methods.
 - **D3 (decided 2026-10-22):** drop CocoaPods, the podspec and the `run` script. SwiftPM build-tool plugins plus a prebuilt generator binary are the only distribution.
 - **D4 (open):** the OCMock bridge is CocoaPods-only today (it is not in `Package.swift`; upstream removed it from SwiftPM in 2.x), so D3 removes its only distribution channel. Options: drop it in 3.0, or move it to a separate optional SwiftPM package.
 
