@@ -240,7 +240,8 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
   - a macOS job on `macos-26` with the newest installed Xcode;
   - the existing Tuist jobs, now at the D2 deployment targets;
   - `workflow_dispatch`.
-- Remaining for item 5: move the Tuist jobs from `macos-15` to the newest runner and Xcode once the macOS job's toolchain annotation confirms which Xcode it has.
+- Hosted macOS runners stop at Swift 6.3: the newest Xcode on `macos-26` is 26.6, with Swift 6.3.3. Xcode 27 (Swift 6.4) isn't installed yet, so Swift 6.4 is covered only on Linux in CI, and locally on a Mac. The macOS job prints its toolchain as an annotation; switch to Xcode 27 when the runner image gets it.
+- Remaining for item 5: move the Tuist jobs from `macos-15` to `macos-26` (new simulator destination).
 
 ### Phase 1: Parser and syntax modernization (≈1 week)
 1. ☁️ swift-syntax range `600.1.0..<605.0.0`, CI-tested at both ends. Replace deprecated API uses.
