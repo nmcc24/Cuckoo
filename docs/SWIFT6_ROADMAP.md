@@ -13,7 +13,7 @@ Toolchain used: Xcode 27.1, Swift 6.4 (`swiftlang-6.4.0.34.1`), macOS 27 SDK.
 ### 1.1 Existing test suite
 - `xcodebuild test -scheme Cuckoo-macOS` passes all **342 tests**, but only with `MACOSX_DEPLOYMENT_TARGET=12.0`. Xcode 27 rejects the project's 10.15 deployment target (minimum is 12.0).
 - `swift test` doesn't work. The test target needs the Tuist-generated `CuckooMocks` framework and OCMock, so only the Tuist workspace can run tests.
-- The generator has **one** unit test (`OrderedSetTest`). It has no golden-file or snapshot tests.
+- The generator has **one** unit test (`OrderedSetTest`). It has no golden-file or snapshot tests. *(Phase 0 added snapshot tests that `swift test` runs; see Phase 0 status.)*
 
 ### 1.2 Swift 6 feature matrix
 Run `scripts/swift6-matrix.sh` to reproduce. It generates mocks for each file in `Fixtures/Swift6/` and typechecks the result with `-swift-version 6`.
@@ -66,11 +66,11 @@ Run `scripts/swift6-matrix.sh` to reproduce. It generates mocks for each file in
 - **Container kinds are hard-coded:** the templates always emit `class` (`MockTemplate`, `NopImplStubTemplate`).
 - **`#if` is ignored:** both branches are parsed, which produces duplicates. Upstream #471.
 - **Unknown property types crash:** a stored property whose type can't be inferred hits `fatalError` and aborts the whole run.
-- **Documented options that don't work:**
-  - `keepDocumentation` is parsed but never read;
+- **Documented options that don't work** *(fixed in Phase 0)*:
+  - `keepDocumentation` is parsed but never read. The crawler also dropped doc comments on every indented declaration, so mocks never had docs;
   - `StubbingProxyTemplate` uses `method.isThrowing` inside the property loop (dead code).
-- **Version mismatch:** `Version.swift` is stuck at `2.0.10`. The release lane writes it but never commits it, so the `run` script rebuilds the generator on every build. Upstream #601.
-- **Glob is macOS-only:** `Glob` uses `glob_t.gl_matchc`, so the generator doesn't build on Linux. This also blocks working on it from Linux cloud sessions.
+- **Version mismatch** *(fixed in Phase 0)*: `Version.swift` is stuck at `2.0.10`. The release lane writes it but never commits it, so the `run` script rebuilds the generator on every build. Upstream #601.
+- **Not portable to Linux** *(fixed in Phase 0)*: `Glob` uses `glob_t.gl_matchc`, FileKit doesn't compile on Linux, and `OrderedSet` (backed by `NSMutableOrderedSet`) doesn't dedupe there, which repeats imports in generated files. This also blocks working on the generator from Linux cloud sessions.
 - **Stencil templates:** untyped and hard to debug. Signatures are spliced in by string-replacing filters (`genericSafe`, `removeClosureArgumentNames`).
 - **Xcode project support:** XcodeProj source discovery doesn't handle `PBXFileSystemSynchronizedRootGroup`, which is the default in Xcode 16+ projects (upstream #524).
 
@@ -225,6 +225,22 @@ Legend: ☁️ can be done entirely in a Linux cloud session (code plus Linux bu
 6. ☁️ Fix the version-bump bug (#601) and the dead `keepDocumentation` / template code.
 
 Exit criteria: CI is green on Linux and macOS; a cloud session can change the generator and see snapshot and matrix results without a Mac.
+
+**Status (2026-10-22): items 1–4 and 6 done, item 5 mostly done. CI is green on every job.**
+- Linux: the generator and the runtime build on Swift 6.2, 6.3 and 6.4. FileKit was replaced by a small Foundation `Path`/`TextFile`, Glob reads `gl_pathc`, and `OrderedSet` is now a pure-Swift value type.
+- `swift test` runs `CuckooGeneratorTests` (Generator/Tests):
+  - one snapshot per `Fixtures/Swift6` file;
+  - a snapshot of the runtime test sources (mirroring the `Cuckoo` module in `Cuckoofile.toml`);
+  - a documentation snapshot and a version check.
+
+  Re-record with `CUCKOO_RECORD_SNAPSHOTS=1 swift test`. The SwiftPM `CuckooTests` target was removed because it never built; Tuist still runs those tests.
+- `scripts/swift6-matrix.sh` reads `Fixtures/Swift6/expected-failures.txt`. It fails on a new failure, or on a listed fixture that now passes. Set `SWIFT_BUILD_FLAGS=--build-system native` to reproduce the pre-6.4 build layout.
+- CI (`.github/workflows/test.yml`):
+  - Linux jobs in `swift:6.2`/`6.3`/`6.4` containers;
+  - a macOS job on `macos-26` with the newest installed Xcode;
+  - the existing Tuist jobs, now at the D2 deployment targets;
+  - `workflow_dispatch`.
+- Remaining for item 5: move the Tuist jobs from `macos-15` to the newest runner and Xcode once the macOS job's toolchain annotation confirms which Xcode it has.
 
 ### Phase 1: Parser and syntax modernization (≈1 week)
 1. ☁️ swift-syntax range `600.1.0..<605.0.0`, CI-tested at both ends. Replace deprecated API uses.
