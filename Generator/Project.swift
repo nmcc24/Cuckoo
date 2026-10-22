@@ -7,7 +7,7 @@ let target = Target.target(
     product: .commandLineTool,
     productName: "cuckoonator",
     bundleId: "Cuckoonator",
-    deploymentTargets: .macOS("12.0"),
+    deploymentTargets: .macOS("14.0"),
     sources: "Sources/**",
     dependencies: [
         "Stencil",

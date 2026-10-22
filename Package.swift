@@ -5,10 +5,10 @@ import PackageDescription
 let package = Package(
     name: "Cuckoo",
     platforms: [
-        .iOS("13.0"),
-        .tvOS("13.0"),
-        .macOS("11.0"),
-        .watchOS("8.0"),
+        .iOS("17.0"),
+        .tvOS("17.0"),
+        .macOS("14.0"),
+        .watchOS("10.0"),
     ],
     products: [
         .library(
