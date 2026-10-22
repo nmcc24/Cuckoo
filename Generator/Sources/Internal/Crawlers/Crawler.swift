@@ -399,15 +399,23 @@ extension Crawler {
                         .map { $0.replacingOccurrences(of: "/**", with: "").replacingOccurrences(of: "*/", with: "") },
                     at: 0
                 )
-            case .newlines:
-                // Only process docstrings directly attached to the declaration.
-                break
+            case .spaces, .tabs:
+                continue
+            case .newlines(let count), .carriageReturns(let count), .carriageReturnLineFeeds(let count):
+                // Only process docstrings directly attached to the declaration, a blank line ends them.
+                if count > 1 {
+                    return trimmed(docStrings)
+                }
             default:
-                return []
+                return trimmed(docStrings)
             }
         }
 
-        return docStrings.compactMap { $0.trimmed.nilIfEmpty }
+        return trimmed(docStrings)
+    }
+
+    private func trimmed(_ docStrings: [String]) -> [String] {
+        docStrings.compactMap { $0.trimmed.nilIfEmpty }
     }
 
     private func attributes(from attributeList: AttributeListSyntax?) -> [Attribute] {

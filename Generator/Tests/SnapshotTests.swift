@@ -36,15 +36,30 @@ struct SnapshotTests {
         let contents = try await generate(
             sources: ["Tests/Swift/Source/*.swift"],
             testableImports: ["Cuckoo"],
-            exclude: ["ExcludedTestClass", "ExcludedProtocol"]
+            exclude: ["ExcludedTestClass", "ExcludedProtocol"],
+            keepDocumentation: false
         )
         try assertSnapshot(contents, named: "RuntimeTests")
+    }
+
+    /// Doc comments are copied onto mock members unless `keepDocumentation = false`.
+    @Test
+    func documentation() async throws {
+        let sources = ["Tests/Swift/Source/TestedProtocol.swift", "Tests/Swift/Source/UnicodeTestProtocol.swift"]
+        let kept = try await generate(sources: sources, keepDocumentation: true)
+        try assertSnapshot(kept, named: "Documentation")
+
+        let stripped = try await generate(sources: sources, keepDocumentation: false)
+        // The templates emit `/// MARK:` comments of their own.
+        let docLines = stripped.components(separatedBy: "\n").filter { $0.contains("///") && !$0.contains("/// MARK:") }
+        #expect(docLines.isEmpty)
     }
 
     private func generate(
         sources: [String],
         testableImports: [String]? = nil,
-        exclude: [String]? = nil
+        exclude: [String]? = nil,
+        keepDocumentation: Bool? = nil
     ) async throws -> String {
         let module = try Module(
             name: "Snapshot",
@@ -61,7 +76,7 @@ struct SnapshotTests {
                 filenameFormat: nil,
                 options: Module.DTO.Options(
                     glob: true,
-                    keepDocumentation: nil,
+                    keepDocumentation: keepDocumentation,
                     enableInheritance: nil,
                     protocolsOnly: nil,
                     omitHeaders: true

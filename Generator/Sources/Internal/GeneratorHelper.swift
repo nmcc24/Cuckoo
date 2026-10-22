@@ -11,7 +11,7 @@ struct GeneratorHelper {
     private static let extensions = createExtensions()
 
     @StaticActor
-    static func generate(tokens: [Token], debug: Bool = false) throws -> String {
+    static func generate(tokens: [Token], keepDocumentation: Bool = true, debug: Bool = false) throws -> String {
         let containers = tokens.map { $0.serialize() }
 
         let environment = Environment(
@@ -20,7 +20,7 @@ struct GeneratorHelper {
         )
         return try environment.renderTemplate(
             string: Templates.mock,
-            context: ["containers": containers, "debug": debug]
+            context: ["containers": containers, "keepDocumentation": keepDocumentation, "debug": debug]
         )
     }
 
