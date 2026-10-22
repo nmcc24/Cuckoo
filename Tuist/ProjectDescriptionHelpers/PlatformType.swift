@@ -22,13 +22,13 @@ public enum PlatformType: String {
     public var deploymentTargets: DeploymentTargets {
         switch self {
         case .iOS:
-            return .iOS("13.0")
+            return .iOS("17.0")
         case .macOS:
-            return .macOS("10.15")
+            return .macOS("14.0")
         case .tvOS:
-            return .tvOS("13.0")
+            return .tvOS("17.0")
         case .watchOS:
-            return .watchOS("8.0")
+            return .watchOS("10.0")
         }
     }
 }
