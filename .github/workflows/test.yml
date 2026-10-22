@@ -27,12 +27,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Select newest Xcode
+      - name: Show toolchain
+        # The image's default Xcode; picking the newest installed one can select a beta.
         run: |
           ls -d /Applications/Xcode*.app
-          XCODE="$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
-          sudo xcode-select -s "$XCODE"
-          echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1)"
+          echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1) / SDKROOT=${SDKROOT:-unset}"
       - name: Generator tests
         run: swift test
       - name: Swift 6 matrix
