@@ -1,16 +1,50 @@
 name: Run tests
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  generator_linux:
+    name: Generator tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }})
+    runs-on: ubuntu-latest
+    container: swift:${{ matrix.swift }}
+    strategy:
+      fail-fast: false
+      matrix:
+        swift: ["6.2", "6.3", "6.4"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Generator tests
+        run: swift test
+      - name: Swift 6 matrix
+        run: scripts/swift6-matrix.sh
+
+  generator_macOS:
+    name: Generator tests and Swift 6 matrix on macOS (newest Xcode)
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Select newest Xcode
+        run: |
+          ls -d /Applications/Xcode*.app
+          XCODE="$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+          swift --version
+      - name: Generator tests
+        run: swift test
+      - name: Swift 6 matrix
+        run: scripts/swift6-matrix.sh
+
   build_macOS:
     name: Build Package on macOS
     runs-on: macos-15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: List available Xcode versions
         run: ls /Applications | grep Xcode
       - name: Show current version of Xcode
@@ -23,7 +57,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: List available Xcode versions
         run: ls /Applications | grep Xcode
       - name: Show current version of Xcode
@@ -43,7 +77,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: List available Xcode versions
         run: ls /Applications | grep Xcode
       - name: Show current version of Xcode
