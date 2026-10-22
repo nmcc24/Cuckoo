@@ -35,7 +35,6 @@ let package = Package(
     ],
     dependencies: [
         // Any dependency changes must also be reflected in Generator/Project.swift.
-        .package(url: "https://github.com/nvzqz/FileKit", from: "6.1.0"),
         .package(url: "https://github.com/kylef/Stencil", from: "0.15.1"),
         .package(url: "https://github.com/swiftlang/swift-syntax", "600.1.0"..<"603.0.0"),
         // .package(url: "https://github.com/swiftlang/swift-format", "600.1.0"..<"603.0.0"),
@@ -47,17 +46,18 @@ let package = Package(
     targets: [
         .target(
             name: "Cuckoo",
-            path: "Source"
+            path: "Source",
+            exclude: ["Info.plist"]
         ),
         .testTarget(
             name: "CuckooTests",
             dependencies: ["Cuckoo"],
-            path: "Tests"
+            path: "Tests",
+            exclude: ["Info.plist"]
         ),
         .executableTarget(
             name: "CuckooGenerator",
             dependencies: [
-                .product(name: "FileKit", package: "FileKit"),
                 .product(name: "Stencil", package: "Stencil"),
                 // .product(name: "SwiftFormat", package: "swift-format"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),

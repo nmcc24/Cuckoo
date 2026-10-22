@@ -1,7 +1,6 @@
 import Foundation
 import ArgumentParser
 import TOMLKit
-@preconcurrency import FileKit
 
 @main
 @available(macOS 12, *)

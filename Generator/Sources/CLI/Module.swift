@@ -1,5 +1,4 @@
 import Foundation
-import FileKit
 
 final class Module: @unchecked Sendable {
     nonisolated(unsafe) static var overriddenOutput: String?

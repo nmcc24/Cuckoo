@@ -1,5 +1,4 @@
 import Foundation
-import FileKit
 
 struct FileHeaderHandler {
     static func header(for file: FileRepresentation, timestamp: String?) -> String {

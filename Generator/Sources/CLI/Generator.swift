@@ -1,5 +1,4 @@
 import Foundation
-@preconcurrency import FileKit
 import XcodeProj
 import Rainbow
 
