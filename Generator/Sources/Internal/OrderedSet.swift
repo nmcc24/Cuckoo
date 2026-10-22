@@ -1,55 +1,40 @@
 import Foundation
 
 struct OrderedSet<Element: Hashable>: ExpressibleByArrayLiteral {
-    var values: [Element] {
-        orderedSet.array as! [Element]
-    }
+    private(set) var values: [Element] = []
+    private var members: Set<Element> = []
 
-    private let orderedSet: NSMutableOrderedSet
-
-    init() {
-        orderedSet = NSMutableOrderedSet()
-    }
+    init() {}
 
     init(arrayLiteral elements: Element...) {
         self.init(elements)
     }
 
     init(_ array: [Element]) {
-        orderedSet = NSMutableOrderedSet(array: array)
-    }
-
-    private init(orderedSet: NSMutableOrderedSet) {
-        self.orderedSet = orderedSet
+        for element in array {
+            insert(element)
+        }
     }
 
     func contains(_ member: Element) -> Bool {
-        orderedSet.contains(member)
+        members.contains(member)
     }
 
     mutating func insert(_ newMember: Element) {
-        orderedSet.add(newMember)
+        guard members.insert(newMember).inserted else { return }
+        values.append(newMember)
     }
 
     mutating func remove(_ member: Element) {
-        orderedSet.remove(member)
+        guard members.remove(member) != nil else { return }
+        values.removeAll { $0 == member }
     }
 
     func union(_ other: OrderedSet<Element>) -> OrderedSet<Element> {
-        withoutMutating { orderedSet in
-            orderedSet.union(other.orderedSet)
-        }
+        OrderedSet(values + other.values)
     }
 
     func intersection(_ other: OrderedSet<Element>) -> OrderedSet<Element> {
-        withoutMutating { orderedSet in
-            orderedSet.intersect(other.orderedSet)
-        }
-    }
-
-    private func withoutMutating(work: (NSMutableOrderedSet) -> Void) -> OrderedSet<Element> {
-        let orderedSetCopy = orderedSet.mutableCopy() as! NSMutableOrderedSet
-        work(orderedSetCopy)
-        return OrderedSet(orderedSet: orderedSetCopy)
+        OrderedSet(values.filter(other.contains))
     }
 }
