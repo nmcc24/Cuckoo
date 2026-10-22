@@ -1,5 +1,4 @@
 import Foundation
-import FileKit
 
 struct FileRepresentation: @unchecked Sendable {
     let file: TextFile

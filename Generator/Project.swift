@@ -10,7 +10,6 @@ let target = Target.target(
     deploymentTargets: .macOS("12.0"),
     sources: "Sources/**",
     dependencies: [
-        "FileKit",
         "Stencil",
         "SwiftSyntax",
         "SwiftParser",
@@ -42,7 +41,6 @@ let project = Project(
     options: .options(automaticSchemesOptions: .disabled, disableSynthesizedResourceAccessors: true),
     packages: [
         // Any dependency changes must also be reflected in ../Package.swift.
-        .package(url: "https://github.com/nvzqz/FileKit", .exact("6.1.0")),
         .package(url: "https://github.com/kylef/Stencil", .exact("0.15.1")),
         .package(url: "https://github.com/swiftlang/swift-syntax", "600.1.0"..<"603.0.0"),
         // .package(url: "https://github.com/swiftlang/swift-format", "600.1.0"..<"603.0.0"),
