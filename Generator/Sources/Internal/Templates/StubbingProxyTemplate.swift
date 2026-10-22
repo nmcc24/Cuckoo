@@ -13,7 +13,7 @@ extension Templates {
     {% for attribute in property.attributes %}
     {{ attribute }}
     {% endfor %}
-    var {{property.name}}: Cuckoo.{{ property.stubType }}<{{ container.mockName }}, {% if property.isReadOnly %}{{property.type|genericSafe}}{% else %}{{property.nonOptionalType|genericSafe}}{% endif %}{% if method.isThrowing %},{{ method.throwTypeError }}{% endif %}> {
+    var {{property.name}}: Cuckoo.{{ property.stubType }}<{{ container.mockName }}, {% if property.isReadOnly %}{{property.type|genericSafe}}{% else %}{{property.nonOptionalType|genericSafe}}{% endif %}> {
         return .init(manager: cuckoo_manager, name: "{{property.name}}")
     }
     {% if property.hasUnavailablePlatforms %}
