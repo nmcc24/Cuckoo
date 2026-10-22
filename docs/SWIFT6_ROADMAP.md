@@ -253,11 +253,11 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
 
 ---
 
-## 5. Decisions needed from you
-- **D1:** Stay "Cuckoo 3" in the fork and offer it upstream, or publish under a new package name?
-- **D2:** Minimum OS: iOS 16 / macOS 13 (recommended), or iOS 17 / macOS 14 to simplify further?
-- **D3:** Drop CocoaPods and the `run` script entirely (recommended)?
-- **D4:** OCMock bridge: separate optional package, or drop?
+## 5. Decisions
+- **D1 (decided 2026-10-22):** keep the name **Cuckoo**. 3.0 is a major version of the same package, developed in the fork and offered upstream.
+- **D2 (open):** minimum OS: iOS 16 / macOS 13, or iOS 17 / macOS 14 / tvOS 17 / watchOS 10. iOS 17 would let the runtime use variadic generic types (parameter packs), which need the Swift 5.9 runtime and can't back-deploy. That allows typed, tuple-free stub and call storage and real matching for pack-based methods.
+- **D3 (decided 2026-10-22):** drop CocoaPods, the podspec and the `run` script. SwiftPM build-tool plugins plus a prebuilt generator binary are the only distribution.
+- **D4 (open):** the OCMock bridge is CocoaPods-only today (it is not in `Package.swift`; upstream removed it from SwiftPM in 2.x), so D3 removes its only distribution channel. Options: drop it in 3.0, or move it to a separate optional SwiftPM package.
 
 ## 6. Working remotely
 - Cloud sessions run on Linux: no Xcode, no Apple simulators.
