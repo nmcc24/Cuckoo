@@ -14,16 +14,23 @@ mkdir -p "$WORK/gen" "$WORK/logs"
 
 for args in "--product CuckooGenerator" "--target Cuckoo"; do
   # shellcheck disable=SC2086
-  if ! swift build --package-path "$ROOT" $args > "$WORK/logs/build.log" 2>&1; then
+  if ! swift build --package-path "$ROOT" ${SWIFT_BUILD_FLAGS:-} $args > "$WORK/logs/build.log" 2>&1; then
     cat "$WORK/logs/build.log"
     exit 2
   fi
 done
-BIN="$(swift build --package-path "$ROOT" --show-bin-path)"
+BIN="$(swift build --package-path "$ROOT" ${SWIFT_BUILD_FLAGS:-} --show-bin-path)"
 GEN="$BIN/CuckooGenerator"
 
-# Module search paths differ between the Xcode build system (macOS) and the native one (Linux).
-MOD_FLAGS=(-I "$BIN" -I "$BIN/Modules" -F "$BIN")
+# Module search paths differ between build systems. Search only the directory holding
+# Cuckoo.swiftmodule: the native build system also keeps every target's module map under
+# $BIN, and duplicates (CTOML and CTOML-tool) fail with "redefinition of module".
+MOD_DIR="$(find "$BIN" -maxdepth 2 -name Cuckoo.swiftmodule -print -quit)"
+if [[ -n "$MOD_DIR" ]]; then
+  MOD_FLAGS=(-I "$(dirname "$MOD_DIR")" -F "$BIN")
+else
+  MOD_FLAGS=(-I "$BIN" -I "$BIN/Modules" -F "$BIN")
+fi
 if [[ -d "$ROOT/.build/out/Products/Debug" ]]; then
   MOD_FLAGS+=(-I "$ROOT/.build/out/Products/Debug" -F "$ROOT/.build/out/Products/Debug")
 fi
