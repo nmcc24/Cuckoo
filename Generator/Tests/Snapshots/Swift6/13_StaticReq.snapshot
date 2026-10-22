@@ -1,0 +1,82 @@
+import Cuckoo
+import Foundation
+
+class MockFactory: Factory, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Factory
+    typealias Stubbing = __StubbingProxy_Factory
+    typealias Verification = __VerificationProxy_Factory
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Factory)?
+
+    func enableDefaultImplementation(_ stub: any Factory) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func build() -> Int {
+        return cuckoo_manager.call(
+            "build() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.build()
+        )
+    }
+
+    struct __StubbingProxy_Factory: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func build() -> Cuckoo.ProtocolStubFunction<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockFactory.self,
+                method: "build() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Factory: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func build() -> Cuckoo.__DoNotUse<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "build() -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class FactoryStub:Factory, @unchecked Sendable {
+
+
+    
+    func build() -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}
+
+
+

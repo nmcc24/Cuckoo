@@ -1,0 +1,82 @@
+import Cuckoo
+import Foundation
+
+class MockCombiner: Combiner, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Combiner
+    typealias Stubbing = __StubbingProxy_Combiner
+    typealias Verification = __VerificationProxy_Combiner
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Combiner)?
+
+    func enableDefaultImplementation(_ stub: any Combiner) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func combine<T> (_ p0: repeat each T) -> (repeat each T) {
+        return cuckoo_manager.call(
+            "combine<T> (_ p0: repeat each T) -> (repeat each T)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.combine(p0)
+        )
+    }
+
+    struct __StubbingProxy_Combiner: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func combine<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(repeat each T), (repeat each T)> where M1.MatchedType == repeat each T {
+            let matchers: [Cuckoo.ParameterMatcher<(repeat each T)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockCombiner.self,
+                method: "combine<T> (_ p0: repeat each T) -> (repeat each T)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Combiner: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func combine<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.__DoNotUse<(repeat each T), (repeat each T)> where M1.MatchedType == repeat each T {
+            let matchers: [Cuckoo.ParameterMatcher<(repeat each T)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "combine<T> (_ p0: repeat each T) -> (repeat each T)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class CombinerStub:Combiner, @unchecked Sendable {
+
+
+    
+    func combine<T> (_ p0: repeat each T) -> (repeat each T) {
+        return DefaultValueRegistry.defaultValue(for: ((repeat each T)).self)
+    }
+}
+
+
+

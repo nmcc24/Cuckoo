@@ -1,0 +1,82 @@
+import Cuckoo
+import Foundation
+
+class MockIsolatedWork: IsolatedWork, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any IsolatedWork
+    typealias Stubbing = __StubbingProxy_IsolatedWork
+    typealias Verification = __VerificationProxy_IsolatedWork
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any IsolatedWork)?
+
+    func enableDefaultImplementation(_ stub: any IsolatedWork) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func run(isolation p0: isolated (any Actor)?) async -> Int {
+        return await cuckoo_manager.call(
+            "run(isolation p0: isolated (any Actor)?) async -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await __defaultImplStub!.run(isolation: p0)
+        )
+    }
+
+    struct __StubbingProxy_IsolatedWork: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func run<M1: Cuckoo.OptionalMatchable>(isolation p0: M1) -> Cuckoo.ProtocolStubFunction<( (any Actor)?), Int> where M1.OptionalMatchedType ==  (any Actor)? {
+            let matchers: [Cuckoo.ParameterMatcher<( (any Actor)?)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockIsolatedWork.self,
+                method: "run(isolation p0: isolated (any Actor)?) async -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_IsolatedWork: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func run<M1: Cuckoo.OptionalMatchable>(isolation p0: M1) -> Cuckoo.__DoNotUse<( (any Actor)?), Int> where M1.OptionalMatchedType ==  (any Actor)? {
+            let matchers: [Cuckoo.ParameterMatcher<( (any Actor)?)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "run(isolation p0: isolated (any Actor)?) async -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class IsolatedWorkStub:IsolatedWork, @unchecked Sendable {
+
+
+    
+    func run(isolation p0: isolated (any Actor)?) async -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}
+
+
+

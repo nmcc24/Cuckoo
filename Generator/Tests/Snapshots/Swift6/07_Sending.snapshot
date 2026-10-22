@@ -1,0 +1,193 @@
+import Cuckoo
+import Foundation
+
+class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock, @unchecked Sendable {
+    typealias MocksType = NonSendableBox
+    typealias Stubbing = __StubbingProxy_NonSendableBox
+    typealias Verification = __VerificationProxy_NonSendableBox
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    private var __defaultImplStub: NonSendableBox?
+
+    func enableDefaultImplementation(_ stub: NonSendableBox) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    override var v: Int {
+        get {
+            return cuckoo_manager.getter(
+                "v",
+                superclassCall: super.v,
+                defaultCall: __defaultImplStub!.v
+            )
+        }
+        set {
+            cuckoo_manager.setter(
+                "v",
+                value: newValue,
+                superclassCall: super.v = newValue,
+                defaultCall: __defaultImplStub!.v = newValue
+            )
+        }
+    }
+
+
+    struct __StubbingProxy_NonSendableBox: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        var v: Cuckoo.ClassToBeStubbedProperty<MockNonSendableBox,Int> {
+            return .init(manager: cuckoo_manager, name: "v")
+        }
+    }
+
+    struct __VerificationProxy_NonSendableBox: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        var v: Cuckoo.VerifyProperty<Int> {
+            return .init(manager: cuckoo_manager, name: "v", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+    }
+}
+
+class NonSendableBoxStub:NonSendableBox, @unchecked Sendable {
+    
+    override var v: Int {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Int).self)
+        }
+        set {}
+    }
+
+
+}
+
+
+class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Transfer
+    typealias Stubbing = __StubbingProxy_Transfer
+    typealias Verification = __VerificationProxy_Transfer
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Transfer)?
+
+    func enableDefaultImplementation(_ stub: any Transfer) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func take(_ p0: sending NonSendableBox) {
+        return cuckoo_manager.call(
+            "take(_ p0: sending NonSendableBox)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.take(p0)
+        )
+    }
+
+    func make() -> sending NonSendableBox {
+        return cuckoo_manager.call(
+            "make() -> sending NonSendableBox",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.make()
+        )
+    }
+
+    struct __StubbingProxy_Transfer: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func take<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<( NonSendableBox)> where M1.MatchedType ==  NonSendableBox {
+            let matchers: [Cuckoo.ParameterMatcher<( NonSendableBox)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockTransfer.self,
+                method: "take(_ p0: sending NonSendableBox)",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func make() -> Cuckoo.ProtocolStubFunction<(), sending NonSendableBox> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockTransfer.self,
+                method: "make() -> sending NonSendableBox",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Transfer: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func take<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<( NonSendableBox), Void> where M1.MatchedType ==  NonSendableBox {
+            let matchers: [Cuckoo.ParameterMatcher<( NonSendableBox)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "take(_ p0: sending NonSendableBox)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func make() -> Cuckoo.__DoNotUse<(), sending NonSendableBox> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "make() -> sending NonSendableBox",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class TransferStub:Transfer, @unchecked Sendable {
+
+
+    
+    func take(_ p0: sending NonSendableBox) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    func make() -> sending NonSendableBox {
+        return DefaultValueRegistry.defaultValue(for: (sending NonSendableBox).self)
+    }
+}
+
+
+

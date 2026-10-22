@@ -1,0 +1,116 @@
+import Cuckoo
+import Foundation
+
+class MockCoordinator: Coordinator, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Coordinator
+    typealias Stubbing = __StubbingProxy_Coordinator
+    typealias Verification = __VerificationProxy_Coordinator
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Coordinator)?
+
+    func enableDefaultImplementation(_ stub: any Coordinator) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func identifier() -> String {
+        return cuckoo_manager.call(
+            "identifier() -> String",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.identifier()
+        )
+    }
+
+    func start() {
+        return cuckoo_manager.call(
+            "start()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.start()
+        )
+    }
+
+    struct __StubbingProxy_Coordinator: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func identifier() -> Cuckoo.ProtocolStubFunction<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockCoordinator.self,
+                method: "identifier() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func start() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockCoordinator.self,
+                method: "start()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Coordinator: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func identifier() -> Cuckoo.__DoNotUse<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "identifier() -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func start() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "start()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class CoordinatorStub:Coordinator, @unchecked Sendable {
+
+
+    
+    func identifier() -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+    
+    func start() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+
+

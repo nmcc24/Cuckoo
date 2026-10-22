@@ -1,0 +1,48 @@
+import Cuckoo
+import Foundation
+
+class MockCache: Cache, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Cache
+    typealias Stubbing = __StubbingProxy_Cache
+    typealias Verification = __VerificationProxy_Cache
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Cache)?
+
+    func enableDefaultImplementation(_ stub: any Cache) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    struct __StubbingProxy_Cache: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+    }
+
+    struct __VerificationProxy_Cache: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+    }
+}
+
+class CacheStub:Cache, @unchecked Sendable {
+
+
+}
+
+
+

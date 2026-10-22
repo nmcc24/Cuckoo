@@ -1,0 +1,108 @@
+import Cuckoo
+import Foundation
+
+@available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
+class MockEvents: Events, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Events
+    typealias Stubbing = __StubbingProxy_Events
+    typealias Verification = __VerificationProxy_Events
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Events)?
+
+    func enableDefaultImplementation(_ stub: any Events) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    var stream: AsyncStream<Int> {
+        get {
+            return cuckoo_manager.getter(
+                "stream",
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub!.stream
+            )
+        }
+    }
+
+
+    func updates() -> any AsyncSequence<Int, Never> {
+        return cuckoo_manager.call(
+            "updates() -> any AsyncSequence<Int, Never>",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.updates()
+        )
+    }
+
+    struct __StubbingProxy_Events: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        var stream: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockEvents,AsyncStream<Int>> {
+            return .init(manager: cuckoo_manager, name: "stream")
+        }
+        
+        func updates() -> Cuckoo.ProtocolStubFunction<(), any AsyncSequence<Int, Never>> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockEvents.self,
+                method: "updates() -> any AsyncSequence<Int, Never>",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Events: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        var stream: Cuckoo.VerifyReadOnlyProperty<AsyncStream<Int>> {
+            return .init(manager: cuckoo_manager, name: "stream", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
+        @discardableResult
+        func updates() -> Cuckoo.__DoNotUse<(), any AsyncSequence<Int, Never>> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "updates() -> any AsyncSequence<Int, Never>",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+@available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
+class EventsStub:Events, @unchecked Sendable {
+    
+    var stream: AsyncStream<Int> {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (AsyncStream<Int>).self)
+        }
+    }
+
+
+    
+    func updates() -> any AsyncSequence<Int, Never> {
+        return DefaultValueRegistry.defaultValue(for: (any AsyncSequence<Int, Never>).self)
+    }
+}
+
+
+
