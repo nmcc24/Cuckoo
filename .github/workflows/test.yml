@@ -104,3 +104,17 @@ jobs:
           set -o pipefail && xcodebuild test -scheme "Cuckoo-iOS" -workspace Cuckoo.xcworkspace \
             -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             | xcbeautify --renderer github-actions
+
+  # The single check that master's ruleset requires. It depends on every other job, so
+  # adding or removing matrix entries never leaves the ruleset requiring a stale check name.
+  ci_passed:
+    name: CI passed
+    if: always()
+    needs: [generator_linux, generator_macOS, test_macOS, test_iOS]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail unless every job succeeded
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
+        run: |
+          echo '${{ toJSON(needs) }}'
+          exit 1
