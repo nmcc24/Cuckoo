@@ -15,6 +15,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 - **A failure on a single Xcode or Swift version: report it and discuss before changing anything.** Give the runner, toolchain, error, likely cause and options. The maintainer decides whether that version's drag is worth accepting. Fix failures that hit every version without waiting.
 - **Don't push to a PR branch while its CI is running** unless the push is needed (e.g. a fix). Every push cancels the run in progress. Commit locally and batch the changes. Follow-ups planned for after a merge go on a local branch and are pushed with the next phase.
 - **The PR description carries the full changelog,** one entry per commit with its hash. Update it on every push, and check every hash it cites against the branch.
+- **Link this fork's PRs with full URLs** (`https://github.com/nmcc24/Cuckoo/pull/N`), in PR descriptions, comments and chat. Issues are disabled on the fork, so GitHub resolves a bare `#N` to `Brightify/Cuckoo`. Write upstream references explicitly, as `Brightify/Cuckoo#N`.
 - **Estimates are relative sizes (S/M/L), never durations.** The roadmap's §4 key defines them.
 - Small, logical commits.
 
