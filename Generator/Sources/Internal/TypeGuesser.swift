@@ -18,8 +18,13 @@ struct TypeGuesser {
         case "\"":
             return "String"
         default:
-            let identifier = guessIdentifier(from: value)
-            return identifier == "true" || identifier == "false" ? "Bool" : identifier
+            guard let identifier = guessIdentifier(from: value) else { return nil }
+            if identifier == "true" || identifier == "false" {
+                return "Bool"
+            }
+            // Only `TypeName(...)` initializers name their type. A function call, a collection literal
+            // or `.init()` doesn't, and guessing would produce a mock that doesn't compile.
+            return identifier.first?.isUppercase == true ? identifier : nil
         }
     }
 
@@ -40,7 +45,7 @@ struct TypeGuesser {
             guard character != "(" else { break }
             identifier.append(character)
         }
-        return identifier
+        return identifier.nilIfEmpty
     }
 
     private static func checkCasting(from value: String) -> String? {
