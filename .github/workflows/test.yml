@@ -31,7 +31,10 @@ jobs:
         uses: actions/checkout@v5
       - name: Pin swift-syntax ${{ matrix.swift-syntax }}
         if: matrix.swift-syntax
-        run: swift package resolve swift-syntax --version ${{ matrix.swift-syntax }}
+        # A fresh checkout has no resolved dependencies yet, so resolve them before pinning one.
+        run: |
+          swift package resolve
+          swift package resolve swift-syntax --version ${{ matrix.swift-syntax }}
       - name: Generator tests
         run: swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix
