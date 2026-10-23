@@ -241,7 +241,9 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
   - macOS generator jobs on each runner image;
   - the existing Tuist jobs, now at the D2 deployment targets;
   - `workflow_dispatch`.
-- **Toolchain coverage.** Each macOS job (generator, Tuist macOS tests, Tuist iOS tests) runs on `macos-15`, `macos-26` (Xcode 26.6, Swift 6.3.3) and `xcode-27` (macOS 27, Xcode 27, Swift 6.4). Each uses the image's default Xcode and prints it as an annotation. `xcode-27` is selected by Xcode label, not a `macos-NN` label; GitHub made it generally available on 2026-10-15. The iOS jobs use whichever iPhone simulator the image ships.
+- **Toolchain coverage.** Each macOS job (generator, Tuist macOS tests, Tuist iOS tests) runs on `macos-26` (Xcode 26.6, Swift 6.3.3) and `xcode-27` (macOS 27, Xcode 27, Swift 6.4). Each uses the image's default Xcode and prints it as an annotation.
+  - `macos-15` was tried and dropped: its default is Xcode 16.4 / Swift 6.1.2, below the 6.2 minimum, and fixture 09 (`nonisolated(nonsending)`) can't compile there.
+  - Swift 6.2 is therefore covered on Linux only. `xcode-27` is selected by Xcode label, not a `macos-NN` label; GitHub made it generally available on 2026-10-15. The iOS jobs use whichever iPhone simulator the image ships.
 - **Build systems.** Swift 6.4 builds with `swiftbuild` by default, while 6.2 and 6.3 use `native`. CI tests 6.4 with both, on Linux and on `xcode-27`.
 
 ### Phase 1: Parser and syntax modernization (≈1 week)
