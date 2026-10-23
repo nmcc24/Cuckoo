@@ -234,14 +234,14 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
   - a documentation snapshot and a version check.
 
   Re-record with `CUCKOO_RECORD_SNAPSHOTS=1 swift test`. The SwiftPM `CuckooTests` target was removed because it never built; Tuist still runs those tests.
-- `scripts/swift6-matrix.sh` reads `Fixtures/Swift6/expected-failures.txt`. It fails on a new failure, or on a listed fixture that now passes. Set `SWIFT_BUILD_FLAGS=--build-system native` to reproduce the pre-6.4 build layout.
+- `scripts/swift6-matrix.sh` reads `Fixtures/Swift6/expected-failures.txt`. It fails on a new failure, or on a listed fixture that now passes. `SWIFT_BUILD_FLAGS` passes a build system to `swift build` (`--build-system native` or `--build-system swiftbuild`).
 - CI (`.github/workflows/test.yml`):
   - Linux jobs in `swift:6.2`/`6.3`/`6.4` containers;
-  - a macOS generator job on the newest installed Xcode;
+  - macOS generator jobs on each runner image;
   - the existing Tuist jobs, now at the D2 deployment targets;
   - `workflow_dispatch`.
-- All macOS jobs run on the `xcode-27` runner image (macOS 27, Xcode 27, Swift 6.4, Apple Silicon), which GitHub made generally available on 2026-10-15. It's selected by Xcode label, not by a `macos-NN` label; `macos-26` only goes up to Xcode 26.6 / Swift 6.3.3. The iOS job uses whichever iPhone simulator the image ships. The macOS generator job prints its toolchain as an annotation.
-- Swift 6.2 and 6.3 are covered on Linux only. Add an Apple job on an older image when the runtime gets OS-tier code (§3.4) worth testing there.
+- **Toolchain coverage.** Each macOS job (generator, Tuist macOS tests, Tuist iOS tests) runs on `macos-15`, `macos-26` (Xcode 26.6, Swift 6.3.3) and `xcode-27` (macOS 27, Xcode 27, Swift 6.4). Each uses the image's default Xcode and prints it as an annotation. `xcode-27` is selected by Xcode label, not a `macos-NN` label; GitHub made it generally available on 2026-10-15. The iOS jobs use whichever iPhone simulator the image ships.
+- **Build systems.** Swift 6.4 builds with `swiftbuild` by default, while 6.2 and 6.3 use `native`. CI tests 6.4 with both, on Linux and on `xcode-27`.
 
 ### Phase 1: Parser and syntax modernization (≈1 week)
 1. ☁️ swift-syntax range `600.1.0..<605.0.0`, CI-tested at both ends. Replace deprecated API uses.
