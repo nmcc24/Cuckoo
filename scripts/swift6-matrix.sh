@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Generates mocks for every fixture in Fixtures/Swift6 and typechecks each
-# fixture + its mock in Swift 6 language mode. Prints one line per fixture.
+# Generates mocks for every fixture in Fixtures/Swift6 and compiles each fixture + its
+# mock to SIL in Swift 6 language mode. Prints one line per fixture. SIL, not -typecheck,
+# because region-based isolation errors ("sending ... risks causing data races") are
+# only diagnosed on SIL.
 #
 # Usage: scripts/swift6-matrix.sh [extra swiftc flags, e.g. -default-isolation MainActor]
 # Fixtures listed in Fixtures/Swift6/expected-failures.txt are expected to fail.
@@ -57,7 +59,7 @@ sources = ["$f"]
 output = "$WORK/gen/$n.mock.swift"
 EOF
   "$GEN" --configuration "$WORK/Cuckoofile.toml" > "$WORK/logs/$n.gen.log" 2>&1
-  "${SWIFTC[@]}" -typecheck -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" \
+  "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" \
     "$f" "$WORK/gen/$n.mock.swift" > "$WORK/logs/$n.tc.log" 2>&1
   errors="$(grep -c "error:" "$WORK/logs/$n.tc.log")"
   if grep -qx "$n" <<< "$EXPECTED_FAILURES"; then
