@@ -5,15 +5,49 @@ import SwiftParser
 final class Crawler: SyntaxVisitor {
     static func crawl(url: URL) throws -> Crawler {
         let file = try String(contentsOf: url, encoding: .utf8)
-        let syntaxTree = Parser.parse(source: file)
+        return crawl(source: file, url: url)
+    }
+
+    static func crawl(source: String, url: URL) -> Crawler {
+        let syntaxTree = Parser.parse(source: source)
         #if DEBUG
         // Comment out the line above and uncomment the one below to test specific strings.
         // The `testString` is at the bottom of this file.
 //        let syntaxTree = Parser.parse(source: testString)
         #endif
-        let crawler = Self(container: nil, url: url)
+        let context = Context(url: url, locationConverter: SourceLocationConverter(fileName: url.path, tree: syntaxTree))
+        let crawler = Self(container: nil, context: context)
         crawler.walk(syntaxTree)
         return crawler
+    }
+
+    /// State shared by the crawlers of one file. Each type's members are crawled by a crawler of their own.
+    final class Context {
+        let url: URL
+        let locationConverter: SourceLocationConverter
+        var diagnostics: [Diagnostic] = []
+
+        init(url: URL, locationConverter: SourceLocationConverter) {
+            self.url = url
+            self.locationConverter = locationConverter
+        }
+    }
+
+    /// A problem in the input that the generator works around instead of crashing.
+    /// It's formatted like a compiler warning so Xcode and SwiftPM show it at the declaration.
+    struct Diagnostic: CustomStringConvertible {
+        let file: String
+        let line: Int
+        let column: Int
+        let message: String
+
+        var description: String {
+            "\(file):\(line):\(column): warning: cuckoo: \(message)"
+        }
+    }
+
+    var diagnostics: [Diagnostic] {
+        context.diagnostics
     }
 
     var imports: [Import] = []
@@ -23,11 +57,11 @@ final class Crawler: SyntaxVisitor {
 
     private var container: Reference<Token>?
 
-    private let url: URL
+    private let context: Context
 
-    private init(container: Reference<Token>?, url: URL) {
+    private init(container: Reference<Token>?, context: Context) {
         self.container = container
-        self.url = url
+        self.context = context
 
         super.init(viewMode: .sourceAccurate)
     }
@@ -63,7 +97,7 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
-        let crawler = Crawler(container: Reference(token), url: url)
+        let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
         tokens.append(token)
@@ -87,7 +121,7 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
-        let crawler = Crawler(container: Reference(token), url: url)
+        let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
         tokens.append(token)
@@ -107,7 +141,7 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
-        let crawler = Crawler(container: Reference(token), url: url)
+        let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
         tokens.append(token)
@@ -127,7 +161,7 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
-        let crawler = Crawler(container: Reference(token), url: url)
+        let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
         tokens.append(token)
@@ -147,7 +181,7 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
-        let crawler = Crawler(container: Reference(token), url: url)
+        let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
         tokens.append(token)
@@ -213,7 +247,14 @@ final class Crawler: SyntaxVisitor {
         }
     }
 
-    private func debug(_ node: DeclSyntaxProtocol, additionalInfo: String? = nil) {
+    private func warn(_ node: some SyntaxProtocol, _ message: String) {
+        let location = node.startLocation(converter: context.locationConverter, afterLeadingTrivia: true)
+        context.diagnostics.append(
+            Diagnostic(file: context.url.path, line: location.line, column: location.column, message: message)
+        )
+    }
+
+        private func debug(_ node: DeclSyntaxProtocol, additionalInfo: String? = nil) {
         let description: String
         switch node {
         case let node as ClassDeclSyntax:
@@ -270,8 +311,19 @@ extension Crawler {
         // Early return for private variable.
         guard accessibility.isAccessible else { return [] }
 
-        return variableGroup.bindings
-            .compactMap(variable(from:))
+        // In `var x, y: Int`, `x` takes its type from the next annotated binding.
+        var sharedType: TypeSyntax?
+        let sharedTypes = variableGroup.bindings.reversed().map { binding -> TypeSyntax? in
+            if let type = binding.typeAnnotation?.type {
+                sharedType = type
+            } else if binding.initializer != nil {
+                sharedType = nil
+            }
+            return sharedType
+        }.reversed()
+
+        return zip(variableGroup.bindings, sharedTypes)
+            .compactMap { variable(from: $0, declaredType: $1) }
             .map {
                 Variable(
                     parent: container,
@@ -288,16 +340,17 @@ extension Crawler {
             }
     }
 
-    private func variable(from binding: PatternBindingSyntax) -> VariablePart? {
+    private func variable(from binding: PatternBindingSyntax, declaredType: TypeSyntax?) -> VariablePart? {
         guard case .identifier(let identifier) = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier.tokenKind else { return nil }
 
         let type: ComplexType
-        if let explicitType = binding.typeAnnotation?.type {
+        if let explicitType = declaredType {
             type = ComplexType(syntax: explicitType)
         } else if let initializer = binding.initializer?.value.filteredDescription, let guessedType = TypeGuesser.guessType(from: initializer) {
             type = .type(guessedType)
         } else {
-            fatalError("Can't infer type of property '\(identifier)' in file \(url)")
+            warn(binding, "Can't infer the type of property '\(identifier)', so it isn't mocked. Add a type annotation to mock it.")
+            return nil
         }
 
         let isReadOnly: Bool

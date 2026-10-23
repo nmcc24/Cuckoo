@@ -35,6 +35,9 @@ final class Generator {
             do {
                 log(.verbose, message: "Processing file: \(file.path)")
                 let crawler = try Crawler.crawl(url: file.path.url)
+                for diagnostic in crawler.diagnostics {
+                    FileHandle.standardError.write(Data("\(diagnostic)\n".utf8))
+                }
                 log(.verbose, message: "Successfully processed file: \(file.path)")
                 return FileRepresentation(file: file, imports: crawler.imports, tokens: crawler.tokens)
             } catch {
