@@ -214,7 +214,26 @@ The baseline must be complete on its own. Newer tiers only **add** APIs or faste
 
 Legend: ☁️ can be done entirely in a Linux cloud session (code plus Linux build/tests); 🍎 needs macOS, so it's validated through GitHub Actions on the fork (push a branch, read CI).
 
-### Phase 0: Foundations and dev loop (≈1 week)
+**Sizes are relative, not durations.** An earlier draft gave week estimates that weren't based on anything.
+- **S:** isolated changes that existing tests or snapshots fully check.
+- **M:** touches the generator's model across many templates; snapshot output changes widely and needs review.
+- **L:** rewrites a core piece (runtime or codegen), or adds many features that each need fixtures. Regressions show up in the 342 runtime tests or on specific toolchains, so it takes several CI and review rounds.
+
+What makes a phase big:
+- **Phase 1:** the attribute/specifier model touches every template.
+- **Phase 2:** a runtime rewrite that must keep the 342 tests green on every image.
+- **Phase 3:** new container kinds (actors) and isolation-aware proxies.
+- **Phase 4:** many independent features, each with fixtures.
+- **Phase 5:** replacing Stencil, plus release tooling.
+
+**Phase 0 actuals, for calibration:**
+- **First pass:** the first Phase 0 commit landed at 2026-10-22 10:19 UTC, and every CI job was green at 11:05 UTC, about 45 minutes. Most of it was spent waiting on the macOS runner queue.
+- **Review rounds:** two rounds over the next day (xcode-27 runners, a job per macOS image, both 6.4 build systems, syncing `master` with upstream) took most of the remaining elapsed time.
+- **CI runs:** 15 on the branch, 10 of them cancelled by follow-up pushes.
+
+Elapsed time is driven by review rounds and the macOS runner queue more than by writing code.
+
+### Phase 0: Foundations and dev loop (S)
 1. ☁️ Make the generator build and run on Linux (Glob fix; check FileKit, XcodeProj and TOMLKit on Linux; add `#if canImport(Darwin)` where needed).
 2. ☁️ Make the runtime `Cuckoo` target build on Linux (XCTest/Testing imports, `NSException` already guarded).
 3. ☁️ Golden-file test harness for the generator: `Generator/Tests/Snapshots/*.swift`, with input fixtures → expected mock output, run by `swift test --filter CuckooGeneratorTests`. Seed it with `Fixtures/Swift6/`.
@@ -246,7 +265,7 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
   - Swift 6.2 is therefore covered on Linux only. `xcode-27` is selected by Xcode label, not a `macos-NN` label; GitHub made it generally available on 2026-10-15. The iOS jobs use whichever iPhone simulator the image ships.
 - **Build systems.** Swift 6.4 builds with `swiftbuild` by default, while 6.2 and 6.3 use `native`. CI tests 6.4 with both, on Linux and on `xcode-27`.
 
-### Phase 1: Parser and syntax modernization (≈1 week)
+### Phase 1: Parser and syntax modernization (M)
 1. ☁️ swift-syntax range `600.1.0..<605.0.0`, CI-tested at both ends. Replace deprecated API uses.
 2. ☁️ Attribute and specifier model:
    - isolation, `sending`, `isolated`, `nonisolated(nonsending)`, `@concurrent`, `consuming`, `borrowing`, `inout`, `some`;
@@ -256,7 +275,7 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
 
 Exit criteria: fixtures 07, 09, 10 and 11 typecheck, with snapshot tests for each.
 
-### Phase 2: Concurrency-correct runtime (≈2 weeks)
+### Phase 2: Concurrency-correct runtime (L)
 0. ☁️ **Run the runtime test suite with SwiftPM, keeping Tuist in parallel.** Do this first, so the runtime rewrite has a regression suite that runs on Linux.
    - **Layout:** a plain target holding `Tests/Swift/Source`, and a test target that depends on it and on `Cuckoo`. `CuckooPluginSingleFile` generates the mocks, the same way users consume Cuckoo. This also gives the build plugin CI coverage, which it doesn't have today.
    - **Runs:** `swift test` on Linux, and `xcodebuild test` on the package per platform (macOS and the iOS/tvOS/watchOS simulators) in CI.
@@ -272,7 +291,7 @@ Exit criteria: fixtures 07, 09, 10 and 11 typecheck, with snapshot tests for eac
 
 Exit criteria: no `nonisolated(unsafe)` or `@unchecked Sendable` left in `Source/` except the documented lock box; TSan clean; all legacy tests green.
 
-### Phase 3: Isolation-aware code generation (≈2 weeks)
+### Phase 3: Isolation-aware code generation (L)
 1. ☁️ `@MainActor` and global-actor protocols and classes (fixtures 01, 03, 04, 06), with isolation-matching stubbing and verification proxies.
 2. ☁️ `Actor` protocols, generating `actor` mocks and stubs (fixture 02, #457).
 3. ☁️ Member-level isolation and `nonisolated` pass-through.
@@ -281,7 +300,7 @@ Exit criteria: no `nonisolated(unsafe)` or `@unchecked Sendable` left in `Source
 
 Exit criteria: fixtures 01–06 typecheck and have behavioural tests; also typecheck in default-MainActor mode.
 
-### Phase 4: Coverage expansion (≈2–3 weeks)
+### Phase 4: Coverage expansion (L)
 1. ☁️ Subscripts (12) and static/class members (13, #521).
 2. ☁️ Opaque parameters (11, #470), parameter packs (14) and `~Copyable` parameters (15).
 3. ☁️ `inout` stubbing (#337), `Self` (#304), generic init (#362), class-constrained protocols (#447/#376), parent associated types (#576).
@@ -290,7 +309,7 @@ Exit criteria: fixtures 01–06 typecheck and have behavioural tests; also typec
 
 Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item above.
 
-### Phase 5: Codegen rewrite, distribution, docs (≈2–3 weeks)
+### Phase 5: Codegen rewrite, distribution, docs (L)
 1. ☁️ Replace Stencil with a typed code writer, output formatted with `swift-format`. Snapshot tests guard against output drift.
 2. 🍎 Prebuilt `artifactbundle` for the generator, released by GitHub Actions (replaces fastlane). Plugin consumers no longer compile swift-syntax.
 3. ☁️ Synchronized-group Xcode project support (#524), or a documented plugin-only path.
@@ -302,7 +321,7 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
    - Re-enable the commented-out OCMock targets in `Project.swift` and run `Tests/OCMock` in CI.
    - Update the API for Swift 6: `Sendable`-correct `objcStub`/`objcVerify`, MainActor-safe use with UIKit classes, and typed helpers to reduce the untyped `args[0] as! T` casts.
 
-### Phase 6: Release and upstreaming
+### Phase 6: Release and upstreaming (S)
 - 3.0.0-beta tags on the fork.
 - Offer Brightify the independent fixes (#601, the swift-syntax range, the Linux Glob fix, `keepDocumentation`) as separate small PRs.
 - Propose the 3.0 branch upstream, or publish under a new name (D1).
