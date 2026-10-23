@@ -132,15 +132,18 @@ extension {{ container.parentFullyQualifiedName }} {
     {{ attribute }}
     {% endfor %}
     {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
+        {% for name in method.sendingParameterNames %}
+        let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
+        {% endfor %}
         {{ method.self|openNestedClosure }}return{% if method.isThrowing %} try{% endif %}{% if method.isAsync %} await{% endif %} cuckoo_manager.call{% if method.isThrowing %}{{ method.throwType|capitalize }}{% endif %}(
             "{{method.fullyQualifiedName}}",
-            parameters: ({{method.parameterNames}}),
+            parameters: ({{method.recordedParameters}}),
             escapingParameters: ({{method.escapingParameterNames}}),
             {% if method.throwsOnly %}
             errorType: {{ method.throwTypeError }}.self,
             {% endif %}
-            superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}super.{{method.name}}({{method.call}}){% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
-            defaultCall: {%+ if method.isAsync %}await {%+ endif %}__defaultImplStub!.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.call}})
+            superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}super.{{method.name}}({{method.forwardingCall}}){% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
+            defaultCall: {%+ if method.isAsync %}await {%+ endif %}__defaultImplStub!.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}})
         ){{ method.parameters|closeNestedClosure }}
     }
     {% endfor %}

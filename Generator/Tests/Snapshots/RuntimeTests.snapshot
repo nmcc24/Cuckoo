@@ -3288,12 +3288,14 @@ class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable, Output: Equatable
 
 
     func convertToOutput<T> (value p0: sending T, input p1: sending Input, convert p2: @escaping @MainActor @Sendable (T, Input) async throws -> Output?) async rethrows -> Output {
+        let __p0 = Cuckoo.__SendingArgument(p0)
+        let __p1 = Cuckoo.__SendingArgument(p1)
         return try await cuckoo_manager.callRethrows(
             "convertToOutput<T> (value p0: sending T, input p1: sending Input, convert p2: @escaping @MainActor @Sendable (T, Input) async throws -> Output?) async rethrows -> Output",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.convertToOutput(value: p0, input: p1, convert: p2)
+            defaultCall: await __defaultImplStub!.convertToOutput(value: __p0.value, input: __p1.value, convert: p2)
         )
     }
 

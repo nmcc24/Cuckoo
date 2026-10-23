@@ -103,7 +103,7 @@ extension Method {
 
                 return "{ \(parameterSignature) in fatalError(\"This is a stub! It's not supposed to be called!\") }"
             } else {
-                return parameter.usableName
+                return parameter.recordedValue
             }
         }.joined(separator: ", ")
 
@@ -117,8 +117,11 @@ extension Method {
             "signature": signature.description,
             "parameters": signature.parameters,
             "parameterNames": signature.parameters.map { escapeReservedKeywords(for: $0.usableName) }.joined(separator: ", "),
+            "sendingParameterNames": signature.parameters.filter(\.isSending).map { escapeReservedKeywords(for: $0.usableName) },
+            "recordedParameters": signature.parameters.map(\.recordedValue).joined(separator: ", "),
             "escapingParameterNames": escapingParameterNames,
             "returnType": returnType?.description ?? "",
+            "genericReturnType": returnType?.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description ?? "",
             "isAsync": isAsync,
             "isThrowing": isThrowing,
             "throwsOnly": throwsOnly,
@@ -126,13 +129,14 @@ extension Method {
             "throwTypeError": signature.throwType?.type ?? "",
             "fullyQualifiedName": fullyQualifiedName,
             "call": call,
+            "forwardingCall": signature.parameters.map(\.forwardingCall).joined(separator: ", "),
             "staticGenericCall": staticGenericCall,
             "parameterSignature": signature.parameters.map { $0.description }.joined(separator: ", "),
             "parameterSignatureWithoutNames": signature.parameters.map { "\($0.name): \($0.type)" }.joined(separator: ", "),
             "argumentSignature": signature.parameters.map { $0.type.description }.joined(separator: ", "),
             "stubFunction": stubFunction,
-            "inputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).description }.joined(separator: ", "),
-            "genericInputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).description }.joined(separator: ", "),
+            "inputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
+            "genericInputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
             "isOptional": isOptional,
             "hasClosureParams": hasClosureParams,
             "hasOptionalParams": hasOptionalParams,

@@ -42,7 +42,7 @@ extension Templates {
     {{ attribute }}
     {% endfor %}
     {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
-        return DefaultValueRegistry.defaultValue(for: ({{method.returnType|genericSafe}}).self)
+        return DefaultValueRegistry.defaultValue(for: ({{method.genericReturnType|genericSafe}}).self)
     }
     {% if method.hasUnavailablePlatforms %}
     #endif

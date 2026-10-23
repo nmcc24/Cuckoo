@@ -19,3 +19,14 @@ public func wrap<M: OptionalMatchable, IN, O>(matchable: M, mapping: @escaping (
 }
 
 public typealias SourceLocation = (file: StaticString, fileID: String, filePath: String, line: Int, column: Int)
+
+/// Used by generated mocks to forward a `sending` argument. The mock keeps the argument for verification
+/// and also passes it on to the default implementation or superclass, so region isolation can't prove it
+/// disconnected. Only acceptable because mocks are test doubles that don't run that code concurrently.
+public struct __SendingArgument<T>: @unchecked Sendable {
+    public let value: T
+
+    public init(_ value: T) {
+        self.value = value
+    }
+}

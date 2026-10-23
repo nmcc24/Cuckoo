@@ -21,8 +21,8 @@ class MockSorter: Sorter, Cuckoo.ProtocolMock, @unchecked Sendable {
     func sort(_ p0: some Collection<Int>) -> [Int] {
         return cuckoo_manager.call(
             "sort(_ p0: some Collection<Int>) -> [Int]",
-            parameters: (p0),
-            escapingParameters: (p0),
+            parameters: (p0 as any Collection<Int>),
+            escapingParameters: (p0 as any Collection<Int>),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub!.sort(p0)
         )
@@ -35,8 +35,8 @@ class MockSorter: Sorter, Cuckoo.ProtocolMock, @unchecked Sendable {
             self.cuckoo_manager = manager
         }
         
-        func sort<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(some Collection<Int>), [Int]> where M1.MatchedType == some Collection<Int> {
-            let matchers: [Cuckoo.ParameterMatcher<(some Collection<Int>)>] = [wrap(matchable: p0) { $0 }]
+        func sort<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(any Collection<Int>), [Int]> where M1.MatchedType == any Collection<Int> {
+            let matchers: [Cuckoo.ParameterMatcher<(any Collection<Int>)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockSorter.self,
                 method: "sort(_ p0: some Collection<Int>) -> [Int]",
                 parameterMatchers: matchers
@@ -57,8 +57,8 @@ class MockSorter: Sorter, Cuckoo.ProtocolMock, @unchecked Sendable {
         
         
         @discardableResult
-        func sort<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(some Collection<Int>), [Int]> where M1.MatchedType == some Collection<Int> {
-            let matchers: [Cuckoo.ParameterMatcher<(some Collection<Int>)>] = [wrap(matchable: p0) { $0 }]
+        func sort<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(any Collection<Int>), [Int]> where M1.MatchedType == any Collection<Int> {
+            let matchers: [Cuckoo.ParameterMatcher<(any Collection<Int>)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "sort(_ p0: some Collection<Int>) -> [Int]",
                 callMatcher: callMatcher,

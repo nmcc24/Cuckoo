@@ -96,12 +96,13 @@ class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
 
 
     func take(_ p0: sending NonSendableBox) {
+        let __p0 = Cuckoo.__SendingArgument(p0)
         return cuckoo_manager.call(
             "take(_ p0: sending NonSendableBox)",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.take(p0)
+            defaultCall: __defaultImplStub!.take(__p0.value)
         )
     }
 
@@ -130,7 +131,7 @@ class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
             ))
         }
         
-        func make() -> Cuckoo.ProtocolStubFunction<(), sending NonSendableBox> {
+        func make() -> Cuckoo.ProtocolStubFunction<(),  NonSendableBox> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTransfer.self,
                 method: "make() -> sending NonSendableBox",
@@ -164,7 +165,7 @@ class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
         
         
         @discardableResult
-        func make() -> Cuckoo.__DoNotUse<(), sending NonSendableBox> {
+        func make() -> Cuckoo.__DoNotUse<(),  NonSendableBox> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "make() -> sending NonSendableBox",
@@ -185,7 +186,7 @@ class TransferStub:Transfer, @unchecked Sendable {
     }
     
     func make() -> sending NonSendableBox {
-        return DefaultValueRegistry.defaultValue(for: (sending NonSendableBox).self)
+        return DefaultValueRegistry.defaultValue(for: ( NonSendableBox).self)
     }
 }
 
