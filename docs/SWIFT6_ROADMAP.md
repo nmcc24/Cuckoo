@@ -274,10 +274,16 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
 2. ☁️ Attribute and specifier model:
    - isolation, `sending`, `isolated`, `nonisolated(nonsending)`, `@concurrent`, `consuming`, `borrowing`, `inout`, `some`;
    - strip correctly from matcher, tuple and generic positions (fixtures 07, 09, 10, 11).
+   - **Done so far:**
+     - Types in generic positions (stubbing and verification proxies, matcher tuples, the stub's default value) drop `sending`, `borrowing`, `consuming`, `inout` and `isolated`, and `some P` becomes `any P`. Fixtures 07 and 11 compile.
+     - The mock records an opaque argument as `any P`, so stubs and verifications match it.
+     - A `sending` argument is forwarded to the default implementation or superclass through `Cuckoo.__SendingArgument`, a documented `@unchecked Sendable` box: the mock keeps the argument for verification, so it can't stay disconnected.
+     - `scripts/swift6-matrix.sh` compiles to SIL instead of only typechecking, so region-isolation errors count. That exposed fixture 08: its async `defaultCall` closure is isolated to the `isolated` parameter and is sent to `MockManager`'s `@concurrent` `call`. It's an expected failure until Phase 2 makes the runtime's async calls run on the caller's isolation (`nonisolated(nonsending)`).
+   - **Left for Phase 3 item 3:** member-level isolation is still dropped from mock members. Fixture 09's mock loses `nonisolated(nonsending)` and `@concurrent`, and fixture 10's loses `@MainActor`. The mocks compile, but they don't keep the protocol's isolation. Modelling isolation (`Isolation` in §3.3) belongs with the code that emits it.
 3. ☁️ Mirror `#if` into the output (#471). Fix `@available(..., unavailable)` handling (#599); container-level availability already propagates (fixture 17).
 4. ☁️ Replace the crawler's `fatalError`s with diagnostics.
 
-Exit criteria: fixtures 07, 09, 10 and 11 typecheck, with snapshot tests for each.
+Exit criteria: fixtures 07, 09, 10 and 11 compile, with snapshot tests for each.
 
 ### Phase 2: Concurrency-correct runtime (L)
 0. ☁️ **Run the runtime test suite with SwiftPM, keeping Tuist in parallel.** Do this first, so the runtime rewrite has a regression suite that runs on Linux.
