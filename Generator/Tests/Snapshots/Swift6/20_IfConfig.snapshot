@@ -1,0 +1,653 @@
+import Cuckoo
+import Foundation
+
+class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Platformed
+    typealias Stubbing = __StubbingProxy_Platformed
+    typealias Verification = __VerificationProxy_Platformed
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Platformed)?
+
+    func enableDefaultImplementation(_ stub: any Platformed) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    #if (DEBUG)
+    var debugInfo: String {
+        get {
+            return cuckoo_manager.getter(
+                "debugInfo",
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub!.debugInfo
+            )
+        }
+    }
+    #endif
+
+
+    #if (os(Linux))
+    func onLinux() -> Int {
+        return cuckoo_manager.call(
+            "onLinux() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.onLinux()
+        )
+    }
+    #endif
+
+    #if !(os(Linux)) && (canImport(Darwin))
+    func onDarwin() -> String {
+        return cuckoo_manager.call(
+            "onDarwin() -> String",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.onDarwin()
+        )
+    }
+    #endif
+
+    #if !(os(Linux)) && !(canImport(Darwin))
+    func elsewhere() {
+        return cuckoo_manager.call(
+            "elsewhere()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.elsewhere()
+        )
+    }
+    #endif
+
+    #if (DEBUG) && (os(Linux))
+    func debugOnLinux() {
+        return cuckoo_manager.call(
+            "debugOnLinux()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.debugOnLinux()
+        )
+    }
+    #endif
+
+    func everywhere() {
+        return cuckoo_manager.call(
+            "everywhere()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.everywhere()
+        )
+    }
+
+    struct __StubbingProxy_Platformed: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        #if (DEBUG)
+        var debugInfo: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockPlatformed,String> {
+            return .init(manager: cuckoo_manager, name: "debugInfo")
+        }
+        #endif
+        #if (os(Linux))
+        func onLinux() -> Cuckoo.ProtocolStubFunction<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformed.self,
+                method: "onLinux() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        #if !(os(Linux)) && (canImport(Darwin))
+        func onDarwin() -> Cuckoo.ProtocolStubFunction<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformed.self,
+                method: "onDarwin() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        #if !(os(Linux)) && !(canImport(Darwin))
+        func elsewhere() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformed.self,
+                method: "elsewhere()",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        #if (DEBUG) && (os(Linux))
+        func debugOnLinux() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformed.self,
+                method: "debugOnLinux()",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        
+        func everywhere() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformed.self,
+                method: "everywhere()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Platformed: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        #if (DEBUG)
+        var debugInfo: Cuckoo.VerifyReadOnlyProperty<String> {
+            return .init(manager: cuckoo_manager, name: "debugInfo", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        #endif
+        
+        #if (os(Linux))
+        @discardableResult
+        func onLinux() -> Cuckoo.__DoNotUse<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "onLinux() -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        #if !(os(Linux)) && (canImport(Darwin))
+        @discardableResult
+        func onDarwin() -> Cuckoo.__DoNotUse<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "onDarwin() -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        #if !(os(Linux)) && !(canImport(Darwin))
+        @discardableResult
+        func elsewhere() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "elsewhere()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        #if (DEBUG) && (os(Linux))
+        @discardableResult
+        func debugOnLinux() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "debugOnLinux()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        
+        @discardableResult
+        func everywhere() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "everywhere()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class PlatformedStub:Platformed, @unchecked Sendable {
+    #if (DEBUG)
+    var debugInfo: String {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (String).self)
+        }
+    }
+    #endif
+
+
+    #if (os(Linux))
+    func onLinux() -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+    #endif
+    #if !(os(Linux)) && (canImport(Darwin))
+    func onDarwin() -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+    #endif
+    #if !(os(Linux)) && !(canImport(Darwin))
+    func elsewhere() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    #endif
+    #if (DEBUG) && (os(Linux))
+    func debugOnLinux() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    #endif
+    
+    func everywhere() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+
+class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = DefaultImplCaller
+    typealias Stubbing = __StubbingProxy_PlatformedStore
+    typealias Verification = __VerificationProxy_PlatformedStore
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    class DefaultImplCaller: PlatformedStore, @unchecked Sendable {
+        private let reference: () -> any PlatformedStore
+    
+        #if (DEBUG)
+        private let _getter_storage$$debugItems: () -> [Item]
+        var debugItems: [Item] {
+            get { return _getter_storage$$debugItems() }
+        }
+        #endif
+    
+        
+        init<_CUCKOO$$GENERIC: PlatformedStore>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
+            self.reference = reference
+    
+            #if (DEBUG)
+            _getter_storage$$debugItems = { defaultImpl.pointee.debugItems }
+            #endif
+            #if (DEBUG)
+            _storage$1$dump = defaultImpl.pointee.dump
+            #endif
+            _storage$2$item = defaultImpl.pointee.item
+        }
+    
+
+        #if (DEBUG)
+        private let _storage$1$dump: () -> String
+        func dump() -> String {
+            return _storage$1$dump()
+        }
+        #endif
+
+        private let _storage$2$item: (Int) -> Item
+        func item(at p0: Int) -> Item {
+            return _storage$2$item(p0)
+        }
+    }
+
+    private var __defaultImplStub: DefaultImplCaller?
+
+    func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
+        var mutableStub = stub
+        __defaultImplStub = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Item == Item {
+        __defaultImplStub = DefaultImplCaller(from: stub, keeping: stub.pointee)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    #if (DEBUG)
+    var debugItems: [Item] {
+        get {
+            return cuckoo_manager.getter(
+                "debugItems",
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub!.debugItems
+            )
+        }
+    }
+    #endif
+
+
+    #if (DEBUG)
+    func dump() -> String {
+        return cuckoo_manager.call(
+            "dump() -> String",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.dump()
+        )
+    }
+    #endif
+
+    func item(at p0: Int) -> Item {
+        return cuckoo_manager.call(
+            "item(at p0: Int) -> Item",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.item(at: p0)
+        )
+    }
+
+    struct __StubbingProxy_PlatformedStore: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        #if (DEBUG)
+        var debugItems: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockPlatformedStore,[Item]> {
+            return .init(manager: cuckoo_manager, name: "debugItems")
+        }
+        #endif
+        #if (DEBUG)
+        func dump() -> Cuckoo.ProtocolStubFunction<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformedStore.self,
+                method: "dump() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        
+        func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), Item> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformedStore.self,
+                method: "item(at p0: Int) -> Item",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_PlatformedStore: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        #if (DEBUG)
+        var debugItems: Cuckoo.VerifyReadOnlyProperty<[Item]> {
+            return .init(manager: cuckoo_manager, name: "debugItems", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        #endif
+        
+        #if (DEBUG)
+        @discardableResult
+        func dump() -> Cuckoo.__DoNotUse<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "dump() -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        
+        @discardableResult
+        func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.__DoNotUse<(Int), Item> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "item(at p0: Int) -> Item",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class PlatformedStoreStub<Item>:PlatformedStore, @unchecked Sendable {
+    #if (DEBUG)
+    var debugItems: [Item] {
+        get {
+            return DefaultValueRegistry.defaultValue(for: ([Item]).self)
+        }
+    }
+    #endif
+
+
+    #if (DEBUG)
+    func dump() -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+    #endif
+    
+    func item(at p0: Int) -> Item {
+        return DefaultValueRegistry.defaultValue(for: (Item).self)
+    }
+}
+
+
+class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sendable {
+    typealias MocksType = PlatformedService
+    typealias Stubbing = __StubbingProxy_PlatformedService
+    typealias Verification = __VerificationProxy_PlatformedService
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    private var __defaultImplStub: PlatformedService?
+
+    func enableDefaultImplementation(_ stub: PlatformedService) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    #if (DEBUG)
+    override var verbose: Bool {
+        get {
+            return cuckoo_manager.getter(
+                "verbose",
+                superclassCall: super.verbose,
+                defaultCall: __defaultImplStub!.verbose
+            )
+        }
+        set {
+            cuckoo_manager.setter(
+                "verbose",
+                value: newValue,
+                superclassCall: super.verbose = newValue,
+                defaultCall: __defaultImplStub!.verbose = newValue
+            )
+        }
+    }
+    #endif
+
+
+    #if (DEBUG)
+    override func debugDump() -> String {
+        return cuckoo_manager.call(
+            "debugDump() -> String",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: super.debugDump(),
+            defaultCall: __defaultImplStub!.debugDump()
+        )
+    }
+    #endif
+
+    #if !(DEBUG)
+    override func releaseOnly() {
+        return cuckoo_manager.call(
+            "releaseOnly()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: super.releaseOnly(),
+            defaultCall: __defaultImplStub!.releaseOnly()
+        )
+    }
+    #endif
+
+    override func run() {
+        return cuckoo_manager.call(
+            "run()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: super.run(),
+            defaultCall: __defaultImplStub!.run()
+        )
+    }
+
+    struct __StubbingProxy_PlatformedService: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        #if (DEBUG)
+        var verbose: Cuckoo.ClassToBeStubbedProperty<MockPlatformedService,Bool> {
+            return .init(manager: cuckoo_manager, name: "verbose")
+        }
+        #endif
+        #if (DEBUG)
+        func debugDump() -> Cuckoo.ClassStubFunction<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformedService.self,
+                method: "debugDump() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        #if !(DEBUG)
+        func releaseOnly() -> Cuckoo.ClassStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformedService.self,
+                method: "releaseOnly()",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        
+        func run() -> Cuckoo.ClassStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPlatformedService.self,
+                method: "run()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_PlatformedService: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        #if (DEBUG)
+        var verbose: Cuckoo.VerifyProperty<Bool> {
+            return .init(manager: cuckoo_manager, name: "verbose", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        #endif
+        
+        #if (DEBUG)
+        @discardableResult
+        func debugDump() -> Cuckoo.__DoNotUse<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "debugDump() -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        #if !(DEBUG)
+        @discardableResult
+        func releaseOnly() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "releaseOnly()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        
+        @discardableResult
+        func run() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "run()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class PlatformedServiceStub:PlatformedService, @unchecked Sendable {
+    #if (DEBUG)
+    override var verbose: Bool {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        }
+        set {}
+    }
+    #endif
+
+
+    #if (DEBUG)
+    override func debugDump() -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+    #endif
+    #if !(DEBUG)
+    override func releaseOnly() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    #endif
+    
+    override func run() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+
+

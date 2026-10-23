@@ -6,6 +6,9 @@ extension Templates {
         private let reference: () -> any {{ container.name }}{{ container.genericPrimaryAssociatedTypeArguments }}
 
         {% for property in container.properties %}
+        {% if property.hasCompilationCondition %}
+        {{ property.compilationConditionCheck }}
+        {% endif %}
         private let _getter_storage$${{ property.name }}: () -> {{ property.type }}
         {% if not property.isReadOnly %}
         private let _setter_storage$${{ property.name }}: ({{ property.type }}) -> Void
@@ -16,6 +19,9 @@ extension Templates {
             set { _setter_storage$${{ property.name }}(newValue) }
             {% endif %}
         }
+        {% if property.hasCompilationCondition %}
+        #endif
+        {% endif %}
 
         {% endfor %}
         {# For developers: The `keeping reference: Any` is necessary because when called from the `enableDefaultImplementation(stub:)` method
@@ -24,14 +30,26 @@ extension Templates {
             self.reference = reference
 
             {% for property in container.properties %}
+            {% if property.hasCompilationCondition %}
+            {{ property.compilationConditionCheck }}
+            {% endif %}
             _getter_storage$${{ property.name }} = { defaultImpl.pointee.{{ property.name }} }
             {% if not property.isReadOnly %}
             _setter_storage$${{ property.name }} = { defaultImpl.pointee.{{ property.name }} = $0 }
             {% endif %}
+            {% if property.hasCompilationCondition %}
+            #endif
+            {% endif %}
             {% endfor %}
             {% for method in container.methods %}
             {% if not method.hasGenericParams %}
+            {% if method.hasCompilationCondition %}
+            {{ method.compilationConditionCheck }}
+            {% endif %}
             _storage${{ forloop.counter }}${{ method.name }} = defaultImpl.pointee.{{ method.name }}
+            {% if method.hasCompilationCondition %}
+            #endif
+            {% endif %}
             {% endif %}
             {% endfor %}
         }
@@ -39,12 +57,21 @@ extension Templates {
         /// MARK:- ignored required initializers
         {% endif %}
         {% for initializer in container.initializers %}
+        {% if initializer.hasCompilationCondition %}
+        {{ initializer.compilationConditionCheck }}
+        {% endif %}
         {{ container.accessibility|withSpace }}required init{{initializer.signature}} {
             fatalError("`DefaultImplCaller` class is only used for calling default implementation and can't be initialized on its own.")
         }
+        {% if initializer.hasCompilationCondition %}
+        #endif
+        {% endif %}
         {% endfor %}
 
         {% for method in container.methods +%}
+        {% if method.hasCompilationCondition %}
+        {{ method.compilationConditionCheck }}
+        {% endif %}
         {% if not method.hasGenericParams %}
         private let _storage${{ forloop.counter }}${{ method.name }}: ({{ method.inputTypes }}) {% if method.isAsync %} async{% endif %} {% if method.isThrowing %} throws{% endif %} -> {{ method.returnType }}
         {% endif %}
@@ -60,6 +87,9 @@ extension Templates {
             return {% if method.isThrowing %} try{% endif %} {% if method.isAsync %} await{% endif %} _storage${{ forloop.counter }}${{ method.name }}({{ method.parameterNames }})
             {% endif %}
         }
+        {% if method.hasCompilationCondition %}
+        #endif
+        {% endif %}
         {% endfor %}
     }
     """

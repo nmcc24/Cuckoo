@@ -67,6 +67,9 @@ extension {{ container.parentFullyQualifiedName }} {
 
     {% for property in container.properties %}
 
+    {% if property.hasCompilationCondition %}
+    {{ property.compilationConditionCheck }}
+    {% endif %}
     {% if debug %}
     // {{ property }}
     {% endif %}
@@ -105,9 +108,15 @@ extension {{ container.parentFullyQualifiedName }} {
         }
         {% endif %}
     }
+    {% if property.hasCompilationCondition %}
+    #endif
+    {% endif %}
     {% endfor %}
 
     {% for initializer in container.initializers %}
+    {% if initializer.hasCompilationCondition %}
+    {{ initializer.compilationConditionCheck }}
+    {% endif %}
     {% if debug %}
     // {{ initializer }}
     {% endif %}
@@ -117,9 +126,15 @@ extension {{ container.parentFullyQualifiedName }} {
     {% endfor %}
     {% endif %}
     {{ initializer.accessibility|withSpace }}required init{{initializer.signature}} {}
+    {% if initializer.hasCompilationCondition %}
+    #endif
+    {% endif %}
     {% endfor %}
     {% for method in container.methods %}
 
+    {% if method.hasCompilationCondition %}
+    {{ method.compilationConditionCheck }}
+    {% endif %}
     {% if debug %}
     // {{method}}
     {% endif %}
@@ -146,6 +161,9 @@ extension {{ container.parentFullyQualifiedName }} {
             defaultCall: {%+ if method.isAsync %}await {%+ endif %}__defaultImplStub!.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}})
         ){{ method.parameters|closeNestedClosure }}
     }
+    {% if method.hasCompilationCondition %}
+    #endif
+    {% endif %}
     {% endfor %}
 
 \(Templates.stubbingProxy.indented())

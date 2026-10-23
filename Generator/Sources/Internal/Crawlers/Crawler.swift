@@ -18,6 +18,8 @@ final class Crawler: SyntaxVisitor {
 
     var imports: [Import] = []
     var tokens: [Token] = []
+    /// The conditions of the `#if` clauses the crawler is currently inside.
+    private var compilationConditions: [String] = []
 
     private var container: Reference<Token>?
 
@@ -178,8 +180,26 @@ final class Crawler: SyntaxVisitor {
     }
 
     override func visit(_ node: IfConfigDeclSyntax) -> SyntaxVisitorContinueKind {
-        // TODO: Implement #if functionality.
-        return .visitChildren
+        // Each clause's members are crawled with the clause's full condition, so the
+        // mock mirrors the `#if` instead of declaring members from every branch.
+        var previousConditions: [String] = []
+        for clause in node.clauses {
+            let condition = clause.condition.map { "(\($0.trimmedDescription))" }
+            compilationConditions.append(
+                (previousConditions.map { "!\($0)" } + [condition].compactMap { $0 }).joined(separator: " && ")
+            )
+            switch clause.elements {
+            case .decls(let members):
+                walk(members)
+            case .statements(let statements):
+                walk(statements)
+            default:
+                break
+            }
+            compilationConditions.removeLast()
+            condition.map { previousConditions.append($0) }
+        }
+        return .skipChildren
     }
 
     override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
@@ -262,6 +282,7 @@ extension Crawler {
                     name: $0.identifier,
                     type: $0.type,
                     effects: $0.effects,
+                    compilationConditions: compilationConditions,
                     isConstant: isConstant
                 )
             }
@@ -338,7 +359,8 @@ extension Crawler {
                 whereConstraints: genericRequirements(from: initializer.genericWhereClause?.requirements)
             ),
             isRequired: initializer.modifiers.contains { $0.name == .keyword(.required) },
-            isOptional: initializer.optionalMark?.isPresent == true
+            isOptional: initializer.optionalMark?.isPresent == true,
+            compilationConditions: compilationConditions
         )
     }
 }
@@ -376,7 +398,8 @@ extension Crawler {
                 returnType: returnType ?? ComplexType.type("Void"),
                 whereConstraints: genericRequirements(from: method.genericWhereClause?.requirements)
             ),
-            isOptional: method.modifiers.contains { $0.name.tokenKind == .keyword(.optional) }
+            isOptional: method.modifiers.contains { $0.name.tokenKind == .keyword(.optional) },
+            compilationConditions: compilationConditions
         )
     }
 }

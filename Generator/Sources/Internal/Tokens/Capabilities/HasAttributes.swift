@@ -1,8 +1,12 @@
 protocol HasAttributes: Token {
     var attributes: [Attribute] { get }
+    /// The `#if` conditions the declaration is nested in, mirrored into the generated code.
+    var compilationConditions: [String] { get }
 }
 
 extension HasAttributes {
+    var compilationConditions: [String] { [] }
+
     var isUnavailableEverywhere: Bool {
         attributes.contains { $0.isUnavailableEverywhere }
     }
@@ -24,12 +28,18 @@ extension HasAttributes {
         }
     }
 
-    var hasUnavailablePlatforms: Bool {
-        !unavailablePlatformConditions.isEmpty
+    /// Everything that decides whether the declaration exists when compiling:
+    /// the `#if` blocks around it, and the platforms it's unavailable on.
+    private var allCompilationConditions: [String] {
+        compilationConditions + unavailablePlatformConditions.map { "!\($0)" }
     }
 
-    var unavailablePlatformsCheck: String {
-        hasUnavailablePlatforms ? "#if \(unavailablePlatformConditions.map { "!\($0)" }.joined(separator: " && "))" : ""
+    var hasCompilationCondition: Bool {
+        !allCompilationConditions.isEmpty
+    }
+
+    var compilationConditionCheck: String {
+        hasCompilationCondition ? "#if \(allCompilationConditions.joined(separator: " && "))" : ""
     }
 
     func attributesSerialize() -> GeneratorContext {

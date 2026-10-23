@@ -9,19 +9,19 @@ extension Templates {
         self.cuckoo_manager = manager
     }
     {% for property in container.properties %}
-    {{ property.unavailablePlatformsCheck }}
+    {{ property.compilationConditionCheck }}
     {% for attribute in property.attributes %}
     {{ attribute }}
     {% endfor %}
     var {{property.name}}: Cuckoo.{{ property.stubType }}<{{ container.mockName }}, {% if property.isReadOnly %}{{property.type|genericSafe}}{% else %}{{property.nonOptionalType|genericSafe}}{% endif %}> {
         return .init(manager: cuckoo_manager, name: "{{property.name}}")
     }
-    {% if property.hasUnavailablePlatforms %}
+    {% if property.hasCompilationCondition %}
     #endif
     {% endif %}
     {% endfor %}
     {% for method in container.methods %}
-    {{ method.unavailablePlatformsCheck }}
+    {{ method.compilationConditionCheck }}
     {% for attribute in method.attributes %}
     {{ attribute }}
     {% endfor %}
@@ -32,7 +32,7 @@ extension Templates {
             parameterMatchers: matchers
         ))
     }
-    {% if method.hasUnavailablePlatforms %}
+    {% if method.hasCompilationCondition %}
     #endif
     {% endif %}
     {% endfor %}

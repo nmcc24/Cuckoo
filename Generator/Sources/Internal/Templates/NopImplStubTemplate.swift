@@ -5,7 +5,7 @@ extension Templates {
 {% endfor %}
 {{container.accessibility|withSpace}}class {{ container.name }}Stub{{ container.genericParameters }}: {% if container.isNSObjectProtocol %}NSObject, {% endif %}{{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %}, @unchecked Sendable {
     {% for property in container.properties %}
-    {{ property.unavailablePlatformsCheck }}
+    {{ property.compilationConditionCheck }}
     {% if debug %}
     // {{property}}
     {% endif %}
@@ -20,21 +20,21 @@ extension Templates {
         set {}
         {% endif %}
     }
-    {% if property.hasUnavailablePlatforms %}
+    {% if property.hasCompilationCondition %}
     #endif
     {% endif %}
     {% endfor %}
 
     {% for initializer in container.initializers %}
-    {{ initializer.unavailablePlatformsCheck }}
+    {{ initializer.compilationConditionCheck }}
     {{ initializer.accessibility|withSpace }}required init{{initializer.signature}} {}
-    {% if initializer.hasUnavailablePlatforms %}
+    {% if initializer.hasCompilationCondition %}
     #endif
     {% endif %}
     {% endfor %}
 
     {% for method in container.methods %}
-    {{ method.unavailablePlatformsCheck }}
+    {{ method.compilationConditionCheck }}
     {% if debug %}
     // {{method}}
     {% endif %}
@@ -44,7 +44,7 @@ extension Templates {
     {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
         return DefaultValueRegistry.defaultValue(for: ({{method.genericReturnType|genericSafe}}).self)
     }
-    {% if method.hasUnavailablePlatforms %}
+    {% if method.hasCompilationCondition %}
     #endif
     {% endif %}
     {% endfor %}
