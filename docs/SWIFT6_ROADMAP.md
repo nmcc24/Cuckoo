@@ -62,7 +62,7 @@ Run `scripts/swift6-matrix.sh` to reproduce. It generates mocks for each file in
 - `enableSuperclassSpy` / `enableDefaultStubImplementation` guard on `stubCalls.isEmpty` (calls already made), not on stubs, so the error message is misleading.
 
 ### 1.4 Generator audit (`Generator/Sources/`)
-- **Parser is outdated:** pinned to swift-syntax **601.0.1** (the Swift 6.1 grammar), and the allowed range `600.1.0..<603.0.0` excludes 603 (Swift 6.3) and 604 (Swift 6.4). Upstream #596. *(Fixed in Phase 1: the range is `602.0.0..<605.0.0`, pinned to 604.0.0.)*
+- **Parser is outdated:** pinned to swift-syntax **601.0.1** (the Swift 6.1 grammar), and the allowed range `600.1.0..<603.0.0` excludes 603 (Swift 6.3) and 604 (Swift 6.4). Upstream #596. *(Fixed in Phase 1: the range is `600.0.0..<605.0.0`, pinned to 604.0.0.)*
 - **Attributes are discarded:** only `@available` is kept (`Crawler.attribute(from:)`). Isolation attributes (`@MainActor`, custom global actors, `nonisolated`, `nonisolated(nonsending)`, `@concurrent`), `@objc`, `@_spi` and `@preconcurrency` are all lost.
 - **Container kinds are hard-coded:** the templates always emit `class` (`MockTemplate`, `NopImplStubTemplate`).
 - **`#if` is ignored:** both branches are parsed, which produces duplicates. Upstream #471.
@@ -157,7 +157,7 @@ Breaking changes accepted in 3.0:
 | `@available`, `#if` | availability propagated to every generated member; `#if` mirrored into the output, not evaluated |
 
 ### 3.3 Generator
-- Move to swift-syntax `602.0.0..<605.0.0` and follow pointfree's "flexible dependence" guidance. Use the SwiftPM swift-syntax prebuilts to cut build time.
+- Move to swift-syntax `600.0.0..<605.0.0` and follow pointfree's "flexible dependence" guidance. Use the SwiftPM swift-syntax prebuilts to cut build time.
 - **Replace Stencil with typed codegen:** SwiftSyntaxBuilder, or a small typed `CodeWriter` over the token model. That gives compile-time-checked templates, `swift-format`-clean output, and drops the Stencil/PathKit dependencies.
 - **Model isolation explicitly:** `Isolation = .nonisolated | .mainActor | .globalActor(String) | .actorInstance` on containers and members, plus `kind = .class | .actor`.
 - **Attribute pass-through allow-list:**
@@ -267,9 +267,10 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
 - **Merge gate.** A final `CI passed` job depends on every other job and fails if any of them failed, was cancelled or was skipped. `master`'s ruleset requires only that check, so matrix changes don't need ruleset edits. The ruleset also requires a PR and an up-to-date branch, and blocks force-pushes and deletion.
 
 ### Phase 1: Parser and syntax modernization (M)
-1. ☁️ swift-syntax range `602.0.0..<605.0.0`, CI-tested at both ends. Replace deprecated API uses.
-   - The floor is 602 (the Swift 6.2 grammar) to match the Swift 6.2 minimum. Swift 6.2 syntax such as `nonisolated(nonsending)` and `@concurrent` came into the swift-syntax grammar with 602, and the attribute model in item 2 relies on it.
-   - **Done:** `Package.resolved` pins 604.0.0. A Linux Swift 6.2 job pins 602.0.0. There were no deprecated swift-syntax APIs to replace at 604.
+1. ☁️ swift-syntax range `600.0.0..<605.0.0`, CI-tested at both ends. Replace deprecated API uses.
+   - The floor stays low on purpose. SwiftPM resolves one swift-syntax version per dependency graph, so a narrow range would conflict with macro packages that pin an older release. (`600.1.0` was never released; the 600 line ends at 600.0.1.)
+   - The risky combination is a Swift 6.2+ toolchain with swift-syntax 600/601, whose parser predates 6.2 syntax such as `nonisolated(nonsending)` and `@concurrent`. CI tests exactly that pairing. Code that needs a newer swift-syntax API goes behind `#if canImport(SwiftSyntax602)` (or the matching marker module).
+   - **Done:** `Package.resolved` pins 604.0.0. A Linux Swift 6.2 job pins 600.0.0, and its snapshots match 604's output, including fixture 09. There were no deprecated swift-syntax APIs to replace at 604.
 2. ☁️ Attribute and specifier model:
    - isolation, `sending`, `isolated`, `nonisolated(nonsending)`, `@concurrent`, `consuming`, `borrowing`, `inout`, `some`;
    - strip correctly from matcher, tuple and generic positions (fixtures 07, 09, 10, 11).
