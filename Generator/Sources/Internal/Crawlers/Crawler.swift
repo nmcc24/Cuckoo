@@ -225,6 +225,8 @@ extension Crawler {
         guard !variableGroup.modifiers.isStatic && !variableGroup.modifiers.isFinal else { return [] }
 
         let attributes = attributes(from: variableGroup.attributes)
+        // An unavailable member can't be overridden or called.
+        guard !attributes.contains(where: \.isUnavailableEverywhere) else { return [] }
 
         var accessibility = Accessibility.internal
         var setterAccessibility: Accessibility?
@@ -353,13 +355,17 @@ extension Crawler {
 
         guard accessibility.isAccessible else { return nil }
 
+        let attributes = attributes(from: method.attributes)
+        // An unavailable member can't be overridden or called.
+        guard !attributes.contains(where: \.isUnavailableEverywhere) else { return nil }
+
         let parameters = self.parameters(from: method.signature.parameterClause.parameters)
         let returnType = method.signature.returnClause.flatMap { ComplexType(syntax: $0.type) }
 
         return Method(
             parent: container,
             documentation: documentation(from: method.leadingTrivia),
-            attributes: attributes(from: method.attributes),
+            attributes: attributes,
             accessibility: accessibility,
             name: identifier,
             signature: Method.Signature(
