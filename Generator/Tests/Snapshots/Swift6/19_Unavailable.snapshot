@@ -1,0 +1,437 @@
+import Cuckoo
+import Foundation
+
+class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Legacy
+    typealias Stubbing = __StubbingProxy_Legacy
+    typealias Verification = __VerificationProxy_Legacy
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Legacy)?
+
+    func enableDefaultImplementation(_ stub: any Legacy) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    @available(iOS, unavailable)
+    func notOnIOS() {
+        return cuckoo_manager.call(
+            "notOnIOS()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.notOnIOS()
+        )
+    }
+
+    @available(macOS, unavailable, message: "not on macOS")
+    func notOnMacOS() {
+        return cuckoo_manager.call(
+            "notOnMacOS()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.notOnMacOS()
+        )
+    }
+
+    @available(macCatalyst, unavailable)
+    func notOnCatalyst() {
+        return cuckoo_manager.call(
+            "notOnCatalyst()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.notOnCatalyst()
+        )
+    }
+
+    @available(iOSApplicationExtension, unavailable)
+    func notInExtensions() {
+        return cuckoo_manager.call(
+            "notInExtensions()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.notInExtensions()
+        )
+    }
+
+    @available(*, deprecated, message: "use kept()")
+    func deprecated() {
+        return cuckoo_manager.call(
+            "deprecated()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.deprecated()
+        )
+    }
+
+    func kept() {
+        return cuckoo_manager.call(
+            "kept()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.kept()
+        )
+    }
+
+    struct __StubbingProxy_Legacy: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        #if !os(iOS)
+        @available(iOS, unavailable)
+        func notOnIOS() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLegacy.self,
+                method: "notOnIOS()",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        #if !os(macOS)
+        @available(macOS, unavailable, message: "not on macOS")
+        func notOnMacOS() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLegacy.self,
+                method: "notOnMacOS()",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        #if !targetEnvironment(macCatalyst)
+        @available(macCatalyst, unavailable)
+        func notOnCatalyst() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLegacy.self,
+                method: "notOnCatalyst()",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        
+        @available(iOSApplicationExtension, unavailable)
+        func notInExtensions() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLegacy.self,
+                method: "notInExtensions()",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        @available(*, deprecated, message: "use kept()")
+        func deprecated() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLegacy.self,
+                method: "deprecated()",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func kept() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLegacy.self,
+                method: "kept()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Legacy: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        #if !os(iOS)
+        @available(iOS, unavailable)
+        @discardableResult
+        func notOnIOS() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "notOnIOS()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        #if !os(macOS)
+        @available(macOS, unavailable, message: "not on macOS")
+        @discardableResult
+        func notOnMacOS() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "notOnMacOS()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        #if !targetEnvironment(macCatalyst)
+        @available(macCatalyst, unavailable)
+        @discardableResult
+        func notOnCatalyst() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "notOnCatalyst()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
+        
+        @available(iOSApplicationExtension, unavailable)
+        @discardableResult
+        func notInExtensions() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "notInExtensions()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @available(*, deprecated, message: "use kept()")
+        @discardableResult
+        func deprecated() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "deprecated()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func kept() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "kept()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class LegacyStub:Legacy, @unchecked Sendable {
+
+
+    #if !os(iOS)
+    @available(iOS, unavailable)
+    func notOnIOS() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    #endif
+    #if !os(macOS)
+    @available(macOS, unavailable, message: "not on macOS")
+    func notOnMacOS() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    #endif
+    #if !targetEnvironment(macCatalyst)
+    @available(macCatalyst, unavailable)
+    func notOnCatalyst() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    #endif
+    
+    @available(iOSApplicationExtension, unavailable)
+    func notInExtensions() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    @available(*, deprecated, message: "use kept()")
+    func deprecated() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    func kept() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+
+class MockLegacyService: LegacyService, Cuckoo.ClassMock, @unchecked Sendable {
+    typealias MocksType = LegacyService
+    typealias Stubbing = __StubbingProxy_LegacyService
+    typealias Verification = __VerificationProxy_LegacyService
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    private var __defaultImplStub: LegacyService?
+
+    func enableDefaultImplementation(_ stub: LegacyService) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    override func kept() {
+        return cuckoo_manager.call(
+            "kept()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: super.kept(),
+            defaultCall: __defaultImplStub!.kept()
+        )
+    }
+
+    struct __StubbingProxy_LegacyService: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func kept() -> Cuckoo.ClassStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLegacyService.self,
+                method: "kept()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_LegacyService: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func kept() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "kept()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class LegacyServiceStub:LegacyService, @unchecked Sendable {
+
+
+    
+    override func kept() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+
+class MockLegacyView: LegacyView, Cuckoo.ClassMock, @unchecked Sendable {
+    typealias MocksType = LegacyView
+    typealias Stubbing = __StubbingProxy_LegacyView
+    typealias Verification = __VerificationProxy_LegacyView
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    private var __defaultImplStub: LegacyView?
+
+    func enableDefaultImplementation(_ stub: LegacyView) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    override func kept() {
+        return cuckoo_manager.call(
+            "kept()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: super.kept(),
+            defaultCall: __defaultImplStub!.kept()
+        )
+    }
+
+    struct __StubbingProxy_LegacyView: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func kept() -> Cuckoo.ClassStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLegacyView.self,
+                method: "kept()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_LegacyView: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func kept() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "kept()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class LegacyViewStub:LegacyView, @unchecked Sendable {
+
+
+    
+    override func kept() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+
+

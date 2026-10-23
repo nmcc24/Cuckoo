@@ -1317,7 +1317,7 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
             return .init(manager: cuckoo_manager, name: "unavailableProperty")
         }
         #endif
-        #if !os(tvOS) && !os(macCatalyst)
+        #if !os(tvOS) && !targetEnvironment(macCatalyst)
         @available(tvOS, unavailable)
         @available(macCatalyst, unavailable)
         var multiUnavailableProperty: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockClassWithUnavailablePlatformMembers,Int> {
@@ -1338,7 +1338,7 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
             ))
         }
         #endif
-        #if !os(macCatalyst) && !os(tvOS)
+        #if !targetEnvironment(macCatalyst) && !os(tvOS)
         @available(macCatalyst, unavailable)
         @available(tvOS, unavailable)
         func multiUnavailableMethod() -> Cuckoo.ClassStubFunction<(), Int> {
@@ -1399,7 +1399,7 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
         }
         #endif
         
-        #if !os(macCatalyst) && !os(tvOS)
+        #if !targetEnvironment(macCatalyst) && !os(tvOS)
         @available(macCatalyst, unavailable)
         @available(tvOS, unavailable)
         @discardableResult
@@ -1437,7 +1437,7 @@ class ClassWithUnavailablePlatformMembersStub:ClassWithUnavailablePlatformMember
         }
     }
     #endif
-    #if !os(tvOS) && !os(macCatalyst)
+    #if !os(tvOS) && !targetEnvironment(macCatalyst)
     @available(tvOS, unavailable)
     @available(macCatalyst, unavailable)
     override var multiUnavailableProperty: Int {
@@ -1461,7 +1461,7 @@ class ClassWithUnavailablePlatformMembersStub:ClassWithUnavailablePlatformMember
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
     #endif
-    #if !os(macCatalyst) && !os(tvOS)
+    #if !targetEnvironment(macCatalyst) && !os(tvOS)
     @available(macCatalyst, unavailable)
     @available(tvOS, unavailable)
     override func multiUnavailableMethod() -> Int {
