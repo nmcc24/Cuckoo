@@ -12,7 +12,8 @@ Toolchain used: Xcode 27.1, Swift 6.4 (`swiftlang-6.4.0.34.1`), macOS 27 SDK.
 
 ### 1.1 Existing test suite
 - `xcodebuild test -scheme Cuckoo-macOS` passes all **342 tests**, but only with `MACOSX_DEPLOYMENT_TARGET=12.0`. Xcode 27 rejects the project's 10.15 deployment target (minimum is 12.0).
-- `swift test` doesn't work. The test target needs the Tuist-generated `CuckooMocks` framework and OCMock, so only the Tuist workspace can run tests.
+- `swift test` doesn't work. The test target needs the Tuist-generated `CuckooMocks` framework (a pre-build script runs the generator), so only the Tuist workspace can run tests.
+- The OCMock bridge tests (`Tests/OCMock`) don't run anywhere: the Tuist project has OCMock and those sources commented out.
 - The generator has **one** unit test (`OrderedSetTest`). It has no golden-file or snapshot tests. *(Phase 0 added snapshot tests that `swift test` runs; see Phase 0 status.)*
 
 ### 1.2 Swift 6 feature matrix
@@ -254,6 +255,14 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
 Exit criteria: fixtures 07, 09, 10 and 11 typecheck, with snapshot tests for each.
 
 ### Phase 2: Concurrency-correct runtime (≈2 weeks)
+0. ☁️ **Run the runtime test suite with SwiftPM, keeping Tuist in parallel.** Do this first, so the runtime rewrite has a regression suite that runs on Linux.
+   - **Layout:** a plain target holding `Tests/Swift/Source`, and a test target that depends on it and on `Cuckoo`. `CuckooPluginSingleFile` generates the mocks, the same way users consume Cuckoo. This also gives the build plugin CI coverage, which it doesn't have today.
+   - **Runs:** `swift test` on Linux, and `xcodebuild test` on the package per platform (macOS and the iOS/tvOS/watchOS simulators) in CI.
+   - **Keep the Tuist schemes running alongside.** Compare test counts and results between the two setups until they agree on every image. Only then decide whether to remove Tuist, mise, `build_generator` and the generated workspace.
+   - **Watch for:**
+     - plugin output differing from the `Cuckoofile.toml` run (`exclude`, `testableImports`);
+     - runtime tests that assume Apple-only behaviour (the `NSException` path in `failAndCrash`), which need `#if` guards or stay macOS-only.
+   - **OCMock bridge tests:** they stay disabled until D4's package trait exists.
 1. ☁️ `Sendable` `MockManager` with `Locked<State>`, `nonisolated` protocol requirements, honest `Sendable` mocks (drop `@unchecked`).
 2. ☁️ TaskLocal configuration, the Swift Testing trait, failure routing, and the unstubbed-call policy.
 3. ☁️ Stress tests: 1,000 concurrent calls, stubs and verifications on one mock, run under TSan in CI (🍎 for TSan on Apple platforms; ☁️ TSan on Linux).
