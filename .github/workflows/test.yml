@@ -4,62 +4,71 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Every macOS job uses its image's default Xcode, so each image covers one Swift version.
+# Swift 6.4 made swiftbuild the default build system; older toolchains use the native one.
+# 6.4 is tested with both so neither layout regresses.
 jobs:
   generator_linux:
-    name: Generator tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }})
+    name: Generator tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }})
     runs-on: ubuntu-latest
     container: swift:${{ matrix.swift }}
     strategy:
       fail-fast: false
       matrix:
-        swift: ["6.2", "6.3", "6.4"]
+        include:
+          - { swift: "6.2", build-system: native }
+          - { swift: "6.3", build-system: native }
+          - { swift: "6.4", build-system: swiftbuild }
+          - { swift: "6.4", build-system: native }
+    env:
+      SWIFT_BUILD_FLAGS: --build-system ${{ matrix.build-system }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Generator tests
-        run: swift test
+        run: swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix
         run: scripts/swift6-matrix.sh
 
   generator_macOS:
-    name: Generator tests and Swift 6 matrix on macOS 27 (Xcode 27)
-    runs-on: xcode-27
+    name: Generator tests and Swift 6 matrix on ${{ matrix.runner }} (${{ matrix.build-system }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: macos-15, build-system: native }
+          - { runner: macos-26, build-system: native }
+          - { runner: xcode-27, build-system: swiftbuild }
+          - { runner: xcode-27, build-system: native }
+    env:
+      SWIFT_BUILD_FLAGS: --build-system ${{ matrix.build-system }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Show toolchain
-        # The image's default Xcode; picking the newest installed one can select a beta.
         run: |
           ls -d /Applications/Xcode*.app
           echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1) / SDKROOT=${SDKROOT:-unset}"
+      - name: Build package
+        run: swift build $SWIFT_BUILD_FLAGS
       - name: Generator tests
-        run: swift test
+        run: swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix
         run: scripts/swift6-matrix.sh
 
-  build_macOS:
-    name: Build Package on macOS
-    runs-on: xcode-27
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - name: List available Xcode versions
-        run: ls /Applications | grep Xcode
-      - name: Show current version of Xcode
-        run: xcodebuild -version
-      - name: Build Package
-        run: swift build
-
   test_macOS:
-    name: Build and Test on macOS
-    runs-on: xcode-27
+    name: Build and Test on macOS (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-26, xcode-27]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: List available Xcode versions
-        run: ls /Applications | grep Xcode
-      - name: Show current version of Xcode
-        run: xcodebuild -version
+      - name: Show toolchain
+        run: echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1)"
       - uses: jdx/mise-action@v2
         with:
           install: false
@@ -71,15 +80,17 @@ jobs:
             | xcbeautify --renderer github-actions
 
   test_iOS:
-    name: Build and Test on iOS simulator
-    runs-on: xcode-27
+    name: Build and Test on iOS simulator (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-26, xcode-27]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: List available Xcode versions
-        run: ls /Applications | grep Xcode
-      - name: Show current version of Xcode
-        run: xcodebuild -version
+      - name: Show toolchain
+        run: echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1)"
       - uses: jdx/mise-action@v2
         with:
           install: false
