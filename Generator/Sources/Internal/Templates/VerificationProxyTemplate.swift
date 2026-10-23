@@ -14,16 +14,22 @@ extension Templates {
     }
     {% for property in container.properties %}
     
+    {% if property.hasCompilationCondition %}
+    {{ property.compilationConditionCheck }}
+    {% endif %}
     {% for attribute in property.attributes %}
     {{ attribute }}
     {% endfor %}
     var {{property.name}}: Cuckoo.{{property.verifyType}}<{% if property.isReadOnly %}{{property.type|genericSafe}}{% else %}{{property.nonOptionalType|genericSafe}}{% endif %}> {
         return .init(manager: cuckoo_manager, name: "{{property.name}}", callMatcher: callMatcher, sourceLocation: sourceLocation)
     }
+    {% if property.hasCompilationCondition %}
+    #endif
+    {% endif %}
     {% endfor %}
     {% for method in container.methods %}
     
-    {{ method.unavailablePlatformsCheck }}
+    {{ method.compilationConditionCheck }}
     {% for attribute in method.attributes %}
     {{ attribute }}
     {% endfor %}
@@ -37,7 +43,7 @@ extension Templates {
             sourceLocation: sourceLocation
         )
     }
-    {% if method.hasUnavailablePlatforms %}
+    {% if method.hasCompilationCondition %}
     #endif
     {% endif %}
     {% endfor %}

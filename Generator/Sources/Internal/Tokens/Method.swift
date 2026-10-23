@@ -9,6 +9,8 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
     var name: String
     var signature: Signature
     var isOptional: Bool
+    /// The `#if` conditions the declaration is nested in.
+    var compilationConditions: [String] = []
 
     var fullSignature: String {
         [
@@ -143,8 +145,8 @@ extension Method {
             "hasGenericParams": hasGenericParams,
             "genericParameters": signature.genericParameters.sourceDescription,
             "hasNonPrimaryAssociatedTypeParams": hasNonPrimaryAssociatedTypeParams,
-            "hasUnavailablePlatforms": hasUnavailablePlatforms,
-            "unavailablePlatformsCheck": unavailablePlatformsCheck,
+            "hasCompilationCondition": hasCompilationCondition,
+            "compilationConditionCheck": compilationConditionCheck,
         ]
     }
 }

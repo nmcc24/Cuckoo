@@ -13,6 +13,8 @@ struct Variable: Token, HasAccessibility, HasAttributes {
     var name: String
     var type: ComplexType
     var effects: Effects
+    /// The `#if` conditions the declaration is nested in.
+    var compilationConditions: [String] = []
     var isReadOnly: Bool {
         setterAccessibility?.isAccessible != true
     }
@@ -43,8 +45,8 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             "stubType": (parent.isClass ? "Class" : "Protocol") + "ToBeStubbed\(readOnlyStubString)\(optionalString)\(throwingString)Property",
             "verifyType": "Verify\(readOnlyVerifyString)\(optionalString)Property",
             "attributes": attributes,
-            "hasUnavailablePlatforms": hasUnavailablePlatforms,
-            "unavailablePlatformsCheck": unavailablePlatformsCheck,
+            "hasCompilationCondition": hasCompilationCondition,
+            "compilationConditionCheck": compilationConditionCheck,
         ]
     }
 }

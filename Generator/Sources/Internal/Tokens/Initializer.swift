@@ -7,6 +7,8 @@ struct Initializer: Token, HasAttributes, HasAccessibility {
     var signature: Method.Signature
     var isRequired: Bool
     var isOptional: Bool
+    /// The `#if` conditions the declaration is nested in.
+    var compilationConditions: [String] = []
 }
 
 extension Initializer: Inheritable {
@@ -29,6 +31,8 @@ extension Initializer: Serializable {
             "accessibility": accessibility.sourceName,
             "attributes": attributes,
             "signature": signature.description,
+            "hasCompilationCondition": hasCompilationCondition,
+            "compilationConditionCheck": compilationConditionCheck,
         ]
     }
 }

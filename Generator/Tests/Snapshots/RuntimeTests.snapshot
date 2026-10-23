@@ -1230,6 +1230,7 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
+    #if !os(tvOS)
     @available(tvOS, unavailable)
     override var unavailableProperty: Int {
         get {
@@ -1240,7 +1241,9 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
             )
         }
     }
+    #endif
 
+    #if !os(tvOS) && !targetEnvironment(macCatalyst)
     @available(tvOS, unavailable)
     @available(macCatalyst, unavailable)
     override var multiUnavailableProperty: Int {
@@ -1252,6 +1255,7 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
             )
         }
     }
+    #endif
 
     override var availableProperty: Bool {
         get {
@@ -1272,6 +1276,7 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
     }
 
 
+    #if !os(tvOS)
     @available(tvOS, unavailable)
     override func unavailableMethod() -> Int {
         return cuckoo_manager.call(
@@ -1282,7 +1287,9 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
             defaultCall: __defaultImplStub!.unavailableMethod()
         )
     }
+    #endif
 
+    #if !targetEnvironment(macCatalyst) && !os(tvOS)
     @available(macCatalyst, unavailable)
     @available(tvOS, unavailable)
     override func multiUnavailableMethod() -> Int {
@@ -1294,6 +1301,7 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
             defaultCall: __defaultImplStub!.multiUnavailableMethod()
         )
     }
+    #endif
 
     override func availableMethod() -> Bool {
         return cuckoo_manager.call(
@@ -1370,16 +1378,20 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
             self.sourceLocation = sourceLocation
         }
         
+        #if !os(tvOS)
         @available(tvOS, unavailable)
         var unavailableProperty: Cuckoo.VerifyReadOnlyProperty<Int> {
             return .init(manager: cuckoo_manager, name: "unavailableProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
+        #endif
         
+        #if !os(tvOS) && !targetEnvironment(macCatalyst)
         @available(tvOS, unavailable)
         @available(macCatalyst, unavailable)
         var multiUnavailableProperty: Cuckoo.VerifyReadOnlyProperty<Int> {
             return .init(manager: cuckoo_manager, name: "multiUnavailableProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
+        #endif
         
         var availableProperty: Cuckoo.VerifyProperty<Bool> {
             return .init(manager: cuckoo_manager, name: "availableProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
