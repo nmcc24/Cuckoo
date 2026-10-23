@@ -221,6 +221,35 @@ extension ComplexType {
         }
     }
 
+    /// Specifiers that are only valid directly on a parameter or result type,
+    /// never inside a generic argument, tuple or metatype expression.
+    static let parameterOnlySpecifiers: Set<String> = ["sending", "borrowing", "consuming", "inout", "isolated", "__owned", "__shared"]
+
+    /// The type as it can appear in a generic argument, tuple or `.self` expression.
+    /// Parameter-only specifiers such as `sending` are dropped, and opaque `some P` becomes `any P`.
+    var genericArgumentSafe: ComplexType {
+        switch self {
+        case .attributed(let attributes, let baseType):
+            return .attributed(
+                attributes: attributes.filter { !Self.parameterOnlySpecifiers.contains($0) },
+                baseType: baseType.genericArgumentSafe
+            )
+        case .optional(let wrappedType, let isImplicit):
+            return .optional(wrappedType: wrappedType.genericArgumentSafe, isImplicit: isImplicit)
+        case .array(let elementType):
+            return .array(elementType: elementType.genericArgumentSafe)
+        case .dictionary(let keyType, let valueType):
+            return .dictionary(keyType: keyType.genericArgumentSafe, valueType: valueType.genericArgumentSafe)
+        case .closure:
+            return self
+        case .type(let name):
+            if name.hasPrefix("some ") {
+                return .type("any " + name.dropFirst("some ".count))
+            }
+            return self
+        }
+    }
+
     func containsAttribute(named name: String) -> Bool {
         if case .attributed(let attributes, _) = self {
             attributes.contains(name)

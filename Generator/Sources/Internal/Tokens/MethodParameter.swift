@@ -22,20 +22,43 @@ struct MethodParameter: Token {
         "\(nameAndInnerName): \(type)"
     }
 
+    var isSending: Bool {
+        type.containsAttribute(named: "sending")
+    }
+
     var isEscaping: Bool {
         type.isClosure && (type.containsAttribute(named: "@escaping") || type.isOptional)
     }
     
     var call: String {
-        let escapedName = escapeReservedKeywords(for: usableName)
-        let value = "\(isInout ? "&" : "")\(escapedName)\(type.containsAttribute(named: "@autoclosure") ? "()" : "")"
-        if name == "_" {
+        call(value: escapeReservedKeywords(for: usableName))
+    }
+
+    /// Like `call`, but a `sending` argument is read from the `Cuckoo.__SendingArgument`
+    /// the mock wraps it in, because the mock has already recorded it.
+    var forwardingCall: String {
+        isSending ? call(value: "__\(usableName).value") : call
+    }
+
+    private func call(value name: String) -> String {
+        let value = "\(isInout ? "&" : "")\(name)\(type.containsAttribute(named: "@autoclosure") ? "()" : "")"
+        if self.name == "_" {
             return value
         } else {
-            return "\(name): \(value)"
+            return "\(self.name): \(value)"
         }
     }
     
+    /// The parameter as the mock manager records it. An opaque `some P` value is
+    /// upcast to `any P`, the type its stubbing and verification matchers use;
+    /// otherwise a stub's or recorded call's type wouldn't match the concrete argument type.
+    var recordedValue: String {
+        let name = escapeReservedKeywords(for: usableName)
+        let matchedType = type.withoutAttributes(except: ["@MainActor", "@Sendable"])
+        let genericSafeType = matchedType.genericArgumentSafe
+        return genericSafeType == matchedType ? name : "\(name) as \(genericSafeType)"
+    }
+
     func callAndCastTypes(named typeNames: [String], as replacement: (String) -> String) -> String {
         let replaced = type.replaceTypes(named: typeNames, with: replacement)
         
