@@ -4,7 +4,7 @@ import SwiftParser
 
 final class Crawler: SyntaxVisitor {
     static func crawl(url: URL) throws -> Crawler {
-        let file = try String(contentsOf: url)
+        let file = try String(contentsOf: url, encoding: .utf8)
         let syntaxTree = Parser.parse(source: file)
         #if DEBUG
         // Comment out the line above and uncomment the one below to test specific strings.
