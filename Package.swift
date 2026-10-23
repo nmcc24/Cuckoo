@@ -36,8 +36,8 @@ let package = Package(
     dependencies: [
         // Any dependency changes must also be reflected in Generator/Project.swift.
         .package(url: "https://github.com/kylef/Stencil", from: "0.15.1"),
-        .package(url: "https://github.com/swiftlang/swift-syntax", "602.0.0"..<"605.0.0"),
-        // .package(url: "https://github.com/swiftlang/swift-format", "602.0.0"..<"605.0.0"),
+        .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"605.0.0"),
+        // .package(url: "https://github.com/swiftlang/swift-format", "600.0.0"..<"605.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.7.0"),
         .package(url: "https://github.com/LebJe/TOMLKit", from: "0.6.0"),
         .package(url: "https://github.com/tuist/XcodeProj", from: "9.14.0"),
