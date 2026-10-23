@@ -5,6 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 # Every macOS job uses its image's default Xcode, so each image covers one Swift version.
+# macos-15 isn't used: its default is Xcode 16.4 / Swift 6.1, below the Swift 6.2 minimum.
 # Swift 6.4 made swiftbuild the default build system; older toolchains use the native one.
 # 6.4 is tested with both so neither layout regresses.
 jobs:
@@ -37,7 +38,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { runner: macos-15, build-system: native }
           - { runner: macos-26, build-system: native }
           - { runner: xcode-27, build-system: swiftbuild }
           - { runner: xcode-27, build-system: native }
@@ -63,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [macos-15, macos-26, xcode-27]
+        runner: [macos-26, xcode-27]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -85,7 +85,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [macos-15, macos-26, xcode-27]
+        runner: [macos-26, xcode-27]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
