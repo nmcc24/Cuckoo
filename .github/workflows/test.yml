@@ -8,9 +8,11 @@ concurrency:
 # macos-15 isn't used: its default is Xcode 16.4 / Swift 6.1, below the Swift 6.2 minimum.
 # Swift 6.4 made swiftbuild the default build system; older toolchains use the native one.
 # 6.4 is tested with both so neither layout regresses.
+# Package.resolved pins the newest swift-syntax; one Linux job also builds against the
+# lowest version Package.swift allows, so both ends of the range stay tested.
 jobs:
   generator_linux:
-    name: Generator tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }})
+    name: Generator tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }}${{ matrix.swift-syntax && format(', swift-syntax {0}', matrix.swift-syntax) || '' }})
     runs-on: ubuntu-latest
     container: swift:${{ matrix.swift }}
     strategy:
@@ -18,6 +20,7 @@ jobs:
       matrix:
         include:
           - { swift: "6.2", build-system: native }
+          - { swift: "6.2", build-system: native, swift-syntax: "602.0.0" }
           - { swift: "6.3", build-system: native }
           - { swift: "6.4", build-system: swiftbuild }
           - { swift: "6.4", build-system: native }
@@ -26,6 +29,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+      - name: Pin swift-syntax ${{ matrix.swift-syntax }}
+        if: matrix.swift-syntax
+        run: swift package resolve swift-syntax --version ${{ matrix.swift-syntax }}
       - name: Generator tests
         run: swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix
