@@ -42,6 +42,18 @@ struct SnapshotTests {
         try assertSnapshot(contents, named: "RuntimeTests")
     }
 
+    /// Mirrors the `CuckooSwiftUI` module in `Cuckoofile.toml`, which keeps SwiftUI's imports out of the other mocks.
+    @Test
+    func runtimeTestSwiftUISources() async throws {
+        let contents = try await generate(
+            sources: ["Tests/Swift/Source/SwiftUI/*.swift"],
+            testableImports: ["Cuckoo", "CuckooTestSources"],
+            exclude: [],
+            keepDocumentation: false
+        )
+        try assertSnapshot(contents, named: "RuntimeTestsSwiftUI")
+    }
+
     /// Doc comments are copied onto mock members unless `keepDocumentation = false`.
     @Test
     func documentation() async throws {
