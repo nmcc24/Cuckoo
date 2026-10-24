@@ -32,6 +32,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 
 ## CI (`.github/workflows/test.yml`)
 - **Linux:** `swift:6.2`, `6.3` (native build system) and `swift:6.4` (both `swiftbuild` and `native`), running generator tests and the Swift 6 fixture matrix.
+- **swift-syntax range `600.0.0..<605.0.0`.** `Package.resolved` pins the newest release, and one Linux Swift 6.2 job pins 600.0.0. The floor stays low so Cuckoo resolves alongside macro packages that pin older releases. Put newer swift-syntax APIs behind `#if canImport(SwiftSyntax60x)`.
 - **macOS:** `macos-26` (Xcode 26.6, Swift 6.3) and `xcode-27` (Xcode 27, Swift 6.4), running the generator jobs plus the Tuist macOS and iOS test schemes. `macos-15` isn't used; its default Swift 6.1 is below the minimum.
 - **Use each image's default Xcode.** Picking the newest installed one has selected a beta before.
 - **`CI passed` is the single required check.** Any new job must be added to its `needs:` list, or the merge gate won't wait for it.
@@ -39,10 +40,10 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 ## Local dev loop (works on Linux)
 - `swift test`: generator unit and snapshot tests (`Generator/Tests`). Add `--build-system native` or `--build-system swiftbuild` to pick the build layout.
 - `CUCKOO_RECORD_SNAPSHOTS=1 swift test`: re-record the snapshots in `Generator/Tests/Snapshots/`, then review the diff before committing. A missing snapshot is written and fails the test on purpose.
-- `scripts/swift6-matrix.sh`: generates mocks for `Fixtures/Swift6/*` and typechecks each in Swift 6 mode. `SWIFT_BUILD_FLAGS` picks the build system.
+- `scripts/swift6-matrix.sh`: generates mocks for `Fixtures/Swift6/*` and compiles each to SIL in Swift 6 mode. Plain `-typecheck` misses region-isolation ("sending ... risks causing data races") errors. `SWIFT_BUILD_FLAGS` picks the build system, and extra arguments go to `swiftc` (e.g. `-D DEBUG`).
   - Fixtures listed in `Fixtures/Swift6/expected-failures.txt` are expected to fail.
   - The script fails on a new failure or on a listed fixture that now passes. Remove a fixture from the list once its fixture passes.
-- No Swift toolchain on the cloud VM: use the official `swift:6.x` Docker images (start `dockerd` if it isn't running).
+- No Swift toolchain on the cloud VM: use the official `swift:6.x` Docker images (start `dockerd` if it isn't running). Docker Hub rate-limits the VM, so pull `mirror.gcr.io/library/swift:6.x`. For SwiftPM to fetch packages inside the container, mount the proxy CA bundle and pass the proxy variables (`HTTPS_PROXY`, `GIT_SSL_CAINFO`, `SSL_CERT_FILE`).
 - The 342 runtime tests run only through Tuist on macOS for now: `make`, then `xcodebuild test -scheme Cuckoo-macOS -workspace Cuckoo.xcworkspace`. Roadmap Phase 2 item 0 moves them to SwiftPM, keeping Tuist in parallel until both agree.
 
 ## Cloud environment notes
