@@ -64,13 +64,16 @@ public struct ClassToBeStubbedProperty<MOCK: ClassMock, T>: ToBeStubbedProperty 
     }
 }
 
-public protocol ToBeStubbedOptionalProperty: ToBeStubbedReadOnlyProperty where GetterType.OutputType == SetterType.InputType {
+public protocol ToBeStubbedOptionalProperty: ToBeStubbedReadOnlyProperty where GetterType.OutputType == SetterType.InputType, SetterType.InputType == WrappedType? {
+    associatedtype WrappedType
     associatedtype SetterType: StubNoReturnFunction
 
-    func set<M: OptionalMatchable>(_ matcher: M) -> SetterType where Optional<M.OptionalMatchedType> == SetterType.InputType
+    func set<M: OptionalMatchable>(_ matcher: M) -> SetterType where M.OptionalMatchedType == WrappedType
 }
 
 public struct ProtocolToBeStubbedOptionalProperty<MOCK: ProtocolMock, T>: ToBeStubbedOptionalProperty {
+    public typealias WrappedType = T
+
     private let manager: MockManager
     private let name: String
 
@@ -101,6 +104,8 @@ public struct ProtocolToBeStubbedOptionalProperty<MOCK: ProtocolMock, T>: ToBeSt
 }
 
 public struct ClassToBeStubbedOptionalProperty<MOCK: ClassMock, T>: ToBeStubbedOptionalProperty {
+    public typealias WrappedType = T
+
     private let manager: MockManager
     private let name: String
 
