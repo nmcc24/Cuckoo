@@ -1,6 +1,7 @@
 import XCTest
 import Cuckoo
 @testable import CuckooMocks
+@testable import CuckooTestSources
 
 extension Nested.NestedTestedClass: Mocked {
     public typealias MockType = Nested.MockNestedTestedClass

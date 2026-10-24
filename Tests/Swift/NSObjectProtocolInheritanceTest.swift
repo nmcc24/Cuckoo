@@ -1,5 +1,6 @@
 import XCTest
 @testable import CuckooMocks
+@testable import CuckooTestSources
 
 final class NSObjectProtocolTest: XCTestCase {
 

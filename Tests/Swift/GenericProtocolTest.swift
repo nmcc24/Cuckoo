@@ -1,6 +1,7 @@
 import XCTest
 import Cuckoo
 @testable import CuckooMocks
+@testable import CuckooTestSources
 
 private class GenericProtocolConformerClass<C: AnyObject, V>: GenericProtocol {
     let readOnlyPropertyC: C

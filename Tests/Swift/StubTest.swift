@@ -2,6 +2,7 @@ import Cuckoo
 import Testing
 import XCTest
 @testable import CuckooMocks
+@testable import CuckooTestSources
 
 final class StubTest: XCTestCase {
     private var stub: ClassForStubTestingStub!
