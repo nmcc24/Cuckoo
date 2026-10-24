@@ -40,14 +40,14 @@ let project = Project(
     name: "Generator",
     options: .options(automaticSchemesOptions: .disabled, disableSynthesizedResourceAccessors: true),
     packages: [
-        // Any dependency changes must also be reflected in ../Package.swift.
-        .package(url: "https://github.com/kylef/Stencil", .exact("0.15.1")),
+        // Any dependency changes must also be reflected in ../Package.swift, with the same requirements.
+        .package(url: "https://github.com/kylef/Stencil", .upToNextMinor(from: "0.15.1")),
         .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"605.0.0"),
         // .package(url: "https://github.com/swiftlang/swift-format", "600.0.0"..<"605.0.0"),
-        .package(url: "https://github.com/apple/swift-argument-parser", .exact("1.8.2")),
-        .package(url: "https://github.com/LebJe/TOMLKit", .exact("0.6.0")),
-        .package(url: "https://github.com/tuist/XcodeProj", .exact("9.17.6")),
-        .package(url: "https://github.com/onevcat/Rainbow", .exact("4.2.2")),
+        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMajor(from: "1.8.2")),
+        .package(url: "https://github.com/LebJe/TOMLKit", .upToNextMinor(from: "0.6.0")),
+        .package(url: "https://github.com/tuist/XcodeProj", .upToNextMajor(from: "9.17.6")),
+        .package(url: "https://github.com/onevcat/Rainbow", .upToNextMajor(from: "4.2.2")),
     ],
     targets: [
         target,

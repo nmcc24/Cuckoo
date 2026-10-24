@@ -35,11 +35,13 @@ let package = Package(
     ],
     dependencies: [
         // Any dependency changes must also be reflected in Generator/Project.swift.
-        .package(url: "https://github.com/kylef/Stencil", from: "0.15.1"),
+        // Up to the next major release, so Cuckoo resolves alongside users' other packages. Packages still
+        // at 0.x may break in a minor release, so they stop at the next minor one. The lockfiles pin exact revisions.
+        .package(url: "https://github.com/kylef/Stencil", .upToNextMinor(from: "0.15.1")),
         .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"605.0.0"),
         // .package(url: "https://github.com/swiftlang/swift-format", "600.0.0"..<"605.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2"),
-        .package(url: "https://github.com/LebJe/TOMLKit", from: "0.6.0"),
+        .package(url: "https://github.com/LebJe/TOMLKit", .upToNextMinor(from: "0.6.0")),
         .package(url: "https://github.com/tuist/XcodeProj", from: "9.17.6"),
         .package(url: "https://github.com/onevcat/Rainbow", from: "4.2.2"),
     ],

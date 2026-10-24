@@ -344,6 +344,7 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
    - Check that OCMock's own SwiftPM support works on current Xcode. Upstream removed the bridge from SwiftPM in 2.x ("Temporarily omit OCMock from SPM"), so find out why first.
    - Re-enable the commented-out OCMock targets in `Project.swift` and run `Tests/OCMock` in CI.
    - Update the API for Swift 6: `Sendable`-correct `objcStub`/`objcVerify`, MainActor-safe use with UIKit classes, and typed helpers to reduce the untyped `args[0] as! T` casts.
+7. ☁️ One source of truth for the generator's dependencies: have the Tuist `Generator` project consume the root package instead of re-declaring its packages, so `Generator/Project.swift` can't drift from `Package.swift` (a 9.9.0 vs 9.14.0 XcodeProj pin broke CI in Phase 2), and drop its separate lockfile.
 
 ### Phase 6: Release and upstreaming (S)
 - 3.0.0-beta tags on the fork.
