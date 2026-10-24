@@ -3,6 +3,10 @@ import Testing
 #if canImport(CuckooGenerator)
 // SwiftPM tests the executable target; the Tuist test target compiles the generator sources in directly.
 @testable import CuckooGenerator
+// On Darwin, Foundation also exports the Objective-C runtime's `Method`, so name the generator's explicitly.
+private typealias MethodToken = CuckooGenerator.Method
+#else
+private typealias MethodToken = Method
 #endif
 
 /// Input the generator can't fully handle produces a warning and is skipped, instead of crashing the generator.
@@ -54,7 +58,7 @@ struct CrawlerDiagnosticsTests {
             """, url: url)
 
         let store = try #require(crawler.tokens.first as? ProtocolDeclaration)
-        let returnTypes = store.members.compactMap { ($0 as? Method)?.returnType?.description }
+        let returnTypes = store.members.compactMap { ($0 as? MethodToken)?.returnType?.description }
         #expect(returnTypes == ["Array", "Dictionary"])
         #expect(crawler.diagnostics.isEmpty)
     }
