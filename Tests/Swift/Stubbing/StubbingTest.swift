@@ -433,7 +433,7 @@ final class StubbingTest: XCTestCase {
         }
 
         mock.noReturnSub()
-        waitForExpectations(timeout: 0.1, handler: nil)
+        wait(for: [invocationExpectation], timeout: 0.1)
     }
     
     func testThreadSafety() {
