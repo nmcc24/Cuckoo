@@ -8,6 +8,9 @@ dev:
 
 	mise install
 
+	# Resolve the dependencies Tuist reads from Package.swift, so generate doesn't report them as outdated.
+	TUIST_PROJECT_DIR=$(PWD) mise exec -- tuist install
+
 	# Generate Xcode structure.
 	TUIST_PROJECT_DIR=$(PWD) mise exec -- tuist generate --no-open
 
