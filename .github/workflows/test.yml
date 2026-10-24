@@ -101,7 +101,7 @@ jobs:
             | xcbeautify --renderer github-actions
 
   test_iOS:
-    name: Build and Test on iOS simulator (${{ matrix.runner }})
+    name: Build and Test on Apple simulators (${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -121,19 +121,31 @@ jobs:
           # Use whichever iPhone simulator the image ships, rather than pinning a model and OS.
           SIMULATOR_ID="$(xcrun simctl list devices available iPhone | grep -m1 -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')"
           echo "::notice title=Simulator::$(xcrun simctl list devices available | grep "$SIMULATOR_ID")"
-          echo "SIMULATOR_ID=$SIMULATOR_ID" >> "$GITHUB_ENV"
-      # Runs before `make`: once the Tuist workspace exists, xcodebuild picks it over Package.swift.
-      # The scheme builds the generator for iOS too; only the runtime suite runs.
-      - name: Test the package
+          echo "IOS_SIMULATOR_ID=$SIMULATOR_ID" >> "$GITHUB_ENV"
+      # These run before `make`: once the Tuist workspace exists, xcodebuild picks it over Package.swift.
+      # The shared CuckooTests scheme builds only the runtime side for the simulator; the generator is
+      # built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
+      # Swift, so what can break there is compile-time (APIs, availability, imports).
+      - name: Test the package on iOS
         run: |
-          set -o pipefail && xcodebuild test -scheme "Cuckoo-Package" -skipPackagePluginValidation \
-            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -only-testing:CuckooTests \
+          set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
+            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" \
+            | xcbeautify --renderer github-actions
+      - name: Build the package tests for tvOS
+        run: |
+          set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
+            -destination "generic/platform=tvOS Simulator" \
+            | xcbeautify --renderer github-actions
+      - name: Build the package tests for watchOS
+        run: |
+          set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
+            -destination "generic/platform=watchOS Simulator" \
             | xcbeautify --renderer github-actions
       - name: Test the Tuist project
         run: |
           make
           set -o pipefail && xcodebuild test -scheme "Cuckoo-iOS" -workspace Cuckoo.xcworkspace \
-            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" \
             | xcbeautify --renderer github-actions
 
   # The single check that master's ruleset requires. It depends on every other job, so
