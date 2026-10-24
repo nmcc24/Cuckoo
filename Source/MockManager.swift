@@ -1,36 +1,6 @@
-#if canImport(Testing)
-import Testing
-#endif
-#if canImport(XCTest)
-import XCTest
-#endif
+import Foundation
 
 public final class MockManager: Sendable {
-    nonisolated(unsafe) public static var fail: ((message: String, sourceLocation: SourceLocation)) -> Void = { arg in
-        let (message, sourceLocation) = arg
-        // Report to the framework running the current test only. Swift Testing flags an
-        // `XCTFail` inside its tests, and XCTest doesn't see Swift Testing issues.
-        #if canImport(Testing)
-        if Test.current != nil {
-            Issue.record(
-                Comment(rawValue: message),
-                sourceLocation: Testing.SourceLocation(
-                    fileID: sourceLocation.fileID,
-                    filePath: sourceLocation.filePath,
-                    line: sourceLocation.line,
-                    column: sourceLocation.column
-                )
-            )
-            return
-        }
-        #endif
-        #if canImport(XCTest)
-        XCTFail(message, file: sourceLocation.file, line: UInt(sourceLocation.line))
-        #else
-        print("\(Self.self).fail:", message, sourceLocation)
-        #endif
-    }
-
     private struct RecordedCall {
         let id: Int
         let call: StubCall
@@ -52,6 +22,7 @@ public final class MockManager: Sendable {
         case stubbed(StubAction<IN, OUT, ERROR>)
         case superclass
         case defaultImplementation
+        case unstubbed
     }
 
     // All mutable state sits behind one lock. User code (matchers, stub implementations, the superclass and
@@ -100,8 +71,30 @@ public final class MockManager: Sendable {
         } else if isDefaultImplementationEnabled {
             return .defaultImplementation
         } else {
-            failAndCrash("No stub for method `\(method)` using parameters \(parameters).")
+            let message = "No stub for method `\(method)` using parameters \(parameters)."
+            switch CuckooConfiguration.current.unstubbedCalls {
+            case .strict:
+                fail(message)
+            case .lenient:
+                break
+            case .crash:
+                failAndCrash(message)
+            }
+            return .unstubbed
         }
+    }
+
+    /// The default value an unstubbed call returns, or a crash if its type has none.
+    private func unstubbedValue<OUT>(_ method: String) -> OUT {
+        guard let value = DefaultValueRegistry.unstubbedValue(for: OUT.self) else {
+            failAndCrash("No stub for method `\(method)`, and its return type \(OUT.self) has no default value. Stub it, or register one with `DefaultValueRegistry` or the `.cuckoo(defaultValues:)` trait.")
+        }
+        return value
+    }
+
+    /// The error an unstubbed throwing call throws, if its error type can hold `CuckooError`.
+    private func unstubbedError<ERROR: Error>(_ method: String, as _: ERROR.Type) -> ERROR? {
+        CuckooError.unstubbedCall(method: method) as? ERROR
     }
 
     private func callInternal<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () -> OUT, defaultCall: () -> OUT) -> OUT {
@@ -128,6 +121,8 @@ public final class MockManager: Sendable {
             return try superclassCall()
         case .defaultImplementation:
             return try defaultCall()
+        case .unstubbed:
+            return unstubbedValue(method)
         }
     }
     
@@ -147,6 +142,8 @@ public final class MockManager: Sendable {
             return try await superclassCall()
         case .defaultImplementation:
             return try await defaultCall()
+        case .unstubbed:
+            return unstubbedValue(method)
         }
     }
     
@@ -162,6 +159,11 @@ public final class MockManager: Sendable {
             return try superclassCall()
         case .defaultImplementation:
             return try defaultCall()
+        case .unstubbed:
+            if let error = unstubbedError(method, as: ERROR.self) {
+                throw error
+            }
+            return unstubbedValue(method)
         }
     }
     
@@ -177,6 +179,11 @@ public final class MockManager: Sendable {
             return try await superclassCall()
         case .defaultImplementation:
             return try await defaultCall()
+        case .unstubbed:
+            if let error = unstubbedError(method, as: ERROR.self) {
+                throw error
+            }
+            return unstubbedValue(method)
         }
     }
     
@@ -205,7 +212,7 @@ public final class MockManager: Sendable {
         let calls = matching.map(\.call)
         if callMatcher.matches(calls) == false {
             let message = "Wanted \(callMatcher.name) but \(calls.count == 0 ? "not invoked" : "invoked \(calls.count) times")."
-            MockManager.fail((message: message, sourceLocation: sourceLocation))
+            reportFailure(message, at: sourceLocation)
         }
         return __DoNotUse()
     }
@@ -279,12 +286,16 @@ public final class MockManager: Sendable {
                     }
                 }.enumerated().map { "\($0 + 1). " + $1 }.joined(separator: "\n")
             let message = "No more interactions wanted but some found:\n"
-            MockManager.fail((message: message + unverifiedCalls, sourceLocation:  sourceLocation))
+            reportFailure(message + unverifiedCalls, at: sourceLocation)
         }
     }
 
+    private func fail(_ message: String, file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
+        reportFailure(message, at: (file, fileID, filePath, line, column))
+    }
+
     private func failAndCrash(_ message: String, file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> Never  {
-        MockManager.fail((message: message, sourceLocation: (file, fileID, filePath, line, column)))
+        reportFailure(message, at: (file, fileID, filePath, line, column))
 
         #if _runtime(_ObjC)
         NSException(name: .internalInconsistencyException, reason: message, userInfo: nil).raise()

@@ -1,6 +1,8 @@
-public class DefaultValueRegistry {
-    
-    nonisolated(unsafe) private static let defaultRegisteredTypes: [ObjectIdentifier: Any] = [
+/// Default values for unstubbed calls, shared by every test. Prefer `CuckooConfiguration.defaultValues` (or the
+/// `.cuckoo(defaultValues:)` trait) for values that only some tests need: those don't leak into tests running in
+/// parallel.
+public enum DefaultValueRegistry {
+    private static let defaultRegisteredTypes: [ObjectIdentifier: any Sendable] = [
         ObjectIdentifier(Void.self): Void(),
         ObjectIdentifier(Int.self): Int(),
         ObjectIdentifier(Int8.self): Int8(),
@@ -18,10 +20,12 @@ public class DefaultValueRegistry {
         ObjectIdentifier(Float.self): Float()
     ]
     
-    nonisolated(unsafe) private static var registeredTypes = defaultRegisteredTypes
+    private static let registeredTypes = Locked(defaultRegisteredTypes)
     
-    public static func register<T>(value: T, forType type: T.Type) {
-        registeredTypes[ObjectIdentifier(type)] = value
+    public static func register<T: Sendable>(value: T, forType type: T.Type) {
+        // Boxed explicitly, so a registered `nil` is stored rather than removing the entry.
+        let boxed: any Sendable = value
+        registeredTypes.withLock { $0[ObjectIdentifier(type)] = boxed }
     }
     
     public static func defaultValue<T>(for type: Set<T>.Type) -> Set<T> {
@@ -48,11 +52,33 @@ public class DefaultValueRegistry {
     }
     
     public static func reset() {
-        registeredTypes = defaultRegisteredTypes
+        registeredTypes.withLock { $0 = defaultRegisteredTypes }
     }
     
+    /// The value the current configuration or the registry holds for exactly `type`.
     private static func defaultValueOrNil<T>(for type: T.Type) -> T? {
-        return registeredTypes[ObjectIdentifier(type)] as? T
+        if let value = CuckooConfiguration.current.defaultValues.value(for: type) {
+            return value
+        }
+        guard let value = registeredTypes.withLock({ $0[ObjectIdentifier(type)] }) else {
+            return nil
+        }
+        return value as? T
+    }
+
+    /// The default value for an unstubbed call returning `T`: a registered value, else an empty value for
+    /// optionals and the standard collections. `nil` if there is none.
+    static func unstubbedValue<T>(for type: T.Type) -> T? {
+        if let value = defaultValueOrNil(for: type) {
+            return value
+        }
+        if let nilLiteral = type as? any ExpressibleByNilLiteral.Type {
+            return nilLiteral.init(nilLiteral: ()) as? T
+        }
+        if let empty = type as? any EmptyInitializable.Type {
+            return empty.init() as? T
+        }
+        return nil
     }
     
     // Overloads for tuples.
@@ -97,3 +123,13 @@ public class DefaultValueRegistry {
         }
     }
 }
+
+/// Types whose empty value is a sensible answer to an unstubbed call.
+protocol EmptyInitializable {
+    init()
+}
+
+extension Array: EmptyInitializable {}
+extension Set: EmptyInitializable {}
+extension Dictionary: EmptyInitializable {}
+extension ContiguousArray: EmptyInitializable {}
