@@ -20,6 +20,7 @@ extension Token {
             (self as? HasGenerics)?.genericsSerialize(),
             asProtocol.map { ["isNSObjectProtocol": $0.isNSObjectProtocol] },
             (self as? HasInheritance)?.inheritanceSerialize(),
+            (self as? HasEnclosingCompilationConditions)?.enclosingCompilationConditionsSerialize(),
         ]
         .compactMap { $0 }
         .merge()

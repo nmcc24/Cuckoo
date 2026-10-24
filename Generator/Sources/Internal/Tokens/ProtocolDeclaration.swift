@@ -1,4 +1,4 @@
-struct ProtocolDeclaration: ContainerToken {
+struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var parent: Reference<Token>?
 
     var attributes: [Attribute]
@@ -9,6 +9,7 @@ struct ProtocolDeclaration: ContainerToken {
     var genericRequirements: [String]
     var inheritedTypes: [String]
     var members: [Token]
+    var enclosingCompilationConditions: [String]
     var isNSObjectProtocol = false
 
     func replacing(members: [Token]) -> ProtocolDeclaration {
@@ -22,6 +23,7 @@ struct ProtocolDeclaration: ContainerToken {
             genericRequirements: genericRequirements,
             inheritedTypes: inheritedTypes,
             members: members,
+            enclosingCompilationConditions: enclosingCompilationConditions,
             isNSObjectProtocol: isNSObjectProtocol
         )
     }
@@ -37,6 +39,7 @@ struct ProtocolDeclaration: ContainerToken {
             genericRequirements: genericRequirements,
             inheritedTypes: inheritedTypes,
             members: members,
+            enclosingCompilationConditions: enclosingCompilationConditions,
             isNSObjectProtocol: isNSObjectProtocol
         )
     }

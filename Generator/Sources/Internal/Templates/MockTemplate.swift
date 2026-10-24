@@ -6,6 +6,9 @@ extension Templates {
     static let typeErasureGenericParameterPrefix = "\(staticGenericParameter)_"
     static let mock = """
 {% for container in containers %}
+{% if container.hasEnclosingCompilationCondition %}
+{{ container.enclosingCompilationConditionCheck }}
+{% endif %}
 {% if debug %}
 // {{ container }}
 {% endif %}
@@ -175,6 +178,9 @@ extension {{ container.parentFullyQualifiedName }} {
 
 {% if container.hasParent %}
 }
+{% endif %}
+{% if container.hasEnclosingCompilationCondition %}
+#endif
 {% endif %}
 
 {% endfor %}
