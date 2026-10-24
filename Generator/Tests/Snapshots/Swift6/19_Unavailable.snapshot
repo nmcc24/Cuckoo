@@ -31,15 +31,15 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
     #endif
 
-    #if !os(macOS)
-    @available(macOS, unavailable, message: "not on macOS")
-    func notOnMacOS() {
+    #if !os(tvOS)
+    @available(tvOS, unavailable, message: "not on tvOS")
+    func notOnTVOS() {
         return cuckoo_manager.call(
-            "notOnMacOS()",
+            "notOnTVOS()",
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.notOnMacOS()
+            defaultCall: __defaultImplStub!.notOnTVOS()
         )
     }
     #endif
@@ -105,12 +105,12 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
             ))
         }
         #endif
-        #if !os(macOS)
-        @available(macOS, unavailable, message: "not on macOS")
-        func notOnMacOS() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+        #if !os(tvOS)
+        @available(tvOS, unavailable, message: "not on tvOS")
+        func notOnTVOS() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockLegacy.self,
-                method: "notOnMacOS()",
+                method: "notOnTVOS()",
                 parameterMatchers: matchers
             ))
         }
@@ -178,13 +178,13 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
         }
         #endif
         
-        #if !os(macOS)
-        @available(macOS, unavailable, message: "not on macOS")
+        #if !os(tvOS)
+        @available(tvOS, unavailable, message: "not on tvOS")
         @discardableResult
-        func notOnMacOS() -> Cuckoo.__DoNotUse<(), Void> {
+        func notOnTVOS() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
-                "notOnMacOS()",
+                "notOnTVOS()",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -255,9 +255,9 @@ class LegacyStub:Legacy, @unchecked Sendable {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     #endif
-    #if !os(macOS)
-    @available(macOS, unavailable, message: "not on macOS")
-    func notOnMacOS() {
+    #if !os(tvOS)
+    @available(tvOS, unavailable, message: "not on tvOS")
+    func notOnTVOS() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     #endif
@@ -301,6 +301,19 @@ class MockLegacyService: LegacyService, Cuckoo.ClassMock, @unchecked Sendable {
     }
 
 
+    #if !os(macOS)
+    @available(macOS, unavailable, message: "not on macOS")
+    override func notOnMacOS() {
+        return cuckoo_manager.call(
+            "notOnMacOS()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: super.notOnMacOS(),
+            defaultCall: __defaultImplStub!.notOnMacOS()
+        )
+    }
+    #endif
+
     override func kept() {
         return cuckoo_manager.call(
             "kept()",
@@ -317,6 +330,16 @@ class MockLegacyService: LegacyService, Cuckoo.ClassMock, @unchecked Sendable {
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
+        #if !os(macOS)
+        @available(macOS, unavailable, message: "not on macOS")
+        func notOnMacOS() -> Cuckoo.ClassStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLegacyService.self,
+                method: "notOnMacOS()",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
         
         func kept() -> Cuckoo.ClassStubNoReturnFunction<()> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -338,6 +361,20 @@ class MockLegacyService: LegacyService, Cuckoo.ClassMock, @unchecked Sendable {
             self.sourceLocation = sourceLocation
         }
         
+        #if !os(macOS)
+        @available(macOS, unavailable, message: "not on macOS")
+        @discardableResult
+        func notOnMacOS() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "notOnMacOS()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+        
         
         @discardableResult
         func kept() -> Cuckoo.__DoNotUse<(), Void> {
@@ -355,6 +392,12 @@ class MockLegacyService: LegacyService, Cuckoo.ClassMock, @unchecked Sendable {
 class LegacyServiceStub:LegacyService, @unchecked Sendable {
 
 
+    #if !os(macOS)
+    @available(macOS, unavailable, message: "not on macOS")
+    override func notOnMacOS() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    #endif
     
     override func kept() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
