@@ -144,7 +144,13 @@ let project = Project(
     packages: [
         // .local(path: "OCMockWrapper"),
     ],
-    settings: Settings.settings(base: ["GENERATE_TEST_MOCKS": "YES"]),
+    settings: Settings.settings(base: [
+        "GENERATE_TEST_MOCKS": "YES",
+        // The runtime, the mocked test sources, their mocks and the tests form one package, as they
+        // do under SwiftPM. Without a shared package name, Swift treats the tests' conformances of
+        // `CuckooTestSources` types to Cuckoo protocols as retroactive and warns about them.
+        "SWIFT_PACKAGE_NAME": "Cuckoo",
+    ]),
     targets: iOSTargets + macOSTargets + tvOSTargets + watchOSTargets,
     schemes: iOSSchemes + macOSSchemes + tvOSSchemes + watchOSSchemes
 )
