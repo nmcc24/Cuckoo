@@ -1,11 +1,24 @@
 import Testing
-import Cuckoo
+@testable import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-struct UnstubbedCallPolicyTests {
+/// Collects the failures reported in its scope, so a test can check them without failing.
+private final class FailureLog: Sendable {
+    private let messages = Locked<[String]>([])
+
+    var all: [String] {
+        messages.withLock { $0 }
+    }
+
+    var handler: CuckooConfiguration.FailureHandler {
+        { message, _ in self.messages.withLock { $0.append(message) } }
+    }
+}
+
+struct UnstubbedCallTests {
     @Test
-    func strictRecordsAnIssueAndReturnsTheDefaultValue() {
+    func recordsAnIssueAndReturnsTheDefaultValue() {
         let mock = MockTestedProtocol()
 
         withKnownIssue {
@@ -15,73 +28,107 @@ struct UnstubbedCallPolicyTests {
         }
     }
 
-    @Test(.cuckoo(unstubbedCalls: .lenient))
-    func lenientReturnsDefaultValuesSilently() {
+    @Test
+    func returnsEmptyValuesForOptionalsAndCollections() {
+        let log = FailureLog()
         let mock = MockTestedProtocol()
 
-        #expect(mock.count(characters: "a") == 0)
-        #expect(mock.optionalProperty == nil)
-        #expect(mock.genericReturn().isEmpty)
-        #expect(mock.readOnlyProperty == "")
-    }
-
-    @Test(.cuckoo(unstubbedCalls: .lenient))
-    func throwingMembersThrowUnstubbedCall() {
-        let mock = MockTestedProtocol()
-
-        #expect(throws: CuckooError.unstubbedCall(method: "withThrows() throws -> Int")) {
-            try mock.withThrows()
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
+            #expect(mock.optionalProperty == nil)
+            #expect(mock.genericReturn().isEmpty)
+            #expect(mock.readOnlyProperty == "")
         }
+        #expect(log.all.count == 3)
     }
 
-    @Test(.cuckoo(unstubbedCalls: .lenient, defaultValues: {
-        var values = DefaultValues()
-        values.register(42)
-        values.register("forty-two")
-        return values
-    }()))
-    func traitDefaultValuesTakePrecedence() {
+    @Test
+    func throwingMembersThrowUnstubbedCall() {
+        let log = FailureLog()
         let mock = MockTestedProtocol()
 
-        #expect(mock.count(characters: "a") == 42)
-        #expect(mock.readOnlyProperty == "forty-two")
-        // The registry still answers types the trait doesn't cover.
-        #expect(mock.optionalProperty == nil)
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
+            #expect(throws: CuckooError.unstubbedCall(method: "withThrows() throws -> Int")) {
+                try mock.withThrows()
+            }
+        }
+        #expect(log.all.count == 1)
     }
 
-    @Test(.cuckoo(unstubbedCalls: .lenient))
-    func stubsStillWinOverDefaults() {
+    @Test
+    func anUnfinishedStubIsReportedNotCrashed() {
+        let log = FailureLog()
+        let mock = MockTestedProtocol()
+        stub(mock) { stub in
+            _ = when(stub.count(characters: "a"))
+        }
+
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
+            #expect(mock.count(characters: "a") == 0)
+        }
+        #expect(log.all.first?.contains("wasn't finished (missing thenReturn())") == true)
+    }
+
+    @Test
+    func stubsWinOverDefaults() {
+        let log = FailureLog()
         let mock = MockTestedProtocol()
         stub(mock) { stub in
             when(stub.count(characters: "a")).thenReturn(7)
         }
 
-        #expect(mock.count(characters: "a") == 7)
-        #expect(mock.count(characters: "b") == 0)
-    }
-
-    @Test
-    func taskLocalConfigurationAppliesInsideTheScope() async {
-        var lenient = CuckooConfiguration.current
-        lenient.unstubbedCalls = .lenient
-
-        await CuckooConfiguration.$current.withValue(lenient) {
-            let mock = MockTestedProtocol()
-            await mock.asyncMethod()
-            #expect(mock.count(characters: "a") == 0)
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
+            #expect(mock.count(characters: "a") == 7)
+            #expect(log.all.isEmpty)
+            #expect(mock.count(characters: "b") == 0)
+            #expect(log.all.count == 1)
         }
     }
 }
 
-@Suite(.cuckoo(unstubbedCalls: .lenient))
-struct CuckooTraitSuiteTests {
+private let fortyTwo: DefaultValues = {
+    var values = DefaultValues()
+    values.register(42)
+    values.register("forty-two")
+    return values
+}()
+
+@Suite(.cuckoo(defaultValues: fortyTwo))
+struct CuckooTraitTests {
     @Test
-    func suiteTraitAppliesToItsTests() {
-        #expect(CuckooConfiguration.current.unstubbedCalls == .lenient)
+    func suiteDefaultValuesApplyToItsTests() {
+        let mock = MockTestedProtocol()
+
+        withKnownIssue {
+            #expect(mock.count(characters: "a") == 42)
+            #expect(mock.readOnlyProperty == "forty-two")
+            // The registry still answers types the trait doesn't cover.
+            #expect(mock.optionalProperty == nil)
+        } matching: { issue in
+            issue.comments.map(\.rawValue).first?.hasPrefix("No stub for method") == true
+        }
     }
 
-    @Test(.cuckoo(unstubbedCalls: .strict))
+    @Test(.cuckoo(defaultValues: DefaultValues()))
     func testTraitOverridesTheSuite() {
-        #expect(CuckooConfiguration.current.unstubbedCalls == .strict)
+        let mock = MockTestedProtocol()
+
+        withKnownIssue {
+            #expect(mock.count(characters: "a") == 0)
+        } matching: { issue in
+            issue.comments.map(\.rawValue).first?.hasPrefix("No stub for method") == true
+        }
+    }
+
+    @Test
+    func failureHandlerTakesFailuresInsteadOfTheFramework() {
+        let log = FailureLog()
+        let mock = MockTestedProtocol()
+
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
+            _ = mock.count(characters: "a")
+            verify(mock, times(2)).count(characters: "a")
+        }
+        #expect(log.all.count == 2)
+        #expect(log.all.last == "Wanted 2 times but invoked 1 times.")
     }
 }

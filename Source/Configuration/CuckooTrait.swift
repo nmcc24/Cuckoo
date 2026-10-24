@@ -25,16 +25,12 @@ public struct CuckooTrait: TestTrait, SuiteTrait, TestScoping {
 extension Trait where Self == CuckooTrait {
     /// Configures the mocks used by a test or suite. Arguments left `nil` keep the enclosing configuration.
     ///
-    ///     @Suite(.cuckoo(unstubbedCalls: .lenient))
+    ///     @Suite(.cuckoo(defaultValues: values))
     public static func cuckoo(
-        unstubbedCalls: UnstubbedCallPolicy? = nil,
         defaultValues: DefaultValues? = nil,
         failureHandler: CuckooConfiguration.FailureHandler? = nil
     ) -> Self {
         CuckooTrait { configuration in
-            if let unstubbedCalls {
-                configuration.unstubbedCalls = unstubbedCalls
-            }
             if let defaultValues {
                 configuration.defaultValues = defaultValues
             }

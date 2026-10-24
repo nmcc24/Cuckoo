@@ -50,14 +50,16 @@ public final class MockManager: Sendable {
             return (state.stubs, state.isSuperclassSpyEnabled, state.isDefaultImplementationEnabled)
         }
 
-        let stub = stubs.lazy
+        // Newest stub first. A stub has no action yet while another thread is still between `when` and
+        // `then…`, so it's skipped rather than treated as broken; an older stub can still answer.
+        var sawUnfinishedStub = false
+        let candidates = stubs.lazy
             .filter { $0.method == method }
             .compactMap { $0 as? ConcreteStub<IN, OUT, ERROR> }
-            .first { $0.matches(parameters) }
-
-        if let stub {
+        for stub in candidates where stub.matches(parameters) {
             guard let action = stub.nextAction() else {
-                failAndCrash("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
+                sawUnfinishedStub = true
+                continue
             }
             if case .callRealImplementation = action {
                 guard hasParent else {
@@ -66,20 +68,17 @@ public final class MockManager: Sendable {
                 return .superclass
             }
             return .stubbed(action)
-        } else if isSuperclassSpyEnabled {
+        }
+
+        if isSuperclassSpyEnabled {
             return .superclass
         } else if isDefaultImplementationEnabled {
             return .defaultImplementation
+        } else if sawUnfinishedStub {
+            fail("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
+            return .unstubbed
         } else {
-            let message = "No stub for method `\(method)` using parameters \(parameters)."
-            switch CuckooConfiguration.current.unstubbedCalls {
-            case .strict:
-                fail(message)
-            case .lenient:
-                break
-            case .crash:
-                failAndCrash(message)
-            }
+            fail("No stub for method `\(method)` using parameters \(parameters).")
             return .unstubbed
         }
     }
