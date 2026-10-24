@@ -50,6 +50,6 @@ protocol MixedPrimaryAssociatedTypeProtocol<Input> {
     func convertToOutput<T>(
         value: sending T,
         input: sending Input,
-        convert: @escaping @MainActor @Sendable (T, Input) async throws -> Output?
+        convert: @escaping @MainActor @Sendable (T, Input) async throws -> sending Output?
     ) async rethrows -> Output
 }

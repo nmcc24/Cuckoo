@@ -120,7 +120,7 @@ private final class MixedPrimaryAssociatedTypeProtocolConformerClass<Input: Equa
     func convertToOutput<T>(
         value: sending T,
         input: sending Input,
-        convert: @escaping @MainActor @Sendable (T, Input) async throws -> Output?
+        convert: @escaping @MainActor @Sendable (T, Input) async throws -> sending Output?
     ) async rethrows -> Output {
         if let result = try await convert(value, input) {
             return result
@@ -133,9 +133,9 @@ private struct MixedPrimaryAssociatedTypeProtocolConformerStruct<Input: Equatabl
     var defaultOutput: Output
 
     func convertToOutput<T>(
-        value: T,
-        input: Input,
-        convert: @escaping @MainActor @Sendable (T, Input) async throws -> Output?
+        value: sending T,
+        input: sending Input,
+        convert: @escaping @MainActor @Sendable (T, Input) async throws -> sending Output?
     ) async rethrows -> Output {
         if let result = try await convert(value, input) {
             return result
@@ -378,7 +378,7 @@ final class GenericProtocolTest: XCTestCase {
     
     // MARK: - MockMixedPrimaryAssociatedTypeProtocol
     
-    private typealias ConvertClosure = @MainActor @Sendable (Int, String) async throws -> Int?
+    private typealias ConvertClosure = @MainActor @Sendable (Int, String) async throws -> sending Int?
     
     private func createMock() -> MockMixedPrimaryAssociatedTypeProtocol<String, Int> {
         MockMixedPrimaryAssociatedTypeProtocol()
@@ -405,7 +405,7 @@ final class GenericProtocolTest: XCTestCase {
             when(mock.convertToOutput(value: anyInt(), input: anyString(), convert: any(ConvertClosure.self)))
                 .thenReturn(expected)
         }
-        let closure: @MainActor @Sendable (Int, String) async throws -> Int? = { _, _ in nil }
+        let closure: @MainActor @Sendable (Int, String) async throws -> sending Int? = { _, _ in nil }
 
         let actual = try await mock.convertToOutput(value: value, input: input, convert: closure)
 
@@ -420,7 +420,7 @@ final class GenericProtocolTest: XCTestCase {
 
         let value = 3
         let input = "abc"
-        let closure: @MainActor @Sendable (Int, String) async throws -> Int? = { value, input in
+        let closure: @MainActor @Sendable (Int, String) async throws -> sending Int? = { value, input in
             value + input.count
         }
         let expected = value + input.count
@@ -447,7 +447,7 @@ final class GenericProtocolTest: XCTestCase {
         let value = 3
         let input = "abc"
 
-        let fallback: @MainActor @Sendable (Int, String) async throws -> Int? = { _, _ in nil }
+        let fallback: @MainActor @Sendable (Int, String) async throws -> sending Int? = { _, _ in nil }
         let result = try await mock.convertToOutput(value: value, input: input, convert: fallback)
 
         XCTAssertEqual(result, 9)
