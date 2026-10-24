@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any TestedProtocol
     typealias Stubbing = __StubbingProxy_TestedProtocol
     typealias Verification = __VerificationProxy_TestedProtocol
@@ -989,7 +989,7 @@ return cuckoo_manager.call(
     }
 }
 
-class TestedProtocolStub:TestedProtocol, @unchecked Sendable {
+final class TestedProtocolStub:TestedProtocol {
     
     var readOnlyProperty: String {
         get {
@@ -1165,7 +1165,7 @@ class TestedProtocolStub:TestedProtocol, @unchecked Sendable {
 }
 
 
-class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_EmptyLabelProtocol
     typealias Verification = __VerificationProxy_EmptyLabelProtocol
@@ -1174,7 +1174,8 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: EmptyLabelProtocol, @unchecked Sendable {
+    
+    final class DefaultImplCaller: EmptyLabelProtocol, @unchecked Sendable {
         private let reference: () -> any EmptyLabelProtocol
     
         
@@ -1328,7 +1329,7 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
     }
 }
 
-class EmptyLabelProtocolStub<T>:EmptyLabelProtocol, @unchecked Sendable {
+final class EmptyLabelProtocolStub<T>:EmptyLabelProtocol {
 
 
     
@@ -1346,7 +1347,7 @@ class EmptyLabelProtocolStub<T>:EmptyLabelProtocol, @unchecked Sendable {
 }
 
 
-class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any OnlyLabelProtocol
     typealias Stubbing = __StubbingProxy_OnlyLabelProtocol
     typealias Verification = __VerificationProxy_OnlyLabelProtocol
@@ -1474,7 +1475,7 @@ class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked 
     }
 }
 
-class OnlyLabelProtocolStub:OnlyLabelProtocol, @unchecked Sendable {
+final class OnlyLabelProtocolStub:OnlyLabelProtocol {
 
 
     
@@ -1492,7 +1493,7 @@ class OnlyLabelProtocolStub:OnlyLabelProtocol, @unchecked Sendable {
 }
 
 
-class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock {
     typealias MocksType = OnlyLabelClass
     typealias Stubbing = __StubbingProxy_OnlyLabelClass
     typealias Verification = __VerificationProxy_OnlyLabelClass
@@ -1620,7 +1621,7 @@ class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable 
     }
 }
 
-class OnlyLabelClassStub:OnlyLabelClass, @unchecked Sendable {
+final class OnlyLabelClassStub:OnlyLabelClass {
 
 
     
@@ -1638,7 +1639,7 @@ class OnlyLabelClassStub:OnlyLabelClass, @unchecked Sendable {
 }
 
 
-public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.ProtocolMock, @unchecked Sendable {
+public final class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.ProtocolMock {
     public typealias MocksType = DefaultImplCaller
     public typealias Stubbing = __StubbingProxy_PublicoProtocolo
     public typealias Verification = __VerificationProxy_PublicoProtocolo
@@ -1647,7 +1648,8 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
 
     public let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    public class DefaultImplCaller: PublicoProtocolo, @unchecked Sendable {
+    
+    public final class DefaultImplCaller: PublicoProtocolo, @unchecked Sendable {
         private let reference: () -> any PublicoProtocolo
     
         private let _getter_storage$$stringoStar: () -> String
@@ -1769,7 +1771,7 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
     }
 }
 
-public class PublicoProtocoloStub<InternaloTypo>:PublicoProtocolo, @unchecked Sendable {
+public final class PublicoProtocoloStub<InternaloTypo>:PublicoProtocolo {
     
     public var stringoStar: String {
         get {
@@ -1788,7 +1790,7 @@ public class PublicoProtocoloStub<InternaloTypo>:PublicoProtocolo, @unchecked Se
 }
 
 
-class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any SimpleProtocol
     typealias Stubbing = __StubbingProxy_SimpleProtocol
     typealias Verification = __VerificationProxy_SimpleProtocol
@@ -1844,7 +1846,7 @@ class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
     }
 }
 
-class SimpleProtocolStub:SimpleProtocol, @unchecked Sendable {
+final class SimpleProtocolStub:SimpleProtocol {
     
     var constant: Int {
         get {
@@ -1856,7 +1858,7 @@ class SimpleProtocolStub:SimpleProtocol, @unchecked Sendable {
 }
 
 
-class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any SendableProtocol
     typealias Stubbing = __StubbingProxy_SendableProtocol
     typealias Verification = __VerificationProxy_SendableProtocol
@@ -1894,13 +1896,91 @@ class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock, @unchecked Se
     }
 }
 
-class SendableProtocolStub:SendableProtocol, @unchecked Sendable {
+final class SendableProtocolStub:SendableProtocol {
 
 
 }
 
 
-class MockSimpleClass: SimpleClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockConcurrentCounter: ConcurrentCounter, Cuckoo.ProtocolMock {
+    typealias MocksType = any ConcurrentCounter
+    typealias Stubbing = __StubbingProxy_ConcurrentCounter
+    typealias Verification = __VerificationProxy_ConcurrentCounter
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any ConcurrentCounter>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ConcurrentCounter) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func count(characters p0: String) -> Int {
+        return cuckoo_manager.call(
+            "count(characters p0: String) -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.count(characters: p0)
+        )
+    }
+
+    struct __StubbingProxy_ConcurrentCounter: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.ProtocolStubFunction<(String), Int> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConcurrentCounter.self,
+                method: "count(characters p0: String) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_ConcurrentCounter: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.__DoNotUse<(String), Int> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "count(characters p0: String) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class ConcurrentCounterStub:ConcurrentCounter {
+
+
+    
+    func count(characters p0: String) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}
+
+
+final class MockSimpleClass: SimpleClass, Cuckoo.ClassMock {
     typealias MocksType = SimpleClass
     typealias Stubbing = __StubbingProxy_SimpleClass
     typealias Verification = __VerificationProxy_SimpleClass
@@ -1938,13 +2018,13 @@ class MockSimpleClass: SimpleClass, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class SimpleClassStub:SimpleClass, @unchecked Sendable {
+final class SimpleClassStub:SimpleClass {
 
 
 }
 
 
-class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock {
     typealias MocksType = SimpleSubclass
     typealias Stubbing = __StubbingProxy_SimpleSubclass
     typealias Verification = __VerificationProxy_SimpleSubclass
@@ -1982,7 +2062,7 @@ class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock, @unchecked Sendable 
     }
 }
 
-class SimpleSubclassStub:SimpleSubclass, @unchecked Sendable {
+final class SimpleSubclassStub:SimpleSubclass {
 
 
 }
@@ -1993,7 +2073,7 @@ class SimpleSubclassStub:SimpleSubclass, @unchecked Sendable {
 import Cuckoo
 import Foundation
 
-class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock {
     typealias MocksType = any UnicodeTest
     typealias Stubbing = __StubbingProxy_UnicodeTest
     typealias Verification = __VerificationProxy_UnicodeTest
@@ -2092,7 +2172,7 @@ class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class UnicodeTestStub:UnicodeTest, @unchecked Sendable {
+final class UnicodeTestStub:UnicodeTest {
 
 
     
@@ -2106,7 +2186,7 @@ class UnicodeTestStub:UnicodeTest, @unchecked Sendable {
 }
 
 
-class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolMock {
     typealias MocksType = any UnicodeNameTest_トř🦅
     typealias Stubbing = __StubbingProxy_UnicodeNameTest_トř🦅
     typealias Verification = __VerificationProxy_UnicodeNameTest_トř🦅
@@ -2174,7 +2254,7 @@ class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolM
     }
 }
 
-class UnicodeNameTest_トř🦅Stub:UnicodeNameTest_トř🦅, @unchecked Sendable {
+final class UnicodeNameTest_トř🦅Stub:UnicodeNameTest_トř🦅 {
 
 
     

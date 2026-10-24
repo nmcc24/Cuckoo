@@ -174,6 +174,11 @@ protocol SimpleProtocol {
 
 protocol SendableProtocol: Sendable {}
 
+/// Its mock is `Sendable`, so tests can call it from many threads at once.
+protocol ConcurrentCounter: Sendable {
+    func count(characters: String) -> Int
+}
+
 class SimpleClass: SimpleProtocol {
     let constant = 0
 }

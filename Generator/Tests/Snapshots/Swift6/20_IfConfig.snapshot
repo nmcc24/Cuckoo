@@ -4,7 +4,7 @@ import Foundation
 import Combine
 #endif
 
-class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockPlatformed: Platformed, Cuckoo.ProtocolMock {
     typealias MocksType = any Platformed
     typealias Stubbing = __StubbingProxy_Platformed
     typealias Verification = __VerificationProxy_Platformed
@@ -231,7 +231,7 @@ class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class PlatformedStub:Platformed, @unchecked Sendable {
+final class PlatformedStub:Platformed {
     #if (DEBUG)
     var debugInfo: String {
         get {
@@ -268,7 +268,7 @@ class PlatformedStub:Platformed, @unchecked Sendable {
 }
 
 
-class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_PlatformedStore
     typealias Verification = __VerificationProxy_PlatformedStore
@@ -277,7 +277,8 @@ class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecke
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: PlatformedStore, @unchecked Sendable {
+    
+    final class DefaultImplCaller: PlatformedStore, @unchecked Sendable {
         private let reference: () -> any PlatformedStore
     
         #if (DEBUG)
@@ -436,7 +437,7 @@ class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecke
     }
 }
 
-class PlatformedStoreStub<Item>:PlatformedStore, @unchecked Sendable {
+final class PlatformedStoreStub<Item>:PlatformedStore {
     #if (DEBUG)
     var debugItems: [Item] {
         get {
@@ -458,7 +459,7 @@ class PlatformedStoreStub<Item>:PlatformedStore, @unchecked Sendable {
 }
 
 
-class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockPlatformedService: PlatformedService, Cuckoo.ClassMock {
     typealias MocksType = PlatformedService
     typealias Stubbing = __StubbingProxy_PlatformedService
     typealias Verification = __VerificationProxy_PlatformedService
@@ -625,7 +626,7 @@ class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sen
     }
 }
 
-class PlatformedServiceStub:PlatformedService, @unchecked Sendable {
+final class PlatformedServiceStub:PlatformedService {
     #if (DEBUG)
     override var verbose: Bool {
         get {
@@ -654,7 +655,7 @@ class PlatformedServiceStub:PlatformedService, @unchecked Sendable {
 
 
 #if (canImport(Combine))
-class MockPublishing: Publishing, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockPublishing: Publishing, Cuckoo.ProtocolMock {
     typealias MocksType = any Publishing
     typealias Stubbing = __StubbingProxy_Publishing
     typealias Verification = __VerificationProxy_Publishing
@@ -722,7 +723,7 @@ class MockPublishing: Publishing, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class PublishingStub:Publishing, @unchecked Sendable {
+final class PublishingStub:Publishing {
 
 
     
@@ -734,7 +735,7 @@ class PublishingStub:Publishing, @unchecked Sendable {
 #endif
 
 #if (DEBUG)
-class MockDebugTools: DebugTools, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockDebugTools: DebugTools, Cuckoo.ClassMock {
     typealias MocksType = DebugTools
     typealias Stubbing = __StubbingProxy_DebugTools
     typealias Verification = __VerificationProxy_DebugTools
@@ -802,7 +803,7 @@ class MockDebugTools: DebugTools, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class DebugToolsStub:DebugTools, @unchecked Sendable {
+final class DebugToolsStub:DebugTools {
 
 
     
@@ -815,7 +816,7 @@ class DebugToolsStub:DebugTools, @unchecked Sendable {
 
 #if (DEBUG) && (os(Linux))
 extension DebugTools {
-class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock {
     typealias MocksType = LinuxProbe
     typealias Stubbing = __StubbingProxy_LinuxProbe
     typealias Verification = __VerificationProxy_LinuxProbe
@@ -883,7 +884,7 @@ class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class LinuxProbeStub:LinuxProbe, @unchecked Sendable {
+final class LinuxProbeStub:LinuxProbe {
 
 
     

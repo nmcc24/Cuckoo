@@ -2,7 +2,7 @@ import Cuckoo
 import Foundation
 
 @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
-class MockEvents: Events, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockEvents: Events, Cuckoo.ProtocolMock {
     typealias MocksType = any Events
     typealias Stubbing = __StubbingProxy_Events
     typealias Verification = __VerificationProxy_Events
@@ -89,7 +89,7 @@ class MockEvents: Events, Cuckoo.ProtocolMock, @unchecked Sendable {
 }
 
 @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
-class EventsStub:Events, @unchecked Sendable {
+final class EventsStub:Events {
     
     var stream: AsyncStream<Int> {
         get {

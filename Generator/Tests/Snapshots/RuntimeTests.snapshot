@@ -3,7 +3,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockClassForStubTesting: ClassForStubTesting, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClassForStubTesting: ClassForStubTesting, Cuckoo.ClassMock {
     typealias MocksType = ClassForStubTesting
     typealias Stubbing = __StubbingProxy_ClassForStubTesting
     typealias Verification = __VerificationProxy_ClassForStubTesting
@@ -451,7 +451,7 @@ class MockClassForStubTesting: ClassForStubTesting, Cuckoo.ClassMock, @unchecked
     }
 }
 
-class ClassForStubTestingStub:ClassForStubTesting, @unchecked Sendable {
+final class ClassForStubTestingStub:ClassForStubTesting {
     
     override var intProperty: Int {
         get {
@@ -554,7 +554,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockClassWithOptionals: ClassWithOptionals, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClassWithOptionals: ClassWithOptionals, Cuckoo.ClassMock {
     typealias MocksType = ClassWithOptionals
     typealias Stubbing = __StubbingProxy_ClassWithOptionals
     typealias Verification = __VerificationProxy_ClassWithOptionals
@@ -846,7 +846,7 @@ class MockClassWithOptionals: ClassWithOptionals, Cuckoo.ClassMock, @unchecked S
     }
 }
 
-class ClassWithOptionalsStub:ClassWithOptionals, @unchecked Sendable {
+final class ClassWithOptionalsStub:ClassWithOptionals {
     
     override var value: Int? {
         get {
@@ -907,7 +907,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-public class MockClassWithTypeAlias: ClassWithTypeAlias, Cuckoo.ClassMock, @unchecked Sendable {
+public final class MockClassWithTypeAlias: ClassWithTypeAlias, Cuckoo.ClassMock {
     public typealias MocksType = ClassWithTypeAlias
     public typealias Stubbing = __StubbingProxy_ClassWithTypeAlias
     public typealias Verification = __VerificationProxy_ClassWithTypeAlias
@@ -976,7 +976,7 @@ public class MockClassWithTypeAlias: ClassWithTypeAlias, Cuckoo.ClassMock, @unch
     }
 }
 
-public class ClassWithTypeAliasStub:ClassWithTypeAlias, @unchecked Sendable {
+public final class ClassWithTypeAliasStub:ClassWithTypeAlias {
 
 
     
@@ -993,7 +993,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockClassWithTypedThrows: ClassWithTypedThrows, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClassWithTypedThrows: ClassWithTypedThrows, Cuckoo.ClassMock {
     typealias MocksType = ClassWithTypedThrows
     typealias Stubbing = __StubbingProxy_ClassWithTypedThrows
     typealias Verification = __VerificationProxy_ClassWithTypedThrows
@@ -1186,7 +1186,7 @@ class MockClassWithTypedThrows: ClassWithTypedThrows, Cuckoo.ClassMock, @uncheck
     }
 }
 
-class ClassWithTypedThrowsStub:ClassWithTypedThrows, @unchecked Sendable {
+final class ClassWithTypedThrowsStub:ClassWithTypedThrows {
 
 
     
@@ -1219,7 +1219,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembers, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembers, Cuckoo.ClassMock {
     typealias MocksType = ClassWithUnavailablePlatformMembers
     typealias Stubbing = __StubbingProxy_ClassWithUnavailablePlatformMembers
     typealias Verification = __VerificationProxy_ClassWithUnavailablePlatformMembers
@@ -1445,7 +1445,7 @@ class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembe
     }
 }
 
-class ClassWithUnavailablePlatformMembersStub:ClassWithUnavailablePlatformMembers, @unchecked Sendable {
+final class ClassWithUnavailablePlatformMembersStub:ClassWithUnavailablePlatformMembers {
     #if !os(tvOS)
     @available(tvOS, unavailable)
     override var unavailableProperty: Int {
@@ -1499,7 +1499,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockIncludedTestClass: IncludedTestClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockIncludedTestClass: IncludedTestClass, Cuckoo.ClassMock {
     typealias MocksType = IncludedTestClass
     typealias Stubbing = __StubbingProxy_IncludedTestClass
     typealias Verification = __VerificationProxy_IncludedTestClass
@@ -1567,7 +1567,7 @@ class MockIncludedTestClass: IncludedTestClass, Cuckoo.ClassMock, @unchecked Sen
     }
 }
 
-class IncludedTestClassStub:IncludedTestClass, @unchecked Sendable {
+final class IncludedTestClassStub:IncludedTestClass {
 
 
     
@@ -1577,7 +1577,7 @@ class IncludedTestClassStub:IncludedTestClass, @unchecked Sendable {
 }
 
 
-class MockIncludedProtocol: IncludedProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockIncludedProtocol: IncludedProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any IncludedProtocol
     typealias Stubbing = __StubbingProxy_IncludedProtocol
     typealias Verification = __VerificationProxy_IncludedProtocol
@@ -1615,7 +1615,7 @@ class MockIncludedProtocol: IncludedProtocol, Cuckoo.ProtocolMock, @unchecked Se
     }
 }
 
-class IncludedProtocolStub:IncludedProtocol, @unchecked Sendable {
+final class IncludedProtocolStub:IncludedProtocol {
 
 
 }
@@ -1628,7 +1628,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockGenericClass<T: CustomStringConvertible, U: Codable & CustomStringConvertible, V: Hashable & Equatable>: GenericClass<T, U, V>, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockGenericClass<T: CustomStringConvertible, U: Codable & CustomStringConvertible, V: Hashable & Equatable>: GenericClass<T, U, V>, Cuckoo.ClassMock {
     typealias MocksType = GenericClass<T, U, V>
     typealias Stubbing = __StubbingProxy_GenericClass
     typealias Verification = __VerificationProxy_GenericClass
@@ -2138,7 +2138,7 @@ return cuckoo_manager.call(
     }
 }
 
-class GenericClassStub<T: CustomStringConvertible, U: Codable & CustomStringConvertible, V: Hashable & Equatable>:GenericClass<T, U, V>, @unchecked Sendable {
+final class GenericClassStub<T: CustomStringConvertible, U: Codable & CustomStringConvertible, V: Hashable & Equatable>:GenericClass<T, U, V> {
     
     override var readWritePropertyT: T {
         get {
@@ -2227,7 +2227,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockwViewyContwollew: wViewyContwollew, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockwViewyContwollew: wViewyContwollew, Cuckoo.ClassMock {
     typealias MocksType = wViewyContwollew
     typealias Stubbing = __StubbingProxy_wViewyContwollew
     typealias Verification = __VerificationProxy_wViewyContwollew
@@ -2265,13 +2265,13 @@ class MockwViewyContwollew: wViewyContwollew, Cuckoo.ClassMock, @unchecked Senda
     }
 }
 
-class wViewyContwollewStub:wViewyContwollew, @unchecked Sendable {
+final class wViewyContwollewStub:wViewyContwollew {
 
 
 }
 
 
-class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMethodClass<ClassyT>, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMethodClass<ClassyT>, Cuckoo.ClassMock {
     typealias MocksType = GenericMethodClass<ClassyT>
     typealias Stubbing = __StubbingProxy_GenericMethodClass
     typealias Verification = __VerificationProxy_GenericMethodClass
@@ -2551,7 +2551,7 @@ class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMethodCla
     }
 }
 
-class GenericMethodClassStub<ClassyT: CustomStringConvertible>:GenericMethodClass<ClassyT>, @unchecked Sendable {
+final class GenericMethodClassStub<ClassyT: CustomStringConvertible>:GenericMethodClass<ClassyT> {
 
 
     
@@ -2598,7 +2598,7 @@ import Foundation
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
-class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_GenericProtocol
     typealias Verification = __VerificationProxy_GenericProtocol
@@ -2607,7 +2607,8 @@ class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, Cuckoo.ProtocolMock
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: GenericProtocol, @unchecked Sendable {
+    
+    final class DefaultImplCaller: GenericProtocol, @unchecked Sendable {
         private let reference: () -> any GenericProtocol<C>
     
         private let _getter_storage$$readOnlyPropertyC: () -> C
@@ -3100,7 +3101,7 @@ class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, Cuckoo.ProtocolMock
     }
 }
 
-class GenericProtocolStub<C: AnyObject, V>:GenericProtocol, @unchecked Sendable {
+final class GenericProtocolStub<C: AnyObject, V>:GenericProtocol {
     
     var readOnlyPropertyC: C {
         get {
@@ -3172,7 +3173,7 @@ class GenericProtocolStub<C: AnyObject, V>:GenericProtocol, @unchecked Sendable 
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
-class MockPrimaryAssociatedTypeProtocol<Output: Equatable>: PrimaryAssociatedTypeProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockPrimaryAssociatedTypeProtocol<Output: Equatable>: PrimaryAssociatedTypeProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any PrimaryAssociatedTypeProtocol<Output>
     typealias Stubbing = __StubbingProxy_PrimaryAssociatedTypeProtocol
     typealias Verification = __VerificationProxy_PrimaryAssociatedTypeProtocol
@@ -3240,7 +3241,7 @@ class MockPrimaryAssociatedTypeProtocol<Output: Equatable>: PrimaryAssociatedTyp
     }
 }
 
-class PrimaryAssociatedTypeProtocolStub<Output: Equatable>:PrimaryAssociatedTypeProtocol, @unchecked Sendable {
+final class PrimaryAssociatedTypeProtocolStub<Output: Equatable>:PrimaryAssociatedTypeProtocol {
 
 
     
@@ -3252,7 +3253,7 @@ class PrimaryAssociatedTypeProtocolStub<Output: Equatable>:PrimaryAssociatedType
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
-class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable, Output: Equatable>: MixedPrimaryAssociatedTypeProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable, Output: Equatable>: MixedPrimaryAssociatedTypeProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_MixedPrimaryAssociatedTypeProtocol
     typealias Verification = __VerificationProxy_MixedPrimaryAssociatedTypeProtocol
@@ -3261,7 +3262,8 @@ class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable, Output: Equatable
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: MixedPrimaryAssociatedTypeProtocol, @unchecked Sendable {
+    
+    final class DefaultImplCaller: MixedPrimaryAssociatedTypeProtocol, @unchecked Sendable {
         private let reference: () -> any MixedPrimaryAssociatedTypeProtocol<Input>
     
         private let _getter_storage$$defaultOutput: () -> Output
@@ -3371,7 +3373,7 @@ class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable, Output: Equatable
     }
 }
 
-class MixedPrimaryAssociatedTypeProtocolStub<Input: Equatable, Output: Equatable>:MixedPrimaryAssociatedTypeProtocol, @unchecked Sendable {
+final class MixedPrimaryAssociatedTypeProtocolStub<Input: Equatable, Output: Equatable>:MixedPrimaryAssociatedTypeProtocol {
     
     var defaultOutput: Output {
         get {
@@ -3396,7 +3398,7 @@ import Foundation
 
 @available(swift 4.0)
 extension Multi.Nested {
-class MockNestedExtensionTestedClass: NestedExtensionTestedClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNestedExtensionTestedClass: NestedExtensionTestedClass, Cuckoo.ClassMock {
     typealias MocksType = NestedExtensionTestedClass
     typealias Stubbing = __StubbingProxy_NestedExtensionTestedClass
     typealias Verification = __VerificationProxy_NestedExtensionTestedClass
@@ -4956,7 +4958,7 @@ return cuckoo_manager.call(
 }
 
 @available(swift 4.0)
-class NestedExtensionTestedClassStub:NestedExtensionTestedClass, @unchecked Sendable {
+final class NestedExtensionTestedClassStub:NestedExtensionTestedClass {
     
     override var privateSetProperty: Int {
         get {
@@ -5240,7 +5242,7 @@ import Foundation
 @testable import CuckooTestSources
 
 @available(swift 4.0)
-class MockMulti: Multi, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockMulti: Multi, Cuckoo.ClassMock {
     typealias MocksType = Multi
     typealias Stubbing = __StubbingProxy_Multi
     typealias Verification = __VerificationProxy_Multi
@@ -5279,14 +5281,14 @@ class MockMulti: Multi, Cuckoo.ClassMock, @unchecked Sendable {
 }
 
 @available(swift 4.0)
-class MultiStub:Multi, @unchecked Sendable {
+final class MultiStub:Multi {
 
 
 }
 
 
 extension Multi {
-class MockNested: Nested, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNested: Nested, Cuckoo.ClassMock {
     typealias MocksType = Nested
     typealias Stubbing = __StubbingProxy_Nested
     typealias Verification = __VerificationProxy_Nested
@@ -5324,7 +5326,7 @@ class MockNested: Nested, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class NestedStub:Nested, @unchecked Sendable {
+final class NestedStub:Nested {
 
 
 }
@@ -5332,7 +5334,7 @@ class NestedStub:Nested, @unchecked Sendable {
 }
 
 extension Multi.Nested {
-class MockMultiNestedTestedSubclass: MultiNestedTestedSubclass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockMultiNestedTestedSubclass: MultiNestedTestedSubclass, Cuckoo.ClassMock {
     typealias MocksType = MultiNestedTestedSubclass
     typealias Stubbing = __StubbingProxy_MultiNestedTestedSubclass
     typealias Verification = __VerificationProxy_MultiNestedTestedSubclass
@@ -6891,7 +6893,7 @@ return cuckoo_manager.call(
     }
 }
 
-class MultiNestedTestedSubclassStub:MultiNestedTestedSubclass, @unchecked Sendable {
+final class MultiNestedTestedSubclassStub:MultiNestedTestedSubclass {
     
     override var privateSetProperty: Int {
         get {
@@ -7168,7 +7170,7 @@ class MultiNestedTestedSubclassStub:MultiNestedTestedSubclass, @unchecked Sendab
 }
 
 extension Multi {
-class MockLayered: Layered, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockLayered: Layered, Cuckoo.ClassMock {
     typealias MocksType = Layered
     typealias Stubbing = __StubbingProxy_Layered
     typealias Verification = __VerificationProxy_Layered
@@ -7206,7 +7208,7 @@ class MockLayered: Layered, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class LayeredStub:Layered, @unchecked Sendable {
+final class LayeredStub:Layered {
 
 
 }
@@ -7214,7 +7216,7 @@ class LayeredStub:Layered, @unchecked Sendable {
 }
 
 extension Multi.Layered {
-class MockNested: Nested, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNested: Nested, Cuckoo.ClassMock {
     typealias MocksType = Nested
     typealias Stubbing = __StubbingProxy_Nested
     typealias Verification = __VerificationProxy_Nested
@@ -7252,7 +7254,7 @@ class MockNested: Nested, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class NestedStub:Nested, @unchecked Sendable {
+final class NestedStub:Nested {
 
 
 }
@@ -7260,7 +7262,7 @@ class NestedStub:Nested, @unchecked Sendable {
 }
 
 extension Multi.Layered.Nested {
-class MockMultiLayeredNestedTestedSubclass: MultiLayeredNestedTestedSubclass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockMultiLayeredNestedTestedSubclass: MultiLayeredNestedTestedSubclass, Cuckoo.ClassMock {
     typealias MocksType = MultiLayeredNestedTestedSubclass
     typealias Stubbing = __StubbingProxy_MultiLayeredNestedTestedSubclass
     typealias Verification = __VerificationProxy_MultiLayeredNestedTestedSubclass
@@ -8819,7 +8821,7 @@ return cuckoo_manager.call(
     }
 }
 
-class MultiLayeredNestedTestedSubclassStub:MultiLayeredNestedTestedSubclass, @unchecked Sendable {
+final class MultiLayeredNestedTestedSubclassStub:MultiLayeredNestedTestedSubclass {
     
     override var privateSetProperty: Int {
         get {
@@ -9096,7 +9098,7 @@ class MultiLayeredNestedTestedSubclassStub:MultiLayeredNestedTestedSubclass, @un
 }
 
 extension Multi {
-class MockNestedSubclass: NestedSubclass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNestedSubclass: NestedSubclass, Cuckoo.ClassMock {
     typealias MocksType = NestedSubclass
     typealias Stubbing = __StubbingProxy_NestedSubclass
     typealias Verification = __VerificationProxy_NestedSubclass
@@ -9134,7 +9136,7 @@ class MockNestedSubclass: NestedSubclass, Cuckoo.ClassMock, @unchecked Sendable 
     }
 }
 
-class NestedSubclassStub:NestedSubclass, @unchecked Sendable {
+final class NestedSubclassStub:NestedSubclass {
 
 
 }
@@ -9148,7 +9150,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockMultiNestedClass: MultiNestedClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockMultiNestedClass: MultiNestedClass, Cuckoo.ClassMock {
     typealias MocksType = MultiNestedClass
     typealias Stubbing = __StubbingProxy_MultiNestedClass
     typealias Verification = __VerificationProxy_MultiNestedClass
@@ -9186,7 +9188,7 @@ class MockMultiNestedClass: MultiNestedClass, Cuckoo.ClassMock, @unchecked Senda
     }
 }
 
-class MultiNestedClassStub:MultiNestedClass, @unchecked Sendable {
+final class MultiNestedClassStub:MultiNestedClass {
 
 
 }
@@ -9199,7 +9201,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockPlainProtocolToTestNSObjectProtocolInheritance: PlainProtocolToTestNSObjectProtocolInheritance, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockPlainProtocolToTestNSObjectProtocolInheritance: PlainProtocolToTestNSObjectProtocolInheritance, Cuckoo.ProtocolMock {
     typealias MocksType = any PlainProtocolToTestNSObjectProtocolInheritance
     typealias Stubbing = __StubbingProxy_PlainProtocolToTestNSObjectProtocolInheritance
     typealias Verification = __VerificationProxy_PlainProtocolToTestNSObjectProtocolInheritance
@@ -9237,13 +9239,13 @@ class MockPlainProtocolToTestNSObjectProtocolInheritance: PlainProtocolToTestNSO
     }
 }
 
-class PlainProtocolToTestNSObjectProtocolInheritanceStub:PlainProtocolToTestNSObjectProtocolInheritance, @unchecked Sendable {
+final class PlainProtocolToTestNSObjectProtocolInheritanceStub:PlainProtocolToTestNSObjectProtocolInheritance {
 
 
 }
 
 
-class MockProtocolNotInheritingFromNSObjectProtocol: ProtocolNotInheritingFromNSObjectProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockProtocolNotInheritingFromNSObjectProtocol: ProtocolNotInheritingFromNSObjectProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any ProtocolNotInheritingFromNSObjectProtocol
     typealias Stubbing = __StubbingProxy_ProtocolNotInheritingFromNSObjectProtocol
     typealias Verification = __VerificationProxy_ProtocolNotInheritingFromNSObjectProtocol
@@ -9281,13 +9283,13 @@ class MockProtocolNotInheritingFromNSObjectProtocol: ProtocolNotInheritingFromNS
     }
 }
 
-class ProtocolNotInheritingFromNSObjectProtocolStub:ProtocolNotInheritingFromNSObjectProtocol, @unchecked Sendable {
+final class ProtocolNotInheritingFromNSObjectProtocolStub:ProtocolNotInheritingFromNSObjectProtocol {
 
 
 }
 
 
-class MockProtocolInheritingFromNSObjectProtocol: NSObject, ProtocolInheritingFromNSObjectProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockProtocolInheritingFromNSObjectProtocol: NSObject, ProtocolInheritingFromNSObjectProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any ProtocolInheritingFromNSObjectProtocol
     typealias Stubbing = __StubbingProxy_ProtocolInheritingFromNSObjectProtocol
     typealias Verification = __VerificationProxy_ProtocolInheritingFromNSObjectProtocol
@@ -9325,13 +9327,13 @@ class MockProtocolInheritingFromNSObjectProtocol: NSObject, ProtocolInheritingFr
     }
 }
 
-class ProtocolInheritingFromNSObjectProtocolStub:NSObject,ProtocolInheritingFromNSObjectProtocol, @unchecked Sendable {
+final class ProtocolInheritingFromNSObjectProtocolStub:NSObject,ProtocolInheritingFromNSObjectProtocol {
 
 
 }
 
 
-class MockChildProtocolInheritingFromNSObjectProtocol: NSObject, ChildProtocolInheritingFromNSObjectProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockChildProtocolInheritingFromNSObjectProtocol: NSObject, ChildProtocolInheritingFromNSObjectProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any ChildProtocolInheritingFromNSObjectProtocol
     typealias Stubbing = __StubbingProxy_ChildProtocolInheritingFromNSObjectProtocol
     typealias Verification = __VerificationProxy_ChildProtocolInheritingFromNSObjectProtocol
@@ -9369,13 +9371,13 @@ class MockChildProtocolInheritingFromNSObjectProtocol: NSObject, ChildProtocolIn
     }
 }
 
-class ChildProtocolInheritingFromNSObjectProtocolStub:NSObject,ChildProtocolInheritingFromNSObjectProtocol, @unchecked Sendable {
+final class ChildProtocolInheritingFromNSObjectProtocolStub:NSObject,ChildProtocolInheritingFromNSObjectProtocol {
 
 
 }
 
 
-class MockProtocolInheritingFromNSObjectProtocolUsingProtocolComposition: NSObject, ProtocolInheritingFromNSObjectProtocolUsingProtocolComposition, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockProtocolInheritingFromNSObjectProtocolUsingProtocolComposition: NSObject, ProtocolInheritingFromNSObjectProtocolUsingProtocolComposition, Cuckoo.ProtocolMock {
     typealias MocksType = any ProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
     typealias Stubbing = __StubbingProxy_ProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
     typealias Verification = __VerificationProxy_ProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
@@ -9413,13 +9415,13 @@ class MockProtocolInheritingFromNSObjectProtocolUsingProtocolComposition: NSObje
     }
 }
 
-class ProtocolInheritingFromNSObjectProtocolUsingProtocolCompositionStub:NSObject,ProtocolInheritingFromNSObjectProtocolUsingProtocolComposition, @unchecked Sendable {
+final class ProtocolInheritingFromNSObjectProtocolUsingProtocolCompositionStub:NSObject,ProtocolInheritingFromNSObjectProtocolUsingProtocolComposition {
 
 
 }
 
 
-class MockChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition: NSObject, ChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition: NSObject, ChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition, Cuckoo.ProtocolMock {
     typealias MocksType = any ChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
     typealias Stubbing = __StubbingProxy_ChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
     typealias Verification = __VerificationProxy_ChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
@@ -9457,13 +9459,13 @@ class MockChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition: N
     }
 }
 
-class ChildProtocolInheritingFromNSObjectProtocolUsingProtocolCompositionStub:NSObject,ChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition, @unchecked Sendable {
+final class ChildProtocolInheritingFromNSObjectProtocolUsingProtocolCompositionStub:NSObject,ChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition {
 
 
 }
 
 
-class MockProtocolInheritingFromNSObjectProtocolAndOtherProtocol: NSObject, ProtocolInheritingFromNSObjectProtocolAndOtherProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockProtocolInheritingFromNSObjectProtocolAndOtherProtocol: NSObject, ProtocolInheritingFromNSObjectProtocolAndOtherProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any ProtocolInheritingFromNSObjectProtocolAndOtherProtocol
     typealias Stubbing = __StubbingProxy_ProtocolInheritingFromNSObjectProtocolAndOtherProtocol
     typealias Verification = __VerificationProxy_ProtocolInheritingFromNSObjectProtocolAndOtherProtocol
@@ -9501,13 +9503,13 @@ class MockProtocolInheritingFromNSObjectProtocolAndOtherProtocol: NSObject, Prot
     }
 }
 
-class ProtocolInheritingFromNSObjectProtocolAndOtherProtocolStub:NSObject,ProtocolInheritingFromNSObjectProtocolAndOtherProtocol, @unchecked Sendable {
+final class ProtocolInheritingFromNSObjectProtocolAndOtherProtocolStub:NSObject,ProtocolInheritingFromNSObjectProtocolAndOtherProtocol {
 
 
 }
 
 
-class MockChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol: NSObject, ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol: NSObject, ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol
     typealias Stubbing = __StubbingProxy_ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol
     typealias Verification = __VerificationProxy_ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol
@@ -9545,7 +9547,7 @@ class MockChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol: NSObject,
     }
 }
 
-class ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocolStub:NSObject,ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol, @unchecked Sendable {
+final class ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocolStub:NSObject,ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol {
 
 
 }
@@ -9560,7 +9562,7 @@ import Foundation
 
 @available(swift 4.0)
 extension Nested {
-class MockNestedExtensionTestedClass: NestedExtensionTestedClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNestedExtensionTestedClass: NestedExtensionTestedClass, Cuckoo.ClassMock {
     typealias MocksType = NestedExtensionTestedClass
     typealias Stubbing = __StubbingProxy_NestedExtensionTestedClass
     typealias Verification = __VerificationProxy_NestedExtensionTestedClass
@@ -10198,7 +10200,7 @@ return cuckoo_manager.call(
 }
 
 @available(swift 4.0)
-class NestedExtensionTestedClassStub:NestedExtensionTestedClass, @unchecked Sendable {
+final class NestedExtensionTestedClassStub:NestedExtensionTestedClass {
     
     override var privateSetProperty: Int {
         get {
@@ -10312,7 +10314,7 @@ import Foundation
 @testable import CuckooTestSources
 
 @available(swift 4.0)
-class MockNested: Nested, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNested: Nested, Cuckoo.ClassMock {
     typealias MocksType = Nested
     typealias Stubbing = __StubbingProxy_Nested
     typealias Verification = __VerificationProxy_Nested
@@ -10351,14 +10353,14 @@ class MockNested: Nested, Cuckoo.ClassMock, @unchecked Sendable {
 }
 
 @available(swift 4.0)
-class NestedStub:Nested, @unchecked Sendable {
+final class NestedStub:Nested {
 
 
 }
 
 
 extension Nested {
-class MockNestedTestedSubclass: NestedTestedSubclass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNestedTestedSubclass: NestedTestedSubclass, Cuckoo.ClassMock {
     typealias MocksType = NestedTestedSubclass
     typealias Stubbing = __StubbingProxy_NestedTestedSubclass
     typealias Verification = __VerificationProxy_NestedTestedSubclass
@@ -11917,7 +11919,7 @@ return cuckoo_manager.call(
     }
 }
 
-class NestedTestedSubclassStub:NestedTestedSubclass, @unchecked Sendable {
+final class NestedTestedSubclassStub:NestedTestedSubclass {
     
     override var privateSetProperty: Int {
         get {
@@ -12194,7 +12196,7 @@ class NestedTestedSubclassStub:NestedTestedSubclass, @unchecked Sendable {
 }
 
 extension Nested {
-class MockNestedTestedClass: NestedTestedClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNestedTestedClass: NestedTestedClass, Cuckoo.ClassMock {
     typealias MocksType = NestedTestedClass
     typealias Stubbing = __StubbingProxy_NestedTestedClass
     typealias Verification = __VerificationProxy_NestedTestedClass
@@ -12831,7 +12833,7 @@ return cuckoo_manager.call(
     }
 }
 
-class NestedTestedClassStub:NestedTestedClass, @unchecked Sendable {
+final class NestedTestedClassStub:NestedTestedClass {
     
     override var privateSetProperty: Int {
         get {
@@ -12945,7 +12947,7 @@ import Foundation
 @testable import CuckooTestSources
 
 extension NestedStruct {
-class MockNestedTestedSubclass: NestedTestedSubclass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNestedTestedSubclass: NestedTestedSubclass, Cuckoo.ClassMock {
     typealias MocksType = NestedTestedSubclass
     typealias Stubbing = __StubbingProxy_NestedTestedSubclass
     typealias Verification = __VerificationProxy_NestedTestedSubclass
@@ -14504,7 +14506,7 @@ return cuckoo_manager.call(
     }
 }
 
-class NestedTestedSubclassStub:NestedTestedSubclass, @unchecked Sendable {
+final class NestedTestedSubclassStub:NestedTestedSubclass {
     
     override var privateSetProperty: Int {
         get {
@@ -14781,7 +14783,7 @@ class NestedTestedSubclassStub:NestedTestedSubclass, @unchecked Sendable {
 }
 
 extension NestedStruct {
-class MockNestedExtensionTestedClass: NestedExtensionTestedClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNestedExtensionTestedClass: NestedExtensionTestedClass, Cuckoo.ClassMock {
     typealias MocksType = NestedExtensionTestedClass
     typealias Stubbing = __StubbingProxy_NestedExtensionTestedClass
     typealias Verification = __VerificationProxy_NestedExtensionTestedClass
@@ -16340,7 +16342,7 @@ return cuckoo_manager.call(
     }
 }
 
-class NestedExtensionTestedClassStub:NestedExtensionTestedClass, @unchecked Sendable {
+final class NestedExtensionTestedClassStub:NestedExtensionTestedClass {
     
     override var privateSetProperty: Int {
         get {
@@ -16624,7 +16626,7 @@ import Foundation
 @testable import CuckooTestSources
 
 #if (canImport(ObjectiveC))
-class MockObjcProtocol: ObjcProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockObjcProtocol: ObjcProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any ObjcProtocol
     typealias Stubbing = __StubbingProxy_ObjcProtocol
     typealias Verification = __VerificationProxy_ObjcProtocol
@@ -16692,7 +16694,7 @@ class MockObjcProtocol: ObjcProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class ObjcProtocolStub:ObjcProtocol, @unchecked Sendable {
+final class ObjcProtocolStub:ObjcProtocol {
 
 
     
@@ -16704,7 +16706,7 @@ class ObjcProtocolStub:ObjcProtocol, @unchecked Sendable {
 #endif
 
 #if (canImport(ObjectiveC))
-class MockObjcClass: ObjcClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockObjcClass: ObjcClass, Cuckoo.ClassMock {
     typealias MocksType = ObjcClass
     typealias Stubbing = __StubbingProxy_ObjcClass
     typealias Verification = __VerificationProxy_ObjcClass
@@ -16772,7 +16774,7 @@ class MockObjcClass: ObjcClass, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class ObjcClassStub:ObjcClass, @unchecked Sendable {
+final class ObjcClassStub:ObjcClass {
 
 
     
@@ -16784,7 +16786,7 @@ class ObjcClassStub:ObjcClass, @unchecked Sendable {
 #endif
 
 #if (canImport(ObjectiveC))
-class MockObjcMembersClass: ObjcMembersClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockObjcMembersClass: ObjcMembersClass, Cuckoo.ClassMock {
     typealias MocksType = ObjcMembersClass
     typealias Stubbing = __StubbingProxy_ObjcMembersClass
     typealias Verification = __VerificationProxy_ObjcMembersClass
@@ -16852,7 +16854,7 @@ class MockObjcMembersClass: ObjcMembersClass, Cuckoo.ClassMock, @unchecked Senda
     }
 }
 
-class ObjcMembersClassStub:ObjcMembersClass, @unchecked Sendable {
+final class ObjcMembersClassStub:ObjcMembersClass {
 
 
     
@@ -16870,7 +16872,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-public class MockOpenClass: OpenClass, Cuckoo.ClassMock, @unchecked Sendable {
+public final class MockOpenClass: OpenClass, Cuckoo.ClassMock {
     public typealias MocksType = OpenClass
     public typealias Stubbing = __StubbingProxy_OpenClass
     public typealias Verification = __VerificationProxy_OpenClass
@@ -16938,7 +16940,7 @@ public class MockOpenClass: OpenClass, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-public class OpenClassStub:OpenClass, @unchecked Sendable {
+public final class OpenClassStub:OpenClass {
 
 
     
@@ -16964,7 +16966,7 @@ import Foundation
 @testable import CuckooTestSources
 
 @available(iOS 42.0, *)
-class MockUnavailableProtocol: UnavailableProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockUnavailableProtocol: UnavailableProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any UnavailableProtocol
     typealias Stubbing = __StubbingProxy_UnavailableProtocol
     typealias Verification = __VerificationProxy_UnavailableProtocol
@@ -17003,14 +17005,14 @@ class MockUnavailableProtocol: UnavailableProtocol, Cuckoo.ProtocolMock, @unchec
 }
 
 @available(iOS 42.0, *)
-class UnavailableProtocolStub:UnavailableProtocol, @unchecked Sendable {
+final class UnavailableProtocolStub:UnavailableProtocol {
 
 
 }
 
 
 @available(swift 4.0)
-class MockTestedClass: TestedClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockTestedClass: TestedClass, Cuckoo.ClassMock {
     typealias MocksType = TestedClass
     typealias Stubbing = __StubbingProxy_TestedClass
     typealias Verification = __VerificationProxy_TestedClass
@@ -18570,7 +18572,7 @@ return cuckoo_manager.call(
 }
 
 @available(swift 4.0)
-class TestedClassStub:TestedClass, @unchecked Sendable {
+final class TestedClassStub:TestedClass {
     
     override var privateSetProperty: Int {
         get {
@@ -18845,7 +18847,7 @@ class TestedClassStub:TestedClass, @unchecked Sendable {
 }
 
 
-public class MockOpenTestedClass: OpenTestedClass, Cuckoo.ClassMock, @unchecked Sendable {
+public final class MockOpenTestedClass: OpenTestedClass, Cuckoo.ClassMock {
     public typealias MocksType = OpenTestedClass
     public typealias Stubbing = __StubbingProxy_OpenTestedClass
     public typealias Verification = __VerificationProxy_OpenTestedClass
@@ -18913,7 +18915,7 @@ public class MockOpenTestedClass: OpenTestedClass, Cuckoo.ClassMock, @unchecked 
     }
 }
 
-public class OpenTestedClassStub:OpenTestedClass, @unchecked Sendable {
+public final class OpenTestedClassStub:OpenTestedClass {
 
 
     
@@ -18923,7 +18925,7 @@ public class OpenTestedClassStub:OpenTestedClass, @unchecked Sendable {
 }
 
 
-public class MockPublicTestedClass: PublicTestedClass, Cuckoo.ClassMock, @unchecked Sendable {
+public final class MockPublicTestedClass: PublicTestedClass, Cuckoo.ClassMock {
     public typealias MocksType = PublicTestedClass
     public typealias Stubbing = __StubbingProxy_PublicTestedClass
     public typealias Verification = __VerificationProxy_PublicTestedClass
@@ -19277,7 +19279,7 @@ return cuckoo_manager.call(
     }
 }
 
-public class PublicTestedClassStub:PublicTestedClass, @unchecked Sendable {
+public final class PublicTestedClassStub:PublicTestedClass {
     
     public override var readOnlyProperty: String {
         get {
@@ -19335,7 +19337,7 @@ public class PublicTestedClassStub:PublicTestedClass, @unchecked Sendable {
 }
 
 
-public class MockPublicPublicTestedClass: PublicPublicTestedClass, Cuckoo.ClassMock, @unchecked Sendable {
+public final class MockPublicPublicTestedClass: PublicPublicTestedClass, Cuckoo.ClassMock {
     public typealias MocksType = PublicPublicTestedClass
     public typealias Stubbing = __StubbingProxy_PublicPublicTestedClass
     public typealias Verification = __VerificationProxy_PublicPublicTestedClass
@@ -19689,7 +19691,7 @@ return cuckoo_manager.call(
     }
 }
 
-public class PublicPublicTestedClassStub:PublicPublicTestedClass, @unchecked Sendable {
+public final class PublicPublicTestedClassStub:PublicPublicTestedClass {
     
     public override var readOnlyProperty: String {
         get {
@@ -19747,7 +19749,7 @@ public class PublicPublicTestedClassStub:PublicPublicTestedClass, @unchecked Sen
 }
 
 
-class MockClassWithInnerEnum: ClassWithInnerEnum, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClassWithInnerEnum: ClassWithInnerEnum, Cuckoo.ClassMock {
     typealias MocksType = ClassWithInnerEnum
     typealias Stubbing = __StubbingProxy_ClassWithInnerEnum
     typealias Verification = __VerificationProxy_ClassWithInnerEnum
@@ -19785,13 +19787,13 @@ class MockClassWithInnerEnum: ClassWithInnerEnum, Cuckoo.ClassMock, @unchecked S
     }
 }
 
-class ClassWithInnerEnumStub:ClassWithInnerEnum, @unchecked Sendable {
+final class ClassWithInnerEnumStub:ClassWithInnerEnum {
 
 
 }
 
 
-class MockClassUsingInnerEnum: ClassUsingInnerEnum, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClassUsingInnerEnum: ClassUsingInnerEnum, Cuckoo.ClassMock {
     typealias MocksType = ClassUsingInnerEnum
     typealias Stubbing = __StubbingProxy_ClassUsingInnerEnum
     typealias Verification = __VerificationProxy_ClassUsingInnerEnum
@@ -19889,7 +19891,7 @@ class MockClassUsingInnerEnum: ClassUsingInnerEnum, Cuckoo.ClassMock, @unchecked
     }
 }
 
-class ClassUsingInnerEnumStub:ClassUsingInnerEnum, @unchecked Sendable {
+final class ClassUsingInnerEnumStub:ClassUsingInnerEnum {
 
 
     
@@ -19903,7 +19905,7 @@ class ClassUsingInnerEnumStub:ClassUsingInnerEnum, @unchecked Sendable {
 }
 
 
-class MockGenericFunctionProtocol: GenericFunctionProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockGenericFunctionProtocol: GenericFunctionProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any GenericFunctionProtocol
     typealias Stubbing = __StubbingProxy_GenericFunctionProtocol
     typealias Verification = __VerificationProxy_GenericFunctionProtocol
@@ -19971,7 +19973,7 @@ class MockGenericFunctionProtocol: GenericFunctionProtocol, Cuckoo.ProtocolMock,
     }
 }
 
-class GenericFunctionProtocolStub:GenericFunctionProtocol, @unchecked Sendable {
+final class GenericFunctionProtocolStub:GenericFunctionProtocol {
 
 
     
@@ -19981,7 +19983,7 @@ class GenericFunctionProtocolStub:GenericFunctionProtocol, @unchecked Sendable {
 }
 
 
-class MockOptionalParamsClass: OptionalParamsClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockOptionalParamsClass: OptionalParamsClass, Cuckoo.ClassMock {
     typealias MocksType = OptionalParamsClass
     typealias Stubbing = __StubbingProxy_OptionalParamsClass
     typealias Verification = __VerificationProxy_OptionalParamsClass
@@ -20195,7 +20197,7 @@ class MockOptionalParamsClass: OptionalParamsClass, Cuckoo.ClassMock, @unchecked
     }
 }
 
-class OptionalParamsClassStub:OptionalParamsClass, @unchecked Sendable {
+final class OptionalParamsClassStub:OptionalParamsClass {
     
     override var implicitOptionalProperty: Int! {
         get {
@@ -20228,7 +20230,7 @@ class OptionalParamsClassStub:OptionalParamsClass, @unchecked Sendable {
 }
 
 
-public class MockInternalFieldsInPublicClass: InternalFieldsInPublicClass, Cuckoo.ClassMock, @unchecked Sendable {
+public final class MockInternalFieldsInPublicClass: InternalFieldsInPublicClass, Cuckoo.ClassMock {
     public typealias MocksType = InternalFieldsInPublicClass
     public typealias Stubbing = __StubbingProxy_InternalFieldsInPublicClass
     public typealias Verification = __VerificationProxy_InternalFieldsInPublicClass
@@ -20340,7 +20342,7 @@ public class MockInternalFieldsInPublicClass: InternalFieldsInPublicClass, Cucko
     }
 }
 
-public class InternalFieldsInPublicClassStub:InternalFieldsInPublicClass, @unchecked Sendable {
+public final class InternalFieldsInPublicClassStub:InternalFieldsInPublicClass {
     
     public override var field: Int? {
         get {
@@ -20363,7 +20365,7 @@ public class InternalFieldsInPublicClassStub:InternalFieldsInPublicClass, @unche
 }
 
 
-public class MockPublicClassWithInternalFieldsUsingPublicType: PublicClassWithInternalFieldsUsingPublicType, Cuckoo.ClassMock, @unchecked Sendable {
+public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClassWithInternalFieldsUsingPublicType, Cuckoo.ClassMock {
     public typealias MocksType = PublicClassWithInternalFieldsUsingPublicType
     public typealias Stubbing = __StubbingProxy_PublicClassWithInternalFieldsUsingPublicType
     public typealias Verification = __VerificationProxy_PublicClassWithInternalFieldsUsingPublicType
@@ -20565,7 +20567,7 @@ public class MockPublicClassWithInternalFieldsUsingPublicType: PublicClassWithIn
     }
 }
 
-public class PublicClassWithInternalFieldsUsingPublicTypeStub:PublicClassWithInternalFieldsUsingPublicType, @unchecked Sendable {
+public final class PublicClassWithInternalFieldsUsingPublicTypeStub:PublicClassWithInternalFieldsUsingPublicType {
     
     public override var internalField: InternalType {
         get {
@@ -20607,7 +20609,7 @@ public class PublicClassWithInternalFieldsUsingPublicTypeStub:PublicClassWithInt
 }
 
 
-class MockInternalType: InternalType, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockInternalType: InternalType, Cuckoo.ClassMock {
     typealias MocksType = InternalType
     typealias Stubbing = __StubbingProxy_InternalType
     typealias Verification = __VerificationProxy_InternalType
@@ -20645,13 +20647,13 @@ class MockInternalType: InternalType, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class InternalTypeStub:InternalType, @unchecked Sendable {
+final class InternalTypeStub:InternalType {
 
 
 }
 
 
-public class MockPublicType: PublicType, Cuckoo.ClassMock, @unchecked Sendable {
+public final class MockPublicType: PublicType, Cuckoo.ClassMock {
     public typealias MocksType = PublicType
     public typealias Stubbing = __StubbingProxy_PublicType
     public typealias Verification = __VerificationProxy_PublicType
@@ -20689,13 +20691,13 @@ public class MockPublicType: PublicType, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-public class PublicTypeStub:PublicType, @unchecked Sendable {
+public final class PublicTypeStub:PublicType {
 
 
 }
 
 
-class MockFinalFields: FinalFields, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockFinalFields: FinalFields, Cuckoo.ClassMock {
     typealias MocksType = FinalFields
     typealias Stubbing = __StubbingProxy_FinalFields
     typealias Verification = __VerificationProxy_FinalFields
@@ -20733,13 +20735,13 @@ class MockFinalFields: FinalFields, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class FinalFieldsStub:FinalFields, @unchecked Sendable {
+final class FinalFieldsStub:FinalFields {
 
 
 }
 
 
-class MockInoutMethodClass: InoutMethodClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockInoutMethodClass: InoutMethodClass, Cuckoo.ClassMock {
     typealias MocksType = InoutMethodClass
     typealias Stubbing = __StubbingProxy_InoutMethodClass
     typealias Verification = __VerificationProxy_InoutMethodClass
@@ -20871,7 +20873,7 @@ return cuckoo_manager.call(
     }
 }
 
-class InoutMethodClassStub:InoutMethodClass, @unchecked Sendable {
+final class InoutMethodClassStub:InoutMethodClass {
 
 
     
@@ -20889,7 +20891,7 @@ class InoutMethodClassStub:InoutMethodClass, @unchecked Sendable {
 }
 
 
-class MockClosureNClass: ClosureNClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClosureNClass: ClosureNClass, Cuckoo.ClassMock {
     typealias MocksType = ClosureNClass
     typealias Stubbing = __StubbingProxy_ClosureNClass
     typealias Verification = __VerificationProxy_ClosureNClass
@@ -21199,7 +21201,7 @@ return cuckoo_manager.call(
     }
 }
 
-class ClosureNClassStub:ClosureNClass, @unchecked Sendable {
+final class ClosureNClassStub:ClosureNClass {
 
 
     
@@ -21237,7 +21239,7 @@ class ClosureNClassStub:ClosureNClass, @unchecked Sendable {
 }
 
 
-class MockClosureNThrowingClass: ClosureNThrowingClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClosureNThrowingClass: ClosureNThrowingClass, Cuckoo.ClassMock {
     typealias MocksType = ClosureNThrowingClass
     typealias Stubbing = __StubbingProxy_ClosureNThrowingClass
     typealias Verification = __VerificationProxy_ClosureNThrowingClass
@@ -21547,7 +21549,7 @@ return cuckoo_manager.call(
     }
 }
 
-class ClosureNThrowingClassStub:ClosureNThrowingClass, @unchecked Sendable {
+final class ClosureNThrowingClassStub:ClosureNThrowingClass {
 
 
     
@@ -21585,7 +21587,7 @@ class ClosureNThrowingClassStub:ClosureNThrowingClass, @unchecked Sendable {
 }
 
 
-class MockClosureNThrowingThrowsClass: ClosureNThrowingThrowsClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClosureNThrowingThrowsClass: ClosureNThrowingThrowsClass, Cuckoo.ClassMock {
     typealias MocksType = ClosureNThrowingThrowsClass
     typealias Stubbing = __StubbingProxy_ClosureNThrowingThrowsClass
     typealias Verification = __VerificationProxy_ClosureNThrowingThrowsClass
@@ -21903,7 +21905,7 @@ return try cuckoo_manager.callThrows(
     }
 }
 
-class ClosureNThrowingThrowsClassStub:ClosureNThrowingThrowsClass, @unchecked Sendable {
+final class ClosureNThrowingThrowsClassStub:ClosureNThrowingThrowsClass {
 
 
     
@@ -21941,7 +21943,7 @@ class ClosureNThrowingThrowsClassStub:ClosureNThrowingThrowsClass, @unchecked Se
 }
 
 
-class MockClosureNRethrowingClass: ClosureNRethrowingClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockClosureNRethrowingClass: ClosureNRethrowingClass, Cuckoo.ClassMock {
     typealias MocksType = ClosureNRethrowingClass
     typealias Stubbing = __StubbingProxy_ClosureNRethrowingClass
     typealias Verification = __VerificationProxy_ClosureNRethrowingClass
@@ -22251,7 +22253,7 @@ return try cuckoo_manager.callRethrows(
     }
 }
 
-class ClosureNRethrowingClassStub:ClosureNRethrowingClass, @unchecked Sendable {
+final class ClosureNRethrowingClassStub:ClosureNRethrowingClass {
 
 
     
@@ -22289,7 +22291,7 @@ class ClosureNRethrowingClassStub:ClosureNRethrowingClass, @unchecked Sendable {
 }
 
 
-class MockTypeIsRightClass: TypeIsRightClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockTypeIsRightClass: TypeIsRightClass, Cuckoo.ClassMock {
     typealias MocksType = TypeIsRightClass
     typealias Stubbing = __StubbingProxy_TypeIsRightClass
     typealias Verification = __VerificationProxy_TypeIsRightClass
@@ -22691,7 +22693,7 @@ class MockTypeIsRightClass: TypeIsRightClass, Cuckoo.ClassMock, @unchecked Senda
     }
 }
 
-class TypeIsRightClassStub:TypeIsRightClass, @unchecked Sendable {
+final class TypeIsRightClassStub:TypeIsRightClass {
     
     override var stringo: String {
         get {
@@ -22795,7 +22797,7 @@ class TypeIsRightClassStub:TypeIsRightClass, @unchecked Sendable {
 }
 
 
-class MockConvenienceMatchersAmbiguer: ConvenienceMatchersAmbiguer, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockConvenienceMatchersAmbiguer: ConvenienceMatchersAmbiguer, Cuckoo.ClassMock {
     typealias MocksType = ConvenienceMatchersAmbiguer
     typealias Stubbing = __StubbingProxy_ConvenienceMatchersAmbiguer
     typealias Verification = __VerificationProxy_ConvenienceMatchersAmbiguer
@@ -23103,7 +23105,7 @@ class MockConvenienceMatchersAmbiguer: ConvenienceMatchersAmbiguer, Cuckoo.Class
     }
 }
 
-class ConvenienceMatchersAmbiguerStub:ConvenienceMatchersAmbiguer, @unchecked Sendable {
+final class ConvenienceMatchersAmbiguerStub:ConvenienceMatchersAmbiguer {
 
 
     
@@ -23152,7 +23154,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any TestedProtocol
     typealias Stubbing = __StubbingProxy_TestedProtocol
     typealias Verification = __VerificationProxy_TestedProtocol
@@ -24135,7 +24137,7 @@ return cuckoo_manager.call(
     }
 }
 
-class TestedProtocolStub:TestedProtocol, @unchecked Sendable {
+final class TestedProtocolStub:TestedProtocol {
     
     var readOnlyProperty: String {
         get {
@@ -24311,7 +24313,7 @@ class TestedProtocolStub:TestedProtocol, @unchecked Sendable {
 }
 
 
-class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_EmptyLabelProtocol
     typealias Verification = __VerificationProxy_EmptyLabelProtocol
@@ -24320,7 +24322,8 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: EmptyLabelProtocol, @unchecked Sendable {
+    
+    final class DefaultImplCaller: EmptyLabelProtocol, @unchecked Sendable {
         private let reference: () -> any EmptyLabelProtocol
     
         
@@ -24474,7 +24477,7 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
     }
 }
 
-class EmptyLabelProtocolStub<T>:EmptyLabelProtocol, @unchecked Sendable {
+final class EmptyLabelProtocolStub<T>:EmptyLabelProtocol {
 
 
     
@@ -24492,7 +24495,7 @@ class EmptyLabelProtocolStub<T>:EmptyLabelProtocol, @unchecked Sendable {
 }
 
 
-class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any OnlyLabelProtocol
     typealias Stubbing = __StubbingProxy_OnlyLabelProtocol
     typealias Verification = __VerificationProxy_OnlyLabelProtocol
@@ -24620,7 +24623,7 @@ class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked 
     }
 }
 
-class OnlyLabelProtocolStub:OnlyLabelProtocol, @unchecked Sendable {
+final class OnlyLabelProtocolStub:OnlyLabelProtocol {
 
 
     
@@ -24638,7 +24641,7 @@ class OnlyLabelProtocolStub:OnlyLabelProtocol, @unchecked Sendable {
 }
 
 
-class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock {
     typealias MocksType = OnlyLabelClass
     typealias Stubbing = __StubbingProxy_OnlyLabelClass
     typealias Verification = __VerificationProxy_OnlyLabelClass
@@ -24766,7 +24769,7 @@ class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable 
     }
 }
 
-class OnlyLabelClassStub:OnlyLabelClass, @unchecked Sendable {
+final class OnlyLabelClassStub:OnlyLabelClass {
 
 
     
@@ -24784,7 +24787,7 @@ class OnlyLabelClassStub:OnlyLabelClass, @unchecked Sendable {
 }
 
 
-public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.ProtocolMock, @unchecked Sendable {
+public final class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.ProtocolMock {
     public typealias MocksType = DefaultImplCaller
     public typealias Stubbing = __StubbingProxy_PublicoProtocolo
     public typealias Verification = __VerificationProxy_PublicoProtocolo
@@ -24793,7 +24796,8 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
 
     public let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    public class DefaultImplCaller: PublicoProtocolo, @unchecked Sendable {
+    
+    public final class DefaultImplCaller: PublicoProtocolo, @unchecked Sendable {
         private let reference: () -> any PublicoProtocolo
     
         private let _getter_storage$$stringoStar: () -> String
@@ -24915,7 +24919,7 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
     }
 }
 
-public class PublicoProtocoloStub<InternaloTypo>:PublicoProtocolo, @unchecked Sendable {
+public final class PublicoProtocoloStub<InternaloTypo>:PublicoProtocolo {
     
     public var stringoStar: String {
         get {
@@ -24934,7 +24938,7 @@ public class PublicoProtocoloStub<InternaloTypo>:PublicoProtocolo, @unchecked Se
 }
 
 
-class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any SimpleProtocol
     typealias Stubbing = __StubbingProxy_SimpleProtocol
     typealias Verification = __VerificationProxy_SimpleProtocol
@@ -24990,7 +24994,7 @@ class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
     }
 }
 
-class SimpleProtocolStub:SimpleProtocol, @unchecked Sendable {
+final class SimpleProtocolStub:SimpleProtocol {
     
     var constant: Int {
         get {
@@ -25002,7 +25006,7 @@ class SimpleProtocolStub:SimpleProtocol, @unchecked Sendable {
 }
 
 
-class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any SendableProtocol
     typealias Stubbing = __StubbingProxy_SendableProtocol
     typealias Verification = __VerificationProxy_SendableProtocol
@@ -25040,13 +25044,91 @@ class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock, @unchecked Se
     }
 }
 
-class SendableProtocolStub:SendableProtocol, @unchecked Sendable {
+final class SendableProtocolStub:SendableProtocol {
 
 
 }
 
 
-class MockSimpleClass: SimpleClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockConcurrentCounter: ConcurrentCounter, Cuckoo.ProtocolMock {
+    typealias MocksType = any ConcurrentCounter
+    typealias Stubbing = __StubbingProxy_ConcurrentCounter
+    typealias Verification = __VerificationProxy_ConcurrentCounter
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any ConcurrentCounter>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ConcurrentCounter) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func count(characters p0: String) -> Int {
+        return cuckoo_manager.call(
+            "count(characters p0: String) -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.count(characters: p0)
+        )
+    }
+
+    struct __StubbingProxy_ConcurrentCounter: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.ProtocolStubFunction<(String), Int> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConcurrentCounter.self,
+                method: "count(characters p0: String) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_ConcurrentCounter: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.__DoNotUse<(String), Int> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "count(characters p0: String) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class ConcurrentCounterStub:ConcurrentCounter {
+
+
+    
+    func count(characters p0: String) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}
+
+
+final class MockSimpleClass: SimpleClass, Cuckoo.ClassMock {
     typealias MocksType = SimpleClass
     typealias Stubbing = __StubbingProxy_SimpleClass
     typealias Verification = __VerificationProxy_SimpleClass
@@ -25084,13 +25166,13 @@ class MockSimpleClass: SimpleClass, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class SimpleClassStub:SimpleClass, @unchecked Sendable {
+final class SimpleClassStub:SimpleClass {
 
 
 }
 
 
-class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock {
     typealias MocksType = SimpleSubclass
     typealias Stubbing = __StubbingProxy_SimpleSubclass
     typealias Verification = __VerificationProxy_SimpleSubclass
@@ -25128,7 +25210,7 @@ class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock, @unchecked Sendable 
     }
 }
 
-class SimpleSubclassStub:SimpleSubclass, @unchecked Sendable {
+final class SimpleSubclassStub:SimpleSubclass {
 
 
 }
@@ -25141,7 +25223,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockTestedSubProtocol: TestedSubProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockTestedSubProtocol: TestedSubProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any TestedSubProtocol
     typealias Stubbing = __StubbingProxy_TestedSubProtocol
     typealias Verification = __VerificationProxy_TestedSubProtocol
@@ -26154,7 +26236,7 @@ return cuckoo_manager.call(
     }
 }
 
-class TestedSubProtocolStub:TestedSubProtocol, @unchecked Sendable {
+final class TestedSubProtocolStub:TestedSubProtocol {
     
     var readOnlyProperty: String {
         get {
@@ -26341,7 +26423,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockTestedSubclass: TestedSubclass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockTestedSubclass: TestedSubclass, Cuckoo.ClassMock {
     typealias MocksType = TestedSubclass
     typealias Stubbing = __StubbingProxy_TestedSubclass
     typealias Verification = __VerificationProxy_TestedSubclass
@@ -28501,7 +28583,7 @@ return cuckoo_manager.call(
     }
 }
 
-class TestedSubclassStub:TestedSubclass, @unchecked Sendable {
+final class TestedSubclassStub:TestedSubclass {
     
     override var privateSetProperty: Int {
         get {
@@ -28855,7 +28937,7 @@ class TestedSubclassStub:TestedSubclass, @unchecked Sendable {
 }
 
 
-class MockTestedSubSubClass: TestedSubSubClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockTestedSubSubClass: TestedSubSubClass, Cuckoo.ClassMock {
     typealias MocksType = TestedSubSubClass
     typealias Stubbing = __StubbingProxy_TestedSubSubClass
     typealias Verification = __VerificationProxy_TestedSubSubClass
@@ -31045,7 +31127,7 @@ return cuckoo_manager.call(
     }
 }
 
-class TestedSubSubClassStub:TestedSubSubClass, @unchecked Sendable {
+final class TestedSubSubClassStub:TestedSubSubClass {
     
     override var privateSetProperty: Int {
         get {
@@ -31411,7 +31493,7 @@ import Foundation
 @testable import CuckooTestSources
 
 @available(tvOS, unavailable)
-class MockUnavailablePlatformClass: UnavailablePlatformClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockUnavailablePlatformClass: UnavailablePlatformClass, Cuckoo.ClassMock {
     typealias MocksType = UnavailablePlatformClass
     typealias Stubbing = __StubbingProxy_UnavailablePlatformClass
     typealias Verification = __VerificationProxy_UnavailablePlatformClass
@@ -31476,7 +31558,7 @@ class MockUnavailablePlatformClass: UnavailablePlatformClass, Cuckoo.ClassMock, 
 }
 
 @available(tvOS, unavailable)
-class UnavailablePlatformClassStub:UnavailablePlatformClass, @unchecked Sendable {
+final class UnavailablePlatformClassStub:UnavailablePlatformClass {
     
     override var property: Int {
         get {
@@ -31497,7 +31579,7 @@ import Foundation
 @testable import CuckooTestSources
 
 @available(tvOS, unavailable)
-class MockUnavailablePlatformProtocol: UnavailablePlatformProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockUnavailablePlatformProtocol: UnavailablePlatformProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any UnavailablePlatformProtocol
     typealias Stubbing = __StubbingProxy_UnavailablePlatformProtocol
     typealias Verification = __VerificationProxy_UnavailablePlatformProtocol
@@ -31554,7 +31636,7 @@ class MockUnavailablePlatformProtocol: UnavailablePlatformProtocol, Cuckoo.Proto
 }
 
 @available(tvOS, unavailable)
-class UnavailablePlatformProtocolStub:UnavailablePlatformProtocol, @unchecked Sendable {
+final class UnavailablePlatformProtocolStub:UnavailablePlatformProtocol {
     
     var availableProperty: Bool {
         get {
@@ -31573,7 +31655,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
-class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock {
     typealias MocksType = any UnicodeTest
     typealias Stubbing = __StubbingProxy_UnicodeTest
     typealias Verification = __VerificationProxy_UnicodeTest
@@ -31671,7 +31753,7 @@ class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class UnicodeTestStub:UnicodeTest, @unchecked Sendable {
+final class UnicodeTestStub:UnicodeTest {
 
 
     
@@ -31685,7 +31767,7 @@ class UnicodeTestStub:UnicodeTest, @unchecked Sendable {
 }
 
 
-class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolMock {
     typealias MocksType = any UnicodeNameTest_トř🦅
     typealias Stubbing = __StubbingProxy_UnicodeNameTest_トř🦅
     typealias Verification = __VerificationProxy_UnicodeNameTest_トř🦅
@@ -31753,7 +31835,7 @@ class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolM
     }
 }
 
-class UnicodeNameTest_トř🦅Stub:UnicodeNameTest_トř🦅, @unchecked Sendable {
+final class UnicodeNameTest_トř🦅Stub:UnicodeNameTest_トř🦅 {
 
 
     

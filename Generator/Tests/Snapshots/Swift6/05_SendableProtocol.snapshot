@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockNetworking: Networking, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockNetworking: Networking, Cuckoo.ProtocolMock {
     typealias MocksType = any Networking
     typealias Stubbing = __StubbingProxy_Networking
     typealias Verification = __VerificationProxy_Networking
@@ -100,7 +100,7 @@ class MockNetworking: Networking, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class NetworkingStub:Networking, @unchecked Sendable {
+final class NetworkingStub:Networking {
 
 
     
@@ -110,6 +110,138 @@ class NetworkingStub:Networking, @unchecked Sendable {
     
     func get(url p0: String) async throws -> String {
         return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+}
+
+
+final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueStore, Cuckoo.ProtocolMock {
+    typealias MocksType = DefaultImplCaller
+    typealias Stubbing = __StubbingProxy_KeyValueStore
+    typealias Verification = __VerificationProxy_KeyValueStore
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    final class DefaultImplCaller: KeyValueStore, @unchecked Sendable {
+        private let reference: () -> any KeyValueStore
+    
+        private let _getter_storage$$count: () -> Int
+        var count: Int {
+            get { return _getter_storage$$count() }
+        }
+    
+        
+        init<_CUCKOO$$GENERIC: KeyValueStore>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key {
+            self.reference = reference
+    
+            _getter_storage$$count = { defaultImpl.pointee.count }
+            _storage$1$value = defaultImpl.pointee.value
+        }
+    
+
+        private let _storage$1$value: (Key) -> String?
+        func value(for p0: Key) -> String? {
+            return _storage$1$value(p0)
+        }
+    }
+
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyValueStore>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key {
+        var mutableStub = stub
+        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyValueStore>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Key == Key {
+        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    var count: Int {
+        get {
+            return cuckoo_manager.getter(
+                "count",
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.count
+            )
+        }
+    }
+
+
+    func value(for p0: Key) -> String? {
+        return cuckoo_manager.call(
+            "value(for p0: Key) -> String?",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.value(for: p0)
+        )
+    }
+
+    struct __StubbingProxy_KeyValueStore: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        var count: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockKeyValueStore,Int> {
+            return .init(manager: cuckoo_manager, name: "count")
+        }
+        
+        func value<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), String?> where M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockKeyValueStore.self,
+                method: "value(for p0: Key) -> String?",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_KeyValueStore: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        var count: Cuckoo.VerifyReadOnlyProperty<Int> {
+            return .init(manager: cuckoo_manager, name: "count", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
+        @discardableResult
+        func value<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), String?> where M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "value(for p0: Key) -> String?",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class KeyValueStoreStub<Key: Hashable & Sendable>:KeyValueStore {
+    
+    var count: Int {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Int).self)
+        }
+    }
+
+
+    
+    func value(for p0: Key) -> String? {
+        return DefaultValueRegistry.defaultValue(for: (String?).self)
     }
 }
 
