@@ -38,10 +38,10 @@ let package = Package(
         .package(url: "https://github.com/kylef/Stencil", from: "0.15.1"),
         .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"605.0.0"),
         // .package(url: "https://github.com/swiftlang/swift-format", "600.0.0"..<"605.0.0"),
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.7.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2"),
         .package(url: "https://github.com/LebJe/TOMLKit", from: "0.6.0"),
-        .package(url: "https://github.com/tuist/XcodeProj", from: "9.14.0"),
-        .package(url: "https://github.com/onevcat/Rainbow", from: "4.2.1"),
+        .package(url: "https://github.com/tuist/XcodeProj", from: "9.17.6"),
+        .package(url: "https://github.com/onevcat/Rainbow", from: "4.2.2"),
     ],
     targets: [
         .target(

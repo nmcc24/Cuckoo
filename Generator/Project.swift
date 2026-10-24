@@ -44,10 +44,10 @@ let project = Project(
         .package(url: "https://github.com/kylef/Stencil", .exact("0.15.1")),
         .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"605.0.0"),
         // .package(url: "https://github.com/swiftlang/swift-format", "600.0.0"..<"605.0.0"),
-        .package(url: "https://github.com/apple/swift-argument-parser", .exact("1.7.0")),
+        .package(url: "https://github.com/apple/swift-argument-parser", .exact("1.8.2")),
         .package(url: "https://github.com/LebJe/TOMLKit", .exact("0.6.0")),
-        .package(url: "https://github.com/tuist/XcodeProj", .exact("9.14.0")),
-        .package(url: "https://github.com/onevcat/Rainbow", .exact("4.2.1")),
+        .package(url: "https://github.com/tuist/XcodeProj", .exact("9.17.6")),
+        .package(url: "https://github.com/onevcat/Rainbow", .exact("4.2.2")),
     ],
     targets: [
         target,
