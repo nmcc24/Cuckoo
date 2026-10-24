@@ -123,6 +123,7 @@ extension Method {
             "parameters": signature.parameters,
             "parameterNames": signature.parameters.map { escapeReservedKeywords(for: $0.usableName) }.joined(separator: ", "),
             "sendingParameterNames": signature.parameters.filter(\.isSending).map { escapeReservedKeywords(for: $0.usableName) },
+            "sendingParameterDeclarations": signature.parameters.filter(\.isSending).map { "_ \(escapeReservedKeywords(for: $0.usableName)): \($0.type)" },
             "recordedParameters": signature.parameters.map(\.recordedValue).joined(separator: ", "),
             "escapingParameterNames": escapingParameterNames,
             "returnType": returnType?.description ?? "",
