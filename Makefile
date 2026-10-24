@@ -9,6 +9,6 @@ dev:
 	mise install
 
 	# Generate Xcode structure.
-	TUIST_PROJECT_DIR=$(PWD) tuist generate --no-open
+	TUIST_PROJECT_DIR=$(PWD) mise exec -- tuist generate --no-open
 
 	xed Cuckoo.xcworkspace
