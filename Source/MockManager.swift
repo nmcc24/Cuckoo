@@ -1,282 +1,279 @@
-#if canImport(Testing)
-import Testing
-#endif
-#if canImport(XCTest)
-import XCTest
-#endif
+import Foundation
 
-public class MockManager {
-    nonisolated(unsafe) public static var fail: ((message: String, sourceLocation: SourceLocation)) -> Void = { arg in
-        let (message, sourceLocation) = arg
-        // Report to the framework running the current test only. Swift Testing flags an
-        // `XCTFail` inside its tests, and XCTest doesn't see Swift Testing issues.
-        #if canImport(Testing)
-        if Test.current != nil {
-            Issue.record(
-                Comment(rawValue: message),
-                sourceLocation: Testing.SourceLocation(
-                    fileID: sourceLocation.fileID,
-                    filePath: sourceLocation.filePath,
-                    line: sourceLocation.line,
-                    column: sourceLocation.column
-                )
-            )
-            return
-        }
-        #endif
-        #if canImport(XCTest)
-        XCTFail(message, file: sourceLocation.file, line: UInt(sourceLocation.line))
-        #else
-        print("\(Self.self).fail:", message, sourceLocation)
-        #endif
+public final class MockManager: Sendable {
+    private struct RecordedCall {
+        let id: Int
+        let call: StubCall
     }
 
-    private var stubs: [Stub] = []
-    private var stubCalls: [StubCall] = []
-    private var unverifiedStubCallsIndexes: [Int] = []
-    // TODO Add either enum or OptionSet for these behavior modifiers and add proper validation
-    private var isSuperclassSpyEnabled = false
-    private var isDefaultImplementationEnabled = false
-    
+    private struct State {
+        /// Newest first, so a later stub overrides an earlier one with the same matchers.
+        var stubs: [Stub] = []
+        var calls: [RecordedCall] = []
+        var unverifiedCallIDs: Set<Int> = []
+        var nextCallID = 0
+        // TODO Add either enum or OptionSet for these behavior modifiers and add proper validation
+        var isSuperclassSpyEnabled = false
+        var isDefaultImplementationEnabled = false
+    }
+
+    /// What a call resolves to once it has been recorded.
+    private enum Resolution<IN, OUT, ERROR: Error> {
+        case stubbed(StubAction<IN, OUT, ERROR>)
+        case superclass
+        case defaultImplementation
+        case unstubbed
+    }
+
+    // All mutable state sits behind one lock. User code (matchers, stub implementations, the superclass and
+    // default implementations) always runs outside it, so it may call back into the mock.
+    private let state = Locked(State())
     private let hasParent: Bool
-    
-    private let queue = DispatchQueue(label: "cuckoo-mockmanager")
 
     public init(hasParent: Bool) {
         self.hasParent = hasParent
+    }
+
+    /// Records the call and decides how to answer it. Crashes if the call can't be answered.
+    private func resolve<IN, OUT, ERROR>(
+        _ method: String,
+        parameters: IN,
+        escapingParameters: IN,
+        as _: (OUT, ERROR).Type
+    ) -> Resolution<IN, OUT, ERROR> {
+        let call = ConcreteStubCall(method: method, parameters: escapingParameters)
+        let (stubs, isSuperclassSpyEnabled, isDefaultImplementationEnabled) = state.withLock { state in
+            let id = state.nextCallID
+            state.nextCallID += 1
+            state.calls.append(RecordedCall(id: id, call: call))
+            state.unverifiedCallIDs.insert(id)
+            return (state.stubs, state.isSuperclassSpyEnabled, state.isDefaultImplementationEnabled)
+        }
+
+        let stub = stubs.lazy
+            .filter { $0.method == method }
+            .compactMap { $0 as? ConcreteStub<IN, OUT, ERROR> }
+            .first { $0.matches(parameters) }
+
+        if let stub {
+            guard let action = stub.nextAction() else {
+                failAndCrash("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
+            }
+            if case .callRealImplementation = action {
+                guard hasParent else {
+                    failAndCrash("No real implementation found for method `\(method)`. This is probably caused by stubbed object being a mock of a protocol.")
+                }
+                return .superclass
+            }
+            return .stubbed(action)
+        } else if isSuperclassSpyEnabled {
+            return .superclass
+        } else if isDefaultImplementationEnabled {
+            return .defaultImplementation
+        } else {
+            let message = "No stub for method `\(method)` using parameters \(parameters)."
+            switch CuckooConfiguration.current.unstubbedCalls {
+            case .strict:
+                fail(message)
+            case .lenient:
+                break
+            case .crash:
+                failAndCrash(message)
+            }
+            return .unstubbed
+        }
+    }
+
+    /// The default value an unstubbed call returns, or a crash if its type has none.
+    private func unstubbedValue<OUT>(_ method: String) -> OUT {
+        guard let value = DefaultValueRegistry.unstubbedValue(for: OUT.self) else {
+            failAndCrash("No stub for method `\(method)`, and its return type \(OUT.self) has no default value. Stub it, or register one with `DefaultValueRegistry` or the `.cuckoo(defaultValues:)` trait.")
+        }
+        return value
+    }
+
+    /// The error an unstubbed throwing call throws, if its error type can hold `CuckooError`.
+    private func unstubbedError<ERROR: Error>(_ method: String, as _: ERROR.Type) -> ERROR? {
+        CuckooError.unstubbedCall(method: method) as? ERROR
     }
 
     private func callInternal<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () -> OUT, defaultCall: () -> OUT) -> OUT {
         return callRethrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
     }
     
-    private func callInternal<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () async -> OUT, defaultCall: () async -> OUT) async -> OUT {
+    private nonisolated(nonsending) func callInternal<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () async -> OUT, defaultCall: () async -> OUT) async -> OUT {
         return await callRethrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
     }
     
     private func callRethrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () throws(ERROR) -> OUT, defaultCall: () throws(ERROR) -> OUT) rethrows -> OUT {
-        let stubCall = ConcreteStubCall(method: method, parameters: escapingParameters)
-        queue.sync {
-            stubCalls.append(stubCall)
-            unverifiedStubCallsIndexes.append(stubCalls.count - 1)
-        }
-
-        if let stub = (stubs.filter { $0.method == method }.compactMap { $0 as? ConcreteStub<IN, OUT, ERROR> }.filter { $0.parameterMatchers.reduce(true) { $0 && $1.matches(parameters) } }.first) {
-            
-            guard let action = queue.sync(execute: {
-                return stub.actions.count > 1 ? stub.actions.removeFirst() : stub.actions.first
-            }) else {
-                failAndCrash("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
-            }
-            
-            switch action {
-            case .callImplementation(let implementation):
-                return try DispatchQueue(label: "No-care?").sync(execute: {
-                    return try implementation(parameters)
-                })
-            case .returnValue(let value):
-                return value
-            case .throwError(let error):
-                return try DispatchQueue(label: "No-care?").sync(execute: {
-                    throw error
-                })
-            case .callRealImplementation where hasParent:
-                return try superclassCall()
-            default:
-                failAndCrash("No real implementation found for method `\(method)`. This is probably caused by stubbed object being a mock of a protocol.")
-            }
-        } else if isSuperclassSpyEnabled {
+        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR).self) {
+        case .stubbed(.callImplementation(let implementation)):
+            return try DispatchQueue(label: "No-care?").sync(execute: {
+                return try implementation(parameters)
+            })
+        case .stubbed(.returnValue(let value)):
+            return value
+        case .stubbed(.throwError(let error)):
+            return try DispatchQueue(label: "No-care?").sync(execute: {
+                throw error
+            })
+        case .stubbed(.callRealImplementation), .superclass:
             return try superclassCall()
-        } else if isDefaultImplementationEnabled {
+        case .defaultImplementation:
             return try defaultCall()
-        } else {
-            failAndCrash("No stub for method `\(method)` using parameters \(parameters).")
+        case .unstubbed:
+            return unstubbedValue(method)
         }
     }
     
-    private func callRethrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () async throws(ERROR) -> OUT, defaultCall: () async throws(ERROR) -> OUT) async rethrows -> OUT {
-        let stubCall = ConcreteStubCall(method: method, parameters: escapingParameters)
-        queue.sync {
-            stubCalls.append(stubCall)
-            unverifiedStubCallsIndexes.append(stubCalls.count - 1)
-        }
-
-        if let stub = (stubs.filter { $0.method == method }.compactMap { $0 as? ConcreteStub<IN, OUT, ERROR> }.filter { $0.parameterMatchers.reduce(true) { $0 && $1.matches(parameters) } }.first) {
-            
-            guard let action = queue.sync(execute: {
-                return stub.actions.count > 1 ? stub.actions.removeFirst() : stub.actions.first
-            }) else {
-                failAndCrash("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
-            }
-            
-            switch action {
-            case .callImplementation(let implementation):
-                return try DispatchQueue(label: "No-care?").sync(execute: {
-                    return try implementation(parameters)
-                })
-            case .returnValue(let value):
-                return value
-            case .throwError(let error):
-                return try DispatchQueue(label: "No-care?").sync(execute: {
-                    throw error
-                })
-            case .callRealImplementation where hasParent:
-                return try await superclassCall()
-            default:
-                failAndCrash("No real implementation found for method `\(method)`. This is probably caused by stubbed object being a mock of a protocol.")
-            }
-        } else if isSuperclassSpyEnabled {
+    private nonisolated(nonsending) func callRethrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () async throws(ERROR) -> OUT, defaultCall: () async throws(ERROR) -> OUT) async rethrows -> OUT {
+        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR).self) {
+        case .stubbed(.callImplementation(let implementation)):
+            return try DispatchQueue(label: "No-care?").sync(execute: {
+                return try implementation(parameters)
+            })
+        case .stubbed(.returnValue(let value)):
+            return value
+        case .stubbed(.throwError(let error)):
+            return try DispatchQueue(label: "No-care?").sync(execute: {
+                throw error
+            })
+        case .stubbed(.callRealImplementation), .superclass:
             return try await superclassCall()
-        } else if isDefaultImplementationEnabled {
+        case .defaultImplementation:
             return try await defaultCall()
-        } else {
-            failAndCrash("No stub for method `\(method)` using parameters \(parameters).")
+        case .unstubbed:
+            return unstubbedValue(method)
         }
     }
     
     private func callThrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () throws(ERROR) -> OUT, defaultCall: () throws(ERROR) -> OUT) throws(ERROR) -> OUT {
-        let stubCall = ConcreteStubCall(method: method, parameters: escapingParameters)
-        queue.sync {
-            stubCalls.append(stubCall)
-            unverifiedStubCallsIndexes.append(stubCalls.count - 1)
-        }
-        
-        if let stub = (stubs.filter { $0.method == method }.compactMap { $0 as? ConcreteStub<IN, OUT, ERROR> }.filter { $0.parameterMatchers.reduce(true) { $0 && $1.matches(parameters) } }.first) {
-            
-            guard let action = queue.sync(execute: {
-                return stub.actions.count > 1 ? stub.actions.removeFirst() : stub.actions.first
-            }) else {
-                failAndCrash("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
-            }
-            
-            switch action {
-            case .callImplementation(let implementation):
-                return try implementation(parameters)
-            case .returnValue(let value):
-                return value
-            case .throwError(let error):
-                throw error
-            case .callRealImplementation where hasParent:
-                return try superclassCall()
-            default:
-                failAndCrash("No real implementation found for method `\(method)`. This is probably caused  by stubbed object being a mock of a protocol.")
-            }
-        } else if isSuperclassSpyEnabled {
+        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR).self) {
+        case .stubbed(.callImplementation(let implementation)):
+            return try implementation(parameters)
+        case .stubbed(.returnValue(let value)):
+            return value
+        case .stubbed(.throwError(let error)):
+            throw error
+        case .stubbed(.callRealImplementation), .superclass:
             return try superclassCall()
-        } else if isDefaultImplementationEnabled {
+        case .defaultImplementation:
             return try defaultCall()
-        } else {
-            failAndCrash("No stub for method `\(method)` using parameters \(parameters).")
+        case .unstubbed:
+            if let error = unstubbedError(method, as: ERROR.self) {
+                throw error
+            }
+            return unstubbedValue(method)
         }
     }
     
-    private func callThrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () async throws(ERROR) -> OUT, defaultCall: () async throws(ERROR) -> OUT) async throws(ERROR) -> OUT {
-        let stubCall = ConcreteStubCall(method: method, parameters: escapingParameters)
-        queue.sync {
-            stubCalls.append(stubCall)
-            unverifiedStubCallsIndexes.append(stubCalls.count - 1)
-        }
-        
-        if let stub = (stubs.filter { $0.method == method }.compactMap { $0 as? ConcreteStub<IN, OUT, ERROR> }.filter { $0.parameterMatchers.reduce(true) { $0 && $1.matches(parameters) } }.first) {
-            
-            guard let action = queue.sync(execute: {
-                return stub.actions.count > 1 ? stub.actions.removeFirst() : stub.actions.first
-            }) else {
-                failAndCrash("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
-            }
-            
-            switch action {
-            case .callImplementation(let implementation):
-                return try implementation(parameters)
-            case .returnValue(let value):
-                return value
-            case .throwError(let error):
-                throw error
-            case .callRealImplementation where hasParent:
-                return try await superclassCall()
-            default:
-                failAndCrash("No real implementation found for method `\(method)`. This is probably caused  by stubbed object being a mock of a protocol.")
-            }
-        } else if isSuperclassSpyEnabled {
+    private nonisolated(nonsending) func callThrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () async throws(ERROR) -> OUT, defaultCall: () async throws(ERROR) -> OUT) async throws(ERROR) -> OUT {
+        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR).self) {
+        case .stubbed(.callImplementation(let implementation)):
+            return try implementation(parameters)
+        case .stubbed(.returnValue(let value)):
+            return value
+        case .stubbed(.throwError(let error)):
+            throw error
+        case .stubbed(.callRealImplementation), .superclass:
             return try await superclassCall()
-        } else if isDefaultImplementationEnabled {
+        case .defaultImplementation:
             return try await defaultCall()
-        } else {
-            failAndCrash("No stub for method `\(method)` using parameters \(parameters).")
+        case .unstubbed:
+            if let error = unstubbedError(method, as: ERROR.self) {
+                throw error
+            }
+            return unstubbedValue(method)
         }
     }
     
     public func createStub<MOCK: ClassMock, IN, OUT, ERROR>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ClassConcreteStub<IN, OUT, ERROR> {
         let stub = ClassConcreteStub<IN, OUT, ERROR>(method: method, parameterMatchers: parameterMatchers)
-        stubs.insert(stub, at: 0)
+        state.withLock { $0.stubs.insert(stub, at: 0) }
         return stub
     }
 
     public func createStub<MOCK: ProtocolMock, IN, OUT, ERROR>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ConcreteStub<IN, OUT, ERROR> {
         let stub = ConcreteStub<IN, OUT, ERROR>(method: method, parameterMatchers: parameterMatchers)
-        stubs.insert(stub, at: 0)
+        state.withLock { $0.stubs.insert(stub, at: 0) }
         return stub
     }
     
     public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> __DoNotUse<IN, OUT> {
-        var calls: [StubCall] = []
-        var indexesToRemove: [Int] = []
-        for (i, stubCall) in stubCalls.enumerated() {
-            if let stubCall = stubCall as? ConcreteStubCall<IN> , (parameterMatchers.reduce(stubCall.method == method) { $0 && $1.matches(stubCall.parameters) }) {
-                calls.append(stubCall)
-                indexesToRemove.append(i)
-            }
+        let recordedCalls = state.withLock { $0.calls }
+        let matching = recordedCalls.filter { recorded in
+            guard recorded.call.method == method, let call = recorded.call as? ConcreteStubCall<IN> else { return false }
+            return parameterMatchers.allSatisfy { $0.matches(call.parameters) }
         }
-        unverifiedStubCallsIndexes = unverifiedStubCallsIndexes.filter { !indexesToRemove.contains($0) }
+        state.withLock { state in
+            state.unverifiedCallIDs.subtract(matching.map(\.id))
+        }
         
+        let calls = matching.map(\.call)
         if callMatcher.matches(calls) == false {
             let message = "Wanted \(callMatcher.name) but \(calls.count == 0 ? "not invoked" : "invoked \(calls.count) times")."
-            MockManager.fail((message: message, sourceLocation: sourceLocation))
+            reportFailure(message, at: sourceLocation)
         }
         return __DoNotUse()
     }
 
     public func enableSuperclassSpy() {
-        guard stubCalls.isEmpty else {
-            failAndCrash("Enabling superclass spy is not allowed after stubbing! Please do that right after creating the mock.")
+        let error: String? = state.withLock { state in
+            guard state.calls.isEmpty else {
+                return "Enabling superclass spy is not allowed after stubbing! Please do that right after creating the mock."
+            }
+            guard !state.isDefaultImplementationEnabled else {
+                return "Enabling superclass spy is not allowed with the default stub implementation enabled."
+            }
+            state.isSuperclassSpyEnabled = true
+            return nil
         }
-        guard !isDefaultImplementationEnabled else {
-            failAndCrash("Enabling superclass spy is not allowed with the default stub implementation enabled.")
+        if let error {
+            failAndCrash(error)
         }
-
-        isSuperclassSpyEnabled = true
     }
 
     public func enableDefaultStubImplementation() {
-        guard stubCalls.isEmpty else {
-            failAndCrash("Enabling default stub implementation is not allowed after stubbing! Please do that right after creating the mock.")
+        let error: String? = state.withLock { state in
+            guard state.calls.isEmpty else {
+                return "Enabling default stub implementation is not allowed after stubbing! Please do that right after creating the mock."
+            }
+            guard !state.isSuperclassSpyEnabled else {
+                return "Enabling default stub implementation is not allowed with superclass spy enabled."
+            }
+            state.isDefaultImplementationEnabled = true
+            return nil
         }
-        guard !isSuperclassSpyEnabled else {
-            failAndCrash("Enabling default stub implementation is not allowed with superclass spy enabled.")
+        if let error {
+            failAndCrash(error)
         }
-
-        isDefaultImplementationEnabled = true
     }
     
     func reset() {
-        clearStubs()
-        clearInvocations()
+        state.withLock { state in
+            state.stubs.removeAll()
+            state.calls.removeAll()
+            state.unverifiedCallIDs.removeAll()
+        }
     }
     
     func clearStubs() {
-        stubs.removeAll()
+        state.withLock { $0.stubs.removeAll() }
     }
     
     func clearInvocations() {
-        queue.sync {
-            stubCalls.removeAll()
-            unverifiedStubCallsIndexes.removeAll()
+        state.withLock { state in
+            state.calls.removeAll()
+            state.unverifiedCallIDs.removeAll()
         }
     }
     
     func verifyNoMoreInteractions(_ sourceLocation: SourceLocation) {
-        if unverifiedStubCallsIndexes.isEmpty == false {
-            let unverifiedCalls = unverifiedStubCallsIndexes.map { stubCalls[$0] }.map { call in
+        let unverified = state.withLock { state in
+            state.calls.filter { state.unverifiedCallIDs.contains($0.id) }.map(\.call)
+        }
+        if unverified.isEmpty == false {
+            let unverifiedCalls = unverified.map { call in
                     if let bracketIndex = call.method.range(of: "(")?.lowerBound {
                         let name = call.method[..<bracketIndex]
                         return name + call.parametersAsString
@@ -289,12 +286,16 @@ public class MockManager {
                     }
                 }.enumerated().map { "\($0 + 1). " + $1 }.joined(separator: "\n")
             let message = "No more interactions wanted but some found:\n"
-            MockManager.fail((message: message + unverifiedCalls, sourceLocation:  sourceLocation))
+            reportFailure(message + unverifiedCalls, at: sourceLocation)
         }
     }
 
+    private func fail(_ message: String, file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
+        reportFailure(message, at: (file, fileID, filePath, line, column))
+    }
+
     private func failAndCrash(_ message: String, file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> Never  {
-        MockManager.fail((message: message, sourceLocation: (file, fileID, filePath, line, column)))
+        reportFailure(message, at: (file, fileID, filePath, line, column))
 
         #if _runtime(_ObjC)
         NSException(name: .internalInconsistencyException, reason: message, userInfo: nil).raise()
@@ -320,7 +321,7 @@ extension MockManager {
         return call(getterName(property), parameters: Void(), escapingParameters: Void(), superclassCall: superclassCall(), defaultCall: defaultCall())
     }
 
-    public func getter<T>(_ property: String, superclassCall: @autoclosure () async -> T, defaultCall: @autoclosure () async -> T) async -> T {
+    public nonisolated(nonsending) func getter<T>(_ property: String, superclassCall: @autoclosure () async -> T, defaultCall: @autoclosure () async -> T) async -> T {
         return await call(getterName(property), parameters: Void(), escapingParameters: Void(), superclassCall: await superclassCall(), defaultCall: await defaultCall())
     }
 
@@ -334,7 +335,7 @@ extension MockManager {
         return try callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (Error).self, superclassCall: try superclassCall(), defaultCall: try defaultCall())
     }
 
-    public func getterThrows<T>(_ property: String, superclassCall: @autoclosure () async throws -> T, defaultCall: @autoclosure () async throws -> T) async throws -> T {
+    public nonisolated(nonsending) func getterThrows<T>(_ property: String, superclassCall: @autoclosure () async throws -> T, defaultCall: @autoclosure () async throws -> T) async throws -> T {
         return try await callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (Error).self, superclassCall: try await superclassCall(), defaultCall: try await defaultCall())
     }
 }
@@ -344,7 +345,7 @@ extension MockManager {
         return callInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
     }
     
-    public func call<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: @autoclosure () async -> OUT, defaultCall: @autoclosure () async -> OUT) async -> OUT {
+    public nonisolated(nonsending) func call<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: @autoclosure () async -> OUT, defaultCall: @autoclosure () async -> OUT) async -> OUT {
         return await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
     }
 }
@@ -354,7 +355,7 @@ extension MockManager {
         return try callThrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
     }
     
-    public func callThrows<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, errorType: ERROR.Type, superclassCall: @autoclosure () async throws(ERROR) -> OUT, defaultCall: @autoclosure () async throws(ERROR) -> OUT) async throws(ERROR) -> OUT {
+    public nonisolated(nonsending) func callThrows<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, errorType: ERROR.Type, superclassCall: @autoclosure () async throws(ERROR) -> OUT, defaultCall: @autoclosure () async throws(ERROR) -> OUT) async throws(ERROR) -> OUT {
         return try await callThrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
     }
 }
@@ -364,7 +365,7 @@ extension MockManager {
         return try callRethrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
     }
     
-    public func callRethrows<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: @autoclosure () async throws -> OUT, defaultCall: @autoclosure () async throws -> OUT) async rethrows -> OUT {
+    public nonisolated(nonsending) func callRethrows<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: @autoclosure () async throws -> OUT, defaultCall: @autoclosure () async throws -> OUT) async rethrows -> OUT {
         return try await callRethrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
     }
 }

@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockCache: Cache, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockCache: Cache, Cuckoo.ProtocolMock {
     typealias MocksType = any Cache
     typealias Stubbing = __StubbingProxy_Cache
     typealias Verification = __VerificationProxy_Cache
@@ -10,10 +10,10 @@ class MockCache: Cache, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Cache)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Cache>()
 
-    func enableDefaultImplementation(_ stub: any Cache) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Cache) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -39,7 +39,7 @@ class MockCache: Cache, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class CacheStub:Cache, @unchecked Sendable {
+final class CacheStub:Cache {
 
 
 }

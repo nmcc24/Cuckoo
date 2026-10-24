@@ -300,7 +300,10 @@ Exit criteria: fixtures 07, 09, 10 and 11 compile, with snapshot tests for each.
      - runtime tests that assume Apple-only behaviour (the `NSException` path in `failAndCrash`), which need `#if` guards or stay macOS-only.
    - **OCMock bridge tests:** they stay disabled until D4's package trait exists.
 1. ☁️ `Sendable` `MockManager` with `Locked<State>`, `nonisolated` protocol requirements, honest `Sendable` mocks (drop `@unchecked`).
+   - **Done:** `MockManager` is a checked `Sendable` final class whose state sits in one `Locked<State>`; user code (matchers, stub implementations, superclass and default calls) runs outside the lock. Its async calls are `nonisolated(nonsending)`, so a global-actor mock's autoclosures stay on the caller's actor. Mocks keep the default implementation in a `Cuckoo.DefaultImplementation` `let`, and `enableDefaultImplementation` is `nonisolated`. Mocks and nop stubs are `final` and drop `@unchecked Sendable`: a mock is `Sendable` exactly when the mocked type is. Fixtures 01, 03, 04, 06 and 08 now compile.
+   - **Documented exceptions:** `__SendingArgument` (forwards `sending` values, now results too), and the type-erased default implementation of generic protocols, whose closures read the stub through an `UnsafeMutablePointer` (Phase 5 item 8).
 2. ☁️ TaskLocal configuration, the Swift Testing trait, failure routing, and the unstubbed-call policy.
+   - **Done:** `CuckooConfiguration` is a `@TaskLocal` holding the unstubbed-call policy, default values and an optional failure handler; it replaces `MockManager.fail`. The `.cuckoo(unstubbedCalls:defaultValues:failureHandler:)` trait sets it per test or suite. `UnstubbedCallPolicy` is `.strict` (default: record a failure, then throw `CuckooError.unstubbedCall` or return a default value), `.lenient` or `.crash` (Cuckoo 2). `createMock` hands its manager over through a task-local instead of a thread-local. `DefaultValueRegistry` takes only `Sendable` values, behind the lock box.
 3. ☁️ Stress tests: 1,000 concurrent calls, stubs and verifications on one mock, run under TSan in CI (🍎 for TSan on Apple platforms; ☁️ TSan on Linux).
 4. 🍎 Run the existing 342 tests under the new runtime and fix the regressions.
 5. ✅ Optional-property stubbing no longer constrains `Self`: `ToBeStubbedOptionalProperty` declares a `WrappedType` associated type, which cleared the "will be an error in a future Swift language mode" warning without changing call sites.
@@ -345,6 +348,7 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
    - Re-enable the commented-out OCMock targets in `Project.swift` and run `Tests/OCMock` in CI.
    - Update the API for Swift 6: `Sendable`-correct `objcStub`/`objcVerify`, MainActor-safe use with UIKit classes, and typed helpers to reduce the untyped `args[0] as! T` casts.
 7. ☁️ One source of truth for the generator's dependencies: have the Tuist `Generator` project consume the root package instead of re-declaring its packages, so `Generator/Project.swift` can't drift from `Package.swift` (a 9.9.0 vs 9.14.0 XcodeProj pin broke CI in Phase 2), and drop its separate lockfile.
+8. ☁️ Rebuild the type-erased default implementation (`DefaultImplCaller`) for generic protocols on a `Sendable` box instead of closures over an `UnsafeMutablePointer`, so it can drop its documented `@unchecked Sendable`. The pointer-based `enableDefaultImplementation(mutating:)` API needs rethinking with it; the non-mutating overload also points at a local copy.
 
 ### Phase 6: Release and upstreaming (S)
 - 3.0.0-beta tags on the fork.

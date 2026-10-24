@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any TestedProtocol
     typealias Stubbing = __StubbingProxy_TestedProtocol
     typealias Verification = __VerificationProxy_TestedProtocol
@@ -10,10 +10,10 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any TestedProtocol)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any TestedProtocol>()
 
-    func enableDefaultImplementation(_ stub: any TestedProtocol) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any TestedProtocol) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -22,7 +22,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return cuckoo_manager.getter(
                 "readOnlyProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.readOnlyProperty
+                defaultCall: __defaultImplStub.value.readOnlyProperty
             )
         }
     }
@@ -32,7 +32,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return cuckoo_manager.getter(
                 "readWriteProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.readWriteProperty
+                defaultCall: __defaultImplStub.value.readWriteProperty
             )
         }
         set {
@@ -40,7 +40,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
                 "readWriteProperty",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.readWriteProperty = newValue
+                defaultCall: __defaultImplStub.value.readWriteProperty = newValue
             )
         }
     }
@@ -50,7 +50,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return cuckoo_manager.getter(
                 "optionalProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.optionalProperty
+                defaultCall: __defaultImplStub.value.optionalProperty
             )
         }
         set {
@@ -58,7 +58,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
                 "optionalProperty",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.optionalProperty = newValue
+                defaultCall: __defaultImplStub.value.optionalProperty = newValue
             )
         }
     }
@@ -68,7 +68,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return cuckoo_manager.getter(
                 "closureProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureProperty
+                defaultCall: __defaultImplStub.value.closureProperty
             )
         }
         set {
@@ -76,7 +76,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
                 "closureProperty",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureProperty = newValue
+                defaultCall: __defaultImplStub.value.closureProperty = newValue
             )
         }
     }
@@ -86,7 +86,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return cuckoo_manager.getter(
                 "closureWithArgumentNameProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureWithArgumentNameProperty
+                defaultCall: __defaultImplStub.value.closureWithArgumentNameProperty
             )
         }
         set {
@@ -94,7 +94,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
                 "closureWithArgumentNameProperty",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureWithArgumentNameProperty = newValue
+                defaultCall: __defaultImplStub.value.closureWithArgumentNameProperty = newValue
             )
         }
     }
@@ -104,7 +104,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return cuckoo_manager.getter(
                 "closureWithArgumentNameMultilineProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureWithArgumentNameMultilineProperty
+                defaultCall: __defaultImplStub.value.closureWithArgumentNameMultilineProperty
             )
         }
         set {
@@ -112,7 +112,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
                 "closureWithArgumentNameMultilineProperty",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureWithArgumentNameMultilineProperty = newValue
+                defaultCall: __defaultImplStub.value.closureWithArgumentNameMultilineProperty = newValue
             )
         }
     }
@@ -122,7 +122,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureWithComplexArgumentNameProperty
+                defaultCall: __defaultImplStub.value.closureWithComplexArgumentNameProperty
             )
         }
         set {
@@ -130,7 +130,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
                 "closureWithComplexArgumentNameProperty",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureWithComplexArgumentNameProperty = newValue
+                defaultCall: __defaultImplStub.value.closureWithComplexArgumentNameProperty = newValue
             )
         }
     }
@@ -140,7 +140,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameMultilineProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureWithComplexArgumentNameMultilineProperty
+                defaultCall: __defaultImplStub.value.closureWithComplexArgumentNameMultilineProperty
             )
         }
         set {
@@ -148,7 +148,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
                 "closureWithComplexArgumentNameMultilineProperty",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.closureWithComplexArgumentNameMultilineProperty = newValue
+                defaultCall: __defaultImplStub.value.closureWithComplexArgumentNameMultilineProperty = newValue
             )
         }
     }
@@ -158,7 +158,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return try cuckoo_manager.getterThrows(
                 "throwsProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: try __defaultImplStub!.throwsProperty
+                defaultCall: try __defaultImplStub.value.throwsProperty
             )
         }
     }
@@ -169,7 +169,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return await cuckoo_manager.getter(
                 "asyncProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: await __defaultImplStub!.asyncProperty
+                defaultCall: await __defaultImplStub.value.asyncProperty
             )
         }
     }
@@ -180,7 +180,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return try await cuckoo_manager.getterThrows(
                 "asyncThrowsProperty",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: try await __defaultImplStub!.asyncThrowsProperty
+                defaultCall: try await __defaultImplStub.value.asyncThrowsProperty
             )
         }
     }
@@ -194,7 +194,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.noReturn()
+            defaultCall: __defaultImplStub.value.noReturn()
         )
     }
 
@@ -204,7 +204,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.count(characters: p0)
+            defaultCall: __defaultImplStub.value.count(characters: p0)
         )
     }
 
@@ -215,7 +215,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             escapingParameters: (),
             errorType: Swift.Error.self,
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withThrows()
+            defaultCall: __defaultImplStub.value.withThrows()
         )
     }
 
@@ -226,7 +226,7 @@ class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             escapingParameters: (),
             errorType: Swift.Error.self,
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withNoReturnThrows()
+            defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
     }
 
@@ -238,7 +238,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: ({ _ in fatalError("This is a stub! It's not supposed to be called!") }),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withClosure(p0)
+            defaultCall: __defaultImplStub.value.withClosure(p0)
         )
 		})
 
@@ -252,7 +252,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: ({ () in fatalError("This is a stub! It's not supposed to be called!") }),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withAutoClosure(action: p0())
+            defaultCall: __defaultImplStub.value.withAutoClosure(action: p0())
         )
 		})
 
@@ -266,7 +266,7 @@ return cuckoo_manager.call(
             parameters: (p0, p1),
             escapingParameters: (p0, { _ in fatalError("This is a stub! It's not supposed to be called!") }),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withClosureAndParam(p0, closure: p1)
+            defaultCall: __defaultImplStub.value.withClosureAndParam(p0, closure: p1)
         )
 			})
 
@@ -278,7 +278,7 @@ return cuckoo_manager.call(
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withEscape(p0, action: p1)
+            defaultCall: __defaultImplStub.value.withEscape(p0, action: p1)
         )
     }
 
@@ -288,7 +288,7 @@ return cuckoo_manager.call(
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withOptionalClosure(p0, closure: p1)
+            defaultCall: __defaultImplStub.value.withOptionalClosure(p0, closure: p1)
         )
     }
 
@@ -298,7 +298,7 @@ return cuckoo_manager.call(
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withOptionalClosureAndReturn(p0, closure: p1)
+            defaultCall: __defaultImplStub.value.withOptionalClosureAndReturn(p0, closure: p1)
         )
     }
 
@@ -308,7 +308,7 @@ return cuckoo_manager.call(
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withLabelAndUnderscore(labelA: p0, p1)
+            defaultCall: __defaultImplStub.value.withLabelAndUnderscore(labelA: p0, p1)
         )
     }
 
@@ -323,7 +323,7 @@ return cuckoo_manager.call(
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withReservedKeywords(for: p0, in: p1)
+            defaultCall: __defaultImplStub.value.withReservedKeywords(for: p0, in: p1)
         )
     }
 
@@ -333,7 +333,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withNamedTuple(tuple: p0)
+            defaultCall: __defaultImplStub.value.withNamedTuple(tuple: p0)
         )
     }
 
@@ -343,7 +343,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.withImplicitlyUnwrappedOptional(i: p0)
+            defaultCall: __defaultImplStub.value.withImplicitlyUnwrappedOptional(i: p0)
         )
     }
 
@@ -353,7 +353,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.protocolMethod()
+            defaultCall: __defaultImplStub.value.protocolMethod()
         )
     }
 
@@ -363,7 +363,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.methodWithParameter(p0)
+            defaultCall: __defaultImplStub.value.methodWithParameter(p0)
         )
     }
 
@@ -373,7 +373,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.genericReturn()
+            defaultCall: __defaultImplStub.value.genericReturn()
         )
     }
 
@@ -383,7 +383,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.multilineMethod(completion: p0)
+            defaultCall: __defaultImplStub.value.multilineMethod(completion: p0)
         )
     }
 
@@ -393,7 +393,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.genericMultilineMethod(completion: p0)
+            defaultCall: __defaultImplStub.value.genericMultilineMethod(completion: p0)
         )
     }
 
@@ -403,7 +403,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.frobnicate()
+            defaultCall: __defaultImplStub.value.frobnicate()
         )
     }
 
@@ -416,7 +416,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.asyncMethod()
+            defaultCall: await __defaultImplStub.value.asyncMethod()
         )
     }
 
@@ -426,7 +426,7 @@ return cuckoo_manager.call(
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.compositionalParameters(param1: p0, param2: p1)
+            defaultCall: __defaultImplStub.value.compositionalParameters(param1: p0, param2: p1)
         )
     }
 
@@ -989,7 +989,7 @@ return cuckoo_manager.call(
     }
 }
 
-class TestedProtocolStub:TestedProtocol, @unchecked Sendable {
+final class TestedProtocolStub:TestedProtocol {
     
     var readOnlyProperty: String {
         get {
@@ -1165,7 +1165,7 @@ class TestedProtocolStub:TestedProtocol, @unchecked Sendable {
 }
 
 
-class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_EmptyLabelProtocol
     typealias Verification = __VerificationProxy_EmptyLabelProtocol
@@ -1174,7 +1174,8 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: EmptyLabelProtocol, @unchecked Sendable {
+    
+    final class DefaultImplCaller: EmptyLabelProtocol, @unchecked Sendable {
         private let reference: () -> any EmptyLabelProtocol
     
         
@@ -1203,16 +1204,16 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
         }
     }
 
-    private var __defaultImplStub: DefaultImplCaller?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    func enableDefaultImplementation<_CUCKOO$$GENERIC: EmptyLabelProtocol>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T {
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EmptyLabelProtocol>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T {
         var mutableStub = stub
-        __defaultImplStub = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    func enableDefaultImplementation<_CUCKOO$$GENERIC: EmptyLabelProtocol>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.T == T {
-        __defaultImplStub = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EmptyLabelProtocol>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.T == T {
+        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -1223,7 +1224,7 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.empty(p0)
+            defaultCall: __defaultImplStub.value.empty(p0)
         )
     }
 
@@ -1233,7 +1234,7 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.empty(p0)
+            defaultCall: __defaultImplStub.value.empty(p0)
         )
     }
 
@@ -1243,7 +1244,7 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.empty(p0)
+            defaultCall: __defaultImplStub.value.empty(p0)
         )
     }
 
@@ -1328,7 +1329,7 @@ class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock, @unche
     }
 }
 
-class EmptyLabelProtocolStub<T>:EmptyLabelProtocol, @unchecked Sendable {
+final class EmptyLabelProtocolStub<T>:EmptyLabelProtocol {
 
 
     
@@ -1346,7 +1347,7 @@ class EmptyLabelProtocolStub<T>:EmptyLabelProtocol, @unchecked Sendable {
 }
 
 
-class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any OnlyLabelProtocol
     typealias Stubbing = __StubbingProxy_OnlyLabelProtocol
     typealias Verification = __VerificationProxy_OnlyLabelProtocol
@@ -1355,10 +1356,10 @@ class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked 
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any OnlyLabelProtocol)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any OnlyLabelProtocol>()
 
-    func enableDefaultImplementation(_ stub: any OnlyLabelProtocol) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any OnlyLabelProtocol) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -1369,7 +1370,7 @@ class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked 
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.empty(p0)
+            defaultCall: __defaultImplStub.value.empty(p0)
         )
     }
 
@@ -1379,7 +1380,7 @@ class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked 
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.some(some: p0)
+            defaultCall: __defaultImplStub.value.some(some: p0)
         )
     }
 
@@ -1389,7 +1390,7 @@ class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked 
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.double(here: p0)
+            defaultCall: __defaultImplStub.value.double(here: p0)
         )
     }
 
@@ -1474,7 +1475,7 @@ class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock, @unchecked 
     }
 }
 
-class OnlyLabelProtocolStub:OnlyLabelProtocol, @unchecked Sendable {
+final class OnlyLabelProtocolStub:OnlyLabelProtocol {
 
 
     
@@ -1492,7 +1493,7 @@ class OnlyLabelProtocolStub:OnlyLabelProtocol, @unchecked Sendable {
 }
 
 
-class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock {
     typealias MocksType = OnlyLabelClass
     typealias Stubbing = __StubbingProxy_OnlyLabelClass
     typealias Verification = __VerificationProxy_OnlyLabelClass
@@ -1501,10 +1502,10 @@ class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable 
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: OnlyLabelClass?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<OnlyLabelClass>()
 
-    func enableDefaultImplementation(_ stub: OnlyLabelClass) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: OnlyLabelClass) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -1515,7 +1516,7 @@ class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable 
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: super.empty(p0),
-            defaultCall: __defaultImplStub!.empty(p0)
+            defaultCall: __defaultImplStub.value.empty(p0)
         )
     }
 
@@ -1525,7 +1526,7 @@ class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable 
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: super.some(some: p0),
-            defaultCall: __defaultImplStub!.some(some: p0)
+            defaultCall: __defaultImplStub.value.some(some: p0)
         )
     }
 
@@ -1535,7 +1536,7 @@ class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable 
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: super.double(here: p0),
-            defaultCall: __defaultImplStub!.double(here: p0)
+            defaultCall: __defaultImplStub.value.double(here: p0)
         )
     }
 
@@ -1620,7 +1621,7 @@ class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock, @unchecked Sendable 
     }
 }
 
-class OnlyLabelClassStub:OnlyLabelClass, @unchecked Sendable {
+final class OnlyLabelClassStub:OnlyLabelClass {
 
 
     
@@ -1638,7 +1639,7 @@ class OnlyLabelClassStub:OnlyLabelClass, @unchecked Sendable {
 }
 
 
-public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.ProtocolMock, @unchecked Sendable {
+public final class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.ProtocolMock {
     public typealias MocksType = DefaultImplCaller
     public typealias Stubbing = __StubbingProxy_PublicoProtocolo
     public typealias Verification = __VerificationProxy_PublicoProtocolo
@@ -1647,7 +1648,8 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
 
     public let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    public class DefaultImplCaller: PublicoProtocolo, @unchecked Sendable {
+    
+    public final class DefaultImplCaller: PublicoProtocolo, @unchecked Sendable {
         private let reference: () -> any PublicoProtocolo
     
         private let _getter_storage$$stringoStar: () -> String
@@ -1677,16 +1679,16 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
         }
     }
 
-    private var __defaultImplStub: DefaultImplCaller?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    public func enableDefaultImplementation<_CUCKOO$$GENERIC: PublicoProtocolo>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo {
+    public nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PublicoProtocolo>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo {
         var mutableStub = stub
-        __defaultImplStub = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    public func enableDefaultImplementation<_CUCKOO$$GENERIC: PublicoProtocolo>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo {
-        __defaultImplStub = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    public nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PublicoProtocolo>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo {
+        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -1695,7 +1697,7 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
             return cuckoo_manager.getter(
                 "stringoStar",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.stringoStar
+                defaultCall: __defaultImplStub.value.stringoStar
             )
         }
         set {
@@ -1703,7 +1705,7 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
                 "stringoStar",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.stringoStar = newValue
+                defaultCall: __defaultImplStub.value.stringoStar = newValue
             )
         }
     }
@@ -1716,7 +1718,7 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.internalMethod()
+            defaultCall: __defaultImplStub.value.internalMethod()
         )
     }
 
@@ -1769,7 +1771,7 @@ public class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo.Proto
     }
 }
 
-public class PublicoProtocoloStub<InternaloTypo>:PublicoProtocolo, @unchecked Sendable {
+public final class PublicoProtocoloStub<InternaloTypo>:PublicoProtocolo {
     
     public var stringoStar: String {
         get {
@@ -1788,7 +1790,7 @@ public class PublicoProtocoloStub<InternaloTypo>:PublicoProtocolo, @unchecked Se
 }
 
 
-class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any SimpleProtocol
     typealias Stubbing = __StubbingProxy_SimpleProtocol
     typealias Verification = __VerificationProxy_SimpleProtocol
@@ -1797,10 +1799,10 @@ class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any SimpleProtocol)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any SimpleProtocol>()
 
-    func enableDefaultImplementation(_ stub: any SimpleProtocol) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any SimpleProtocol) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -1809,7 +1811,7 @@ class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
             return cuckoo_manager.getter(
                 "constant",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.constant
+                defaultCall: __defaultImplStub.value.constant
             )
         }
     }
@@ -1844,7 +1846,7 @@ class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock, @unchecked Sendab
     }
 }
 
-class SimpleProtocolStub:SimpleProtocol, @unchecked Sendable {
+final class SimpleProtocolStub:SimpleProtocol {
     
     var constant: Int {
         get {
@@ -1856,7 +1858,7 @@ class SimpleProtocolStub:SimpleProtocol, @unchecked Sendable {
 }
 
 
-class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock {
     typealias MocksType = any SendableProtocol
     typealias Stubbing = __StubbingProxy_SendableProtocol
     typealias Verification = __VerificationProxy_SendableProtocol
@@ -1865,10 +1867,10 @@ class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock, @unchecked Se
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any SendableProtocol)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any SendableProtocol>()
 
-    func enableDefaultImplementation(_ stub: any SendableProtocol) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any SendableProtocol) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -1894,13 +1896,91 @@ class MockSendableProtocol: SendableProtocol, Cuckoo.ProtocolMock, @unchecked Se
     }
 }
 
-class SendableProtocolStub:SendableProtocol, @unchecked Sendable {
+final class SendableProtocolStub:SendableProtocol {
 
 
 }
 
 
-class MockSimpleClass: SimpleClass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockConcurrentCounter: ConcurrentCounter, Cuckoo.ProtocolMock {
+    typealias MocksType = any ConcurrentCounter
+    typealias Stubbing = __StubbingProxy_ConcurrentCounter
+    typealias Verification = __VerificationProxy_ConcurrentCounter
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any ConcurrentCounter>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ConcurrentCounter) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func count(characters p0: String) -> Int {
+        return cuckoo_manager.call(
+            "count(characters p0: String) -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.count(characters: p0)
+        )
+    }
+
+    struct __StubbingProxy_ConcurrentCounter: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.ProtocolStubFunction<(String), Int> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConcurrentCounter.self,
+                method: "count(characters p0: String) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_ConcurrentCounter: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.__DoNotUse<(String), Int> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "count(characters p0: String) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class ConcurrentCounterStub:ConcurrentCounter {
+
+
+    
+    func count(characters p0: String) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}
+
+
+final class MockSimpleClass: SimpleClass, Cuckoo.ClassMock {
     typealias MocksType = SimpleClass
     typealias Stubbing = __StubbingProxy_SimpleClass
     typealias Verification = __VerificationProxy_SimpleClass
@@ -1909,10 +1989,10 @@ class MockSimpleClass: SimpleClass, Cuckoo.ClassMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: SimpleClass?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<SimpleClass>()
 
-    func enableDefaultImplementation(_ stub: SimpleClass) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: SimpleClass) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -1938,13 +2018,13 @@ class MockSimpleClass: SimpleClass, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class SimpleClassStub:SimpleClass, @unchecked Sendable {
+final class SimpleClassStub:SimpleClass {
 
 
 }
 
 
-class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock {
     typealias MocksType = SimpleSubclass
     typealias Stubbing = __StubbingProxy_SimpleSubclass
     typealias Verification = __VerificationProxy_SimpleSubclass
@@ -1953,10 +2033,10 @@ class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock, @unchecked Sendable 
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: SimpleSubclass?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<SimpleSubclass>()
 
-    func enableDefaultImplementation(_ stub: SimpleSubclass) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: SimpleSubclass) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -1982,7 +2062,7 @@ class MockSimpleSubclass: SimpleSubclass, Cuckoo.ClassMock, @unchecked Sendable 
     }
 }
 
-class SimpleSubclassStub:SimpleSubclass, @unchecked Sendable {
+final class SimpleSubclassStub:SimpleSubclass {
 
 
 }
@@ -1993,7 +2073,7 @@ class SimpleSubclassStub:SimpleSubclass, @unchecked Sendable {
 import Cuckoo
 import Foundation
 
-class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock {
     typealias MocksType = any UnicodeTest
     typealias Stubbing = __StubbingProxy_UnicodeTest
     typealias Verification = __VerificationProxy_UnicodeTest
@@ -2002,10 +2082,10 @@ class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any UnicodeTest)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any UnicodeTest>()
 
-    func enableDefaultImplementation(_ stub: any UnicodeTest) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any UnicodeTest) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -2017,7 +2097,7 @@ class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.doSomething(str: p0)
+            defaultCall: __defaultImplStub.value.doSomething(str: p0)
         )
     }
 
@@ -2027,7 +2107,7 @@ class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.💩()
+            defaultCall: __defaultImplStub.value.💩()
         )
     }
 
@@ -2092,7 +2172,7 @@ class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class UnicodeTestStub:UnicodeTest, @unchecked Sendable {
+final class UnicodeTestStub:UnicodeTest {
 
 
     
@@ -2106,7 +2186,7 @@ class UnicodeTestStub:UnicodeTest, @unchecked Sendable {
 }
 
 
-class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolMock {
     typealias MocksType = any UnicodeNameTest_トř🦅
     typealias Stubbing = __StubbingProxy_UnicodeNameTest_トř🦅
     typealias Verification = __VerificationProxy_UnicodeNameTest_トř🦅
@@ -2115,10 +2195,10 @@ class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolM
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any UnicodeNameTest_トř🦅)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any UnicodeNameTest_トř🦅>()
 
-    func enableDefaultImplementation(_ stub: any UnicodeNameTest_トř🦅) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any UnicodeNameTest_トř🦅) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -2129,7 +2209,7 @@ class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolM
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.doSomething(🛳: p0)
+            defaultCall: __defaultImplStub.value.doSomething(🛳: p0)
         )
     }
 
@@ -2174,7 +2254,7 @@ class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.ProtocolM
     }
 }
 
-class UnicodeNameTest_トř🦅Stub:UnicodeNameTest_トř🦅, @unchecked Sendable {
+final class UnicodeNameTest_トř🦅Stub:UnicodeNameTest_トř🦅 {
 
 
     

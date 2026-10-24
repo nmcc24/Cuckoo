@@ -4,7 +4,7 @@ import Foundation
 import Combine
 #endif
 
-class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockPlatformed: Platformed, Cuckoo.ProtocolMock {
     typealias MocksType = any Platformed
     typealias Stubbing = __StubbingProxy_Platformed
     typealias Verification = __VerificationProxy_Platformed
@@ -13,10 +13,10 @@ class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Platformed)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Platformed>()
 
-    func enableDefaultImplementation(_ stub: any Platformed) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Platformed) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -26,7 +26,7 @@ class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
             return cuckoo_manager.getter(
                 "debugInfo",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.debugInfo
+                defaultCall: __defaultImplStub.value.debugInfo
             )
         }
     }
@@ -40,7 +40,7 @@ class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.onLinux()
+            defaultCall: __defaultImplStub.value.onLinux()
         )
     }
     #endif
@@ -52,7 +52,7 @@ class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.onDarwin()
+            defaultCall: __defaultImplStub.value.onDarwin()
         )
     }
     #endif
@@ -64,7 +64,7 @@ class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.elsewhere()
+            defaultCall: __defaultImplStub.value.elsewhere()
         )
     }
     #endif
@@ -76,7 +76,7 @@ class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.debugOnLinux()
+            defaultCall: __defaultImplStub.value.debugOnLinux()
         )
     }
     #endif
@@ -87,7 +87,7 @@ class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.everywhere()
+            defaultCall: __defaultImplStub.value.everywhere()
         )
     }
 
@@ -231,7 +231,7 @@ class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class PlatformedStub:Platformed, @unchecked Sendable {
+final class PlatformedStub:Platformed {
     #if (DEBUG)
     var debugInfo: String {
         get {
@@ -268,7 +268,7 @@ class PlatformedStub:Platformed, @unchecked Sendable {
 }
 
 
-class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_PlatformedStore
     typealias Verification = __VerificationProxy_PlatformedStore
@@ -277,7 +277,8 @@ class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecke
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: PlatformedStore, @unchecked Sendable {
+    
+    final class DefaultImplCaller: PlatformedStore, @unchecked Sendable {
         private let reference: () -> any PlatformedStore
     
         #if (DEBUG)
@@ -314,16 +315,16 @@ class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecke
         }
     }
 
-    private var __defaultImplStub: DefaultImplCaller?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
         var mutableStub = stub
-        __defaultImplStub = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Item == Item {
-        __defaultImplStub = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Item == Item {
+        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -333,7 +334,7 @@ class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecke
             return cuckoo_manager.getter(
                 "debugItems",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.debugItems
+                defaultCall: __defaultImplStub.value.debugItems
             )
         }
     }
@@ -347,7 +348,7 @@ class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecke
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.dump()
+            defaultCall: __defaultImplStub.value.dump()
         )
     }
     #endif
@@ -358,7 +359,7 @@ class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecke
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.item(at: p0)
+            defaultCall: __defaultImplStub.value.item(at: p0)
         )
     }
 
@@ -436,7 +437,7 @@ class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock, @unchecke
     }
 }
 
-class PlatformedStoreStub<Item>:PlatformedStore, @unchecked Sendable {
+final class PlatformedStoreStub<Item>:PlatformedStore {
     #if (DEBUG)
     var debugItems: [Item] {
         get {
@@ -458,7 +459,7 @@ class PlatformedStoreStub<Item>:PlatformedStore, @unchecked Sendable {
 }
 
 
-class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockPlatformedService: PlatformedService, Cuckoo.ClassMock {
     typealias MocksType = PlatformedService
     typealias Stubbing = __StubbingProxy_PlatformedService
     typealias Verification = __VerificationProxy_PlatformedService
@@ -467,10 +468,10 @@ class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sen
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: PlatformedService?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<PlatformedService>()
 
-    func enableDefaultImplementation(_ stub: PlatformedService) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: PlatformedService) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -480,7 +481,7 @@ class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sen
             return cuckoo_manager.getter(
                 "verbose",
                 superclassCall: super.verbose,
-                defaultCall: __defaultImplStub!.verbose
+                defaultCall: __defaultImplStub.value.verbose
             )
         }
         set {
@@ -488,7 +489,7 @@ class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sen
                 "verbose",
                 value: newValue,
                 superclassCall: super.verbose = newValue,
-                defaultCall: __defaultImplStub!.verbose = newValue
+                defaultCall: __defaultImplStub.value.verbose = newValue
             )
         }
     }
@@ -502,7 +503,7 @@ class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sen
             parameters: (),
             escapingParameters: (),
             superclassCall: super.debugDump(),
-            defaultCall: __defaultImplStub!.debugDump()
+            defaultCall: __defaultImplStub.value.debugDump()
         )
     }
     #endif
@@ -514,7 +515,7 @@ class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sen
             parameters: (),
             escapingParameters: (),
             superclassCall: super.releaseOnly(),
-            defaultCall: __defaultImplStub!.releaseOnly()
+            defaultCall: __defaultImplStub.value.releaseOnly()
         )
     }
     #endif
@@ -525,7 +526,7 @@ class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sen
             parameters: (),
             escapingParameters: (),
             superclassCall: super.run(),
-            defaultCall: __defaultImplStub!.run()
+            defaultCall: __defaultImplStub.value.run()
         )
     }
 
@@ -625,7 +626,7 @@ class MockPlatformedService: PlatformedService, Cuckoo.ClassMock, @unchecked Sen
     }
 }
 
-class PlatformedServiceStub:PlatformedService, @unchecked Sendable {
+final class PlatformedServiceStub:PlatformedService {
     #if (DEBUG)
     override var verbose: Bool {
         get {
@@ -654,7 +655,7 @@ class PlatformedServiceStub:PlatformedService, @unchecked Sendable {
 
 
 #if (canImport(Combine))
-class MockPublishing: Publishing, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockPublishing: Publishing, Cuckoo.ProtocolMock {
     typealias MocksType = any Publishing
     typealias Stubbing = __StubbingProxy_Publishing
     typealias Verification = __VerificationProxy_Publishing
@@ -663,10 +664,10 @@ class MockPublishing: Publishing, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Publishing)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Publishing>()
 
-    func enableDefaultImplementation(_ stub: any Publishing) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Publishing) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -677,7 +678,7 @@ class MockPublishing: Publishing, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.publisher()
+            defaultCall: __defaultImplStub.value.publisher()
         )
     }
 
@@ -722,7 +723,7 @@ class MockPublishing: Publishing, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class PublishingStub:Publishing, @unchecked Sendable {
+final class PublishingStub:Publishing {
 
 
     
@@ -734,7 +735,7 @@ class PublishingStub:Publishing, @unchecked Sendable {
 #endif
 
 #if (DEBUG)
-class MockDebugTools: DebugTools, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockDebugTools: DebugTools, Cuckoo.ClassMock {
     typealias MocksType = DebugTools
     typealias Stubbing = __StubbingProxy_DebugTools
     typealias Verification = __VerificationProxy_DebugTools
@@ -743,10 +744,10 @@ class MockDebugTools: DebugTools, Cuckoo.ClassMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: DebugTools?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<DebugTools>()
 
-    func enableDefaultImplementation(_ stub: DebugTools) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: DebugTools) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -757,7 +758,7 @@ class MockDebugTools: DebugTools, Cuckoo.ClassMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: super.check(),
-            defaultCall: __defaultImplStub!.check()
+            defaultCall: __defaultImplStub.value.check()
         )
     }
 
@@ -802,7 +803,7 @@ class MockDebugTools: DebugTools, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class DebugToolsStub:DebugTools, @unchecked Sendable {
+final class DebugToolsStub:DebugTools {
 
 
     
@@ -815,7 +816,7 @@ class DebugToolsStub:DebugTools, @unchecked Sendable {
 
 #if (DEBUG) && (os(Linux))
 extension DebugTools {
-class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock {
     typealias MocksType = LinuxProbe
     typealias Stubbing = __StubbingProxy_LinuxProbe
     typealias Verification = __VerificationProxy_LinuxProbe
@@ -824,10 +825,10 @@ class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: LinuxProbe?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<LinuxProbe>()
 
-    func enableDefaultImplementation(_ stub: LinuxProbe) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: LinuxProbe) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -838,7 +839,7 @@ class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: super.probe(),
-            defaultCall: __defaultImplStub!.probe()
+            defaultCall: __defaultImplStub.value.probe()
         )
     }
 
@@ -883,7 +884,7 @@ class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class LinuxProbeStub:LinuxProbe, @unchecked Sendable {
+final class LinuxProbeStub:LinuxProbe {
 
 
     

@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockAnalytics: Analytics, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockAnalytics: Analytics, Cuckoo.ProtocolMock {
     typealias MocksType = any Analytics
     typealias Stubbing = __StubbingProxy_Analytics
     typealias Verification = __VerificationProxy_Analytics
@@ -10,10 +10,10 @@ class MockAnalytics: Analytics, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Analytics)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Analytics>()
 
-    func enableDefaultImplementation(_ stub: any Analytics) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Analytics) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -22,7 +22,7 @@ class MockAnalytics: Analytics, Cuckoo.ProtocolMock, @unchecked Sendable {
             return cuckoo_manager.getter(
                 "lastEvent",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.lastEvent
+                defaultCall: __defaultImplStub.value.lastEvent
             )
         }
     }
@@ -34,7 +34,7 @@ class MockAnalytics: Analytics, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.track(event: p0)
+            defaultCall: __defaultImplStub.value.track(event: p0)
         )
     }
 
@@ -87,7 +87,7 @@ class MockAnalytics: Analytics, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class AnalyticsStub:Analytics, @unchecked Sendable {
+final class AnalyticsStub:Analytics {
     
     var lastEvent: String? {
         get {

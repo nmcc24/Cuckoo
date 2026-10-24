@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockViewModel: ViewModel, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockViewModel: ViewModel, Cuckoo.ClassMock {
     typealias MocksType = ViewModel
     typealias Stubbing = __StubbingProxy_ViewModel
     typealias Verification = __VerificationProxy_ViewModel
@@ -10,10 +10,10 @@ class MockViewModel: ViewModel, Cuckoo.ClassMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: ViewModel?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<ViewModel>()
 
-    func enableDefaultImplementation(_ stub: ViewModel) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: ViewModel) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -22,7 +22,7 @@ class MockViewModel: ViewModel, Cuckoo.ClassMock, @unchecked Sendable {
             return cuckoo_manager.getter(
                 "state",
                 superclassCall: super.state,
-                defaultCall: __defaultImplStub!.state
+                defaultCall: __defaultImplStub.value.state
             )
         }
         set {
@@ -30,7 +30,7 @@ class MockViewModel: ViewModel, Cuckoo.ClassMock, @unchecked Sendable {
                 "state",
                 value: newValue,
                 superclassCall: super.state = newValue,
-                defaultCall: __defaultImplStub!.state = newValue
+                defaultCall: __defaultImplStub.value.state = newValue
             )
         }
     }
@@ -42,7 +42,7 @@ class MockViewModel: ViewModel, Cuckoo.ClassMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: await super.reload(),
-            defaultCall: await __defaultImplStub!.reload()
+            defaultCall: await __defaultImplStub.value.reload()
         )
     }
 
@@ -52,7 +52,7 @@ class MockViewModel: ViewModel, Cuckoo.ClassMock, @unchecked Sendable {
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: super.select(index: p0),
-            defaultCall: __defaultImplStub!.select(index: p0)
+            defaultCall: __defaultImplStub.value.select(index: p0)
         )
     }
 
@@ -125,7 +125,7 @@ class MockViewModel: ViewModel, Cuckoo.ClassMock, @unchecked Sendable {
     }
 }
 
-class ViewModelStub:ViewModel, @unchecked Sendable {
+final class ViewModelStub:ViewModel {
     
     override var state: String {
         get {

@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockRepository: Repository, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockRepository: Repository, Cuckoo.ProtocolMock {
     typealias MocksType = any Repository
     typealias Stubbing = __StubbingProxy_Repository
     typealias Verification = __VerificationProxy_Repository
@@ -10,10 +10,10 @@ class MockRepository: Repository, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Repository)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Repository>()
 
-    func enableDefaultImplementation(_ stub: any Repository) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Repository) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -24,7 +24,7 @@ class MockRepository: Repository, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.save(p0)
+            defaultCall: __defaultImplStub.value.save(p0)
         )
     }
 
@@ -34,7 +34,7 @@ class MockRepository: Repository, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.all()
+            defaultCall: __defaultImplStub.value.all()
         )
     }
 
@@ -99,7 +99,7 @@ class MockRepository: Repository, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class RepositoryStub:Repository, @unchecked Sendable {
+final class RepositoryStub:Repository {
 
 
     

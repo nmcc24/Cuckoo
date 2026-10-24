@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockTypedAPI: TypedAPI, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockTypedAPI: TypedAPI, Cuckoo.ProtocolMock {
     typealias MocksType = any TypedAPI
     typealias Stubbing = __StubbingProxy_TypedAPI
     typealias Verification = __VerificationProxy_TypedAPI
@@ -10,10 +10,10 @@ class MockTypedAPI: TypedAPI, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any TypedAPI)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any TypedAPI>()
 
-    func enableDefaultImplementation(_ stub: any TypedAPI) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any TypedAPI) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -25,7 +25,7 @@ class MockTypedAPI: TypedAPI, Cuckoo.ProtocolMock, @unchecked Sendable {
             escapingParameters: (),
             errorType: NetErr.self,
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.call()
+            defaultCall: __defaultImplStub.value.call()
         )
     }
 
@@ -36,7 +36,7 @@ class MockTypedAPI: TypedAPI, Cuckoo.ProtocolMock, @unchecked Sendable {
             escapingParameters: (),
             errorType: NetErr.self,
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.callAsync()
+            defaultCall: await __defaultImplStub.value.callAsync()
         )
     }
 
@@ -101,7 +101,7 @@ class MockTypedAPI: TypedAPI, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class TypedAPIStub:TypedAPI, @unchecked Sendable {
+final class TypedAPIStub:TypedAPI {
 
 
     

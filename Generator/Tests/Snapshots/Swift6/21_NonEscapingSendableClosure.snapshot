@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockTransformer: Transformer, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockTransformer: Transformer, Cuckoo.ProtocolMock {
     typealias MocksType = any Transformer
     typealias Stubbing = __StubbingProxy_Transformer
     typealias Verification = __VerificationProxy_Transformer
@@ -10,10 +10,10 @@ class MockTransformer: Transformer, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Transformer)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Transformer>()
 
-    func enableDefaultImplementation(_ stub: any Transformer) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Transformer) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -26,7 +26,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.transform(p0)
+            defaultCall: __defaultImplStub.value.transform(p0)
         )
 		})
 
@@ -40,7 +40,7 @@ return await cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.transformAsync(p0)
+            defaultCall: await __defaultImplStub.value.transformAsync(p0)
         )
 		})
 
@@ -54,7 +54,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: ({ @Sendable _, _ in fatalError("This is a stub! It's not supposed to be called!") }),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.forEach(p0)
+            defaultCall: __defaultImplStub.value.forEach(p0)
         )
 		})
 
@@ -141,7 +141,7 @@ return cuckoo_manager.call(
     }
 }
 
-class TransformerStub:Transformer, @unchecked Sendable {
+final class TransformerStub:Transformer {
 
 
     
@@ -159,7 +159,7 @@ class TransformerStub:Transformer, @unchecked Sendable {
 }
 
 
-class MockTransformingService: TransformingService, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockTransformingService: TransformingService, Cuckoo.ClassMock {
     typealias MocksType = TransformingService
     typealias Stubbing = __StubbingProxy_TransformingService
     typealias Verification = __VerificationProxy_TransformingService
@@ -168,10 +168,10 @@ class MockTransformingService: TransformingService, Cuckoo.ClassMock, @unchecked
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: TransformingService?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<TransformingService>()
 
-    func enableDefaultImplementation(_ stub: TransformingService) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: TransformingService) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -184,7 +184,7 @@ return cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
             superclassCall: super.transform(p0),
-            defaultCall: __defaultImplStub!.transform(p0)
+            defaultCall: __defaultImplStub.value.transform(p0)
         )
 		})
 
@@ -198,7 +198,7 @@ return await cuckoo_manager.call(
             parameters: (p0),
             escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
             superclassCall: await super.transformAsync(p0),
-            defaultCall: await __defaultImplStub!.transformAsync(p0)
+            defaultCall: await __defaultImplStub.value.transformAsync(p0)
         )
 		})
 
@@ -265,7 +265,7 @@ return await cuckoo_manager.call(
     }
 }
 
-class TransformingServiceStub:TransformingService, @unchecked Sendable {
+final class TransformingServiceStub:TransformingService {
 
 
     

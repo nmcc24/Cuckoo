@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock {
     typealias MocksType = NonSendableBox
     typealias Stubbing = __StubbingProxy_NonSendableBox
     typealias Verification = __VerificationProxy_NonSendableBox
@@ -10,10 +10,10 @@ class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock, @unchecked Sendable 
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: NonSendableBox?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<NonSendableBox>()
 
-    func enableDefaultImplementation(_ stub: NonSendableBox) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: NonSendableBox) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -22,7 +22,7 @@ class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock, @unchecked Sendable 
             return cuckoo_manager.getter(
                 "v",
                 superclassCall: super.v,
-                defaultCall: __defaultImplStub!.v
+                defaultCall: __defaultImplStub.value.v
             )
         }
         set {
@@ -30,7 +30,7 @@ class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock, @unchecked Sendable 
                 "v",
                 value: newValue,
                 superclassCall: super.v = newValue,
-                defaultCall: __defaultImplStub!.v = newValue
+                defaultCall: __defaultImplStub.value.v = newValue
             )
         }
     }
@@ -65,7 +65,7 @@ class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock, @unchecked Sendable 
     }
 }
 
-class NonSendableBoxStub:NonSendableBox, @unchecked Sendable {
+final class NonSendableBoxStub:NonSendableBox {
     
     override var v: Int {
         get {
@@ -78,7 +78,7 @@ class NonSendableBoxStub:NonSendableBox, @unchecked Sendable {
 }
 
 
-class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
     typealias MocksType = any Transfer
     typealias Stubbing = __StubbingProxy_Transfer
     typealias Verification = __VerificationProxy_Transfer
@@ -87,10 +87,10 @@ class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Transfer)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Transfer>()
 
-    func enableDefaultImplementation(_ stub: any Transfer) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Transfer) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -102,18 +102,18 @@ class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.take(__p0.value)
+            defaultCall: __defaultImplStub.value.take(__p0.value)
         )
     }
 
     func make() -> sending NonSendableBox {
-        return cuckoo_manager.call(
+        return Cuckoo.__SendingArgument(cuckoo_manager.call(
             "make() -> sending NonSendableBox",
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.make()
-        )
+            defaultCall: __defaultImplStub.value.make()
+        )).value
     }
 
     struct __StubbingProxy_Transfer: Cuckoo.StubbingProxy {
@@ -177,7 +177,7 @@ class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class TransferStub:Transfer, @unchecked Sendable {
+final class TransferStub:Transfer {
 
 
     
@@ -193,7 +193,7 @@ class TransferStub:Transfer, @unchecked Sendable {
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
-class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_Converter
     typealias Verification = __VerificationProxy_Converter
@@ -202,7 +202,8 @@ class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock, @unchecked S
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: Converter, @unchecked Sendable {
+    
+    final class DefaultImplCaller: Converter, @unchecked Sendable {
         private let reference: () -> any Converter<Input>
     
         
@@ -221,16 +222,16 @@ class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock, @unchecked S
         }
     }
 
-    private var __defaultImplStub: DefaultImplCaller?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
         var mutableStub = stub
-        __defaultImplStub = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-        __defaultImplStub = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -243,7 +244,7 @@ class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock, @unchecked S
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.convert(value: __p0.value, input: __p1.value, fallback: p2)
+            defaultCall: await __defaultImplStub.value.convert(value: __p0.value, input: __p1.value, fallback: p2)
         )
     }
 
@@ -288,7 +289,7 @@ class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock, @unchecked S
     }
 }
 
-class ConverterStub<Input, Output>:Converter, @unchecked Sendable {
+final class ConverterStub<Input, Output>:Converter {
 
 
     
