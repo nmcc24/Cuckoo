@@ -10,10 +10,10 @@ class MockLoader: Loader, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Loader)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Loader>()
 
-    func enableDefaultImplementation(_ stub: any Loader) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Loader) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -24,7 +24,7 @@ class MockLoader: Loader, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.load()
+            defaultCall: await __defaultImplStub.value.load()
         )
     }
 
@@ -34,7 +34,7 @@ class MockLoader: Loader, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.compute()
+            defaultCall: await __defaultImplStub.value.compute()
         )
     }
 

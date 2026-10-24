@@ -10,10 +10,10 @@ class MockNetworking: Networking, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Networking)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Networking>()
 
-    func enableDefaultImplementation(_ stub: any Networking) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Networking) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -24,7 +24,7 @@ class MockNetworking: Networking, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.get(url: p0, completion: p1)
+            defaultCall: __defaultImplStub.value.get(url: p0, completion: p1)
         )
     }
 
@@ -35,7 +35,7 @@ class MockNetworking: Networking, Cuckoo.ProtocolMock, @unchecked Sendable {
             escapingParameters: (p0),
             errorType: Swift.Error.self,
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.get(url: p0)
+            defaultCall: await __defaultImplStub.value.get(url: p0)
         )
     }
 

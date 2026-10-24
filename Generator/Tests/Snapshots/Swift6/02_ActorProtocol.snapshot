@@ -10,10 +10,10 @@ class MockStore: Store, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Store)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Store>()
 
-    func enableDefaultImplementation(_ stub: any Store) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Store) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -22,7 +22,7 @@ class MockStore: Store, Cuckoo.ProtocolMock, @unchecked Sendable {
             return cuckoo_manager.getter(
                 "count",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.count
+                defaultCall: __defaultImplStub.value.count
             )
         }
     }
@@ -34,7 +34,7 @@ class MockStore: Store, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.increment()
+            defaultCall: __defaultImplStub.value.increment()
         )
     }
 
@@ -44,7 +44,7 @@ class MockStore: Store, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.fetch()
+            defaultCall: await __defaultImplStub.value.fetch()
         )
     }
 

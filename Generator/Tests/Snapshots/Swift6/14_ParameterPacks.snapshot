@@ -10,10 +10,10 @@ class MockCombiner: Combiner, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Combiner)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Combiner>()
 
-    func enableDefaultImplementation(_ stub: any Combiner) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Combiner) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -24,7 +24,7 @@ class MockCombiner: Combiner, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.combine(p0)
+            defaultCall: __defaultImplStub.value.combine(p0)
         )
     }
 

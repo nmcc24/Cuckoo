@@ -10,10 +10,10 @@ class MockGreeter: Greeter, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Greeter)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Greeter>()
 
-    func enableDefaultImplementation(_ stub: any Greeter) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Greeter) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -22,7 +22,7 @@ class MockGreeter: Greeter, Cuckoo.ProtocolMock, @unchecked Sendable {
             return cuckoo_manager.getter(
                 "count",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.count
+                defaultCall: __defaultImplStub.value.count
             )
         }
         set {
@@ -30,7 +30,7 @@ class MockGreeter: Greeter, Cuckoo.ProtocolMock, @unchecked Sendable {
                 "count",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.count = newValue
+                defaultCall: __defaultImplStub.value.count = newValue
             )
         }
     }
@@ -42,7 +42,7 @@ class MockGreeter: Greeter, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.greet(name: p0)
+            defaultCall: __defaultImplStub.value.greet(name: p0)
         )
     }
 

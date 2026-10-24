@@ -43,27 +43,27 @@ extension {{ container.parentFullyQualifiedName }} {
     {% if container.isGeneric and not container.isImplementation and not container.hasOnlyPrimaryAssociatedTypes %}
 \(Templates.typeErasure.indented())
 
-    private var __defaultImplStub: \(typeErasureClassName)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<\(typeErasureClassName)>()
 
-    {{ container.accessibility|withSpace }}func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(_ stub: \(staticGenericParameter)) where {{ container.genericProtocolIdentity }} {
+    {{ container.accessibility|withSpace }}nonisolated func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(_ stub: \(staticGenericParameter)) where {{ container.genericProtocolIdentity }} {
         var mutableStub = stub
-        __defaultImplStub = \(typeErasureClassName)(from: &mutableStub, keeping: mutableStub)
+        __defaultImplStub.value = \(typeErasureClassName)(from: &mutableStub, keeping: mutableStub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    {{ container.accessibility|withSpace }}func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(mutating stub: UnsafeMutablePointer<\(staticGenericParameter)>) where {{ container.genericProtocolIdentity }} {
-        __defaultImplStub = \(typeErasureClassName)(from: stub, keeping: stub.pointee)
+    {{ container.accessibility|withSpace }}nonisolated func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(mutating stub: UnsafeMutablePointer<\(staticGenericParameter)>) where {{ container.genericProtocolIdentity }} {
+        __defaultImplStub.value = \(typeErasureClassName)(from: stub, keeping: stub.pointee)
         cuckoo_manager.enableDefaultStubImplementation()
     }
     {% else %}
     {% if container.isImplementation %}
-    private var __defaultImplStub: {{ container.name }}{{ container.genericArguments }}?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<{{ container.name }}{{ container.genericArguments }}>()
     {% else %}
-    private var __defaultImplStub: (any {{ container.name }}{{ container.genericArguments }})?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any {{ container.name }}{{ container.genericArguments }}>()
     {% endif %}
 
-    {{ container.accessibility|withSpace }}func enableDefaultImplementation(_ stub: {%+ if not container.isImplementation %}any {%+ endif %}{{ container.name }}{{ container.genericArguments }}) {
-        __defaultImplStub = stub
+    {{ container.accessibility|withSpace }}nonisolated func enableDefaultImplementation(_ stub: {%+ if not container.isImplementation %}any {%+ endif %}{{ container.name }}{{ container.genericArguments }}) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
     {% endif -%}
@@ -93,7 +93,7 @@ extension {{ container.parentFullyQualifiedName }} {
                     {%- else -%}
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     {%- endif -%},
-                defaultCall: {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub!.{{property.name}}
+                defaultCall: {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub.value.{{property.name}}
             )
         }
         {% ifnot property.isReadOnly %}
@@ -106,7 +106,7 @@ extension {{ container.parentFullyQualifiedName }} {
                     {%- else -%}
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     {%- endif -%},
-                defaultCall: __defaultImplStub!.{{property.name}} = newValue
+                defaultCall: __defaultImplStub.value.{{property.name}} = newValue
             )
         }
         {% endif %}
@@ -161,7 +161,7 @@ extension {{ container.parentFullyQualifiedName }} {
             errorType: {{ method.throwTypeError }}.self,
             {% endif %}
             superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}super.{{method.name}}({{method.forwardingCall}}){% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
-            defaultCall: {%+ if method.isAsync %}await {%+ endif %}__defaultImplStub!.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}})
+            defaultCall: {%+ if method.isAsync %}await {%+ endif %}__defaultImplStub.value.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}})
         ){{ method.parameters|closeNestedClosure }}
     }
     {% if method.hasCompilationCondition %}

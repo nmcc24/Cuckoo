@@ -10,10 +10,10 @@ class MockSorter: Sorter, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Sorter)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Sorter>()
 
-    func enableDefaultImplementation(_ stub: any Sorter) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Sorter) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -24,7 +24,7 @@ class MockSorter: Sorter, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (p0 as any Collection<Int>),
             escapingParameters: (p0 as any Collection<Int>),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.sort(p0)
+            defaultCall: __defaultImplStub.value.sort(p0)
         )
     }
 
