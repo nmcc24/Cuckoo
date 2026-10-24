@@ -111,12 +111,9 @@ Breaking changes accepted in 3.0:
 2. **Protocol requirements are `nonisolated`.** The requirements of `Mock`, `HasMockManager`, `StubbingProxy` and `VerificationProxy` become `nonisolated` and `Sendable`-friendly, and mocks store `nonisolated let cuckoo_manager`. This alone fixes the `#ConformanceIsolation` errors for MainActor and global-actor mocks.
 3. **Per-test state is task-local.**
    - `@TaskLocal` configuration replaces the global `fail` handler, the global `DefaultValueRegistry` overrides and the thread-local preconfigured manager.
-   - A Swift Testing trait sets it per test or suite: `@Suite(.cuckoo(strictness: .lenient, defaults: …))`.
+   - A Swift Testing trait sets it per test or suite: `@Suite(.cuckoo(defaultValues: …))`.
 4. **Failure routing.** Failures go to `Issue.record` when `Test.current != nil`, otherwise `XCTFail`, never both. Source locations are preserved.
-5. **Unstubbed-call policy is configurable.**
-   - `.strict` (default) records an issue, then returns a registered default value, or throws `CuckooError.unstubbed` for throwing members. It crashes only when no value can be produced.
-   - `.lenient` returns defaults silently.
-   - `.crash` is the legacy behaviour.
+5. **An unstubbed call never takes the process down.** It records an issue, then returns a registered default value, or throws `CuckooError.unstubbedCall` for members that throw `any Error`. It crashes only when no value can be produced. There is no lenient or crash mode (decided 2026-10-24): a lenient mode hides real bugs, "don't care" collaborators are stubbed with `any()` or use `enableDefaultImplementation`, and a crash mode brings back the problem this fixes.
    - Result: tests no longer take down the whole process.
 6. **Stub closures match the mock's isolation.**
    - Nonisolated mocks use `@Sendable` closures.
@@ -303,7 +300,7 @@ Exit criteria: fixtures 07, 09, 10 and 11 compile, with snapshot tests for each.
    - **Done:** `MockManager` is a checked `Sendable` final class whose state sits in one `Locked<State>`; user code (matchers, stub implementations, superclass and default calls) runs outside the lock. Its async calls are `nonisolated(nonsending)`, so a global-actor mock's autoclosures stay on the caller's actor. Mocks keep the default implementation in a `Cuckoo.DefaultImplementation` `let`, and `enableDefaultImplementation` is `nonisolated`. Mocks and nop stubs are `final` and drop `@unchecked Sendable`: a mock is `Sendable` exactly when the mocked type is. Fixtures 01, 03, 04, 06 and 08 now compile.
    - **Documented exceptions:** `__SendingArgument` (forwards `sending` values, now results too), and the type-erased default implementation of generic protocols, whose closures read the stub through an `UnsafeMutablePointer` (Phase 5 item 8).
 2. ☁️ TaskLocal configuration, the Swift Testing trait, failure routing, and the unstubbed-call policy.
-   - **Done:** `CuckooConfiguration` is a `@TaskLocal` holding the unstubbed-call policy, default values and an optional failure handler; it replaces `MockManager.fail`. The `.cuckoo(unstubbedCalls:defaultValues:failureHandler:)` trait sets it per test or suite. `UnstubbedCallPolicy` is `.strict` (default: record a failure, then throw `CuckooError.unstubbedCall` or return a default value), `.lenient` or `.crash` (Cuckoo 2). `createMock` hands its manager over through a task-local instead of a thread-local. `DefaultValueRegistry` takes only `Sendable` values, behind the lock box.
+   - **Done:** `CuckooConfiguration` is a `@TaskLocal` holding default values and an optional failure handler; it replaces `MockManager.fail`. The `.cuckoo(defaultValues:failureHandler:)` trait sets it per test or suite. An unstubbed call records a failure, then throws `CuckooError.unstubbedCall` or returns a default value; an unfinished stub (no `then…` yet) is reported the same way and skipped, so a call racing a stub's registration falls back to an older stub. `createMock` hands its manager over through a task-local instead of a thread-local. `DefaultValueRegistry` takes only `Sendable` values, behind the lock box.
 3. ☁️ Stress tests: 1,000 concurrent calls, stubs and verifications on one mock, run under TSan in CI (🍎 for TSan on Apple platforms; ☁️ TSan on Linux).
    - **Done (Linux):** `ConcurrencyStressTest.swift` runs 1,000 concurrent calls, stubs, verifications and clears on one mock, and checks that queued answers go to exactly one call each. A Linux CI job runs the runtime tests with `--sanitize=thread`; it's clean. TSan on Apple platforms isn't in CI yet, to keep the macOS job count low.
 4. 🍎 Run the existing 342 tests under the new runtime and fix the regressions.

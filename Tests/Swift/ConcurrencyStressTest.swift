@@ -65,8 +65,9 @@ struct ConcurrencyStressTests {
     func clearingWhileCallingDoesNotCrash() async {
         let mock = MockConcurrentCounter()
 
-        // verifyNoMoreInteractions fails whenever a call slipped in since the last clear; that's expected here.
-        let ignoreFailures = CuckooConfiguration(unstubbedCalls: .lenient, failureHandler: { _, _ in })
+        // Unstubbed calls fail, and so does verifyNoMoreInteractions whenever a call slipped in since the last
+        // clear. Neither matters here.
+        let ignoreFailures = CuckooConfiguration(failureHandler: { _, _ in })
         await CuckooConfiguration.$current.withValue(ignoreFailures) {
             await withTaskGroup(of: Void.self) { group in
                 for index in 0..<Self.iterations {
