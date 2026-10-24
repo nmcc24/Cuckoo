@@ -307,8 +307,10 @@ Exit criteria: fixtures 07, 09, 10 and 11 compile, with snapshot tests for each.
 3. ☁️ Stress tests: 1,000 concurrent calls, stubs and verifications on one mock, run under TSan in CI (🍎 for TSan on Apple platforms; ☁️ TSan on Linux).
    - **Done (Linux):** `ConcurrencyStressTest.swift` runs 1,000 concurrent calls, stubs, verifications and clears on one mock, and checks that queued answers go to exactly one call each. A Linux CI job runs the runtime tests with `--sanitize=thread`; it's clean. TSan on Apple platforms isn't in CI yet, to keep the macOS job count low.
 4. 🍎 Run the existing 342 tests under the new runtime and fix the regressions.
+   - **Done:** with items 1 and 2 in, the suite passes unchanged except `testThreadSafety`, which now uses a mock of a `Sendable` protocol: 342/342 through Tuist on macOS and the iOS simulator and through `swift test` on macOS, 341 on Linux (the NSObjectProtocol test is Apple-only).
 5. ✅ Optional-property stubbing no longer constrains `Self`: `ToBeStubbedOptionalProperty` declares a `WrappedType` associated type, which cleared the "will be an error in a future Swift language mode" warning without changing call sites.
 6. ☁️ Zero warnings: once our own targets build without warnings, CI treats warnings in them as errors (dependencies excluded).
+   - **Done:** `Package.swift` (tools version 6.2) gives our targets `.treatAllWarnings(as: .error)`, and both Tuist projects set `SWIFT_TREAT_WARNINGS_AS_ERRORS`. SwiftPM ignores the setting in packages fetched by URL, so projects that depend on Cuckoo aren't affected; a local path dependency is.
 
 Exit criteria: no `nonisolated(unsafe)` or `@unchecked Sendable` left in `Source/` except the documented lock box; TSan clean; all legacy tests green.
 

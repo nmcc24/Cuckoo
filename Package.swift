@@ -1,6 +1,11 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.2
 
 import PackageDescription
+
+// Our own targets treat warnings as errors (roadmap Phase 2 item 6). SwiftPM ignores warning-control
+// settings in packages fetched by URL, so this never fails the build of a project that depends on Cuckoo
+// that way. A local path dependency does get the setting.
+let warningsAsErrors: [SwiftSetting] = [.treatAllWarnings(as: .error)]
 
 let package = Package(
     name: "Cuckoo",
@@ -49,7 +54,8 @@ let package = Package(
         .target(
             name: "Cuckoo",
             path: "Source",
-            exclude: ["Info.plist"]
+            exclude: ["Info.plist"],
+            swiftSettings: warningsAsErrors
         ),
         .executableTarget(
             name: "CuckooGenerator",
@@ -63,13 +69,15 @@ let package = Package(
                 .product(name: "XcodeProj", package: "XcodeProj"),
                 .product(name: "Rainbow", package: "Rainbow"),
             ],
-            path: "Generator/Sources"
+            path: "Generator/Sources",
+            swiftSettings: warningsAsErrors
         ),
         .testTarget(
             name: "CuckooGeneratorTests",
             dependencies: ["CuckooGenerator"],
             path: "Generator/Tests",
-            exclude: ["Snapshots"]
+            exclude: ["Snapshots"],
+            swiftSettings: warningsAsErrors
         ),
         // The runtime test suite, laid out the way users consume Cuckoo: the code under test is a plain
         // module, and the modular plugin generates one mocks file per module it depends on, configured in
@@ -77,23 +85,27 @@ let package = Package(
         .target(
             name: "CuckooTestSources",
             path: "Tests/Swift/Source",
-            exclude: ["SwiftUI"]
+            exclude: ["SwiftUI"],
+            swiftSettings: warningsAsErrors
         ),
         .target(
             name: "CuckooTestSourcesSwiftUI",
-            path: "Tests/Swift/Source/SwiftUI"
+            path: "Tests/Swift/Source/SwiftUI",
+            swiftSettings: warningsAsErrors
         ),
         .target(
             name: "CuckooMocks",
             dependencies: ["Cuckoo", "CuckooTestSources", "CuckooTestSourcesSwiftUI"],
             path: "Tests/Swift/Mocks",
+            swiftSettings: warningsAsErrors,
             plugins: ["CuckooPluginModular"]
         ),
         .testTarget(
             name: "CuckooTests",
             dependencies: ["Cuckoo", "CuckooTestSources", "CuckooMocks"],
             path: "Tests",
-            exclude: ["Swift/Source", "Swift/Generated", "Swift/Mocks", "OCMock", "Info.plist"]
+            exclude: ["Swift/Source", "Swift/Generated", "Swift/Mocks", "OCMock", "Info.plist"],
+            swiftSettings: warningsAsErrors
         ),
         .plugin(
             name: "CuckooPluginSingleFile",
