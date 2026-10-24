@@ -1,3 +1,4 @@
+#if canImport(ObjectiveC)
 import Foundation
 
 @objc
@@ -16,3 +17,4 @@ class ObjcClass: NSObject {
 class ObjcMembersClass {
     func objcMethod() {}
 }
+#endif

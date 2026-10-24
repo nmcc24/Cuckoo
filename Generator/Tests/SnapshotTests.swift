@@ -30,7 +30,7 @@ struct SnapshotTests {
         try assertSnapshot(contents, named: "Swift6/\((fileName as NSString).deletingPathExtension)")
     }
 
-    /// Mirrors the `Cuckoo` module in `Cuckoofile.toml`, which generates the mocks used by the runtime test suite.
+    /// Mirrors the `CuckooTestSources` module in `Cuckoofile.toml`, which generates the mocks used by the runtime test suite.
     @Test
     func runtimeTestSources() async throws {
         let contents = try await generate(
@@ -42,12 +42,12 @@ struct SnapshotTests {
         try assertSnapshot(contents, named: "RuntimeTests")
     }
 
-    /// Mirrors the `CuckooSwiftUI` module in `Cuckoofile.toml`, which keeps SwiftUI's imports out of the other mocks.
+    /// Mirrors the `CuckooTestSourcesSwiftUI` module in `Cuckoofile.toml`, which keeps SwiftUI's imports out of the other mocks.
     @Test
     func runtimeTestSwiftUISources() async throws {
         let contents = try await generate(
             sources: ["Tests/Swift/Source/SwiftUI/*.swift"],
-            testableImports: ["Cuckoo", "CuckooTestSources"],
+            testableImports: ["Cuckoo", "CuckooTestSourcesSwiftUI"],
             exclude: [],
             keepDocumentation: false
         )

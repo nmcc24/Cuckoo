@@ -1,9 +1,12 @@
 import Cuckoo
-import SwiftUI
 import Foundation
+#if (canImport(SwiftUI))
+import SwiftUI
+#endif
 @testable import Cuckoo
-@testable import CuckooTestSources
+@testable import CuckooTestSourcesSwiftUI
 
+#if (canImport(SwiftUI))
 class MockSwiftUIViewModelProtocol: SwiftUIViewModelProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = any SwiftUIViewModelProtocol
     typealias Stubbing = __StubbingProxy_SwiftUIViewModelProtocol
@@ -47,7 +50,9 @@ class SwiftUIViewModelProtocolStub:SwiftUIViewModelProtocol, @unchecked Sendable
 
 }
 
+#endif
 
+#if (canImport(SwiftUI))
 class MockSwiftUIViewModel: SwiftUIViewModel, Cuckoo.ClassMock, @unchecked Sendable {
     typealias MocksType = SwiftUIViewModel
     typealias Stubbing = __StubbingProxy_SwiftUIViewModel
@@ -91,5 +96,6 @@ class SwiftUIViewModelStub:SwiftUIViewModel, @unchecked Sendable {
 
 }
 
+#endif
 
 
