@@ -191,4 +191,111 @@ class TransferStub:Transfer, @unchecked Sendable {
 }
 
 
+// runtime support for constrained protocols with primary associated types
+@available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
+class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = DefaultImplCaller
+    typealias Stubbing = __StubbingProxy_Converter
+    typealias Verification = __VerificationProxy_Converter
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    class DefaultImplCaller: Converter, @unchecked Sendable {
+        private let reference: () -> any Converter<Input>
+    
+        
+        init<_CUCKOO$$GENERIC: Converter>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+            self.reference = reference
+    
+        }
+    
+
+        func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
+            
+            func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC, _ p0: sending T, _ p1: sending Input) async -> Output {
+                return await opened.convert(value: p0, input: p1, fallback: p2 as! _CUCKOO$$GENERIC.Output) as! Output
+            }
+            return await openExistential(reference(), p0, p1)
+        }
+    }
+
+    private var __defaultImplStub: DefaultImplCaller?
+
+    func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+        var mutableStub = stub
+        __defaultImplStub = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+        __defaultImplStub = DefaultImplCaller(from: stub, keeping: stub.pointee)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
+        let __p0 = Cuckoo.__SendingArgument(p0)
+        let __p1 = Cuckoo.__SendingArgument(p1)
+        return await cuckoo_manager.call(
+            "convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output",
+            parameters: (p0, p1, p2),
+            escapingParameters: (p0, p1, p2),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await __defaultImplStub!.convert(value: __p0.value, input: __p1.value, fallback: p2)
+        )
+    }
+
+    struct __StubbingProxy_Converter: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func convert<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, T>(value p0: M1, input p1: M2, fallback p2: M3) -> Cuckoo.ProtocolStubFunction<( T,  Input, Output), Output> where M1.MatchedType ==  T, M2.MatchedType ==  Input, M3.MatchedType == Output {
+            let matchers: [Cuckoo.ParameterMatcher<( T,  Input, Output)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Converter: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func convert<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, T>(value p0: M1, input p1: M2, fallback p2: M3) -> Cuckoo.__DoNotUse<( T,  Input, Output), Output> where M1.MatchedType ==  T, M2.MatchedType ==  Input, M3.MatchedType == Output {
+            let matchers: [Cuckoo.ParameterMatcher<( T,  Input, Output)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+            return cuckoo_manager.verify(
+                "convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class ConverterStub<Input, Output>:Converter, @unchecked Sendable {
+
+
+    
+    func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
+        return DefaultValueRegistry.defaultValue(for: (Output).self)
+    }
+}
+
+
 

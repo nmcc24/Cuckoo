@@ -2698,6 +2698,7 @@ class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, Cuckoo.ProtocolMock
         }
 
         func genericAndAassociatedTypeParameters<T> (value p0: T, theC p1: C, theV p2: V) -> (C?) -> V {
+            
             func openExistential<_CUCKOO$$GENERIC: GenericProtocol<C>>(_ opened: _CUCKOO$$GENERIC) -> (C?) -> V {
                 return opened.genericAndAassociatedTypeParameters(value: p0, theC: p1, theV: p2 as! _CUCKOO$$GENERIC.V) as! (C?) -> V
             }
@@ -3277,10 +3278,11 @@ class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable, Output: Equatable
     
 
         func convertToOutput<T> (value p0: sending T, input p1: sending Input, convert p2: @escaping @MainActor @Sendable (T, Input) async throws -> Output?) async rethrows -> Output {
-            func openExistential<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol<Input>>(_ opened: _CUCKOO$$GENERIC) async throws -> Output {
+            
+            func openExistential<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol<Input>>(_ opened: _CUCKOO$$GENERIC, _ p0: sending T, _ p1: sending Input) async throws -> Output {
                 return try await opened.convertToOutput(value: p0, input: p1, convert: p2 as! @MainActor @Sendable (T, Input) async throws -> _CUCKOO$$GENERIC.Output?) as! Output
             }
-            return try await openExistential(reference())
+            return try await openExistential(reference(), p0, p1)
         }
     }
 

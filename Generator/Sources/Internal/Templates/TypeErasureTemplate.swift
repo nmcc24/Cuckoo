@@ -77,10 +77,11 @@ extension Templates {
         {% endif %}
         {{ container.accessibility|withSpace }}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
             {% if method.hasGenericParams and method.hasNonPrimaryAssociatedTypeParams %}
-            func openExistential<\(staticGenericParameter): {{ container.name }}{{ container.genericPrimaryAssociatedTypeArguments }}>(_ opened: \(staticGenericParameter)) {% if method.isAsync %} async{% endif %} {% if method.isThrowing %} throws{% endif %} -> {{ method.returnType }} {
+            {# A `sending` argument is passed in rather than captured: a captured value can't be sent on. #}
+            func openExistential<\(staticGenericParameter): {{ container.name }}{{ container.genericPrimaryAssociatedTypeArguments }}>(_ opened: \(staticGenericParameter){% for declaration in method.sendingParameterDeclarations %}, {{ declaration }}{% endfor %}) {% if method.isAsync %} async{% endif %} {% if method.isThrowing %} throws{% endif %} -> {{ method.returnType }} {
                 return {% if method.isThrowing %} try{% endif %} {% if method.isAsync %} await{% endif %} opened.{{ method.name }}{{ method.staticGenericCall }}
             }
-            return {% if method.isThrowing %} try{% endif %} {% if method.isAsync %} await{% endif %} openExistential(reference())
+            return {% if method.isThrowing %} try{% endif %} {% if method.isAsync %} await{% endif %} openExistential(reference(){% for name in method.sendingParameterNames %}, {{ name }}{% endfor %})
             {% elif method.hasGenericParams %}
             return {% if method.isThrowing %} try{% endif %} {% if method.isAsync %} await{% endif %} reference().{{ method.name }}({{ method.call }})
             {% else %}
