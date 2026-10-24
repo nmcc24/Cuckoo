@@ -8,21 +8,25 @@ import XCTest
 public class MockManager {
     nonisolated(unsafe) public static var fail: ((message: String, sourceLocation: SourceLocation)) -> Void = { arg in
         let (message, sourceLocation) = arg
+        // Report to the framework running the current test only. Swift Testing flags an
+        // `XCTFail` inside its tests, and XCTest doesn't see Swift Testing issues.
+        #if canImport(Testing)
+        if Test.current != nil {
+            Issue.record(
+                Comment(rawValue: message),
+                sourceLocation: Testing.SourceLocation(
+                    fileID: sourceLocation.fileID,
+                    filePath: sourceLocation.filePath,
+                    line: sourceLocation.line,
+                    column: sourceLocation.column
+                )
+            )
+            return
+        }
+        #endif
         #if canImport(XCTest)
         XCTFail(message, file: sourceLocation.file, line: UInt(sourceLocation.line))
-        #endif
-        #if canImport(Testing)
-        Issue.record(
-            Comment(rawValue: message),
-            sourceLocation: Testing.SourceLocation(
-                fileID: sourceLocation.fileID,
-                filePath: sourceLocation.filePath,
-                line: sourceLocation.line,
-                column: sourceLocation.column
-            )
-        )
-        #endif
-        #if !canImport(XCTest) && !canImport(Testing)
+        #else
         print("\(Self.self).fail:", message, sourceLocation)
         #endif
     }
