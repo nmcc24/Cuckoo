@@ -32,7 +32,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 - Never open PRs or push to `Brightify/Cuckoo` without asking.
 
 ## CI (`.github/workflows/test.yml`)
-- **Linux:** `swift:6.2`, `6.3` (native build system) and `swift:6.4` (both `swiftbuild` and `native`), running generator tests and the Swift 6 fixture matrix.
+- **Linux:** `swift:6.2`, `6.3` (native build system) and `swift:6.4` (`swiftbuild`; SwiftPM 6.4 deprecates `native`), running generator tests and the Swift 6 fixture matrix.
 - **swift-syntax range `600.0.0..<605.0.0`.** `Package.resolved` pins the newest release, and one Linux Swift 6.2 job pins 600.0.0. The floor stays low so Cuckoo resolves alongside macro packages that pin older releases. Put newer swift-syntax APIs behind `#if canImport(SwiftSyntax60x)`.
 - **macOS:** `macos-26` (Xcode 26.6, Swift 6.3) and `xcode-27` (Xcode 27, Swift 6.4), running the generator jobs (each with its image's default build system) plus the Tuist macOS and iOS test schemes. Keep the macOS job count low: those runners are the slowest to queue. `macos-15` isn't used; its default Swift 6.1 is below the minimum.
 - **Use each image's default Xcode.** Picking the newest installed one has selected a beta before.
