@@ -11,17 +11,17 @@ public func equal<T: AnyObject>(to value: T) -> ParameterMatcher<T> {
 
 /// Returns an equality matcher for Array<Equatable> (ordered)
 public func equal<T: Equatable>(to array: [T]) -> ParameterMatcher<[T]> {
-    equal(to: array, equalWhen: ==)
+    equal(to: array) { $0 == $1 }
 }
 
 /// Returns an equality matcher for Set<Equatable>
 public func equal<T>(to set: Set<T>) -> ParameterMatcher<Set<T>> {
-    equal(to: set, equalWhen: ==)
+    equal(to: set) { $0 == $1 }
 }
 
 /// Returns an equality matcher for Dictionary<Hashable, Equatable>
 public func equal<K: Hashable, V: Equatable>(to dictionary: [K: V]) -> ParameterMatcher<[K: V]> {
-    equal(to: dictionary, equalWhen: ==)
+    equal(to: dictionary) { $0 == $1 }
 }
 
 /// Returns a matcher using the supplied function.
@@ -56,7 +56,7 @@ public func any<T>(_ type: T.Type = T.self) -> ParameterMatcher<T?> {
 
 /// Returns an equality matcher.
 public func equal<T: Equatable>(to value: T?) -> ParameterMatcher<T?> {
-    equal(to: value, equalWhen: ==)
+    equal(to: value) { $0 == $1 }
 }
 
 /// Returns an identity matcher.
