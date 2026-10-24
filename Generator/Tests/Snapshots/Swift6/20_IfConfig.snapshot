@@ -1,5 +1,8 @@
 import Cuckoo
 import Foundation
+#if (canImport(Combine))
+import Combine
+#endif
 
 class MockPlatformed: Platformed, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = any Platformed
@@ -649,5 +652,247 @@ class PlatformedServiceStub:PlatformedService, @unchecked Sendable {
     }
 }
 
+
+#if (canImport(Combine))
+class MockPublishing: Publishing, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Publishing
+    typealias Stubbing = __StubbingProxy_Publishing
+    typealias Verification = __VerificationProxy_Publishing
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Publishing)?
+
+    func enableDefaultImplementation(_ stub: any Publishing) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func publisher() -> AnyPublisher<Int, Never> {
+        return cuckoo_manager.call(
+            "publisher() -> AnyPublisher<Int, Never>",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.publisher()
+        )
+    }
+
+    struct __StubbingProxy_Publishing: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func publisher() -> Cuckoo.ProtocolStubFunction<(), AnyPublisher<Int, Never>> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPublishing.self,
+                method: "publisher() -> AnyPublisher<Int, Never>",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Publishing: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func publisher() -> Cuckoo.__DoNotUse<(), AnyPublisher<Int, Never>> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "publisher() -> AnyPublisher<Int, Never>",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class PublishingStub:Publishing, @unchecked Sendable {
+
+
+    
+    func publisher() -> AnyPublisher<Int, Never> {
+        return DefaultValueRegistry.defaultValue(for: (AnyPublisher<Int, Never>).self)
+    }
+}
+
+#endif
+
+#if (DEBUG)
+class MockDebugTools: DebugTools, Cuckoo.ClassMock, @unchecked Sendable {
+    typealias MocksType = DebugTools
+    typealias Stubbing = __StubbingProxy_DebugTools
+    typealias Verification = __VerificationProxy_DebugTools
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    private var __defaultImplStub: DebugTools?
+
+    func enableDefaultImplementation(_ stub: DebugTools) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    override func check() {
+        return cuckoo_manager.call(
+            "check()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: super.check(),
+            defaultCall: __defaultImplStub!.check()
+        )
+    }
+
+    struct __StubbingProxy_DebugTools: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func check() -> Cuckoo.ClassStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockDebugTools.self,
+                method: "check()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_DebugTools: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func check() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "check()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class DebugToolsStub:DebugTools, @unchecked Sendable {
+
+
+    
+    override func check() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+#endif
+
+#if (DEBUG) && (os(Linux))
+extension DebugTools {
+class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock, @unchecked Sendable {
+    typealias MocksType = LinuxProbe
+    typealias Stubbing = __StubbingProxy_LinuxProbe
+    typealias Verification = __VerificationProxy_LinuxProbe
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    private var __defaultImplStub: LinuxProbe?
+
+    func enableDefaultImplementation(_ stub: LinuxProbe) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    override func probe() {
+        return cuckoo_manager.call(
+            "probe()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall: super.probe(),
+            defaultCall: __defaultImplStub!.probe()
+        )
+    }
+
+    struct __StubbingProxy_LinuxProbe: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func probe() -> Cuckoo.ClassStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockLinuxProbe.self,
+                method: "probe()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_LinuxProbe: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func probe() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "probe()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class LinuxProbeStub:LinuxProbe, @unchecked Sendable {
+
+
+    
+    override func probe() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+}
+#endif
 
 

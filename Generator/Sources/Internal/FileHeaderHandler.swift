@@ -17,11 +17,19 @@ struct FileHeaderHandler {
         publicImports: [String],
         testableImports: [String]
     ) -> String {
-        [
+        let unconditionalImports = OrderedSet(
+            file.imports.filter { $0.compilationConditions.isEmpty }.map(\.description) + imports
+        ).values
+        .filter { !testableImports.contains($0) }
+        // An import inside `#if` keeps its condition, so the mocks build wherever the source does.
+        let conditionalImports = file.imports
+            .filter { !$0.compilationConditions.isEmpty }
+            .filter { !unconditionalImports.contains($0.description) && !testableImports.contains($0.description) }
+            .map { "#if \($0.compilationConditions.joined(separator: " && "))\nimport \($0)\n#endif" }
+        return [
             !publicImports.contains("Cuckoo") ? ["import Cuckoo"] : [],
-            OrderedSet(file.imports.map { $0.description } + imports).values
-                .filter { !testableImports.contains($0) }
-                .map { "import \($0)" },
+            unconditionalImports.map { "import \($0)" },
+            conditionalImports,
             publicImports.map { "public import \($0)" },
             testableImports.map { "@testable import \($0)" },
         ]

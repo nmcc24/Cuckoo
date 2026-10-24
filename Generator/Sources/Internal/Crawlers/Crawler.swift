@@ -57,6 +57,12 @@ final class Crawler: SyntaxVisitor {
 
     private var container: Reference<Token>?
 
+    /// The `#if` conditions around a type declared at the crawler's position: its enclosing types' conditions,
+    /// and those of the `#if` clauses the crawler is inside.
+    private var enclosingCompilationConditions: [String] {
+        ((container?.value as? HasEnclosingCompilationConditions)?.enclosingCompilationConditions ?? []) + compilationConditions
+    }
+
     private let context: Context
 
     private init(container: Reference<Token>?, context: Context) {
@@ -68,13 +74,14 @@ final class Crawler: SyntaxVisitor {
 
     override func visit(_ node: ImportDeclSyntax) -> SyntaxVisitorContinueKind {
         let path = node.path.description
-        if let importKind = node.importKindSpecifier?.trimmed.text {
+        let target: Import.Target = if let importKind = node.importKindSpecifier?.trimmed.text {
             // Component import.
-            imports.append(.component(kind: importKind, name: path))
+            .component(kind: importKind, name: path)
         } else {
             // Target import.
-            imports.append(.library(name: path))
+            .library(name: path)
         }
+        imports.append(Import(target: target, compilationConditions: compilationConditions))
         return .skipChildren
     }
 
@@ -92,7 +99,8 @@ final class Crawler: SyntaxVisitor {
             genericParameters: genericParameters(from: node.genericParameterClause?.parameters),
             genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements),
             inheritedTypes: inheritedTypes(from: node.inheritanceClause?.inheritedTypes),
-            members: []
+            members: [],
+            enclosingCompilationConditions: enclosingCompilationConditions
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -116,7 +124,8 @@ final class Crawler: SyntaxVisitor {
             primaryAssociatedTypes: genericParameters(from: node.primaryAssociatedTypeClause?.primaryAssociatedTypes),
             genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements),
             inheritedTypes: inheritedTypes,
-            members: []
+            members: [],
+            enclosingCompilationConditions: enclosingCompilationConditions
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -136,7 +145,8 @@ final class Crawler: SyntaxVisitor {
             attributes: attributes(from: node.attributes),
             accessibility: accessibility(from: node.modifiers) ?? (container as? HasAccessibility)?.accessibility ?? .internal,
             name: node.name.filteredDescription,
-            members: []
+            members: [],
+            enclosingCompilationConditions: enclosingCompilationConditions
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -156,7 +166,8 @@ final class Crawler: SyntaxVisitor {
             attributes: attributes(from: node.attributes),
             accessibility: accessibility(from: node.modifiers) ?? (container as? HasAccessibility)?.accessibility ?? .internal,
             name: node.extendedType.filteredDescription,
-            members: []
+            members: [],
+            enclosingCompilationConditions: enclosingCompilationConditions
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -176,7 +187,8 @@ final class Crawler: SyntaxVisitor {
             attributes: attributes(from: node.attributes),
             accessibility: accessibility(from: node.modifiers) ?? (container as? HasAccessibility)?.accessibility ?? .internal,
             name: node.name.filteredDescription,
-            members: []
+            members: [],
+            enclosingCompilationConditions: enclosingCompilationConditions
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }

@@ -1,4 +1,4 @@
-struct ClassDeclaration: ContainerToken {
+struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var parent: Reference<Token>?
 
     var attributes: [Attribute]
@@ -8,6 +8,7 @@ struct ClassDeclaration: ContainerToken {
     var genericRequirements: [String]
     var inheritedTypes: [String]
     var members: [Token]
+    var enclosingCompilationConditions: [String]
 
     func replacing(members: [Token]) -> ClassDeclaration {
         ClassDeclaration(
@@ -18,7 +19,8 @@ struct ClassDeclaration: ContainerToken {
             genericParameters: genericParameters,
             genericRequirements: genericRequirements,
             inheritedTypes: inheritedTypes,
-            members: members
+            members: members,
+            enclosingCompilationConditions: enclosingCompilationConditions
         )
     }
 }

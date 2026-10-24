@@ -34,3 +34,25 @@ class PlatformedService {
     #endif
     func run() {}
 }
+
+// A whole type inside `#if` is mocked inside the same condition, and so is an import that sits in one.
+#if canImport(Combine)
+import Combine
+
+protocol Publishing {
+    func publisher() -> AnyPublisher<Int, Never>
+}
+#endif
+
+#if DEBUG
+class DebugTools {
+    func check() {}
+
+    // Nested types are mocked at file scope, so they carry their enclosing type's condition as well.
+    #if os(Linux)
+    class LinuxProbe {
+        func probe() {}
+    }
+    #endif
+}
+#endif

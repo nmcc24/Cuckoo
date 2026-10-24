@@ -2,13 +2,14 @@ import Foundation
 
 /// This structure exists purely for supporting nested classes,
 /// it could be any container (like `struct` or `extension`).
-struct NamespaceDeclaration: Token, HasAccessibility, HasName, HasMembers {
+struct NamespaceDeclaration: Token, HasAccessibility, HasName, HasMembers, HasEnclosingCompilationConditions {
     var parent: Reference<Token>?
 
     var attributes: [Attribute]
     var accessibility: Accessibility
     var name: String
     var members: [Token]
+    var enclosingCompilationConditions: [String]
 
     func replacing(members: [Token]) -> NamespaceDeclaration {
         NamespaceDeclaration(
@@ -16,7 +17,8 @@ struct NamespaceDeclaration: Token, HasAccessibility, HasName, HasMembers {
             attributes: attributes,
             accessibility: accessibility,
             name: name,
-            members: members
+            members: members,
+            enclosingCompilationConditions: enclosingCompilationConditions
         )
     }
 }
