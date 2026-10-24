@@ -22,7 +22,7 @@ extension {{ container.parentFullyQualifiedName }} {
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
 {% endif %}
-{{ container.accessibility|withSpace }}class {{ container.mockName }}{{ container.genericParameters }}:{% if container.isNSObjectProtocol %} NSObject,{% endif %} {{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %},{% if container.isImplementation %} Cuckoo.ClassMock{% else %} Cuckoo.ProtocolMock{% endif %}, @unchecked Sendable {
+{{ container.accessibility|withSpace }}final class {{ container.mockName }}{{ container.genericParameters }}:{% if container.isNSObjectProtocol %} NSObject,{% endif %} {{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %},{% if container.isImplementation %} Cuckoo.ClassMock{% else %} Cuckoo.ProtocolMock{% endif %} {
     {% if container.isGeneric and not container.isImplementation and not container.hasOnlyPrimaryAssociatedTypes %}
     {{ container.accessibility|withSpace }}typealias MocksType = \(typeErasureClassName)
     {% elif container.isImplementation %}
@@ -153,7 +153,7 @@ extension {{ container.parentFullyQualifiedName }} {
         {% for name in method.sendingParameterNames %}
         let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
         {% endfor %}
-        {{ method.self|openNestedClosure }}return{% if method.isThrowing %} try{% endif %}{% if method.isAsync %} await{% endif %} cuckoo_manager.call{% if method.isThrowing %}{{ method.throwType|capitalize }}{% endif %}(
+        {{ method.self|openNestedClosure }}return{% if method.isThrowing %} try{% endif %}{% if method.isAsync %} await{% endif %} {%+ if method.returnsSending %}Cuckoo.__SendingArgument({% endif %}cuckoo_manager.call{% if method.isThrowing %}{{ method.throwType|capitalize }}{% endif %}(
             "{{method.fullyQualifiedName}}",
             parameters: ({{method.recordedParameters}}),
             escapingParameters: ({{method.escapingParameterNames}}),
@@ -162,7 +162,7 @@ extension {{ container.parentFullyQualifiedName }} {
             {% endif %}
             superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}super.{{method.name}}({{method.forwardingCall}}){% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
             defaultCall: {%+ if method.isAsync %}await {%+ endif %}__defaultImplStub.value.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}})
-        ){{ method.parameters|closeNestedClosure }}
+        ){% if method.returnsSending %}).value{% endif %}{{ method.parameters|closeNestedClosure }}
     }
     {% if method.hasCompilationCondition %}
     #endif

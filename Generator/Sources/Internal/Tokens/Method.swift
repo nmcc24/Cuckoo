@@ -127,6 +127,7 @@ extension Method {
             "recordedParameters": signature.parameters.map(\.recordedValue).joined(separator: ", "),
             "escapingParameterNames": escapingParameterNames,
             "returnType": returnType?.description ?? "",
+            "returnsSending": returnType?.containsAttribute(named: "sending") ?? false,
             "genericReturnType": returnType?.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description ?? "",
             "isAsync": isAsync,
             "isThrowing": isThrowing,

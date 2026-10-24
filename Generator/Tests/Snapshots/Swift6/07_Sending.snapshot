@@ -1,7 +1,7 @@
 import Cuckoo
 import Foundation
 
-class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock, @unchecked Sendable {
+final class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock {
     typealias MocksType = NonSendableBox
     typealias Stubbing = __StubbingProxy_NonSendableBox
     typealias Verification = __VerificationProxy_NonSendableBox
@@ -65,7 +65,7 @@ class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock, @unchecked Sendable 
     }
 }
 
-class NonSendableBoxStub:NonSendableBox, @unchecked Sendable {
+final class NonSendableBoxStub:NonSendableBox {
     
     override var v: Int {
         get {
@@ -78,7 +78,7 @@ class NonSendableBoxStub:NonSendableBox, @unchecked Sendable {
 }
 
 
-class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
     typealias MocksType = any Transfer
     typealias Stubbing = __StubbingProxy_Transfer
     typealias Verification = __VerificationProxy_Transfer
@@ -107,13 +107,13 @@ class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 
     func make() -> sending NonSendableBox {
-        return cuckoo_manager.call(
+        return Cuckoo.__SendingArgument(cuckoo_manager.call(
             "make() -> sending NonSendableBox",
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.make()
-        )
+        )).value
     }
 
     struct __StubbingProxy_Transfer: Cuckoo.StubbingProxy {
@@ -177,7 +177,7 @@ class MockTransfer: Transfer, Cuckoo.ProtocolMock, @unchecked Sendable {
     }
 }
 
-class TransferStub:Transfer, @unchecked Sendable {
+final class TransferStub:Transfer {
 
 
     
@@ -193,7 +193,7 @@ class TransferStub:Transfer, @unchecked Sendable {
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
-class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock, @unchecked Sendable {
+final class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_Converter
     typealias Verification = __VerificationProxy_Converter
@@ -202,7 +202,8 @@ class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock, @unchecked S
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: Converter, @unchecked Sendable {
+    
+    final class DefaultImplCaller: Converter, @unchecked Sendable {
         private let reference: () -> any Converter<Input>
     
         
@@ -288,7 +289,7 @@ class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock, @unchecked S
     }
 }
 
-class ConverterStub<Input, Output>:Converter, @unchecked Sendable {
+final class ConverterStub<Input, Output>:Converter {
 
 
     
