@@ -302,6 +302,8 @@ Exit criteria: fixtures 07, 09, 10 and 11 compile, with snapshot tests for each.
 2. ☁️ TaskLocal configuration, the Swift Testing trait, failure routing, and the unstubbed-call policy.
 3. ☁️ Stress tests: 1,000 concurrent calls, stubs and verifications on one mock, run under TSan in CI (🍎 for TSan on Apple platforms; ☁️ TSan on Linux).
 4. 🍎 Run the existing 342 tests under the new runtime and fix the regressions.
+5. ☁️ Redesign optional-property stubbing. `ToBeStubbedOptionalProperty.set` adds a constraint on `Self` (`GetterType.OutputType == M.OptionalMatchedType?`) that Swift warns "will be an error in a future Swift language mode".
+6. ☁️ Zero warnings: once our own targets build without warnings, CI treats warnings in them as errors (dependencies excluded).
 
 Exit criteria: no `nonisolated(unsafe)` or `@unchecked Sendable` left in `Source/` except the documented lock box; TSan clean; all legacy tests green.
 
@@ -320,6 +322,12 @@ Exit criteria: fixtures 01–06 typecheck and have behavioural tests; also typec
 3. ☁️ `inout` stubbing (#337), `Self` (#304), generic init (#362), class-constrained protocols (#447/#376), parent associated types (#576).
 4. ☁️ `inOrder`, `within:` / `eventually`, `thenNeverReturn`, delayed returns, and closest-match failure diffs.
 5. ☁️ Config options: prefix/suffix, regex array, `@_spi`.
+6. ☁️ Import isolation in single-file output (M). A single generated file merges every source file's imports, so a name one import declares (e.g. `SwiftUI.Namespace`) makes same-named source types ambiguous in all mocks once they live outside the source module. The runtime tests work around it with a separate `CuckooSwiftUI` Cuckoofile module.
+   - Fix: the generated file declares an alias for each top-level source type (`typealias Namespace = CuckooTestSources.Namespace`), with the mocks' access level. A module-level declaration beats imports, and mock bodies stay unchanged. Verified with swiftc.
+   - Needs the Swift module of each source file: from the SwiftPM plugins, which know it, or a new Cuckoofile option. Without it, output stays as today.
+   - Watch for: a module containing a type with its own name (`Foo.Foo`), where `Foo.Bar` resolves to the type, not the module; nested and generic types.
+   - Fixtures: a SwiftUI-importing file next to a `Namespace` type, the module-named type, and sources from two modules in one output.
+7. ☁️ Generic methods whose return type alone uses a non-primary associated type (`func convert<T>(value: T) -> Output` on `protocol P<Input>`). The type-erased default implementation returns `Any` where `Output` is expected, so the mock doesn't compile.
 
 Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item above.
 
