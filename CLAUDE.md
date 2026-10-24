@@ -18,6 +18,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 - **Link this fork's PRs with full URLs** (`https://github.com/nmcc24/Cuckoo/pull/N`), in PR descriptions, comments and chat. Issues are disabled on the fork, so GitHub resolves a bare `#N` to `Brightify/Cuckoo`. Write upstream references explicitly, as `Brightify/Cuckoo#N`.
 - **Estimates are relative sizes (S/M/L), never durations.** The roadmap's §4 key defines them.
 - Small, logical commits.
+- **Zero warnings, each fixed at its root.** Treat every warning in our own targets (Source/, Tests/, generated mocks) as a defect. Don't silence one with `@retroactive`, `@preconcurrency`, `nonisolated(unsafe)` or `@unchecked Sendable` unless that's the correct design; if the proper fix is large, put it on the roadmap.
 
 ## Git and merge rules
 - `master` is protected by the "Merge to master" ruleset:
@@ -45,6 +46,10 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
   - The script fails on a new failure or on a listed fixture that now passes. Remove a fixture from the list once its fixture passes.
 - No Swift toolchain on the cloud VM: use the official `swift:6.x` Docker images (start `dockerd` if it isn't running). Docker Hub rate-limits the VM, so pull `mirror.gcr.io/library/swift:6.x`. For SwiftPM to fetch packages inside the container, mount the proxy CA bundle and pass the proxy variables (`HTTPS_PROXY`, `GIT_SSL_CAINFO`, `SSL_CERT_FILE`).
 - The 342 runtime tests run only through Tuist on macOS for now: `make`, then `xcodebuild test -scheme Cuckoo-macOS -workspace Cuckoo.xcworkspace`. Roadmap Phase 2 item 0 moves them to SwiftPM, keeping Tuist in parallel until both agree.
+  - Layout: `Tests/Swift/Source` builds as `CuckooTestSources`, the way a user's app code does. `CuckooMocks` holds only the generated mocks and imports it with `@testable`. All Tuist targets build in Swift 6 mode and share the package name `Cuckoo`.
+  - The SwiftUI fixture lives in `Tests/Swift/Source/SwiftUI/` with its own Cuckoofile module, because a single generated file shares one import list (roadmap Phase 4 item 6).
+  - Delete `Tests/Swift/Generated/*.swift` before a fresh `make`, so stale mocks aren't compiled.
+- **The maintainer's Mac can run the Tuist tests.** When a Remote Control session to it is available, run the macOS and iOS schemes there before pushing changes that touch the runtime, the tests or Tuist. CI stays the final gate.
 
 ## Cloud environment notes
 - The GitHub proxy blocks some writes, such as deleting branches (`git push --delete` and the REST `DELETE` both fail). Ask the maintainer to do those in the GitHub UI.
