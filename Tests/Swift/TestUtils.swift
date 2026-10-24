@@ -2,14 +2,14 @@
 
 struct TestUtils {
     static func catchCuckooFail(inClosure closure: () -> Void) -> String? {
-        let fail = MockManager.fail
-        var msg: String?
-        MockManager.fail = { parameters in
-            let (message, _) = parameters
-            msg = message
+        let message = Locked<String?>(nil)
+        var configuration = CuckooConfiguration.current
+        configuration.failureHandler = { failure, _ in
+            message.withLock { $0 = failure }
         }
-        closure()
-        MockManager.fail = fail
-        return msg
+        CuckooConfiguration.$current.withValue(configuration) {
+            closure()
+        }
+        return message.withLock { $0 }
     }
 }
