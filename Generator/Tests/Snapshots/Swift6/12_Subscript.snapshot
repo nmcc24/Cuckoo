@@ -10,10 +10,10 @@ class MockCache: Cache, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Cache)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Cache>()
 
-    func enableDefaultImplementation(_ stub: any Cache) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Cache) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 

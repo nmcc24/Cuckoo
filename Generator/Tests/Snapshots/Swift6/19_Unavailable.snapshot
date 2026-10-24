@@ -10,10 +10,10 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Legacy)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Legacy>()
 
-    func enableDefaultImplementation(_ stub: any Legacy) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Legacy) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -26,7 +26,7 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.notOnIOS()
+            defaultCall: __defaultImplStub.value.notOnIOS()
         )
     }
     #endif
@@ -39,7 +39,7 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.notOnTVOS()
+            defaultCall: __defaultImplStub.value.notOnTVOS()
         )
     }
     #endif
@@ -52,7 +52,7 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.notOnCatalyst()
+            defaultCall: __defaultImplStub.value.notOnCatalyst()
         )
     }
     #endif
@@ -64,7 +64,7 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.notInExtensions()
+            defaultCall: __defaultImplStub.value.notInExtensions()
         )
     }
 
@@ -75,7 +75,7 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.deprecated()
+            defaultCall: __defaultImplStub.value.deprecated()
         )
     }
 
@@ -85,7 +85,7 @@ class MockLegacy: Legacy, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.kept()
+            defaultCall: __defaultImplStub.value.kept()
         )
     }
 
@@ -293,10 +293,10 @@ class MockLegacyService: LegacyService, Cuckoo.ClassMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: LegacyService?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<LegacyService>()
 
-    func enableDefaultImplementation(_ stub: LegacyService) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: LegacyService) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -309,7 +309,7 @@ class MockLegacyService: LegacyService, Cuckoo.ClassMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: super.notOnMacOS(),
-            defaultCall: __defaultImplStub!.notOnMacOS()
+            defaultCall: __defaultImplStub.value.notOnMacOS()
         )
     }
     #endif
@@ -320,7 +320,7 @@ class MockLegacyService: LegacyService, Cuckoo.ClassMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: super.kept(),
-            defaultCall: __defaultImplStub!.kept()
+            defaultCall: __defaultImplStub.value.kept()
         )
     }
 
@@ -414,10 +414,10 @@ class MockLegacyView: LegacyView, Cuckoo.ClassMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: LegacyView?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<LegacyView>()
 
-    func enableDefaultImplementation(_ stub: LegacyView) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: LegacyView) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -428,7 +428,7 @@ class MockLegacyView: LegacyView, Cuckoo.ClassMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: super.kept(),
-            defaultCall: __defaultImplStub!.kept()
+            defaultCall: __defaultImplStub.value.kept()
         )
     }
 

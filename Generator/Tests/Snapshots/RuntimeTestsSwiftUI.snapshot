@@ -16,10 +16,10 @@ class MockSwiftUIViewModelProtocol: SwiftUIViewModelProtocol, Cuckoo.ProtocolMoc
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any SwiftUIViewModelProtocol)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any SwiftUIViewModelProtocol>()
 
-    func enableDefaultImplementation(_ stub: any SwiftUIViewModelProtocol) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any SwiftUIViewModelProtocol) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -62,10 +62,10 @@ class MockSwiftUIViewModel: SwiftUIViewModel, Cuckoo.ClassMock, @unchecked Senda
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private var __defaultImplStub: SwiftUIViewModel?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<SwiftUIViewModel>()
 
-    func enableDefaultImplementation(_ stub: SwiftUIViewModel) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: SwiftUIViewModel) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 

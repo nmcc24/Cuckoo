@@ -10,10 +10,10 @@ class MockMainActorService: MainActorService, Cuckoo.ProtocolMock, @unchecked Se
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any MainActorService)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorService>()
 
-    func enableDefaultImplementation(_ stub: any MainActorService) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any MainActorService) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -22,7 +22,7 @@ class MockMainActorService: MainActorService, Cuckoo.ProtocolMock, @unchecked Se
             return cuckoo_manager.getter(
                 "title",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.title
+                defaultCall: __defaultImplStub.value.title
             )
         }
         set {
@@ -30,7 +30,7 @@ class MockMainActorService: MainActorService, Cuckoo.ProtocolMock, @unchecked Se
                 "title",
                 value: newValue,
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.title = newValue
+                defaultCall: __defaultImplStub.value.title = newValue
             )
         }
     }
@@ -42,7 +42,7 @@ class MockMainActorService: MainActorService, Cuckoo.ProtocolMock, @unchecked Se
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.load(id: p0)
+            defaultCall: __defaultImplStub.value.load(id: p0)
         )
     }
 
@@ -53,7 +53,7 @@ class MockMainActorService: MainActorService, Cuckoo.ProtocolMock, @unchecked Se
             escapingParameters: (),
             errorType: Swift.Error.self,
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.refresh()
+            defaultCall: await __defaultImplStub.value.refresh()
         )
     }
 

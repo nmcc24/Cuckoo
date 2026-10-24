@@ -10,10 +10,10 @@ class MockCoordinator: Coordinator, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Coordinator)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Coordinator>()
 
-    func enableDefaultImplementation(_ stub: any Coordinator) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Coordinator) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -24,7 +24,7 @@ class MockCoordinator: Coordinator, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.identifier()
+            defaultCall: __defaultImplStub.value.identifier()
         )
     }
 
@@ -34,7 +34,7 @@ class MockCoordinator: Coordinator, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.start()
+            defaultCall: __defaultImplStub.value.start()
         )
     }
 

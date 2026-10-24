@@ -11,10 +11,10 @@ class MockEvents: Events, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Events)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Events>()
 
-    func enableDefaultImplementation(_ stub: any Events) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Events) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -23,7 +23,7 @@ class MockEvents: Events, Cuckoo.ProtocolMock, @unchecked Sendable {
             return cuckoo_manager.getter(
                 "stream",
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub!.stream
+                defaultCall: __defaultImplStub.value.stream
             )
         }
     }
@@ -35,7 +35,7 @@ class MockEvents: Events, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.updates()
+            defaultCall: __defaultImplStub.value.updates()
         )
     }
 

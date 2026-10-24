@@ -10,10 +10,10 @@ class MockFactory: Factory, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any Factory)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Factory>()
 
-    func enableDefaultImplementation(_ stub: any Factory) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any Factory) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -24,7 +24,7 @@ class MockFactory: Factory, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.build()
+            defaultCall: __defaultImplStub.value.build()
         )
     }
 

@@ -10,10 +10,10 @@ class MockIsolatedWork: IsolatedWork, Cuckoo.ProtocolMock, @unchecked Sendable {
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any IsolatedWork)?
+    private let __defaultImplStub = Cuckoo.DefaultImplementation<any IsolatedWork>()
 
-    func enableDefaultImplementation(_ stub: any IsolatedWork) {
-        __defaultImplStub = stub
+    nonisolated func enableDefaultImplementation(_ stub: any IsolatedWork) {
+        __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -24,7 +24,7 @@ class MockIsolatedWork: IsolatedWork, Cuckoo.ProtocolMock, @unchecked Sendable {
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub!.run(isolation: p0)
+            defaultCall: await __defaultImplStub.value.run(isolation: p0)
         )
     }
 
