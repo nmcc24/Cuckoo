@@ -8,7 +8,7 @@ final class ExcludedStubTest: XCTestCase {
     func testClassAvailability() {
         XCTAssertNotNil(ExcludedTestClass())
 
-        XCTAssertNotNil(NSClassFromString("CuckooMocks.ExcludedTestClass"))
+        XCTAssertNotNil(NSClassFromString("CuckooTestSources.ExcludedTestClass"))
         XCTAssertNil(NSClassFromString("CuckooMocks.MockExcludedTestClass"))
         XCTAssertNotNil(IncludedTestClass())
         XCTAssertNotNil(MockIncludedTestClass())
