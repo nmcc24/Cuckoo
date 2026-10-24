@@ -49,6 +49,8 @@ let project = Project(
         .package(url: "https://github.com/tuist/XcodeProj", .upToNextMajor(from: "9.17.6")),
         .package(url: "https://github.com/onevcat/Rainbow", .upToNextMajor(from: "4.2.2")),
     ],
+    // Warnings in the generator are errors, as in ../Package.swift. Dependencies build in their own projects.
+    settings: .settings(base: ["SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES"]),
     targets: [
         target,
         testTarget,

@@ -179,6 +179,8 @@ let project = Project(
         "SWIFT_PACKAGE_NAME": "Cuckoo",
         // Cuckoo 3 supports only the Swift 6 language mode, as Package.swift does.
         "SWIFT_VERSION": "6.0",
+        // Warnings in our own targets are errors, as in Package.swift. Dependencies build in their own projects.
+        "SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES",
     ]),
     targets: iOSTargets + macOSTargets + tvOSTargets + watchOSTargets,
     schemes: iOSSchemes + macOSSchemes + tvOSSchemes + watchOSSchemes
