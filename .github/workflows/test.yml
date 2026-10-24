@@ -28,7 +28,7 @@ jobs:
       SWIFT_BUILD_FLAGS: --build-system ${{ matrix.build-system }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Pin swift-syntax ${{ matrix.swift-syntax }}
         if: matrix.swift-syntax
         # A fresh checkout has no resolved dependencies yet, so resolve them before pinning one.
@@ -53,7 +53,7 @@ jobs:
       SWIFT_BUILD_FLAGS: --build-system ${{ matrix.build-system }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Show toolchain
         run: |
           ls -d /Applications/Xcode*.app
@@ -72,10 +72,10 @@ jobs:
         runner: [macos-26, xcode-27]
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Show toolchain
         run: echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1)"
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@v5
         with:
           install: false
           experimental: true
@@ -94,10 +94,10 @@ jobs:
         runner: [macos-26, xcode-27]
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Show toolchain
         run: echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1)"
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@v5
         with:
           install: false
           experimental: true
