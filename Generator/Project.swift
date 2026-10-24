@@ -46,7 +46,7 @@ let project = Project(
         // .package(url: "https://github.com/swiftlang/swift-format", "600.0.0"..<"605.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", .exact("1.7.0")),
         .package(url: "https://github.com/LebJe/TOMLKit", .exact("0.6.0")),
-        .package(url: "https://github.com/tuist/XcodeProj", .exact("9.9.0")),
+        .package(url: "https://github.com/tuist/XcodeProj", .exact("9.14.0")),
         .package(url: "https://github.com/onevcat/Rainbow", .exact("4.2.1")),
     ],
     targets: [
