@@ -32,9 +32,9 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 - Never open PRs or push to `Brightify/Cuckoo` without asking.
 
 ## CI (`.github/workflows/test.yml`)
-- **Linux:** `swift:6.2`, `6.3` (native build system) and `swift:6.4` (`swiftbuild`; SwiftPM 6.4 deprecates `native`), running generator tests and the Swift 6 fixture matrix.
+- **Linux:** `swift:6.2`, `6.3` (native build system) and `swift:6.4` (`swiftbuild`; SwiftPM 6.4 deprecates `native`), running `swift test` (generator and runtime tests) and the Swift 6 fixture matrix.
 - **swift-syntax range `600.0.0..<605.0.0`.** `Package.resolved` pins the newest release, and one Linux Swift 6.2 job pins 600.0.0. The floor stays low so Cuckoo resolves alongside macro packages that pin older releases. Put newer swift-syntax APIs behind `#if canImport(SwiftSyntax60x)`.
-- **macOS:** `macos-26` (Xcode 26.6, Swift 6.3) and `xcode-27` (Xcode 27, Swift 6.4), running the generator jobs (each with its image's default build system) plus the Tuist macOS and iOS test schemes. Keep the macOS job count low: those runners are the slowest to queue. `macos-15` isn't used; its default Swift 6.1 is below the minimum.
+- **macOS:** `macos-26` (Xcode 26.6, Swift 6.3) and `xcode-27` (Xcode 27, Swift 6.4), running the SwiftPM jobs (each with its image's default build system), the package's runtime tests on the iOS simulator, and the Tuist macOS and iOS test schemes. Keep the macOS job count low: those runners are the slowest to queue. `macos-15` isn't used; its default Swift 6.1 is below the minimum.
 - **Use each image's default Xcode.** Picking the newest installed one has selected a beta before.
 - **`CI passed` is the single required check.** Any new job must be added to its `needs:` list, or the merge gate won't wait for it.
 
@@ -48,6 +48,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 - The 342 runtime tests also run through Tuist on macOS: `make`, then `xcodebuild test -scheme Cuckoo-macOS -workspace Cuckoo.xcworkspace`. Roadmap Phase 2 item 0 keeps Tuist in parallel with SwiftPM until both agree.
   - Layout, the same in both: `Tests/Swift/Source` builds as `CuckooTestSources`, the way a user's app code does. `CuckooMocks` holds only the generated mocks and imports it with `@testable`. All targets build in Swift 6 mode and share the package name `Cuckoo`.
   - SwiftPM generates the mocks with `CuckooPluginModular`: one file per dependency of `CuckooMocks`, from the `Cuckoofile.toml` module of the same name. Keep those module names equal to the target names. Tuist runs the generator over the whole `Cuckoofile.toml` into `Tests/Swift/Generated/`.
+  - To run the package's tests with `xcodebuild` (`-scheme Cuckoo-Package -skipPackagePluginValidation`), use a checkout without the Tuist `Cuckoo.xcodeproj`/`Cuckoo.xcworkspace`, which xcodebuild otherwise picks over `Package.swift`.
   - Apple-only fixtures and tests sit inside `#if canImport(ObjectiveC)` or `#if canImport(SwiftUI)`, which the generator mirrors into the mocks.
   - The SwiftUI fixture lives in `Tests/Swift/Source/SwiftUI/` as its own module, `CuckooTestSourcesSwiftUI`, with its own Cuckoofile module, because a single generated file shares one import list (roadmap Phase 4 item 6).
   - Delete `Tests/Swift/Generated/*.swift` before a fresh `make`, so stale mocks aren't compiled.

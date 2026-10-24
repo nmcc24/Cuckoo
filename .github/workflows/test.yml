@@ -13,7 +13,7 @@ concurrency:
 # lowest version Package.swift allows, so both ends of the range stay tested.
 jobs:
   generator_linux:
-    name: Generator tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }}${{ matrix.swift-syntax && format(', swift-syntax {0}', matrix.swift-syntax) || '' }})
+    name: SwiftPM tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }}${{ matrix.swift-syntax && format(', swift-syntax {0}', matrix.swift-syntax) || '' }})
     runs-on: ubuntu-latest
     container: swift:${{ matrix.swift }}
     strategy:
@@ -35,13 +35,13 @@ jobs:
         run: |
           swift package resolve
           swift package resolve swift-syntax --version ${{ matrix.swift-syntax }}
-      - name: Generator tests
+      - name: Generator and runtime tests
         run: swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix
         run: scripts/swift6-matrix.sh
 
   generator_macOS:
-    name: Generator tests and Swift 6 matrix on ${{ matrix.runner }} (${{ matrix.build-system }})
+    name: SwiftPM tests and Swift 6 matrix on ${{ matrix.runner }} (${{ matrix.build-system }})
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -58,7 +58,7 @@ jobs:
         run: |
           ls -d /Applications/Xcode*.app
           echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1) / SDKROOT=${SDKROOT:-unset}"
-      - name: Generator tests
+      - name: Generator and runtime tests
         run: swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix
         run: scripts/swift6-matrix.sh
@@ -101,12 +101,22 @@ jobs:
         with:
           install: false
           experimental: true
-      - name: Test
+      - name: Pick a simulator
         run: |
-          make
           # Use whichever iPhone simulator the image ships, rather than pinning a model and OS.
           SIMULATOR_ID="$(xcrun simctl list devices available iPhone | grep -m1 -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')"
           echo "::notice title=Simulator::$(xcrun simctl list devices available | grep "$SIMULATOR_ID")"
+          echo "SIMULATOR_ID=$SIMULATOR_ID" >> "$GITHUB_ENV"
+      # Runs before `make`: once the Tuist workspace exists, xcodebuild picks it over Package.swift.
+      # The scheme builds the generator for iOS too; only the runtime suite runs.
+      - name: Test the package
+        run: |
+          set -o pipefail && xcodebuild test -scheme "Cuckoo-Package" -skipPackagePluginValidation \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -only-testing:CuckooTests \
+            | xcbeautify --renderer github-actions
+      - name: Test the Tuist project
+        run: |
+          make
           set -o pipefail && xcodebuild test -scheme "Cuckoo-iOS" -workspace Cuckoo.xcworkspace \
             -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             | xcbeautify --renderer github-actions
