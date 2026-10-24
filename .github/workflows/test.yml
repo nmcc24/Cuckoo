@@ -40,6 +40,21 @@ jobs:
       - name: Swift 6 matrix
         run: scripts/swift6-matrix.sh
 
+  tsan_linux:
+    name: Runtime tests under the Thread Sanitizer on Linux (Swift 6.3)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      # TSan can't map its shadow memory with the runner kernel's default ASLR entropy, and a
+      # container job can't change the host's sysctl, so this job runs the Swift image itself.
+      - name: Lower ASLR entropy for TSan
+        run: sudo sysctl -w vm.mmap_rnd_bits=28
+      - name: Runtime tests with --sanitize=thread
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src swift:6.3 \
+            swift test --sanitize=thread --filter CuckooTests
+
   generator_macOS:
     name: SwiftPM tests and Swift 6 matrix on ${{ matrix.runner }} (${{ matrix.build-system }})
     runs-on: ${{ matrix.runner }}
@@ -126,7 +141,7 @@ jobs:
   ci_passed:
     name: CI passed
     if: always()
-    needs: [generator_linux, generator_macOS, test_macOS, test_iOS]
+    needs: [generator_linux, tsan_linux, generator_macOS, test_macOS, test_iOS]
     runs-on: ubuntu-latest
     steps:
       - name: Fail unless every job succeeded
