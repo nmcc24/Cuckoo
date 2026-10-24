@@ -20,3 +20,17 @@ keepDocumentation = false
 [modules.Cuckoo.xcodeproj]
 path = "Generator"
 target = "Cuckoonator"
+
+# SwiftUI declares common names such as `Namespace`. A single generated file shares one import list,
+# so `import SwiftUI` would make same-named test types ambiguous in every other mock. Keep it apart.
+[modules.CuckooSwiftUI]
+imports = ["Foundation"]
+testableImports = ["Cuckoo", "CuckooTestSources"]
+sources = [
+    "Tests/Swift/Source/SwiftUI/*.swift",
+]
+output = "Tests/Swift/Generated/GeneratedMocks+SwiftUI.swift"
+
+[modules.CuckooSwiftUI.options]
+glob = true
+keepDocumentation = false

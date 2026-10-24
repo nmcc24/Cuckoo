@@ -51,7 +51,7 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
         deploymentTargets: platform.deploymentTargets,
         infoPlist: .default,
         sources: [
-            "Tests/Swift/Source/*.swift",
+            "Tests/Swift/Source/**",
         ],
         settings: Settings.settings(base: testSourcesBuildSettingsBase)
     )
@@ -108,7 +108,7 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
             // .glob("Tests/OCMock/**"),
             .glob("Tests/Swift/**", excluding: [
                 "Tests/Swift/Generated/*.swift",
-                "Tests/Swift/Source/*.swift",
+                "Tests/Swift/Source/**",
             ]),
         ]),
         dependencies: [

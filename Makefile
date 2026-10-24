@@ -3,8 +3,8 @@
 dev:
 	(killall Xcode || true)
 
-	# Create generated mocks file which will be populated later.
-	touch "Tests/Swift/Generated/GeneratedMocks.swift"
+	# Create the generated mocks files, which the build populates later.
+	touch "Tests/Swift/Generated/GeneratedMocks.swift" "Tests/Swift/Generated/GeneratedMocks+SwiftUI.swift"
 
 	mise install
 
