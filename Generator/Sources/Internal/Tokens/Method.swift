@@ -103,7 +103,10 @@ extension Method {
                 let parameterCount = closure.parameters.count
                 let parameterSignature = parameterCount > 0 ? (1...parameterCount).map { _ in "_" }.joined(separator: ", ") : "()"
 
-                return "{ \(parameterSignature) in fatalError(\"This is a stub! It's not supposed to be called!\") }"
+                // Swift 6 rejects a plain closure literal where a `@Sendable` one is expected.
+                let sendable = parameter.type.containsAttribute(named: "@Sendable") ? "@Sendable " : ""
+
+                return "{ \(sendable)\(parameterSignature) in fatalError(\"This is a stub! It's not supposed to be called!\") }"
             } else {
                 return parameter.recordedValue
             }
