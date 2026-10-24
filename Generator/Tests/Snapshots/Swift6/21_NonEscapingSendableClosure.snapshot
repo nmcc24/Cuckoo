@@ -1,0 +1,282 @@
+import Cuckoo
+import Foundation
+
+class MockTransformer: Transformer, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any Transformer
+    typealias Stubbing = __StubbingProxy_Transformer
+    typealias Verification = __VerificationProxy_Transformer
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    private var __defaultImplStub: (any Transformer)?
+
+    func enableDefaultImplementation(_ stub: any Transformer) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func transform(_ p0: @Sendable (String) async -> String?) -> String? {
+        
+		return withoutActuallyEscaping(p0, do: { (p0: @escaping @Sendable (String) async -> String?) -> String? in
+return cuckoo_manager.call(
+            "transform(_ p0: @Sendable (String) async -> String?) -> String?",
+            parameters: (p0),
+            escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.transform(p0)
+        )
+		})
+
+    }
+
+    func transformAsync(_ p0: @Sendable (String) -> String?) async -> String? {
+        
+		return await withoutActuallyEscaping(p0, do: { (p0: @escaping @Sendable (String) -> String?) -> String? in
+return await cuckoo_manager.call(
+            "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
+            parameters: (p0),
+            escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await __defaultImplStub!.transformAsync(p0)
+        )
+		})
+
+    }
+
+    func forEach(_ p0: @Sendable (Int, String) -> Void) {
+        
+		return withoutActuallyEscaping(p0, do: { (p0: @escaping @Sendable (Int, String) -> Void) in
+return cuckoo_manager.call(
+            "forEach(_ p0: @Sendable (Int, String) -> Void)",
+            parameters: (p0),
+            escapingParameters: ({ @Sendable _, _ in fatalError("This is a stub! It's not supposed to be called!") }),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.forEach(p0)
+        )
+		})
+
+    }
+
+    struct __StubbingProxy_Transformer: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func transform<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(@Sendable (String) async -> String?), String?> where M1.MatchedType == @Sendable (String) async -> String? {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (String) async -> String?)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockTransformer.self,
+                method: "transform(_ p0: @Sendable (String) async -> String?) -> String?",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func transformAsync<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(@Sendable (String) -> String?), String?> where M1.MatchedType == @Sendable (String) -> String? {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (String) -> String?)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockTransformer.self,
+                method: "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func forEach<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(@Sendable (Int, String) -> Void)> where M1.MatchedType == @Sendable (Int, String) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (Int, String) -> Void)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockTransformer.self,
+                method: "forEach(_ p0: @Sendable (Int, String) -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_Transformer: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func transform<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(@Sendable (String) async -> String?), String?> where M1.MatchedType == @Sendable (String) async -> String? {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (String) async -> String?)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "transform(_ p0: @Sendable (String) async -> String?) -> String?",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func transformAsync<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(@Sendable (String) -> String?), String?> where M1.MatchedType == @Sendable (String) -> String? {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (String) -> String?)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func forEach<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(@Sendable (Int, String) -> Void), Void> where M1.MatchedType == @Sendable (Int, String) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (Int, String) -> Void)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "forEach(_ p0: @Sendable (Int, String) -> Void)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class TransformerStub:Transformer, @unchecked Sendable {
+
+
+    
+    func transform(_ p0: @Sendable (String) async -> String?) -> String? {
+        return DefaultValueRegistry.defaultValue(for: (String?).self)
+    }
+    
+    func transformAsync(_ p0: @Sendable (String) -> String?) async -> String? {
+        return DefaultValueRegistry.defaultValue(for: (String?).self)
+    }
+    
+    func forEach(_ p0: @Sendable (Int, String) -> Void) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+
+class MockTransformingService: TransformingService, Cuckoo.ClassMock, @unchecked Sendable {
+    typealias MocksType = TransformingService
+    typealias Stubbing = __StubbingProxy_TransformingService
+    typealias Verification = __VerificationProxy_TransformingService
+
+    // Original typealiases
+
+    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    private var __defaultImplStub: TransformingService?
+
+    func enableDefaultImplementation(_ stub: TransformingService) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    override func transform(_ p0: @Sendable (String) async -> String?) -> String? {
+        
+		return withoutActuallyEscaping(p0, do: { (p0: @escaping @Sendable (String) async -> String?) -> String? in
+return cuckoo_manager.call(
+            "transform(_ p0: @Sendable (String) async -> String?) -> String?",
+            parameters: (p0),
+            escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
+            superclassCall: super.transform(p0),
+            defaultCall: __defaultImplStub!.transform(p0)
+        )
+		})
+
+    }
+
+    override func transformAsync(_ p0: @Sendable (String) -> String?) async -> String? {
+        
+		return await withoutActuallyEscaping(p0, do: { (p0: @escaping @Sendable (String) -> String?) -> String? in
+return await cuckoo_manager.call(
+            "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
+            parameters: (p0),
+            escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
+            superclassCall: await super.transformAsync(p0),
+            defaultCall: await __defaultImplStub!.transformAsync(p0)
+        )
+		})
+
+    }
+
+    struct __StubbingProxy_TransformingService: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func transform<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ClassStubFunction<(@Sendable (String) async -> String?), String?> where M1.MatchedType == @Sendable (String) async -> String? {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (String) async -> String?)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockTransformingService.self,
+                method: "transform(_ p0: @Sendable (String) async -> String?) -> String?",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func transformAsync<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ClassStubFunction<(@Sendable (String) -> String?), String?> where M1.MatchedType == @Sendable (String) -> String? {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (String) -> String?)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockTransformingService.self,
+                method: "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    struct __VerificationProxy_TransformingService: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func transform<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(@Sendable (String) async -> String?), String?> where M1.MatchedType == @Sendable (String) async -> String? {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (String) async -> String?)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "transform(_ p0: @Sendable (String) async -> String?) -> String?",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func transformAsync<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(@Sendable (String) -> String?), String?> where M1.MatchedType == @Sendable (String) -> String? {
+            let matchers: [Cuckoo.ParameterMatcher<(@Sendable (String) -> String?)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+class TransformingServiceStub:TransformingService, @unchecked Sendable {
+
+
+    
+    override func transform(_ p0: @Sendable (String) async -> String?) -> String? {
+        return DefaultValueRegistry.defaultValue(for: (String?).self)
+    }
+    
+    override func transformAsync(_ p0: @Sendable (String) -> String?) async -> String? {
+        return DefaultValueRegistry.defaultValue(for: (String?).self)
+    }
+}
+
+
+
