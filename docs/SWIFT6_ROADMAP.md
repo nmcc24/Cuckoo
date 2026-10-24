@@ -336,6 +336,7 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
 2. 🍎 Prebuilt `artifactbundle` for the generator, released by GitHub Actions (replaces fastlane). Plugin consumers no longer compile swift-syntax.
 3. ☁️ Synchronized-group Xcode project support (#524), or a documented plugin-only path.
 4. ☁️ DocC documentation, a migration guide from 2.x, and a cookbook (MainActor view models, actors, Swift Testing).
+   - The README still documents CocoaPods, the `run` script and the 2.x platforms. The podspec, Gemfile and fastlane lane were removed in Phase 2 (D3); the `run` script goes with this rewrite.
 5. ☁️ Optional `@Mockable` macro front-end that shares the model (§3.5).
 6. 🍎 Bring the OCMock bridge (`OCMock/`, `OCMockWrapper/`, `Tests/OCMock/`) back as an opt-in SwiftPM product, e.g. `CuckooOCMock`:
    - Gate the OCMock dependency behind a **package trait** (SwiftPM traits, Swift 6.1+), so only consumers that enable `.traits(["OCMock"])` resolve and download it. If traits turn out not to fit, fall back to a small companion package.
