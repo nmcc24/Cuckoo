@@ -263,7 +263,7 @@ Exit criteria: CI is green on Linux and macOS; a cloud session can change the ge
 - **Toolchain coverage.** Each macOS job (generator, Tuist macOS tests, Tuist iOS tests) runs on `macos-26` (Xcode 26.6, Swift 6.3.3) and `xcode-27` (macOS 27, Xcode 27, Swift 6.4). Each uses the image's default Xcode and prints it as an annotation.
   - `macos-15` was tried and dropped: its default is Xcode 16.4 / Swift 6.1.2, below the 6.2 minimum, and fixture 09 (`nonisolated(nonsending)`) can't compile there.
   - Swift 6.2 is therefore covered on Linux only. `xcode-27` is selected by Xcode label, not a `macos-NN` label; GitHub made it generally available on 2026-10-15. The iOS jobs use whichever iPhone simulator the image ships.
-- **Build systems.** Swift 6.4 builds with `swiftbuild` by default, while 6.2 and 6.3 use `native`. CI tests 6.4 with both, on Linux and on `xcode-27`.
+- **Build systems.** Swift 6.4 builds with `swiftbuild` by default, while 6.2 and 6.3 use `native`. Linux tests 6.4 with both. On macOS, each image runs only its default build system (`native` on `macos-26`, `swiftbuild` on `xcode-27`), because macOS runners queue far longer than Linux ones.
 - **Merge gate.** A final `CI passed` job depends on every other job and fails if any of them failed, was cancelled or was skipped. `master`'s ruleset requires only that check, so matrix changes don't need ruleset edits. The ruleset also requires a PR and an up-to-date branch, and blocks force-pushes and deletion.
 
 ### Phase 1: Parser and syntax modernization (M)

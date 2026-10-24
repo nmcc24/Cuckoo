@@ -7,7 +7,8 @@ concurrency:
 # Every macOS job uses its image's default Xcode, so each image covers one Swift version.
 # macos-15 isn't used: its default is Xcode 16.4 / Swift 6.1, below the Swift 6.2 minimum.
 # Swift 6.4 made swiftbuild the default build system; older toolchains use the native one.
-# 6.4 is tested with both so neither layout regresses.
+# Linux tests 6.4 with both so neither layout regresses. On macOS each image runs only its
+# default build system, because macOS runners queue far longer than Linux ones.
 # Package.resolved pins the newest swift-syntax; one Linux job also builds against the
 # lowest version Package.swift allows, so both ends of the range stay tested.
 jobs:
@@ -49,7 +50,6 @@ jobs:
         include:
           - { runner: macos-26, build-system: native }
           - { runner: xcode-27, build-system: swiftbuild }
-          - { runner: xcode-27, build-system: native }
     env:
       SWIFT_BUILD_FLAGS: --build-system ${{ matrix.build-system }}
     steps:
@@ -59,8 +59,6 @@ jobs:
         run: |
           ls -d /Applications/Xcode*.app
           echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1) / SDKROOT=${SDKROOT:-unset}"
-      - name: Build package
-        run: swift build $SWIFT_BUILD_FLAGS
       - name: Generator tests
         run: swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix
