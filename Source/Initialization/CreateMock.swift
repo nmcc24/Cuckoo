@@ -13,11 +13,9 @@ public func createMock<MOCK: Mock>(
 ) -> MOCK {
     let manager = MockManager(hasParent: MOCK.cuckoo_hasSuperclass)
 
-    MockManager.preconfiguredManagerThreadLocal.value = manager
-    defer { MockManager.preconfiguredManagerThreadLocal.delete() }
-
     let builder = MockBuilder(manager: manager)
-
     let stubbing = MOCK.Stubbing(manager: manager)
-    return configuration(builder, stubbing)
+    return MockManager.$preconfiguredManager.withValue(manager) {
+        configuration(builder, stubbing)
+    }
 }
