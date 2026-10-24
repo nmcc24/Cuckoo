@@ -150,6 +150,8 @@ let project = Project(
         // do under SwiftPM. Without a shared package name, Swift treats the tests' conformances of
         // `CuckooTestSources` types to Cuckoo protocols as retroactive and warns about them.
         "SWIFT_PACKAGE_NAME": "Cuckoo",
+        // Cuckoo 3 supports only the Swift 6 language mode, as Package.swift does.
+        "SWIFT_VERSION": "6.0",
     ]),
     targets: iOSTargets + macOSTargets + tvOSTargets + watchOSTargets,
     schemes: iOSSchemes + macOSSchemes + tvOSSchemes + watchOSSchemes
