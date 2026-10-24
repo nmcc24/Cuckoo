@@ -35,7 +35,7 @@ struct SnapshotTests {
     func runtimeTestSources() async throws {
         let contents = try await generate(
             sources: ["Tests/Swift/Source/*.swift"],
-            testableImports: ["Cuckoo"],
+            testableImports: ["Cuckoo", "CuckooTestSources"],
             exclude: ["ExcludedTestClass", "ExcludedProtocol"],
             keepDocumentation: false
         )

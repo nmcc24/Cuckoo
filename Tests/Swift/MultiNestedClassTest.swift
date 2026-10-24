@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 import Cuckoo
 @testable import CuckooMocks
+@testable import CuckooTestSources
 
 final class MultiNestedClassTest: XCTestCase {
 

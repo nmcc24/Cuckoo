@@ -1,6 +1,7 @@
 import XCTest
 import Cuckoo
 @testable import CuckooMocks
+@testable import CuckooTestSources
 
 extension TestedClass: Mocked {
     public typealias MockType = MockTestedClass

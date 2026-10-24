@@ -5,6 +5,9 @@ let commonBuildSettingsBase: [String: SettingValue] = [
     "PRODUCT_NAME": .string("Cuckoo"),
     "SYSTEM_FRAMEWORK_SEARCH_PATHS": .string("$(PLATFORM_DIR)/Developer/Library/Frameworks"),
 ]
+let testSourcesBuildSettingsBase: [String: SettingValue] = [
+    "PRODUCT_NAME": .string("CuckooTestSources"),
+]
 let mocksBuildSettingsBase: [String: SettingValue] = [
     "PRODUCT_NAME": .string("CuckooMocks"),
     "SYSTEM_FRAMEWORK_SEARCH_PATHS": .string("$(PLATFORM_DIR)/Developer/Library/Frameworks"),
@@ -38,6 +41,22 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
     )
     targets.append(defaultTarget)
 
+    // The code the runtime tests mock lives in its own module, like a user's app code,
+    // so the generated mocks and the tests reach it through an import.
+    let testSourcesTarget = Target.target(
+        name: "Cuckoo-\(platform)Tests-Sources",
+        destinations: platform.destinations,
+        product: .framework,
+        bundleId: "org.brightify.Cuckoo.TestSources",
+        deploymentTargets: platform.deploymentTargets,
+        infoPlist: .default,
+        sources: [
+            "Tests/Swift/Source/*.swift",
+        ],
+        settings: Settings.settings(base: testSourcesBuildSettingsBase)
+    )
+    targets.append(testSourcesTarget)
+
     let mocksTarget = Target.target(
         name: "Cuckoo-\(platform)Tests-Mocks",
         destinations: platform.destinations,
@@ -47,7 +66,6 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
         infoPlist: .default,
         sources: [
             "Tests/Swift/Generated/*.swift",
-            "Tests/Swift/Source/*.swift",
         ],
         scripts: [
             .pre(
@@ -71,6 +89,7 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
         ],
         dependencies: [
             .target(defaultTarget),
+            .target(testSourcesTarget),
             .sdk(name: "XCTest", type: .framework, status: .optional),
         ],
         settings: Settings.settings(base: mocksBuildSettingsBase)
@@ -94,6 +113,7 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
         ]),
         dependencies: [
             .target(defaultTarget),
+            .target(testSourcesTarget),
             .target(mocksTarget),
             // .package(product: "OCMock"),
         ]
@@ -104,7 +124,7 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
     schemes.append(
         Scheme.scheme(
             name: defaultTarget.name,
-            buildAction: BuildAction.buildAction(targets: [defaultTarget.reference, mocksTarget.reference]),
+            buildAction: BuildAction.buildAction(targets: [defaultTarget.reference, testSourcesTarget.reference, mocksTarget.reference]),
             testAction: TestAction.targets([TestableTarget.testableTarget(target: defaultTestTarget.reference)])
         )
     )

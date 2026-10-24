@@ -1,6 +1,7 @@
 import XCTest
 @testable import Cuckoo
 @testable import CuckooMocks
+@testable import CuckooTestSources
 
 final class StubbingTest: XCTestCase {
     func testMultipleReturns() {

@@ -1,6 +1,7 @@
 import XCTest
 import Cuckoo
 @testable import CuckooMocks
+@testable import CuckooTestSources
 
 final class GenericMethodClassTest: XCTestCase {
     private var kawaiiMock: MockGenericMethodClass<Int>!

@@ -2,6 +2,7 @@ import Testing
 import XCTest
 @testable import Cuckoo
 @testable import CuckooMocks
+@testable import CuckooTestSources
 
 final class FailTest: XCTestCase {
     func testMissingInvocation() {
