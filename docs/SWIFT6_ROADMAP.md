@@ -302,7 +302,7 @@ Exit criteria: fixtures 07, 09, 10 and 11 compile, with snapshot tests for each.
 2. ☁️ TaskLocal configuration, the Swift Testing trait, failure routing, and the unstubbed-call policy.
 3. ☁️ Stress tests: 1,000 concurrent calls, stubs and verifications on one mock, run under TSan in CI (🍎 for TSan on Apple platforms; ☁️ TSan on Linux).
 4. 🍎 Run the existing 342 tests under the new runtime and fix the regressions.
-5. ☁️ Redesign optional-property stubbing. `ToBeStubbedOptionalProperty.set` adds a constraint on `Self` (`GetterType.OutputType == M.OptionalMatchedType?`) that Swift warns "will be an error in a future Swift language mode".
+5. ✅ Optional-property stubbing no longer constrains `Self`: `ToBeStubbedOptionalProperty` declares a `WrappedType` associated type, which cleared the "will be an error in a future Swift language mode" warning without changing call sites.
 6. ☁️ Zero warnings: once our own targets build without warnings, CI treats warnings in them as errors (dependencies excluded).
 
 Exit criteria: no `nonisolated(unsafe)` or `@unchecked Sendable` left in `Source/` except the documented lock box; TSan clean; all legacy tests green.
