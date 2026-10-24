@@ -16623,6 +16623,7 @@ import Foundation
 @testable import Cuckoo
 @testable import CuckooTestSources
 
+#if (canImport(ObjectiveC))
 class MockObjcProtocol: ObjcProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = any ObjcProtocol
     typealias Stubbing = __StubbingProxy_ObjcProtocol
@@ -16700,7 +16701,9 @@ class ObjcProtocolStub:ObjcProtocol, @unchecked Sendable {
     }
 }
 
+#endif
 
+#if (canImport(ObjectiveC))
 class MockObjcClass: ObjcClass, Cuckoo.ClassMock, @unchecked Sendable {
     typealias MocksType = ObjcClass
     typealias Stubbing = __StubbingProxy_ObjcClass
@@ -16778,7 +16781,9 @@ class ObjcClassStub:ObjcClass, @unchecked Sendable {
     }
 }
 
+#endif
 
+#if (canImport(ObjectiveC))
 class MockObjcMembersClass: ObjcMembersClass, Cuckoo.ClassMock, @unchecked Sendable {
     typealias MocksType = ObjcMembersClass
     typealias Stubbing = __StubbingProxy_ObjcMembersClass
@@ -16856,6 +16861,7 @@ class ObjcMembersClassStub:ObjcMembersClass, @unchecked Sendable {
     }
 }
 
+#endif
 
 
 

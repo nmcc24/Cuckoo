@@ -39,15 +39,17 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 - **`CI passed` is the single required check.** Any new job must be added to its `needs:` list, or the merge gate won't wait for it.
 
 ## Local dev loop (works on Linux)
-- `swift test`: generator unit and snapshot tests (`Generator/Tests`). Add `--build-system native` or `--build-system swiftbuild` to pick the build layout.
+- `swift test`: generator unit and snapshot tests (`Generator/Tests`), plus the 342 runtime tests (`CuckooTests`), on Linux too. Add `--build-system native` or `--build-system swiftbuild` to pick the build layout.
 - `CUCKOO_RECORD_SNAPSHOTS=1 swift test`: re-record the snapshots in `Generator/Tests/Snapshots/`, then review the diff before committing. A missing snapshot is written and fails the test on purpose.
 - `scripts/swift6-matrix.sh`: generates mocks for `Fixtures/Swift6/*` and compiles each to SIL in Swift 6 mode. Plain `-typecheck` misses region-isolation ("sending ... risks causing data races") errors. `SWIFT_BUILD_FLAGS` picks the build system, and extra arguments go to `swiftc` (e.g. `-D DEBUG`).
   - Fixtures listed in `Fixtures/Swift6/expected-failures.txt` are expected to fail.
   - The script fails on a new failure or on a listed fixture that now passes. Remove a fixture from the list once its fixture passes.
 - No Swift toolchain on the cloud VM: use the official `swift:6.x` Docker images (start `dockerd` if it isn't running). Docker Hub rate-limits the VM, so pull `mirror.gcr.io/library/swift:6.x`. For SwiftPM to fetch packages inside the container, mount the proxy CA bundle and pass the proxy variables (`HTTPS_PROXY`, `GIT_SSL_CAINFO`, `SSL_CERT_FILE`).
-- The 342 runtime tests run only through Tuist on macOS for now: `make`, then `xcodebuild test -scheme Cuckoo-macOS -workspace Cuckoo.xcworkspace`. Roadmap Phase 2 item 0 moves them to SwiftPM, keeping Tuist in parallel until both agree.
-  - Layout: `Tests/Swift/Source` builds as `CuckooTestSources`, the way a user's app code does. `CuckooMocks` holds only the generated mocks and imports it with `@testable`. All Tuist targets build in Swift 6 mode and share the package name `Cuckoo`.
-  - The SwiftUI fixture lives in `Tests/Swift/Source/SwiftUI/` with its own Cuckoofile module, because a single generated file shares one import list (roadmap Phase 4 item 6).
+- The 342 runtime tests also run through Tuist on macOS: `make`, then `xcodebuild test -scheme Cuckoo-macOS -workspace Cuckoo.xcworkspace`. Roadmap Phase 2 item 0 keeps Tuist in parallel with SwiftPM until both agree.
+  - Layout, the same in both: `Tests/Swift/Source` builds as `CuckooTestSources`, the way a user's app code does. `CuckooMocks` holds only the generated mocks and imports it with `@testable`. All targets build in Swift 6 mode and share the package name `Cuckoo`.
+  - SwiftPM generates the mocks with `CuckooPluginModular`: one file per dependency of `CuckooMocks`, from the `Cuckoofile.toml` module of the same name. Keep those module names equal to the target names. Tuist runs the generator over the whole `Cuckoofile.toml` into `Tests/Swift/Generated/`.
+  - Apple-only fixtures and tests sit inside `#if canImport(ObjectiveC)` or `#if canImport(SwiftUI)`, which the generator mirrors into the mocks.
+  - The SwiftUI fixture lives in `Tests/Swift/Source/SwiftUI/` as its own module, `CuckooTestSourcesSwiftUI`, with its own Cuckoofile module, because a single generated file shares one import list (roadmap Phase 4 item 6).
   - Delete `Tests/Swift/Generated/*.swift` before a fresh `make`, so stale mocks aren't compiled.
 - **The maintainer's Mac can run the Tuist tests.** When a Remote Control session to it is available, run the macOS and iOS schemes there before pushing changes that touch the runtime, the tests or Tuist. CI stays the final gate.
 

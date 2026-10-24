@@ -72,7 +72,7 @@ final class StubThrowingFunctionTest: XCTestCase {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.withTypedThrows())
-                .thenThrow(NSError())
+                .thenThrow(NSError(domain: "StubThrowingFunctionTest", code: 0))
         }
     }
 

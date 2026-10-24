@@ -1,6 +1,9 @@
+# The runtime test suite's mocks. Under SwiftPM, `CuckooPluginModular` generates one file per dependency
+# of the `CuckooMocks` target, from the module here with the same name, so keep the names in step with Package.swift.
+# Tuist (`make`) generates every module into `output`.
 # output = "Tests/Swift/Generated/GeneratedMocks.swift"
 
-[modules.Cuckoo]
+[modules.CuckooTestSources]
 imports = ["Foundation"]
 testableImports = ["Cuckoo", "CuckooTestSources"]
 sources = [
@@ -13,24 +16,25 @@ exclude = [
 # regex = ""
 output = "Tests/Swift/Generated/GeneratedMocks.swift"
 
-[modules.Cuckoo.options]
+[modules.CuckooTestSources.options]
 glob = true
 keepDocumentation = false
 
-[modules.Cuckoo.xcodeproj]
+[modules.CuckooTestSources.xcodeproj]
 path = "Generator"
 target = "Cuckoonator"
 
 # SwiftUI declares common names such as `Namespace`. A single generated file shares one import list,
-# so `import SwiftUI` would make same-named test types ambiguous in every other mock. Keep it apart.
-[modules.CuckooSwiftUI]
+# so `import SwiftUI` would make same-named test types ambiguous in every other mock. Keep it apart,
+# in a module of its own.
+[modules.CuckooTestSourcesSwiftUI]
 imports = ["Foundation"]
-testableImports = ["Cuckoo", "CuckooTestSources"]
+testableImports = ["Cuckoo", "CuckooTestSourcesSwiftUI"]
 sources = [
     "Tests/Swift/Source/SwiftUI/*.swift",
 ]
 output = "Tests/Swift/Generated/GeneratedMocks+SwiftUI.swift"
 
-[modules.CuckooSwiftUI.options]
+[modules.CuckooTestSourcesSwiftUI.options]
 glob = true
 keepDocumentation = false
