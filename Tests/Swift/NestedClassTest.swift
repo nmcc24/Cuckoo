@@ -4,7 +4,7 @@ import Cuckoo
 @testable import CuckooTestSources
 
 extension Nested.NestedTestedClass: Mocked {
-    public typealias MockType = Nested.MockNestedTestedClass
+    typealias MockType = Nested.MockNestedTestedClass
 }
 
 final class NestedClassTest: XCTestCase {

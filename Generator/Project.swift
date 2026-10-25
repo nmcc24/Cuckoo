@@ -53,6 +53,7 @@ let project = Project(
         // The Swift 7 upcoming features that ../Package.swift turns on.
         "SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY": "YES",
         "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+        "SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT": "YES",
         // Xcode has no build setting for this one.
         "OTHER_SWIFT_FLAGS": "$(inherited) -enable-upcoming-feature ImmutableWeakCaptures",
         // Xcode's recommended settings, decided explicitly, as in ../Project.swift.

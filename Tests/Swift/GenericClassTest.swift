@@ -4,7 +4,7 @@ import Cuckoo
 @testable import CuckooTestSources
 
 extension GenericClass: Mocked {
-    public typealias MockType = MockGenericClass<T, U, V>
+    typealias MockType = MockGenericClass<T, U, V>
 }
 
 final class GenericClassTest: XCTestCase {

@@ -1,5 +1,5 @@
 #if canImport(Testing)
-import Testing
+public import Testing
 
 /// Applies a `CuckooConfiguration` to a Swift Testing test, or to every test in a suite.
 public struct CuckooTrait: TestTrait, SuiteTrait, TestScoping {

@@ -457,9 +457,9 @@ final class GenericProtocolTest: XCTestCase {
 }
 
 extension MockTestedClass: Matchable{
-    public typealias MatchedType = MockTestedClass
+    typealias MatchedType = MockTestedClass
     
-    public var matcher: ParameterMatcher<MockTestedClass> {
+    var matcher: ParameterMatcher<MockTestedClass> {
         return ParameterMatcher<MockTestedClass> { other in
             return self === other
         }
