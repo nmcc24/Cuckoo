@@ -1,8 +1,17 @@
 name: Run tests
-on: [push, pull_request, workflow_dispatch]
+# A branch with a pull request is tested once, by its pull_request run, which reports the
+# required "CI passed" check. Pushes are tested only on master, after a merge. Run the workflow
+# by hand (workflow_dispatch) to test a branch without a pull request.
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+# One run per pull request (or per branch for the other events). A new push to a pull request
+# cancels its run in progress; runs on master always finish.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # Every macOS job uses its image's default Xcode, so each image covers one Swift version.
 # macos-15 isn't used: its default is Xcode 16.4 / Swift 6.1, below the Swift 6.2 minimum.
