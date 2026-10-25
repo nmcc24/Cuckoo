@@ -347,12 +347,24 @@ Not covered: the runtime suite under default MainActor isolation. Its test sourc
 
 Exit criteria: `swift7_linux` is green, with no expected failures beyond the ones `generator_linux` has.
 
-**Status (2026-10-25):** done on the branch, awaiting Mac verification. Phase 4 must pass all three configurations.
+**Status (2026-10-25):** done, merged in https://github.com/nmcc24/Cuckoo/pull/15. Phase 4 must pass all three configurations.
 
 ### Phase 4: Coverage expansion (L)
-1. ☁️ Subscripts (12) and static/class members (13, #521).
-2. ☁️ Opaque parameters (11, #470), parameter packs (14) and `~Copyable` parameters (15).
-3. ☁️ `inout` stubbing (#337), `Self` (#304), generic init (#362), class-constrained protocols (#447/#376), parent associated types (#576).
+API decisions for items 1–3 (2026-10-25):
+- subscripts mirror properties: `stub[key].get`, `stub[key].set(value)`, `verify(mock)[key].get()`;
+- static members are stubbed in a task-local registry, so parallel tests don't see each other's stubs;
+- a parameter pack is matched as one value (`anyPack()` or a closure over the whole pack);
+- a `~Copyable` argument isn't recorded at first, then is borrowed into `then` closures (item 3b);
+- an `inout` parameter's `then` closure can write back to the caller.
+
+PRs, in order: subscripts (with an opaque-parameter test), statics, then one each for packs, `~Copyable` and `inout`, then the small items of 3 together, then items 4 and 5, and 3b last, because item 4 reshapes the same `MockManager` generics.
+
+1. ☁️ Subscripts (12) and static/class members (13, Brightify/Cuckoo#521).
+   - **Subscripts: done on the branch.** A subscript's accessors are recorded as `subscript(…) -> T#get` and `#set`, like a property's. The proxies get a generic subscript that returns a small generated struct with `get` and `set(_:)`, built on the method stub types, so every isolation, effect and class/protocol variant comes for free. Static subscripts wait for the static-member work.
+2. ☁️ Opaque parameters (11, Brightify/Cuckoo#470), parameter packs (14) and `~Copyable` parameters (15).
+   - Opaque parameters already work: the generator records `some P` as `any P`. The subscripts PR adds a runtime test.
+3. ☁️ `inout` stubbing (Brightify/Cuckoo#337), `Self` (Brightify/Cuckoo#304), generic init (Brightify/Cuckoo#362), class-constrained protocols (Brightify/Cuckoo#447, Brightify/Cuckoo#376), parent associated types (Brightify/Cuckoo#576).
+   - 3b. ☁️ `~Copyable` arguments borrowed into `then` closures (L): needs `~Copyable` suppression through `MockManager`'s generics.
 4. ☁️ `inOrder`, `within:` / `eventually`, `thenNeverReturn`, delayed returns, and closest-match failure diffs.
 5. ☁️ Config options: prefix/suffix, regex array, `@_spi`.
 6. ☁️ Import isolation in single-file output (M). A single generated file merges every source file's imports, so a name one import declares (e.g. `SwiftUI.Namespace`) makes same-named source types ambiguous in all mocks once they live outside the source module. The runtime tests work around it with a separate `CuckooSwiftUI` Cuckoofile module.
@@ -370,6 +382,7 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
 3. ☁️ **Plugins pass their file lists to the generator (#524).** The plugins already compute each target's source files, including Xcode 16 synchronised folders, but only hand them to the build system as `inputFiles`; the generator still reads the Cuckoofile's `sources` globs. Add a `--sources-list <file>` option (one path per line), have each plugin write the files it computed and pass it, and use that list instead of `sources` (with `exclude` and `regex` still applied). Plugin users then need no `sources` at all, and target membership is exact again. Snapshot-test the option; the SwiftPM runtime suite covers it through `CuckooPluginModular`.
    - **Done first (2026-10-25):** the `xcodeproj` option and the XcodeProj dependency (with AEXML and xcode-project-format) are removed. A leftover `xcodeproj` table fails with a message giving the `sources` line to write; the README has a migration note. Until this item lands, that message doesn't mention the plugins, which still read `sources`.
 4. ☁️ DocC documentation, a migration guide from 2.x, and a cookbook (MainActor view models, actors, Swift Testing).
+   - The migration guide should mention that under `MemberImportVisibility` (on by default in Swift 7), a type relying on `ObservableObject`'s default `objectWillChange` needs `import Combine`: SwiftUI's re-export doesn't make Combine's extension members visible.
    - The README still documents CocoaPods, the `run` script and the 2.x platforms. The podspec, Gemfile and fastlane lane were removed in Phase 2 (D3); the `run` script goes with this rewrite.
 5. ☁️ Optional `@Mockable` macro front-end that shares the model (§3.5).
 6. 🍎 Bring the OCMock bridge (`OCMock/`, `OCMockWrapper/`, `Tests/OCMock/`) back as an opt-in SwiftPM product, e.g. `CuckooOCMock`:
