@@ -73,43 +73,72 @@ struct GeneratorHelper {
         return type.replacingOccurrences(of: "!", with: "?")
     }
 
+    /// The non-escaping closure parameters, with their positions, which the mock makes escaping with
+    /// `withoutActuallyEscaping` to record them.
+    private static func nonEscapingClosureParameters(of method: Method) -> [(offset: Int, element: MethodParameter)] {
+        method.signature.parameters.enumerated().filter { !$0.element.type.containsAttribute(named: "@escaping") && $0.element.type.findClosure() != nil }
+    }
+
+    /// Whether the mock's body is wrapped in local functions rather than closures; see `openNestedClosure`.
+    private static func usesLocalFunctions(_ method: Method) -> Bool {
+        method.isAsync
+    }
+
     private static func openNestedClosure(for method: Method) -> String {
-        var fullString = ""
-        for (index, parameter) in method.signature.parameters.enumerated() {
-            if !parameter.type.containsAttribute(named: "@escaping"), parameter.type.findClosure() != nil {
-                if fullString.isEmpty {
-                    fullString = "\n"
-                }
-
+        let parameters = nonEscapingClosureParameters(of: method)
+        guard !parameters.isEmpty else { return "" }
+        let returnSignature = if let returnType = method.returnType, !returnType.isVoid { " -> \(returnType.description)" } else { "" }
+        var fullString = "\n"
+        if usesLocalFunctions(method) {
+            // An async body goes into local functions: under NonisolatedNonsendingByDefault, a closure passed to
+            // `withoutActuallyEscaping` runs concurrently, so capturing the non-`Sendable` mock is a data race. A
+            // nonisolated member's function is `nonisolated(nonsending)` explicitly, to run on the caller's actor
+            // whatever the module's default; an isolated member's function keeps the member's isolation.
+            let isolation = parent(of: method).stubIsolation(forMember: method.isolation)
+            let execution = isolation.sharing != .isolated && isolation.isolatedParameter == nil ? "nonisolated(nonsending) " : ""
+            let effects = ["async", method.signature.throwType.map { $0.isRethrowing ? "throws" : $0.description }]
+                .compactMap { $0 }
+                .joined(separator: " ")
+            for (index, parameter) in parameters {
                 let indents = String(repeating: "\t", count: index + 2)
-                let tries = method.isThrowing ? "try " : ""
-                let awaits = method.isAsync ? "await " : ""
-
-                let returnSignature: String
-                if let returnType = method.returnType, !returnType.isVoid {
-                    returnSignature = " -> \(returnType.description)"
-                } else {
-                    returnSignature = ""
-                }
-
-                fullString += "\(indents)return \(tries)\(awaits)withoutActuallyEscaping(\(parameter.usableName), do: { (\(parameter.usableName): @escaping \(parameter.type))\(returnSignature) in\n"
+                fullString += "\(indents)\(execution)func \(localFunctionName(for: parameter))(_ \(parameter.usableName): @escaping \(parameter.type)) \(effects)\(returnSignature) {\n"
+            }
+        } else {
+            let tries = method.isThrowing ? "try " : ""
+            for (index, parameter) in parameters {
+                let indents = String(repeating: "\t", count: index + 2)
+                fullString += "\(indents)return \(tries)withoutActuallyEscaping(\(parameter.usableName), do: { (\(parameter.usableName): @escaping \(parameter.type))\(returnSignature) in\n"
             }
         }
         return fullString
     }
 
-    private static func closeNestedClosure(for parameters: [MethodParameter]) -> String {
-        var fullString = ""
-        for (index, parameter) in parameters.enumerated() {
-            if !parameter.type.containsAttribute(named: "@escaping"), parameter.type.isClosure {
-                if fullString.isEmpty {
-                    fullString = "\n"
-                }
-                let indents = String(repeating: "\t", count: index + 2)
+    private static func closeNestedClosure(for method: Method) -> String {
+        let parameters = nonEscapingClosureParameters(of: method)
+        guard !parameters.isEmpty else { return "" }
+        var fullString = "\n"
+        let tries = method.isThrowing ? "try " : ""
+        for (index, parameter) in parameters.reversed() {
+            let indents = String(repeating: "\t", count: index + 2)
+            if usesLocalFunctions(method) {
+                fullString += "\(indents)}\n"
+                fullString += "\(indents)return \(tries)await withoutActuallyEscaping(\(parameter.usableName), do: \(localFunctionName(for: parameter)))\n"
+            } else {
                 fullString += "\(indents)})\n"
             }
         }
         return fullString
+    }
+
+    private static func localFunctionName(for parameter: MethodParameter) -> String {
+        "__cuckoo_escaping_\(parameter.usableName)"
+    }
+
+    private static func parent(of method: Method) -> any Token {
+        guard let parent = method.parent?.value else {
+            fatalError("Failed to find parent of method \(method.fullSignature). Please file a bug.")
+        }
+        return parent
     }
 
     private static func removeClosureArgumentNames(for type: String) -> String {
@@ -150,8 +179,8 @@ extension GeneratorHelper {
             return openNestedClosure(for: method)
         }
         stencilExtension.registerFilter("closeNestedClosure") { (value: Any?) in
-            guard let parameters = value as? [MethodParameter] else { return value }
-            return closeNestedClosure(for: parameters)
+            guard let method = value as? Method else { return value }
+            return closeNestedClosure(for: method)
         }
         stencilExtension.registerFilter("escapeReservedKeywords") { (value: Any?) in
             guard let name = value as? String else { return value }

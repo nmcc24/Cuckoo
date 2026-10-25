@@ -174,7 +174,7 @@ extension {{ container.parentFullyQualifiedName }} {
             invoke: { (implementation: {{ method.implementationType|genericSafe }}) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.hasTypedThrows %}do { return try {%+ if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) } catch { throw Cuckoo.MockManager.typedError(error, as: ({{ method.throwTypeError }}).self, member: "{{ method.fullyQualifiedName }}") }{% else %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}){% endif %} },
             superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}super.{{method.name}}({{method.forwardingCall}}){% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
             defaultCall: {%+ if container.isActor and not method.isAsync %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync %}await {%+ endif %}__defaultImplStub.value.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}}){% endif +%}
-        ){% if method.returnsSending %}).value{% endif %}{{ method.parameters|closeNestedClosure }}
+        ){% if method.returnsSending %}).value{% endif %}{{ method.self|closeNestedClosure }}
     }
     {% if method.hasCompilationCondition %}
     #endif
