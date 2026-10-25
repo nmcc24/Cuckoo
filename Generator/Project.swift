@@ -47,8 +47,14 @@ let project = Project(
         .package(url: "https://github.com/dduan/TOMLDecoder", .upToNextMinor(from: "0.4.5")),
         .package(url: "https://github.com/onevcat/Rainbow", .upToNextMajor(from: "4.2.2")),
     ],
-    // Warnings in the generator are errors, as in ../Package.swift. Dependencies build in their own projects.
-    settings: .settings(base: ["SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES"]),
+    settings: .settings(base: [
+        // Warnings in the generator are errors, as in ../Package.swift. Dependencies build in their own projects.
+        "SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES",
+        // Xcode's recommended settings, decided explicitly, as in ../Project.swift.
+        "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+        "ENABLE_MODULE_VERIFIER": "NO",
+        "STRING_CATALOG_GENERATE_SYMBOLS": "NO",
+    ]),
     targets: [
         target,
         testTarget,
