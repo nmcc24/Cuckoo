@@ -333,6 +333,22 @@ Exit criteria: fixtures 01–06 typecheck and have behavioural tests; also typec
 - **API change:** stub function types gained two generic parameters (closure type and sharing), so code that names one to pick an overload writes `as ClassStubNoReturnFunction<(Int?, String), _, _>`.
 - **Typed throws:** the closure type throws untyped errors, and the mock narrows them back to the member's error type, because a typed-throws function type as a generic argument needs the iOS 18 / macOS 15 runtime (§3.4).
 
+### Phase 3.5: Swift 7 readiness (M)
+Projects can already turn on the upcoming features that the Swift 7 language mode makes the default, and generated mocks compile in the user's module with the user's settings. Done before Phase 4, so every new template is checked against them from the start.
+1. ☁️ Our own targets adopt the features that only change what compiles: `ExistentialAny`, `MemberImportVisibility`, `InternalImportsByDefault` and `ImmutableWeakCaptures` (Package.swift and both Tuist projects).
+2. ☁️ Mocks compile under every feature:
+   - untyped throws are spelled `any Swift.Error`, and nop stubs keep `async`/`throws` on getters;
+   - an output that holds a public mock imports Cuckoo, the testable imports and the sources' public imports with `public import`; others keep plain imports, because an unused public import is a warning;
+   - an async method's non-escaping closures are made escaping in local functions, `nonisolated(nonsending)` for nonisolated members, instead of closures, which run concurrently under `NonisolatedNonsendingByDefault` ("sending 'self' risks causing data races");
+   - Swift 6.2 treats an async local function as `@concurrent` under that feature, so the type-erased default implementation's `openExistential` has a `nonisolated(nonsending)` copy behind `#if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)` (fixture 07). **Remove it when Swift 6.2 support ends.**
+3. ☁️ CI job `swift7_linux` (Swift 6.2 and 6.4): `swift test` with every feature on (`CUCKOO_UPCOMING_FEATURES`), and the fixture matrix with every feature on and as a new Xcode 26 project (default MainActor isolation plus `InferIsolatedConformances` and `NonisolatedNonsendingByDefault`). Both configurations fail exactly where `generator_linux` does, so they share its expected-failure lists.
+
+Not covered: the runtime suite under default MainActor isolation. Its test sources and XCTest cases subclass classes that rely on an implicit `init`, which that mode rejects with or without Cuckoo (Phase 3 item 4). The fixture matrix covers the mocks in that mode.
+
+Exit criteria: `swift7_linux` is green, with no expected failures beyond the ones `generator_linux` has.
+
+**Status (2026-10-25):** done on the branch, awaiting Mac verification. Phase 4 must pass all three configurations.
+
 ### Phase 4: Coverage expansion (L)
 1. ☁️ Subscripts (12) and static/class members (13, #521).
 2. ☁️ Opaque parameters (11, #470), parameter packs (14) and `~Copyable` parameters (15).
