@@ -195,6 +195,7 @@ The baseline must be complete on its own. Newer tiers only **add** APIs or faste
   - typed storage for non-copyable (`~Copyable`) arguments;
   - `Mutex`-based internals where they measurably help;
   - Swift 6.2-runtime (iOS 26) helpers for isolated conformances.
+  - typed-throws `then` closures: a typed-throws function type used as a generic argument needs the iOS 18 / macOS 15 / tvOS 18 / watchOS 11 runtime. At the D2 baseline the stub's closure type throws untyped errors and the mock narrows them back to the member's error type (Phase 3). With a higher minimum, or for mocks of declarations already available only there, the closure type could keep `throws(E)`, so the compiler checks the error type a stub throws. To consider if D2 rises.
 - Generated mocks inherit the `@available` of the declaration they mock (already true today; fixture 17). A mock for an iOS 18-only protocol can therefore use iOS 18-only runtime helpers without extra checks.
 - If a mocked declaration needs a feature above its availability, the generator falls back to the baseline form, such as `any()`-only matching for that parameter, and emits a diagnostic saying which OS unlocks the full form.
 
