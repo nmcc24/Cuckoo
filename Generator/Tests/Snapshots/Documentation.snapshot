@@ -233,8 +233,8 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             "withThrows() throws -> Int",
             parameters: (),
             escapingParameters: (),
-            errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: (()) throws -> Int) throws(any Swift.Error) in try implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -245,8 +245,8 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             "withNoReturnThrows() throws",
             parameters: (),
             escapingParameters: (),
-            errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: (()) throws -> Void) throws(any Swift.Error) in try implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -539,7 +539,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,any Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withThrows() throws -> Int",
@@ -547,7 +547,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),any Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withNoReturnThrows() throws",
@@ -1087,21 +1087,21 @@ nonisolated final class TestedProtocolStub:TestedProtocol {
     }
     
     var throwsProperty: Int {
-        get {
+        get throws {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
         }
     }
     
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     var asyncProperty: Int {
-        get {
+        get async {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
         }
     }
     
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     var asyncThrowsProperty: Int {
-        get {
+        get async throws {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
         }
     }

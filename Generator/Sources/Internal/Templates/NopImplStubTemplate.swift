@@ -16,7 +16,7 @@ extension Templates {
     {{ property.isolationAttribute }}
     {% endif %}
     {{ property.accessibility|withSpace }}{% if property.isOverriding %}override {%+ endif %}var {{ property.name }}: {{ property.type }} {
-        get {
+        get {%+ if property.isAsync %}async {%+ endif %}{% if property.isThrowing %}throws {%+ endif %}{
             return DefaultValueRegistry.defaultValue(for: ({{property.type|genericSafe|removeClosureArgumentNames}}).self)
         }
         {% ifnot property.isReadOnly %}
