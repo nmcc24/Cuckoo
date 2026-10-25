@@ -32,6 +32,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 - Never open PRs or push to `Brightify/Cuckoo` without asking.
 
 ## CI (`.github/workflows/test.yml`)
+- **Triggers:** `pull_request`, `push` to `master` only, and `workflow_dispatch`. A PR runs once, and a new push cancels its run in progress; runs on `master` always finish. A branch without a PR gets CI only by hand (`workflow_dispatch`) or by opening a draft PR.
 - **Linux:** `swift:6.2`, `6.3` (native build system) and `swift:6.4` (`swiftbuild`; SwiftPM 6.4 deprecates `native`), running `swift test` (generator and runtime tests) and the Swift 6 fixture matrix.
 - **Linux TSan:** `swift test --sanitize=thread --filter CuckooTests` on `swift:6.3`, run through `docker run` on the host runner (it lowers `vm.mmap_rnd_bits` first, which a container job can't). `Tests/Swift/ConcurrencyStressTest.swift` holds the stress tests it's there for.
 - **Dependency requirements:** up to the next major release for 1.x+ packages, up to the next minor for 0.x ones, the same in `Package.swift` and `Generator/Project.swift`. The three lockfiles (`Package.resolved`, `.package.resolved`, Generator's) pin exact revisions and must carry the same pins. Dependabot (`.github/dependabot.yml`) only updates `Package.resolved`, so copy its pins into the other two in the same PR. `Package.resolved`'s `originHash` is what `tuist install` (run by `make`) writes; it's derived from the manifest, so run `make` after changing `Package.swift` and commit the new hash.
