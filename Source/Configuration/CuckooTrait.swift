@@ -1,7 +1,8 @@
 #if canImport(Testing)
 public import Testing
 
-/// Applies a `CuckooConfiguration` to a Swift Testing test, or to every test in a suite.
+/// Applies a `CuckooConfiguration` to a Swift Testing test, or to every test in a suite, and gives each test
+/// (each case of a parameterized one) its own registry for static members' stubs, `StaticStubs`.
 public struct CuckooTrait: TestTrait, SuiteTrait, TestScoping {
     fileprivate let configure: @Sendable (inout CuckooConfiguration) -> Void
 
@@ -17,7 +18,9 @@ public struct CuckooTrait: TestTrait, SuiteTrait, TestScoping {
         var configuration = CuckooConfiguration.current
         configure(&configuration)
         try await CuckooConfiguration.$current.withValue(configuration) {
-            try await function()
+            try await StaticStubs.$current.withValue(StaticStubs()) {
+                try await function()
+            }
         }
     }
 }

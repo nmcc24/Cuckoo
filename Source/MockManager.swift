@@ -281,6 +281,12 @@ extension MockManager {
         fatalError("This should never get called. If it does, please report an issue to Cuckoo repository.")
     }
 
+    /// Stands in for forwarding a static member to a default implementation, which only instance members have.
+    /// A mock's static manager never enables the default implementation, so this is never called.
+    public static func crashOnStaticDefaultImplementationCall<OUT>(_ member: String) -> OUT {
+        fatalError("Static member \(member) has no default implementation to call. Stub it instead.")
+    }
+
     /// Stands in for forwarding a synchronous member of an actor mock to its default implementation,
     /// another actor, which can only be reached with `await`.
     public static func crashOnActorDefaultImplementationCall<OUT>(_ member: String) -> OUT {
