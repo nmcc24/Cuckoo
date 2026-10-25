@@ -169,7 +169,7 @@ extension {{ container.parentFullyQualifiedName }} {
             parameters: ({{method.recordedParameters}}),
             escapingParameters: ({{method.escapingParameterNames}}),
             {% if method.throwsOnly %}
-            errorType: {{ method.throwTypeError }}.self,
+            errorType: ({{ method.throwTypeError }}).self,
             {% endif %}
             invoke: { (implementation: {{ method.implementationType|genericSafe }}) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.hasTypedThrows %}do { return try {%+ if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) } catch { throw Cuckoo.MockManager.typedError(error, as: ({{ method.throwTypeError }}).self, member: "{{ method.fullyQualifiedName }}") }{% else %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}){% endif %} },
             superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}super.{{method.name}}({{method.forwardingCall}}){% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
