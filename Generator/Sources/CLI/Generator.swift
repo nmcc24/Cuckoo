@@ -25,10 +25,17 @@ final class Generator {
             .filter { $0.exists }
             .map(TextFile.init(path:))
 
+        // An attribute isolates a declaration only if it names a global actor, which may be declared in another file.
+        let globalActors: Set<String> = await inputFiles
+            .concurrentCompactMap { file in
+                (try? String(contentsOf: file.path.url, encoding: .utf8)).map(Crawler.globalActorNames(in:))
+            }
+            .reduce(into: []) { $0.formUnion($1) }
+
         let files: [FileRepresentation] = await inputFiles.concurrentCompactMap { file in
             do {
                 log(.verbose, message: "Processing file: \(file.path)")
-                let crawler = try Crawler.crawl(url: file.path.url)
+                let crawler = try Crawler.crawl(url: file.path.url, globalActors: globalActors)
                 for diagnostic in crawler.diagnostics {
                     FileHandle.standardError.write(Data("\(diagnostic)\n".utf8))
                 }

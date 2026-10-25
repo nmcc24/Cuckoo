@@ -11,6 +11,10 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
     var isOptional: Bool
     /// The `#if` conditions the declaration is nested in.
     var compilationConditions: [String] = []
+    /// The member's own isolation, if it states one.
+    var isolation: Isolation?
+    /// `nonisolated(nonsending)` or `@concurrent`: where an async member runs. Mocks keep it.
+    var executionAttribute: String?
 
     var fullSignature: String {
         [
@@ -98,6 +102,33 @@ extension Method {
         let throwingString = isThrowing ? "Throwing" : ""
         let stubFunction = "Cuckoo.\(stubFunctionPrefix)Stub\(returnString)\(throwingString)Function"
 
+        let stubIsolation = parent.value.stubIsolation(forMember: isolation)
+        let genericInputTypes = signature.parameters
+            .map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description }
+            .joined(separator: ", ")
+        let genericReturnType = returnType?.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description ?? "Void"
+        let throwsClause: String? = switch signature.throwType {
+        case .none:
+            nil
+        case .some(let throwType) where throwType.isRethrowing:
+            "throws"
+        case .some(let throwType):
+            throwType.isThrowing ? "throws(\(throwType.type))" : nil
+        }
+        // A lone closure parameter is the `then` closure's own parameter, which must be `@escaping`
+        // to take it; inside a tuple of several, closures already escape.
+        let implementationInput = if signature.parameters.count == 1, signature.parameters[0].type.isClosure {
+            "(@escaping \(genericInputTypes))"
+        } else {
+            "(\(genericInputTypes))"
+        }
+        let implementationType = stubIsolation.implementationType(
+            input: implementationInput,
+            output: genericReturnType,
+            isAsync: isAsync,
+            throwsClause: throwsClause
+        )
+
         let escapingParameterNames = signature.parameters.map { parameter in
             if !parameter.type.containsAttribute(named: "@escaping"), let closure = parameter.type.findClosure() {
                 let parameterCount = closure.parameters.count
@@ -142,6 +173,10 @@ extension Method {
             "parameterSignatureWithoutNames": signature.parameters.map { "\($0.name): \($0.type)" }.joined(separator: ", "),
             "argumentSignature": signature.parameters.map { $0.type.description }.joined(separator: ", "),
             "stubFunction": stubFunction,
+            "implementationType": implementationType,
+            "sharingType": stubIsolation.sharingType,
+            "isolationAttribute": isolation?.sourceDescription ?? "",
+            "executionAttribute": executionAttribute ?? "",
             "inputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
             "genericInputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
             "isOptional": isOptional,

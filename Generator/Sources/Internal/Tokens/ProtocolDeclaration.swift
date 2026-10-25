@@ -10,6 +10,8 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var inheritedTypes: [String]
     var members: [Token]
     var enclosingCompilationConditions: [String]
+    /// The global actor the type is isolated to, if any.
+    var isolation: Isolation?
     var isNSObjectProtocol = false
 
     func replacing(members: [Token]) -> ProtocolDeclaration {
@@ -24,6 +26,7 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             inheritedTypes: inheritedTypes,
             members: members,
             enclosingCompilationConditions: enclosingCompilationConditions,
+            isolation: isolation,
             isNSObjectProtocol: isNSObjectProtocol
         )
     }
@@ -40,6 +43,7 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             inheritedTypes: inheritedTypes,
             members: members,
             enclosingCompilationConditions: enclosingCompilationConditions,
+            isolation: isolation,
             isNSObjectProtocol: isNSObjectProtocol
         )
     }
