@@ -219,9 +219,15 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
         func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
             
+            #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
+            nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC, _ p0: sending T, _ p1: sending Input) async -> Output {
+                return await opened.convert(value: p0, input: p1, fallback: p2 as! _CUCKOO$$GENERIC.Output) as! Output
+            }
+            #else
             func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC, _ p0: sending T, _ p1: sending Input) async -> Output {
                 return await opened.convert(value: p0, input: p1, fallback: p2 as! _CUCKOO$$GENERIC.Output) as! Output
             }
+            #endif
             return await openExistential(reference(), p0, p1)
         }
     }
