@@ -18176,6 +18176,604 @@ import Foundation
 @testable public import Cuckoo
 @testable public import CuckooTestSources
 
+nonisolated final class MockStaticFactory: StaticFactory, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
+    typealias MocksType = any StaticFactory
+    typealias Stubbing = __StubbingProxy_StaticFactory
+    typealias Verification = __VerificationProxy_StaticFactory
+    typealias StaticStubbing = __StaticStubbingProxy_StaticFactory
+    typealias StaticVerification = __StaticVerificationProxy_StaticFactory
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any StaticFactory>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any StaticFactory) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    static var count: Int {
+        get {
+            return cuckoo_staticManager.getter(
+                "count",
+                invoke: { (implementation: (()) -> Int) in implementation(()) },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("count")
+            )
+        }
+        set {
+            cuckoo_staticManager.setter(
+                "count",
+                value: newValue,
+                invoke: { (implementation: (Int) -> Void) in implementation(newValue) },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("count")
+            )
+        }
+    }
+
+    static var name: String {
+        get {
+            return cuckoo_staticManager.getter(
+                "name",
+                invoke: { (implementation: (()) -> String) in implementation(()) },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("name")
+            )
+        }
+    }
+
+
+    func build() -> Int {
+        return cuckoo_manager.call(
+            "build() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int) in implementation(()) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.build()
+        )
+    }
+
+    static func make() -> Self {
+        return cuckoo_staticManager.call(
+            "static make() -> Self",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Self) in implementation(()) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static make() -> Self")
+        )
+    }
+
+    static func load(id p0: Int) async throws -> String {
+        return try await cuckoo_staticManager.callThrows(
+            "static load(id p0: Int) async throws -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: nonisolated(nonsending) ((Int)) async throws -> String) async throws(any Swift.Error) in try await implementation((p0)) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static load(id p0: Int) async throws -> String")
+        )
+    }
+
+    static subscript(_ p0: String) -> Int {
+        get {
+            return cuckoo_staticManager.call(
+                "static subscript(_ p0: String) -> Int#get",
+                parameters: (p0),
+                escapingParameters: (p0),
+                invoke: { (implementation: ((String)) -> Int) in implementation((p0)) },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static subscript(_ p0: String) -> Int#get")
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_StaticFactory: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func build() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockStaticFactory.self,
+                method: "build() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_StaticFactory: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func build() -> Cuckoo.__DoNotUse<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "build() -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+
+    nonisolated struct __StaticStubbingProxy_StaticFactory: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        var count: Cuckoo.ProtocolToBeStubbedProperty<MockStaticFactory, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckoo_manager, name: "count")
+        }
+        
+        var name: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockStaticFactory, String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckoo_manager, name: "name")
+        }
+        
+        func make() -> Cuckoo.ProtocolStubFunction<(), MockStaticFactory, (()) -> MockStaticFactory, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockStaticFactory.self,
+                method: "static make() -> Self",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(Int), String,any Swift.Error, nonisolated(nonsending) ((Int)) async throws -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStaticFactory.self,
+                method: "static load(id p0: Int) async throws -> String",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        subscript<M1: Cuckoo.Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)
+        }
+    
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckoo_manager: Cuckoo.MockManager
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
+    
+            var get: Cuckoo.ProtocolStubFunction<(String), Int, ((String)) -> Int, Cuckoo.StubSharing.Confined> {
+                return .init(stub: cuckoo_manager.createStub(for: MockStaticFactory.self,
+                    method: "static subscript(_ p0: String) -> Int#get",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+    }
+
+    nonisolated struct __StaticVerificationProxy_StaticFactory: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        var count: Cuckoo.VerifyProperty<Int> {
+            return .init(manager: cuckoo_manager, name: "count", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        var name: Cuckoo.VerifyReadOnlyProperty<String> {
+            return .init(manager: cuckoo_manager, name: "name", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
+        @discardableResult
+        func make() -> Cuckoo.__DoNotUse<(), MockStaticFactory> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "static make() -> Self",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "static load(id p0: Int) async throws -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    
+        
+        subscript<M1: Cuckoo.Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return .init(cuckoo_manager: cuckoo_manager, callMatcher: callMatcher, sourceLocation: sourceLocation, matchers: matchers)
+        }
+    
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckoo_manager: Cuckoo.MockManager
+            fileprivate let callMatcher: Cuckoo.CallMatcher
+            fileprivate let sourceLocation: Cuckoo.SourceLocation
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
+    
+            @discardableResult
+            func get() -> Cuckoo.__DoNotUse<(String), Int> {
+                return cuckoo_manager.verify(
+                    "static subscript(_ p0: String) -> Int#get",
+                    callMatcher: callMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: sourceLocation
+                )
+            }
+        }
+    }
+}
+
+nonisolated final class StaticFactoryStub:StaticFactory {
+    
+    static var count: Int {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Int).self)
+        }
+        set {}
+    }
+    
+    static var name: String {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (String).self)
+        }
+    }
+
+
+    
+    func build() -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+    
+    static func make() -> Self {
+        return DefaultValueRegistry.defaultValue(for: (Self).self)
+    }
+    
+    static func load(id p0: Int) async throws -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+
+    
+    static subscript(_ p0: String) -> Int {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Int).self)
+        }
+    }
+}
+
+
+final class MockStaticMembersClass: StaticMembersClass, nonisolated Cuckoo.ClassMock, nonisolated Cuckoo.StaticMock {
+    typealias MocksType = StaticMembersClass
+    typealias Stubbing = __StubbingProxy_StaticMembersClass
+    typealias Verification = __VerificationProxy_StaticMembersClass
+    typealias StaticStubbing = __StaticStubbingProxy_StaticMembersClass
+    typealias StaticVerification = __StaticVerificationProxy_StaticMembersClass
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<StaticMembersClass>()
+
+    nonisolated func enableDefaultImplementation(_ stub: StaticMembersClass) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    override static var version: Int {
+        get {
+            return cuckoo_staticManager.getter(
+                "version",
+                invoke: { (implementation: (()) -> Int) in implementation(()) },
+                superclassCall: super.version,
+                defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("version")
+            )
+        }
+    }
+
+
+    override func instanceValue() -> Int {
+        return cuckoo_manager.call(
+            "instanceValue() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int) in implementation(()) },
+            superclassCall: super.instanceValue(),
+            defaultCall: __defaultImplStub.value.instanceValue()
+        )
+    }
+
+    override static func describe(_ p0: Int) -> String {
+        return cuckoo_staticManager.call(
+            "static describe(_ p0: Int) -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Int)) -> String) in implementation((p0)) },
+            superclassCall: super.describe(p0),
+            defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static describe(_ p0: Int) -> String")
+        )
+    }
+
+    nonisolated struct __StubbingProxy_StaticMembersClass: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func instanceValue() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockStaticMembersClass.self,
+                method: "instanceValue() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_StaticMembersClass: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func instanceValue() -> Cuckoo.__DoNotUse<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "instanceValue() -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+
+    nonisolated struct __StaticStubbingProxy_StaticMembersClass: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        var version: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockStaticMembersClass, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckoo_manager, name: "version")
+        }
+        
+        func describe<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ClassStubFunction<(Int), String, ((Int)) -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStaticMembersClass.self,
+                method: "static describe(_ p0: Int) -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __StaticVerificationProxy_StaticMembersClass: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        var version: Cuckoo.VerifyReadOnlyProperty<Int> {
+            return .init(manager: cuckoo_manager, name: "version", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
+        @discardableResult
+        func describe<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "static describe(_ p0: Int) -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class StaticMembersClassStub:StaticMembersClass {
+    
+    override static var version: Int {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Int).self)
+        }
+    }
+
+
+    
+    override func instanceValue() -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+    
+    override static func describe(_ p0: Int) -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+}
+
+
+// runtime support for constrained protocols with primary associated types
+@available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
+nonisolated final class MockGenericStaticFactory<Product>: GenericStaticFactory, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
+    typealias MocksType = any GenericStaticFactory<Product>
+    typealias Stubbing = __StubbingProxy_GenericStaticFactory
+    typealias Verification = __VerificationProxy_GenericStaticFactory
+    typealias StaticStubbing = __StaticStubbingProxy_GenericStaticFactory
+    typealias StaticVerification = __StaticVerificationProxy_GenericStaticFactory
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any GenericStaticFactory<Product>>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any GenericStaticFactory<Product>) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func use(_ p0: Product) {
+        return cuckoo_manager.call(
+            "use(_ p0: Product)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Product)) -> Void) in implementation((p0)) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.use(p0)
+        )
+    }
+
+    static func make() -> Product {
+        return cuckoo_staticManager.call(
+            "static make() -> Product",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Product) in implementation(()) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static make() -> Product")
+        )
+    }
+
+    nonisolated struct __StubbingProxy_GenericStaticFactory: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func use<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Product), ((Product)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Product {
+            let matchers: [Cuckoo.ParameterMatcher<(Product)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockGenericStaticFactory.self,
+                method: "use(_ p0: Product)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_GenericStaticFactory: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func use<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Product), Void> where M1.MatchedType == Product {
+            let matchers: [Cuckoo.ParameterMatcher<(Product)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "use(_ p0: Product)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+
+    nonisolated struct __StaticStubbingProxy_GenericStaticFactory: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func make() -> Cuckoo.ProtocolStubFunction<(), Product, (()) -> Product, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockGenericStaticFactory.self,
+                method: "static make() -> Product",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __StaticVerificationProxy_GenericStaticFactory: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func make() -> Cuckoo.__DoNotUse<(), Product> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "static make() -> Product",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class GenericStaticFactoryStub<Product>:GenericStaticFactory {
+
+
+    
+    func use(_ p0: Product) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    static func make() -> Product {
+        return DefaultValueRegistry.defaultValue(for: (Product).self)
+    }
+}
+
+
+
+
+public import Cuckoo
+import Foundation
+@testable public import Cuckoo
+@testable public import CuckooTestSources
+
 nonisolated final class MockSubscriptProtocol: SubscriptProtocol, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any SubscriptProtocol
     typealias Stubbing = __StubbingProxy_SubscriptProtocol
