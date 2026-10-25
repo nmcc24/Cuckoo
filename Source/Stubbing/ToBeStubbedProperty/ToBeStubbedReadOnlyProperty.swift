@@ -4,11 +4,11 @@ public protocol ToBeStubbedReadOnlyProperty {
     var get: GetterType { get }
 }
 
-public struct ProtocolToBeStubbedReadOnlyProperty<MOCK: ProtocolMock, T>: ToBeStubbedReadOnlyProperty {
+public struct ProtocolToBeStubbedReadOnlyProperty<MOCK: ProtocolMock, T, GET, SHARING>: ToBeStubbedReadOnlyProperty {
     private let manager: MockManager
     private let name: String
     
-    public var get: ProtocolStubFunction<Void, T> {
+    public var get: ProtocolStubFunction<Void, T, GET, SHARING> {
         ProtocolStubFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -24,11 +24,11 @@ public struct ProtocolToBeStubbedReadOnlyProperty<MOCK: ProtocolMock, T>: ToBeSt
     }
 }
 
-public struct ClassToBeStubbedReadOnlyProperty<MOCK: ClassMock, T>: ToBeStubbedReadOnlyProperty {
+public struct ClassToBeStubbedReadOnlyProperty<MOCK: ClassMock, T, GET, SHARING>: ToBeStubbedReadOnlyProperty {
     private let manager: MockManager
     private let name: String
 
-    public var get: ClassStubFunction<Void, T> {
+    public var get: ClassStubFunction<Void, T, GET, SHARING> {
         ClassStubFunction(
             stub: manager.createStub(
                 for: MOCK.self,

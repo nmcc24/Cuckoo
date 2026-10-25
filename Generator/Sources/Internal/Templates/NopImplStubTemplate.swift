@@ -12,6 +12,9 @@ extension Templates {
     {% for attribute in property.attributes %}
     {{ attribute }}
     {% endfor %}
+    {% if property.isolationAttribute %}
+    {{ property.isolationAttribute }}
+    {% endif %}
     {{ property.accessibility|withSpace }}{% if property.isOverriding %}override {%+ endif %}var {{ property.name }}: {{ property.type }} {
         get {
             return DefaultValueRegistry.defaultValue(for: ({{property.type|genericSafe|removeClosureArgumentNames}}).self)
@@ -41,6 +44,12 @@ extension Templates {
     {% for attribute in method.attributes %}
     {{ attribute }}
     {% endfor %}
+    {% if method.isolationAttribute %}
+    {{ method.isolationAttribute }}
+    {% endif %}
+    {% if method.executionAttribute %}
+    {{ method.executionAttribute }}
+    {% endif %}
     {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
         return DefaultValueRegistry.defaultValue(for: ({{method.genericReturnType|genericSafe}}).self)
     }

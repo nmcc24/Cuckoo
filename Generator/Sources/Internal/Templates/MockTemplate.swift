@@ -84,10 +84,14 @@ extension {{ container.parentFullyQualifiedName }} {
     {% for attribute in property.attributes %}
     {{ attribute }}
     {% endfor %}
+    {% if property.isolationAttribute %}
+    {{ property.isolationAttribute }}
+    {% endif %}
     {{ property.accessibility|withSpace }}{% if property.isOverriding %}override {%+ endif %}var {{ property.name|escapeReservedKeywords }}: {{ property.type }} {
         get {%+ if property.isAsync %}async {%+ endif %}{% if property.isThrowing %}throws {%+ endif %}{
             return {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}cuckoo_manager.getter{% if property.isThrowing %}Throws{% endif %}(
                 "{{ property.name }}",
+                invoke: { (implementation: {{ property.getterImplementationType|genericSafe }}) in {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}implementation(()) },
                 superclassCall: {%+ if container.isImplementation -%}
                     {% if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}super.{{ property.name }}
                     {%- else -%}
@@ -101,6 +105,7 @@ extension {{ container.parentFullyQualifiedName }} {
             cuckoo_manager.setter(
                 "{{ property.name }}",
                 value: newValue,
+                invoke: { (implementation: {{ property.setterImplementationType|genericSafe }}) in implementation(newValue) },
                 superclassCall: {%+ if container.isImplementation -%}
                     super.{{ property.name }} = newValue
                     {%- else -%}
@@ -149,6 +154,12 @@ extension {{ container.parentFullyQualifiedName }} {
     {% for attribute in method.attributes %}
     {{ attribute }}
     {% endfor %}
+    {% if method.isolationAttribute %}
+    {{ method.isolationAttribute }}
+    {% endif %}
+    {% if method.executionAttribute %}
+    {{ method.executionAttribute }}
+    {% endif %}
     {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
         {% for name in method.sendingParameterNames %}
         let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
@@ -160,6 +171,7 @@ extension {{ container.parentFullyQualifiedName }} {
             {% if method.throwsOnly %}
             errorType: {{ method.throwTypeError }}.self,
             {% endif %}
+            invoke: { (implementation: {{ method.implementationType|genericSafe }}) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation(({{method.recordedParameters}})) },
             superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}super.{{method.name}}({{method.forwardingCall}}){% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
             defaultCall: {%+ if method.isAsync %}await {%+ endif %}__defaultImplStub.value.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}})
         ){% if method.returnsSending %}).value{% endif %}{{ method.parameters|closeNestedClosure }}

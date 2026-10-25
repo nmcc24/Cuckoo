@@ -23,6 +23,7 @@ final class MockFactory: Factory, Cuckoo.ProtocolMock {
             "build() -> Int",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) -> Int) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.build()
         )
@@ -35,7 +36,7 @@ final class MockFactory: Factory, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func build() -> Cuckoo.ProtocolStubFunction<(), Int> {
+        func build() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockFactory.self,
                 method: "build() -> Int",

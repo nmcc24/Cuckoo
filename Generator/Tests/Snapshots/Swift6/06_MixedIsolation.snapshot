@@ -18,11 +18,13 @@ final class MockCoordinator: Coordinator, Cuckoo.ProtocolMock {
     }
 
 
+    nonisolated
     func identifier() -> String {
         return cuckoo_manager.call(
             "identifier() -> String",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) -> String) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.identifier()
         )
@@ -33,6 +35,7 @@ final class MockCoordinator: Coordinator, Cuckoo.ProtocolMock {
             "start()",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: @MainActor @Sendable (()) -> Void) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.start()
         )
@@ -45,7 +48,7 @@ final class MockCoordinator: Coordinator, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func identifier() -> Cuckoo.ProtocolStubFunction<(), String> {
+        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockCoordinator.self,
                 method: "identifier() -> String",
@@ -53,7 +56,7 @@ final class MockCoordinator: Coordinator, Cuckoo.ProtocolMock {
             ))
         }
         
-        func start() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+        func start() -> Cuckoo.ProtocolStubNoReturnFunction<(), @MainActor @Sendable (()) -> Void, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockCoordinator.self,
                 method: "start()",
@@ -103,6 +106,7 @@ final class CoordinatorStub:Coordinator {
 
 
     
+    nonisolated
     func identifier() -> String {
         return DefaultValueRegistry.defaultValue(for: (String).self)
     }

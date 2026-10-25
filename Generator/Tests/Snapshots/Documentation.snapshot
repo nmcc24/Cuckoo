@@ -21,6 +21,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "readOnlyProperty",
+                invoke: { (implementation: (()) -> String) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.readOnlyProperty
             )
@@ -31,6 +32,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "readWriteProperty",
+                invoke: { (implementation: (()) -> Int) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.readWriteProperty
             )
@@ -39,6 +41,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "readWriteProperty",
                 value: newValue,
+                invoke: { (implementation: (Int) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.readWriteProperty = newValue
             )
@@ -49,6 +52,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "optionalProperty",
+                invoke: { (implementation: (()) -> Int?) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.optionalProperty
             )
@@ -57,6 +61,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "optionalProperty",
                 value: newValue,
+                invoke: { (implementation: (Int?) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.optionalProperty = newValue
             )
@@ -67,6 +72,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "closureProperty",
+                invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureProperty
             )
@@ -75,6 +81,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "closureProperty",
                 value: newValue,
+                invoke: { (implementation: (((String) -> Int) -> ()) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureProperty = newValue
             )
@@ -85,6 +92,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameProperty",
+                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureWithArgumentNameProperty
             )
@@ -93,6 +101,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "closureWithArgumentNameProperty",
                 value: newValue,
+                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureWithArgumentNameProperty = newValue
             )
@@ -103,6 +112,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameMultilineProperty",
+                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureWithArgumentNameMultilineProperty
             )
@@ -111,6 +121,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "closureWithArgumentNameMultilineProperty",
                 value: newValue,
+                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureWithArgumentNameMultilineProperty = newValue
             )
@@ -121,6 +132,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameProperty",
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureWithComplexArgumentNameProperty
             )
@@ -129,6 +141,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameProperty",
                 value: newValue,
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureWithComplexArgumentNameProperty = newValue
             )
@@ -139,6 +152,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameMultilineProperty",
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureWithComplexArgumentNameMultilineProperty
             )
@@ -147,6 +161,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameMultilineProperty",
                 value: newValue,
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.closureWithComplexArgumentNameMultilineProperty = newValue
             )
@@ -157,6 +172,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get throws {
             return try cuckoo_manager.getterThrows(
                 "throwsProperty",
+                invoke: { (implementation: (()) throws -> Int) in try implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: try __defaultImplStub.value.throwsProperty
             )
@@ -168,6 +184,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get async {
             return await cuckoo_manager.getter(
                 "asyncProperty",
+                invoke: { (implementation: nonisolated(nonsending) (()) async -> Int) in await implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: await __defaultImplStub.value.asyncProperty
             )
@@ -179,6 +196,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
         get async throws {
             return try await cuckoo_manager.getterThrows(
                 "asyncThrowsProperty",
+                invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) in try await implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: try await __defaultImplStub.value.asyncThrowsProperty
             )
@@ -193,6 +211,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             "noReturn()",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) -> Void) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.noReturn()
         )
@@ -203,6 +222,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             "count(characters p0: String) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> Int) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.count(characters: p0)
         )
@@ -214,6 +234,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
+            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -225,6 +246,7 @@ final class MockTestedProtocol: TestedProtocol, Cuckoo.ProtocolMock {
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
+            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -237,6 +259,7 @@ return cuckoo_manager.call(
             "withClosure(_ p0: (String) -> Int) -> Int",
             parameters: (p0),
             escapingParameters: ({ _ in fatalError("This is a stub! It's not supposed to be called!") }),
+            invoke: { (implementation: ((@escaping (String) -> Int)) -> Int) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withClosure(p0)
         )
@@ -251,6 +274,7 @@ return cuckoo_manager.call(
             "withAutoClosure(action p0: @autoclosure () -> Int) -> Int",
             parameters: (p0),
             escapingParameters: ({ () in fatalError("This is a stub! It's not supposed to be called!") }),
+            invoke: { (implementation: ((@escaping  () -> Int)) -> Int) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withAutoClosure(action: p0())
         )
@@ -265,6 +289,7 @@ return cuckoo_manager.call(
             "withClosureAndParam(_ p0: String, closure p1: (String) -> Int) -> Int",
             parameters: (p0, p1),
             escapingParameters: (p0, { _ in fatalError("This is a stub! It's not supposed to be called!") }),
+            invoke: { (implementation: ((String, (String) -> Int)) -> Int) in implementation((p0, p1)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withClosureAndParam(p0, closure: p1)
         )
@@ -277,6 +302,7 @@ return cuckoo_manager.call(
             "withEscape(_ p0: String, action p1: @escaping (String) -> Void)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
+            invoke: { (implementation: ((String,  (String) -> Void)) -> Void) in implementation((p0, p1)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withEscape(p0, action: p1)
         )
@@ -287,6 +313,7 @@ return cuckoo_manager.call(
             "withOptionalClosure(_ p0: String, closure p1: ((String) -> Void)?)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
+            invoke: { (implementation: ((String, ((String) -> Void)?)) -> Void) in implementation((p0, p1)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withOptionalClosure(p0, closure: p1)
         )
@@ -297,6 +324,7 @@ return cuckoo_manager.call(
             "withOptionalClosureAndReturn(_ p0: String, closure p1: ((String) -> Void)?) -> Int",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
+            invoke: { (implementation: ((String, ((String) -> Void)?)) -> Int) in implementation((p0, p1)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withOptionalClosureAndReturn(p0, closure: p1)
         )
@@ -307,6 +335,7 @@ return cuckoo_manager.call(
             "withLabelAndUnderscore(labelA p0: String, _ p1: String)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
+            invoke: { (implementation: ((String, String)) -> Void) in implementation((p0, p1)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withLabelAndUnderscore(labelA: p0, p1)
         )
@@ -322,6 +351,7 @@ return cuckoo_manager.call(
             "withReservedKeywords(for p0: String, in p1: String) -> String",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
+            invoke: { (implementation: ((String, String)) -> String) in implementation((p0, p1)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withReservedKeywords(for: p0, in: p1)
         )
@@ -332,6 +362,7 @@ return cuckoo_manager.call(
             "withNamedTuple(tuple p0: (a: String, b: String)) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: (((a: String, b: String))) -> Int) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withNamedTuple(tuple: p0)
         )
@@ -342,6 +373,7 @@ return cuckoo_manager.call(
             "withImplicitlyUnwrappedOptional(i p0: Int!) -> String",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((Int?)) -> String) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withImplicitlyUnwrappedOptional(i: p0)
         )
@@ -352,6 +384,7 @@ return cuckoo_manager.call(
             "protocolMethod() -> String",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) -> String) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.protocolMethod()
         )
@@ -362,6 +395,7 @@ return cuckoo_manager.call(
             "methodWithParameter(_ p0: String) -> String",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> String) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.methodWithParameter(p0)
         )
@@ -372,6 +406,7 @@ return cuckoo_manager.call(
             "genericReturn() -> Dictionary<Int, Void>",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) -> Dictionary<Int, Void>) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.genericReturn()
         )
@@ -382,6 +417,7 @@ return cuckoo_manager.call(
             "multilineMethod(completion p0: @escaping (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((@escaping  (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.multilineMethod(completion: p0)
         )
@@ -392,6 +428,7 @@ return cuckoo_manager.call(
             "genericMultilineMethod<T, U, V> (completion p0: @escaping (_ bar: V, _ baz: U, _ qux: T) -> Void)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((@escaping  (_ bar: V, _ baz: U, _ qux: T) -> Void)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.genericMultilineMethod(completion: p0)
         )
@@ -402,6 +439,7 @@ return cuckoo_manager.call(
             "frobnicate() -> LongType<Int, String, Bool, Void>",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) -> LongType<Int, String, Bool, Void>) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.frobnicate()
         )
@@ -415,6 +453,7 @@ return cuckoo_manager.call(
             "asyncMethod() async",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Void) in await implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.asyncMethod()
         )
@@ -425,6 +464,7 @@ return cuckoo_manager.call(
             "compositionalParameters(param1 p0: any Numeric, param2 p1: OnlyLabelProtocol & Codable)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
+            invoke: { (implementation: ((any Numeric, OnlyLabelProtocol & Codable)) -> Void) in implementation((p0, p1)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.compositionalParameters(param1: p0, param2: p1)
         )
@@ -437,53 +477,53 @@ return cuckoo_manager.call(
             self.cuckoo_manager = manager
         }
         
-        var readOnlyProperty: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockTestedProtocol,String> {
+        var readOnlyProperty: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockTestedProtocol, String, (()) -> String, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "readOnlyProperty")
         }
         
-        var readWriteProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol,Int> {
+        var readWriteProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "readWriteProperty")
         }
         
-        var optionalProperty: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockTestedProtocol,Int> {
+        var optionalProperty: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockTestedProtocol, Int, (()) -> Int?, (Int?) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "optionalProperty")
         }
         
-        var closureProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol,((String) -> Int) -> ()> {
+        var closureProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureProperty")
         }
         
-        var closureWithArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol,(_ i: (_ j: String) -> Int) -> ()> {
+        var closureWithArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
         }
         
-        var closureWithArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol,(_ i: (_ j: Int) -> String) -> ()> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
         }
         
-        var closureWithComplexArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol,(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
         }
         
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol,(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
         }
         
-        var throwsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedProtocol,Int> {
+        var throwsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedProtocol, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "throwsProperty")
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        var asyncProperty: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockTestedProtocol,Int> {
+        var asyncProperty: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockTestedProtocol, Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "asyncProperty")
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        var asyncThrowsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedProtocol,Int> {
+        var asyncThrowsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedProtocol, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
         }
         
-        func noReturn() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+        func noReturn() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "noReturn()",
@@ -491,7 +531,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.ProtocolStubFunction<(String), Int> where M1.MatchedType == String {
+        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.ProtocolStubFunction<(String), Int, ((String)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "count(characters p0: String) -> Int",
@@ -499,7 +539,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,Swift.Error> {
+        func withThrows() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withThrows() throws -> Int",
@@ -507,7 +547,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error> {
+        func withNoReturnThrows() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withNoReturnThrows() throws",
@@ -515,7 +555,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withClosure<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<((String) -> Int), Int> where M1.MatchedType == (String) -> Int {
+        func withClosure<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<((String) -> Int), Int, ((@escaping (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) -> Int {
             let matchers: [Cuckoo.ParameterMatcher<((String) -> Int)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withClosure(_ p0: (String) -> Int) -> Int",
@@ -523,7 +563,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withAutoClosure<M1: Cuckoo.Matchable>(action p0: M1) -> Cuckoo.ProtocolStubFunction<( () -> Int), Int> where M1.MatchedType ==  () -> Int {
+        func withAutoClosure<M1: Cuckoo.Matchable>(action p0: M1) -> Cuckoo.ProtocolStubFunction<( () -> Int), Int, ((@escaping  () -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType ==  () -> Int {
             let matchers: [Cuckoo.ParameterMatcher<( () -> Int)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withAutoClosure(action p0: @autoclosure () -> Int) -> Int",
@@ -531,7 +571,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withClosureAndParam<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ProtocolStubFunction<(String, (String) -> Int), Int> where M1.MatchedType == String, M2.MatchedType == (String) -> Int {
+        func withClosureAndParam<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ProtocolStubFunction<(String, (String) -> Int), Int, ((String, (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == (String) -> Int {
             let matchers: [Cuckoo.ParameterMatcher<(String, (String) -> Int)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withClosureAndParam(_ p0: String, closure p1: (String) -> Int) -> Int",
@@ -539,7 +579,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withEscape<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String,  (String) -> Void)> where M1.MatchedType == String, M2.MatchedType ==  (String) -> Void {
+        func withEscape<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String,  (String) -> Void), ((String,  (String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType ==  (String) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(String,  (String) -> Void)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withEscape(_ p0: String, action p1: @escaping (String) -> Void)",
@@ -547,7 +587,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withOptionalClosure<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ((String) -> Void)?)> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
+        func withOptionalClosure<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ((String) -> Void)?), ((String, ((String) -> Void)?)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
             let matchers: [Cuckoo.ParameterMatcher<(String, ((String) -> Void)?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withOptionalClosure(_ p0: String, closure p1: ((String) -> Void)?)",
@@ -555,7 +595,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withOptionalClosureAndReturn<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ProtocolStubFunction<(String, ((String) -> Void)?), Int> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
+        func withOptionalClosureAndReturn<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ProtocolStubFunction<(String, ((String) -> Void)?), Int, ((String, ((String) -> Void)?)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
             let matchers: [Cuckoo.ParameterMatcher<(String, ((String) -> Void)?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withOptionalClosureAndReturn(_ p0: String, closure p1: ((String) -> Void)?) -> Int",
@@ -563,7 +603,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withLabelAndUnderscore<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, String)> where M1.MatchedType == String, M2.MatchedType == String {
+        func withLabelAndUnderscore<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, String), ((String, String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withLabelAndUnderscore(labelA p0: String, _ p1: String)",
@@ -571,7 +611,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withReservedKeywords<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for p0: M1, in p1: M2) -> Cuckoo.ProtocolStubFunction<(String, String), String> where M1.MatchedType == String, M2.MatchedType == String {
+        func withReservedKeywords<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for p0: M1, in p1: M2) -> Cuckoo.ProtocolStubFunction<(String, String), String, ((String, String)) -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withReservedKeywords(for p0: String, in p1: String) -> String",
@@ -579,7 +619,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNamedTuple<M1: Cuckoo.Matchable>(tuple p0: M1) -> Cuckoo.ProtocolStubFunction<((a: String, b: String)), Int> where M1.MatchedType == (a: String, b: String) {
+        func withNamedTuple<M1: Cuckoo.Matchable>(tuple p0: M1) -> Cuckoo.ProtocolStubFunction<((a: String, b: String)), Int, (((a: String, b: String))) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == (a: String, b: String) {
             let matchers: [Cuckoo.ParameterMatcher<((a: String, b: String))>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withNamedTuple(tuple p0: (a: String, b: String)) -> Int",
@@ -587,7 +627,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withImplicitlyUnwrappedOptional<M1: Cuckoo.OptionalMatchable>(i p0: M1) -> Cuckoo.ProtocolStubFunction<(Int?), String> where M1.OptionalMatchedType == Int {
+        func withImplicitlyUnwrappedOptional<M1: Cuckoo.OptionalMatchable>(i p0: M1) -> Cuckoo.ProtocolStubFunction<(Int?), String, ((Int?)) -> String, Cuckoo.StubSharing.Confined> where M1.OptionalMatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withImplicitlyUnwrappedOptional(i p0: Int!) -> String",
@@ -595,7 +635,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func protocolMethod() -> Cuckoo.ProtocolStubFunction<(), String> {
+        func protocolMethod() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "protocolMethod() -> String",
@@ -603,7 +643,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func methodWithParameter<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(String), String> where M1.MatchedType == String {
+        func methodWithParameter<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(String), String, ((String)) -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "methodWithParameter(_ p0: String) -> String",
@@ -611,7 +651,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func genericReturn() -> Cuckoo.ProtocolStubFunction<(), Dictionary<Int, Void>> {
+        func genericReturn() -> Cuckoo.ProtocolStubFunction<(), Dictionary<Int, Void>, (()) -> Dictionary<Int, Void>, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "genericReturn() -> Dictionary<Int, Void>",
@@ -619,7 +659,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func multilineMethod<M1: Cuckoo.Matchable>(completion p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<( (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)> where M1.MatchedType ==  (_ bar: Int, _ baz: Int, _ qux: Int) -> Void {
+        func multilineMethod<M1: Cuckoo.Matchable>(completion p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<( (_ bar: Int, _ baz: Int, _ qux: Int) -> Void), ((@escaping  (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType ==  (_ bar: Int, _ baz: Int, _ qux: Int) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<( (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "multilineMethod(completion p0: @escaping (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)",
@@ -627,7 +667,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func genericMultilineMethod<M1: Cuckoo.Matchable, T, U, V>(completion p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<( (_ bar: V, _ baz: U, _ qux: T) -> Void)> where M1.MatchedType ==  (_ bar: V, _ baz: U, _ qux: T) -> Void {
+        func genericMultilineMethod<M1: Cuckoo.Matchable, T, U, V>(completion p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<( (_ bar: V, _ baz: U, _ qux: T) -> Void), ((@escaping  (_ bar: V, _ baz: U, _ qux: T) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType ==  (_ bar: V, _ baz: U, _ qux: T) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<( (_ bar: V, _ baz: U, _ qux: T) -> Void)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "genericMultilineMethod<T, U, V> (completion p0: @escaping (_ bar: V, _ baz: U, _ qux: T) -> Void)",
@@ -635,7 +675,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func frobnicate() -> Cuckoo.ProtocolStubFunction<(), LongType<Int, String, Bool, Void>> {
+        func frobnicate() -> Cuckoo.ProtocolStubFunction<(), LongType<Int, String, Bool, Void>, (()) -> LongType<Int, String, Bool, Void>, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "frobnicate() -> LongType<Int, String, Bool, Void>",
@@ -646,7 +686,7 @@ return cuckoo_manager.call(
         @available(iOS 13.0, *)
         @available(tvOS 13.0, *)
         @available(macOS 10.15, *)
-        func asyncMethod() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+        func asyncMethod() -> Cuckoo.ProtocolStubNoReturnFunction<(), nonisolated(nonsending) (()) async -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "asyncMethod() async",
@@ -654,7 +694,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func compositionalParameters<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(param1 p0: M1, param2 p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(any Numeric, OnlyLabelProtocol & Codable)> where M1.MatchedType == any Numeric, M2.MatchedType == OnlyLabelProtocol & Codable {
+        func compositionalParameters<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(param1 p0: M1, param2 p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(any Numeric, OnlyLabelProtocol & Codable), ((any Numeric, OnlyLabelProtocol & Codable)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == any Numeric, M2.MatchedType == OnlyLabelProtocol & Codable {
             let matchers: [Cuckoo.ParameterMatcher<(any Numeric, OnlyLabelProtocol & Codable)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "compositionalParameters(param1 p0: any Numeric, param2 p1: OnlyLabelProtocol & Codable)",
@@ -1223,6 +1263,7 @@ final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock {
             "empty(_ p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.empty(p0)
         )
@@ -1233,6 +1274,7 @@ final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock {
             "empty(_ p0: String) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> Int) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.empty(p0)
         )
@@ -1243,6 +1285,7 @@ final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock {
             "empty(_ p0: T) -> T",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((T)) -> T) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.empty(p0)
         )
@@ -1255,7 +1298,7 @@ final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
+        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), ((String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockEmptyLabelProtocol.self,
                 method: "empty(_ p0: String)",
@@ -1263,7 +1306,7 @@ final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock {
             ))
         }
         
-        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(String), Int> where M1.MatchedType == String {
+        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(String), Int, ((String)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockEmptyLabelProtocol.self,
                 method: "empty(_ p0: String) -> Int",
@@ -1271,7 +1314,7 @@ final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, Cuckoo.ProtocolMock {
             ))
         }
         
-        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(T), T> where M1.MatchedType == T {
+        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(T), T, ((T)) -> T, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockEmptyLabelProtocol.self,
                 method: "empty(_ p0: T) -> T",
@@ -1369,6 +1412,7 @@ final class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock {
             "empty(_ p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.empty(p0)
         )
@@ -1379,6 +1423,7 @@ final class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock {
             "some(some p0: Int)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((Int)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.some(some: p0)
         )
@@ -1389,6 +1434,7 @@ final class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock {
             "double(here p0: Bool)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((Bool)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.double(here: p0)
         )
@@ -1401,7 +1447,7 @@ final class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
+        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), ((String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockOnlyLabelProtocol.self,
                 method: "empty(_ p0: String)",
@@ -1409,7 +1455,7 @@ final class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock {
             ))
         }
         
-        func some<M1: Cuckoo.Matchable>(some p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+        func some<M1: Cuckoo.Matchable>(some p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockOnlyLabelProtocol.self,
                 method: "some(some p0: Int)",
@@ -1417,7 +1463,7 @@ final class MockOnlyLabelProtocol: OnlyLabelProtocol, Cuckoo.ProtocolMock {
             ))
         }
         
-        func double<M1: Cuckoo.Matchable>(here p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
+        func double<M1: Cuckoo.Matchable>(here p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool), ((Bool)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Bool {
             let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockOnlyLabelProtocol.self,
                 method: "double(here p0: Bool)",
@@ -1515,6 +1561,7 @@ final class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock {
             "empty(_ p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> Void) in implementation((p0)) },
             superclassCall: super.empty(p0),
             defaultCall: __defaultImplStub.value.empty(p0)
         )
@@ -1525,6 +1572,7 @@ final class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock {
             "some(some p0: Int)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((Int)) -> Void) in implementation((p0)) },
             superclassCall: super.some(some: p0),
             defaultCall: __defaultImplStub.value.some(some: p0)
         )
@@ -1535,6 +1583,7 @@ final class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock {
             "double(here p0: Bool)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((Bool)) -> Void) in implementation((p0)) },
             superclassCall: super.double(here: p0),
             defaultCall: __defaultImplStub.value.double(here: p0)
         )
@@ -1547,7 +1596,7 @@ final class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock {
             self.cuckoo_manager = manager
         }
         
-        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(String)> where M1.MatchedType == String {
+        func empty<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(String), ((String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockOnlyLabelClass.self,
                 method: "empty(_ p0: String)",
@@ -1555,7 +1604,7 @@ final class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock {
             ))
         }
         
-        func some<M1: Cuckoo.Matchable>(some p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+        func some<M1: Cuckoo.Matchable>(some p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockOnlyLabelClass.self,
                 method: "some(some p0: Int)",
@@ -1563,7 +1612,7 @@ final class MockOnlyLabelClass: OnlyLabelClass, Cuckoo.ClassMock {
             ))
         }
         
-        func double<M1: Cuckoo.Matchable>(here p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
+        func double<M1: Cuckoo.Matchable>(here p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Bool), ((Bool)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Bool {
             let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockOnlyLabelClass.self,
                 method: "double(here p0: Bool)",
@@ -1696,6 +1745,7 @@ public final class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo
         get {
             return cuckoo_manager.getter(
                 "stringoStar",
+                invoke: { (implementation: (()) -> String) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.stringoStar
             )
@@ -1704,6 +1754,7 @@ public final class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo
             cuckoo_manager.setter(
                 "stringoStar",
                 value: newValue,
+                invoke: { (implementation: (String) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.stringoStar = newValue
             )
@@ -1717,6 +1768,7 @@ public final class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo
             "internalMethod()",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) -> Void) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.internalMethod()
         )
@@ -1729,11 +1781,11 @@ public final class MockPublicoProtocolo<InternaloTypo>: PublicoProtocolo, Cuckoo
             self.cuckoo_manager = manager
         }
         
-        var stringoStar: Cuckoo.ProtocolToBeStubbedProperty<MockPublicoProtocolo,String> {
+        var stringoStar: Cuckoo.ProtocolToBeStubbedProperty<MockPublicoProtocolo, String, (()) -> String, (String) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "stringoStar")
         }
         
-        func internalMethod() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+        func internalMethod() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicoProtocolo.self,
                 method: "internalMethod()",
@@ -1810,6 +1862,7 @@ final class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "constant",
+                invoke: { (implementation: (()) -> Int) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.constant
             )
@@ -1824,7 +1877,7 @@ final class MockSimpleProtocol: SimpleProtocol, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        var constant: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockSimpleProtocol,Int> {
+        var constant: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockSimpleProtocol, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "constant")
         }
     }
@@ -1924,6 +1977,7 @@ final class MockConcurrentCounter: ConcurrentCounter, Cuckoo.ProtocolMock {
             "count(characters p0: String) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: @Sendable ((String)) -> Int) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.count(characters: p0)
         )
@@ -1936,7 +1990,7 @@ final class MockConcurrentCounter: ConcurrentCounter, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.ProtocolStubFunction<(String), Int> where M1.MatchedType == String {
+        func count<M1: Cuckoo.Matchable>(characters p0: M1) -> Cuckoo.ProtocolStubFunction<(String), Int, @Sendable ((String)) -> Int, Cuckoo.StubSharing.Shared> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockConcurrentCounter.self,
                 method: "count(characters p0: String) -> Int",
@@ -2096,6 +2150,7 @@ final class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock {
             "doSomething(str p0: String) -> String",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> String) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.doSomething(str: p0)
         )
@@ -2106,6 +2161,7 @@ final class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock {
             "💩() -> String",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) -> String) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.💩()
         )
@@ -2118,7 +2174,7 @@ final class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func doSomething<M1: Cuckoo.Matchable>(str p0: M1) -> Cuckoo.ProtocolStubFunction<(String), String> where M1.MatchedType == String {
+        func doSomething<M1: Cuckoo.Matchable>(str p0: M1) -> Cuckoo.ProtocolStubFunction<(String), String, ((String)) -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockUnicodeTest.self,
                 method: "doSomething(str p0: String) -> String",
@@ -2126,7 +2182,7 @@ final class MockUnicodeTest: UnicodeTest, Cuckoo.ProtocolMock {
             ))
         }
         
-        func 💩() -> Cuckoo.ProtocolStubFunction<(), String> {
+        func 💩() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockUnicodeTest.self,
                 method: "💩() -> String",
@@ -2208,6 +2264,7 @@ final class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.Pro
             "doSomething(🛳 p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.doSomething(🛳: p0)
         )
@@ -2220,7 +2277,7 @@ final class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅, Cuckoo.Pro
             self.cuckoo_manager = manager
         }
         
-        func doSomething<M1: Cuckoo.Matchable>(🛳 p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
+        func doSomething<M1: Cuckoo.Matchable>(🛳 p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), ((String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockUnicodeNameTest_トř🦅.self,
                 method: "doSomething(🛳 p0: String)",

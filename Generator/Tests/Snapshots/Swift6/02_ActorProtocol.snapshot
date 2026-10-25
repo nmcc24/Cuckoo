@@ -21,6 +21,7 @@ final class MockStore: Store, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "count",
+                invoke: { (implementation: (()) -> Int) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.count
             )
@@ -33,6 +34,7 @@ final class MockStore: Store, Cuckoo.ProtocolMock {
             "increment() -> Int",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) -> Int) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.increment()
         )
@@ -43,6 +45,7 @@ final class MockStore: Store, Cuckoo.ProtocolMock {
             "fetch() async -> [String]",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> [String]) in await implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.fetch()
         )
@@ -55,11 +58,11 @@ final class MockStore: Store, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        var count: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockStore,Int> {
+        var count: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockStore, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "count")
         }
         
-        func increment() -> Cuckoo.ProtocolStubFunction<(), Int> {
+        func increment() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStore.self,
                 method: "increment() -> Int",
@@ -67,7 +70,7 @@ final class MockStore: Store, Cuckoo.ProtocolMock {
             ))
         }
         
-        func fetch() -> Cuckoo.ProtocolStubFunction<(), [String]> {
+        func fetch() -> Cuckoo.ProtocolStubFunction<(), [String], nonisolated(nonsending) (()) async -> [String], Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStore.self,
                 method: "fetch() async -> [String]",

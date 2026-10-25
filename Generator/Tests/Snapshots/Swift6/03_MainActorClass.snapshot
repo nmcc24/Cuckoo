@@ -21,6 +21,7 @@ final class MockViewModel: ViewModel, Cuckoo.ClassMock {
         get {
             return cuckoo_manager.getter(
                 "state",
+                invoke: { (implementation: @MainActor @Sendable (()) -> String) in implementation(()) },
                 superclassCall: super.state,
                 defaultCall: __defaultImplStub.value.state
             )
@@ -29,6 +30,7 @@ final class MockViewModel: ViewModel, Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "state",
                 value: newValue,
+                invoke: { (implementation: @MainActor @Sendable (String) -> Void) in implementation(newValue) },
                 superclassCall: super.state = newValue,
                 defaultCall: __defaultImplStub.value.state = newValue
             )
@@ -41,6 +43,7 @@ final class MockViewModel: ViewModel, Cuckoo.ClassMock {
             "reload() async",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: @MainActor @Sendable (()) async -> Void) in await implementation(()) },
             superclassCall: await super.reload(),
             defaultCall: await __defaultImplStub.value.reload()
         )
@@ -51,6 +54,7 @@ final class MockViewModel: ViewModel, Cuckoo.ClassMock {
             "select(index p0: Int) -> Bool",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: @MainActor @Sendable ((Int)) -> Bool) in implementation((p0)) },
             superclassCall: super.select(index: p0),
             defaultCall: __defaultImplStub.value.select(index: p0)
         )
@@ -63,11 +67,11 @@ final class MockViewModel: ViewModel, Cuckoo.ClassMock {
             self.cuckoo_manager = manager
         }
         
-        var state: Cuckoo.ClassToBeStubbedProperty<MockViewModel,String> {
+        var state: Cuckoo.ClassToBeStubbedProperty<MockViewModel, String, @MainActor @Sendable (()) -> String, @MainActor @Sendable (String) -> Void, Cuckoo.StubSharing.Isolated> {
             return .init(manager: cuckoo_manager, name: "state")
         }
         
-        func reload() -> Cuckoo.ClassStubNoReturnFunction<()> {
+        func reload() -> Cuckoo.ClassStubNoReturnFunction<(), @MainActor @Sendable (()) async -> Void, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockViewModel.self,
                 method: "reload() async",
@@ -75,7 +79,7 @@ final class MockViewModel: ViewModel, Cuckoo.ClassMock {
             ))
         }
         
-        func select<M1: Cuckoo.Matchable>(index p0: M1) -> Cuckoo.ClassStubFunction<(Int), Bool> where M1.MatchedType == Int {
+        func select<M1: Cuckoo.Matchable>(index p0: M1) -> Cuckoo.ClassStubFunction<(Int), Bool, @MainActor @Sendable ((Int)) -> Bool, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockViewModel.self,
                 method: "select(index p0: Int) -> Bool",

@@ -18,21 +18,25 @@ final class MockLoader: Loader, Cuckoo.ProtocolMock {
     }
 
 
+    nonisolated(nonsending)
     func load() async -> Int {
         return await cuckoo_manager.call(
             "load() async -> Int",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int) in await implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.load()
         )
     }
 
+    @concurrent
     func compute() async -> Int {
         return await cuckoo_manager.call(
             "compute() async -> Int",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int) in await implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.compute()
         )
@@ -45,7 +49,7 @@ final class MockLoader: Loader, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func load() -> Cuckoo.ProtocolStubFunction<(), Int> {
+        func load() -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockLoader.self,
                 method: "load() async -> Int",
@@ -53,7 +57,7 @@ final class MockLoader: Loader, Cuckoo.ProtocolMock {
             ))
         }
         
-        func compute() -> Cuckoo.ProtocolStubFunction<(), Int> {
+        func compute() -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockLoader.self,
                 method: "compute() async -> Int",
@@ -103,10 +107,12 @@ final class LoaderStub:Loader {
 
 
     
+    nonisolated(nonsending)
     func load() async -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
     
+    @concurrent
     func compute() async -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }

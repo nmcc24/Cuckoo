@@ -23,6 +23,7 @@ final class MockRepository: Repository, Cuckoo.ProtocolMock {
             "save(_ p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: @DatabaseActor @Sendable ((String)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.save(p0)
         )
@@ -33,6 +34,7 @@ final class MockRepository: Repository, Cuckoo.ProtocolMock {
             "all() -> [String]",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: @DatabaseActor @Sendable (()) -> [String]) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.all()
         )
@@ -45,7 +47,7 @@ final class MockRepository: Repository, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func save<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
+        func save<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), @DatabaseActor @Sendable ((String)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRepository.self,
                 method: "save(_ p0: String)",
@@ -53,7 +55,7 @@ final class MockRepository: Repository, Cuckoo.ProtocolMock {
             ))
         }
         
-        func all() -> Cuckoo.ProtocolStubFunction<(), [String]> {
+        func all() -> Cuckoo.ProtocolStubFunction<(), [String], @DatabaseActor @Sendable (()) -> [String], Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockRepository.self,
                 method: "all() -> [String]",

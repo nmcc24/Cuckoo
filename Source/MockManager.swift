@@ -18,8 +18,8 @@ public final class MockManager: Sendable {
     }
 
     /// What a call resolves to once it has been recorded.
-    private enum Resolution<IN, OUT, ERROR: Error> {
-        case stubbed(StubAction<IN, OUT, ERROR>)
+    private enum Resolution<OUT, ERROR: Error, IMPL> {
+        case stubbed(StubAction<OUT, ERROR, IMPL>)
         case superclass
         case defaultImplementation
         case unstubbed
@@ -35,12 +35,12 @@ public final class MockManager: Sendable {
     }
 
     /// Records the call and decides how to answer it. Crashes if the call can't be answered.
-    private func resolve<IN, OUT, ERROR>(
+    private func resolve<IN, OUT, ERROR, IMPL>(
         _ method: String,
         parameters: IN,
         escapingParameters: IN,
-        as _: (OUT, ERROR).Type
-    ) -> Resolution<IN, OUT, ERROR> {
+        as _: (OUT, ERROR, IMPL).Type
+    ) -> Resolution<OUT, ERROR, IMPL> {
         let call = ConcreteStubCall(method: method, parameters: escapingParameters)
         let (stubs, isSuperclassSpyEnabled, isDefaultImplementationEnabled) = state.withLock { state in
             let id = state.nextCallID
@@ -55,7 +55,7 @@ public final class MockManager: Sendable {
         var sawUnfinishedStub = false
         let candidates = stubs.lazy
             .filter { $0.method == method }
-            .compactMap { $0 as? ConcreteStub<IN, OUT, ERROR> }
+            .compactMap { $0 as? ConcreteStub<IN, OUT, ERROR, IMPL> }
         for stub in candidates where stub.matches(parameters) {
             guard let action = stub.nextAction() else {
                 sawUnfinishedStub = true
@@ -96,60 +96,20 @@ public final class MockManager: Sendable {
         CuckooError.unstubbedCall(method: method) as? ERROR
     }
 
-    private func callInternal<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () -> OUT, defaultCall: () -> OUT) -> OUT {
-        return callRethrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
-    }
-    
-    private nonisolated(nonsending) func callInternal<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () async -> OUT, defaultCall: () async -> OUT) async -> OUT {
-        return await callRethrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
-    }
-    
-    private func callRethrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () throws(ERROR) -> OUT, defaultCall: () throws(ERROR) -> OUT) rethrows -> OUT {
-        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR).self) {
+    // The `call` variants below differ only in effects. `invoke` runs a `then` closure: the generated mock
+    // passes it, so the closure runs in the mock's isolation and the manager never calls user code itself.
+
+    private func callInternal<IN, OUT, ERROR, IMPL>(
+        _ method: String,
+        parameters: IN,
+        escapingParameters: IN,
+        invoke: (IMPL) throws(ERROR) -> OUT,
+        superclassCall: () throws(ERROR) -> OUT,
+        defaultCall: () throws(ERROR) -> OUT
+    ) throws(ERROR) -> OUT {
+        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
         case .stubbed(.callImplementation(let implementation)):
-            return try DispatchQueue(label: "No-care?").sync(execute: {
-                return try implementation(parameters)
-            })
-        case .stubbed(.returnValue(let value)):
-            return value
-        case .stubbed(.throwError(let error)):
-            return try DispatchQueue(label: "No-care?").sync(execute: {
-                throw error
-            })
-        case .stubbed(.callRealImplementation), .superclass:
-            return try superclassCall()
-        case .defaultImplementation:
-            return try defaultCall()
-        case .unstubbed:
-            return unstubbedValue(method)
-        }
-    }
-    
-    private nonisolated(nonsending) func callRethrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () async throws(ERROR) -> OUT, defaultCall: () async throws(ERROR) -> OUT) async rethrows -> OUT {
-        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR).self) {
-        case .stubbed(.callImplementation(let implementation)):
-            return try DispatchQueue(label: "No-care?").sync(execute: {
-                return try implementation(parameters)
-            })
-        case .stubbed(.returnValue(let value)):
-            return value
-        case .stubbed(.throwError(let error)):
-            return try DispatchQueue(label: "No-care?").sync(execute: {
-                throw error
-            })
-        case .stubbed(.callRealImplementation), .superclass:
-            return try await superclassCall()
-        case .defaultImplementation:
-            return try await defaultCall()
-        case .unstubbed:
-            return unstubbedValue(method)
-        }
-    }
-    
-    private func callThrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () throws(ERROR) -> OUT, defaultCall: () throws(ERROR) -> OUT) throws(ERROR) -> OUT {
-        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR).self) {
-        case .stubbed(.callImplementation(let implementation)):
-            return try implementation(parameters)
+            return try invoke(implementation)
         case .stubbed(.returnValue(let value)):
             return value
         case .stubbed(.throwError(let error)):
@@ -165,11 +125,18 @@ public final class MockManager: Sendable {
             return unstubbedValue(method)
         }
     }
-    
-    private nonisolated(nonsending) func callThrowsInternal<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: () async throws(ERROR) -> OUT, defaultCall: () async throws(ERROR) -> OUT) async throws(ERROR) -> OUT {
-        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR).self) {
+
+    private nonisolated(nonsending) func callInternal<IN, OUT, ERROR, IMPL>(
+        _ method: String,
+        parameters: IN,
+        escapingParameters: IN,
+        invoke: nonisolated(nonsending) (IMPL) async throws(ERROR) -> OUT,
+        superclassCall: () async throws(ERROR) -> OUT,
+        defaultCall: () async throws(ERROR) -> OUT
+    ) async throws(ERROR) -> OUT {
+        switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
         case .stubbed(.callImplementation(let implementation)):
-            return try implementation(parameters)
+            return try await invoke(implementation)
         case .stubbed(.returnValue(let value)):
             return value
         case .stubbed(.throwError(let error)):
@@ -185,19 +152,19 @@ public final class MockManager: Sendable {
             return unstubbedValue(method)
         }
     }
-    
-    public func createStub<MOCK: ClassMock, IN, OUT, ERROR>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ClassConcreteStub<IN, OUT, ERROR> {
-        let stub = ClassConcreteStub<IN, OUT, ERROR>(method: method, parameterMatchers: parameterMatchers)
+
+    public func createStub<MOCK: ClassMock, IN, OUT, ERROR, IMPL>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ClassConcreteStub<IN, OUT, ERROR, IMPL> {
+        let stub = ClassConcreteStub<IN, OUT, ERROR, IMPL>(method: method, parameterMatchers: parameterMatchers)
         state.withLock { $0.stubs.insert(stub, at: 0) }
         return stub
     }
 
-    public func createStub<MOCK: ProtocolMock, IN, OUT, ERROR>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ConcreteStub<IN, OUT, ERROR> {
-        let stub = ConcreteStub<IN, OUT, ERROR>(method: method, parameterMatchers: parameterMatchers)
+    public func createStub<MOCK: ProtocolMock, IN, OUT, ERROR, IMPL>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ConcreteStub<IN, OUT, ERROR, IMPL> {
+        let stub = ConcreteStub<IN, OUT, ERROR, IMPL>(method: method, parameterMatchers: parameterMatchers)
         state.withLock { $0.stubs.insert(stub, at: 0) }
         return stub
     }
-    
+
     public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> __DoNotUse<IN, OUT> {
         let recordedCalls = state.withLock { $0.calls }
         let matching = recordedCalls.filter { recorded in
@@ -316,55 +283,125 @@ extension MockManager {
 }
 
 extension MockManager {
-    public func getter<T>(_ property: String, superclassCall: @autoclosure () -> T, defaultCall: @autoclosure () -> T) -> T {
-        return call(getterName(property), parameters: Void(), escapingParameters: Void(), superclassCall: superclassCall(), defaultCall: defaultCall())
+    public func getter<T, IMPL>(
+        _ property: String,
+        invoke: (IMPL) -> T,
+        superclassCall: @autoclosure () -> T,
+        defaultCall: @autoclosure () -> T
+    ) -> T {
+        call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: invoke, superclassCall: superclassCall(), defaultCall: defaultCall())
     }
 
-    public nonisolated(nonsending) func getter<T>(_ property: String, superclassCall: @autoclosure () async -> T, defaultCall: @autoclosure () async -> T) async -> T {
-        return await call(getterName(property), parameters: Void(), escapingParameters: Void(), superclassCall: await superclassCall(), defaultCall: await defaultCall())
+    public nonisolated(nonsending) func getter<T, IMPL>(
+        _ property: String,
+        invoke: nonisolated(nonsending) (IMPL) async -> T,
+        superclassCall: @autoclosure () async -> T,
+        defaultCall: @autoclosure () async -> T
+    ) async -> T {
+        await call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: invoke, superclassCall: await superclassCall(), defaultCall: await defaultCall())
     }
 
-    public func setter<T>(_ property: String, value: T, superclassCall: @autoclosure () -> Void, defaultCall: @autoclosure () -> Void) {
-        return call(setterName(property), parameters: value, escapingParameters: value, superclassCall: superclassCall(), defaultCall: defaultCall())
+    public func setter<T, IMPL>(
+        _ property: String,
+        value: T,
+        invoke: (IMPL) -> Void,
+        superclassCall: @autoclosure () -> Void,
+        defaultCall: @autoclosure () -> Void
+    ) {
+        call(setterName(property), parameters: value, escapingParameters: value, invoke: invoke, superclassCall: superclassCall(), defaultCall: defaultCall())
     }
 }
 
 extension MockManager {
-    public func getterThrows<T>(_ property: String, superclassCall: @autoclosure () throws -> T, defaultCall: @autoclosure () throws -> T) throws -> T {
-        return try callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (Error).self, superclassCall: try superclassCall(), defaultCall: try defaultCall())
+    public func getterThrows<T, IMPL>(
+        _ property: String,
+        invoke: (IMPL) throws -> T,
+        superclassCall: @autoclosure () throws -> T,
+        defaultCall: @autoclosure () throws -> T
+    ) throws -> T {
+        try callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: invoke, superclassCall: try superclassCall(), defaultCall: try defaultCall())
     }
 
-    public nonisolated(nonsending) func getterThrows<T>(_ property: String, superclassCall: @autoclosure () async throws -> T, defaultCall: @autoclosure () async throws -> T) async throws -> T {
-        return try await callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (Error).self, superclassCall: try await superclassCall(), defaultCall: try await defaultCall())
+    public nonisolated(nonsending) func getterThrows<T, IMPL>(
+        _ property: String,
+        invoke: nonisolated(nonsending) (IMPL) async throws -> T,
+        superclassCall: @autoclosure () async throws -> T,
+        defaultCall: @autoclosure () async throws -> T
+    ) async throws -> T {
+        try await callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: invoke, superclassCall: try await superclassCall(), defaultCall: try await defaultCall())
     }
 }
 
 extension MockManager {
-    public func call<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: @autoclosure () -> OUT, defaultCall: @autoclosure () -> OUT) -> OUT {
-        return callInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
+    public func call<IN, OUT, IMPL>(
+        _ method: String,
+        parameters: IN,
+        escapingParameters: IN,
+        invoke: (IMPL) -> OUT,
+        superclassCall: @autoclosure () -> OUT,
+        defaultCall: @autoclosure () -> OUT
+    ) -> OUT {
+        callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
     }
-    
-    public nonisolated(nonsending) func call<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: @autoclosure () async -> OUT, defaultCall: @autoclosure () async -> OUT) async -> OUT {
-        return await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
+
+    public nonisolated(nonsending) func call<IN, OUT, IMPL>(
+        _ method: String,
+        parameters: IN,
+        escapingParameters: IN,
+        invoke: nonisolated(nonsending) (IMPL) async -> OUT,
+        superclassCall: @autoclosure () async -> OUT,
+        defaultCall: @autoclosure () async -> OUT
+    ) async -> OUT {
+        await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
     }
 }
 
 extension MockManager {
-    public func callThrows<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, errorType: ERROR.Type, superclassCall: @autoclosure () throws(ERROR) -> OUT, defaultCall: @autoclosure () throws(ERROR) -> OUT) throws(ERROR) -> OUT {
-        return try callThrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
+    public func callThrows<IN, OUT, ERROR, IMPL>(
+        _ method: String,
+        parameters: IN,
+        escapingParameters: IN,
+        errorType: ERROR.Type,
+        invoke: (IMPL) throws(ERROR) -> OUT,
+        superclassCall: @autoclosure () throws(ERROR) -> OUT,
+        defaultCall: @autoclosure () throws(ERROR) -> OUT
+    ) throws(ERROR) -> OUT {
+        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
     }
-    
-    public nonisolated(nonsending) func callThrows<IN, OUT, ERROR>(_ method: String, parameters: IN, escapingParameters: IN, errorType: ERROR.Type, superclassCall: @autoclosure () async throws(ERROR) -> OUT, defaultCall: @autoclosure () async throws(ERROR) -> OUT) async throws(ERROR) -> OUT {
-        return try await callThrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
+
+    public nonisolated(nonsending) func callThrows<IN, OUT, ERROR, IMPL>(
+        _ method: String,
+        parameters: IN,
+        escapingParameters: IN,
+        errorType: ERROR.Type,
+        invoke: nonisolated(nonsending) (IMPL) async throws(ERROR) -> OUT,
+        superclassCall: @autoclosure () async throws(ERROR) -> OUT,
+        defaultCall: @autoclosure () async throws(ERROR) -> OUT
+    ) async throws(ERROR) -> OUT {
+        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
     }
 }
 
 extension MockManager {
-    public func callRethrows<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: @autoclosure () throws -> OUT, defaultCall: @autoclosure () throws -> OUT) rethrows -> OUT {
-        return try callRethrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
+    public func callRethrows<IN, OUT, IMPL>(
+        _ method: String,
+        parameters: IN,
+        escapingParameters: IN,
+        invoke: (IMPL) throws -> OUT,
+        superclassCall: @autoclosure () throws -> OUT,
+        defaultCall: @autoclosure () throws -> OUT
+    ) rethrows -> OUT {
+        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
     }
-    
-    public nonisolated(nonsending) func callRethrows<IN, OUT>(_ method: String, parameters: IN, escapingParameters: IN, superclassCall: @autoclosure () async throws -> OUT, defaultCall: @autoclosure () async throws -> OUT) async rethrows -> OUT {
-        return try await callRethrowsInternal(method, parameters: parameters, escapingParameters: escapingParameters, superclassCall: superclassCall, defaultCall: defaultCall)
+
+    public nonisolated(nonsending) func callRethrows<IN, OUT, IMPL>(
+        _ method: String,
+        parameters: IN,
+        escapingParameters: IN,
+        invoke: nonisolated(nonsending) (IMPL) async throws -> OUT,
+        superclassCall: @autoclosure () async throws -> OUT,
+        defaultCall: @autoclosure () async throws -> OUT
+    ) async rethrows -> OUT {
+        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
     }
 }
