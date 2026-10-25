@@ -1055,7 +1055,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             parameters: (),
             escapingParameters: (),
             errorType: Error.self,
-            invoke: { (implementation: (()) throws(Error) -> Int?) throws(Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int?) throws(Error) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (Error).self, member: "typedThrows() throws(Error) -> Int?") } },
             superclassCall: super.typedThrows(),
             defaultCall: __defaultImplStub.value.typedThrows()
         )
@@ -1067,7 +1067,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             parameters: (p0),
             escapingParameters: (p0),
             errorType: StubError.self,
-            invoke: { (implementation: ((T)) throws(StubError) -> Void) throws(StubError) in try implementation((p0)) },
+            invoke: { (implementation: ((T)) throws -> Void) throws(StubError) in do { return try implementation((p0)) } catch { throw Cuckoo.MockManager.typedError(error, as: (StubError).self, member: "genericWithTypedThrows<T> (_ p0: T) throws(StubError)") } },
             superclassCall: super.genericWithTypedThrows(p0),
             defaultCall: __defaultImplStub.value.genericWithTypedThrows(p0)
         )
@@ -1079,7 +1079,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             parameters: (),
             escapingParameters: (),
             errorType: Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Error) -> Int?) async throws(Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int?) async throws(Error) in do { return try await implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (Error).self, member: "asyncTypedThrow() async throws(Error) -> Int?") } },
             superclassCall: await super.asyncTypedThrow(),
             defaultCall: await __defaultImplStub.value.asyncTypedThrow()
         )
@@ -1091,7 +1091,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             parameters: (p0),
             escapingParameters: (p0),
             errorType: StubError.self,
-            invoke: { (implementation: nonisolated(nonsending) ((T)) async throws(StubError) -> Void) async throws(StubError) in try await implementation((p0)) },
+            invoke: { (implementation: nonisolated(nonsending) ((T)) async throws -> Void) async throws(StubError) in do { return try await implementation((p0)) } catch { throw Cuckoo.MockManager.typedError(error, as: (StubError).self, member: "asyncGenericWithTypedThrows<T> (_ p0: T) async throws(StubError)") } },
             superclassCall: await super.asyncGenericWithTypedThrows(p0),
             defaultCall: await __defaultImplStub.value.asyncGenericWithTypedThrows(p0)
         )
@@ -1103,7 +1103,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.untypedThrows(),
             defaultCall: __defaultImplStub.value.untypedThrows()
         )
@@ -1116,7 +1116,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             self.cuckoo_manager = manager
         }
         
-        func typedThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int?,Error, (()) throws(Error) -> Int?, Cuckoo.StubSharing.Confined> {
+        func typedThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int?,Error, (()) throws -> Int?, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockClassWithTypedThrows.self,
                 method: "typedThrows() throws(Error) -> Int?",
@@ -1124,7 +1124,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             ))
         }
         
-        func genericWithTypedThrows<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<(T),StubError, ((T)) throws(StubError) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+        func genericWithTypedThrows<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<(T),StubError, ((T)) throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClassWithTypedThrows.self,
                 method: "genericWithTypedThrows<T> (_ p0: T) throws(StubError)",
@@ -1132,7 +1132,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             ))
         }
         
-        func asyncTypedThrow() -> Cuckoo.ClassStubThrowingFunction<(), Int?,Error, nonisolated(nonsending) (()) async throws(Error) -> Int?, Cuckoo.StubSharing.Confined> {
+        func asyncTypedThrow() -> Cuckoo.ClassStubThrowingFunction<(), Int?,Error, nonisolated(nonsending) (()) async throws -> Int?, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockClassWithTypedThrows.self,
                 method: "asyncTypedThrow() async throws(Error) -> Int?",
@@ -1140,7 +1140,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             ))
         }
         
-        func asyncGenericWithTypedThrows<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<(T),StubError, nonisolated(nonsending) ((T)) async throws(StubError) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+        func asyncGenericWithTypedThrows<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<(T),StubError, nonisolated(nonsending) ((T)) async throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClassWithTypedThrows.self,
                 method: "asyncGenericWithTypedThrows<T> (_ p0: T) async throws(StubError)",
@@ -1148,7 +1148,7 @@ final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.C
             ))
         }
         
-        func untypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func untypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockClassWithTypedThrows.self,
                 method: "untypedThrows() throws",
@@ -2366,7 +2366,7 @@ final class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMet
             parameters: (p0),
             escapingParameters: (p0),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((OwO)) throws(Swift.Error) -> OwO) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((OwO)) throws -> OwO) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.senpai(param: p0),
             defaultCall: __defaultImplStub.value.senpai(param: p0)
         )
@@ -2400,7 +2400,7 @@ final class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMet
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> (Optional<W>) -> W) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> (Optional<W>) -> W) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.normal(),
             defaultCall: __defaultImplStub.value.normal()
         )
@@ -2457,7 +2457,7 @@ final class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMet
             self.cuckoo_manager = manager
         }
         
-        func senpai<M1: Cuckoo.Matchable, OwO>(param p0: M1) -> Cuckoo.ClassStubThrowingFunction<(OwO), OwO,Swift.Error, ((OwO)) throws(Swift.Error) -> OwO, Cuckoo.StubSharing.Confined> where M1.MatchedType == OwO, OwO: CustomStringConvertible {
+        func senpai<M1: Cuckoo.Matchable, OwO>(param p0: M1) -> Cuckoo.ClassStubThrowingFunction<(OwO), OwO,Swift.Error, ((OwO)) throws -> OwO, Cuckoo.StubSharing.Confined> where M1.MatchedType == OwO, OwO: CustomStringConvertible {
             let matchers: [Cuckoo.ParameterMatcher<(OwO)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockGenericMethodClass.self,
                 method: "senpai<OwO> (param p0: OwO) throws -> OwO where OwO: CustomStringConvertible",
@@ -2481,7 +2481,7 @@ final class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMet
             ))
         }
         
-        func normal<W>() -> Cuckoo.ClassStubThrowingFunction<(), (Optional<W>) -> W,Swift.Error, (()) throws(Swift.Error) -> (Optional<W>) -> W, Cuckoo.StubSharing.Confined> {
+        func normal<W>() -> Cuckoo.ClassStubThrowingFunction<(), (Optional<W>) -> W,Swift.Error, (()) throws -> (Optional<W>) -> W, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockGenericMethodClass.self,
                 method: "normal<W> () throws -> (Optional<W>) -> W where W: CustomStringConvertible",
@@ -3548,7 +3548,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: @MainActor @Sendable (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: @MainActor @Sendable (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.refresh()
         )
@@ -3573,7 +3573,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             ))
         }
         
-        func refresh() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, @MainActor @Sendable (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Isolated> {
+        func refresh() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, @MainActor @Sendable (()) async throws -> Void, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMainActorService.self,
                 method: "refresh() async throws",
@@ -3952,7 +3952,7 @@ actor MockCounterStore: CounterStore, Cuckoo.ProtocolMock {
             parameters: (p0),
             escapingParameters: (p0),
             errorType: Swift.Error.self,
-            invoke: { (implementation: @Sendable (isolated MockCounterStore, Int) async throws(Swift.Error) -> String) async throws(Swift.Error) in try await implementation(self, p0) },
+            invoke: { (implementation: @Sendable (isolated MockCounterStore, Int) async throws -> String) async throws(Swift.Error) in try await implementation(self, p0) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.fetch(id: p0)
         )
@@ -3977,7 +3977,7 @@ actor MockCounterStore: CounterStore, Cuckoo.ProtocolMock {
             ))
         }
         
-        func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(Int), String,Swift.Error, @Sendable (isolated MockCounterStore, Int) async throws(Swift.Error) -> String, Cuckoo.StubSharing.Shared> where M1.MatchedType == Int {
+        func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(Int), String,Swift.Error, @Sendable (isolated MockCounterStore, Int) async throws -> String, Cuckoo.StubSharing.Shared> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockCounterStore.self,
                 method: "fetch(id p0: Int) async throws -> String",
@@ -4538,7 +4538,7 @@ final class MockNestedExtensionTestedClass: NestedExtensionTestedClass, nonisola
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Int) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withAsyncThrows()
         )
@@ -4551,7 +4551,7 @@ final class MockNestedExtensionTestedClass: NestedExtensionTestedClass, nonisola
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withNoReturnAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withNoReturnAsyncThrows()
         )
@@ -4675,7 +4675,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -4687,7 +4687,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -4866,7 +4866,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: NSError.self,
-            invoke: { (implementation: (()) throws(NSError) -> Void) throws(NSError) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(NSError) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NSError).self, member: "withTypedThrows() throws(NSError)") } },
             superclassCall: super.withTypedThrows(),
             defaultCall: __defaultImplStub.value.withTypedThrows()
         )
@@ -5033,7 +5033,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withAsyncThrows() async throws -> Int",
@@ -5042,7 +5042,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withNoReturnAsyncThrows() async throws",
@@ -5122,7 +5122,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withThrows() throws -> Int",
@@ -5130,7 +5130,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withNoReturnThrows() throws",
@@ -5242,7 +5242,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws(NSError) -> Void, Cuckoo.StubSharing.Confined> {
+        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withTypedThrows() throws(NSError)",
@@ -6536,7 +6536,7 @@ final class MockMultiNestedTestedSubclass: MultiNestedTestedSubclass, nonisolate
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Int) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withAsyncThrows()
         )
@@ -6549,7 +6549,7 @@ final class MockMultiNestedTestedSubclass: MultiNestedTestedSubclass, nonisolate
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withNoReturnAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withNoReturnAsyncThrows()
         )
@@ -6673,7 +6673,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -6685,7 +6685,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -6864,7 +6864,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: NSError.self,
-            invoke: { (implementation: (()) throws(NSError) -> Void) throws(NSError) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(NSError) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NSError).self, member: "withTypedThrows() throws(NSError)") } },
             superclassCall: super.withTypedThrows(),
             defaultCall: __defaultImplStub.value.withTypedThrows()
         )
@@ -7031,7 +7031,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiNestedTestedSubclass.self,
                 method: "withAsyncThrows() async throws -> Int",
@@ -7040,7 +7040,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiNestedTestedSubclass.self,
                 method: "withNoReturnAsyncThrows() async throws",
@@ -7120,7 +7120,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiNestedTestedSubclass.self,
                 method: "withThrows() throws -> Int",
@@ -7128,7 +7128,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiNestedTestedSubclass.self,
                 method: "withNoReturnThrows() throws",
@@ -7240,7 +7240,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws(NSError) -> Void, Cuckoo.StubSharing.Confined> {
+        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiNestedTestedSubclass.self,
                 method: "withTypedThrows() throws(NSError)",
@@ -8526,7 +8526,7 @@ final class MockMultiLayeredNestedTestedSubclass: MultiLayeredNestedTestedSubcla
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Int) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withAsyncThrows()
         )
@@ -8539,7 +8539,7 @@ final class MockMultiLayeredNestedTestedSubclass: MultiLayeredNestedTestedSubcla
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withNoReturnAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withNoReturnAsyncThrows()
         )
@@ -8663,7 +8663,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -8675,7 +8675,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -8854,7 +8854,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: NSError.self,
-            invoke: { (implementation: (()) throws(NSError) -> Void) throws(NSError) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(NSError) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NSError).self, member: "withTypedThrows() throws(NSError)") } },
             superclassCall: super.withTypedThrows(),
             defaultCall: __defaultImplStub.value.withTypedThrows()
         )
@@ -9021,7 +9021,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiLayeredNestedTestedSubclass.self,
                 method: "withAsyncThrows() async throws -> Int",
@@ -9030,7 +9030,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiLayeredNestedTestedSubclass.self,
                 method: "withNoReturnAsyncThrows() async throws",
@@ -9110,7 +9110,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiLayeredNestedTestedSubclass.self,
                 method: "withThrows() throws -> Int",
@@ -9118,7 +9118,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiLayeredNestedTestedSubclass.self,
                 method: "withNoReturnThrows() throws",
@@ -9230,7 +9230,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws(NSError) -> Void, Cuckoo.StubSharing.Confined> {
+        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMultiLayeredNestedTestedSubclass.self,
                 method: "withTypedThrows() throws(NSError)",
@@ -10650,7 +10650,7 @@ final class MockNestedExtensionTestedClass: NestedExtensionTestedClass, nonisola
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -10662,7 +10662,7 @@ final class MockNestedExtensionTestedClass: NestedExtensionTestedClass, nonisola
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -10857,7 +10857,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withThrows() throws -> Int",
@@ -10865,7 +10865,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withNoReturnThrows() throws",
@@ -11709,7 +11709,7 @@ final class MockNestedTestedSubclass: NestedTestedSubclass, nonisolated Cuckoo.C
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Int) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withAsyncThrows()
         )
@@ -11722,7 +11722,7 @@ final class MockNestedTestedSubclass: NestedTestedSubclass, nonisolated Cuckoo.C
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withNoReturnAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withNoReturnAsyncThrows()
         )
@@ -11846,7 +11846,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -11858,7 +11858,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -12037,7 +12037,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: NSError.self,
-            invoke: { (implementation: (()) throws(NSError) -> Void) throws(NSError) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(NSError) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NSError).self, member: "withTypedThrows() throws(NSError)") } },
             superclassCall: super.withTypedThrows(),
             defaultCall: __defaultImplStub.value.withTypedThrows()
         )
@@ -12204,7 +12204,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withAsyncThrows() async throws -> Int",
@@ -12213,7 +12213,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withNoReturnAsyncThrows() async throws",
@@ -12293,7 +12293,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withThrows() throws -> Int",
@@ -12301,7 +12301,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withNoReturnThrows() throws",
@@ -12413,7 +12413,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws(NSError) -> Void, Cuckoo.StubSharing.Confined> {
+        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withTypedThrows() throws(NSError)",
@@ -13369,7 +13369,7 @@ final class MockNestedTestedClass: NestedTestedClass, nonisolated Cuckoo.ClassMo
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -13381,7 +13381,7 @@ final class MockNestedTestedClass: NestedTestedClass, nonisolated Cuckoo.ClassMo
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -13576,7 +13576,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedClass.self,
                 method: "withThrows() throws -> Int",
@@ -13584,7 +13584,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedClass.self,
                 method: "withNoReturnThrows() throws",
@@ -14381,7 +14381,7 @@ final class MockNestedTestedSubclass: NestedTestedSubclass, nonisolated Cuckoo.C
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Int) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withAsyncThrows()
         )
@@ -14394,7 +14394,7 @@ final class MockNestedTestedSubclass: NestedTestedSubclass, nonisolated Cuckoo.C
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withNoReturnAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withNoReturnAsyncThrows()
         )
@@ -14518,7 +14518,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -14530,7 +14530,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -14709,7 +14709,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: NSError.self,
-            invoke: { (implementation: (()) throws(NSError) -> Void) throws(NSError) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(NSError) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NSError).self, member: "withTypedThrows() throws(NSError)") } },
             superclassCall: super.withTypedThrows(),
             defaultCall: __defaultImplStub.value.withTypedThrows()
         )
@@ -14876,7 +14876,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withAsyncThrows() async throws -> Int",
@@ -14885,7 +14885,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withNoReturnAsyncThrows() async throws",
@@ -14965,7 +14965,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withThrows() throws -> Int",
@@ -14973,7 +14973,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withNoReturnThrows() throws",
@@ -15085,7 +15085,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws(NSError) -> Void, Cuckoo.StubSharing.Confined> {
+        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedTestedSubclass.self,
                 method: "withTypedThrows() throws(NSError)",
@@ -16279,7 +16279,7 @@ final class MockNestedExtensionTestedClass: NestedExtensionTestedClass, nonisola
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Int) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withAsyncThrows()
         )
@@ -16292,7 +16292,7 @@ final class MockNestedExtensionTestedClass: NestedExtensionTestedClass, nonisola
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withNoReturnAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withNoReturnAsyncThrows()
         )
@@ -16416,7 +16416,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -16428,7 +16428,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -16607,7 +16607,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: NSError.self,
-            invoke: { (implementation: (()) throws(NSError) -> Void) throws(NSError) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(NSError) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NSError).self, member: "withTypedThrows() throws(NSError)") } },
             superclassCall: super.withTypedThrows(),
             defaultCall: __defaultImplStub.value.withTypedThrows()
         )
@@ -16774,7 +16774,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withAsyncThrows() async throws -> Int",
@@ -16783,7 +16783,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withNoReturnAsyncThrows() async throws",
@@ -16863,7 +16863,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withThrows() throws -> Int",
@@ -16871,7 +16871,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withNoReturnThrows() throws",
@@ -16983,7 +16983,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws(NSError) -> Void, Cuckoo.StubSharing.Confined> {
+        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockNestedExtensionTestedClass.self,
                 method: "withTypedThrows() throws(NSError)",
@@ -18574,7 +18574,7 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Int) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withAsyncThrows()
         )
@@ -18587,7 +18587,7 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withNoReturnAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withNoReturnAsyncThrows()
         )
@@ -18711,7 +18711,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -18723,7 +18723,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -18902,7 +18902,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: NSError.self,
-            invoke: { (implementation: (()) throws(NSError) -> Void) throws(NSError) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(NSError) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NSError).self, member: "withTypedThrows() throws(NSError)") } },
             superclassCall: super.withTypedThrows(),
             defaultCall: __defaultImplStub.value.withTypedThrows()
         )
@@ -19069,7 +19069,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedClass.self,
                 method: "withAsyncThrows() async throws -> Int",
@@ -19078,7 +19078,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedClass.self,
                 method: "withNoReturnAsyncThrows() async throws",
@@ -19158,7 +19158,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedClass.self,
                 method: "withThrows() throws -> Int",
@@ -19166,7 +19166,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedClass.self,
                 method: "withNoReturnThrows() throws",
@@ -19278,7 +19278,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws(NSError) -> Void, Cuckoo.StubSharing.Confined> {
+        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedClass.self,
                 method: "withTypedThrows() throws(NSError)",
@@ -20278,7 +20278,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -20290,7 +20290,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -20379,7 +20379,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicTestedClass.self,
                 method: "withThrows() throws -> Int",
@@ -20387,7 +20387,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicTestedClass.self,
                 method: "withNoReturnThrows() throws",
@@ -20703,7 +20703,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -20715,7 +20715,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -20804,7 +20804,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicPublicTestedClass.self,
                 method: "withThrows() throws -> Int",
@@ -20812,7 +20812,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicPublicTestedClass.self,
                 method: "withNoReturnThrows() throws",
@@ -22938,7 +22938,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ () in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping () throws -> Void)) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping () throws -> Void)) throws -> Void) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.f0(closure: p0),
             defaultCall: __defaultImplStub.value.f0(closure: p0)
         )
@@ -22954,7 +22954,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ _ in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping (String) throws -> String)) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping (String) throws -> String)) throws -> Void) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.f1(closure: p0),
             defaultCall: __defaultImplStub.value.f1(closure: p0)
         )
@@ -22970,7 +22970,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ _, _ in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping (String, Int) throws -> Int)) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping (String, Int) throws -> Int)) throws -> Void) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.f2(closure: p0),
             defaultCall: __defaultImplStub.value.f2(closure: p0)
         )
@@ -22986,7 +22986,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ _, _, _ in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping (String, Int, Bool) throws -> Bool)) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping (String, Int, Bool) throws -> Bool)) throws -> Void) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.f3(closure: p0),
             defaultCall: __defaultImplStub.value.f3(closure: p0)
         )
@@ -23002,7 +23002,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ _, _, _, _ in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping (String, Int, Bool, [String]?) throws -> [String]?)) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping (String, Int, Bool, [String]?) throws -> [String]?)) throws -> Void) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.f4(closure: p0),
             defaultCall: __defaultImplStub.value.f4(closure: p0)
         )
@@ -23018,7 +23018,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ _, _, _, _, _ in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping (String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int>)) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping (String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int>)) throws -> Void) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.f5(closure: p0),
             defaultCall: __defaultImplStub.value.f5(closure: p0)
         )
@@ -23034,7 +23034,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ _, _, _, _, _, _ in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping (String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void)) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping (String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void)) throws -> Void) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.f6(closure: p0),
             defaultCall: __defaultImplStub.value.f6(closure: p0)
         )
@@ -23050,7 +23050,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ _, _, _, _, _, _, _ in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping (String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String])) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping (String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String])) throws -> Void) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.f7(closure: p0),
             defaultCall: __defaultImplStub.value.f7(closure: p0)
         )
@@ -23065,7 +23065,7 @@ return try cuckoo_manager.callThrows(
             self.cuckoo_manager = manager
         }
         
-        func f0<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<(() throws -> Void),Swift.Error, ((@escaping () throws -> Void)) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () throws -> Void {
+        func f0<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<(() throws -> Void),Swift.Error, ((@escaping () throws -> Void)) throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () throws -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(() throws -> Void)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureNThrowingThrowsClass.self,
                 method: "f0(closure p0: () throws -> Void) throws",
@@ -23073,7 +23073,7 @@ return try cuckoo_manager.callThrows(
             ))
         }
         
-        func f1<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String) throws -> String),Swift.Error, ((@escaping (String) throws -> String)) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) throws -> String {
+        func f1<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String) throws -> String),Swift.Error, ((@escaping (String) throws -> String)) throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) throws -> String {
             let matchers: [Cuckoo.ParameterMatcher<((String) throws -> String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureNThrowingThrowsClass.self,
                 method: "f1(closure p0: (String) throws -> String) throws",
@@ -23081,7 +23081,7 @@ return try cuckoo_manager.callThrows(
             ))
         }
         
-        func f2<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int) throws -> Int),Swift.Error, ((@escaping (String, Int) throws -> Int)) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int) throws -> Int {
+        func f2<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int) throws -> Int),Swift.Error, ((@escaping (String, Int) throws -> Int)) throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int) throws -> Int {
             let matchers: [Cuckoo.ParameterMatcher<((String, Int) throws -> Int)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureNThrowingThrowsClass.self,
                 method: "f2(closure p0: (String, Int) throws -> Int) throws",
@@ -23089,7 +23089,7 @@ return try cuckoo_manager.callThrows(
             ))
         }
         
-        func f3<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool) throws -> Bool),Swift.Error, ((@escaping (String, Int, Bool) throws -> Bool)) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool) throws -> Bool {
+        func f3<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool) throws -> Bool),Swift.Error, ((@escaping (String, Int, Bool) throws -> Bool)) throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool) throws -> Bool {
             let matchers: [Cuckoo.ParameterMatcher<((String, Int, Bool) throws -> Bool)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureNThrowingThrowsClass.self,
                 method: "f3(closure p0: (String, Int, Bool) throws -> Bool) throws",
@@ -23097,7 +23097,7 @@ return try cuckoo_manager.callThrows(
             ))
         }
         
-        func f4<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool, [String]?) throws -> [String]?),Swift.Error, ((@escaping (String, Int, Bool, [String]?) throws -> [String]?)) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool, [String]?) throws -> [String]? {
+        func f4<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool, [String]?) throws -> [String]?),Swift.Error, ((@escaping (String, Int, Bool, [String]?) throws -> [String]?)) throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool, [String]?) throws -> [String]? {
             let matchers: [Cuckoo.ParameterMatcher<((String, Int, Bool, [String]?) throws -> [String]?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureNThrowingThrowsClass.self,
                 method: "f4(closure p0: (String, Int, Bool, [String]?) throws -> [String]?) throws",
@@ -23105,7 +23105,7 @@ return try cuckoo_manager.callThrows(
             ))
         }
         
-        func f5<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int>),Swift.Error, ((@escaping (String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int>)) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int> {
+        func f5<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int>),Swift.Error, ((@escaping (String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int>)) throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int> {
             let matchers: [Cuckoo.ParameterMatcher<((String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int>)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureNThrowingThrowsClass.self,
                 method: "f5(closure p0: (String, Int, Bool, [String]?, Set<Int>) throws -> Set<Int>) throws",
@@ -23113,7 +23113,7 @@ return try cuckoo_manager.callThrows(
             ))
         }
         
-        func f6<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void),Swift.Error, ((@escaping (String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void)) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void {
+        func f6<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void),Swift.Error, ((@escaping (String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void)) throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureNThrowingThrowsClass.self,
                 method: "f6(closure p0: (String, Int, Bool, [String]?, Set<Int>, Void) throws -> Void) throws",
@@ -23121,7 +23121,7 @@ return try cuckoo_manager.callThrows(
             ))
         }
         
-        func f7<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String]),Swift.Error, ((@escaping (String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String])) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String] {
+        func f7<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubNoReturnThrowingFunction<((String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String]),Swift.Error, ((@escaping (String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String])) throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String] {
             let matchers: [Cuckoo.ParameterMatcher<((String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String])>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureNThrowingThrowsClass.self,
                 method: "f7(closure p0: (String, Int, Bool, [String]?, Set<Int>, Void, [String: String]) throws -> [String: String]) throws",
@@ -24766,7 +24766,7 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -24778,7 +24778,7 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -25066,7 +25066,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withThrows() throws -> Int",
@@ -25074,7 +25074,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withNoReturnThrows() throws",
@@ -26900,7 +26900,7 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -26912,7 +26912,7 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -27208,7 +27208,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubProtocol.self,
                 method: "withThrows() throws -> Int",
@@ -27216,7 +27216,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubProtocol.self,
                 method: "withNoReturnThrows() throws",
@@ -28241,7 +28241,7 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -28337,7 +28337,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ _ in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping (String) throws -> String?)) throws(Swift.Error) -> String?) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping (String) throws -> String?)) throws -> String?) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.withThrowingClosureThrows(closure: p0),
             defaultCall: __defaultImplStub.value.withThrowingClosureThrows(closure: p0)
         )
@@ -28362,7 +28362,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: (p0),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((((String) throws -> String?)?)) throws(Swift.Error) -> String?) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((((String) throws -> String?)?)) throws -> String?) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.withThrowingOptionalClosureThrows(closure: p0),
             defaultCall: __defaultImplStub.value.withThrowingOptionalClosureThrows(closure: p0)
         )
@@ -28500,7 +28500,7 @@ return try cuckoo_manager.callThrows(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Int) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withAsyncThrows()
         )
@@ -28513,7 +28513,7 @@ return try cuckoo_manager.callThrows(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withNoReturnAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withNoReturnAsyncThrows()
         )
@@ -28637,7 +28637,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -28816,7 +28816,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: NSError.self,
-            invoke: { (implementation: (()) throws(NSError) -> Void) throws(NSError) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(NSError) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NSError).self, member: "withTypedThrows() throws(NSError)") } },
             superclassCall: super.withTypedThrows(),
             defaultCall: __defaultImplStub.value.withTypedThrows()
         )
@@ -28976,7 +28976,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubclass.self,
                 method: "withThrows() throws -> Int",
@@ -29032,7 +29032,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrowingClosureThrows<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubThrowingFunction<((String) throws -> String?), String?,Swift.Error, ((@escaping (String) throws -> String?)) throws(Swift.Error) -> String?, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) throws -> String? {
+        func withThrowingClosureThrows<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubThrowingFunction<((String) throws -> String?), String?,Swift.Error, ((@escaping (String) throws -> String?)) throws -> String?, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) throws -> String? {
             let matchers: [Cuckoo.ParameterMatcher<((String) throws -> String?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubclass.self,
                 method: "withThrowingClosureThrows(closure p0: (String) throws -> String?) throws -> String?",
@@ -29048,7 +29048,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrowingOptionalClosureThrows<M1: Cuckoo.OptionalMatchable>(closure p0: M1) -> Cuckoo.ClassStubThrowingFunction<(((String) throws -> String?)?), String?,Swift.Error, ((((String) throws -> String?)?)) throws(Swift.Error) -> String?, Cuckoo.StubSharing.Confined> where M1.OptionalMatchedType == ((String) throws -> String?) {
+        func withThrowingOptionalClosureThrows<M1: Cuckoo.OptionalMatchable>(closure p0: M1) -> Cuckoo.ClassStubThrowingFunction<(((String) throws -> String?)?), String?,Swift.Error, ((((String) throws -> String?)?)) throws -> String?, Cuckoo.StubSharing.Confined> where M1.OptionalMatchedType == ((String) throws -> String?) {
             let matchers: [Cuckoo.ParameterMatcher<(((String) throws -> String?)?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubclass.self,
                 method: "withThrowingOptionalClosureThrows(closure p0: ((String) throws -> String?)?) throws -> String?",
@@ -29149,7 +29149,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubclass.self,
                 method: "withAsyncThrows() async throws -> Int",
@@ -29158,7 +29158,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubclass.self,
                 method: "withNoReturnAsyncThrows() async throws",
@@ -29238,7 +29238,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubclass.self,
                 method: "withNoReturnThrows() throws",
@@ -29350,7 +29350,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws(NSError) -> Void, Cuckoo.StubSharing.Confined> {
+        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubclass.self,
                 method: "withTypedThrows() throws(NSError)",
@@ -30847,7 +30847,7 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Int) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withThrows(),
             defaultCall: __defaultImplStub.value.withThrows()
         )
@@ -30943,7 +30943,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: ({ _ in fatalError("This is a stub! It's not supposed to be called!") }),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((@escaping (String) throws -> String?)) throws(Swift.Error) -> String?) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((@escaping (String) throws -> String?)) throws -> String?) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.withThrowingClosureThrows(closure: p0),
             defaultCall: __defaultImplStub.value.withThrowingClosureThrows(closure: p0)
         )
@@ -30968,7 +30968,7 @@ return try cuckoo_manager.callThrows(
             parameters: (p0),
             escapingParameters: (p0),
             errorType: Swift.Error.self,
-            invoke: { (implementation: ((((String) throws -> String?)?)) throws(Swift.Error) -> String?) throws(Swift.Error) in try implementation((p0)) },
+            invoke: { (implementation: ((((String) throws -> String?)?)) throws -> String?) throws(Swift.Error) in try implementation((p0)) },
             superclassCall: super.withThrowingOptionalClosureThrows(closure: p0),
             defaultCall: __defaultImplStub.value.withThrowingOptionalClosureThrows(closure: p0)
         )
@@ -31106,7 +31106,7 @@ return try cuckoo_manager.callThrows(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Int) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withAsyncThrows()
         )
@@ -31119,7 +31119,7 @@ return try cuckoo_manager.callThrows(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: await super.withNoReturnAsyncThrows(),
             defaultCall: await __defaultImplStub.value.withNoReturnAsyncThrows()
         )
@@ -31243,7 +31243,7 @@ return await cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: (()) throws(Swift.Error) -> Void) throws(Swift.Error) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(Swift.Error) in try implementation(()) },
             superclassCall: super.withNoReturnThrows(),
             defaultCall: __defaultImplStub.value.withNoReturnThrows()
         )
@@ -31422,7 +31422,7 @@ return cuckoo_manager.call(
             parameters: (),
             escapingParameters: (),
             errorType: NSError.self,
-            invoke: { (implementation: (()) throws(NSError) -> Void) throws(NSError) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Void) throws(NSError) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NSError).self, member: "withTypedThrows() throws(NSError)") } },
             superclassCall: super.withTypedThrows(),
             defaultCall: __defaultImplStub.value.withTypedThrows()
         )
@@ -31590,7 +31590,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubSubClass.self,
                 method: "withThrows() throws -> Int",
@@ -31646,7 +31646,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrowingClosureThrows<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubThrowingFunction<((String) throws -> String?), String?,Swift.Error, ((@escaping (String) throws -> String?)) throws(Swift.Error) -> String?, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) throws -> String? {
+        func withThrowingClosureThrows<M1: Cuckoo.Matchable>(closure p0: M1) -> Cuckoo.ClassStubThrowingFunction<((String) throws -> String?), String?,Swift.Error, ((@escaping (String) throws -> String?)) throws -> String?, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) throws -> String? {
             let matchers: [Cuckoo.ParameterMatcher<((String) throws -> String?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubSubClass.self,
                 method: "withThrowingClosureThrows(closure p0: (String) throws -> String?) throws -> String?",
@@ -31662,7 +31662,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withThrowingOptionalClosureThrows<M1: Cuckoo.OptionalMatchable>(closure p0: M1) -> Cuckoo.ClassStubThrowingFunction<(((String) throws -> String?)?), String?,Swift.Error, ((((String) throws -> String?)?)) throws(Swift.Error) -> String?, Cuckoo.StubSharing.Confined> where M1.OptionalMatchedType == ((String) throws -> String?) {
+        func withThrowingOptionalClosureThrows<M1: Cuckoo.OptionalMatchable>(closure p0: M1) -> Cuckoo.ClassStubThrowingFunction<(((String) throws -> String?)?), String?,Swift.Error, ((((String) throws -> String?)?)) throws -> String?, Cuckoo.StubSharing.Confined> where M1.OptionalMatchedType == ((String) throws -> String?) {
             let matchers: [Cuckoo.ParameterMatcher<(((String) throws -> String?)?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubSubClass.self,
                 method: "withThrowingOptionalClosureThrows(closure p0: ((String) throws -> String?)?) throws -> String?",
@@ -31763,7 +31763,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Int, Cuckoo.StubSharing.Confined> {
+        func withAsyncThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int,Swift.Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubSubClass.self,
                 method: "withAsyncThrows() async throws -> Int",
@@ -31772,7 +31772,7 @@ return cuckoo_manager.call(
         }
         
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnAsyncThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, nonisolated(nonsending) (()) async throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubSubClass.self,
                 method: "withNoReturnAsyncThrows() async throws",
@@ -31852,7 +31852,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws(Swift.Error) -> Void, Cuckoo.StubSharing.Confined> {
+        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubSubClass.self,
                 method: "withNoReturnThrows() throws",
@@ -31964,7 +31964,7 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws(NSError) -> Void, Cuckoo.StubSharing.Confined> {
+        func withTypedThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(),NSError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTestedSubSubClass.self,
                 method: "withTypedThrows() throws(NSError)",

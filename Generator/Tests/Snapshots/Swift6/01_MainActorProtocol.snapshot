@@ -55,7 +55,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
-            invoke: { (implementation: @MainActor @Sendable (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: @MainActor @Sendable (()) async throws -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.refresh()
         )
@@ -80,7 +80,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             ))
         }
         
-        func refresh() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, @MainActor @Sendable (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Isolated> {
+        func refresh() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, @MainActor @Sendable (()) async throws -> Void, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMainActorService.self,
                 method: "refresh() async throws",

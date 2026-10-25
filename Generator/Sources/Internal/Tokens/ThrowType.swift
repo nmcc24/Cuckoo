@@ -25,6 +25,15 @@ enum ThrowType: CustomStringConvertible, Equatable {
         }
     }
 
+    /// Whether it names an error type. A bare `Error` can name a nested type, so it counts.
+    var isTyped: Bool {
+        if case .throws(.some) = self {
+            return true
+        } else {
+            return false
+        }
+    }
+
     var isRethrowing: Bool {
         if case .rethrows = self {
             return true

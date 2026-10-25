@@ -35,7 +35,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             parameters: (p0),
             escapingParameters: (p0),
             errorType: Swift.Error.self,
-            invoke: { (implementation: nonisolated(nonsending) @Sendable ((String)) async throws(Swift.Error) -> String) async throws(Swift.Error) in try await implementation((p0)) },
+            invoke: { (implementation: nonisolated(nonsending) @Sendable ((String)) async throws -> String) async throws(Swift.Error) in try await implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.get(url: p0)
         )
@@ -56,7 +56,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             ))
         }
         
-        func get<M1: Cuckoo.Matchable>(url p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(String), String,Swift.Error, nonisolated(nonsending) @Sendable ((String)) async throws(Swift.Error) -> String, Cuckoo.StubSharing.Shared> where M1.MatchedType == String {
+        func get<M1: Cuckoo.Matchable>(url p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(String), String,Swift.Error, nonisolated(nonsending) @Sendable ((String)) async throws -> String, Cuckoo.StubSharing.Shared> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockNetworking.self,
                 method: "get(url p0: String) async throws -> String",

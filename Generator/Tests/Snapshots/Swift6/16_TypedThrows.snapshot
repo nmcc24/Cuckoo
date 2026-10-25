@@ -24,7 +24,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             parameters: (),
             escapingParameters: (),
             errorType: NetErr.self,
-            invoke: { (implementation: (()) throws(NetErr) -> Int) throws(NetErr) in try implementation(()) },
+            invoke: { (implementation: (()) throws -> Int) throws(NetErr) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NetErr).self, member: "call() throws(NetErr) -> Int") } },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.call()
         )
@@ -36,7 +36,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             parameters: (),
             escapingParameters: (),
             errorType: NetErr.self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws(NetErr) -> Int) async throws(NetErr) in try await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(NetErr) in do { return try await implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NetErr).self, member: "callAsync() async throws(NetErr) -> Int") } },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.callAsync()
         )
@@ -49,7 +49,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             self.cuckoo_manager = manager
         }
         
-        func call() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,NetErr, (()) throws(NetErr) -> Int, Cuckoo.StubSharing.Confined> {
+        func call() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,NetErr, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
                 method: "call() throws(NetErr) -> Int",
@@ -57,7 +57,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             ))
         }
         
-        func callAsync() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,NetErr, nonisolated(nonsending) (()) async throws(NetErr) -> Int, Cuckoo.StubSharing.Confined> {
+        func callAsync() -> Cuckoo.ProtocolStubThrowingFunction<(), Int,NetErr, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
                 method: "callAsync() async throws(NetErr) -> Int",
