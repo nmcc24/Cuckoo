@@ -52,8 +52,8 @@ let project = Project(
         "SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES",
         // Xcode's recommended settings, decided explicitly, as in ../Project.swift.
         "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
-        "ENABLE_MODULE_VERIFIER": "NO",
-        "STRING_CATALOG_GENERATE_SYMBOLS": "NO",
+        "ENABLE_MODULE_VERIFIER": "YES",
+        "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
     ]),
     targets: [
         target,
