@@ -36,6 +36,44 @@ extension Templates {
     #endif
     {% endif %}
     {% endfor %}
+    {% for subscript in container.subscripts %}
+    {{ subscript.compilationConditionCheck }}
+    {% for attribute in subscript.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    subscript{{ subscript.getter.self|matchableGenericNames }}({{ subscript.getter.parameters|matchableParameterSignature }}) -> __Subscript{{ forloop.counter }}{{ subscript.genericArguments }}{{ subscript.getter.self|matchableGenericWhereClause }} {
+        {{ subscript.getter.parameters|parameterMatchers }}
+        return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)
+    }
+
+    {% for attribute in subscript.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    nonisolated struct __Subscript{{ forloop.counter }}{{ subscript.genericParameters }}{{ subscript.whereClause }} {
+        fileprivate let cuckoo_manager: Cuckoo.MockManager
+        fileprivate let matchers: [Cuckoo.ParameterMatcher<({{ subscript.getter.genericInputTypes|genericSafe }})>]
+
+        var get: {{ subscript.getter.stubFunction }}<({{ subscript.getter.genericInputTypes|genericSafe }}), {{ subscript.getter.genericReturnType|genericSafe }}{% if subscript.getter.isThrowing %}, {{ subscript.getter.throwTypeError }}{% endif %}, {{ subscript.getter.implementationType|genericSafe }}, {{ subscript.getter.sharingType }}> {
+            return .init(stub: cuckoo_manager.createStub(for: {{ container.mockName }}.self,
+                method: "{{ subscript.getter.fullyQualifiedName }}",
+                parameterMatchers: matchers
+            ))
+        }
+        {% ifnot subscript.isReadOnly %}
+
+        func set<{{ subscript.newValueMatcherGeneric }}>(_ {{ subscript.newValueName }}: M{{ subscript.newValueMatcherIndex }}) -> {{ subscript.setter.stubFunction }}<({{ subscript.setter.genericInputTypes|genericSafe }}), {{ subscript.setter.implementationType|genericSafe }}, {{ subscript.setter.sharingType }}> where {{ subscript.newValueMatcherConstraint }} {
+            let matchers: [Cuckoo.ParameterMatcher<({{ subscript.setter.genericInputTypes|genericSafe }})>] = {{ subscript.keyMatchers }}[{{ subscript.newValueMatcher }}]
+            return .init(stub: cuckoo_manager.createStub(for: {{ container.mockName }}.self,
+                method: "{{ subscript.setter.fullyQualifiedName }}",
+                parameterMatchers: matchers
+            ))
+        }
+        {% endif %}
+    }
+    {% if subscript.hasCompilationCondition %}
+    #endif
+    {% endif %}
+    {% endfor %}
 }
 """
 }

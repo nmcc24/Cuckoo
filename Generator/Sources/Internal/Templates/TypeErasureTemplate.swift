@@ -27,6 +27,40 @@ extension Templates {
         {% endif %}
 
         {% endfor %}
+        {% for subscript in container.subscripts %}
+        {% if subscript.hasCompilationCondition %}
+        {{ subscript.compilationConditionCheck }}
+        {% endif %}
+        {% if not subscript.hasGenericParams %}
+        private let _subscript_getter_storage$${{ forloop.counter }}: ({{ subscript.keyTypes }}) {%+ if subscript.getterEffects %}{{ subscript.getterEffects }}{% endif %}-> {{ subscript.returnType }}
+        {% if not subscript.isReadOnly %}
+        private let _subscript_setter_storage$${{ forloop.counter }}: ({{ subscript.keyTypes }}{% if subscript.keyTypes %}, {% endif %}{{ subscript.returnType }}) -> Void
+        {% endif %}
+        {% endif %}
+        {{ container.accessibility|withSpace }}subscript{{ subscript.signature }} {
+            get {{ subscript.getterEffects }}{
+                {% if subscript.hasGenericParams %}
+                return {% if subscript.isThrowing %}try {%+ endif %}{% if subscript.isAsync %}await {%+ endif %}reference()[{{ subscript.getter.forwardingCall }}]
+                {% else %}
+                return {% if subscript.isThrowing %}try {%+ endif %}{% if subscript.isAsync %}await {%+ endif %}_subscript_getter_storage$${{ forloop.counter }}({{ subscript.getter.parameterNames }})
+                {% endif %}
+            }
+            {% if not subscript.isReadOnly %}
+            set {
+                {% if subscript.hasGenericParams %}
+                var reference = reference()
+                reference[{{ subscript.getter.forwardingCall }}] = newValue
+                {% else %}
+                _subscript_setter_storage$${{ forloop.counter }}({{ subscript.getter.parameterNames }}{% if subscript.keyTypes %}, {% endif %}newValue)
+                {% endif %}
+            }
+            {% endif %}
+        }
+        {% if subscript.hasCompilationCondition %}
+        #endif
+        {% endif %}
+
+        {% endfor %}
         {# For developers: The `keeping reference: Any` is necessary because when called from the `enableDefaultImplementation(stub:)` method
         instead of `enableDefaultImplementation(mutating:)`, we need to prevent the struct getting deallocated. #}
         init<\(staticGenericParameter): {{ container.name }}>(from defaultImpl: UnsafeMutablePointer<\(staticGenericParameter)>, keeping reference: @escaping @autoclosure () -> \(staticGenericParameter)) where {{ container.genericProtocolIdentity }} {
@@ -42,6 +76,20 @@ extension Templates {
             {% endif %}
             {% if property.hasCompilationCondition %}
             #endif
+            {% endif %}
+            {% endfor %}
+            {% for subscript in container.subscripts %}
+            {% if not subscript.hasGenericParams %}
+            {% if subscript.hasCompilationCondition %}
+            {{ subscript.compilationConditionCheck }}
+            {% endif %}
+            _subscript_getter_storage$${{ forloop.counter }} = { {%+ if subscript.isThrowing %}try {%+ endif %}{% if subscript.isAsync %}await {%+ endif %}defaultImpl.pointee[{{ subscript.keyClosureParameters }}] }
+            {% if not subscript.isReadOnly %}
+            _subscript_setter_storage$${{ forloop.counter }} = { defaultImpl.pointee[{{ subscript.keyClosureParameters }}] = ${{ subscript.keyCount }} }
+            {% endif %}
+            {% if subscript.hasCompilationCondition %}
+            #endif
+            {% endif %}
             {% endif %}
             {% endfor %}
             {% for method in container.methods %}

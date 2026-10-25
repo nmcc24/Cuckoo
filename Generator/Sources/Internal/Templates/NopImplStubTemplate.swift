@@ -57,6 +57,27 @@ extension Templates {
     #endif
     {% endif %}
     {% endfor %}
+    {% for subscript in container.subscripts %}
+
+    {{ subscript.compilationConditionCheck }}
+    {% for attribute in subscript.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    {% if subscript.isolationAttribute %}
+    {{ subscript.isolationAttribute }}
+    {% endif %}
+    {{ subscript.accessibility|withSpace }}{% if subscript.isOverriding %}override {%+ endif %}subscript{{ subscript.signature }} {
+        get {{ subscript.getterEffects }}{
+            return DefaultValueRegistry.defaultValue(for: ({{ subscript.getter.genericReturnType|genericSafe|removeClosureArgumentNames }}).self)
+        }
+        {% ifnot subscript.isReadOnly %}
+        set {}
+        {% endif %}
+    }
+    {% if subscript.hasCompilationCondition %}
+    #endif
+    {% endif %}
+    {% endfor %}
 }
 """
 }

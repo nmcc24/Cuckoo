@@ -15,6 +15,8 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
     var isolation: Isolation?
     /// `nonisolated(nonsending)` or `@concurrent`: where an async member runs. Mocks keep it.
     var executionAttribute: String?
+    /// The name the mock manager records the call under, when it isn't the method's own (a subscript's accessors).
+    var recordedName: String?
 
     var fullSignature: String {
         [
@@ -35,7 +37,7 @@ extension Method: Inheritable {
 
 extension Method {
     var fullyQualifiedName: String {
-        "\(name)\(signature.description.trimmed)"
+        recordedName ?? "\(name)\(signature.description.trimmed)"
     }
     
     var isAsync: Bool {
@@ -79,6 +81,7 @@ extension Method {
         let call = signature.parameters
             .map(\.call)
             .joined(separator: ", ")
+        let forwardingCall = signature.parameters.map(\.forwardingCall).joined(separator: ", ")
         
         let staticGenericCall: String
         if let parent = parent.asProtocol, !parent.nonPrimaryAssociatedTypes.isEmpty {
@@ -187,7 +190,9 @@ extension Method {
             "throwTypeError": signature.throwType?.type ?? "",
             "fullyQualifiedName": fullyQualifiedName,
             "call": call,
-            "forwardingCall": signature.parameters.map(\.forwardingCall).joined(separator: ", "),
+            "forwardingCall": forwardingCall,
+            "superclassCall": "super.\(name)(\(forwardingCall))",
+            "defaultCall": "__defaultImplStub.value.\(name)\(isOptional ? "!" : "")(\(forwardingCall))",
             "staticGenericCall": staticGenericCall,
             "parameterSignature": signature.parameters.map { $0.description }.joined(separator: ", "),
             "parameterSignatureWithoutNames": signature.parameters.map { "\($0.name): \($0.type)" }.joined(separator: ", "),
