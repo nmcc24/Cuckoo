@@ -1,8 +1,8 @@
 import Foundation
 
 enum CuckooGeneratorError: Error {
-    case ioError(Error)
-    case unknownError(Error)
+    case ioError(any Error)
+    case unknownError(any Error)
     case stderrUsed
     
     var description: String {

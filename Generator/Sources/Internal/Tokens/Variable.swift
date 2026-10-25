@@ -4,7 +4,7 @@ struct Variable: Token, HasAccessibility, HasAttributes {
         var isAsync = false
     }
 
-    var parent: Reference<Token>?
+    var parent: Reference<any Token>?
 
     var documentation: [String]
     var attributes: [Attribute]
@@ -90,7 +90,7 @@ extension Variable: Inheritable {
         !isConstant
     }
 
-    func isEqual(to other: Inheritable) -> Bool {
+    func isEqual(to other: any Inheritable) -> Bool {
         guard let other = other as? Variable else { return false }
         return name == other.name
     }

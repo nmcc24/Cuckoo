@@ -10,8 +10,8 @@ extension ContainerToken {
             return mutableToken
         }
 
-        let accessibilityAdjustedMembers = members.map { child -> Token in
-            guard let memberWithAccessibility = child as? Token & HasAccessibility else { return child }
+        let accessibilityAdjustedMembers = members.map { child -> any Token in
+            guard let memberWithAccessibility = child as? any Token & HasAccessibility else { return child }
             return withAdjustedAccessibility(token: memberWithAccessibility)
         }
 

@@ -1,5 +1,5 @@
 protocol Token: Serializable {
-    var parent: Reference<Token>? { get set }
+    var parent: Reference<any Token>? { get set }
 }
 
 extension Token {
@@ -14,10 +14,10 @@ extension Token {
                 "isImplementation": isClass,
                 "hasParent": parent != nil,
             ],
-            (self as? ContainerToken)?.containerSerialize(),
-            (self as? HasName)?.nameSerialize(),
-            (parent?.value as? HasName).map { ["parentFullyQualifiedName": $0.fullyQualifiedName] },
-            (self as? HasGenerics)?.genericsSerialize(),
+            (self as? any ContainerToken)?.containerSerialize(),
+            (self as? any HasName)?.nameSerialize(),
+            (parent?.value as? any HasName).map { ["parentFullyQualifiedName": $0.fullyQualifiedName] },
+            (self as? any HasGenerics)?.genericsSerialize(),
             asProtocol.map {
                 [
                     "isNSObjectProtocol": $0.isNSObjectProtocol,
@@ -27,8 +27,8 @@ extension Token {
                     "isNonisolatedProtocol": !$0.isActor && $0.isolation == nil,
                 ]
             },
-            (self as? HasInheritance)?.inheritanceSerialize(),
-            (self as? HasEnclosingCompilationConditions)?.enclosingCompilationConditionsSerialize(),
+            (self as? any HasInheritance)?.inheritanceSerialize(),
+            (self as? any HasEnclosingCompilationConditions)?.enclosingCompilationConditionsSerialize(),
         ]
         .compactMap { $0 }
         .merge()

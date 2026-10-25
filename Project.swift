@@ -181,6 +181,11 @@ let project = Project(
         "SWIFT_VERSION": "6.0",
         // Warnings in our own targets are errors, as in Package.swift. Dependencies build in their own projects.
         "SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES",
+        // The Swift 7 upcoming features that Package.swift turns on.
+        "SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY": "YES",
+        "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+        // Xcode has no build setting for this one.
+        "OTHER_SWIFT_FLAGS": "$(inherited) -enable-upcoming-feature ImmutableWeakCaptures",
         // Xcode's recommended settings, decided explicitly. The "Generate mocks" script builds the generator
         // with a nested xcodebuild and writes Tests/Swift/Generated, which the script sandbox would block.
         "ENABLE_USER_SCRIPT_SANDBOXING": "NO",

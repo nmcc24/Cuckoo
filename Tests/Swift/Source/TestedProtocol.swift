@@ -118,7 +118,7 @@ protocol TestedProtocol {
     @available(macOS 10.15, *)
     func asyncMethod() async
 
-    func compositionalParameters(param1: any Numeric, param2: OnlyLabelProtocol & Codable)
+    func compositionalParameters(param1: any Numeric, param2: any OnlyLabelProtocol & Codable)
 }
 
 extension TestedProtocol {

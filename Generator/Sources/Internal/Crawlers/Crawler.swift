@@ -59,21 +59,21 @@ final class Crawler: SyntaxVisitor {
     }
 
     var imports: [Import] = []
-    var tokens: [Token] = []
+    var tokens: [any Token] = []
     /// The conditions of the `#if` clauses the crawler is currently inside.
     private var compilationConditions: [String] = []
 
-    private var container: Reference<Token>?
+    private var container: Reference<any Token>?
 
     /// The `#if` conditions around a type declared at the crawler's position: its enclosing types' conditions,
     /// and those of the `#if` clauses the crawler is inside.
     private var enclosingCompilationConditions: [String] {
-        ((container?.value as? HasEnclosingCompilationConditions)?.enclosingCompilationConditions ?? []) + compilationConditions
+        ((container?.value as? any HasEnclosingCompilationConditions)?.enclosingCompilationConditions ?? []) + compilationConditions
     }
 
     private let context: Context
 
-    private init(container: Reference<Token>?, context: Context) {
+    private init(container: Reference<any Token>?, context: Context) {
         self.container = container
         self.context = context
 
@@ -102,7 +102,7 @@ final class Crawler: SyntaxVisitor {
         var token = ClassDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
             name: node.name.filteredDescription,
             genericParameters: genericParameters(from: node.genericParameterClause?.parameters),
             genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements),
@@ -127,7 +127,7 @@ final class Crawler: SyntaxVisitor {
         var token = ProtocolDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
             name: node.name.filteredDescription,
             associatedTypes: associatedTypes(from: node.memberBlock.members),
             primaryAssociatedTypes: genericParameters(from: node.primaryAssociatedTypeClause?.primaryAssociatedTypes),
@@ -153,7 +153,7 @@ final class Crawler: SyntaxVisitor {
         var token = NamespaceDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
             name: node.name.filteredDescription,
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions
@@ -174,7 +174,7 @@ final class Crawler: SyntaxVisitor {
         var token = NamespaceDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
             name: node.extendedType.filteredDescription,
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions
@@ -195,7 +195,7 @@ final class Crawler: SyntaxVisitor {
         var token = NamespaceDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
             name: node.name.filteredDescription,
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions
@@ -276,7 +276,7 @@ final class Crawler: SyntaxVisitor {
         )
     }
 
-        private func debug(_ node: DeclSyntaxProtocol, additionalInfo: String? = nil) {
+        private func debug(_ node: any DeclSyntaxProtocol, additionalInfo: String? = nil) {
         let description: String
         switch node {
         case let node as ClassDeclSyntax:
@@ -352,7 +352,7 @@ extension Crawler {
                     documentation: documentation(from: variableGroup.leadingTrivia),
                     attributes: attributes,
                     accessibility: accessibility,
-                    setterAccessibility: $0.isReadOnly ? nil : setterAccessibility ?? (container as? HasAccessibility)?.accessibility ?? .internal,
+                    setterAccessibility: $0.isReadOnly ? nil : setterAccessibility ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
                     name: $0.identifier,
                     type: $0.type,
                     effects: $0.effects,
@@ -415,7 +415,7 @@ extension Crawler {
 
 extension Crawler {
     private func parse(_ initializer: InitializerDeclSyntax) -> Initializer? {
-        let accessibility = initializer.modifiers.lazy.compactMap { Accessibility(tokenKind: $0.name.tokenKind) }.first ?? (container as? HasAccessibility)?.accessibility ?? .internal
+        let accessibility = initializer.modifiers.lazy.compactMap { Accessibility(tokenKind: $0.name.tokenKind) }.first ?? (container as? any HasAccessibility)?.accessibility ?? .internal
 
         guard accessibility.isAccessible else { return nil }
 
@@ -449,7 +449,7 @@ extension Crawler {
 
         guard case .identifier(let identifier) = method.name.tokenKind else { return nil }
 
-        let accessibility = method.modifiers.lazy.compactMap { Accessibility(tokenKind: $0.name.tokenKind) }.first ?? (container as? HasAccessibility)?.accessibility ?? .internal
+        let accessibility = method.modifiers.lazy.compactMap { Accessibility(tokenKind: $0.name.tokenKind) }.first ?? (container as? any HasAccessibility)?.accessibility ?? .internal
 
         guard accessibility.isAccessible else { return nil }
 

@@ -9,8 +9,8 @@ extension HasName {
 
     var fullyQualifiedName: String {
         var names = [name]
-        var parent: Token? = parent?.value
-        while let p = parent as? HasName {
+        var parent: (any Token)? = parent?.value
+        while let p = parent as? any HasName {
             names.insert(p.name, at: 0)
             parent = p.parent?.value
         }

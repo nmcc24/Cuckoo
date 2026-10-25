@@ -5,7 +5,14 @@ import PackageDescription
 // Our own targets treat warnings as errors (roadmap Phase 2 item 6). SwiftPM ignores warning-control
 // settings in packages fetched by URL, so this never fails the build of a project that depends on Cuckoo
 // that way. A local path dependency does get the setting.
-let warningsAsErrors: [SwiftSetting] = [.treatAllWarnings(as: .error)]
+// They also adopt the Swift 7 upcoming features that only change what compiles (roadmap Phase 3.5).
+// The behaviour-changing ones are covered by the CI jobs that build everything with them on.
+let swiftSettings: [SwiftSetting] = [
+    .treatAllWarnings(as: .error),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+    .enableUpcomingFeature("ImmutableWeakCaptures"),
+]
 
 let package = Package(
     name: "Cuckoo",
@@ -54,7 +61,7 @@ let package = Package(
             name: "Cuckoo",
             path: "Source",
             exclude: ["Info.plist"],
-            swiftSettings: warningsAsErrors
+            swiftSettings: swiftSettings
         ),
         .executableTarget(
             name: "CuckooGenerator",
@@ -68,14 +75,14 @@ let package = Package(
                 .product(name: "Rainbow", package: "Rainbow"),
             ],
             path: "Generator/Sources",
-            swiftSettings: warningsAsErrors
+            swiftSettings: swiftSettings
         ),
         .testTarget(
             name: "CuckooGeneratorTests",
             dependencies: ["CuckooGenerator"],
             path: "Generator/Tests",
             exclude: ["Snapshots"],
-            swiftSettings: warningsAsErrors
+            swiftSettings: swiftSettings
         ),
         // The runtime test suite, laid out the way users consume Cuckoo: the code under test is a plain
         // module, and the modular plugin generates one mocks file per module it depends on, configured in
@@ -84,18 +91,18 @@ let package = Package(
             name: "CuckooTestSources",
             path: "Tests/Swift/Source",
             exclude: ["SwiftUI"],
-            swiftSettings: warningsAsErrors
+            swiftSettings: swiftSettings
         ),
         .target(
             name: "CuckooTestSourcesSwiftUI",
             path: "Tests/Swift/Source/SwiftUI",
-            swiftSettings: warningsAsErrors
+            swiftSettings: swiftSettings
         ),
         .target(
             name: "CuckooMocks",
             dependencies: ["Cuckoo", "CuckooTestSources", "CuckooTestSourcesSwiftUI"],
             path: "Tests/Swift/Mocks",
-            swiftSettings: warningsAsErrors,
+            swiftSettings: swiftSettings,
             plugins: ["CuckooPluginModular"]
         ),
         .testTarget(
@@ -103,7 +110,7 @@ let package = Package(
             dependencies: ["Cuckoo", "CuckooTestSources", "CuckooMocks"],
             path: "Tests",
             exclude: ["Swift/Source", "Swift/Generated", "Swift/Mocks", "OCMock", "Info.plist"],
-            swiftSettings: warningsAsErrors
+            swiftSettings: swiftSettings
         ),
         .plugin(
             name: "CuckooPluginSingleFile",
