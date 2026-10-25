@@ -9,7 +9,7 @@ extension Templates {
 {% for name in method.sendingParameterNames %}
 let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
 {% endfor %}
-{{ method.self|openNestedClosure }}return{% if method.isThrowing %} try{% endif %}{% if method.isAsync %} await{% endif %} {%+ if method.returnsSending %}Cuckoo.__SendingArgument({% endif %}cuckoo_manager.call{% if method.isThrowing %}{{ method.throwType|capitalize }}{% endif %}(
+{{ method.self|openNestedClosure }}return{% if method.isThrowing %} try{% endif %}{% if method.isAsync %} await{% endif %} {%+ if method.returnsSending %}Cuckoo.__SendingArgument({% endif %}{{ method.manager }}.call{% if method.isThrowing %}{{ method.throwType|capitalize }}{% endif %}(
     "{{method.fullyQualifiedName}}",
     parameters: ({{method.recordedParameters}}),
     escapingParameters: ({{method.escapingParameterNames}}),
@@ -18,7 +18,7 @@ let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
     {% endif %}
     invoke: { (implementation: {{ method.implementationType|genericSafe }}) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.hasTypedThrows %}do { return try {%+ if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) } catch { throw Cuckoo.MockManager.typedError(error, as: ({{ method.throwTypeError }}).self, member: "{{ method.fullyQualifiedName }}") }{% else %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}){% endif %} },
     superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}{{ method.superclassCall }}{% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
-    defaultCall: {%+ if container.isActor and not method.isAsync %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync %}await {%+ endif %}{{ method.defaultCall }}{% endif +%}
+    defaultCall: {%+ if container.isActor and not method.isAsync and not method.isStatic %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync and not method.isStatic %}await {%+ endif %}{{ method.defaultCall }}{% endif +%}
 ){% if method.returnsSending %}).value{% endif %}{{ method.self|closeNestedClosure }}
 """
 
@@ -40,7 +40,7 @@ extension {{ container.parentFullyQualifiedName }} {
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
 {% endif %}
-{{ container.accessibility|withSpace }}{% if container.isNonisolatedProtocol %}nonisolated {%+ endif %}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.mockName }}{{ container.genericParameters }}:{% if container.isNSObjectProtocol %} NSObject,{% endif %} {{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %},{% if not container.isActor %} nonisolated{% endif %}{% if container.isImplementation %} Cuckoo.ClassMock{% else %} Cuckoo.ProtocolMock{% endif %} {
+{{ container.accessibility|withSpace }}{% if container.isNonisolatedProtocol %}nonisolated {%+ endif %}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.mockName }}{{ container.genericParameters }}:{% if container.isNSObjectProtocol %} NSObject,{% endif %} {{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %},{% if not container.isActor %} nonisolated{% endif %}{% if container.isImplementation %} Cuckoo.ClassMock{% else %} Cuckoo.ProtocolMock{% endif %}{% if container.hasStaticMembers %},{% if not container.isActor %} nonisolated{% endif %} Cuckoo.StaticMock{% endif %} {
     {% if container.isGeneric and not container.isImplementation and not container.hasOnlyPrimaryAssociatedTypes %}
     {{ container.accessibility|withSpace }}typealias MocksType = \(typeErasureClassName)
     {% elif container.isImplementation %}
@@ -50,6 +50,10 @@ extension {{ container.parentFullyQualifiedName }} {
     {% endif %}
     {{ container.accessibility|withSpace }}typealias Stubbing = __StubbingProxy_{{ container.name }}
     {{ container.accessibility|withSpace }}typealias Verification = __VerificationProxy_{{ container.name }}
+    {% if container.hasStaticMembers %}
+    {{ container.accessibility|withSpace }}typealias StaticStubbing = __StaticStubbingProxy_{{ container.name }}
+    {{ container.accessibility|withSpace }}typealias StaticVerification = __StaticVerificationProxy_{{ container.name }}
+    {% endif %}
 
     // Original typealiases
     {% for typealias in container.typealiases %}
@@ -86,7 +90,7 @@ extension {{ container.parentFullyQualifiedName }} {
     }
     {% endif -%}
 
-    {% for property in container.properties %}
+    {% for property in container.allProperties %}
 
     {% if property.hasCompilationCondition %}
     {{ property.compilationConditionCheck }}
@@ -105,9 +109,9 @@ extension {{ container.parentFullyQualifiedName }} {
     {% if property.isolationAttribute %}
     {{ property.isolationAttribute }}
     {% endif %}
-    {{ property.accessibility|withSpace }}{% if property.isOverriding %}override {%+ endif %}var {{ property.name|escapeReservedKeywords }}: {{ property.type }} {
+    {{ property.accessibility|withSpace }}{% if property.isOverriding %}override {%+ endif %}{{ property.staticKeyword }}var {{ property.name|escapeReservedKeywords }}: {{ property.type }} {
         get {%+ if property.isAsync %}async {%+ endif %}{% if property.isThrowing %}throws {%+ endif %}{
-            return {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}cuckoo_manager.getter{% if property.isThrowing %}Throws{% endif %}(
+            return {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}{{ property.manager }}.getter{% if property.isThrowing %}Throws{% endif %}(
                 "{{ property.name }}",
                 invoke: { (implementation: {{ property.getterImplementationType|genericSafe }}) in {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}implementation({{ property.getterImplementationArguments }}) },
                 superclassCall: {%+ if container.isImplementation -%}
@@ -115,12 +119,12 @@ extension {{ container.parentFullyQualifiedName }} {
                     {%- else -%}
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     {%- endif -%},
-                defaultCall: {%+ if container.isActor and not property.isAsync %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}{% if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub.value.{{property.name}}{% endif +%}
+                defaultCall: {%+ if property.isStatic %}Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}"){% elif container.isActor and not property.isAsync %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}{% if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub.value.{{property.name}}{% endif +%}
             )
         }
         {% ifnot property.isReadOnly %}
         set {
-            cuckoo_manager.setter(
+            {{ property.manager }}.setter(
                 "{{ property.name }}",
                 value: newValue,
                 invoke: { (implementation: {{ property.setterImplementationType|genericSafe }}) in implementation({{ property.setterImplementationArguments }}) },
@@ -129,7 +133,7 @@ extension {{ container.parentFullyQualifiedName }} {
                     {%- else -%}
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     {%- endif -%},
-                defaultCall: {%+ if container.isActor %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}__defaultImplStub.value.{{property.name}} = newValue{% endif +%}
+                defaultCall: {%+ if property.isStatic %}Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}"){% elif container.isActor %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}__defaultImplStub.value.{{property.name}} = newValue{% endif +%}
             )
         }
         {% endif %}
@@ -156,7 +160,7 @@ extension {{ container.parentFullyQualifiedName }} {
     #endif
     {% endif %}
     {% endfor %}
-    {% for method in container.methods %}
+    {% for method in container.allMethods %}
 
     {% if method.hasCompilationCondition %}
     {{ method.compilationConditionCheck }}
@@ -178,14 +182,14 @@ extension {{ container.parentFullyQualifiedName }} {
     {% if method.executionAttribute %}
     {{ method.executionAttribute }}
     {% endif %}
-    {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
+    {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}{{ method.staticKeyword }}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
 \(Templates.methodBody.indented(times: 2))
     }
     {% if method.hasCompilationCondition %}
     #endif
     {% endif %}
     {% endfor %}
-    {% for subscript in container.subscripts %}
+    {% for subscript in container.allSubscripts %}
 
     {% if subscript.hasCompilationCondition %}
     {{ subscript.compilationConditionCheck }}
@@ -201,7 +205,7 @@ extension {{ container.parentFullyQualifiedName }} {
     {% if subscript.isolationAttribute %}
     {{ subscript.isolationAttribute }}
     {% endif %}
-    {{ subscript.accessibility|withSpace }}{% if subscript.isOverriding %}override {%+ endif %}subscript{{ subscript.signature }} {
+    {{ subscript.accessibility|withSpace }}{% if subscript.isOverriding %}override {%+ endif %}{{ subscript.staticKeyword }}subscript{{ subscript.signature }} {
         get {{ subscript.getterEffects }}{
             {% for method in subscript.getters %}
 \(Templates.methodBody.indented(times: 3))
@@ -218,9 +222,15 @@ extension {{ container.parentFullyQualifiedName }} {
     {% endif %}
     {% endfor %}
 
-\(Templates.stubbingProxy.indented())
+\(Templates.stubbingProxy(isStatic: false).indented())
 
-\(Templates.verificationProxy.indented())
+\(Templates.verificationProxy(isStatic: false).indented())
+    {% if container.hasStaticMembers %}
+
+\(Templates.stubbingProxy(isStatic: true).indented())
+
+\(Templates.verificationProxy(isStatic: true).indented())
+    {% endif %}
 }
 
 \(Templates.noImplStub)

@@ -17,10 +17,9 @@ extension ContainerToken {
 
         let typealiases = members.compactMap { ($0 as? Typealias)?.description }
 
-        let properties = accessibilityAdjustedMembers
+        let variables = accessibilityAdjustedMembers
             .compactMap { $0 as? Variable }
             .filter { !$0.isConstant }
-            .map { $0.serialize() }
 
         let initializers = if isClass {
             []
@@ -30,17 +29,28 @@ extension ContainerToken {
                 .map { $0.serialize() }
         }
 
-        let methods = accessibilityAdjustedMembers
-            .compactMap { $0 as? Method }
-            .map { $0.serialize() }
+        let allMethods = accessibilityAdjustedMembers.compactMap { $0 as? Method }
+        let allSubscripts = accessibilityAdjustedMembers.compactMap { $0 as? Subscript }
 
-        let subscripts = accessibilityAdjustedMembers
-            .compactMap { $0 as? Subscript }
-            .map { $0.serialize() }
+        let staticProperties = variables.filter(\.isStatic).map { $0.serialize() }
+        let staticMethods = allMethods.filter(\.isStatic).map { $0.serialize() }
+        let staticSubscripts = allSubscripts.filter(\.isStatic).map { $0.serialize() }
+        let properties = variables.filter { !$0.isStatic }.map { $0.serialize() }
+        let methods = allMethods.filter { !$0.isStatic }.map { $0.serialize() }
+        let subscripts = allSubscripts.filter { !$0.isStatic }.map { $0.serialize() }
 
         return [
             "accessibility": accessibility.sourceName,
             "subscripts": subscripts,
+            // `static` and `class` members, stubbed through the static proxies.
+            "staticProperties": staticProperties,
+            "staticMethods": staticMethods,
+            "staticSubscripts": staticSubscripts,
+            "hasStaticMembers": !(staticProperties.isEmpty && staticMethods.isEmpty && staticSubscripts.isEmpty),
+            // Every member, for the mock's body and the nop stub.
+            "allProperties": properties + staticProperties,
+            "allMethods": methods + staticMethods,
+            "allSubscripts": subscripts + staticSubscripts,
             "typealiases": typealiases,
             "properties": properties,
             "initializers": initializers,

@@ -315,7 +315,7 @@ extension Crawler {
     private func parse(_ variableGroup: VariableDeclSyntax) -> [Variable] {
         let isConstant = variableGroup.bindingSpecifier.tokenKind == .keyword(.let)
 
-        guard !variableGroup.modifiers.isStatic && !variableGroup.modifiers.isFinal else { return [] }
+        guard let isStatic = staticness(of: variableGroup.modifiers) else { return [] }
 
         let attributes = attributes(from: variableGroup.attributes)
         // An unavailable member can't be overridden or called.
@@ -368,7 +368,8 @@ extension Crawler {
                     effects: $0.effects,
                     compilationConditions: compilationConditions,
                     isolation: isolation(attributes: variableGroup.attributes, modifiers: variableGroup.modifiers),
-                    isConstant: isConstant
+                    isConstant: isConstant,
+                    isStatic: isStatic
                 )
             }
     }
@@ -454,8 +455,7 @@ extension Crawler {
 // MARK: - Subscript crawling.
 extension Crawler {
     private func parse(_ node: SubscriptDeclSyntax) -> Subscript? {
-        // Static subscripts aren't mocked yet, and final ones can't be overridden.
-        guard !node.modifiers.isStatic && !node.modifiers.isFinal else { return nil }
+        guard let isStatic = staticness(of: node.modifiers) else { return nil }
 
         let attributes = attributes(from: node.attributes)
         // An unavailable member can't be overridden or called.
@@ -503,7 +503,8 @@ extension Crawler {
             isAsync: getter?.effectSpecifiers?.asyncSpecifier?.isPresent == true,
             throwType: ThrowType(syntax: getter?.effectSpecifiers?.throwsClause),
             compilationConditions: compilationConditions,
-            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
+            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers),
+            isStatic: isStatic
         )
     }
 }
@@ -511,8 +512,7 @@ extension Crawler {
 // MARK: - Method crawling.
 extension Crawler {
     private func parse(_ method: FunctionDeclSyntax) -> Method? {
-        // Can't mock static and final members.
-        guard !method.modifiers.isStatic && !method.modifiers.isFinal else { return nil }
+        guard let isStatic = staticness(of: method.modifiers) else { return nil }
 
         guard case .identifier(let identifier) = method.name.tokenKind else { return nil }
 
@@ -544,7 +544,8 @@ extension Crawler {
             isOptional: method.modifiers.contains { $0.name.tokenKind == .keyword(.optional) },
             compilationConditions: compilationConditions,
             isolation: isolation(attributes: method.attributes, modifiers: method.modifiers),
-            executionAttribute: executionAttribute(attributes: method.attributes, modifiers: method.modifiers)
+            executionAttribute: executionAttribute(attributes: method.attributes, modifiers: method.modifiers),
+            isStatic: isStatic
         )
     }
 }
@@ -558,6 +559,15 @@ extension Crawler {
                 type: ComplexType(syntax: parameter.type)
             )
         }
+    }
+
+    /// Whether a member is static (`static`, or `class`), or `nil` when the mock can't override it: a `final` member, or
+    /// a class's `static` one, which is final too.
+    private func staticness(of modifiers: DeclModifierListSyntax) -> Bool? {
+        if modifiers.isFinal || (modifiers.isStatic && container?.isClass == true) {
+            return nil
+        }
+        return modifiers.isStatic || modifiers.isClassMember
     }
 
     private func documentation(from trivia: Trivia) -> [String] {

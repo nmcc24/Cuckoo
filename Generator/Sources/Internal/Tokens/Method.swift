@@ -17,6 +17,8 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
     var executionAttribute: String?
     /// The name the mock manager records the call under, when it isn't the method's own (a subscript's accessors).
     var recordedName: String?
+    /// A `static` or `class` member, recorded by the mock type's static manager.
+    var isStatic = false
 
     var fullSignature: String {
         [
@@ -31,13 +33,13 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
 extension Method: Inheritable {
     func isEqual(to other: any Inheritable) -> Bool {
         guard let other = other as? Method else { return false }
-        return name == other.name && signature.isApiEqual(to: other.signature)
+        return name == other.name && isStatic == other.isStatic && signature.isApiEqual(to: other.signature)
     }
 }
 
 extension Method {
     var fullyQualifiedName: String {
-        recordedName ?? "\(name)\(signature.description.trimmed)"
+        recordedName ?? "\(isStatic ? "static " : "")\(name)\(signature.description.trimmed)"
     }
     
     var isAsync: Bool {
@@ -64,6 +66,14 @@ extension Method {
         signature.parameters.contains { $0.type.isOptional }
     }
     
+    /// The isolation the stubs take. An actor's static members aren't isolated to an instance.
+    var stubbedIsolation: Isolation? {
+        if isStatic && isolation == nil && parent?.value.asProtocol?.isActor == true {
+            return .nonisolated
+        }
+        return isolation
+    }
+
     var hasGenericParams: Bool {
         !signature.genericParameters.isEmpty
     }
@@ -105,10 +115,7 @@ extension Method {
         let throwingString = isThrowing ? "Throwing" : ""
         let stubFunction = "Cuckoo.\(stubFunctionPrefix)Stub\(returnString)\(throwingString)Function"
 
-        let stubIsolation = parent.value.stubIsolation(forMember: isolation)
-        let genericParameterTypes = signature.parameters.map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]) }
-        let genericInputTypes = genericParameterTypes.map(\.genericArgumentSafe.description).joined(separator: ", ")
-        let genericReturnType = returnType?.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description ?? "Void"
+        let stubIsolation = parent.value.stubIsolation(forMember: stubbedIsolation)
         // Untyped even for typed throws: a typed-throws function type as a generic argument needs runtime
         // support that iOS 17 and macOS 14 lack. The mock narrows the error where it calls the closure.
         let throwsClause: String? = isThrowing ? "throws" : nil
@@ -119,27 +126,40 @@ extension Method {
             return type.isClosure && !type.isOptional ? "@escaping \(description)" : description
         }
         let recordedParameters = signature.parameters.map(\.recordedValue).joined(separator: ", ")
-        let implementationInput: String
-        let implementationArguments: String
-        if let isolatedParameter = stubIsolation.isolatedParameter {
-            // An actor mock's closure takes the mock, then each parameter.
-            implementationInput = "(\(([isolatedParameter] + genericParameterTypes.map(escapingIfClosure)).joined(separator: ", ")))"
-            implementationArguments = (["self"] + signature.parameters.map(\.recordedValue)).joined(separator: ", ")
+        let implementationArguments = if stubIsolation.isolatedParameter != nil {
+            (["self"] + signature.parameters.map(\.recordedValue)).joined(separator: ", ")
         } else {
-            // Other closures take the parameters as one tuple, the way they're recorded.
-            implementationInput = if genericParameterTypes.count == 1 {
-                "((\(escapingIfClosure(genericParameterTypes[0]))))"
-            } else {
-                "((\(genericInputTypes)))"
-            }
-            implementationArguments = "(\(recordedParameters))"
+            "(\(recordedParameters))"
         }
-        let implementationType = stubIsolation.implementationType(
-            input: implementationInput,
-            output: genericReturnType,
-            isAsync: isAsync,
-            throwsClause: throwsClause
-        )
+
+        /// The stub's input, output and `then` closure types. The mock's body names `Self` as written; the proxies,
+        /// where `Self` would be the proxy, name the mock, which is `final`, so both are the same type at runtime.
+        func stubTypes(resolvingSelfAs selfType: String?) -> (input: String, output: String, implementation: String) {
+            func resolved(_ type: ComplexType) -> ComplexType {
+                selfType.flatMap { selfType in type.replaceTypes(named: ["Self"], with: { _ in selfType }) } ?? type
+            }
+            let parameterTypes = signature.parameters.map { resolved($0.type.withoutAttributes(except: ["@MainActor", "@Sendable"])) }
+            let input = parameterTypes.map(\.genericArgumentSafe.description).joined(separator: ", ")
+            let output = returnType.map { resolved($0.withoutAttributes(except: ["@MainActor", "@Sendable"])).genericArgumentSafe.description } ?? "Void"
+            let implementationInput = if let isolatedParameter = stubIsolation.isolatedParameter {
+                // An actor mock's closure takes the mock, then each parameter.
+                "(\(([isolatedParameter] + parameterTypes.map(escapingIfClosure)).joined(separator: ", ")))"
+            } else if parameterTypes.count == 1 {
+                // Other closures take the parameters as one tuple, the way they're recorded.
+                "((\(escapingIfClosure(parameterTypes[0]))))"
+            } else {
+                "((\(input)))"
+            }
+            let implementation = stubIsolation.implementationType(
+                input: implementationInput,
+                output: output,
+                isAsync: isAsync,
+                throwsClause: throwsClause
+            )
+            return (input, output, implementation)
+        }
+        let (genericInputTypes, genericReturnType, implementationType) = stubTypes(resolvingSelfAs: nil)
+        let proxyTypes = stubTypes(resolvingSelfAs: parent.value.mockTypeName)
 
         let escapingParameterNames = signature.parameters.map { parameter in
             if !parameter.type.containsAttribute(named: "@escaping"), let closure = parameter.type.findClosure() {
@@ -172,7 +192,7 @@ extension Method {
             "escapingParameterNames": escapingParameterNames,
             "returnType": returnType?.description ?? "",
             "returnsSending": returnType?.containsAttribute(named: "sending") ?? false,
-            "genericReturnType": returnType?.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description ?? "",
+            "genericReturnType": returnType == nil ? "" : genericReturnType,
             "isAsync": isAsync,
             // Under NonisolatedNonsendingByDefault, Swift 6.2 treats an async local function as `@concurrent`, so it
             // gets `nonisolated(nonsending)` there. Spelled out on 6.2 without the feature, it fails instead.
@@ -192,7 +212,12 @@ extension Method {
             "call": call,
             "forwardingCall": forwardingCall,
             "superclassCall": "super.\(name)(\(forwardingCall))",
-            "defaultCall": "__defaultImplStub.value.\(name)\(isOptional ? "!" : "")(\(forwardingCall))",
+            "defaultCall": isStatic
+                ? "Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\"\(fullyQualifiedName)\")"
+                : "__defaultImplStub.value.\(name)\(isOptional ? "!" : "")(\(forwardingCall))",
+            "isStatic": isStatic,
+            "staticKeyword": isStatic ? "static " : "",
+            "manager": isStatic ? "cuckoo_staticManager" : "cuckoo_manager",
             "staticGenericCall": staticGenericCall,
             "parameterSignature": signature.parameters.map { $0.description }.joined(separator: ", "),
             "parameterSignatureWithoutNames": signature.parameters.map { "\($0.name): \($0.type)" }.joined(separator: ", "),
@@ -203,7 +228,11 @@ extension Method {
             "isolationAttribute": isolation?.sourceDescription ?? "",
             "executionAttribute": executionAttribute ?? "",
             "inputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
-            "genericInputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
+            "genericInputTypes": genericInputTypes,
+            // The proxies' versions of the stub's types; see `stubTypes(resolvingSelfAs:)`.
+            "stubInputTypes": proxyTypes.input,
+            "stubReturnType": proxyTypes.output,
+            "stubImplementationType": proxyTypes.implementation,
             "isOptional": isOptional,
             "hasClosureParams": hasClosureParams,
             "hasOptionalParams": hasOptionalParams,

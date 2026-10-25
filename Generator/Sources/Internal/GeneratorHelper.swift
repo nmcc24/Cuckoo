@@ -94,7 +94,7 @@ struct GeneratorHelper {
             // `withoutActuallyEscaping` runs concurrently, so capturing the non-`Sendable` mock is a data race. A
             // nonisolated member's function is `nonisolated(nonsending)` explicitly, to run on the caller's actor
             // whatever the module's default; an isolated member's function keeps the member's isolation.
-            let isolation = parent(of: method).stubIsolation(forMember: method.isolation)
+            let isolation = parent(of: method).stubIsolation(forMember: method.stubbedIsolation)
             let execution = isolation.sharing != .isolated && isolation.isolatedParameter == nil ? "nonisolated(nonsending) " : ""
             let effects = ["async", method.signature.throwType.map { $0.isRethrowing ? "throws" : $0.description }]
                 .compactMap { $0 }

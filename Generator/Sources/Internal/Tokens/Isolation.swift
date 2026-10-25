@@ -78,6 +78,11 @@ struct StubIsolation {
 }
 
 extension Token {
+    /// The mock's type as its own members name it: `MockX`, with the generic arguments of a generic mock.
+    var mockTypeName: String? {
+        (self as? any HasName).map { $0.mockName + ((self as? any HasGenerics)?.genericArgumentsString ?? "") }
+    }
+
     /// The global actor a mocked type is isolated to.
     var declaredIsolation: Isolation? {
         (self as? ProtocolDeclaration)?.isolation ?? (self as? ClassDeclaration)?.isolation

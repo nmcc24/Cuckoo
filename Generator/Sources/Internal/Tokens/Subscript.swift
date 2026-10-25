@@ -21,6 +21,8 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
     var compilationConditions: [String] = []
     /// The member's own isolation, if it states one.
     var isolation: Isolation?
+    /// A `static` or `class` subscript, recorded by the mock type's static manager.
+    var isStatic = false
 
     var isReadOnly: Bool {
         setterAccessibility?.isAccessible != true
@@ -75,7 +77,8 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
             isOptional: false,
             compilationConditions: compilationConditions,
             isolation: isolation,
-            recordedName: "subscript\(signature)#\(kind)"
+            recordedName: "\(isStatic ? "static " : "")subscript\(signature)#\(kind)",
+            isStatic: isStatic
         )
     }
 
@@ -93,10 +96,14 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
 
         var serializedGetter = getter.serialize()
         serializedGetter["superclassCall"] = "super[\(keyArguments)]"
-        serializedGetter["defaultCall"] = "__defaultImplStub.value[\(keyArguments)]"
+        if !isStatic {
+            serializedGetter["defaultCall"] = "__defaultImplStub.value[\(keyArguments)]"
+        }
         var serializedSetter = setter.serialize()
         serializedSetter["superclassCall"] = "super[\(keyArguments)] = \(newValueName)"
-        serializedSetter["defaultCall"] = "__defaultImplStub.value[\(keyArguments)] = \(newValueName)"
+        if !isStatic {
+            serializedSetter["defaultCall"] = "__defaultImplStub.value[\(keyArguments)] = \(newValueName)"
+        }
 
         // A stubbing or verification proxy's setter matches the keys with the matchers its subscript got, reading
         // them out of the setter's parameters, which are the keys and then the new value.
@@ -111,6 +118,8 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
             "documentation": documentation,
             "attributes": attributes,
             "isOverriding": parent.isClass,
+            "isStatic": isStatic,
+            "staticKeyword": isStatic ? "static " : "",
             "accessibility": accessibility.sourceName,
             "signature": signature,
             "genericParameters": genericParameters.isEmpty ? "" : genericParameters.sourceDescription,
@@ -146,6 +155,6 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
 extension Subscript: Inheritable {
     func isEqual(to other: any Inheritable) -> Bool {
         guard let other = other as? Subscript else { return false }
-        return getter.signature.isApiEqual(to: other.getter.signature)
+        return isStatic == other.isStatic && getter.signature.isApiEqual(to: other.getter.signature)
     }
 }

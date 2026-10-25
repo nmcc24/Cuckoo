@@ -23,6 +23,8 @@ struct Variable: Token, HasAccessibility, HasAttributes {
     // This flag is used to block generating inherited variables if the property to be overridden
     // is a constant, which Swift doesn't allow.
     var isConstant: Bool
+    /// A `static` or `class` member, recorded by the mock type's static manager.
+    var isStatic = false
 
     func serialize() -> [String: Any] {
         let readOnlyVerifyString = isReadOnly ? "ReadOnly" : ""
@@ -34,7 +36,9 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             fatalError("Failed to find parent of variable \(name). Please file a bug.")
         }
 
-        let stubIsolation = parent.value.stubIsolation(forMember: isolation)
+        // An actor's static members aren't isolated to an instance.
+        let stubbedIsolation: Isolation? = isStatic && isolation == nil && parent.value.asProtocol?.isActor == true ? .nonisolated : isolation
+        let stubIsolation = parent.value.stubIsolation(forMember: stubbedIsolation)
         let storedType = isReadOnly ? type : type.unoptionaled
         let valueType = type.description
         // An actor mock's closures take the mock first.
@@ -69,6 +73,9 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             "stubGenericArguments": stubGenericArguments,
             "isolationAttribute": isolation?.sourceDescription ?? "",
             "isOverriding": parent.isClass,
+            "isStatic": isStatic,
+            "staticKeyword": isStatic ? "static " : "",
+            "manager": isStatic ? "cuckoo_staticManager" : "cuckoo_manager",
             "name": name,
             "type": type.description,
             "nonOptionalType": type.unoptionaled.description,
@@ -92,6 +99,6 @@ extension Variable: Inheritable {
 
     func isEqual(to other: any Inheritable) -> Bool {
         guard let other = other as? Variable else { return false }
-        return name == other.name
+        return name == other.name && isStatic == other.isStatic
     }
 }
