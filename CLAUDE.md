@@ -57,6 +57,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
   - The SwiftUI fixture lives in `Tests/Swift/Source/SwiftUI/` as its own module, `CuckooTestSourcesSwiftUI`, with its own Cuckoofile module, because a single generated file shares one import list (roadmap Phase 4 item 6).
   - Delete `Tests/Swift/Generated/*.swift` before a fresh `make`, so stale mocks aren't compiled.
 - **The maintainer's Mac can run the Tuist tests.** When a Remote Control session to it is available, run the macOS and iOS schemes there before pushing changes that touch the runtime, the tests or Tuist. CI stays the final gate.
+  - The Linux checks run there too, in Docker (`swift:6.2`, `6.3`, `6.4`): `swift test` and the fixture matrix, with the features off, all on, and Xcode 26 defaults. Use the cloud VM's Docker only when the Mac is offline.
 
 ## Cloud environment notes
 - The GitHub proxy blocks some writes, such as deleting branches (`git push --delete` and the REST `DELETE` both fail). Ask the maintainer to do those in the GitHub UI.
