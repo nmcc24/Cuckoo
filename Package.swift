@@ -6,14 +6,17 @@ import PackageDescription
 // settings in packages fetched by URL, so this never fails the build of a project that depends on Cuckoo
 // that way. A local path dependency does get the setting.
 // They also adopt the Swift 7 upcoming features that only change what compiles (roadmap Phase 3.5).
-// The behaviour-changing ones are covered by the CI jobs that build everything with them on.
+// The behaviour-changing ones are covered by the CI job that adds them, comma-separated,
+// through `CUCKOO_UPCOMING_FEATURES`.
 let swiftSettings: [SwiftSetting] = [
     .treatAllWarnings(as: .error),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("InternalImportsByDefault"),
     .enableUpcomingFeature("ImmutableWeakCaptures"),
-]
+] + (Context.environment["CUCKOO_UPCOMING_FEATURES"] ?? "")
+    .split(separator: ",")
+    .map { .enableUpcomingFeature(String($0)) }
 
 let package = Package(
     name: "Cuckoo",

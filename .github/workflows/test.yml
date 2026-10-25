@@ -53,6 +53,40 @@ jobs:
         env:
           SWIFT6_MATRIX_EXPECTED: Fixtures/Swift6/expected-failures-default-mainactor.txt
 
+  # The Swift 7 language mode's upcoming features, which projects can already turn on. Our targets adopt the ones
+  # that only change what compiles (Package.swift); this job adds the rest. Generated mocks build in the user's
+  # module with the user's settings, so the fixtures also build with every feature on, and the way a new Xcode 26
+  # project builds its code (default MainActor isolation plus Approachable Concurrency). Each list of expected
+  # failures is the one its configuration shares with the generator_linux job.
+  swift7_linux:
+    name: Swift 7 upcoming features on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }})
+    runs-on: ubuntu-latest
+    container: swift:${{ matrix.swift }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { swift: "6.2", build-system: native }
+          - { swift: "6.4", build-system: swiftbuild }
+    env:
+      SWIFT_BUILD_FLAGS: --build-system ${{ matrix.build-system }}
+      FEATURES: >-
+        ExistentialAny MemberImportVisibility InternalImportsByDefault
+        InferIsolatedConformances NonisolatedNonsendingByDefault ImmutableWeakCaptures
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Generator and runtime tests with every feature on
+        run: CUCKOO_UPCOMING_FEATURES="$(echo $FEATURES | tr ' ' ',')" swift test $SWIFT_BUILD_FLAGS
+      - name: Swift 6 matrix with every feature on
+        run: scripts/swift6-matrix.sh $(printf -- '-enable-upcoming-feature %s ' $FEATURES)
+      - name: Swift 6 matrix as a new Xcode 26 project
+        run: |
+          scripts/swift6-matrix.sh -default-isolation MainActor \
+            -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault
+        env:
+          SWIFT6_MATRIX_EXPECTED: Fixtures/Swift6/expected-failures-default-mainactor.txt
+
   tsan_linux:
     name: Runtime tests under the Thread Sanitizer on Linux (Swift 6.3)
     runs-on: ubuntu-latest
@@ -174,7 +208,7 @@ jobs:
   ci_passed:
     name: CI passed
     if: always()
-    needs: [generator_linux, tsan_linux, generator_macOS, test_macOS, test_iOS]
+    needs: [generator_linux, swift7_linux, tsan_linux, generator_macOS, test_macOS, test_iOS]
     runs-on: ubuntu-latest
     steps:
       - name: Fail unless every job succeeded
