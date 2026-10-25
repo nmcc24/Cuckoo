@@ -22,7 +22,7 @@ Run `scripts/swift6-matrix.sh` to reproduce. It generates mocks for each file in
 | Fixture | Errors | Root cause |
 |---|---|---|
 | 01 `@MainActor protocol` | 4 | Mock conforms to `Cuckoo.Mock`, `HasMockManager` (nonisolated requirements) while inheriting MainActor isolation → `#ConformanceIsolation` |
-| 02 `protocol P: Actor` | 12 | Generator always emits `class`; actors need `actor`. Also emits `XStub` as class. |
+| 02 `protocol P: Actor` | 12 | Generator always emits `class`; actors need `actor`. Also emits `XStub` as class. **Fixed in Phase 3.** |
 | 03 `@MainActor class` | 4 | Same as 01 |
 | 04 custom `@globalActor` protocol | 4 | Same as 01 |
 | 05 `Sendable` protocol + `@Sendable` closures | 0 | ok (compiles; runtime is not actually thread-safe, see 1.3) |
@@ -115,10 +115,12 @@ Breaking changes accepted in 3.0:
 4. **Failure routing.** Failures go to `Issue.record` when `Test.current != nil`, otherwise `XCTFail`, never both. Source locations are preserved.
 5. **An unstubbed call never takes the process down.** It records an issue, then returns a registered default value, or throws `CuckooError.unstubbedCall` for members that throw `any Error`. It crashes only when no value can be produced. There is no lenient or crash mode (decided 2026-10-24): a lenient mode hides real bugs, "don't care" collaborators are stubbed with `any()` or use `enableDefaultImplementation`, and a crash mode brings back the problem this fixes.
    - Result: tests no longer take down the whole process.
-6. **Stub closures match the mock's isolation.**
-   - Nonisolated mocks use `@Sendable` closures.
-   - `@MainActor` and global-actor mocks generate proxies whose `then` closures are `@MainActor` (or that actor) and non-`Sendable`, so tests can capture view models freely.
-   - Actor mocks use `@Sendable` closures that receive `isolated MockX`.
+6. **Stub closures match the mock's isolation** (done in Phase 3). The generator picks each stub's closure type, and a `StubSharing` marker decides what `thenReturn` takes:
+   - nonisolated, non-`Sendable` mocks (`Confined`): plain closures and any value, as in 2.x;
+   - `Sendable` nonisolated mocks (`Shared`): `@Sendable` closures, `Sendable` values;
+   - `@MainActor` and global-actor mocks (`Isolated`): `@MainActor @Sendable` (or that actor) closures, which can use the actor's state directly; `thenReturn` takes a `sending` value;
+   - actor mocks (`Shared`): `@Sendable` closures that receive `isolated MockX` first, then the call's arguments.
+   - Async members get async closures; nonisolated ones are `nonisolated(nonsending)`. The runtime never calls user closures itself: the mock passes an `invoke` closure, formed in its own isolation.
 7. **New verification features:**
    - `inOrder { verify(a).x(); verify(b).y() }` (#34);
    - `verify(mock, .times(1), within: .seconds(1))` and `await eventually { … }` for async code paths (#277);
@@ -138,10 +140,10 @@ Breaking changes accepted in 3.0:
 ### 3.2 Generated code shape
 | Source declaration | Generated mock |
 |---|---|
-| `protocol P` | `final class MockP: P, Cuckoo.ProtocolMock, Sendable` (truly `Sendable` now) |
-| `@MainActor protocol P` | `@MainActor final class MockP: P, Cuckoo.ProtocolMock` with `nonisolated let cuckoo_manager`; proxies `@MainActor` |
+| `protocol P` | `nonisolated final class MockP: P, nonisolated Cuckoo.ProtocolMock`, `Sendable` exactly when `P` is. Explicit `nonisolated` keeps it independent of the module's default isolation. |
+| `@MainActor protocol P` | `@MainActor final class MockP: P, nonisolated Cuckoo.ProtocolMock` with `nonisolated let cuckoo_manager`; proxies `nonisolated` |
 | `@SomeGlobalActor protocol P` | same as above with that actor |
-| `protocol P: Actor` | `actor MockP: P, Cuckoo.ActorMock` with `nonisolated let cuckoo_manager`. Sync requirements are actor-isolated and record synchronously; default implementations are supported for async requirements only (documented). |
+| `protocol P: Actor` | `actor MockP: P, Cuckoo.ProtocolMock` with `nonisolated let cuckoo_manager`. Sync requirements are actor-isolated and record synchronously; `enableDefaultImplementation` forwards async requirements only, and a sync one reached that way crashes with a message saying so. |
 | `nonisolated func` in an isolated protocol | `nonisolated func` in the mock |
 | `@MainActor func` in a plain protocol | member-level `@MainActor` preserved |
 | `nonisolated(nonsending)` / `@concurrent` / `sending` / `isolated` | preserved on the mock signature; stripped from matcher, tuple and generic positions |
@@ -319,6 +321,15 @@ Exit criteria: no `nonisolated(unsafe)` or `@unchecked Sendable` left in `Source
 5. 🍎 Behavioural tests in the Tuist suite: stubbing, verifying and spying on MainActor and actor mocks from Swift Testing and XCTest.
 
 Exit criteria: fixtures 01–06 typecheck and have behavioural tests; also typecheck in default-MainActor mode.
+
+**Status (2026-10-25): items 1–4 done, item 5 done on Linux; Mac (Tuist) run pending.**
+- **Items 1 and 3:** stub closures carry the mock's isolation (§3.1 item 6). The crawler records global actors (any `@globalActor` declared in the scanned files, plus `MainActor`), member-level `@MainActor`/`nonisolated`, and `nonisolated(nonsending)`/`@concurrent`, and the mocks keep them.
+- **Item 2:** `Actor` protocols get `actor` mocks and stubs. Fixture 02 compiles and left the expected-failures list.
+- **Item 4:** the generator states isolation wherever the module default would otherwise decide it (mocks and stubs of protocols without isolation, the proxies, the type-erased default implementation, the conformance to the Cuckoo protocols). CI runs the matrix with `-default-isolation MainActor` too, against `Fixtures/Swift6/expected-failures-default-mainactor.txt`. Two known gaps there:
+  - a subclass of a class that relies on its implicit `init` doesn't compile in that mode, with or without Cuckoo (`class Base {}; final class Sub: Base {}`, Swift 6.2–6.4), so class mocks of such classes fail (fixtures 07, 19, 20, 21);
+  - the type-erased default implementation of a generic protocol (fixture 05) is nonisolated, but the module's default makes the protocol MainActor-isolated, which the generator can't see. A Cuckoofile option naming the source module's default isolation would fix it; not started.
+- **Item 5:** `Tests/Swift/IsolationTest.swift` (Swift Testing) and `IsolationXCTest.swift` stub, verify and spy on MainActor, global-actor, actor and `Sendable` mocks, including from concurrent tasks. They run in `swift test` and in the Tuist schemes.
+- **API change:** stub function types gained two generic parameters (closure type and sharing), so code that names one to pick an overload writes `as ClassStubNoReturnFunction<(Int?, String), _, _>`.
 
 ### Phase 4: Coverage expansion (L)
 1. ☁️ Subscripts (12) and static/class members (13, #521).
