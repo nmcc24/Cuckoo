@@ -18,4 +18,9 @@ extension DeclModifierListSyntax {
     var isStatic: Bool {
         contains { $0.name.tokenKind == .keyword(.static) }
     }
+
+    /// A `class` member: static, and overridable in a subclass.
+    var isClassMember: Bool {
+        contains { $0.name.tokenKind == .keyword(.class) }
+    }
 }

@@ -151,6 +151,48 @@ extension Templates {
         #endif
         {% endif %}
         {% endfor %}
+        {% for property in container.staticProperties %}
+
+        {% if property.hasCompilationCondition %}
+        {{ property.compilationConditionCheck }}
+        {% endif %}
+        {{ container.accessibility|withSpace }}static var {{ property.name }}: {{ property.type }} {
+            get {%+ if property.isAsync %}async {%+ endif %}{% if property.isThrowing %}throws {%+ endif %}{ Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}") }
+            {% if not property.isReadOnly %}
+            set { Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}") as Void }
+            {% endif %}
+        }
+        {% if property.hasCompilationCondition %}
+        #endif
+        {% endif %}
+        {% endfor %}
+        {% for method in container.staticMethods %}
+
+        {% if method.hasCompilationCondition %}
+        {{ method.compilationConditionCheck }}
+        {% endif %}
+        {{ container.accessibility|withSpace }}static func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
+            Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ method.fullyQualifiedName }}")
+        }
+        {% if method.hasCompilationCondition %}
+        #endif
+        {% endif %}
+        {% endfor %}
+        {% for subscript in container.staticSubscripts %}
+
+        {% if subscript.hasCompilationCondition %}
+        {{ subscript.compilationConditionCheck }}
+        {% endif %}
+        {{ container.accessibility|withSpace }}static subscript{{ subscript.signature }} {
+            get {{ subscript.getterEffects }}{ Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ subscript.getter.fullyQualifiedName }}") }
+            {% if not subscript.isReadOnly %}
+            set { Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ subscript.setter.fullyQualifiedName }}") as Void }
+            {% endif %}
+        }
+        {% if subscript.hasCompilationCondition %}
+        #endif
+        {% endif %}
+        {% endfor %}
     }
     """
 }

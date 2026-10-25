@@ -1,14 +1,19 @@
 import Foundation
 
 extension Templates {
-    static let stubbingProxy = """
-{{ container.accessibility|withSpace }}nonisolated struct __StubbingProxy_{{ container.name }}: Cuckoo.StubbingProxy {
+    /// - Parameter isStatic: whether the proxy is for the mock type's static members (`stub(MockX.self)`), or its
+    ///   instance members.
+    static func stubbingProxy(isStatic: Bool) -> String {
+        let name = isStatic ? "__StaticStubbingProxy_" : "__StubbingProxy_"
+        let members = isStatic ? ["staticProperties", "staticMethods", "staticSubscripts"] : ["properties", "methods", "subscripts"]
+        return """
+{{ container.accessibility|withSpace }}nonisolated struct \(name){{ container.name }}: Cuckoo.StubbingProxy {
     private let cuckoo_manager: Cuckoo.MockManager
 
     {{ container.accessibility|withSpace }}init(manager: Cuckoo.MockManager) {
         self.cuckoo_manager = manager
     }
-    {% for property in container.properties %}
+    {% for property in container.\(members[0]) %}
     {{ property.compilationConditionCheck }}
     {% for attribute in property.attributes %}
     {{ attribute }}
@@ -20,12 +25,12 @@ extension Templates {
     #endif
     {% endif %}
     {% endfor %}
-    {% for method in container.methods %}
+    {% for method in container.\(members[1]) %}
     {{ method.compilationConditionCheck }}
     {% for attribute in method.attributes %}
     {{ attribute }}
     {% endfor %}
-    func {{method.name|escapeReservedKeywords}}{{method.self|matchableGenericNames}}({{method.parameters|matchableParameterSignature}}) -> {{method.stubFunction}}<({{method.genericInputTypes|genericSafe}}){%if method.returnType != "Void" %}, {{method.genericReturnType|genericSafe}}{%endif%}{% if method.isThrowing %},{{ method.throwTypeError }}{% endif %}, {{ method.implementationType|genericSafe }}, {{ method.sharingType }}>{{method.self|matchableGenericWhereClause}} {
+    func {{method.name|escapeReservedKeywords}}{{method.self|matchableGenericNames}}({{method.parameters|matchableParameterSignature}}) -> {{method.stubFunction}}<({{method.stubInputTypes|genericSafe}}){%if method.returnType != "Void" %}, {{method.stubReturnType|genericSafe}}{%endif%}{% if method.isThrowing %},{{ method.throwTypeError }}{% endif %}, {{ method.stubImplementationType|genericSafe }}, {{ method.sharingType }}>{{method.self|matchableGenericWhereClause}} {
         {{method.parameters|parameterMatchers}}
         return .init(stub: cuckoo_manager.createStub(for: {{ container.mockName }}.self,
             method: "{{method.fullyQualifiedName}}",
@@ -36,7 +41,7 @@ extension Templates {
     #endif
     {% endif %}
     {% endfor %}
-    {% for subscript in container.subscripts %}
+    {% for subscript in container.\(members[2]) %}
     {{ subscript.compilationConditionCheck }}
     {% for attribute in subscript.attributes %}
     {{ attribute }}
@@ -51,9 +56,9 @@ extension Templates {
     {% endfor %}
     nonisolated struct __Subscript{{ forloop.counter }}{{ subscript.genericParameters }}{{ subscript.whereClause }} {
         fileprivate let cuckoo_manager: Cuckoo.MockManager
-        fileprivate let matchers: [Cuckoo.ParameterMatcher<({{ subscript.getter.genericInputTypes|genericSafe }})>]
+        fileprivate let matchers: [Cuckoo.ParameterMatcher<({{ subscript.getter.stubInputTypes|genericSafe }})>]
 
-        var get: {{ subscript.getter.stubFunction }}<({{ subscript.getter.genericInputTypes|genericSafe }}), {{ subscript.getter.genericReturnType|genericSafe }}{% if subscript.getter.isThrowing %}, {{ subscript.getter.throwTypeError }}{% endif %}, {{ subscript.getter.implementationType|genericSafe }}, {{ subscript.getter.sharingType }}> {
+        var get: {{ subscript.getter.stubFunction }}<({{ subscript.getter.stubInputTypes|genericSafe }}), {{ subscript.getter.stubReturnType|genericSafe }}{% if subscript.getter.isThrowing %}, {{ subscript.getter.throwTypeError }}{% endif %}, {{ subscript.getter.stubImplementationType|genericSafe }}, {{ subscript.getter.sharingType }}> {
             return .init(stub: cuckoo_manager.createStub(for: {{ container.mockName }}.self,
                 method: "{{ subscript.getter.fullyQualifiedName }}",
                 parameterMatchers: matchers
@@ -61,8 +66,8 @@ extension Templates {
         }
         {% ifnot subscript.isReadOnly %}
 
-        func set<{{ subscript.newValueMatcherGeneric }}>(_ {{ subscript.newValueName }}: M{{ subscript.newValueMatcherIndex }}) -> {{ subscript.setter.stubFunction }}<({{ subscript.setter.genericInputTypes|genericSafe }}), {{ subscript.setter.implementationType|genericSafe }}, {{ subscript.setter.sharingType }}> where {{ subscript.newValueMatcherConstraint }} {
-            let matchers: [Cuckoo.ParameterMatcher<({{ subscript.setter.genericInputTypes|genericSafe }})>] = {{ subscript.keyMatchers }}[{{ subscript.newValueMatcher }}]
+        func set<{{ subscript.newValueMatcherGeneric }}>(_ {{ subscript.newValueName }}: M{{ subscript.newValueMatcherIndex }}) -> {{ subscript.setter.stubFunction }}<({{ subscript.setter.stubInputTypes|genericSafe }}), {{ subscript.setter.stubImplementationType|genericSafe }}, {{ subscript.setter.sharingType }}> where {{ subscript.newValueMatcherConstraint }} {
+            let matchers: [Cuckoo.ParameterMatcher<({{ subscript.setter.stubInputTypes|genericSafe }})>] = {{ subscript.keyMatchers }}[{{ subscript.newValueMatcher }}]
             return .init(stub: cuckoo_manager.createStub(for: {{ container.mockName }}.self,
                 method: "{{ subscript.setter.fullyQualifiedName }}",
                 parameterMatchers: matchers
@@ -76,4 +81,5 @@ extension Templates {
     {% endfor %}
 }
 """
+    }
 }

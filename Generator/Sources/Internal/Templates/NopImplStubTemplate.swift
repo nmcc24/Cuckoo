@@ -4,7 +4,7 @@ extension Templates {
 {{ attribute }}
 {% endfor %}
 {{container.accessibility|withSpace}}{% if container.isNonisolatedProtocol %}nonisolated {%+ endif %}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.name }}Stub{{ container.genericParameters }}: {% if container.isNSObjectProtocol %}NSObject, {% endif %}{{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %} {
-    {% for property in container.properties %}
+    {% for property in container.allProperties %}
     {{ property.compilationConditionCheck }}
     {% if debug %}
     // {{property}}
@@ -15,7 +15,7 @@ extension Templates {
     {% if property.isolationAttribute %}
     {{ property.isolationAttribute }}
     {% endif %}
-    {{ property.accessibility|withSpace }}{% if property.isOverriding %}override {%+ endif %}var {{ property.name }}: {{ property.type }} {
+    {{ property.accessibility|withSpace }}{% if property.isOverriding %}override {%+ endif %}{{ property.staticKeyword }}var {{ property.name }}: {{ property.type }} {
         get {%+ if property.isAsync %}async {%+ endif %}{% if property.isThrowing %}throws {%+ endif %}{
             return DefaultValueRegistry.defaultValue(for: ({{property.type|genericSafe|removeClosureArgumentNames}}).self)
         }
@@ -36,7 +36,7 @@ extension Templates {
     {% endif %}
     {% endfor %}
 
-    {% for method in container.methods %}
+    {% for method in container.allMethods %}
     {{ method.compilationConditionCheck }}
     {% if debug %}
     // {{method}}
@@ -50,14 +50,14 @@ extension Templates {
     {% if method.executionAttribute %}
     {{ method.executionAttribute }}
     {% endif %}
-    {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
+    {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}{{ method.staticKeyword }}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
         return DefaultValueRegistry.defaultValue(for: ({{method.genericReturnType|genericSafe}}).self)
     }
     {% if method.hasCompilationCondition %}
     #endif
     {% endif %}
     {% endfor %}
-    {% for subscript in container.subscripts %}
+    {% for subscript in container.allSubscripts %}
 
     {{ subscript.compilationConditionCheck }}
     {% for attribute in subscript.attributes %}
@@ -66,7 +66,7 @@ extension Templates {
     {% if subscript.isolationAttribute %}
     {{ subscript.isolationAttribute }}
     {% endif %}
-    {{ subscript.accessibility|withSpace }}{% if subscript.isOverriding %}override {%+ endif %}subscript{{ subscript.signature }} {
+    {{ subscript.accessibility|withSpace }}{% if subscript.isOverriding %}override {%+ endif %}{{ subscript.staticKeyword }}subscript{{ subscript.signature }} {
         get {{ subscript.getterEffects }}{
             return DefaultValueRegistry.defaultValue(for: ({{ subscript.getter.genericReturnType|genericSafe|removeClosureArgumentNames }}).self)
         }

@@ -1,8 +1,13 @@
 import Foundation
 
 extension Templates {
-    static let verificationProxy = """
-{{ container.accessibility|withSpace }}nonisolated struct __VerificationProxy_{{ container.name }}: Cuckoo.VerificationProxy {
+    /// - Parameter isStatic: whether the proxy is for the mock type's static members (`stub(MockX.self)`), or its
+    ///   instance members.
+    static func verificationProxy(isStatic: Bool) -> String {
+        let name = isStatic ? "__StaticVerificationProxy_" : "__VerificationProxy_"
+        let members = isStatic ? ["staticProperties", "staticMethods", "staticSubscripts"] : ["properties", "methods", "subscripts"]
+        return """
+{{ container.accessibility|withSpace }}nonisolated struct \(name){{ container.name }}: Cuckoo.VerificationProxy {
     private let cuckoo_manager: Cuckoo.MockManager
     private let callMatcher: Cuckoo.CallMatcher
     private let sourceLocation: Cuckoo.SourceLocation
@@ -12,7 +17,7 @@ extension Templates {
         self.callMatcher = callMatcher
         self.sourceLocation = sourceLocation
     }
-    {% for property in container.properties %}
+    {% for property in container.\(members[0]) %}
     
     {% if property.hasCompilationCondition %}
     {{ property.compilationConditionCheck }}
@@ -27,14 +32,14 @@ extension Templates {
     #endif
     {% endif %}
     {% endfor %}
-    {% for method in container.methods %}
+    {% for method in container.\(members[1]) %}
     
     {{ method.compilationConditionCheck }}
     {% for attribute in method.attributes %}
     {{ attribute }}
     {% endfor %}
     @discardableResult
-    func {{method.name|escapeReservedKeywords}}{{method.self|matchableGenericNames}}({{method.parameters|matchableParameterSignature}}) -> Cuckoo.__DoNotUse<({{method.genericInputTypes|genericSafe}}), {{method.genericReturnType|genericSafe}}>{{method.self|matchableGenericWhereClause}} {
+    func {{method.name|escapeReservedKeywords}}{{method.self|matchableGenericNames}}({{method.parameters|matchableParameterSignature}}) -> Cuckoo.__DoNotUse<({{method.stubInputTypes|genericSafe}}), {{method.stubReturnType|genericSafe}}>{{method.self|matchableGenericWhereClause}} {
         {{method.parameters|parameterMatchers}}
         return cuckoo_manager.verify(
             "{{method.fullyQualifiedName}}",
@@ -47,7 +52,7 @@ extension Templates {
     #endif
     {% endif %}
     {% endfor %}
-    {% for subscript in container.subscripts %}
+    {% for subscript in container.\(members[2]) %}
 
     {{ subscript.compilationConditionCheck }}
     {% for attribute in subscript.attributes %}
@@ -65,10 +70,10 @@ extension Templates {
         fileprivate let cuckoo_manager: Cuckoo.MockManager
         fileprivate let callMatcher: Cuckoo.CallMatcher
         fileprivate let sourceLocation: Cuckoo.SourceLocation
-        fileprivate let matchers: [Cuckoo.ParameterMatcher<({{ subscript.getter.genericInputTypes|genericSafe }})>]
+        fileprivate let matchers: [Cuckoo.ParameterMatcher<({{ subscript.getter.stubInputTypes|genericSafe }})>]
 
         @discardableResult
-        func get() -> Cuckoo.__DoNotUse<({{ subscript.getter.genericInputTypes|genericSafe }}), {{ subscript.getter.genericReturnType|genericSafe }}> {
+        func get() -> Cuckoo.__DoNotUse<({{ subscript.getter.stubInputTypes|genericSafe }}), {{ subscript.getter.stubReturnType|genericSafe }}> {
             return cuckoo_manager.verify(
                 "{{ subscript.getter.fullyQualifiedName }}",
                 callMatcher: callMatcher,
@@ -79,8 +84,8 @@ extension Templates {
         {% ifnot subscript.isReadOnly %}
 
         @discardableResult
-        func set<{{ subscript.newValueMatcherGeneric }}>(_ {{ subscript.newValueName }}: M{{ subscript.newValueMatcherIndex }}) -> Cuckoo.__DoNotUse<({{ subscript.setter.genericInputTypes|genericSafe }}), Void> where {{ subscript.newValueMatcherConstraint }} {
-            let matchers: [Cuckoo.ParameterMatcher<({{ subscript.setter.genericInputTypes|genericSafe }})>] = {{ subscript.keyMatchers }}[{{ subscript.newValueMatcher }}]
+        func set<{{ subscript.newValueMatcherGeneric }}>(_ {{ subscript.newValueName }}: M{{ subscript.newValueMatcherIndex }}) -> Cuckoo.__DoNotUse<({{ subscript.setter.stubInputTypes|genericSafe }}), Void> where {{ subscript.newValueMatcherConstraint }} {
+            let matchers: [Cuckoo.ParameterMatcher<({{ subscript.setter.stubInputTypes|genericSafe }})>] = {{ subscript.keyMatchers }}[{{ subscript.newValueMatcher }}]
             return cuckoo_manager.verify(
                 "{{ subscript.setter.fullyQualifiedName }}",
                 callMatcher: callMatcher,
@@ -96,4 +101,5 @@ extension Templates {
     {% endfor %}
 }
 """
+    }
 }
