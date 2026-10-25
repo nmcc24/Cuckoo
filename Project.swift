@@ -181,6 +181,13 @@ let project = Project(
         "SWIFT_VERSION": "6.0",
         // Warnings in our own targets are errors, as in Package.swift. Dependencies build in their own projects.
         "SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES",
+        // Xcode's recommended settings, decided explicitly. The "Generate mocks" script builds the generator
+        // with a nested xcodebuild and writes Tests/Swift/Generated, which the script sandbox would block.
+        "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+        // The targets are pure Swift, so there's no hand-written Clang module to verify.
+        "ENABLE_MODULE_VERIFIER": "NO",
+        // No String Catalogs.
+        "STRING_CATALOG_GENERATE_SYMBOLS": "NO",
     ]),
     targets: iOSTargets + macOSTargets + tvOSTargets + watchOSTargets,
     schemes: iOSSchemes + macOSSchemes + tvOSSchemes + watchOSSchemes
