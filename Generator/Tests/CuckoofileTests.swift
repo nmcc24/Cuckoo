@@ -148,15 +148,14 @@ struct CuckoofileTests {
     }
 
     @Test
-    func overriddenOutputWithGlobalOutputIsRejected() {
-        #expect(throws: Cuckoofile.ParseError.self) {
-            try parse("""
-                output = "Global.swift"
+    func overriddenOutputWinsOverGlobalOutput() throws {
+        let modules = try parse("""
+            output = "Global.swift"
 
-                [modules.App]
-                sources = []
-                """, overriddenOutput: "/derived/Mocks.swift")
-        }
+            [modules.App]
+            sources = []
+            """, overriddenOutput: "/derived/Mocks.swift")
+        #expect(modules["App"]?.output == "/derived/Mocks.swift")
     }
 
     @Test
