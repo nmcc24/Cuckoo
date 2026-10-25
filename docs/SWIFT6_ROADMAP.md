@@ -360,7 +360,12 @@ API decisions for items 1–3 (2026-10-25):
 PRs, in order: subscripts (with an opaque-parameter test), statics, then one each for packs, `~Copyable` and `inout`, then the small items of 3 together, then items 4 and 5, and 3b last, because item 4 reshapes the same `MockManager` generics.
 
 1. ☁️ Subscripts (12) and static/class members (13, Brightify/Cuckoo#521).
-   - **Subscripts: done on the branch.** A subscript's accessors are recorded as `subscript(…) -> T#get` and `#set`, like a property's. The proxies get a generic subscript that returns a small generated struct with `get` and `set(_:)`, built on the method stub types, so every isolation, effect and class/protocol variant comes for free. Static subscripts wait for the static-member work.
+   - **Subscripts: done** (https://github.com/nmcc24/Cuckoo/pull/16). A subscript's accessors are recorded as `subscript(…) -> T#get` and `#set`, like a property's. The proxies get a generic subscript that returns a small generated struct with `get` and `set(_:)`, built on the method stub types, so every isolation, effect and class/protocol variant comes for free. Static subscripts came with the static members.
+   - **Static and class members: done on the branch.**
+     - A protocol's `static` requirements and a class's `class` members are mocked. A class's `static` members are final and stay unmocked.
+     - Their stubs and calls live in a task-local `StaticStubs` registry, one manager per mock type. The `.cuckoo()` trait starts a fresh registry for each test and each parameterized case, and `withStaticStubs { }` starts one for any other scope, such as an XCTest method. Outside a scope, a static member records a failure that names the fix.
+     - Tests use `stub(MockX.self)`, `verify(MockX.self)`, `reset(MockX.self)` and `verifyNoMoreInteractions(MockX.self)`.
+     - In the proxies' stub types, `Self` is the mock, so `static func make() -> Self` can be stubbed.
 2. ☁️ Opaque parameters (11, Brightify/Cuckoo#470), parameter packs (14) and `~Copyable` parameters (15).
    - Opaque parameters already work: the generator records `some P` as `any P`. The subscripts PR adds a runtime test.
 3. ☁️ `inout` stubbing (Brightify/Cuckoo#337), `Self` (Brightify/Cuckoo#304), generic init (Brightify/Cuckoo#362), class-constrained protocols (Brightify/Cuckoo#447, Brightify/Cuckoo#376), parent associated types (Brightify/Cuckoo#576).
