@@ -12,7 +12,7 @@ public struct CuckooTrait: TestTrait, SuiteTrait, TestScoping {
     public func provideScope(
         for test: Test,
         testCase: Test.Case?,
-        performing function: @Sendable () async throws -> Void
+        performing function: @Sendable @concurrent () async throws -> Void
     ) async throws {
         var configuration = CuckooConfiguration.current
         configure(&configuration)
