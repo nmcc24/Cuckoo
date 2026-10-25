@@ -18,7 +18,15 @@ extension Token {
             (self as? HasName)?.nameSerialize(),
             (parent?.value as? HasName).map { ["parentFullyQualifiedName": $0.fullyQualifiedName] },
             (self as? HasGenerics)?.genericsSerialize(),
-            asProtocol.map { ["isNSObjectProtocol": $0.isNSObjectProtocol, "isActor": $0.isActor] },
+            asProtocol.map {
+                [
+                    "isNSObjectProtocol": $0.isNSObjectProtocol,
+                    "isActor": $0.isActor,
+                    // Its mock and stub are explicitly `nonisolated`, so they don't take on the module's
+                    // default isolation (`-default-isolation MainActor`).
+                    "isNonisolatedProtocol": !$0.isActor && $0.isolation == nil,
+                ]
+            },
             (self as? HasInheritance)?.inheritanceSerialize(),
             (self as? HasEnclosingCompilationConditions)?.enclosingCompilationConditionsSerialize(),
         ]

@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockViewModel: ViewModel, Cuckoo.ClassMock {
+final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
     typealias MocksType = ViewModel
     typealias Stubbing = __StubbingProxy_ViewModel
     typealias Verification = __VerificationProxy_ViewModel
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<ViewModel>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<ViewModel>()
 
     nonisolated func enableDefaultImplementation(_ stub: ViewModel) {
         __defaultImplStub.value = stub
@@ -60,7 +60,7 @@ final class MockViewModel: ViewModel, Cuckoo.ClassMock {
         )
     }
 
-    struct __StubbingProxy_ViewModel: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_ViewModel: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -88,7 +88,7 @@ final class MockViewModel: ViewModel, Cuckoo.ClassMock {
         }
     }
 
-    struct __VerificationProxy_ViewModel: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_ViewModel: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation

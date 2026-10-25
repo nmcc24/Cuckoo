@@ -2,16 +2,16 @@ import Cuckoo
 import Foundation
 
 @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
-final class MockEvents: Events, Cuckoo.ProtocolMock {
+nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Events
     typealias Stubbing = __StubbingProxy_Events
     typealias Verification = __VerificationProxy_Events
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Events>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Events>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Events) {
         __defaultImplStub.value = stub
@@ -41,7 +41,7 @@ final class MockEvents: Events, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Events: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Events: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -61,7 +61,7 @@ final class MockEvents: Events, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Events: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Events: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -91,7 +91,7 @@ final class MockEvents: Events, Cuckoo.ProtocolMock {
 }
 
 @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
-final class EventsStub:Events {
+nonisolated final class EventsStub:Events {
     
     var stream: AsyncStream<Int> {
         get {

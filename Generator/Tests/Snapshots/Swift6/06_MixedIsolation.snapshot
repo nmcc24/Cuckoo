@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockCoordinator: Coordinator, Cuckoo.ProtocolMock {
+final class MockCoordinator: Coordinator, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Coordinator
     typealias Stubbing = __StubbingProxy_Coordinator
     typealias Verification = __VerificationProxy_Coordinator
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Coordinator>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Coordinator>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Coordinator) {
         __defaultImplStub.value = stub
@@ -41,7 +41,7 @@ final class MockCoordinator: Coordinator, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Coordinator: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Coordinator: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -65,7 +65,7 @@ final class MockCoordinator: Coordinator, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Coordinator: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Coordinator: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation

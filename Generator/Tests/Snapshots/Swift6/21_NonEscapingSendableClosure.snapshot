@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockTransformer: Transformer, Cuckoo.ProtocolMock {
+nonisolated final class MockTransformer: Transformer, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Transformer
     typealias Stubbing = __StubbingProxy_Transformer
     typealias Verification = __VerificationProxy_Transformer
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Transformer>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Transformer>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Transformer) {
         __defaultImplStub.value = stub
@@ -63,7 +63,7 @@ return cuckoo_manager.call(
 
     }
 
-    struct __StubbingProxy_Transformer: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Transformer: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -95,7 +95,7 @@ return cuckoo_manager.call(
         }
     }
 
-    struct __VerificationProxy_Transformer: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Transformer: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -144,7 +144,7 @@ return cuckoo_manager.call(
     }
 }
 
-final class TransformerStub:Transformer {
+nonisolated final class TransformerStub:Transformer {
 
 
     
@@ -162,16 +162,16 @@ final class TransformerStub:Transformer {
 }
 
 
-final class MockTransformingService: TransformingService, Cuckoo.ClassMock {
+final class MockTransformingService: TransformingService, nonisolated Cuckoo.ClassMock {
     typealias MocksType = TransformingService
     typealias Stubbing = __StubbingProxy_TransformingService
     typealias Verification = __VerificationProxy_TransformingService
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<TransformingService>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<TransformingService>()
 
     nonisolated func enableDefaultImplementation(_ stub: TransformingService) {
         __defaultImplStub.value = stub
@@ -209,7 +209,7 @@ return await cuckoo_manager.call(
 
     }
 
-    struct __StubbingProxy_TransformingService: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_TransformingService: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -233,7 +233,7 @@ return await cuckoo_manager.call(
         }
     }
 
-    struct __VerificationProxy_TransformingService: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_TransformingService: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation

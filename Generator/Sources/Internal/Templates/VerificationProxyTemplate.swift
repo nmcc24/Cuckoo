@@ -2,7 +2,7 @@ import Foundation
 
 extension Templates {
     static let verificationProxy = """
-{{ container.accessibility|withSpace }}struct __VerificationProxy_{{ container.name }}: Cuckoo.VerificationProxy {
+{{ container.accessibility|withSpace }}nonisolated struct __VerificationProxy_{{ container.name }}: Cuckoo.VerificationProxy {
     private let cuckoo_manager: Cuckoo.MockManager
     private let callMatcher: Cuckoo.CallMatcher
     private let sourceLocation: Cuckoo.SourceLocation

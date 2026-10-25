@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockSorter: Sorter, Cuckoo.ProtocolMock {
+nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Sorter
     typealias Stubbing = __StubbingProxy_Sorter
     typealias Verification = __VerificationProxy_Sorter
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Sorter>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Sorter>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Sorter) {
         __defaultImplStub.value = stub
@@ -29,7 +29,7 @@ final class MockSorter: Sorter, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Sorter: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Sorter: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -45,7 +45,7 @@ final class MockSorter: Sorter, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Sorter: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Sorter: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -70,7 +70,7 @@ final class MockSorter: Sorter, Cuckoo.ProtocolMock {
     }
 }
 
-final class SorterStub:Sorter {
+nonisolated final class SorterStub:Sorter {
 
 
     

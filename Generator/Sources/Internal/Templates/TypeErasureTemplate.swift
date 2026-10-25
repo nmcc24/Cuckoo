@@ -5,7 +5,7 @@ extension Templates {
     {# For developers: `@unchecked` because the stored closures read the default implementation through an
     `UnsafeMutablePointer`, which can't be checked `Sendable`. A mock of a `Sendable` generic protocol needs the
     conformance. Removing it needs the erasure rebuilt on a Sendable box (roadmap Phase 5). #}
-    {{ container.accessibility|withSpace }}final class \(typeErasureClassName): {{ container.name }}, @unchecked Sendable {
+    {{ container.accessibility|withSpace }}nonisolated final class \(typeErasureClassName): {{ container.name }}, @unchecked Sendable {
         private let reference: () -> any {{ container.name }}{{ container.genericPrimaryAssociatedTypeArguments }}
 
         {% for property in container.properties %}

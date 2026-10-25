@@ -8,9 +8,9 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Store>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Store>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Store) {
         __defaultImplStub.value = stub
@@ -51,7 +51,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Store: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Store: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -79,7 +79,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Store: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Store: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation

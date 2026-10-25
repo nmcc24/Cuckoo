@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockConsumer: Consumer, Cuckoo.ProtocolMock {
+nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Consumer
     typealias Stubbing = __StubbingProxy_Consumer
     typealias Verification = __VerificationProxy_Consumer
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Consumer>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Consumer>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Consumer) {
         __defaultImplStub.value = stub
@@ -40,7 +40,7 @@ final class MockConsumer: Consumer, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Consumer: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Consumer: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -64,7 +64,7 @@ final class MockConsumer: Consumer, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Consumer: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Consumer: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -101,7 +101,7 @@ final class MockConsumer: Consumer, Cuckoo.ProtocolMock {
     }
 }
 
-final class ConsumerStub:Consumer {
+nonisolated final class ConsumerStub:Consumer {
 
 
     

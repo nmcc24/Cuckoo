@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockAnalytics: Analytics, Cuckoo.ProtocolMock {
+nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Analytics
     typealias Stubbing = __StubbingProxy_Analytics
     typealias Verification = __VerificationProxy_Analytics
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Analytics>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Analytics>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Analytics) {
         __defaultImplStub.value = stub
@@ -42,7 +42,7 @@ final class MockAnalytics: Analytics, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Analytics: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Analytics: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -62,7 +62,7 @@ final class MockAnalytics: Analytics, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Analytics: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Analytics: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -91,7 +91,7 @@ final class MockAnalytics: Analytics, Cuckoo.ProtocolMock {
     }
 }
 
-final class AnalyticsStub:Analytics {
+nonisolated final class AnalyticsStub:Analytics {
     
     @MainActor
     var lastEvent: String? {

@@ -48,6 +48,10 @@ jobs:
         run: swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix
         run: scripts/swift6-matrix.sh
+      - name: Swift 6 matrix with default MainActor isolation
+        run: scripts/swift6-matrix.sh -default-isolation MainActor
+        env:
+          SWIFT6_MATRIX_EXPECTED: Fixtures/Swift6/expected-failures-default-mainactor.txt
 
   tsan_linux:
     name: Runtime tests under the Thread Sanitizer on Linux (Swift 6.3)
@@ -86,6 +90,10 @@ jobs:
         run: swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix
         run: scripts/swift6-matrix.sh
+      - name: Swift 6 matrix with default MainActor isolation
+        run: scripts/swift6-matrix.sh -default-isolation MainActor
+        env:
+          SWIFT6_MATRIX_EXPECTED: Fixtures/Swift6/expected-failures-default-mainactor.txt
 
   test_macOS:
     name: Build and Test on macOS (${{ matrix.runner }})
