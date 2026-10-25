@@ -1,12 +1,19 @@
 import Foundation
-import TOMLKit
+import TOMLDecoder
 
 /// Reads `Cuckoofile.toml` into the modules to generate.
 enum Cuckoofile {
+    /// The top level of `Cuckoofile.toml`.
+    private struct File: Decodable {
+        /// The output of modules that don't set their own.
+        let output: String?
+        let modules: [String: Module.DTO]?
+    }
+
     /// - Parameters:
     ///   - contents: The Cuckoofile's text.
     ///   - configurationPath: Where the Cuckoofile is; relative paths in it resolve against its folder.
-    ///   - overriddenOutput: An output path that replaces every module's output (the build plugins set it).
+    ///   - overriddenOutput: An output path that replaces every module's and the global output (the build plugins set it).
     ///   - requestedModuleName: If set, only the module with this name is returned.
     static func modules(
         from contents: String,
@@ -14,62 +21,29 @@ enum Cuckoofile {
         overriddenOutput: String?,
         requestedModuleName: String?
     ) throws -> [Module] {
-        var errorMessages: [String] = []
-        var globalOutput: String? = overriddenOutput
-        var allModules: [Module] = []
-        let table = try TOMLTable(string: contents)
-
-        // Sorting to make sure global properties are evaluated first to be available as fallbacks.
-        let sortedTable = table.sorted { lhs, rhs in
-            let (_, lhsValue) = lhs
-            let (_, rhsValue) = rhs
-            switch (lhsValue.type, rhsValue.type) {
-            case (.table, .table):
-                return true
-            case (.table, _):
-                return false
-            case (_, .table):
-                return true
-            default:
-                return true
-            }
+        let file: File
+        do {
+            file = try TOMLDecoder().decode(File.self, from: contents)
+        } catch {
+            throw ParseError.unreadable(error)
         }
 
-        let decoder = TOMLDecoder()
-        for (key, value) in sortedTable {
-            switch key {
-            case "output":
-                if globalOutput == nil {
-                    log(.verbose, message: "Global output:", globalOutput as Any)
-                    globalOutput = value.string
-                } else {
-                    errorMessages.append("Multiple global `output` parameters. Behavior is undefined.")
-                }
-            case "modules":
-                guard let modulesTable = value.table else {
-                    throw ParseError.modulesMustBeTable
-                }
-                for (moduleName, innards) in modulesTable {
-                    guard let moduleTable = innards.table else {
-                        throw ParseError.modulesMustBeTable
-                    }
-                    let dto = try decoder.decode(Module.DTO.self, from: moduleTable)
-                    do {
-                        let module = try Module(
-                            name: moduleName,
-                            output: globalOutput,
-                            overriddenOutput: overriddenOutput,
-                            configurationPath: configurationPath,
-                            dto: dto
-                        )
-                        log(.verbose, message: "Module \(moduleName):", module)
-                        allModules.append(module)
-                    } catch {
-                        errorMessages.append(String(describing: error))
-                    }
-                }
-            default:
-                continue
+        var errorMessages: [String] = []
+        var allModules: [Module] = []
+        // Sorted, so modules are always generated in the same order.
+        for (moduleName, dto) in (file.modules ?? [:]).sorted(by: { $0.key < $1.key }) {
+            do {
+                let module = try Module(
+                    name: moduleName,
+                    output: file.output,
+                    overriddenOutput: overriddenOutput,
+                    configurationPath: configurationPath,
+                    dto: dto
+                )
+                log(.verbose, message: "Module \(moduleName):", module)
+                allModules.append(module)
+            } catch {
+                errorMessages.append(String(describing: error))
             }
         }
 
@@ -84,14 +58,15 @@ enum Cuckoofile {
     }
 
     enum ParseError: Error, CustomStringConvertible {
-        case modulesMustBeTable
+        case unreadable(any Error)
         case configurationErrors(details: [String])
 
         var description: String {
             switch self {
-            case .modulesMustBeTable:
+            case .unreadable(let error):
                 return """
-                Modules must be TOML tables. Define them as \("[modules.ModuleName]".bold) with properties beneath.
+                Cuckoofile can't be read. Define modules as \("[modules.ModuleName]".bold) tables with properties beneath.
+                \(error)
                 """
             case .configurationErrors(let details):
                 return """

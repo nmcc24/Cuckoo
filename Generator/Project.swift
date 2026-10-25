@@ -14,7 +14,7 @@ let target = Target.target(
         "SwiftSyntax",
         "SwiftParser",
         "ArgumentParser",
-        "TOMLKit",
+        "TOMLDecoder",
         "Rainbow",
     ].map { TargetDependency.package(product: $0) }
 )
@@ -44,7 +44,7 @@ let project = Project(
         .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"605.0.0"),
         // .package(url: "https://github.com/swiftlang/swift-format", "600.0.0"..<"605.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMajor(from: "1.8.2")),
-        .package(url: "https://github.com/LebJe/TOMLKit", .upToNextMinor(from: "0.6.0")),
+        .package(url: "https://github.com/dduan/TOMLDecoder", .upToNextMinor(from: "0.4.5")),
         .package(url: "https://github.com/onevcat/Rainbow", .upToNextMajor(from: "4.2.2")),
     ],
     // Warnings in the generator are errors, as in ../Package.swift. Dependencies build in their own projects.

@@ -127,7 +127,8 @@ jobs:
       # built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
       # Swift, so what can break there is compile-time (APIs, availability, imports).
       # They run on xcode-27 only: Xcode 26.6 also builds the generator's dependencies for the destination,
-      # and TOMLKit, which declares no tvOS minimum, doesn't build for tvOS 12.
+      # where TOMLKit and XcodeProj failed for tvOS and watchOS. Both are gone; running these on macos-26
+      # too is a follow-up to try.
       - name: Test the package on iOS
         run: |
           set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
