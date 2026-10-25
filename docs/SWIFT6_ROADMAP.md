@@ -173,7 +173,7 @@ Breaking changes accepted in 3.0:
   - `class`-constrained protocols (#447/#376);
   - `Self` (#304), generic init (#362), parent protocol associated types (#576);
   - conformances respected (#560).
-- **Xcode projects:** support `PBXFileSystemSynchronizedRootGroup` (#524), or drop XcodeProj in favour of plugin-provided file lists.
+- **Xcode projects:** XcodeProj is dropped (decided 2026-10-25): the Cuckoofile `xcodeproj` option is gone, and the build plugins will hand the generator the target's exact file list, which also covers `PBXFileSystemSynchronizedRootGroup` (#524).
 - **Linux:** make the generator build there (`gl_pathc` instead of `gl_matchc`, `FileManager`-based globbing).
 - **Mock dependency types by module name:** let a Cuckoofile entry say `dependencies = ["Alamofire"]` (or `sources = ["@Alamofire/**"]`). The build plugin resolves the module's source files from the SwiftPM or Xcode package graph, so nobody has to hard-code `.build/checkouts` or DerivedData paths. Only protocols and `open` classes from another module can be mocked, because Swift forbids subclassing `public` non-`open` classes across modules.
 - **Mocks from `.swiftinterface` files:** parse the textual interfaces of binary `.xcframework`s, so closed-source Swift SDKs can be mocked too (protocols and `open` classes). Swift interfaces are ordinary Swift syntax, so the existing crawler mostly applies.
@@ -338,7 +338,8 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
 ### Phase 5: Codegen rewrite, distribution, docs (L)
 1. ☁️ Replace Stencil with a typed code writer, output formatted with `swift-format`. Snapshot tests guard against output drift.
 2. 🍎 Prebuilt `artifactbundle` for the generator, released by GitHub Actions (replaces fastlane). Plugin consumers no longer compile swift-syntax.
-3. ☁️ Synchronized-group Xcode project support (#524), or a documented plugin-only path.
+3. ☁️ **Plugins pass their file lists to the generator (#524).** The plugins already compute each target's source files, including Xcode 16 synchronised folders, but only hand them to the build system as `inputFiles`; the generator still reads the Cuckoofile's `sources` globs. Add a `--sources-list <file>` option (one path per line), have each plugin write the files it computed and pass it, and use that list instead of `sources` (with `exclude` and `regex` still applied). Plugin users then need no `sources` at all, and target membership is exact again. Snapshot-test the option; the SwiftPM runtime suite covers it through `CuckooPluginModular`.
+   - **Done first (2026-10-25):** the `xcodeproj` option and the XcodeProj dependency (with AEXML and xcode-project-format) are removed. A leftover `xcodeproj` table fails with a message giving the `sources` line to write; the README has a migration note. Until this item lands, that message doesn't mention the plugins, which still read `sources`.
 4. ☁️ DocC documentation, a migration guide from 2.x, and a cookbook (MainActor view models, actors, Swift Testing).
    - The README still documents CocoaPods, the `run` script and the 2.x platforms. The podspec, Gemfile and fastlane lane were removed in Phase 2 (D3); the `run` script goes with this rewrite.
 5. ☁️ Optional `@Mockable` macro front-end that shares the model (§3.5).
