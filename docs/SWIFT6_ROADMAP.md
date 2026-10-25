@@ -323,7 +323,7 @@ Exit criteria: no `nonisolated(unsafe)` or `@unchecked Sendable` left in `Source
 
 Exit criteria: fixtures 01–06 typecheck and have behavioural tests; also typecheck in default-MainActor mode.
 
-**Status (2026-10-25): items 1–4 done, item 5 done on Linux; Mac (Tuist) run pending.**
+**Status (2026-10-25): items 1–5 done.** The Tuist macOS and iOS schemes, `swift test` on macOS and the package on the iOS simulator pass with 345 runtime XCTest tests, 69 Swift Testing tests and no warnings.
 - **Items 1 and 3:** stub closures carry the mock's isolation (§3.1 item 6). The crawler records global actors (any `@globalActor` declared in the scanned files, plus `MainActor`), member-level `@MainActor`/`nonisolated`, and `nonisolated(nonsending)`/`@concurrent`, and the mocks keep them.
 - **Item 2:** `Actor` protocols get `actor` mocks and stubs. Fixture 02 compiles and left the expected-failures list.
 - **Item 4:** the generator states isolation wherever the module default would otherwise decide it (mocks and stubs of protocols without isolation, the proxies, the type-erased default implementation, the conformance to the Cuckoo protocols). CI runs the matrix with `-default-isolation MainActor` too, against `Fixtures/Swift6/expected-failures-default-mainactor.txt`. Two known gaps there:
@@ -331,6 +331,7 @@ Exit criteria: fixtures 01–06 typecheck and have behavioural tests; also typec
   - the type-erased default implementation of a generic protocol (fixture 05) is nonisolated, but the module's default makes the protocol MainActor-isolated, which the generator can't see. A Cuckoofile option naming the source module's default isolation would fix it; not started.
 - **Item 5:** `Tests/Swift/IsolationTest.swift` (Swift Testing) and `IsolationXCTest.swift` stub, verify and spy on MainActor, global-actor, actor and `Sendable` mocks, including from concurrent tasks. They run in `swift test` and in the Tuist schemes.
 - **API change:** stub function types gained two generic parameters (closure type and sharing), so code that names one to pick an overload writes `as ClassStubNoReturnFunction<(Int?, String), _, _>`.
+- **Typed throws:** the closure type throws untyped errors, and the mock narrows them back to the member's error type, because a typed-throws function type as a generic argument needs the iOS 18 / macOS 15 runtime (§3.4).
 
 ### Phase 4: Coverage expansion (L)
 1. ☁️ Subscripts (12) and static/class members (13, #521).
