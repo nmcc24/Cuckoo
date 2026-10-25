@@ -105,6 +105,7 @@ imports = ["Foundation"]
 publicImports = ["ExampleModule"]
 # @testable imports if needed.
 testableImports = ["RxSwift"]
+# Files to read, relative to the Cuckoofile. `**` matches subfolders, and `{A,B}` either name.
 sources = [
     "Tests/Swift/Source/*.swift",
 ]
@@ -119,12 +120,6 @@ keepDocumentation = false
 # enableInheritance = false
 # protocolsOnly = true
 # omitHeaders = true
-
-# If specified, Cuckoo can also get sources for the module from an Xcode target.
-[modules.MyProject.xcodeproj]
-# Path to folder with .xcodeproj, omit this if it's at the same level as Cuckoofile.
-path = "Generator"
-target = "Cuckoonator"
 
 # You can define as many modules as you need, each with different sources/options/output.
 [modules.AnotherProject]
@@ -175,6 +170,29 @@ sources = [
     ]
 )
 ```
+
+#### Migrating from Cuckoo 2: the `xcodeproj` option
+Cuckoo 3 no longer reads a module's files from an Xcode target. Replace the `xcodeproj` table with `sources` globs that cover the target's folders:
+
+```toml
+# Cuckoo 2
+[modules.MyApp]
+output = "MyAppTests/GeneratedMocks.swift"
+testableImports = ["MyApp"]
+
+[modules.MyApp.xcodeproj]
+target = "MyApp"
+```
+
+```toml
+# Cuckoo 3
+[modules.MyApp]
+output = "MyAppTests/GeneratedMocks.swift"
+testableImports = ["MyApp"]
+sources = ["MyApp/**/*.swift", "Shared/**/*.swift"]
+```
+
+Globs select files by folder, not by target membership. If a folder also holds files that the target doesn't compile, narrow the glob or list those types in `exclude`. A Cuckoofile that still has an `xcodeproj` table fails with a message that says what to write instead.
 
 ### 3. Usage
 Usage of Cuckoo is similar to [Mockito](http://mockito.org/) and [Hamcrest](http://hamcrest.org/). However, there are some differences and limitations caused by generating the mocks and Swift language itself. List of all the supported features can be found below. You can find complete examples in [tests](Tests).
