@@ -7,6 +7,8 @@ struct Import: Hashable, CustomStringConvertible {
     let target: Target
     /// The `#if` conditions the import is nested in, mirrored into the generated file.
     let compilationConditions: [String]
+    /// Whether the source declares it `public import`, so its types may appear in public declarations.
+    var isPublic = false
 
     var description: String {
         switch target {

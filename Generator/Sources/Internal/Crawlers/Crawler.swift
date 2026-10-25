@@ -89,7 +89,8 @@ final class Crawler: SyntaxVisitor {
             // Target import.
             .library(name: path)
         }
-        imports.append(Import(target: target, compilationConditions: compilationConditions))
+        let isPublic = node.modifiers.contains { $0.name.tokenKind == .keyword(.public) }
+        imports.append(Import(target: target, compilationConditions: compilationConditions, isPublic: isPublic))
         return .skipChildren
     }
 

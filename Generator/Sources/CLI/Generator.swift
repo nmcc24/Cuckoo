@@ -9,7 +9,8 @@ final class Generator {
         let contents: String
     }
 
-    static func generate(for module: Module, verbose: Bool) async throws -> [GeneratedFile] {
+    /// - Parameter singleFileOutput: whether the files are joined into one, which then needs one access level per import.
+    static func generate(for module: Module, singleFileOutput: Bool, verbose: Bool) async throws -> [GeneratedFile] {
         let sources = module.sources ?? []
 
         let inputPathValues: [Path]
@@ -68,18 +69,34 @@ final class Generator {
         let mockableFiles = parsedFiles.map { $0.replacing(tokens: $0.tokens.filter { $0.isMockable }) }
 
         let timestamp = verbose ? Date().description : nil
+        let sharedPublicModules = singleFileOutput ? publicModules(in: mockableFiles, module: module) : nil
         return try await mockableFiles.concurrentMap { file in
             await GeneratedFile(
                 path: file.file.path,
                 contents: [
                     module.options.omitHeaders ? nil : FileHeaderHandler.header(for: file, timestamp: timestamp),
-                    FileHeaderHandler.imports(for: file, imports: module.imports, publicImports: module.publicImports, testableImports: module.testableImports),
+                    FileHeaderHandler.imports(for: file, imports: module.imports, publicImports: module.publicImports, testableImports: module.testableImports, publicModules: sharedPublicModules ?? publicModules(in: [file], module: module)),
                     try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation),
                 ]
                 .compactMap { $0 }
                 .joined(separator: "\n\n")
             )
         }
+    }
+
+    /// The modules a public mock's declaration can name: Cuckoo, the module of the mocked types, which is one of the
+    /// testable imports, and whatever the sources import publicly. Under `InternalImportsByDefault`, a plain import
+    /// is internal and a public mock can't use its types. Where no mock is public, every import stays plain, because
+    /// a public import that no public declaration uses is a warning.
+    private static func publicModules(in files: [FileRepresentation], module: Module) -> Set<String> {
+        let hasPublicMocks = files.contains { file in
+            file.tokens.contains { token in
+                guard let token = token as? any HasAccessibility else { return false }
+                return token.accessibility == .public || token.accessibility == .open
+            }
+        }
+        guard hasPublicMocks else { return [] }
+        return Set(["Cuckoo"] + module.testableImports + files.flatMap { $0.imports.filter(\.isPublic).map(\.description) })
     }
 
     private static func mergingInheritance(_ filesRepresentation: [FileRepresentation]) -> [FileRepresentation] {
