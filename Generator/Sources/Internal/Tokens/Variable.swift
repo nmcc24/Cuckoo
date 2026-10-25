@@ -15,6 +15,8 @@ struct Variable: Token, HasAccessibility, HasAttributes {
     var effects: Effects
     /// The `#if` conditions the declaration is nested in.
     var compilationConditions: [String] = []
+    /// The member's own isolation, if it states one.
+    var isolation: Isolation?
     var isReadOnly: Bool {
         setterAccessibility?.isAccessible != true
     }
@@ -32,8 +34,31 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             fatalError("Failed to find parent of variable \(name). Please file a bug.")
         }
 
+        let stubIsolation = parent.value.stubIsolation(forMember: isolation)
+        let storedType = isReadOnly ? type : type.unoptionaled
+        let valueType = type.description
+        let getterType = stubIsolation.implementationType(
+            input: "()",
+            output: valueType,
+            isAsync: effects.isAsync,
+            throwsClause: effects.isThrowing ? "throws" : nil
+        )
+        let setterType = stubIsolation.implementationType(input: valueType, output: "Void", isAsync: false, throwsClause: nil)
+        let stubGenericArguments = [
+            storedType.description,
+            getterType,
+            isReadOnly || effects.isThrowing ? nil : setterType,
+            stubIsolation.sharingType,
+        ]
+        .compactMap { $0 }
+        .joined(separator: ", ")
+
         return [
             "documentation": documentation,
+            "getterImplementationType": getterType,
+            "setterImplementationType": setterType,
+            "stubGenericArguments": stubGenericArguments,
+            "isolationAttribute": isolation?.sourceDescription ?? "",
             "isOverriding": parent.isClass,
             "name": name,
             "type": type.description,

@@ -3,19 +3,25 @@ import SwiftSyntax
 import SwiftParser
 
 final class Crawler: SyntaxVisitor {
-    static func crawl(url: URL) throws -> Crawler {
+    /// - Parameter globalActors: The global actors declared in the module, besides `MainActor`. An attribute
+    ///   with one of these names isolates the declaration; see ``globalActorNames(in:)``.
+    static func crawl(url: URL, globalActors: Set<String> = []) throws -> Crawler {
         let file = try String(contentsOf: url, encoding: .utf8)
-        return crawl(source: file, url: url)
+        return crawl(source: file, url: url, globalActors: globalActors)
     }
 
-    static func crawl(source: String, url: URL) -> Crawler {
+    static func crawl(source: String, url: URL, globalActors: Set<String> = []) -> Crawler {
         let syntaxTree = Parser.parse(source: source)
         #if DEBUG
         // Comment out the line above and uncomment the one below to test specific strings.
         // The `testString` is at the bottom of this file.
 //        let syntaxTree = Parser.parse(source: testString)
         #endif
-        let context = Context(url: url, locationConverter: SourceLocationConverter(fileName: url.path, tree: syntaxTree))
+        let context = Context(
+            url: url,
+            locationConverter: SourceLocationConverter(fileName: url.path, tree: syntaxTree),
+            globalActors: globalActors.union(["MainActor"])
+        )
         let crawler = Self(container: nil, context: context)
         crawler.walk(syntaxTree)
         return crawler
@@ -25,11 +31,13 @@ final class Crawler: SyntaxVisitor {
     final class Context {
         let url: URL
         let locationConverter: SourceLocationConverter
+        let globalActors: Set<String>
         var diagnostics: [Diagnostic] = []
 
-        init(url: URL, locationConverter: SourceLocationConverter) {
+        init(url: URL, locationConverter: SourceLocationConverter, globalActors: Set<String>) {
             self.url = url
             self.locationConverter = locationConverter
+            self.globalActors = globalActors
         }
     }
 
@@ -100,7 +108,8 @@ final class Crawler: SyntaxVisitor {
             genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements),
             inheritedTypes: inheritedTypes(from: node.inheritanceClause?.inheritedTypes),
             members: [],
-            enclosingCompilationConditions: enclosingCompilationConditions
+            enclosingCompilationConditions: enclosingCompilationConditions,
+            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -125,7 +134,8 @@ final class Crawler: SyntaxVisitor {
             genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements),
             inheritedTypes: inheritedTypes,
             members: [],
-            enclosingCompilationConditions: enclosingCompilationConditions
+            enclosingCompilationConditions: enclosingCompilationConditions,
+            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -347,6 +357,7 @@ extension Crawler {
                     type: $0.type,
                     effects: $0.effects,
                     compilationConditions: compilationConditions,
+                    isolation: isolation(attributes: variableGroup.attributes, modifiers: variableGroup.modifiers),
                     isConstant: isConstant
                 )
             }
@@ -464,7 +475,9 @@ extension Crawler {
                 whereConstraints: genericRequirements(from: method.genericWhereClause?.requirements)
             ),
             isOptional: method.modifiers.contains { $0.name.tokenKind == .keyword(.optional) },
-            compilationConditions: compilationConditions
+            compilationConditions: compilationConditions,
+            isolation: isolation(attributes: method.attributes, modifiers: method.modifiers),
+            executionAttribute: executionAttribute(attributes: method.attributes, modifiers: method.modifiers)
         )
     }
 }
@@ -510,6 +523,32 @@ extension Crawler {
 
     private func trimmed(_ docStrings: [String]) -> [String] {
         docStrings.compactMap { $0.trimmed.nilIfEmpty }
+    }
+
+    /// A global actor attribute, or the `nonisolated` modifier.
+    private func isolation(attributes: AttributeListSyntax, modifiers: DeclModifierListSyntax) -> Isolation? {
+        for case .attribute(let attribute) in attributes {
+            if let name = attribute.attributeName.as(IdentifierTypeSyntax.self)?.name.text,
+               attribute.arguments == nil,
+               context.globalActors.contains(name) {
+                return .globalActor(name)
+            }
+        }
+        if modifiers.contains(where: { $0.name.tokenKind == .keyword(.nonisolated) && $0.detail == nil }) {
+            return .nonisolated
+        }
+        return nil
+    }
+
+    /// `nonisolated(nonsending)` or `@concurrent`.
+    private func executionAttribute(attributes: AttributeListSyntax, modifiers: DeclModifierListSyntax) -> String? {
+        if let modifier = modifiers.first(where: { $0.name.tokenKind == .keyword(.nonisolated) && $0.detail != nil }) {
+            return modifier.trimmedDescription
+        }
+        for case .attribute(let attribute) in attributes where attribute.attributeName.trimmedDescription == "concurrent" {
+            return "@concurrent"
+        }
+        return nil
     }
 
     private func attributes(from attributeList: AttributeListSyntax?) -> [Attribute] {
@@ -683,3 +722,47 @@ protocol Brek<Crack: Codable> {
 """
 }
 #endif
+
+extension Crawler {
+    /// The global actors a file declares (`@globalActor actor X`, or a class, struct or enum), so attributes
+    /// naming them can be told apart from macros and property wrappers.
+    static func globalActorNames(in source: String) -> Set<String> {
+        let tree = Parser.parse(source: source)
+        let collector = GlobalActorCollector(viewMode: .sourceAccurate)
+        collector.walk(tree)
+        return collector.names
+    }
+
+    private final class GlobalActorCollector: SyntaxVisitor {
+        var names: Set<String> = []
+
+        private func collect(_ attributes: AttributeListSyntax, name: TokenSyntax) {
+            let isGlobalActor = attributes.contains { element in
+                element.as(AttributeSyntax.self)?.attributeName.trimmedDescription == "globalActor"
+            }
+            if isGlobalActor {
+                names.insert(name.text)
+            }
+        }
+
+        override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
+            collect(node.attributes, name: node.name)
+            return .visitChildren
+        }
+
+        override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
+            collect(node.attributes, name: node.name)
+            return .visitChildren
+        }
+
+        override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
+            collect(node.attributes, name: node.name)
+            return .visitChildren
+        }
+
+        override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
+            collect(node.attributes, name: node.name)
+            return .visitChildren
+        }
+    }
+}

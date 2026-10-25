@@ -9,6 +9,8 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var inheritedTypes: [String]
     var members: [Token]
     var enclosingCompilationConditions: [String]
+    /// The global actor the type is isolated to, if any.
+    var isolation: Isolation?
 
     func replacing(members: [Token]) -> ClassDeclaration {
         ClassDeclaration(
@@ -20,7 +22,8 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             genericRequirements: genericRequirements,
             inheritedTypes: inheritedTypes,
             members: members,
-            enclosingCompilationConditions: enclosingCompilationConditions
+            enclosingCompilationConditions: enclosingCompilationConditions,
+            isolation: isolation
         )
     }
 }
