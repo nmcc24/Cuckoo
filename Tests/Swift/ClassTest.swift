@@ -4,7 +4,7 @@ import Cuckoo
 @testable import CuckooTestSources
 
 extension TestedClass: Mocked {
-    public typealias MockType = MockTestedClass
+    typealias MockType = MockTestedClass
 }
 
 final class ClassTest: XCTestCase {

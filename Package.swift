@@ -11,6 +11,7 @@ let swiftSettings: [SwiftSetting] = [
     .treatAllWarnings(as: .error),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("MemberImportVisibility"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
     .enableUpcomingFeature("ImmutableWeakCaptures"),
 ]
 
