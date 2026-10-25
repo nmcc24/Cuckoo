@@ -280,6 +280,12 @@ extension MockManager {
     public static func crashOnProtocolSuperclassCall<OUT>() -> OUT {
         fatalError("This should never get called. If it does, please report an issue to Cuckoo repository.")
     }
+
+    /// Stands in for forwarding a synchronous member of an actor mock to its default implementation,
+    /// another actor, which can only be reached with `await`.
+    public static func crashOnActorDefaultImplementationCall<OUT>(_ member: String) -> OUT {
+        fatalError("An actor mock can't forward the synchronous member \(member) to its default implementation, which is another actor. Stub it instead.")
+    }
 }
 
 extension MockManager {

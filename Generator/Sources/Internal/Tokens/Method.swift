@@ -103,9 +103,8 @@ extension Method {
         let stubFunction = "Cuckoo.\(stubFunctionPrefix)Stub\(returnString)\(throwingString)Function"
 
         let stubIsolation = parent.value.stubIsolation(forMember: isolation)
-        let genericInputTypes = signature.parameters
-            .map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description }
-            .joined(separator: ", ")
+        let genericParameterTypes = signature.parameters.map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]) }
+        let genericInputTypes = genericParameterTypes.map(\.genericArgumentSafe.description).joined(separator: ", ")
         let genericReturnType = returnType?.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description ?? "Void"
         let throwsClause: String? = switch signature.throwType {
         case .none:
@@ -115,12 +114,27 @@ extension Method {
         case .some(let throwType):
             throwType.isThrowing ? "throws(\(throwType.type))" : nil
         }
-        // A lone closure parameter is the `then` closure's own parameter, which must be `@escaping`
-        // to take it; inside a tuple of several, closures already escape.
-        let implementationInput = if signature.parameters.count == 1, signature.parameters[0].type.isClosure {
-            "(@escaping \(genericInputTypes))"
+        // A closure that is one of the `then` closure's own parameters must be `@escaping` to take it;
+        // inside a tuple of several, closures already escape.
+        func escapingIfClosure(_ type: ComplexType) -> String {
+            let description = type.genericArgumentSafe.description
+            return type.isClosure && !type.isOptional ? "@escaping \(description)" : description
+        }
+        let recordedParameters = signature.parameters.map(\.recordedValue).joined(separator: ", ")
+        let implementationInput: String
+        let implementationArguments: String
+        if let isolatedParameter = stubIsolation.isolatedParameter {
+            // An actor mock's closure takes the mock, then each parameter.
+            implementationInput = "(\(([isolatedParameter] + genericParameterTypes.map(escapingIfClosure)).joined(separator: ", ")))"
+            implementationArguments = (["self"] + signature.parameters.map(\.recordedValue)).joined(separator: ", ")
         } else {
-            "(\(genericInputTypes))"
+            // Other closures take the parameters as one tuple, the way they're recorded.
+            implementationInput = if genericParameterTypes.count == 1 {
+                "((\(escapingIfClosure(genericParameterTypes[0]))))"
+            } else {
+                "((\(genericInputTypes)))"
+            }
+            implementationArguments = "(\(recordedParameters))"
         }
         let implementationType = stubIsolation.implementationType(
             input: implementationInput,
@@ -155,7 +169,8 @@ extension Method {
             "parameterNames": signature.parameters.map { escapeReservedKeywords(for: $0.usableName) }.joined(separator: ", "),
             "sendingParameterNames": signature.parameters.filter(\.isSending).map { escapeReservedKeywords(for: $0.usableName) },
             "sendingParameterDeclarations": signature.parameters.filter(\.isSending).map { "_ \(escapeReservedKeywords(for: $0.usableName)): \($0.type)" },
-            "recordedParameters": signature.parameters.map(\.recordedValue).joined(separator: ", "),
+            "recordedParameters": recordedParameters,
+            "implementationArguments": implementationArguments,
             "escapingParameterNames": escapingParameterNames,
             "returnType": returnType?.description ?? "",
             "returnsSending": returnType?.containsAttribute(named: "sending") ?? false,

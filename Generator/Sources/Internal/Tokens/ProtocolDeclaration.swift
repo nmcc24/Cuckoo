@@ -14,6 +14,11 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var isolation: Isolation?
     var isNSObjectProtocol = false
 
+    /// Whether the protocol refines `Actor`, so its mock is an `actor`.
+    var isActor: Bool {
+        inheritedTypes.contains { $0 == "Actor" || $0 == "_Concurrency.Actor" }
+    }
+
     func replacing(members: [Token]) -> ProtocolDeclaration {
         ProtocolDeclaration(
             parent: parent,
