@@ -4,11 +4,11 @@ public protocol ToBeStubbedThrowingProperty {
     var get: GetterType { get }
 }
 
-public struct ProtocolToBeStubbedThrowingProperty<MOCK: ProtocolMock, T>: ToBeStubbedThrowingProperty {
+public struct ProtocolToBeStubbedThrowingProperty<MOCK: ProtocolMock, T, GET, SHARING>: ToBeStubbedThrowingProperty {
     private let manager: MockManager
     private let name: String
 
-    public var get: ProtocolStubThrowingFunction<Void, T, Error> {
+    public var get: ProtocolStubThrowingFunction<Void, T, Error, GET, SHARING> {
         ProtocolStubThrowingFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -24,11 +24,11 @@ public struct ProtocolToBeStubbedThrowingProperty<MOCK: ProtocolMock, T>: ToBeSt
     }
 }
 
-public struct ClassToBeStubbedThrowingProperty<MOCK: ClassMock, T>: ToBeStubbedThrowingProperty {
+public struct ClassToBeStubbedThrowingProperty<MOCK: ClassMock, T, GET, SHARING>: ToBeStubbedThrowingProperty {
     private let manager: MockManager
     private let name: String
 
-    public var get: ClassStubThrowingFunction<Void, T, Error> {
+    public var get: ClassStubThrowingFunction<Void, T, Error, GET, SHARING> {
         ClassStubThrowingFunction(
             stub: manager.createStub(
                 for: MOCK.self,

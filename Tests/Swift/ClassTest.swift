@@ -245,12 +245,12 @@ final class ClassTest: XCTestCase {
         let mock = MockOptionalParamsClass()
 
         stub(mock) { mock in
-            when(mock.clashingFunction(param1: Optional(1), param2: "Henlo Fren") as Cuckoo.ClassStubNoReturnFunction<(Int?, String)>).thenDoNothing()
-            when(mock.clashingFunction(param1: Optional.none, param2: "Henlo Fren") as Cuckoo.ClassStubNoReturnFunction<(Int?, String)>).thenDoNothing()
-            when(mock.clashingFunction(param1: anyInt(), param2: "What's the question?") as Cuckoo.ClassStubNoReturnFunction<(Int, String?)>).then {
+            when(mock.clashingFunction(param1: Optional(1), param2: "Henlo Fren") as Cuckoo.ClassStubNoReturnFunction<(Int?, String), _, _>).thenDoNothing()
+            when(mock.clashingFunction(param1: Optional.none, param2: "Henlo Fren") as Cuckoo.ClassStubNoReturnFunction<(Int?, String), _, _>).thenDoNothing()
+            when(mock.clashingFunction(param1: anyInt(), param2: "What's the question?") as Cuckoo.ClassStubNoReturnFunction<(Int, String?), _, _>).then {
                 print("What's 6 times 9? \($0.0)")
             }
-            when(mock.clashingFunction(param1: anyInt(), param2: isNil()) as Cuckoo.ClassStubNoReturnFunction<(Int, String?)>).then {
+            when(mock.clashingFunction(param1: anyInt(), param2: isNil()) as Cuckoo.ClassStubNoReturnFunction<(Int, String?), _, _>).then {
                 print("What's 6 times 9? \($0.0)")
             }
             when(mock.function(param: any())).thenDoNothing()

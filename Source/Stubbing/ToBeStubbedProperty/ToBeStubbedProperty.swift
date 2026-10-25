@@ -4,11 +4,11 @@ public protocol ToBeStubbedProperty: ToBeStubbedReadOnlyProperty where GetterTyp
     func set<M: Matchable>(_ matcher: M) -> SetterType where M.MatchedType == SetterType.InputType
 }
 
-public struct ProtocolToBeStubbedProperty<MOCK: ProtocolMock, T>: ToBeStubbedProperty {
+public struct ProtocolToBeStubbedProperty<MOCK: ProtocolMock, T, GET, SET, SHARING>: ToBeStubbedProperty {
     private let manager: MockManager
     private let name: String
     
-    public var get: ProtocolStubFunction<Void, T> {
+    public var get: ProtocolStubFunction<Void, T, GET, SHARING> {
         ProtocolStubFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -18,7 +18,7 @@ public struct ProtocolToBeStubbedProperty<MOCK: ProtocolMock, T>: ToBeStubbedPro
         )
     }
     
-    public func set<M: Matchable>(_ matcher: M) -> ProtocolStubNoReturnFunction<T> where M.MatchedType == T {
+    public func set<M: Matchable>(_ matcher: M) -> ProtocolStubNoReturnFunction<T, SET, SHARING> where M.MatchedType == T {
         ProtocolStubNoReturnFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -34,11 +34,11 @@ public struct ProtocolToBeStubbedProperty<MOCK: ProtocolMock, T>: ToBeStubbedPro
     }
 }
 
-public struct ClassToBeStubbedProperty<MOCK: ClassMock, T>: ToBeStubbedProperty {
+public struct ClassToBeStubbedProperty<MOCK: ClassMock, T, GET, SET, SHARING>: ToBeStubbedProperty {
     private let manager: MockManager
     private let name: String
 
-    public var get: ClassStubFunction<Void, T> {
+    public var get: ClassStubFunction<Void, T, GET, SHARING> {
         ClassStubFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -48,7 +48,7 @@ public struct ClassToBeStubbedProperty<MOCK: ClassMock, T>: ToBeStubbedProperty 
         )
     }
 
-    public func set<M: Matchable>(_ matcher: M) -> ClassStubNoReturnFunction<T> where M.MatchedType == T {
+    public func set<M: Matchable>(_ matcher: M) -> ClassStubNoReturnFunction<T, SET, SHARING> where M.MatchedType == T {
         ClassStubNoReturnFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -71,13 +71,13 @@ public protocol ToBeStubbedOptionalProperty: ToBeStubbedReadOnlyProperty where G
     func set<M: OptionalMatchable>(_ matcher: M) -> SetterType where M.OptionalMatchedType == WrappedType
 }
 
-public struct ProtocolToBeStubbedOptionalProperty<MOCK: ProtocolMock, T>: ToBeStubbedOptionalProperty {
+public struct ProtocolToBeStubbedOptionalProperty<MOCK: ProtocolMock, T, GET, SET, SHARING>: ToBeStubbedOptionalProperty {
     public typealias WrappedType = T
 
     private let manager: MockManager
     private let name: String
 
-    public var get: ProtocolStubFunction<Void, T?> {
+    public var get: ProtocolStubFunction<Void, T?, GET, SHARING> {
         ProtocolStubFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -87,7 +87,7 @@ public struct ProtocolToBeStubbedOptionalProperty<MOCK: ProtocolMock, T>: ToBeSt
         )
     }
 
-    public func set<M: OptionalMatchable>(_ matcher: M) -> ProtocolStubNoReturnFunction<T?> where M.OptionalMatchedType == T {
+    public func set<M: OptionalMatchable>(_ matcher: M) -> ProtocolStubNoReturnFunction<T?, SET, SHARING> where M.OptionalMatchedType == T {
         ProtocolStubNoReturnFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -103,13 +103,13 @@ public struct ProtocolToBeStubbedOptionalProperty<MOCK: ProtocolMock, T>: ToBeSt
     }
 }
 
-public struct ClassToBeStubbedOptionalProperty<MOCK: ClassMock, T>: ToBeStubbedOptionalProperty {
+public struct ClassToBeStubbedOptionalProperty<MOCK: ClassMock, T, GET, SET, SHARING>: ToBeStubbedOptionalProperty {
     public typealias WrappedType = T
 
     private let manager: MockManager
     private let name: String
 
-    public var get: ClassStubFunction<Void, T?> {
+    public var get: ClassStubFunction<Void, T?, GET, SHARING> {
         ClassStubFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -119,7 +119,7 @@ public struct ClassToBeStubbedOptionalProperty<MOCK: ClassMock, T>: ToBeStubbedO
         )
     }
 
-    public func set<M: OptionalMatchable>(_ matcher: M) -> ClassStubNoReturnFunction<T?> where M.OptionalMatchedType == T {
+    public func set<M: OptionalMatchable>(_ matcher: M) -> ClassStubNoReturnFunction<T?, SET, SHARING> where M.OptionalMatchedType == T {
         ClassStubNoReturnFunction(
             stub: manager.createStub(
                 for: MOCK.self,

@@ -21,6 +21,7 @@ final class MockGreeter: Greeter, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "count",
+                invoke: { (implementation: (()) -> Int) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.count
             )
@@ -29,6 +30,7 @@ final class MockGreeter: Greeter, Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "count",
                 value: newValue,
+                invoke: { (implementation: (Int) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.count = newValue
             )
@@ -41,6 +43,7 @@ final class MockGreeter: Greeter, Cuckoo.ProtocolMock {
             "greet(name p0: String) -> String",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> String) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.greet(name: p0)
         )
@@ -53,11 +56,11 @@ final class MockGreeter: Greeter, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        var count: Cuckoo.ProtocolToBeStubbedProperty<MockGreeter,Int> {
+        var count: Cuckoo.ProtocolToBeStubbedProperty<MockGreeter, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "count")
         }
         
-        func greet<M1: Cuckoo.Matchable>(name p0: M1) -> Cuckoo.ProtocolStubFunction<(String), String> where M1.MatchedType == String {
+        func greet<M1: Cuckoo.Matchable>(name p0: M1) -> Cuckoo.ProtocolStubFunction<(String), String, ((String)) -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockGreeter.self,
                 method: "greet(name p0: String) -> String",

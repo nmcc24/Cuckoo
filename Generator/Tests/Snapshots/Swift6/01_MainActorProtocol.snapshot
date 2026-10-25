@@ -21,6 +21,7 @@ final class MockMainActorService: MainActorService, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "title",
+                invoke: { (implementation: @MainActor @Sendable (()) -> String) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.title
             )
@@ -29,6 +30,7 @@ final class MockMainActorService: MainActorService, Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "title",
                 value: newValue,
+                invoke: { (implementation: @MainActor @Sendable (String) -> Void) in implementation(newValue) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.title = newValue
             )
@@ -41,6 +43,7 @@ final class MockMainActorService: MainActorService, Cuckoo.ProtocolMock {
             "load(id p0: Int) -> String",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: @MainActor @Sendable ((Int)) -> String) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.load(id: p0)
         )
@@ -52,6 +55,7 @@ final class MockMainActorService: MainActorService, Cuckoo.ProtocolMock {
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
+            invoke: { (implementation: @MainActor @Sendable (()) async throws(Swift.Error) -> Void) async throws(Swift.Error) in try await implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.refresh()
         )
@@ -64,11 +68,11 @@ final class MockMainActorService: MainActorService, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        var title: Cuckoo.ProtocolToBeStubbedProperty<MockMainActorService,String> {
+        var title: Cuckoo.ProtocolToBeStubbedProperty<MockMainActorService, String, @MainActor @Sendable (()) -> String, @MainActor @Sendable (String) -> Void, Cuckoo.StubSharing.Isolated> {
             return .init(manager: cuckoo_manager, name: "title")
         }
         
-        func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), String> where M1.MatchedType == Int {
+        func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), String, @MainActor @Sendable ((Int)) -> String, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockMainActorService.self,
                 method: "load(id p0: Int) -> String",
@@ -76,7 +80,7 @@ final class MockMainActorService: MainActorService, Cuckoo.ProtocolMock {
             ))
         }
         
-        func refresh() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error> {
+        func refresh() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),Swift.Error, @MainActor @Sendable (()) async throws(Swift.Error) -> Void, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMainActorService.self,
                 method: "refresh() async throws",

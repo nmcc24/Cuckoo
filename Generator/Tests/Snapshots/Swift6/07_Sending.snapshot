@@ -21,6 +21,7 @@ final class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock {
         get {
             return cuckoo_manager.getter(
                 "v",
+                invoke: { (implementation: (()) -> Int) in implementation(()) },
                 superclassCall: super.v,
                 defaultCall: __defaultImplStub.value.v
             )
@@ -29,6 +30,7 @@ final class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "v",
                 value: newValue,
+                invoke: { (implementation: (Int) -> Void) in implementation(newValue) },
                 superclassCall: super.v = newValue,
                 defaultCall: __defaultImplStub.value.v = newValue
             )
@@ -43,7 +45,7 @@ final class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock {
             self.cuckoo_manager = manager
         }
         
-        var v: Cuckoo.ClassToBeStubbedProperty<MockNonSendableBox,Int> {
+        var v: Cuckoo.ClassToBeStubbedProperty<MockNonSendableBox, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "v")
         }
     }
@@ -101,6 +103,7 @@ final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
             "take(_ p0: sending NonSendableBox)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: (( NonSendableBox)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.take(__p0.value)
         )
@@ -111,6 +114,7 @@ final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
             "make() -> sending NonSendableBox",
             parameters: (),
             escapingParameters: (),
+            invoke: { (implementation: (()) ->  NonSendableBox) in implementation(()) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.make()
         )).value
@@ -123,7 +127,7 @@ final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func take<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<( NonSendableBox)> where M1.MatchedType ==  NonSendableBox {
+        func take<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<( NonSendableBox), (( NonSendableBox)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType ==  NonSendableBox {
             let matchers: [Cuckoo.ParameterMatcher<( NonSendableBox)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTransfer.self,
                 method: "take(_ p0: sending NonSendableBox)",
@@ -131,7 +135,7 @@ final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
             ))
         }
         
-        func make() -> Cuckoo.ProtocolStubFunction<(),  NonSendableBox> {
+        func make() -> Cuckoo.ProtocolStubFunction<(),  NonSendableBox, (()) ->  NonSendableBox, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTransfer.self,
                 method: "make() -> sending NonSendableBox",
@@ -243,6 +247,7 @@ final class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock {
             "convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
+            invoke: { (implementation: nonisolated(nonsending) (( T,  Input, Output)) async -> Output) in await implementation((p0, p1, p2)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.convert(value: __p0.value, input: __p1.value, fallback: p2)
         )
@@ -255,7 +260,7 @@ final class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        func convert<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, T>(value p0: M1, input p1: M2, fallback p2: M3) -> Cuckoo.ProtocolStubFunction<( T,  Input, Output), Output> where M1.MatchedType ==  T, M2.MatchedType ==  Input, M3.MatchedType == Output {
+        func convert<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, T>(value p0: M1, input p1: M2, fallback p2: M3) -> Cuckoo.ProtocolStubFunction<( T,  Input, Output), Output, nonisolated(nonsending) (( T,  Input, Output)) async -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType ==  T, M2.MatchedType ==  Input, M3.MatchedType == Output {
             let matchers: [Cuckoo.ParameterMatcher<( T,  Input, Output)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
                 method: "convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output",

@@ -17,10 +17,12 @@ final class MockAnalytics: Analytics, Cuckoo.ProtocolMock {
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
+    @MainActor
     var lastEvent: String? {
         get {
             return cuckoo_manager.getter(
                 "lastEvent",
+                invoke: { (implementation: @MainActor @Sendable (()) -> String?) in implementation(()) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.lastEvent
             )
@@ -28,11 +30,13 @@ final class MockAnalytics: Analytics, Cuckoo.ProtocolMock {
     }
 
 
+    @MainActor
     func track(event p0: String) {
         return cuckoo_manager.call(
             "track(event p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
+            invoke: { (implementation: @MainActor @Sendable ((String)) -> Void) in implementation((p0)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.track(event: p0)
         )
@@ -45,11 +49,11 @@ final class MockAnalytics: Analytics, Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
         
-        var lastEvent: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAnalytics,String?> {
+        var lastEvent: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAnalytics, String?, @MainActor @Sendable (()) -> String?, Cuckoo.StubSharing.Isolated> {
             return .init(manager: cuckoo_manager, name: "lastEvent")
         }
         
-        func track<M1: Cuckoo.Matchable>(event p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
+        func track<M1: Cuckoo.Matchable>(event p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), @MainActor @Sendable ((String)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAnalytics.self,
                 method: "track(event p0: String)",
@@ -89,6 +93,7 @@ final class MockAnalytics: Analytics, Cuckoo.ProtocolMock {
 
 final class AnalyticsStub:Analytics {
     
+    @MainActor
     var lastEvent: String? {
         get {
             return DefaultValueRegistry.defaultValue(for: (String?).self)
@@ -97,6 +102,7 @@ final class AnalyticsStub:Analytics {
 
 
     
+    @MainActor
     func track(event p0: String) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
