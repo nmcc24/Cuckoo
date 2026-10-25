@@ -171,6 +171,15 @@ extension Method {
             "returnsSending": returnType?.containsAttribute(named: "sending") ?? false,
             "genericReturnType": returnType?.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description ?? "",
             "isAsync": isAsync,
+            // Under NonisolatedNonsendingByDefault, Swift 6.2 treats an async local function as `@concurrent`, so it
+            // gets `nonisolated(nonsending)` there. Spelled out on 6.2 without the feature, it fails instead.
+            // Drop the first variant when Swift 6.2 support ends.
+            "localFunctionVariants": isAsync
+                ? [
+                    ["directive": "#if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)", "modifier": "nonisolated(nonsending) "],
+                    ["directive": "#else", "modifier": ""],
+                ]
+                : [["directive": "", "modifier": ""]],
             "isThrowing": isThrowing,
             "throwsOnly": throwsOnly,
             "hasTypedThrows": signature.throwType?.isTyped ?? false,
