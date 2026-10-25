@@ -1,6 +1,5 @@
 import Foundation
 import ArgumentParser
-import TOMLKit
 
 @main
 @available(macOS 12, *)
@@ -47,15 +46,16 @@ struct GenerateCommand: AsyncParsableCommand {
         log(.info, message: "Using configuration file at path:", configurationFile.path)
 
         overriddenOutput = ProcessInfo.processInfo.environment["CUCKOO_OVERRIDE_OUTPUT"]
-        Module.overriddenOutput = overriddenOutput
+        let requestedModuleName = ProcessInfo.processInfo.environment["CUCKOO_MODULE_NAME"]
 
-        let modules = try modules(
+        let modules = try Cuckoofile.modules(
+            from: configurationFile.contents,
             configurationPath: configurationFile.path,
-            contents: configurationFile.contents
+            overriddenOutput: overriddenOutput,
+            requestedModuleName: requestedModuleName
         )
 
         if modules.isEmpty {
-            let requestedModuleName = ProcessInfo.processInfo.environment["CUCKOO_MODULE_NAME"]
             if let requestedModuleName {
                 log(.info, message: "No module named '\(requestedModuleName)' found in Cuckoofile, skipping generation.")
             }
@@ -119,85 +119,8 @@ struct GenerateCommand: AsyncParsableCommand {
         }
     }
 
-    func modules(configurationPath: Path, contents: String) throws -> [Module] {
-        let requestedModuleName = ProcessInfo.processInfo.environment["CUCKOO_MODULE_NAME"]
-
-        var errorMessages: [String] = []
-        var globalOutput: String? = overriddenOutput
-        var allModules: [Module] = []
-        let table = try TOMLTable(string: contents)
-
-        // Sorting to make sure global properties are evaluated first to be available as fallbacks.
-        let sortedTable = table.sorted { lhs, rhs in
-            let (_, lhsValue) = lhs
-            let (_, rhsValue) = rhs
-            switch (lhsValue.type, rhsValue.type) {
-            case (.table, .table):
-                return true
-            case (.table, _):
-                return false
-            case (_, .table):
-                return true
-            default:
-                return true
-            }
-        }
-
-        let decoder = TOMLDecoder()
-        for (key, value) in sortedTable {
-            switch key {
-            case "output":
-                if globalOutput == nil {
-                    log(.verbose, message: "Global output:", globalOutput as Any)
-                    globalOutput = value.string
-                } else {
-                    errorMessages.append("Multiple global `output` parameters. Behavior is undefined.")
-                }
-            case "modules":
-                guard let modulesTable = value.table else {
-                    throw GenerateError.modulesMustBeTable
-                }
-                for (moduleName, innards) in modulesTable {
-                    guard let moduleTable = innards.table else {
-                        throw GenerateError.modulesMustBeTable
-                    }
-                    let dto = try decoder.decode(Module.DTO.self, from: moduleTable)
-                    do {
-                        let module = try Module(
-                            name: moduleName,
-                            output: globalOutput,
-                            configurationPath: configurationPath,
-                            dto: dto
-                        )
-                        log(.verbose, message: "Module \(moduleName):", module)
-                        allModules.append(module)
-                    } catch {
-                        errorMessages.append(String(describing: error))
-                    }
-                }
-            default:
-                continue
-            }
-        }
-
-        guard errorMessages.isEmpty else {
-            throw GenerateError.configurationErrors(details: errorMessages)
-        }
-
-        if let requestedModuleName {
-            return allModules.filter { $0.name == requestedModuleName }
-        }
-        return allModules
-    }
-
     private enum GenerateError: Error, CustomStringConvertible {
         case missingConfiguration
-        case modulesMustBeTable
-        case configurationErrors(details: [String])
-
-        static func configurationError(_ detail: String) -> GenerateError {
-            .configurationErrors(details: [detail])
-        }
 
         var description: String {
             switch self {
@@ -205,15 +128,6 @@ struct GenerateCommand: AsyncParsableCommand {
                 return """
                 Failed to find Cuckoofile configuration.
                 Expected in project folder through $PROJECT_DIR or in the same directory where the Cuckoonator was called.
-                """
-            case .modulesMustBeTable:
-                return """
-                Modules must be TOML tables. Define them as \("[modules.ModuleName]".bold) with properties beneath.
-                """
-            case .configurationErrors(let details):
-                return """
-                Cuckoofile contains errors:
-                \(details.map { "\t- \($0)" }.joined(separator: "\n"))
                 """
             }
         }

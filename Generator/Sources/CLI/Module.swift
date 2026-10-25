@@ -1,8 +1,6 @@
 import Foundation
 
-final class Module: @unchecked Sendable {
-    nonisolated(unsafe) static var overriddenOutput: String?
-
+final class Module: Sendable {
     let name: String
     let imports: [String]
     let publicImports: [String]
@@ -14,12 +12,12 @@ final class Module: @unchecked Sendable {
     let filenameFormat: String?
     let options: Options
 
-    init(name: String, output: String?, configurationPath: Path, dto: DTO) throws {
+    init(name: String, output: String?, overriddenOutput: String? = nil, configurationPath: Path, dto: DTO) throws {
         if let xcodeproj = dto.xcodeproj {
             throw ModuleInitError.xcodeprojRemoved(name: name, target: xcodeproj.target)
         }
 
-        guard Module.overriddenOutput != nil || output != nil || dto.output != nil else {
+        guard overriddenOutput != nil || output != nil || dto.output != nil else {
             throw ModuleInitError.missingOutput(name: name)
         }
 
@@ -32,7 +30,7 @@ final class Module: @unchecked Sendable {
         }
         self.exclude = dto.exclude?.map(\.trimmed) ?? []
         self.regex = dto.regex
-        self.output = (Module.overriddenOutput ?? dto.output ?? output)!
+        self.output = (overriddenOutput ?? dto.output ?? output)!
         self.filenameFormat = dto.filenameFormat
         self.options = Options(
             glob: dto.options?.glob ?? true,
