@@ -18,7 +18,7 @@ extension Token {
             (self as? HasName)?.nameSerialize(),
             (parent?.value as? HasName).map { ["parentFullyQualifiedName": $0.fullyQualifiedName] },
             (self as? HasGenerics)?.genericsSerialize(),
-            asProtocol.map { ["isNSObjectProtocol": $0.isNSObjectProtocol] },
+            asProtocol.map { ["isNSObjectProtocol": $0.isNSObjectProtocol, "isActor": $0.isActor] },
             (self as? HasInheritance)?.inheritanceSerialize(),
             (self as? HasEnclosingCompilationConditions)?.enclosingCompilationConditionsSerialize(),
         ]

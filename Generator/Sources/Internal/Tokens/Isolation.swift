@@ -29,25 +29,30 @@ struct StubIsolation {
     /// The closure's attributes, e.g. `@MainActor @Sendable `, with a trailing space when not empty.
     let closureAttributes: String
     let sharing: Sharing
+    /// For an actor mock's isolated members, the closure's leading `isolated MockX` parameter: the
+    /// closure runs on the mock's actor and gets the mock itself.
+    let isolatedParameter: String?
 
     var sharingType: String {
         "Cuckoo.StubSharing.\(sharing.rawValue)"
     }
 
-    /// The `then` closure type for `input` (a tuple type, `Void` for none) and `output`.
+    /// The `then` closure type for `input` (the parenthesized parameter list) and `output`.
     func implementationType(input: String, output: String, isAsync: Bool, throwsClause: String?) -> String {
         let effects = [isAsync ? "async" : nil, throwsClause].compactMap { $0 }.joined(separator: " ")
         // A nonisolated async closure runs on the caller's actor, like the member it stands in for, so
-        // the call's non-`Sendable` arguments don't have to cross into the concurrent pool.
-        let execution = isAsync && sharing != .isolated ? "nonisolated(nonsending) " : ""
-        return "\(execution)\(closureAttributes)(\(input))\(effects.isEmpty ? "" : " \(effects)") -> \(output)"
+        // the call's non-`Sendable` arguments don't have to cross into the concurrent pool. An actor
+        // mock's closure is isolated by its `isolated` parameter instead.
+        let execution = isAsync && sharing != .isolated && isolatedParameter == nil ? "nonisolated(nonsending) " : ""
+        return "\(execution)\(closureAttributes)\(input)\(effects.isEmpty ? "" : " \(effects)") -> \(output)"
     }
 
     /// - Parameters:
     ///   - member: The member's own isolation.
     ///   - container: The mocked type's isolation.
     ///   - isContainerSendable: Whether the mocked type is `Sendable`.
-    init(member: Isolation?, container: Isolation?, isContainerSendable: Bool) {
+    ///   - actorMockName: The mock's name when the mocked type is an `Actor` protocol.
+    init(member: Isolation?, container: Isolation?, isContainerSendable: Bool, actorMockName: String?) {
         let effective: Isolation? = switch member {
         case .globalActor:
             member
@@ -57,10 +62,12 @@ struct StubIsolation {
             container
         }
 
+        isolatedParameter = if let actorMockName, member == nil { "isolated \(actorMockName)" } else { nil }
+
         if case .globalActor(let name) = effective {
             closureAttributes = "@\(name) @Sendable "
             sharing = .isolated
-        } else if isContainerSendable {
+        } else if isContainerSendable || actorMockName != nil {
             closureAttributes = "@Sendable "
             sharing = .shared
         } else {
@@ -84,6 +91,7 @@ extension Token {
     }
 
     func stubIsolation(forMember isolation: Isolation?) -> StubIsolation {
-        StubIsolation(member: isolation, container: declaredIsolation, isContainerSendable: isDeclaredSendable)
+        let actorMockName = (self as? ProtocolDeclaration).flatMap { $0.isActor ? $0.mockName : nil }
+        return StubIsolation(member: isolation, container: declaredIsolation, isContainerSendable: isDeclaredSendable, actorMockName: actorMockName)
     }
 }

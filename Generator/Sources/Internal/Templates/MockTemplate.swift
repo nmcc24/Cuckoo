@@ -22,7 +22,7 @@ extension {{ container.parentFullyQualifiedName }} {
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
 {% endif %}
-{{ container.accessibility|withSpace }}final class {{ container.mockName }}{{ container.genericParameters }}:{% if container.isNSObjectProtocol %} NSObject,{% endif %} {{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %},{% if container.isImplementation %} Cuckoo.ClassMock{% else %} Cuckoo.ProtocolMock{% endif %} {
+{{ container.accessibility|withSpace }}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.mockName }}{{ container.genericParameters }}:{% if container.isNSObjectProtocol %} NSObject,{% endif %} {{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %},{% if container.isImplementation %} Cuckoo.ClassMock{% else %} Cuckoo.ProtocolMock{% endif %} {
     {% if container.isGeneric and not container.isImplementation and not container.hasOnlyPrimaryAssociatedTypes %}
     {{ container.accessibility|withSpace }}typealias MocksType = \(typeErasureClassName)
     {% elif container.isImplementation %}
@@ -91,13 +91,13 @@ extension {{ container.parentFullyQualifiedName }} {
         get {%+ if property.isAsync %}async {%+ endif %}{% if property.isThrowing %}throws {%+ endif %}{
             return {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}cuckoo_manager.getter{% if property.isThrowing %}Throws{% endif %}(
                 "{{ property.name }}",
-                invoke: { (implementation: {{ property.getterImplementationType|genericSafe }}) in {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}implementation(()) },
+                invoke: { (implementation: {{ property.getterImplementationType|genericSafe }}) in {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}implementation({{ property.getterImplementationArguments }}) },
                 superclassCall: {%+ if container.isImplementation -%}
                     {% if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}super.{{ property.name }}
                     {%- else -%}
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     {%- endif -%},
-                defaultCall: {%+ if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub.value.{{property.name}}
+                defaultCall: {%+ if container.isActor and not property.isAsync %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}{% if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub.value.{{property.name}}{% endif +%}
             )
         }
         {% ifnot property.isReadOnly %}
@@ -105,13 +105,13 @@ extension {{ container.parentFullyQualifiedName }} {
             cuckoo_manager.setter(
                 "{{ property.name }}",
                 value: newValue,
-                invoke: { (implementation: {{ property.setterImplementationType|genericSafe }}) in implementation(newValue) },
+                invoke: { (implementation: {{ property.setterImplementationType|genericSafe }}) in implementation({{ property.setterImplementationArguments }}) },
                 superclassCall: {%+ if container.isImplementation -%}
                     super.{{ property.name }} = newValue
                     {%- else -%}
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     {%- endif -%},
-                defaultCall: __defaultImplStub.value.{{property.name}} = newValue
+                defaultCall: {%+ if container.isActor %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}__defaultImplStub.value.{{property.name}} = newValue{% endif +%}
             )
         }
         {% endif %}
@@ -171,9 +171,9 @@ extension {{ container.parentFullyQualifiedName }} {
             {% if method.throwsOnly %}
             errorType: {{ method.throwTypeError }}.self,
             {% endif %}
-            invoke: { (implementation: {{ method.implementationType|genericSafe }}) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation(({{method.recordedParameters}})) },
+            invoke: { (implementation: {{ method.implementationType|genericSafe }}) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) },
             superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}super.{{method.name}}({{method.forwardingCall}}){% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
-            defaultCall: {%+ if method.isAsync %}await {%+ endif %}__defaultImplStub.value.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}})
+            defaultCall: {%+ if container.isActor and not method.isAsync %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync %}await {%+ endif %}__defaultImplStub.value.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}}){% endif +%}
         ){% if method.returnsSending %}).value{% endif %}{{ method.parameters|closeNestedClosure }}
     }
     {% if method.hasCompilationCondition %}

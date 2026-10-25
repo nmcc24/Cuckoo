@@ -37,13 +37,20 @@ struct Variable: Token, HasAccessibility, HasAttributes {
         let stubIsolation = parent.value.stubIsolation(forMember: isolation)
         let storedType = isReadOnly ? type : type.unoptionaled
         let valueType = type.description
+        // An actor mock's closures take the mock first.
+        let isolatedParameter = stubIsolation.isolatedParameter
         let getterType = stubIsolation.implementationType(
-            input: "()",
+            input: isolatedParameter.map { "(\($0))" } ?? "(())",
             output: valueType,
             isAsync: effects.isAsync,
             throwsClause: effects.isThrowing ? "throws" : nil
         )
-        let setterType = stubIsolation.implementationType(input: valueType, output: "Void", isAsync: false, throwsClause: nil)
+        let setterType = stubIsolation.implementationType(
+            input: isolatedParameter.map { "(\($0), \(valueType))" } ?? "(\(valueType))",
+            output: "Void",
+            isAsync: false,
+            throwsClause: nil
+        )
         let stubGenericArguments = [
             storedType.description,
             getterType,
@@ -57,6 +64,8 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             "documentation": documentation,
             "getterImplementationType": getterType,
             "setterImplementationType": setterType,
+            "getterImplementationArguments": isolatedParameter == nil ? "()" : "self",
+            "setterImplementationArguments": isolatedParameter == nil ? "newValue" : "self, newValue",
             "stubGenericArguments": stubGenericArguments,
             "isolationAttribute": isolation?.sourceDescription ?? "",
             "isOverriding": parent.isClass,
