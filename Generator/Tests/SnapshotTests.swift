@@ -67,12 +67,59 @@ struct SnapshotTests {
         #expect(docLines.isEmpty)
     }
 
+    /// Under `InternalImportsByDefault`, a public mock needs public imports of the modules its declaration names,
+    /// and a public import that nothing public uses is a warning. A file joined into one output shares one access
+    /// level per module, or the compiler warns about the conflicting ones.
+    @Test
+    func publicImportsFollowPublicMocks() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooPublicImports-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try "public import Foundation\n\npublic protocol PublicService {\n    func url() -> URL\n}\n"
+            .write(to: directory.appendingPathComponent("A.swift"), atomically: true, encoding: .utf8)
+        try "import Dispatch\n\nprotocol InternalService {\n    func run()\n}\n"
+            .write(to: directory.appendingPathComponent("B.swift"), atomically: true, encoding: .utf8)
+        let sources = [directory.appendingPathComponent("*.swift").path]
+
+        let separate = try await generateFiles(sources: sources, testableImports: ["Sources"], singleFileOutput: false)
+        #expect(separate.count == 2)
+        let publicFile = separate.first { $0.contains("PublicService") } ?? ""
+        let internalFile = separate.first { $0.contains("InternalService") } ?? ""
+        for line in ["public import Cuckoo", "public import Foundation", "@testable public import Sources"] {
+            #expect(publicFile.contains("\n\(line)\n") || publicFile.hasPrefix("\(line)\n"), "\(line)")
+        }
+        #expect(!internalFile.contains("public import"))
+
+        let joined = try await generateFiles(sources: sources, testableImports: ["Sources"], singleFileOutput: true)
+        let importLines = Set(joined.joined().components(separatedBy: "\n").filter { $0.hasPrefix("import ") || $0.contains(" import ") })
+        #expect(importLines == [
+            "public import Cuckoo", "public import Foundation", "import Dispatch", "@testable public import Sources",
+        ])
+    }
+
     private func generate(
         sources: [String],
         testableImports: [String]? = nil,
         exclude: [String]? = nil,
         keepDocumentation: Bool? = nil
     ) async throws -> String {
+        try await generateFiles(
+            sources: sources,
+            testableImports: testableImports,
+            exclude: exclude,
+            keepDocumentation: keepDocumentation,
+            singleFileOutput: true
+        )
+        .joined(separator: "\n\n") + "\n"
+    }
+
+    private func generateFiles(
+        sources: [String],
+        testableImports: [String]? = nil,
+        exclude: [String]? = nil,
+        keepDocumentation: Bool? = nil,
+        singleFileOutput: Bool
+    ) async throws -> [String] {
         let module = try Module(
             name: "Snapshot",
             output: nil,
@@ -96,8 +143,8 @@ struct SnapshotTests {
                 xcodeproj: nil
             )
         )
-        let files = try await Generator.generate(for: module, verbose: false)
-        return files.map(\.contents).joined(separator: "\n\n") + "\n"
+        let files = try await Generator.generate(for: module, singleFileOutput: singleFileOutput, verbose: false)
+        return files.map(\.contents)
     }
 
     private func assertSnapshot(_ actual: String, named name: String, sourceLocation: SourceLocation = #_sourceLocation) throws {

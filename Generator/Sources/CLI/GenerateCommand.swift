@@ -72,7 +72,6 @@ struct GenerateCommand: AsyncParsableCommand {
 
         await modules.concurrentForEach { module in
             do {
-                let generatedFiles = try await Generator.generate(for: module, verbose: verbose)
                 let outputPath = Path(module.output, expandingTilde: true)
                 let absoluteOutputPath: Path
                 if outputPath.isAbsolute {
@@ -92,6 +91,11 @@ struct GenerateCommand: AsyncParsableCommand {
                         try absoluteOutputPath.parent.createDirectory(withIntermediateDirectories: true)
                     }
                 }
+                let generatedFiles = try await Generator.generate(
+                    for: module,
+                    singleFileOutput: !isOutputDirectory,
+                    verbose: verbose
+                )
                 if isOutputDirectory {
                     await generatedFiles.concurrentForEach { generatedFile in
                         let originalFileName = generatedFile.path.fileNameWithoutExtension

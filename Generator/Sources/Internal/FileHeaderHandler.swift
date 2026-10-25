@@ -15,8 +15,12 @@ struct FileHeaderHandler {
         for file: FileRepresentation,
         imports: [String],
         publicImports: [String],
-        testableImports: [String]
+        testableImports: [String],
+        publicModules: Set<String>
     ) -> String {
+        func access(_ module: String) -> String {
+            publicModules.contains(module) ? "public " : ""
+        }
         let unconditionalImports = OrderedSet(
             file.imports.filter { $0.compilationConditions.isEmpty }.map(\.description) + imports
         ).values
@@ -25,13 +29,13 @@ struct FileHeaderHandler {
         let conditionalImports = file.imports
             .filter { !$0.compilationConditions.isEmpty }
             .filter { !unconditionalImports.contains($0.description) && !testableImports.contains($0.description) }
-            .map { "#if \($0.compilationConditions.joined(separator: " && "))\nimport \($0)\n#endif" }
+            .map { "#if \($0.compilationConditions.joined(separator: " && "))\n\(access($0.description))import \($0)\n#endif" }
         return [
-            !publicImports.contains("Cuckoo") ? ["import Cuckoo"] : [],
-            unconditionalImports.map { "import \($0)" },
+            !publicImports.contains("Cuckoo") ? ["\(access("Cuckoo"))import Cuckoo"] : [],
+            unconditionalImports.map { "\(access($0))import \($0)" },
             conditionalImports,
             publicImports.map { "public import \($0)" },
-            testableImports.map { "@testable import \($0)" },
+            testableImports.map { "@testable \(access($0))import \($0)" },
         ]
         .flatMap { $0 }
         .joined(separator: "\n")
