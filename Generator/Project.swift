@@ -50,6 +50,11 @@ let project = Project(
     settings: .settings(base: [
         // Warnings in the generator are errors, as in ../Package.swift. Dependencies build in their own projects.
         "SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES",
+        // The Swift 7 upcoming features that ../Package.swift turns on.
+        "SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY": "YES",
+        "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
+        // Xcode has no build setting for this one.
+        "OTHER_SWIFT_FLAGS": "$(inherited) -enable-upcoming-feature ImmutableWeakCaptures",
         // Xcode's recommended settings, decided explicitly, as in ../Project.swift.
         "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
         "ENABLE_MODULE_VERIFIER": "YES",

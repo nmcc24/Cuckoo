@@ -1,5 +1,5 @@
 struct Deinitializer: Token, HasAttributes {
-    var parent: Reference<Token>?
+    var parent: Reference<any Token>?
 
     var attributes: [Attribute]
 }

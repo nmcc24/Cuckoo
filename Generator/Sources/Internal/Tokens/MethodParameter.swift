@@ -1,5 +1,5 @@
 struct MethodParameter: Token {
-    var parent: Reference<Token>?
+    var parent: Reference<any Token>?
 
     var name: String
     // FIXME: Is this needed?

@@ -3,12 +3,12 @@ import Foundation
 public final class MockManager: Sendable {
     private struct RecordedCall {
         let id: Int
-        let call: StubCall
+        let call: any StubCall
     }
 
     private struct State {
         /// Newest first, so a later stub overrides an earlier one with the same matchers.
-        var stubs: [Stub] = []
+        var stubs: [any Stub] = []
         var calls: [RecordedCall] = []
         var unverifiedCallIDs: Set<Int> = []
         var nextCallID = 0

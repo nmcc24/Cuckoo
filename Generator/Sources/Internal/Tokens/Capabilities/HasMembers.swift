@@ -1,5 +1,5 @@
 protocol HasMembers: Token {
-    var members: [Token] { get set }
+    var members: [any Token] { get set }
 
-    func replacing(members: [Token]) -> Self
+    func replacing(members: [any Token]) -> Self
 }

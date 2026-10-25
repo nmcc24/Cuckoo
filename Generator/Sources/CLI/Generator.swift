@@ -2,7 +2,7 @@ import Foundation
 import Rainbow
 
 final class Generator {
-    typealias TokenFilter = (Token) -> Bool
+    typealias TokenFilter = (any Token) -> Bool
     
     struct GeneratedFile {
         let path: Path
@@ -134,7 +134,7 @@ final class Generator {
     }
 
     // filter that keeps the protocols while removing all classes
-    private static func ignoreClasses(token: Token) -> Bool {
+    private static func ignoreClasses(token: any Token) -> Bool {
         !token.isClass
     }
 
@@ -144,7 +144,7 @@ final class Generator {
             let regex = try NSRegularExpression(pattern: pattern, options: [])
 
             return { token in
-                guard let namedToken = token as? HasName else { return true }
+                guard let namedToken = token as? any HasName else { return true }
                 return regex.firstMatch(in: namedToken.name, options: [], range: NSMakeRange(0, namedToken.name.count)) != nil
             }
         } catch {
@@ -156,13 +156,13 @@ final class Generator {
     private static func ignoreExcluded(in excluded: [String]) -> TokenFilter {
         let excludedSet = Set(excluded)
         return { token in
-            guard let containerToken = token as? ContainerToken else { return true }
+            guard let containerToken = token as? any ContainerToken else { return true }
             return !excludedSet.contains(containerToken.name)
         }
     }
 
     enum GeneratorError: Error, CustomStringConvertible {
-        case invalidRegex(String, error: Error)
+        case invalidRegex(String, error: any Error)
 
         var description: String {
             switch self {

@@ -1,3 +1,5 @@
+import Foundation
+
 public protocol StubCall {
     var method: String { get }
     var parametersAsString: String { get }

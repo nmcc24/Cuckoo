@@ -2,7 +2,7 @@ import SwiftSyntax
 import SwiftParser
 
 struct Typealias: Token, CustomStringConvertible {
-    var parent: Reference<Token>?
+    var parent: Reference<any Token>?
 
     let alias: String
     let original: String

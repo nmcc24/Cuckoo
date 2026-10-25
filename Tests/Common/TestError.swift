@@ -3,7 +3,7 @@ import XCTest
 enum TestError: Error {
     case unknown
 
-    static func errorCheck(file: StaticString = #filePath, line: UInt = #line) -> (Error) -> Void {
+    static func errorCheck(file: StaticString = #filePath, line: UInt = #line) -> (any Error) -> Void {
         return {
             if $0 is TestError {
             } else {

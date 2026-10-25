@@ -1,3 +1,4 @@
+import Foundation
 import SwiftSyntax
 
 extension StringLiteralExprSyntax {
@@ -7,7 +8,7 @@ extension StringLiteralExprSyntax {
 }
 
 extension ExprSyntaxProtocol {
-    func tryIf(_ condition: Bool) -> ExprSyntaxProtocol {
+    func tryIf(_ condition: Bool) -> any ExprSyntaxProtocol {
         if condition {
             TryExprSyntax(expression: self)
         } else {
@@ -15,7 +16,7 @@ extension ExprSyntaxProtocol {
         }
     }
 
-    func awaitIf(_ condition: Bool) -> ExprSyntaxProtocol {
+    func awaitIf(_ condition: Bool) -> any ExprSyntaxProtocol {
         if condition {
             AwaitExprSyntax(expression: self)
         } else {

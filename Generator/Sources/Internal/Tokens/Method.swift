@@ -1,7 +1,7 @@
 import Foundation
 
 struct Method: Token, HasAttributes, HasAccessibility, HasName {
-    var parent: Reference<Token>?
+    var parent: Reference<any Token>?
 
     var documentation: [String]
     var attributes: [Attribute]
@@ -27,7 +27,7 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
 }
 
 extension Method: Inheritable {
-    func isEqual(to other: Inheritable) -> Bool {
+    func isEqual(to other: any Inheritable) -> Bool {
         guard let other = other as? Method else { return false }
         return name == other.name && signature.isApiEqual(to: other.signature)
     }

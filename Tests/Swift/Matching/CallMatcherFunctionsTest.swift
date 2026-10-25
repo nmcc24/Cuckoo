@@ -19,7 +19,7 @@ final class CallMatcherFunctionsTest: XCTestCase {
     ]
     
     func testParameterizedTests() {
-        let call: StubCall = ConcreteStubCall(method: "A", parameters: Void())
+        let call: any StubCall = ConcreteStubCall(method: "A", parameters: Void())
         tests.forEach { test in
             let calls = (0..<test.argument).map { _ in call }
             

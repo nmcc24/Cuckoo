@@ -31,7 +31,7 @@ class TestedClass {
     }
 
     @available(iOS 42.0, *)
-    var unavailableProperty: UnavailableProtocol? {
+    var unavailableProperty: (any UnavailableProtocol)? {
         return nil
     }
 

@@ -459,12 +459,12 @@ return cuckoo_manager.call(
         )
     }
 
-    func compositionalParameters(param1 p0: any Numeric, param2 p1: OnlyLabelProtocol & Codable) {
+    func compositionalParameters(param1 p0: any Numeric, param2 p1: any OnlyLabelProtocol & Codable) {
         return cuckoo_manager.call(
-            "compositionalParameters(param1 p0: any Numeric, param2 p1: OnlyLabelProtocol & Codable)",
+            "compositionalParameters(param1 p0: any Numeric, param2 p1: any OnlyLabelProtocol & Codable)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((any Numeric, OnlyLabelProtocol & Codable)) -> Void) in implementation((p0, p1)) },
+            invoke: { (implementation: ((any Numeric, any OnlyLabelProtocol & Codable)) -> Void) in implementation((p0, p1)) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.compositionalParameters(param1: p0, param2: p1)
         )
@@ -694,10 +694,10 @@ return cuckoo_manager.call(
             ))
         }
         
-        func compositionalParameters<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(param1 p0: M1, param2 p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(any Numeric, OnlyLabelProtocol & Codable), ((any Numeric, OnlyLabelProtocol & Codable)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == any Numeric, M2.MatchedType == OnlyLabelProtocol & Codable {
-            let matchers: [Cuckoo.ParameterMatcher<(any Numeric, OnlyLabelProtocol & Codable)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func compositionalParameters<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(param1 p0: M1, param2 p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(any Numeric, any OnlyLabelProtocol & Codable), ((any Numeric, any OnlyLabelProtocol & Codable)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == any Numeric, M2.MatchedType == any OnlyLabelProtocol & Codable {
+            let matchers: [Cuckoo.ParameterMatcher<(any Numeric, any OnlyLabelProtocol & Codable)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
-                method: "compositionalParameters(param1 p0: any Numeric, param2 p1: OnlyLabelProtocol & Codable)",
+                method: "compositionalParameters(param1 p0: any Numeric, param2 p1: any OnlyLabelProtocol & Codable)",
                 parameterMatchers: matchers
             ))
         }
@@ -1017,10 +1017,10 @@ return cuckoo_manager.call(
         
         
         @discardableResult
-        func compositionalParameters<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(param1 p0: M1, param2 p1: M2) -> Cuckoo.__DoNotUse<(any Numeric, OnlyLabelProtocol & Codable), Void> where M1.MatchedType == any Numeric, M2.MatchedType == OnlyLabelProtocol & Codable {
-            let matchers: [Cuckoo.ParameterMatcher<(any Numeric, OnlyLabelProtocol & Codable)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func compositionalParameters<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(param1 p0: M1, param2 p1: M2) -> Cuckoo.__DoNotUse<(any Numeric, any OnlyLabelProtocol & Codable), Void> where M1.MatchedType == any Numeric, M2.MatchedType == any OnlyLabelProtocol & Codable {
+            let matchers: [Cuckoo.ParameterMatcher<(any Numeric, any OnlyLabelProtocol & Codable)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
-                "compositionalParameters(param1 p0: any Numeric, param2 p1: OnlyLabelProtocol & Codable)",
+                "compositionalParameters(param1 p0: any Numeric, param2 p1: any OnlyLabelProtocol & Codable)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -1199,7 +1199,7 @@ nonisolated final class TestedProtocolStub:TestedProtocol {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func compositionalParameters(param1 p0: any Numeric, param2 p1: OnlyLabelProtocol & Codable) {
+    func compositionalParameters(param1 p0: any Numeric, param2 p1: any OnlyLabelProtocol & Codable) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }

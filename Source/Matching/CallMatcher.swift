@@ -2,9 +2,9 @@
 public struct CallMatcher {
     public let name: String
     
-    private let matchesFunction: ([StubCall]) -> Bool
+    private let matchesFunction: ([any StubCall]) -> Bool
     
-    public init(name: String, matchesFunction: @escaping ([StubCall]) -> Bool) {
+    public init(name: String, matchesFunction: @escaping ([any StubCall]) -> Bool) {
         self.name = name
         self.matchesFunction = matchesFunction
     }
@@ -15,7 +15,7 @@ public struct CallMatcher {
         }
     }
 
-    public func matches(_ calls: [StubCall]) -> Bool {
+    public func matches(_ calls: [any StubCall]) -> Bool {
         return matchesFunction(calls)
     }
     
