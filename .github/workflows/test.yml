@@ -139,6 +139,8 @@ jobs:
           SIMULATOR_ID="$(xcrun simctl list devices available iPhone | grep -m1 -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')"
           echo "::notice title=Simulator::$(xcrun simctl list devices available | grep "$SIMULATOR_ID")"
           echo "IOS_SIMULATOR_ID=$SIMULATOR_ID" >> "$GITHUB_ENV"
+          # Boot it now, so its system finishes starting up while the package builds.
+          xcrun simctl boot "$SIMULATOR_ID"
       # These run before `make`: once the Tuist workspace exists, xcodebuild picks it over Package.swift.
       # The shared CuckooTests scheme builds only the runtime side for the simulator; the generator is
       # built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
