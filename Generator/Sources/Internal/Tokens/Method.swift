@@ -106,14 +106,9 @@ extension Method {
         let genericParameterTypes = signature.parameters.map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]) }
         let genericInputTypes = genericParameterTypes.map(\.genericArgumentSafe.description).joined(separator: ", ")
         let genericReturnType = returnType?.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description ?? "Void"
-        let throwsClause: String? = switch signature.throwType {
-        case .none:
-            nil
-        case .some(let throwType) where throwType.isRethrowing:
-            "throws"
-        case .some(let throwType):
-            throwType.isThrowing ? "throws(\(throwType.type))" : nil
-        }
+        // Untyped even for typed throws: a typed-throws function type as a generic argument needs runtime
+        // support that iOS 17 and macOS 14 lack. The mock narrows the error where it calls the closure.
+        let throwsClause: String? = isThrowing ? "throws" : nil
         // A closure that is one of the `then` closure's own parameters must be `@escaping` to take it;
         // inside a tuple of several, closures already escape.
         func escapingIfClosure(_ type: ComplexType) -> String {
@@ -178,6 +173,7 @@ extension Method {
             "isAsync": isAsync,
             "isThrowing": isThrowing,
             "throwsOnly": throwsOnly,
+            "hasTypedThrows": signature.throwType?.isTyped ?? false,
             "throwType": signature.throwType?.keyword ?? "",
             "throwTypeError": signature.throwType?.type ?? "",
             "fullyQualifiedName": fullyQualifiedName,

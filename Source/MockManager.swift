@@ -286,6 +286,16 @@ extension MockManager {
     public static func crashOnActorDefaultImplementationCall<OUT>(_ member: String) -> OUT {
         fatalError("An actor mock can't forward the synchronous member \(member) to its default implementation, which is another actor. Stub it instead.")
     }
+
+    /// Narrows an error thrown by a `then` closure to a typed-throws member's error type. The closure's type
+    /// throws untyped errors, because a typed-throws function type needs runtime support that iOS 17 and
+    /// macOS 14 lack once it's a generic argument.
+    public static func typedError<ERROR: Error>(_ error: any Error, as _: ERROR.Type, member: String) -> ERROR {
+        guard let typed = error as? ERROR else {
+            fatalError("The stub for \(member) threw \(error), which isn't a \(ERROR.self).")
+        }
+        return typed
+    }
 }
 
 extension MockManager {
