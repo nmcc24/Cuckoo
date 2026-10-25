@@ -135,22 +135,19 @@ jobs:
       # The shared CuckooTests scheme builds only the runtime side for the simulator; the generator is
       # built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
       # Swift, so what can break there is compile-time (APIs, availability, imports).
-      # They run on xcode-27 only: Xcode 26.6 also builds the generator's dependencies for the destination,
-      # where TOMLKit and XcodeProj failed for tvOS and watchOS. Both are gone; running these on macos-26
-      # too is a follow-up to try.
+      # Xcode 26.6 also builds the generator's dependencies for the destination, so they all have to build
+      # for tvOS and watchOS too.
       - name: Test the package on iOS
         run: |
           set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
             -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" \
             | xcbeautify --renderer github-actions
       - name: Build the package tests for tvOS
-        if: matrix.runner == 'xcode-27'
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
             -destination "generic/platform=tvOS Simulator" \
             | xcbeautify --renderer github-actions
       - name: Build the package tests for watchOS
-        if: matrix.runner == 'xcode-27'
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
             -destination "generic/platform=watchOS Simulator" \
