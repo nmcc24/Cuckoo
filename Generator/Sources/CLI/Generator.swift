@@ -1,5 +1,4 @@
 import Foundation
-import XcodeProj
 import Rainbow
 
 final class Generator {
@@ -11,12 +10,7 @@ final class Generator {
     }
 
     static func generate(for module: Module, verbose: Bool) async throws -> [GeneratedFile] {
-        let xcodeprojSources = try getXcodeprojPaths(from: module)
-
-        if xcodeprojSources != nil && module.sources != nil {
-            log(.info, message: "\("\(module.name).xcodeproj".bold) was defined along with \("sources".bold), both file lists will be merged.")
-        }
-        let sources = [module.sources, xcodeprojSources].compactMap { $0 }.flatMap { $0 }
+        let sources = module.sources ?? []
 
         let inputPathValues: [Path]
         if module.options.glob {
@@ -79,36 +73,6 @@ final class Generator {
                 .joined(separator: "\n\n")
             )
         }
-    }
-
-    private static func getXcodeprojPaths(from module: Module) throws -> [Path]? {
-        guard let xcodeprojData = module.xcodeproj else { return nil }
-        let xcodeprojPath: Path
-        if xcodeprojData.path.isDirectory && xcodeprojData.path.pathExtension != "xcodeproj" {
-            let xcodeprojs = xcodeprojData.path.find(searchDepth: 0) { path in
-                path.pathExtension == "xcodeproj"
-            }
-            guard let xcodeproj = xcodeprojs.first else {
-                throw GeneratorError.noXcodeproj(xcodeprojData.path)
-            }
-            guard xcodeprojs.count == 1 else {
-                throw GeneratorError.multipleXcodeprojs(xcodeprojs.map(\.fileName))
-            }
-            xcodeprojPath = xcodeproj
-        } else {
-            xcodeprojPath = xcodeprojData.path
-        }
-        let xcodeproj = try XcodeProj(path: .init(xcodeprojPath.rawValue))
-        let targets = xcodeproj.pbxproj.targets(named: xcodeprojData.target)
-        guard let target = targets.first else {
-            throw GeneratorError.noXcodeprojTarget(xcodeprojPath, targetName: xcodeprojData.target)
-        }
-        guard targets.count == 1 else {
-            throw GeneratorError.multipleXcodeprojTargets(xcodeprojPath, targetName: xcodeprojData.target, count: targets.count)
-        }
-        return try target.sourceFiles()
-            .compactMap { try $0.fullPath(sourceRoot: xcodeprojPath.rawValue) }
-            .map { Path($0) }
     }
 
     private static func mergingInheritance(_ filesRepresentation: [FileRepresentation]) -> [FileRepresentation] {
@@ -192,23 +156,11 @@ final class Generator {
 
     enum GeneratorError: Error, CustomStringConvertible {
         case invalidRegex(String, error: Error)
-        case noXcodeproj(Path)
-        case multipleXcodeprojs([String])
-        case noXcodeprojTarget(Path, targetName: String)
-        case multipleXcodeprojTargets(Path, targetName: String, count: Int)
 
         var description: String {
             switch self {
             case .invalidRegex(let regex, let error):
                 return "Invalid regular expression \"\(regex.bold)\" because \(error.localizedDescription)."
-            case .noXcodeproj(let path):
-                return "Couldn't find any project in directory \(path.rawValue.bold)."
-            case .multipleXcodeprojs(let xcodeprojNames):
-                return "Couldn't automatically select project among \(xcodeprojNames.map { $0.bold }.joined(separator: ", "))."
-            case .noXcodeprojTarget(let path, let targetName):
-                return "Couldn't find any target named \(targetName.bold) in project \(path.rawValue.bold)."
-            case .multipleXcodeprojTargets(let path, let targetName, let count):
-                return "Found \(String(count).bold) targets named \(targetName.bold) in project \(path.rawValue.bold)."
             }
         }
     }

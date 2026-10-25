@@ -359,3 +359,10 @@ extension ComplexType: CustomDebugStringConvertible {
         }
     }
 }
+
+private extension String {
+    /// The string in double quotes, for debug output.
+    var quoted: String {
+        "\"\(self)\""
+    }
+}
