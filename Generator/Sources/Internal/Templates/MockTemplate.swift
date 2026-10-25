@@ -4,6 +4,24 @@ extension Templates {
     static let staticGenericParameter = "_CUCKOO$$GENERIC"
     static let typeErasureClassName = "DefaultImplCaller"
     static let typeErasureGenericParameterPrefix = "\(staticGenericParameter)_"
+    /// The body of a mocked method or subscript accessor, `method`: it records the call and runs the stub.
+    static let methodBody = """
+{% for name in method.sendingParameterNames %}
+let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
+{% endfor %}
+{{ method.self|openNestedClosure }}return{% if method.isThrowing %} try{% endif %}{% if method.isAsync %} await{% endif %} {%+ if method.returnsSending %}Cuckoo.__SendingArgument({% endif %}cuckoo_manager.call{% if method.isThrowing %}{{ method.throwType|capitalize }}{% endif %}(
+    "{{method.fullyQualifiedName}}",
+    parameters: ({{method.recordedParameters}}),
+    escapingParameters: ({{method.escapingParameterNames}}),
+    {% if method.throwsOnly %}
+    errorType: ({{ method.throwTypeError }}).self,
+    {% endif %}
+    invoke: { (implementation: {{ method.implementationType|genericSafe }}) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.hasTypedThrows %}do { return try {%+ if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) } catch { throw Cuckoo.MockManager.typedError(error, as: ({{ method.throwTypeError }}).self, member: "{{ method.fullyQualifiedName }}") }{% else %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}){% endif %} },
+    superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}{{ method.superclassCall }}{% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
+    defaultCall: {%+ if container.isActor and not method.isAsync %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync %}await {%+ endif %}{{ method.defaultCall }}{% endif +%}
+){% if method.returnsSending %}).value{% endif %}{{ method.self|closeNestedClosure }}
+"""
+
     static let mock = """
 {% for container in containers %}
 {% if container.hasEnclosingCompilationCondition %}
@@ -161,22 +179,41 @@ extension {{ container.parentFullyQualifiedName }} {
     {{ method.executionAttribute }}
     {% endif %}
     {{ method.accessibility|withSpace }}{% if method.isOverriding %}override {%+ endif %}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
-        {% for name in method.sendingParameterNames %}
-        let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
-        {% endfor %}
-        {{ method.self|openNestedClosure }}return{% if method.isThrowing %} try{% endif %}{% if method.isAsync %} await{% endif %} {%+ if method.returnsSending %}Cuckoo.__SendingArgument({% endif %}cuckoo_manager.call{% if method.isThrowing %}{{ method.throwType|capitalize }}{% endif %}(
-            "{{method.fullyQualifiedName}}",
-            parameters: ({{method.recordedParameters}}),
-            escapingParameters: ({{method.escapingParameterNames}}),
-            {% if method.throwsOnly %}
-            errorType: ({{ method.throwTypeError }}).self,
-            {% endif %}
-            invoke: { (implementation: {{ method.implementationType|genericSafe }}) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.hasTypedThrows %}do { return try {%+ if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) } catch { throw Cuckoo.MockManager.typedError(error, as: ({{ method.throwTypeError }}).self, member: "{{ method.fullyQualifiedName }}") }{% else %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}){% endif %} },
-            superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}super.{{method.name}}({{method.forwardingCall}}){% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
-            defaultCall: {%+ if container.isActor and not method.isAsync %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync %}await {%+ endif %}__defaultImplStub.value.{{method.name}}{%if method.isOptional %}!{%endif%}({{method.forwardingCall}}){% endif +%}
-        ){% if method.returnsSending %}).value{% endif %}{{ method.self|closeNestedClosure }}
+\(Templates.methodBody.indented(times: 2))
     }
     {% if method.hasCompilationCondition %}
+    #endif
+    {% endif %}
+    {% endfor %}
+    {% for subscript in container.subscripts %}
+
+    {% if subscript.hasCompilationCondition %}
+    {{ subscript.compilationConditionCheck }}
+    {% endif %}
+    {% if keepDocumentation %}
+    {% for docString in subscript.documentation %}
+    /// {{ docString }}
+    {% endfor %}
+    {% endif %}
+    {% for attribute in subscript.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    {% if subscript.isolationAttribute %}
+    {{ subscript.isolationAttribute }}
+    {% endif %}
+    {{ subscript.accessibility|withSpace }}{% if subscript.isOverriding %}override {%+ endif %}subscript{{ subscript.signature }} {
+        get {{ subscript.getterEffects }}{
+            {% for method in subscript.getters %}
+\(Templates.methodBody.indented(times: 3))
+            {% endfor %}
+        }
+        {% for method in subscript.setters %}
+        set({{ subscript.newValueName }}) {
+\(Templates.methodBody.indented(times: 3))
+        }
+        {% endfor %}
+    }
+    {% if subscript.hasCompilationCondition %}
     #endif
     {% endif %}
     {% endfor %}

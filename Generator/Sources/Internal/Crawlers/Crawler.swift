@@ -236,6 +236,15 @@ final class Crawler: SyntaxVisitor {
         return .skipChildren
     }
 
+    override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
+        guard let container, container.isMockable else { return .skipChildren }
+
+        if let item = parse(node) {
+            tokens.append(item)
+        }
+        return .skipChildren
+    }
+
     override func visit(_ node: IfConfigDeclSyntax) -> SyntaxVisitorContinueKind {
         // Each clause's members are crawled with the clause's full condition, so the
         // mock mirrors the `#if` instead of declaring members from every branch.
@@ -438,6 +447,63 @@ extension Crawler {
             isRequired: initializer.modifiers.contains { $0.name == .keyword(.required) },
             isOptional: initializer.optionalMark?.isPresent == true,
             compilationConditions: compilationConditions
+        )
+    }
+}
+
+// MARK: - Subscript crawling.
+extension Crawler {
+    private func parse(_ node: SubscriptDeclSyntax) -> Subscript? {
+        // Static subscripts aren't mocked yet, and final ones can't be overridden.
+        guard !node.modifiers.isStatic && !node.modifiers.isFinal else { return nil }
+
+        let attributes = attributes(from: node.attributes)
+        // An unavailable member can't be overridden or called.
+        guard !attributes.contains(where: \.isUnavailableEverywhere) else { return nil }
+
+        var accessibility = (container as? any HasAccessibility)?.accessibility ?? .internal
+        var setterAccessibility: Accessibility?
+        for modifier in node.modifiers {
+            guard let parsedAccessibility = Accessibility(tokenKind: modifier.name.tokenKind) else { continue }
+            if modifier.detail?.detail.tokenKind == .identifier("set") {
+                setterAccessibility = parsedAccessibility
+            } else {
+                accessibility = parsedAccessibility
+            }
+        }
+        guard accessibility.isAccessible else { return nil }
+
+        let isReadOnly: Bool
+        var getter: AccessorDeclSyntax?
+        switch node.accessorBlock?.accessors {
+        case .accessors(let accessors):
+            getter = accessors.first { $0.accessorSpecifier.tokenKind == .keyword(.get) }
+            isReadOnly = !accessors.contains { $0.accessorSpecifier.tokenKind == .keyword(.set) }
+        case .getter, nil:
+            isReadOnly = true
+        }
+
+        return Subscript(
+            parent: container,
+            documentation: documentation(from: node.leadingTrivia),
+            attributes: attributes,
+            accessibility: accessibility,
+            setterAccessibility: isReadOnly ? nil : setterAccessibility ?? accessibility,
+            genericParameters: genericParameters(from: node.genericParameterClause?.parameters),
+            // A subscript's parameter has no argument label unless it states one.
+            parameters: node.parameterClause.parameters.map { parameter in
+                MethodParameter(
+                    name: parameter.secondName == nil ? "_" : parameter.firstName.filteredDescription,
+                    innerName: nil,
+                    type: ComplexType(syntax: parameter.type)
+                )
+            },
+            returnType: ComplexType(syntax: node.returnClause.type),
+            whereConstraints: genericRequirements(from: node.genericWhereClause?.requirements),
+            isAsync: getter?.effectSpecifiers?.asyncSpecifier?.isPresent == true,
+            throwType: ThrowType(syntax: getter?.effectSpecifiers?.throwsClause),
+            compilationConditions: compilationConditions,
+            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
         )
     }
 }

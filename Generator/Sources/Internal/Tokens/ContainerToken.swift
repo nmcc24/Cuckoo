@@ -34,8 +34,13 @@ extension ContainerToken {
             .compactMap { $0 as? Method }
             .map { $0.serialize() }
 
+        let subscripts = accessibilityAdjustedMembers
+            .compactMap { $0 as? Subscript }
+            .map { $0.serialize() }
+
         return [
             "accessibility": accessibility.sourceName,
+            "subscripts": subscripts,
             "typealiases": typealiases,
             "properties": properties,
             "initializers": initializers,

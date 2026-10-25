@@ -47,6 +47,53 @@ extension Templates {
     #endif
     {% endif %}
     {% endfor %}
+    {% for subscript in container.subscripts %}
+
+    {{ subscript.compilationConditionCheck }}
+    {% for attribute in subscript.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    subscript{{ subscript.getter.self|matchableGenericNames }}({{ subscript.getter.parameters|matchableParameterSignature }}) -> __Subscript{{ forloop.counter }}{{ subscript.genericArguments }}{{ subscript.getter.self|matchableGenericWhereClause }} {
+        {{ subscript.getter.parameters|parameterMatchers }}
+        return .init(cuckoo_manager: cuckoo_manager, callMatcher: callMatcher, sourceLocation: sourceLocation, matchers: matchers)
+    }
+
+    {% for attribute in subscript.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    nonisolated struct __Subscript{{ forloop.counter }}{{ subscript.genericParameters }}{{ subscript.whereClause }} {
+        fileprivate let cuckoo_manager: Cuckoo.MockManager
+        fileprivate let callMatcher: Cuckoo.CallMatcher
+        fileprivate let sourceLocation: Cuckoo.SourceLocation
+        fileprivate let matchers: [Cuckoo.ParameterMatcher<({{ subscript.getter.genericInputTypes|genericSafe }})>]
+
+        @discardableResult
+        func get() -> Cuckoo.__DoNotUse<({{ subscript.getter.genericInputTypes|genericSafe }}), {{ subscript.getter.genericReturnType|genericSafe }}> {
+            return cuckoo_manager.verify(
+                "{{ subscript.getter.fullyQualifiedName }}",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        {% ifnot subscript.isReadOnly %}
+
+        @discardableResult
+        func set<{{ subscript.newValueMatcherGeneric }}>(_ {{ subscript.newValueName }}: M{{ subscript.newValueMatcherIndex }}) -> Cuckoo.__DoNotUse<({{ subscript.setter.genericInputTypes|genericSafe }}), Void> where {{ subscript.newValueMatcherConstraint }} {
+            let matchers: [Cuckoo.ParameterMatcher<({{ subscript.setter.genericInputTypes|genericSafe }})>] = {{ subscript.keyMatchers }}[{{ subscript.newValueMatcher }}]
+            return cuckoo_manager.verify(
+                "{{ subscript.setter.fullyQualifiedName }}",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        {% endif %}
+    }
+    {% if subscript.hasCompilationCondition %}
+    #endif
+    {% endif %}
+    {% endfor %}
 }
 """
 }
