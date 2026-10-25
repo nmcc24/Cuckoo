@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockCombiner: Combiner, Cuckoo.ProtocolMock {
+nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Combiner
     typealias Stubbing = __StubbingProxy_Combiner
     typealias Verification = __VerificationProxy_Combiner
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Combiner>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Combiner>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Combiner) {
         __defaultImplStub.value = stub
@@ -29,7 +29,7 @@ final class MockCombiner: Combiner, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Combiner: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Combiner: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -45,7 +45,7 @@ final class MockCombiner: Combiner, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Combiner: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Combiner: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -70,7 +70,7 @@ final class MockCombiner: Combiner, Cuckoo.ProtocolMock {
     }
 }
 
-final class CombinerStub:Combiner {
+nonisolated final class CombinerStub:Combiner {
 
 
     

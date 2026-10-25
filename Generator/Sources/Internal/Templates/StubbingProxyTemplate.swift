@@ -2,7 +2,7 @@ import Foundation
 
 extension Templates {
     static let stubbingProxy = """
-{{ container.accessibility|withSpace }}struct __StubbingProxy_{{ container.name }}: Cuckoo.StubbingProxy {
+{{ container.accessibility|withSpace }}nonisolated struct __StubbingProxy_{{ container.name }}: Cuckoo.StubbingProxy {
     private let cuckoo_manager: Cuckoo.MockManager
 
     {{ container.accessibility|withSpace }}init(manager: Cuckoo.MockManager) {

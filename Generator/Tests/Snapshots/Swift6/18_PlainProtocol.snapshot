@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockGreeter: Greeter, Cuckoo.ProtocolMock {
+nonisolated final class MockGreeter: Greeter, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Greeter
     typealias Stubbing = __StubbingProxy_Greeter
     typealias Verification = __VerificationProxy_Greeter
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Greeter>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Greeter>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Greeter) {
         __defaultImplStub.value = stub
@@ -49,7 +49,7 @@ final class MockGreeter: Greeter, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Greeter: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Greeter: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -69,7 +69,7 @@ final class MockGreeter: Greeter, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Greeter: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Greeter: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -98,7 +98,7 @@ final class MockGreeter: Greeter, Cuckoo.ProtocolMock {
     }
 }
 
-final class GreeterStub:Greeter {
+nonisolated final class GreeterStub:Greeter {
     
     var count: Int {
         get {

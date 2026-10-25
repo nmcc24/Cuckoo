@@ -5,7 +5,8 @@
 # only diagnosed on SIL.
 #
 # Usage: scripts/swift6-matrix.sh [extra swiftc flags, e.g. -default-isolation MainActor]
-# Fixtures listed in Fixtures/Swift6/expected-failures.txt are expected to fail.
+# Fixtures listed in Fixtures/Swift6/expected-failures.txt are expected to fail. SWIFT6_MATRIX_EXPECTED
+# names another list, e.g. Fixtures/Swift6/expected-failures-default-mainactor.txt for that mode.
 # Exit code: 0 if every fixture behaves as expected, 1 on a new failure or an
 # expected failure that now passes (remove it from the list), 2 if the build fails.
 set -uo pipefail
@@ -47,7 +48,7 @@ else
   SWIFTC=(swiftc)
 fi
 
-EXPECTED_FAILURES="$(grep -v '^#' "$ROOT/Fixtures/Swift6/expected-failures.txt" 2>/dev/null || true)"
+EXPECTED_FAILURES="$(grep -v '^#' "${SWIFT6_MATRIX_EXPECTED:-$ROOT/Fixtures/Swift6/expected-failures.txt}" 2>/dev/null || true)"
 
 status=0
 for f in "$ROOT"/Fixtures/Swift6/*.swift; do

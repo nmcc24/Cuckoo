@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockCache: Cache, Cuckoo.ProtocolMock {
+nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Cache
     typealias Stubbing = __StubbingProxy_Cache
     typealias Verification = __VerificationProxy_Cache
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Cache>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Cache>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Cache) {
         __defaultImplStub.value = stub
@@ -18,7 +18,7 @@ final class MockCache: Cache, Cuckoo.ProtocolMock {
     }
 
 
-    struct __StubbingProxy_Cache: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Cache: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -26,7 +26,7 @@ final class MockCache: Cache, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Cache: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Cache: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -39,7 +39,7 @@ final class MockCache: Cache, Cuckoo.ProtocolMock {
     }
 }
 
-final class CacheStub:Cache {
+nonisolated final class CacheStub:Cache {
 
 
 }

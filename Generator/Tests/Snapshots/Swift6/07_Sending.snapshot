@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock {
+final class MockNonSendableBox: NonSendableBox, nonisolated Cuckoo.ClassMock {
     typealias MocksType = NonSendableBox
     typealias Stubbing = __StubbingProxy_NonSendableBox
     typealias Verification = __VerificationProxy_NonSendableBox
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<NonSendableBox>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<NonSendableBox>()
 
     nonisolated func enableDefaultImplementation(_ stub: NonSendableBox) {
         __defaultImplStub.value = stub
@@ -38,7 +38,7 @@ final class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock {
     }
 
 
-    struct __StubbingProxy_NonSendableBox: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_NonSendableBox: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -50,7 +50,7 @@ final class MockNonSendableBox: NonSendableBox, Cuckoo.ClassMock {
         }
     }
 
-    struct __VerificationProxy_NonSendableBox: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_NonSendableBox: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -80,16 +80,16 @@ final class NonSendableBoxStub:NonSendableBox {
 }
 
 
-final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
+nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Transfer
     typealias Stubbing = __StubbingProxy_Transfer
     typealias Verification = __VerificationProxy_Transfer
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Transfer>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Transfer>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Transfer) {
         __defaultImplStub.value = stub
@@ -120,7 +120,7 @@ final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
         )).value
     }
 
-    struct __StubbingProxy_Transfer: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Transfer: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -144,7 +144,7 @@ final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Transfer: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Transfer: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -181,7 +181,7 @@ final class MockTransfer: Transfer, Cuckoo.ProtocolMock {
     }
 }
 
-final class TransferStub:Transfer {
+nonisolated final class TransferStub:Transfer {
 
 
     
@@ -197,17 +197,17 @@ final class TransferStub:Transfer {
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
-final class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock {
+nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_Converter
     typealias Verification = __VerificationProxy_Converter
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    final class DefaultImplCaller: Converter, @unchecked Sendable {
+    nonisolated final class DefaultImplCaller: Converter, @unchecked Sendable {
         private let reference: () -> any Converter<Input>
     
         
@@ -226,7 +226,7 @@ final class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock {
         }
     }
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
         var mutableStub = stub
@@ -253,7 +253,7 @@ final class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Converter: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Converter: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -269,7 +269,7 @@ final class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Converter: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Converter: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -294,7 +294,7 @@ final class MockConverter<Input, Output>: Converter, Cuckoo.ProtocolMock {
     }
 }
 
-final class ConverterStub<Input, Output>:Converter {
+nonisolated final class ConverterStub<Input, Output>:Converter {
 
 
     

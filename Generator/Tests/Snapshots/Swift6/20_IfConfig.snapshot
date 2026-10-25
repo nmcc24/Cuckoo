@@ -4,16 +4,16 @@ import Foundation
 import Combine
 #endif
 
-final class MockPlatformed: Platformed, Cuckoo.ProtocolMock {
+nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Platformed
     typealias Stubbing = __StubbingProxy_Platformed
     typealias Verification = __VerificationProxy_Platformed
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Platformed>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Platformed>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Platformed) {
         __defaultImplStub.value = stub
@@ -97,7 +97,7 @@ final class MockPlatformed: Platformed, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Platformed: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Platformed: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -154,7 +154,7 @@ final class MockPlatformed: Platformed, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Platformed: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Platformed: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -237,7 +237,7 @@ final class MockPlatformed: Platformed, Cuckoo.ProtocolMock {
     }
 }
 
-final class PlatformedStub:Platformed {
+nonisolated final class PlatformedStub:Platformed {
     #if (DEBUG)
     var debugInfo: String {
         get {
@@ -274,17 +274,17 @@ final class PlatformedStub:Platformed {
 }
 
 
-final class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock {
+nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_PlatformedStore
     typealias Verification = __VerificationProxy_PlatformedStore
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    final class DefaultImplCaller: PlatformedStore, @unchecked Sendable {
+    nonisolated final class DefaultImplCaller: PlatformedStore, @unchecked Sendable {
         private let reference: () -> any PlatformedStore
     
         #if (DEBUG)
@@ -321,7 +321,7 @@ final class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock {
         }
     }
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
         var mutableStub = stub
@@ -372,7 +372,7 @@ final class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_PlatformedStore: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_PlatformedStore: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -402,7 +402,7 @@ final class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_PlatformedStore: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_PlatformedStore: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -446,7 +446,7 @@ final class MockPlatformedStore<Item>: PlatformedStore, Cuckoo.ProtocolMock {
     }
 }
 
-final class PlatformedStoreStub<Item>:PlatformedStore {
+nonisolated final class PlatformedStoreStub<Item>:PlatformedStore {
     #if (DEBUG)
     var debugItems: [Item] {
         get {
@@ -468,16 +468,16 @@ final class PlatformedStoreStub<Item>:PlatformedStore {
 }
 
 
-final class MockPlatformedService: PlatformedService, Cuckoo.ClassMock {
+final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMock {
     typealias MocksType = PlatformedService
     typealias Stubbing = __StubbingProxy_PlatformedService
     typealias Verification = __VerificationProxy_PlatformedService
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<PlatformedService>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<PlatformedService>()
 
     nonisolated func enableDefaultImplementation(_ stub: PlatformedService) {
         __defaultImplStub.value = stub
@@ -544,7 +544,7 @@ final class MockPlatformedService: PlatformedService, Cuckoo.ClassMock {
         )
     }
 
-    struct __StubbingProxy_PlatformedService: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_PlatformedService: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -583,7 +583,7 @@ final class MockPlatformedService: PlatformedService, Cuckoo.ClassMock {
         }
     }
 
-    struct __VerificationProxy_PlatformedService: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_PlatformedService: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -669,16 +669,16 @@ final class PlatformedServiceStub:PlatformedService {
 
 
 #if (canImport(Combine))
-final class MockPublishing: Publishing, Cuckoo.ProtocolMock {
+nonisolated final class MockPublishing: Publishing, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Publishing
     typealias Stubbing = __StubbingProxy_Publishing
     typealias Verification = __VerificationProxy_Publishing
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Publishing>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Publishing>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Publishing) {
         __defaultImplStub.value = stub
@@ -697,7 +697,7 @@ final class MockPublishing: Publishing, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Publishing: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Publishing: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -713,7 +713,7 @@ final class MockPublishing: Publishing, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Publishing: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Publishing: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -738,7 +738,7 @@ final class MockPublishing: Publishing, Cuckoo.ProtocolMock {
     }
 }
 
-final class PublishingStub:Publishing {
+nonisolated final class PublishingStub:Publishing {
 
 
     
@@ -750,16 +750,16 @@ final class PublishingStub:Publishing {
 #endif
 
 #if (DEBUG)
-final class MockDebugTools: DebugTools, Cuckoo.ClassMock {
+final class MockDebugTools: DebugTools, nonisolated Cuckoo.ClassMock {
     typealias MocksType = DebugTools
     typealias Stubbing = __StubbingProxy_DebugTools
     typealias Verification = __VerificationProxy_DebugTools
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<DebugTools>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DebugTools>()
 
     nonisolated func enableDefaultImplementation(_ stub: DebugTools) {
         __defaultImplStub.value = stub
@@ -778,7 +778,7 @@ final class MockDebugTools: DebugTools, Cuckoo.ClassMock {
         )
     }
 
-    struct __StubbingProxy_DebugTools: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_DebugTools: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -794,7 +794,7 @@ final class MockDebugTools: DebugTools, Cuckoo.ClassMock {
         }
     }
 
-    struct __VerificationProxy_DebugTools: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_DebugTools: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -832,16 +832,16 @@ final class DebugToolsStub:DebugTools {
 
 #if (DEBUG) && (os(Linux))
 extension DebugTools {
-final class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock {
+final class MockLinuxProbe: LinuxProbe, nonisolated Cuckoo.ClassMock {
     typealias MocksType = LinuxProbe
     typealias Stubbing = __StubbingProxy_LinuxProbe
     typealias Verification = __VerificationProxy_LinuxProbe
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<LinuxProbe>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<LinuxProbe>()
 
     nonisolated func enableDefaultImplementation(_ stub: LinuxProbe) {
         __defaultImplStub.value = stub
@@ -860,7 +860,7 @@ final class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock {
         )
     }
 
-    struct __StubbingProxy_LinuxProbe: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_LinuxProbe: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -876,7 +876,7 @@ final class MockLinuxProbe: LinuxProbe, Cuckoo.ClassMock {
         }
     }
 
-    struct __VerificationProxy_LinuxProbe: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_LinuxProbe: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation

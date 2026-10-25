@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockLegacy: Legacy, Cuckoo.ProtocolMock {
+nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Legacy
     typealias Stubbing = __StubbingProxy_Legacy
     typealias Verification = __VerificationProxy_Legacy
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Legacy>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Legacy>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Legacy) {
         __defaultImplStub.value = stub
@@ -95,7 +95,7 @@ final class MockLegacy: Legacy, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Legacy: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Legacy: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -159,7 +159,7 @@ final class MockLegacy: Legacy, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Legacy: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Legacy: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -252,7 +252,7 @@ final class MockLegacy: Legacy, Cuckoo.ProtocolMock {
     }
 }
 
-final class LegacyStub:Legacy {
+nonisolated final class LegacyStub:Legacy {
 
 
     #if !os(iOS)
@@ -290,16 +290,16 @@ final class LegacyStub:Legacy {
 }
 
 
-final class MockLegacyService: LegacyService, Cuckoo.ClassMock {
+final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
     typealias MocksType = LegacyService
     typealias Stubbing = __StubbingProxy_LegacyService
     typealias Verification = __VerificationProxy_LegacyService
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<LegacyService>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<LegacyService>()
 
     nonisolated func enableDefaultImplementation(_ stub: LegacyService) {
         __defaultImplStub.value = stub
@@ -332,7 +332,7 @@ final class MockLegacyService: LegacyService, Cuckoo.ClassMock {
         )
     }
 
-    struct __StubbingProxy_LegacyService: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_LegacyService: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -358,7 +358,7 @@ final class MockLegacyService: LegacyService, Cuckoo.ClassMock {
         }
     }
 
-    struct __VerificationProxy_LegacyService: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_LegacyService: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -413,16 +413,16 @@ final class LegacyServiceStub:LegacyService {
 }
 
 
-final class MockLegacyView: LegacyView, Cuckoo.ClassMock {
+final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
     typealias MocksType = LegacyView
     typealias Stubbing = __StubbingProxy_LegacyView
     typealias Verification = __VerificationProxy_LegacyView
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<LegacyView>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<LegacyView>()
 
     nonisolated func enableDefaultImplementation(_ stub: LegacyView) {
         __defaultImplStub.value = stub
@@ -441,7 +441,7 @@ final class MockLegacyView: LegacyView, Cuckoo.ClassMock {
         )
     }
 
-    struct __StubbingProxy_LegacyView: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_LegacyView: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -457,7 +457,7 @@ final class MockLegacyView: LegacyView, Cuckoo.ClassMock {
         }
     }
 
-    struct __VerificationProxy_LegacyView: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_LegacyView: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation

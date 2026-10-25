@@ -22,7 +22,7 @@ extension {{ container.parentFullyQualifiedName }} {
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
 {% endif %}
-{{ container.accessibility|withSpace }}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.mockName }}{{ container.genericParameters }}:{% if container.isNSObjectProtocol %} NSObject,{% endif %} {{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %},{% if container.isImplementation %} Cuckoo.ClassMock{% else %} Cuckoo.ProtocolMock{% endif %} {
+{{ container.accessibility|withSpace }}{% if container.isNonisolatedProtocol %}nonisolated {%+ endif %}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.mockName }}{{ container.genericParameters }}:{% if container.isNSObjectProtocol %} NSObject,{% endif %} {{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %},{% if not container.isActor %} nonisolated{% endif %}{% if container.isImplementation %} Cuckoo.ClassMock{% else %} Cuckoo.ProtocolMock{% endif %} {
     {% if container.isGeneric and not container.isImplementation and not container.hasOnlyPrimaryAssociatedTypes %}
     {{ container.accessibility|withSpace }}typealias MocksType = \(typeErasureClassName)
     {% elif container.isImplementation %}
@@ -38,12 +38,12 @@ extension {{ container.parentFullyQualifiedName }} {
     {{ container.accessibility|withSpace }}{{ typealias }}
     {% endfor %}
 
-    {{ container.accessibility|withSpace }}let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: {{ container.isImplementation }})
+    {{ container.accessibility|withSpace }}nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: {{ container.isImplementation }})
 
     {% if container.isGeneric and not container.isImplementation and not container.hasOnlyPrimaryAssociatedTypes %}
 \(Templates.typeErasure.indented())
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<\(typeErasureClassName)>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<\(typeErasureClassName)>()
 
     {{ container.accessibility|withSpace }}nonisolated func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(_ stub: \(staticGenericParameter)) where {{ container.genericProtocolIdentity }} {
         var mutableStub = stub
@@ -57,9 +57,9 @@ extension {{ container.parentFullyQualifiedName }} {
     }
     {% else %}
     {% if container.isImplementation %}
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<{{ container.name }}{{ container.genericArguments }}>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<{{ container.name }}{{ container.genericArguments }}>()
     {% else %}
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any {{ container.name }}{{ container.genericArguments }}>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any {{ container.name }}{{ container.genericArguments }}>()
     {% endif %}
 
     {{ container.accessibility|withSpace }}nonisolated func enableDefaultImplementation(_ stub: {%+ if not container.isImplementation %}any {%+ endif %}{{ container.name }}{{ container.genericArguments }}) {

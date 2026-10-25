@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockLoader: Loader, Cuckoo.ProtocolMock {
+nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Loader
     typealias Stubbing = __StubbingProxy_Loader
     typealias Verification = __VerificationProxy_Loader
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any Loader>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Loader>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Loader) {
         __defaultImplStub.value = stub
@@ -42,7 +42,7 @@ final class MockLoader: Loader, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_Loader: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_Loader: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -66,7 +66,7 @@ final class MockLoader: Loader, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_Loader: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_Loader: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -103,7 +103,7 @@ final class MockLoader: Loader, Cuckoo.ProtocolMock {
     }
 }
 
-final class LoaderStub:Loader {
+nonisolated final class LoaderStub:Loader {
 
 
     

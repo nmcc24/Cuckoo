@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockMainActorService: MainActorService, Cuckoo.ProtocolMock {
+final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any MainActorService
     typealias Stubbing = __StubbingProxy_MainActorService
     typealias Verification = __VerificationProxy_MainActorService
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorService>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorService>()
 
     nonisolated func enableDefaultImplementation(_ stub: any MainActorService) {
         __defaultImplStub.value = stub
@@ -61,7 +61,7 @@ final class MockMainActorService: MainActorService, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_MainActorService: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_MainActorService: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -89,7 +89,7 @@ final class MockMainActorService: MainActorService, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_MainActorService: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_MainActorService: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation

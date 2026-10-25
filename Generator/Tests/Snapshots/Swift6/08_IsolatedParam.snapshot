@@ -1,16 +1,16 @@
 import Cuckoo
 import Foundation
 
-final class MockIsolatedWork: IsolatedWork, Cuckoo.ProtocolMock {
+nonisolated final class MockIsolatedWork: IsolatedWork, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any IsolatedWork
     typealias Stubbing = __StubbingProxy_IsolatedWork
     typealias Verification = __VerificationProxy_IsolatedWork
 
     // Original typealiases
 
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private let __defaultImplStub = Cuckoo.DefaultImplementation<any IsolatedWork>()
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any IsolatedWork>()
 
     nonisolated func enableDefaultImplementation(_ stub: any IsolatedWork) {
         __defaultImplStub.value = stub
@@ -29,7 +29,7 @@ final class MockIsolatedWork: IsolatedWork, Cuckoo.ProtocolMock {
         )
     }
 
-    struct __StubbingProxy_IsolatedWork: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_IsolatedWork: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
         init(manager: Cuckoo.MockManager) {
@@ -45,7 +45,7 @@ final class MockIsolatedWork: IsolatedWork, Cuckoo.ProtocolMock {
         }
     }
 
-    struct __VerificationProxy_IsolatedWork: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_IsolatedWork: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
@@ -70,7 +70,7 @@ final class MockIsolatedWork: IsolatedWork, Cuckoo.ProtocolMock {
     }
 }
 
-final class IsolatedWorkStub:IsolatedWork {
+nonisolated final class IsolatedWorkStub:IsolatedWork {
 
 
     

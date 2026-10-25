@@ -1,0 +1,22 @@
+# Fixtures whose generated mocks don't compile yet with -default-isolation MainActor, one name per line.
+# CI runs: SWIFT6_MATRIX_EXPECTED=Fixtures/Swift6/expected-failures-default-mainactor.txt scripts/swift6-matrix.sh -default-isolation MainActor
+# The script fails on an unlisted failure and on a listed fixture that now passes.
+#
+# Not compiling in either mode yet (see expected-failures.txt):
+12_Subscript
+13_StaticReq
+14_ParameterPacks
+15_NoncopyableParam
+#
+# A subclass of a class that uses its implicit init doesn't compile in this mode, with or without
+# Cuckoo: `class Base {}; final class Sub: Base {}` fails with "main actor-isolated initializer
+# 'init()' has different actor isolation from nonisolated overridden declaration" (Swift 6.2-6.4).
+# These fixtures mock such classes:
+07_Sending
+19_Unavailable
+20_IfConfig
+21_NonEscapingSendableClosure
+#
+# The type-erased default implementation of a generic protocol is nonisolated, but in this mode the
+# protocol itself is MainActor-isolated, which the generator can't see:
+05_SendableProtocol
