@@ -361,6 +361,7 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
    - Update the API for Swift 6: `Sendable`-correct `objcStub`/`objcVerify`, MainActor-safe use with UIKit classes, and typed helpers to reduce the untyped `args[0] as! T` casts.
 7. ☁️ One source of truth for the generator's dependencies: have the Tuist `Generator` project consume the root package instead of re-declaring its packages, so `Generator/Project.swift` can't drift from `Package.swift` (a 9.9.0 vs 9.14.0 XcodeProj pin broke CI in Phase 2), and drop its separate lockfile.
 8. ☁️ Rebuild the type-erased default implementation (`DefaultImplCaller`) for generic protocols on a `Sendable` box instead of closures over an `UnsafeMutablePointer`, so it can drop its documented `@unchecked Sendable`. The pointer-based `enableDefaultImplementation(mutating:)` API needs rethinking with it; the non-mutating overload also points at a local copy.
+9. ☁️ To discuss: drop Rainbow. The generator uses only its `.bold` (26 times, in log and error messages), which a ~10-line internal helper can replace, keeping its plain output when stdout isn't a terminal. Only `Generator.swift` imports Rainbow; `Module.swift` and `GenerateCommand.swift` see `.bold` through leaked extension members, which the upcoming `MemberImportVisibility` feature turns into errors. With Stencil gone too, the generator would depend only on swift-syntax, swift-argument-parser and TOMLDecoder.
 
 ### Phase 6: Release and upstreaming (S)
 - 3.0.0-beta tags on the fork.
