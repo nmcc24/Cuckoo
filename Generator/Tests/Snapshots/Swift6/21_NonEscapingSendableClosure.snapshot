@@ -35,7 +35,7 @@ return cuckoo_manager.call(
 
     func transformAsync(_ p0: @Sendable (String) -> String?) async -> String? {
         
-		return await withoutActuallyEscaping(p0, do: { (p0: @escaping @Sendable (String) -> String?) -> String? in
+		nonisolated(nonsending) func __cuckoo_escaping_p0(_ p0: @escaping @Sendable (String) -> String?) async -> String? {
 return await cuckoo_manager.call(
             "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
             parameters: (p0),
@@ -44,7 +44,8 @@ return await cuckoo_manager.call(
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.transformAsync(p0)
         )
-		})
+		}
+		return await withoutActuallyEscaping(p0, do: __cuckoo_escaping_p0)
 
     }
 
@@ -196,7 +197,7 @@ return cuckoo_manager.call(
 
     override func transformAsync(_ p0: @Sendable (String) -> String?) async -> String? {
         
-		return await withoutActuallyEscaping(p0, do: { (p0: @escaping @Sendable (String) -> String?) -> String? in
+		nonisolated(nonsending) func __cuckoo_escaping_p0(_ p0: @escaping @Sendable (String) -> String?) async -> String? {
 return await cuckoo_manager.call(
             "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
             parameters: (p0),
@@ -205,7 +206,8 @@ return await cuckoo_manager.call(
             superclassCall: await super.transformAsync(p0),
             defaultCall: await __defaultImplStub.value.transformAsync(p0)
         )
-		})
+		}
+		return await withoutActuallyEscaping(p0, do: __cuckoo_escaping_p0)
 
     }
 
