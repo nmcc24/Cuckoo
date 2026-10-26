@@ -1,6 +1,6 @@
 /// The arguments a mock received for a parameter pack (`repeat each T`), recorded as one value.
 ///
-/// Match a pack with ``anyPack()``, with ``equal(toPack:)`` when its values are `Equatable`, or with a
+/// Match a pack with `any()`, with `equal(to:)` when its values are `Equatable`, or with a
 /// `ParameterMatcher` over the whole pack. A `then` closure receives the pack as one `ParameterPack` too.
 public struct ParameterPack: CustomStringConvertible {
     /// The pack's values, in order.
@@ -28,13 +28,8 @@ public struct ParameterPack: CustomStringConvertible {
     }
 }
 
-/// Returns a matcher matching any parameter pack.
-public func anyPack() -> ParameterMatcher<ParameterPack> {
-    ParameterMatcher()
-}
-
 /// Returns a matcher matching a parameter pack whose values equal `values`, in order and with the same types.
-public func equal<each Value: Equatable>(toPack values: repeat each Value) -> ParameterMatcher<ParameterPack> {
+public func equal<each Value: Equatable>(to values: repeat each Value) -> ParameterMatcher<ParameterPack> {
     var expected: [(Any) -> Bool] = []
     for value in repeat each values {
         expected.append(isEqual(to: value))
