@@ -3,7 +3,7 @@ import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-/// A parameter pack is recorded as one `ParameterPack`, matched with `anyPack()`, `equal(toPack:)` or a closure.
+/// A parameter pack is recorded as one `ParameterPack`, matched with `any()`, `equal(to:)` or a closure.
 struct ParameterPackTests {
     private enum TestError: Error {
         case failed
@@ -13,25 +13,25 @@ struct ParameterPackTests {
     func stubAndVerifyAPack() {
         let mock = MockParameterPackProtocol()
         stub(mock) { stub in
-            when(stub.count(anyPack())).thenReturn(0)
-            when(stub.count(equal(toPack: 1, "a"))).thenReturn(2)
+            when(stub.count(any())).thenReturn(0)
+            when(stub.count(equal(to: 1, "a"))).thenReturn(2)
         }
 
         #expect(mock.count(1, "a") == 2)
         #expect(mock.count("a", 1) == 0)
         #expect(mock.count() == 0)
 
-        verify(mock).count(equal(toPack: 1, "a"))
-        verify(mock).count(equal(toPack: "a", 1))
-        verify(mock, times(3)).count(anyPack())
-        verify(mock, never()).count(equal(toPack: 1))
+        verify(mock).count(equal(to: 1, "a"))
+        verify(mock).count(equal(to: "a", 1))
+        verify(mock, times(3)).count(any())
+        verify(mock, never()).count(equal(to: 1))
     }
 
     @Test
     func packReturnedThroughThen() {
         let mock = MockParameterPackProtocol()
         stub(mock) { stub in
-            when(stub.combine(anyPack())).then { (pack: ParameterPack) -> (Int, String) in
+            when(stub.combine(any())).then { (pack: ParameterPack) -> (Int, String) in
                 (pack[0] as! Int * 2, "\(pack[1])!")
             }
         }
@@ -48,26 +48,26 @@ struct ParameterPackTests {
         let mock = MockParameterPackProtocol()
         var logged: [String] = []
         stub(mock) { stub in
-            when(stub.log(any(), anyPack())).then { prefix, pack in logged.append("\(prefix) \(pack)") }
+            when(stub.log(any(), any())).then { prefix, pack in logged.append("\(prefix) \(pack)") }
         }
 
         mock.log("values:", 1, true, "x")
 
         #expect(logged == ["values: (1, true, x)"])
-        verify(mock).log("values:", equal(toPack: 1, true, "x"))
+        verify(mock).log("values:", equal(to: 1, true, "x"))
     }
 
     @Test
     func asyncThrowingPack() async throws {
         let mock = MockParameterPackProtocol()
         stub(mock) { stub in
-            when(stub.describe(anyPack())).then { pack in pack.values.map { "\($0)" }.joined(separator: "+") }
-            when(stub.describe(equal(toPack: 0))).thenThrow(TestError.failed)
+            when(stub.describe(any())).then { pack in pack.values.map { "\($0)" }.joined(separator: "+") }
+            when(stub.describe(equal(to: 0))).thenThrow(TestError.failed)
         }
 
         #expect(try await mock.describe(1, "b") == "1+b")
         await #expect(throws: TestError.self) { try await mock.describe(0) }
-        verify(mock, times(2)).describe(anyPack())
+        verify(mock, times(2)).describe(any())
     }
 
     @Test
@@ -104,7 +104,7 @@ struct ParameterPackTests {
 
         #expect(mock.count(1, 2) == 2)
         #expect(mock.combine(1, "a") == (1, "a"))
-        verify(mock).count(anyPack())
+        verify(mock).count(any())
     }
 
     @Test
