@@ -526,7 +526,7 @@ extension Crawler {
 
         // Swift can't override a method with a parameter pack (it reports that the override overrides nothing), so a
         // class mock leaves such a method to the real implementation.
-        let hasPack = method.genericParameterClause?.parameters.contains { $0.specifier?.tokenKind == .keyword(.each) } == true
+        let hasPack = method.genericParameterClause?.parameters.contains { $0.isPack } == true
         guard !(hasPack && container?.isClass == true) else { return nil }
 
         let parameters = self.parameters(from: method.signature.parameterClause.parameters)
@@ -672,7 +672,7 @@ extension Crawler {
             GenericParameter(
                 name: genericParameter.name.filteredDescription,
                 inheritedTypes: inheritedTypes(from: genericParameter.inheritedType?.trimmed),
-                isPack: genericParameter.specifier?.tokenKind == .keyword(.each)
+                isPack: genericParameter.isPack
             )
         } ?? []
     }
@@ -847,5 +847,17 @@ extension Crawler {
             collect(node.attributes, name: node.name)
             return .visitChildren
         }
+    }
+}
+
+extension GenericParameterSyntax {
+    /// Whether this is a parameter pack (`each T`). swift-syntax 601 replaced `eachKeyword` with `specifier`,
+    /// which also holds the `let` of a value generic.
+    var isPack: Bool {
+        #if canImport(SwiftSyntax601)
+        specifier?.tokenKind == .keyword(.each)
+        #else
+        eachKeyword != nil
+        #endif
     }
 }
