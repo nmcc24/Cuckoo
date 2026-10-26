@@ -314,6 +314,12 @@ extension MockManager {
         fatalError("Cuckoo internal error: actor mock member \(member) reached a default implementation, which actor mocks don't have. Please report an issue to the Cuckoo repository.")
     }
 
+    /// Stands in for forwarding a member with a `~Copyable` argument to the superclass or a default implementation.
+    /// The mock forwards through a closure, which can't capture a `~Copyable` argument to pass it on.
+    public static func crashOnNoncopyableArgumentForward<OUT>(_ member: String) -> OUT {
+        fatalError("Cuckoo can't call the real or default implementation of \(member), because it takes a ~Copyable argument. Stub it instead.")
+    }
+
     /// Narrows an error thrown by a `then` closure to a typed-throws member's error type. The closure's type
     /// throws untyped errors, because a typed-throws function type needs runtime support that iOS 17 and
     /// macOS 14 lack once it's a generic argument.
