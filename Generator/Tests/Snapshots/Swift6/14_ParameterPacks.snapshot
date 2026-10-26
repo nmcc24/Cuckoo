@@ -18,14 +18,48 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
     }
 
 
-    func combine<T> (_ p0: repeat each T) -> (repeat each T) {
+    func combine<each T> (_ p0: repeat each T) -> (repeat each T) {
         return cuckoo_manager.call(
-            "combine<T> (_ p0: repeat each T) -> (repeat each T)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            invoke: { (implementation: ((repeat each T)) -> (repeat each T)) in implementation((p0)) },
+            "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
+            parameters: (Cuckoo.ParameterPack(repeat each p0)),
+            escapingParameters: (Cuckoo.ParameterPack(repeat each p0)),
+            invoke: { (implementation: ((Cuckoo.ParameterPack)) -> (repeat each T)) in implementation((Cuckoo.ParameterPack(repeat each p0))) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.combine(p0)
+            defaultCall: __defaultImplStub.value.combine(repeat each p0)
+        )
+    }
+
+    func count<each T> (_ p0: repeat each T) -> Int {
+        return cuckoo_manager.call(
+            "count<each T> (_ p0: repeat each T) -> Int",
+            parameters: (Cuckoo.ParameterPack(repeat each p0)),
+            escapingParameters: (Cuckoo.ParameterPack(repeat each p0)),
+            invoke: { (implementation: ((Cuckoo.ParameterPack)) -> Int) in implementation((Cuckoo.ParameterPack(repeat each p0))) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.count(repeat each p0)
+        )
+    }
+
+    func log<each T: Sendable> (prefix p0: String, _ p1: repeat each T) async throws {
+        return try await cuckoo_manager.callThrows(
+            "log<each T: Sendable> (prefix p0: String, _ p1: repeat each T) async throws",
+            parameters: (p0, Cuckoo.ParameterPack(repeat each p1)),
+            escapingParameters: (p0, Cuckoo.ParameterPack(repeat each p1)),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: nonisolated(nonsending) ((String, Cuckoo.ParameterPack)) async throws -> Void) async throws(any Swift.Error) in try await implementation((p0, Cuckoo.ParameterPack(repeat each p1))) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await __defaultImplStub.value.log(prefix: p0, repeat each p1)
+        )
+    }
+
+    func pair<each T, each U> (_ p0: repeat each T, second p1: repeat each U) -> (repeat each U) {
+        return cuckoo_manager.call(
+            "pair<each T, each U> (_ p0: repeat each T, second p1: repeat each U) -> (repeat each U)",
+            parameters: (Cuckoo.ParameterPack(repeat each p0), Cuckoo.ParameterPack(repeat each p1)),
+            escapingParameters: (Cuckoo.ParameterPack(repeat each p0), Cuckoo.ParameterPack(repeat each p1)),
+            invoke: { (implementation: ((Cuckoo.ParameterPack, Cuckoo.ParameterPack)) -> (repeat each U)) in implementation((Cuckoo.ParameterPack(repeat each p0), Cuckoo.ParameterPack(repeat each p1))) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.pair(repeat each p0, second: repeat each p1)
         )
     }
 
@@ -36,10 +70,34 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
             self.cuckoo_manager = manager
         }
         
-        func combine<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(repeat each T), (repeat each T), ((repeat each T)) -> (repeat each T), Cuckoo.StubSharing.Confined> where M1.MatchedType == repeat each T {
-            let matchers: [Cuckoo.ParameterMatcher<(repeat each T)>] = [wrap(matchable: p0) { $0 }]
+        func combine<M1: Cuckoo.Matchable, each T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(Cuckoo.ParameterPack), (repeat each T), ((Cuckoo.ParameterPack)) -> (repeat each T), Cuckoo.StubSharing.Confined> where M1.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockCombiner.self,
-                method: "combine<T> (_ p0: repeat each T) -> (repeat each T)",
+                method: "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func count<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(Cuckoo.ParameterPack), Int, ((Cuckoo.ParameterPack)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockCombiner.self,
+                method: "count<each T> (_ p0: repeat each T) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func log<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(prefix p0: M1, _ p1: M2) -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(String, Cuckoo.ParameterPack),any Swift.Error, nonisolated(nonsending) ((String, Cuckoo.ParameterPack)) async throws -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(String, Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockCombiner.self,
+                method: "log<each T: Sendable> (prefix p0: String, _ p1: repeat each T) async throws",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func pair<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, each U>(_ p0: M1, second p1: M2) -> Cuckoo.ProtocolStubFunction<(Cuckoo.ParameterPack, Cuckoo.ParameterPack), (repeat each U), ((Cuckoo.ParameterPack, Cuckoo.ParameterPack)) -> (repeat each U), Cuckoo.StubSharing.Confined> where M1.MatchedType == Cuckoo.ParameterPack, M2.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack, Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockCombiner.self,
+                method: "pair<each T, each U> (_ p0: repeat each T, second p1: repeat each U) -> (repeat each U)",
                 parameterMatchers: matchers
             ))
         }
@@ -58,10 +116,46 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
         
         
         @discardableResult
-        func combine<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.__DoNotUse<(repeat each T), (repeat each T)> where M1.MatchedType == repeat each T {
-            let matchers: [Cuckoo.ParameterMatcher<(repeat each T)>] = [wrap(matchable: p0) { $0 }]
+        func combine<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Cuckoo.ParameterPack), Any> where M1.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "combine<T> (_ p0: repeat each T) -> (repeat each T)",
+                "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func count<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Cuckoo.ParameterPack), Int> where M1.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "count<each T> (_ p0: repeat each T) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func log<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(prefix p0: M1, _ p1: M2) -> Cuckoo.__DoNotUse<(String, Cuckoo.ParameterPack), Void> where M1.MatchedType == String, M2.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(String, Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            return cuckoo_manager.verify(
+                "log<each T: Sendable> (prefix p0: String, _ p1: repeat each T) async throws",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func pair<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, second p1: M2) -> Cuckoo.__DoNotUse<(Cuckoo.ParameterPack, Cuckoo.ParameterPack), Any> where M1.MatchedType == Cuckoo.ParameterPack, M2.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack, Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            return cuckoo_manager.verify(
+                "pair<each T, each U> (_ p0: repeat each T, second p1: repeat each U) -> (repeat each U)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -74,8 +168,178 @@ nonisolated final class CombinerStub:Combiner {
 
 
     
-    func combine<T> (_ p0: repeat each T) -> (repeat each T) {
+    func combine<each T> (_ p0: repeat each T) -> (repeat each T) {
         return DefaultValueRegistry.defaultValue(for: ((repeat each T)).self)
+    }
+    
+    func count<each T> (_ p0: repeat each T) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+    
+    func log<each T: Sendable> (prefix p0: String, _ p1: repeat each T) async throws {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    func pair<each T, each U> (_ p0: repeat each T, second p1: repeat each U) -> (repeat each U) {
+        return DefaultValueRegistry.defaultValue(for: ((repeat each U)).self)
+    }
+}
+
+
+final class MockMainActorCombiner: MainActorCombiner, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any MainActorCombiner
+    typealias Stubbing = __StubbingProxy_MainActorCombiner
+    typealias Verification = __VerificationProxy_MainActorCombiner
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorCombiner>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any MainActorCombiner) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func combine<each T> (_ p0: repeat each T) -> (repeat each T) {
+        return cuckoo_manager.call(
+            "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
+            parameters: (Cuckoo.ParameterPack(repeat each p0)),
+            escapingParameters: (Cuckoo.ParameterPack(repeat each p0)),
+            invoke: { (implementation: @MainActor @Sendable ((Cuckoo.ParameterPack)) -> (repeat each T)) in implementation((Cuckoo.ParameterPack(repeat each p0))) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.combine(repeat each p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_MainActorCombiner: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func combine<M1: Cuckoo.Matchable, each T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(Cuckoo.ParameterPack), (repeat each T), @MainActor @Sendable ((Cuckoo.ParameterPack)) -> (repeat each T), Cuckoo.StubSharing.Isolated> where M1.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockMainActorCombiner.self,
+                method: "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_MainActorCombiner: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func combine<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Cuckoo.ParameterPack), Any> where M1.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class MainActorCombinerStub:MainActorCombiner {
+
+
+    
+    func combine<each T> (_ p0: repeat each T) -> (repeat each T) {
+        return DefaultValueRegistry.defaultValue(for: ((repeat each T)).self)
+    }
+}
+
+
+actor MockActorCombiner: ActorCombiner, Cuckoo.ProtocolMock {
+    typealias MocksType = any ActorCombiner
+    typealias Stubbing = __StubbingProxy_ActorCombiner
+    typealias Verification = __VerificationProxy_ActorCombiner
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any ActorCombiner>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ActorCombiner) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func count<each T> (_ p0: repeat each T) -> Int {
+        return cuckoo_manager.call(
+            "count<each T> (_ p0: repeat each T) -> Int",
+            parameters: (Cuckoo.ParameterPack(repeat each p0)),
+            escapingParameters: (Cuckoo.ParameterPack(repeat each p0)),
+            invoke: { (implementation: @Sendable (isolated MockActorCombiner, Cuckoo.ParameterPack) -> Int) in implementation(self, Cuckoo.ParameterPack(repeat each p0)) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("count<each T> (_ p0: repeat each T) -> Int")
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ActorCombiner: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func count<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(Cuckoo.ParameterPack), Int, @Sendable (isolated MockActorCombiner, Cuckoo.ParameterPack) -> Int, Cuckoo.StubSharing.Shared> where M1.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockActorCombiner.self,
+                method: "count<each T> (_ p0: repeat each T) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ActorCombiner: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func count<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Cuckoo.ParameterPack), Int> where M1.MatchedType == Cuckoo.ParameterPack {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "count<each T> (_ p0: repeat each T) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+actor ActorCombinerStub:ActorCombiner {
+
+
+    
+    func count<each T> (_ p0: repeat each T) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
 }
 

@@ -3,12 +3,15 @@ import Foundation
 struct GenericParameter: Equatable {
     let name: String
     let inheritedTypes: [String]
+    /// A type parameter pack, `each T`.
+    var isPack = false
 
     var description: String {
+        let declaredName = isPack ? "each \(name)" : name
         if inheritedTypes.isEmpty {
-            return name
+            return declaredName
         } else {
-            return "\(name): \(inheritedTypes.joined(separator: " & "))"
+            return "\(declaredName): \(inheritedTypes.joined(separator: " & "))"
         }
     }
 }
@@ -27,7 +30,8 @@ extension Array where Element == GenericParameter {
             mergedParameters.append(
                 GenericParameter(
                     name: parameterName,
-                    inheritedTypes: mergedInheritedTypes
+                    inheritedTypes: mergedInheritedTypes,
+                    isPack: contains { $0.name == parameterName && $0.isPack }
                 )
             )
         }

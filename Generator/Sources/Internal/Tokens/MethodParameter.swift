@@ -26,6 +26,11 @@ struct MethodParameter: Token {
         type.containsAttribute(named: "sending")
     }
 
+    /// A parameter pack, `repeat each T`.
+    var isPack: Bool {
+        type.withoutAttributes().description.hasPrefix("repeat ")
+    }
+
     var isEscaping: Bool {
         type.isClosure && (type.containsAttribute(named: "@escaping") || type.isOptional)
     }
@@ -41,7 +46,7 @@ struct MethodParameter: Token {
     }
 
     private func call(value name: String) -> String {
-        let value = "\(isInout ? "&" : "")\(name)\(type.containsAttribute(named: "@autoclosure") ? "()" : "")"
+        let value = isPack ? "repeat each \(name)" : "\(isInout ? "&" : "")\(name)\(type.containsAttribute(named: "@autoclosure") ? "()" : "")"
         if self.name == "_" {
             return value
         } else {
@@ -52,8 +57,12 @@ struct MethodParameter: Token {
     /// The parameter as the mock manager records it. An opaque `some P` value is
     /// upcast to `any P`, the type its stubbing and verification matchers use;
     /// otherwise a stub's or recorded call's type wouldn't match the concrete argument type.
+    /// A parameter pack is recorded as one `Cuckoo.ParameterPack`.
     var recordedValue: String {
         let name = escapeReservedKeywords(for: usableName)
+        if isPack {
+            return "Cuckoo.ParameterPack(repeat each \(name))"
+        }
         let matchedType = type.withoutAttributes(except: ["@MainActor", "@Sendable"])
         let genericSafeType = matchedType.genericArgumentSafe
         return genericSafeType == matchedType ? name : "\(name) as \(genericSafeType)"

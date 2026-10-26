@@ -39,7 +39,7 @@ extension Templates {
     {{ attribute }}
     {% endfor %}
     @discardableResult
-    func {{method.name|escapeReservedKeywords}}{{method.self|matchableGenericNames}}({{method.parameters|matchableParameterSignature}}) -> Cuckoo.__DoNotUse<({{method.stubInputTypes|genericSafe}}), {{method.stubReturnType|genericSafe}}>{{method.self|matchableGenericWhereClause}} {
+    func {{method.name|escapeReservedKeywords}}{{method.self|matchableVerificationGenericNames}}({{method.parameters|matchableParameterSignature}}) -> Cuckoo.__DoNotUse<({{method.stubInputTypes|genericSafe}}), {{method.verificationReturnType|genericSafe}}>{{method.self|matchableVerificationGenericWhereClause}} {
         {{method.parameters|parameterMatchers}}
         return cuckoo_manager.verify(
             "{{method.fullyQualifiedName}}",

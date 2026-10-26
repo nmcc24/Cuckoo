@@ -24,25 +24,26 @@ struct GeneratorHelper {
         )
     }
 
-    private static func matchableGenericTypes(from method: Method) -> String {
-        guard !method.signature.parameters.isEmpty || !method.signature.genericParameters.isEmpty else { return "" }
+    private static func matchableGenericTypes(from method: Method, forVerification: Bool = false) -> String {
+        let genericParameters = method.proxyGenerics(forVerification: forVerification).parameters
+        guard !method.signature.parameters.isEmpty || !genericParameters.isEmpty else { return "" }
 
         let matchableGenericParameters = method.signature.parameters.enumerated().map { index, parameter -> String in
             let type = parameter.type.isOptional ? "OptionalMatchable" : "Matchable"
             return "M\(index + 1): Cuckoo.\(type)"
         }
-        let methodGenericParameters = method.signature.genericParameters.map { $0.description }
+        let methodGenericParameters = genericParameters.map { $0.description }
         return "<\((matchableGenericParameters + methodGenericParameters).joined(separator: ", "))>"
     }
 
-    private static func matchableGenericsWhereClause(from method: Method) -> String {
+    private static func matchableGenericsWhereClause(from method: Method, forVerification: Bool = false) -> String {
         guard method.signature.parameters.isEmpty == false else { return "" }
 
         let matchableWhereConstraints = method.signature.parameters.enumerated().map { index, parameter -> String in
             let type = parameter.type.isOptional ? "OptionalMatchedType" : "MatchedType"
             return "M\(index + 1).\(type) == \(genericSafeType(from: parameter.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.unoptionaled.description))"
         }
-        let methodWhereConstraints = method.signature.whereConstraints
+        let methodWhereConstraints = method.proxyGenerics(forVerification: forVerification).whereConstraints
         return " where \((matchableWhereConstraints + methodWhereConstraints).joined(separator: ", "))"
     }
 
@@ -165,6 +166,14 @@ extension GeneratorHelper {
         stencilExtension.registerFilter("matchableGenericWhereClause") { (value: Any?) in
             guard let method = value as? Method else { return value }
             return matchableGenericsWhereClause(from: method)
+        }
+        stencilExtension.registerFilter("matchableVerificationGenericNames") { (value: Any?) in
+            guard let method = value as? Method else { return value }
+            return matchableGenericTypes(from: method, forVerification: true)
+        }
+        stencilExtension.registerFilter("matchableVerificationGenericWhereClause") { (value: Any?) in
+            guard let method = value as? Method else { return value }
+            return matchableGenericsWhereClause(from: method, forVerification: true)
         }
         stencilExtension.registerFilter("matchableParameterSignature") { (value: Any?) in
             guard let parameters = value as? [MethodParameter] else { return value }
