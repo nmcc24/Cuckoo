@@ -37,13 +37,13 @@ public final class StaticStubs: Sendable {
                 at: (#file, #fileID, #filePath, #line, #column)
             )
             // A manager of its own, so the call fails as unstubbed instead of reaching another test's stubs.
-            return MockManager(hasParent: hasParent)
+            return MockManager(hasParent: hasParent, isStatic: true)
         }
         return registry.managers.withLock { managers in
             if let manager = managers[ObjectIdentifier(type)] {
                 return manager
             }
-            let manager = MockManager(hasParent: hasParent)
+            let manager = MockManager(hasParent: hasParent, isStatic: true)
             managers[ObjectIdentifier(type)] = manager
             return manager
         }
