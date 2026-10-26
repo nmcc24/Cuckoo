@@ -1,0 +1,83 @@
+import Cuckoo
+import Foundation
+
+actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
+    typealias MocksType = any BoxActor
+    typealias Stubbing = __StubbingProxy_BoxActor
+    typealias Verification = __VerificationProxy_BoxActor
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any BoxActor>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any BoxActor) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func take(_ p0: Box) -> Int {
+        return cuckoo_manager.call(
+            "take(_ p0: Box) -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: @Sendable (isolated MockBoxActor, Box) -> Int) in implementation(self, p0) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("take(_ p0: Box) -> Int")
+        )
+    }
+
+    nonisolated struct __StubbingProxy_BoxActor: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func take<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(Box), Int, @Sendable (isolated MockBoxActor, Box) -> Int, Cuckoo.StubSharing.Shared> where M1.MatchedType == Box {
+            let matchers: [Cuckoo.ParameterMatcher<(Box)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockBoxActor.self,
+                method: "take(_ p0: Box) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_BoxActor: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func take<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Box), Int> where M1.MatchedType == Box {
+            let matchers: [Cuckoo.ParameterMatcher<(Box)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "take(_ p0: Box) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+actor BoxActorStub:BoxActor {
+
+
+    
+    func take(_ p0: Box) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}
+
+
+
