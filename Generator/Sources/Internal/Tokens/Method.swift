@@ -74,17 +74,29 @@ extension Method {
         return isolation
     }
 
+    /// Whether a parameter is `~Copyable`. The mock can't forward such a call to the superclass or a default
+    /// implementation; see `Cuckoo.MockManager.crashOnNoncopyableArgumentForward`.
+    var hasNoncopyableParams: Bool {
+        signature.parameters.contains(where: \.isNoncopyable)
+    }
+
     var hasGenericParams: Bool {
         !signature.genericParameters.isEmpty
     }
 
-    /// The type parameter packs a stubbing or verification proxy leaves out. The proxies take a pack as one
-    /// `Cuckoo.ParameterPack`, so a pack that only the parameters use appears nowhere in a proxy's signature, and
-    /// Swift couldn't infer it. A stubbing proxy keeps a pack the return type uses, inferred from the stubbed value;
-    /// a verification proxy returns nothing that needs it.
-    func packsOmittedFromProxy(forVerification: Bool) -> [String] {
-        signature.genericParameters.filter(\.isPack).map(\.name).filter { name in
-            forVerification || !returnTypeMentions(name)
+    /// The generic parameters a stubbing or verification proxy leaves out. The proxies take a pack as one
+    /// `Cuckoo.ParameterPack` and a `~Copyable` argument as a `Cuckoo.NoncopyableArgument`, so a generic parameter that
+    /// only such parameters use appears nowhere in a proxy's signature, and Swift couldn't infer it. A stubbing proxy
+    /// keeps one the return type uses, inferred from the stubbed value; a verification proxy returns nothing that needs it.
+    func genericsOmittedFromProxy(forVerification: Bool) -> [String] {
+        let recordedAsPlaceholder = signature.parameters.filter { $0.isPack || $0.isNoncopyable }
+        let otherParameters = signature.parameters.filter { !$0.isPack && !$0.isNoncopyable }
+        return signature.genericParameters.map(\.name).filter { name in
+            let isPlaceholderType = signature.genericParameters.contains { $0.name == name && $0.isPack }
+                || recordedAsPlaceholder.contains { $0.type.description.mentions(name) }
+            return isPlaceholderType
+                && !otherParameters.contains { $0.type.description.mentions(name) }
+                && (forVerification || !returnTypeMentions(name))
         }
     }
 
@@ -94,9 +106,9 @@ extension Method {
     }
 
     /// The method's generic parameters and `where` constraints as a proxy declares them; see
-    /// `packsOmittedFromProxy(forVerification:)`.
+    /// `genericsOmittedFromProxy(forVerification:)`.
     func proxyGenerics(forVerification: Bool) -> (parameters: [GenericParameter], whereConstraints: [String]) {
-        let omitted = packsOmittedFromProxy(forVerification: forVerification)
+        let omitted = genericsOmittedFromProxy(forVerification: forVerification)
         guard !omitted.isEmpty else { return (signature.genericParameters, signature.whereConstraints) }
         return (
             signature.genericParameters.filter { !omitted.contains($0.name) },
@@ -171,7 +183,7 @@ extension Method {
             func resolved(_ type: ComplexType) -> ComplexType {
                 selfType.flatMap { selfType in type.replaceTypes(named: ["Self"], with: { _ in selfType }) } ?? type
             }
-            let parameterTypes = signature.parameters.map { resolved($0.type.withoutAttributes(except: ["@MainActor", "@Sendable"])) }
+            let parameterTypes = signature.parameters.map { resolved($0.matchedType) }
             let input = parameterTypes.map(\.genericArgumentSafe.description).joined(separator: ", ")
             let output = returnType.map { resolved($0.withoutAttributes(except: ["@MainActor", "@Sendable"])).genericArgumentSafe.description } ?? "Void"
             let implementationInput = if let isolatedParameter = stubIsolation.isolatedParameter {
@@ -268,14 +280,15 @@ extension Method {
             "stubInputTypes": proxyTypes.input,
             "stubReturnType": proxyTypes.output,
             "stubImplementationType": proxyTypes.implementation,
-            // The verification proxy's return type names no pack it leaves out; its result is never used.
-            "verificationReturnType": packsOmittedFromProxy(forVerification: true).contains(where: returnTypeMentions)
+            // The verification proxy's return type names no generic parameter it leaves out; its result is never used.
+            "verificationReturnType": genericsOmittedFromProxy(forVerification: true).contains(where: returnTypeMentions)
                 ? "Any"
                 : proxyTypes.output,
             "isOptional": isOptional,
             "hasClosureParams": hasClosureParams,
             "hasOptionalParams": hasOptionalParams,
             "hasGenericParams": hasGenericParams,
+            "hasNoncopyableParams": hasNoncopyableParams,
             "genericParameters": signature.genericParameters.sourceDescription,
             "hasNonPrimaryAssociatedTypeParams": hasNonPrimaryAssociatedTypeParams,
             "hasCompilationCondition": hasCompilationCondition,

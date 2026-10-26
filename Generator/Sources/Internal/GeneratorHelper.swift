@@ -29,7 +29,7 @@ struct GeneratorHelper {
         guard !method.signature.parameters.isEmpty || !genericParameters.isEmpty else { return "" }
 
         let matchableGenericParameters = method.signature.parameters.enumerated().map { index, parameter -> String in
-            let type = parameter.type.isOptional ? "OptionalMatchable" : "Matchable"
+            let type = parameter.matchedType.isOptional ? "OptionalMatchable" : "Matchable"
             return "M\(index + 1): Cuckoo.\(type)"
         }
         let methodGenericParameters = genericParameters.map { $0.description }
@@ -40,8 +40,8 @@ struct GeneratorHelper {
         guard method.signature.parameters.isEmpty == false else { return "" }
 
         let matchableWhereConstraints = method.signature.parameters.enumerated().map { index, parameter -> String in
-            let type = parameter.type.isOptional ? "OptionalMatchedType" : "MatchedType"
-            return "M\(index + 1).\(type) == \(genericSafeType(from: parameter.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.unoptionaled.description))"
+            let type = parameter.matchedType.isOptional ? "OptionalMatchedType" : "MatchedType"
+            return "M\(index + 1).\(type) == \(genericSafeType(from: parameter.matchedType.genericArgumentSafe.unoptionaled.description))"
         }
         let methodWhereConstraints = method.proxyGenerics(forVerification: forVerification).whereConstraints
         return " where \((matchableWhereConstraints + methodWhereConstraints).joined(separator: ", "))"
@@ -58,7 +58,7 @@ struct GeneratorHelper {
     private static func parameterMatchers(for parameters: [MethodParameter]) -> String {
         guard parameters.isEmpty == false else { return "let matchers: [Cuckoo.ParameterMatcher<Void>] = []" }
 
-        let tupleType = parameters.map { $0.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", ")
+        let tupleType = parameters.map { $0.matchedType.genericArgumentSafe.description }.joined(separator: ", ")
         let matchers = parameters
             // Enumeration is done after filtering out parameters without usable names.
             .enumerated()

@@ -5,7 +5,9 @@ struct MethodParameter: Token {
     // FIXME: Is this needed?
     var innerName: String?
     var type: ComplexType
-    
+    /// A `~Copyable` argument, which the mock records as a `Cuckoo.NoncopyableArgument`.
+    var isNoncopyable = false
+
     var isInout: Bool {
         type.containsAttribute(named: "inout")
     }
@@ -58,14 +60,22 @@ struct MethodParameter: Token {
     /// upcast to `any P`, the type its stubbing and verification matchers use;
     /// otherwise a stub's or recorded call's type wouldn't match the concrete argument type.
     /// A parameter pack is recorded as one `Cuckoo.ParameterPack`.
+    /// A `~Copyable` argument is recorded as a `Cuckoo.NoncopyableArgument` naming its type.
     var recordedValue: String {
         let name = escapeReservedKeywords(for: usableName)
         if isPack {
             return "Cuckoo.ParameterPack(repeat each \(name))"
         }
-        let matchedType = type.withoutAttributes(except: ["@MainActor", "@Sendable"])
+        if isNoncopyable {
+            return "Cuckoo.NoncopyableArgument(type: \"\(type.withoutAttributes().genericArgumentSafe.description.trimmed)\")"
+        }
         let genericSafeType = matchedType.genericArgumentSafe
         return genericSafeType == matchedType ? name : "\(name) as \(genericSafeType)"
+    }
+
+    /// The type stubs and matchers take for the parameter: the recorded value's type.
+    var matchedType: ComplexType {
+        isNoncopyable ? .type("Cuckoo.NoncopyableArgument") : type.withoutAttributes(except: ["@MainActor", "@Sendable"])
     }
 
     func callAndCastTypes(named typeNames: [String], as replacement: (String) -> String) -> String {
