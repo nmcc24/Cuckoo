@@ -29,9 +29,17 @@ public final class MockManager: Sendable {
     // default implementations) always runs outside it, so it may call back into the mock.
     private let state = Locked(State())
     private let hasParent: Bool
+    /// A mock type's manager for its static members, which have no default implementation to forward to.
+    private let isStatic: Bool
 
     public init(hasParent: Bool) {
         self.hasParent = hasParent
+        self.isStatic = false
+    }
+
+    init(hasParent: Bool, isStatic: Bool) {
+        self.hasParent = hasParent
+        self.isStatic = isStatic
     }
 
     /// Records the call and decides how to answer it. Crashes if the call can't be answered.
@@ -199,7 +207,11 @@ public final class MockManager: Sendable {
         }
     }
 
-    public func enableDefaultStubImplementation() {
+    public func enableDefaultStubImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
+        guard !isStatic else {
+            fail("Static members have no default implementation. Stub them instead.", file: file, fileID: fileID, filePath: filePath, line: line, column: column)
+            return
+        }
         let error: String? = state.withLock { state in
             guard state.calls.isEmpty else {
                 return "Enabling default stub implementation is not allowed after stubbing! Please do that right after creating the mock."
@@ -282,9 +294,9 @@ extension MockManager {
     }
 
     /// Stands in for forwarding a static member to a default implementation, which only instance members have.
-    /// A mock's static manager never enables the default implementation, so this is never called.
+    /// A static manager refuses to enable the default implementation, so this is never called.
     public static func crashOnStaticDefaultImplementationCall<OUT>(_ member: String) -> OUT {
-        fatalError("Static member \(member) has no default implementation to call. Stub it instead.")
+        fatalError("Cuckoo internal error: static member \(member) reached a default implementation, which static members don't have. Please report an issue to the Cuckoo repository.")
     }
 
     /// Stands in for forwarding a synchronous member of an actor mock to its default implementation,

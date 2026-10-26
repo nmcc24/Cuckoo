@@ -151,5 +151,19 @@ struct StaticMemberTests {
 
         #expect(failures.withLock { $0 }.contains { $0.contains("outside a static stubs scope") })
     }
+
+    @Test
+    func staticMembersRefuseADefaultImplementation() {
+        let failures = Locked<[String]>([])
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { message, _ in failures.withLock { $0.append(message) } })) {
+            MockStaticFactory.cuckoo_staticManager.enableDefaultStubImplementation()
+        }
+        stub(MockStaticFactory.self) { stub in
+            when(stub.count.get).thenReturn(3)
+        }
+
+        #expect(failures.withLock { $0 } == ["Static members have no default implementation. Stub them instead."])
+        #expect(MockStaticFactory.count == 3)
+    }
 }
 
