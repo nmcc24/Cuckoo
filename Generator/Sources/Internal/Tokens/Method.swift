@@ -77,6 +77,32 @@ extension Method {
     var hasGenericParams: Bool {
         !signature.genericParameters.isEmpty
     }
+
+    /// The type parameter packs a stubbing or verification proxy leaves out. The proxies take a pack as one
+    /// `Cuckoo.ParameterPack`, so a pack that only the parameters use appears nowhere in a proxy's signature, and
+    /// Swift couldn't infer it. A stubbing proxy keeps a pack the return type uses, inferred from the stubbed value;
+    /// a verification proxy returns nothing that needs it.
+    func packsOmittedFromProxy(forVerification: Bool) -> [String] {
+        signature.genericParameters.filter(\.isPack).map(\.name).filter { name in
+            forVerification || !returnTypeMentions(name)
+        }
+    }
+
+    /// Whether the return type names `typeName` anywhere, such as in a tuple's `repeat each T`.
+    private func returnTypeMentions(_ typeName: String) -> Bool {
+        returnType.map { $0.description.mentions(typeName) } ?? false
+    }
+
+    /// The method's generic parameters and `where` constraints as a proxy declares them; see
+    /// `packsOmittedFromProxy(forVerification:)`.
+    func proxyGenerics(forVerification: Bool) -> (parameters: [GenericParameter], whereConstraints: [String]) {
+        let omitted = packsOmittedFromProxy(forVerification: forVerification)
+        guard !omitted.isEmpty else { return (signature.genericParameters, signature.whereConstraints) }
+        return (
+            signature.genericParameters.filter { !omitted.contains($0.name) },
+            signature.whereConstraints.filter { constraint in !omitted.contains { constraint.mentions($0) } }
+        )
+    }
     
     var hasNonPrimaryAssociatedTypeParams: Bool {
         guard let parent = parent?.asProtocol else { return false }
@@ -233,6 +259,10 @@ extension Method {
             "stubInputTypes": proxyTypes.input,
             "stubReturnType": proxyTypes.output,
             "stubImplementationType": proxyTypes.implementation,
+            // The verification proxy's return type names no pack it leaves out; its result is never used.
+            "verificationReturnType": packsOmittedFromProxy(forVerification: true).contains(where: returnTypeMentions)
+                ? "Any"
+                : proxyTypes.output,
             "isOptional": isOptional,
             "hasClosureParams": hasClosureParams,
             "hasOptionalParams": hasOptionalParams,
@@ -242,5 +272,12 @@ extension Method {
             "hasCompilationCondition": hasCompilationCondition,
             "compilationConditionCheck": compilationConditionCheck,
         ]
+    }
+}
+
+private extension String {
+    /// Whether the source text names `identifier` as a whole word.
+    func mentions(_ identifier: String) -> Bool {
+        range(of: "\\b\(NSRegularExpression.escapedPattern(for: identifier))\\b", options: .regularExpression) != nil
     }
 }

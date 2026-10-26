@@ -177,7 +177,8 @@ extension ComplexType {
     static let parameterOnlySpecifiers: Set<String> = ["sending", "borrowing", "consuming", "inout", "isolated", "__owned", "__shared"]
 
     /// The type as it can appear in a generic argument, tuple or `.self` expression.
-    /// Parameter-only specifiers such as `sending` are dropped, and opaque `some P` becomes `any P`.
+    /// Parameter-only specifiers such as `sending` are dropped, opaque `some P` becomes `any P`, and a parameter
+    /// pack's `repeat each T` becomes `Cuckoo.ParameterPack`, the one value the pack is recorded as.
     var genericArgumentSafe: ComplexType {
         switch self {
         case .attributed(let attributes, let baseType):
@@ -196,6 +197,9 @@ extension ComplexType {
         case .type(let name):
             if name.hasPrefix("some ") {
                 return .type("any " + name.dropFirst("some ".count))
+            }
+            if name.hasPrefix("repeat ") {
+                return .type("Cuckoo.ParameterPack")
             }
             return self
         }

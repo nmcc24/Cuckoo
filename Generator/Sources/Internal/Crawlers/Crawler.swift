@@ -524,6 +524,11 @@ extension Crawler {
         // An unavailable member can't be overridden or called.
         guard !attributes.contains(where: \.isUnavailableEverywhere) else { return nil }
 
+        // Swift can't override a method with a parameter pack (it reports that the override overrides nothing), so a
+        // class mock leaves such a method to the real implementation.
+        let hasPack = method.genericParameterClause?.parameters.contains { $0.specifier?.tokenKind == .keyword(.each) } == true
+        guard !(hasPack && container?.isClass == true) else { return nil }
+
         let parameters = self.parameters(from: method.signature.parameterClause.parameters)
         let returnType = method.signature.returnClause.flatMap { ComplexType(syntax: $0.type) }
 
@@ -666,7 +671,8 @@ extension Crawler {
         genericParameterList?.map { genericParameter in
             GenericParameter(
                 name: genericParameter.name.filteredDescription,
-                inheritedTypes: inheritedTypes(from: genericParameter.inheritedType?.trimmed)
+                inheritedTypes: inheritedTypes(from: genericParameter.inheritedType?.trimmed),
+                isPack: genericParameter.specifier?.tokenKind == .keyword(.each)
             )
         } ?? []
     }
