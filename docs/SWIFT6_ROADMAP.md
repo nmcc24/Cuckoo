@@ -149,7 +149,7 @@ Breaking changes accepted in 3.0:
 | `nonisolated(nonsending)` / `@concurrent` / `sending` / `isolated` | preserved on the mock signature; stripped from matcher, tuple and generic positions |
 | `@MainActor class C` | `@MainActor class MockC: C, Cuckoo.ClassMock` |
 | `some P` parameter | mock keeps `some P`; proxies take `M: Matchable` with `MatchedType == any P` |
-| `each T` parameter packs | recorded as a type-erased `[Any]` with pack-aware matchers (`any()`, custom predicate) |
+| `each T` parameter packs | recorded as one `Cuckoo.ParameterPack` (its values as `[Any]`), matched with `anyPack()`, `equal(toPack:)` or a closure; a class's pack methods aren't mocked, because Swift can't override them |
 | `~Copyable` / `consuming` / `borrowing` | call recorded with a placeholder; parameter matchable only with `any()` or a `borrowing` predicate closure |
 | `subscript` | `subscript` mocks with `stub.subscript(key).get/.set` and verify equivalents |
 | `static` / `class` members | supported through a per-type static manager that is task-local and reset per test (#521) |
@@ -361,13 +361,17 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
 
 1. ☁️ Subscripts (12) and static/class members (13, Brightify/Cuckoo#521).
    - **Subscripts: done** (https://github.com/nmcc24/Cuckoo/pull/16). A subscript's accessors are recorded as `subscript(…) -> T#get` and `#set`, like a property's. The proxies get a generic subscript that returns a small generated struct with `get` and `set(_:)`, built on the method stub types, so every isolation, effect and class/protocol variant comes for free. Static subscripts came with the static members.
-   - **Static and class members: done on the branch.**
+   - **Static and class members: done** (https://github.com/nmcc24/Cuckoo/pull/17).
      - A protocol's `static` requirements and a class's `class` members are mocked. A class's `static` members are final and stay unmocked.
      - Their stubs and calls live in a task-local `StaticStubs` registry, one manager per mock type. The `.cuckoo()` trait starts a fresh registry for each test and each parameterized case, and `withStaticStubs { }` starts one for any other scope, such as an XCTest method. Outside a scope, a static member records a failure that names the fix.
      - Tests use `stub(MockX.self)`, `verify(MockX.self)`, `reset(MockX.self)` and `verifyNoMoreInteractions(MockX.self)`.
      - In the proxies' stub types, `Self` is the mock, so `static func make() -> Self` can be stubbed.
 2. ☁️ Opaque parameters (11, Brightify/Cuckoo#470), parameter packs (14) and `~Copyable` parameters (15).
    - Opaque parameters already work: the generator records `some P` as `any P`. The subscripts PR adds a runtime test.
+   - **Parameter packs: done on the branch.**
+     - A pack argument is recorded as one `Cuckoo.ParameterPack`, whose `values` are the pack's values as `[Any]`. Tests match it with `anyPack()`, `equal(toPack: 1, "a")` for `Equatable` values, or a `ParameterMatcher` closure, and a `then` closure receives the `ParameterPack`.
+     - The proxies leave out a pack that Swift couldn't infer from their signature. A stubbing proxy keeps a pack that the return type uses, so `when(stub.combine(anyPack())).thenReturn((1, "a"))` infers it from the stubbed value.
+     - A class's methods with a pack aren't mocked and keep the real implementation, because Swift can't override them (Swift 6.2–6.4 report that the override overrides nothing). Protocols are unaffected.
 3. ☁️ `inout` stubbing (Brightify/Cuckoo#337), `Self` (Brightify/Cuckoo#304), generic init (Brightify/Cuckoo#362), class-constrained protocols (Brightify/Cuckoo#447, Brightify/Cuckoo#376), parent associated types (Brightify/Cuckoo#576).
    - 3b. ☁️ `~Copyable` arguments borrowed into `then` closures (L): needs `~Copyable` suppression through `MockManager`'s generics.
 4. ☁️ `inOrder`, `within:` / `eventually`, `thenNeverReturn`, delayed returns, and closest-match failure diffs.
