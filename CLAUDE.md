@@ -58,6 +58,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
   - Delete `Tests/Swift/Generated/*.swift` before a fresh `make`, so stale mocks aren't compiled.
 - **The maintainer's Mac can run the Tuist tests.** When a Remote Control session to it is available, run the macOS and iOS schemes there before pushing changes that touch the runtime, the tests or Tuist. CI stays the final gate.
   - The Linux checks run there too, in Docker (`swift:6.2`, `6.3`, `6.4`): `swift test` and the fixture matrix, with the features off, all on, and Xcode 26 defaults. Use the cloud VM's Docker only when the Mac is offline.
+  - On the Mac's arm64 Docker, multi-core XCTest runs hang at random (a swift-corelibs run-loop race; a plain package without Cuckoo hangs too). Build with all cores, then run the tests on one: `swift build --build-tests …`, then `taskset -c 0 swift test --skip-build …`. Run containers detached (`docker run -d`) under `caffeinate`.
 
 ## Cloud environment notes
 - The GitHub proxy blocks some writes, such as deleting branches (`git push --delete` and the REST `DELETE` both fail). Ask the maintainer to do those in the GitHub UI.
