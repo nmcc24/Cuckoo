@@ -23,7 +23,8 @@ extension Method {
                     parent: parameter.parent,
                     name: parameter.name,
                     innerName: "p\(index)",
-                    type: parameter.type
+                    type: parameter.type,
+                    isNoncopyable: parameter.isNoncopyable
                 )
             }
             self.asyncType = asyncType

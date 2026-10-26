@@ -4,13 +4,15 @@ import SwiftParser
 
 final class Crawler: SyntaxVisitor {
     /// - Parameter globalActors: The global actors declared in the module, besides `MainActor`. An attribute
-    ///   with one of these names isolates the declaration; see ``globalActorNames(in:)``.
-    static func crawl(url: URL, globalActors: Set<String> = []) throws -> Crawler {
+    ///   with one of these names isolates the declaration; see ``declaredNames(in:)``.
+    /// - Parameter noncopyableTypes: The `~Copyable` types declared in the module, whose arguments mocks record as
+    ///   placeholders.
+    static func crawl(url: URL, globalActors: Set<String> = [], noncopyableTypes: Set<String> = []) throws -> Crawler {
         let file = try String(contentsOf: url, encoding: .utf8)
-        return crawl(source: file, url: url, globalActors: globalActors)
+        return crawl(source: file, url: url, globalActors: globalActors, noncopyableTypes: noncopyableTypes)
     }
 
-    static func crawl(source: String, url: URL, globalActors: Set<String> = []) -> Crawler {
+    static func crawl(source: String, url: URL, globalActors: Set<String> = [], noncopyableTypes: Set<String> = []) -> Crawler {
         let syntaxTree = Parser.parse(source: source)
         #if DEBUG
         // Comment out the line above and uncomment the one below to test specific strings.
@@ -20,7 +22,8 @@ final class Crawler: SyntaxVisitor {
         let context = Context(
             url: url,
             locationConverter: SourceLocationConverter(fileName: url.path, tree: syntaxTree),
-            globalActors: globalActors.union(["MainActor"])
+            globalActors: globalActors.union(["MainActor"]),
+            noncopyableTypes: noncopyableTypes
         )
         let crawler = Self(container: nil, context: context)
         crawler.walk(syntaxTree)
@@ -32,12 +35,14 @@ final class Crawler: SyntaxVisitor {
         let url: URL
         let locationConverter: SourceLocationConverter
         let globalActors: Set<String>
+        let noncopyableTypes: Set<String>
         var diagnostics: [Diagnostic] = []
 
-        init(url: URL, locationConverter: SourceLocationConverter, globalActors: Set<String>) {
+        init(url: URL, locationConverter: SourceLocationConverter, globalActors: Set<String>, noncopyableTypes: Set<String>) {
             self.url = url
             self.locationConverter = locationConverter
             self.globalActors = globalActors
+            self.noncopyableTypes = noncopyableTypes
         }
     }
 
@@ -529,7 +534,13 @@ extension Crawler {
         let hasPack = method.genericParameterClause?.parameters.contains { $0.isPack } == true
         guard !(hasPack && container?.isClass == true) else { return nil }
 
-        let parameters = self.parameters(from: method.signature.parameterClause.parameters)
+        let parameters = self.parameters(
+            from: method.signature.parameterClause.parameters,
+            noncopyableGenerics: noncopyableGenericNames(
+                in: method.genericParameterClause?.parameters,
+                where: method.genericWhereClause?.requirements
+            )
+        )
         let returnType = method.signature.returnClause.flatMap { ComplexType(syntax: $0.type) }
 
         return Method(
@@ -556,14 +567,55 @@ extension Crawler {
 }
 
 extension Crawler {
-    private func parameters(from parameterList: FunctionParameterListSyntax) -> [MethodParameter] {
+    /// - Parameter noncopyableGenerics: The member's generic parameters that may be `~Copyable`.
+    private func parameters(from parameterList: FunctionParameterListSyntax, noncopyableGenerics: Set<String> = []) -> [MethodParameter] {
         parameterList.map { parameter in
             MethodParameter(
                 name: parameter.firstName.filteredDescription,
                 innerName: nil,
-                type: ComplexType(syntax: parameter.type)
+                type: ComplexType(syntax: parameter.type),
+                isNoncopyable: isNoncopyable(parameter.type, generics: noncopyableGenerics)
             )
         }
+    }
+
+    /// Whether a parameter's type is one of the module's `~Copyable` types or a generic parameter that may be
+    /// `~Copyable`, alone or optional. Other types that only mention one, such as a closure taking it, are copyable.
+    private func isNoncopyable(_ type: TypeSyntax, generics: Set<String>) -> Bool {
+        if let attributed = type.as(AttributedTypeSyntax.self) {
+            return isNoncopyable(attributed.baseType, generics: generics)
+        } else if let optional = type.as(OptionalTypeSyntax.self) {
+            return isNoncopyable(optional.wrappedType, generics: generics)
+        } else if let optional = type.as(ImplicitlyUnwrappedOptionalTypeSyntax.self) {
+            return isNoncopyable(optional.wrappedType, generics: generics)
+        } else if let identifier = type.as(IdentifierTypeSyntax.self) {
+            return generics.contains(identifier.name.text) || context.noncopyableTypes.contains(identifier.name.text)
+        } else if let member = type.as(MemberTypeSyntax.self) {
+            return context.noncopyableTypes.contains(member.name.text)
+        } else {
+            return false
+        }
+    }
+
+    /// The generic parameters that suppress `Copyable`, in their declaration (`T: ~Copyable`) or a `where` clause.
+    private func noncopyableGenericNames(in parameters: GenericParameterListSyntax?, where requirements: GenericRequirementListSyntax?) -> Set<String> {
+        let declared = (parameters ?? []).filter { parameter in
+            parameter.inheritedType.map(Self.suppressesCopyable) ?? false
+        }.map(\.name.text)
+        let required = (requirements ?? []).compactMap { requirement -> String? in
+            guard case .conformanceRequirement(let conformance) = requirement.requirement,
+                  Self.suppressesCopyable(conformance.rightType) else { return nil }
+            return conformance.leftType.trimmedDescription
+        }
+        return Set(declared + required)
+    }
+
+    /// Whether a constraint is or includes `~Copyable`.
+    fileprivate static func suppressesCopyable(_ constraint: TypeSyntax) -> Bool {
+        if let composition = constraint.as(CompositionTypeSyntax.self) {
+            return composition.elements.contains { suppressesCopyable($0.type) }
+        }
+        return constraint.as(SuppressedTypeSyntax.self)?.type.trimmedDescription == "Copyable"
     }
 
     /// Whether a member is static (`static`, or `class`), or `nil` when the mock can't override it: a `final` member, or
@@ -807,44 +859,59 @@ protocol Brek<Crack: Codable> {
 #endif
 
 extension Crawler {
-    /// The global actors a file declares (`@globalActor actor X`, or a class, struct or enum), so attributes
-    /// naming them can be told apart from macros and property wrappers.
-    static func globalActorNames(in source: String) -> Set<String> {
+    /// The names a file declares that change how other files are mocked.
+    struct DeclaredNames {
+        /// The global actors (`@globalActor actor X`, or a class, struct or enum), so attributes naming them can be
+        /// told apart from macros and property wrappers.
+        var globalActors: Set<String> = []
+        /// The `~Copyable` structs and enums, whose arguments mocks record as placeholders.
+        var noncopyableTypes: Set<String> = []
+
+        mutating func formUnion(_ other: DeclaredNames) {
+            globalActors.formUnion(other.globalActors)
+            noncopyableTypes.formUnion(other.noncopyableTypes)
+        }
+    }
+
+    static func declaredNames(in source: String) -> DeclaredNames {
         let tree = Parser.parse(source: source)
-        let collector = GlobalActorCollector(viewMode: .sourceAccurate)
+        let collector = DeclaredNameCollector(viewMode: .sourceAccurate)
         collector.walk(tree)
         return collector.names
     }
 
-    private final class GlobalActorCollector: SyntaxVisitor {
-        var names: Set<String> = []
+    private final class DeclaredNameCollector: SyntaxVisitor {
+        var names = DeclaredNames()
 
-        private func collect(_ attributes: AttributeListSyntax, name: TokenSyntax) {
+        private func collect(_ attributes: AttributeListSyntax, inheritance: InheritanceClauseSyntax?, name: TokenSyntax) {
             let isGlobalActor = attributes.contains { element in
                 element.as(AttributeSyntax.self)?.attributeName.trimmedDescription == "globalActor"
             }
             if isGlobalActor {
-                names.insert(name.text)
+                names.globalActors.insert(name.text)
+            }
+            if inheritance?.inheritedTypes.contains(where: { Crawler.suppressesCopyable($0.type) }) == true {
+                names.noncopyableTypes.insert(name.text)
             }
         }
 
         override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
-            collect(node.attributes, name: node.name)
+            collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             return .visitChildren
         }
 
         override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
-            collect(node.attributes, name: node.name)
+            collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             return .visitChildren
         }
 
         override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
-            collect(node.attributes, name: node.name)
+            collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             return .visitChildren
         }
 
         override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-            collect(node.attributes, name: node.name)
+            collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             return .visitChildren
         }
     }

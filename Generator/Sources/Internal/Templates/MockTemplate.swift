@@ -17,8 +17,8 @@ let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
     errorType: ({{ method.throwTypeError }}).self,
     {% endif %}
     invoke: { (implementation: {{ method.implementationType|genericSafe }}, arguments) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.hasTypedThrows %}do { return try {%+ if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) } catch { throw Cuckoo.MockManager.typedError(error, as: ({{ method.throwTypeError }}).self, member: "{{ method.fullyQualifiedName }}") }{% else %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}){% endif %} },
-    superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}{{ method.superclassCall }}{% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
-    defaultCall: {%+ if container.isActor and not method.isStatic %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync and not method.isStatic %}await {%+ endif %}{{ method.defaultCall }}{% endif +%}
+    superclassCall: {%+ if not container.isImplementation %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% elif method.hasNoncopyableParams %}Cuckoo.MockManager.crashOnNoncopyableArgumentForward("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync %}await {%+ endif %}{{ method.superclassCall }}{% endif %},
+    defaultCall: {%+ if container.isActor and not method.isStatic %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% elif method.hasNoncopyableParams and not method.isStatic %}Cuckoo.MockManager.crashOnNoncopyableArgumentForward("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync and not method.isStatic %}await {%+ endif %}{{ method.defaultCall }}{% endif +%}
 ){% if method.returnsSending %}).value{% endif %}{{ method.self|closeNestedClosure }}
 """
 
