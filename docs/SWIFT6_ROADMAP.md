@@ -119,7 +119,7 @@ Breaking changes accepted in 3.0:
    - nonisolated, non-`Sendable` mocks (`Confined`): plain closures and any value, as in 2.x;
    - `Sendable` nonisolated mocks (`Shared`): `@Sendable` closures, `Sendable` values;
    - `@MainActor` and global-actor mocks (`Isolated`): `@MainActor @Sendable` (or that actor) closures, which can use the actor's state directly; `thenReturn` takes a `sending` value;
-   - actor mocks (`Shared`): `@Sendable` closures that receive `isolated MockX` first, then the call's arguments.
+   - actor mocks (`Shared`): `@Sendable` closures that receive `isolated MockX` first, then the call's arguments. The manager hands the arguments to the mock's `invoke` closure rather than letting it capture them (Phase 4 item 2), and actor mocks have no default implementation.
    - Async members get async closures; nonisolated ones are `nonisolated(nonsending)`. The runtime never calls user closures itself: the mock passes an `invoke` closure, formed in its own isolation.
 7. **New verification features:**
    - `inOrder { verify(a).x(); verify(b).y() }` (#34);
@@ -368,11 +368,13 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
      - In the proxies' stub types, `Self` is the mock, so `static func make() -> Self` can be stubbed.
 2. ☁️ Opaque parameters (11, Brightify/Cuckoo#470), parameter packs (14) and `~Copyable` parameters (15).
    - Opaque parameters already work: the generator records `some P` as `any P`. The subscripts PR adds a runtime test.
-   - **Parameter packs: done on the branch.**
+   - **Parameter packs: done** (https://github.com/nmcc24/Cuckoo/pull/18).
      - A pack argument is recorded as one `Cuckoo.ParameterPack`, whose `values` are the pack's values as `[Any]`. Tests match it with `anyPack()`, `equal(toPack: 1, "a")` for `Equatable` values, or a `ParameterMatcher` closure, and a `then` closure receives the `ParameterPack`.
      - The proxies leave out a pack that Swift couldn't infer from their signature. A stubbing proxy keeps a pack that the return type uses, so `when(stub.combine(anyPack())).thenReturn((1, "a"))` infers it from the stubbed value.
      - A class's methods with a pack aren't mocked and keep the real implementation, because Swift can't override them (Swift 6.2–6.4 report that the override overrides nothing). Protocols are unaffected.
-     - Swift 6.2 rejects a non-Sendable argument to a synchronous actor-mock method ("sending ... risks causing data races"), and a `ParameterPack` is never Sendable; 6.3 accepts both. This predates packs. Fixtures 14 and 22 sit in `expected-failures-swift-6.2.txt`. Next: find out whether the actor-mock template can satisfy 6.2 without changing what 6.3 and later generate.
+     - Swift 6.2 rejected a non-Sendable argument to a synchronous actor-mock method ("sending ... risks causing data races"), and a `ParameterPack` is never Sendable; 6.3 accepts both. This predated packs (fixture 22). **Fixed on the branch** (decided 2026-10-26, scope option 2): `MockManager` hands the recorded arguments to `invoke`, so no mock's `then` closure captures them, on every Swift version. The one-argument `invoke` is gone, and the 6.2 expected-failure list with it.
+     - Actor mocks have no default implementation (decided 2026-10-26). Forwarding a non-Sendable argument to another actor is a data race on every Swift version, so the async forward Phase 3 added didn't compile for such members. `enableDefaultImplementation` on an actor mock reports a failure and leaves the setting off, as static members do.
+     - Next, in its own PR after the packs PR (decided 2026-10-26): match a pack with `any()` and an `equal(to:)` pack overload instead of `anyPack()` and `equal(toPack:)`, if Swift 6.2–6.4 resolve the overload without ambiguity.
 3. ☁️ `inout` stubbing (Brightify/Cuckoo#337), `Self` (Brightify/Cuckoo#304), generic init (Brightify/Cuckoo#362), class-constrained protocols (Brightify/Cuckoo#447, Brightify/Cuckoo#376), parent associated types (Brightify/Cuckoo#576).
    - 3b. ☁️ `~Copyable` arguments borrowed into `then` closures (L): needs `~Copyable` suppression through `MockManager`'s generics.
 4. ☁️ `inOrder`, `within:` / `eventually`, `thenNeverReturn`, delayed returns, and closest-match failure diffs.
