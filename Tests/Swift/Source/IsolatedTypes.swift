@@ -48,3 +48,33 @@ protocol SendableService: Sendable {
     func value(for key: String) -> Int
     func load() async -> String
 }
+
+/// Not `Sendable`, so an actor mock must hand it to a `then` closure without capturing it.
+nonisolated final class Ledger {
+    var entries: [String] = []
+}
+
+protocol LedgerStore: Actor {
+    var ledger: Ledger { get set }
+
+    func record(_ entry: String, in ledger: Ledger) -> Int
+    func archive(_ ledger: Ledger) async -> Int
+    subscript(ledger: Ledger) -> String { get }
+}
+
+actor RealLedgerStore: LedgerStore {
+    var ledger = Ledger()
+
+    func record(_ entry: String, in ledger: Ledger) -> Int {
+        ledger.entries.append(entry)
+        return ledger.entries.count
+    }
+
+    func archive(_ ledger: Ledger) async -> Int {
+        ledger.entries.count
+    }
+
+    subscript(ledger: Ledger) -> String {
+        ledger.entries.joined(separator: ", ")
+    }
+}
