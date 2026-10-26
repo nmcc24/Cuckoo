@@ -23,7 +23,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             "get(url p0: String, completion p1: @escaping @Sendable (Result<String, Error>) -> Void)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: @Sendable ((String, @Sendable (Result<String, Error>) -> Void)) -> Void) in implementation((p0, p1)) },
+            invoke: { (implementation: @Sendable ((String, @Sendable (Result<String, Error>) -> Void)) -> Void, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.get(url: p0, completion: p1)
         )
@@ -35,7 +35,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             parameters: (p0),
             escapingParameters: (p0),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: nonisolated(nonsending) @Sendable ((String)) async throws -> String) async throws(any Swift.Error) in try await implementation((p0)) },
+            invoke: { (implementation: nonisolated(nonsending) @Sendable ((String)) async throws -> String, arguments) async throws(any Swift.Error) in try await implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.get(url: p0)
         )
@@ -179,7 +179,7 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
             "value(for p0: Key) -> String?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @Sendable ((Key)) -> String?) in implementation((p0)) },
+            invoke: { (implementation: @Sendable ((Key)) -> String?, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.value(for: p0)
         )

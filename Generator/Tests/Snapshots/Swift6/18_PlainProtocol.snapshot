@@ -30,7 +30,7 @@ nonisolated final class MockGreeter: Greeter, nonisolated Cuckoo.ProtocolMock {
             cuckoo_manager.setter(
                 "count",
                 value: newValue,
-                invoke: { (implementation: (Int) -> Void) in implementation(newValue) },
+                invoke: { (implementation: (Int) -> Void, value) in implementation(value) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.count = newValue
             )
@@ -43,7 +43,7 @@ nonisolated final class MockGreeter: Greeter, nonisolated Cuckoo.ProtocolMock {
             "greet(name p0: String) -> String",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((String)) -> String) in implementation((p0)) },
+            invoke: { (implementation: ((String)) -> String, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.greet(name: p0)
         )

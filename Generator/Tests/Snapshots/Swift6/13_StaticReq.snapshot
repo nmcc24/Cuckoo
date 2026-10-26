@@ -32,7 +32,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             cuckoo_staticManager.setter(
                 "count",
                 value: newValue,
-                invoke: { (implementation: (Int) -> Void) in implementation(newValue) },
+                invoke: { (implementation: (Int) -> Void, value) in implementation(value) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("count")
             )
@@ -45,7 +45,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             "build() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int) in implementation(()) },
+            invoke: { (implementation: (()) -> Int, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.build()
         )
@@ -56,7 +56,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             "static make() -> Self",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Self) in implementation(()) },
+            invoke: { (implementation: (()) -> Self, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static make() -> Self")
         )
@@ -68,7 +68,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             parameters: (p0),
             escapingParameters: (p0),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: nonisolated(nonsending) ((Int)) async throws -> String) async throws(any Swift.Error) in try await implementation((p0)) },
+            invoke: { (implementation: nonisolated(nonsending) ((Int)) async throws -> String, arguments) async throws(any Swift.Error) in try await implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static load(id p0: Int) async throws -> String")
         )
@@ -80,7 +80,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
                 "static subscript(_ p0: String) -> Int#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((String)) -> Int) in implementation((p0)) },
+                invoke: { (implementation: ((String)) -> Int, arguments) in implementation(arguments) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static subscript(_ p0: String) -> Int#get")
             )
@@ -303,7 +303,7 @@ final class MockMainActorRegistry: MainActorRegistry, nonisolated Cuckoo.Protoco
             "static current() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @MainActor @Sendable (()) -> String) in implementation(()) },
+            invoke: { (implementation: @MainActor @Sendable (()) -> String, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static current() -> String")
         )
@@ -418,7 +418,7 @@ nonisolated final class MockSendableClock: SendableClock, nonisolated Cuckoo.Pro
             "static now() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (()) -> Int) in implementation(()) },
+            invoke: { (implementation: @Sendable (()) -> Int, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static now() -> Int")
         )
@@ -506,11 +506,8 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any ActorCatalog>()
-
-    nonisolated func enableDefaultImplementation(_ stub: any ActorCatalog) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+        cuckoo_manager.refuseActorDefaultImplementation()
     }
 
 
@@ -519,7 +516,7 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
             "items() -> [String]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockActorCatalog) -> [String]) in implementation(self) },
+            invoke: { (implementation: @Sendable (isolated MockActorCatalog) -> [String], arguments) in implementation(self) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("items() -> [String]")
         )
@@ -530,7 +527,7 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
             "static identifier() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (()) -> String) in implementation(()) },
+            invoke: { (implementation: @Sendable (()) -> String, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static identifier() -> String")
         )
@@ -657,7 +654,7 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
             "use(_ p0: Product)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Product)) -> Void) in implementation((p0)) },
+            invoke: { (implementation: ((Product)) -> Void, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.use(p0)
         )
@@ -668,7 +665,7 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
             "static make() -> Product",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Product) in implementation(()) },
+            invoke: { (implementation: (()) -> Product, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static make() -> Product")
         )

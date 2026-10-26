@@ -40,7 +40,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             "onLinux() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int) in implementation(()) },
+            invoke: { (implementation: (()) -> Int, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.onLinux()
         )
@@ -53,7 +53,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             "onDarwin() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String) in implementation(()) },
+            invoke: { (implementation: (()) -> String, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.onDarwin()
         )
@@ -66,7 +66,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             "elsewhere()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void) in implementation(()) },
+            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.elsewhere()
         )
@@ -79,7 +79,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             "debugOnLinux()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void) in implementation(()) },
+            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.debugOnLinux()
         )
@@ -91,7 +91,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             "everywhere()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void) in implementation(()) },
+            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.everywhere()
         )
@@ -354,7 +354,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
             "dump() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String) in implementation(()) },
+            invoke: { (implementation: (()) -> String, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.dump()
         )
@@ -366,7 +366,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
             "item(at p0: Int) -> Item",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Int)) -> Item) in implementation((p0)) },
+            invoke: { (implementation: ((Int)) -> Item, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.item(at: p0)
         )
@@ -498,7 +498,7 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
             cuckoo_manager.setter(
                 "verbose",
                 value: newValue,
-                invoke: { (implementation: (Bool) -> Void) in implementation(newValue) },
+                invoke: { (implementation: (Bool) -> Void, value) in implementation(value) },
                 superclassCall: super.verbose = newValue,
                 defaultCall: __defaultImplStub.value.verbose = newValue
             )
@@ -513,7 +513,7 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
             "debugDump() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String) in implementation(()) },
+            invoke: { (implementation: (()) -> String, arguments) in implementation(arguments) },
             superclassCall: super.debugDump(),
             defaultCall: __defaultImplStub.value.debugDump()
         )
@@ -526,7 +526,7 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
             "releaseOnly()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void) in implementation(()) },
+            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
             superclassCall: super.releaseOnly(),
             defaultCall: __defaultImplStub.value.releaseOnly()
         )
@@ -538,7 +538,7 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
             "run()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void) in implementation(()) },
+            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
             superclassCall: super.run(),
             defaultCall: __defaultImplStub.value.run()
         )
@@ -691,7 +691,7 @@ nonisolated final class MockPublishing: Publishing, nonisolated Cuckoo.ProtocolM
             "publisher() -> AnyPublisher<Int, Never>",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> AnyPublisher<Int, Never>) in implementation(()) },
+            invoke: { (implementation: (()) -> AnyPublisher<Int, Never>, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.publisher()
         )
@@ -772,7 +772,7 @@ final class MockDebugTools: DebugTools, nonisolated Cuckoo.ClassMock {
             "check()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void) in implementation(()) },
+            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
             superclassCall: super.check(),
             defaultCall: __defaultImplStub.value.check()
         )
@@ -854,7 +854,7 @@ final class MockLinuxProbe: LinuxProbe, nonisolated Cuckoo.ClassMock {
             "probe()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void) in implementation(()) },
+            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
             superclassCall: super.probe(),
             defaultCall: __defaultImplStub.value.probe()
         )

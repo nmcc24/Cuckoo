@@ -16,9 +16,9 @@ let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
     {% if method.throwsOnly %}
     errorType: ({{ method.throwTypeError }}).self,
     {% endif %}
-    invoke: { (implementation: {{ method.implementationType|genericSafe }}) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.hasTypedThrows %}do { return try {%+ if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) } catch { throw Cuckoo.MockManager.typedError(error, as: ({{ method.throwTypeError }}).self, member: "{{ method.fullyQualifiedName }}") }{% else %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}){% endif %} },
+    invoke: { (implementation: {{ method.implementationType|genericSafe }}, arguments) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.hasTypedThrows %}do { return try {%+ if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) } catch { throw Cuckoo.MockManager.typedError(error, as: ({{ method.throwTypeError }}).self, member: "{{ method.fullyQualifiedName }}") }{% else %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}){% endif %} },
     superclassCall: {%+ if container.isImplementation %}{% if method.isAsync %}await {%+ endif %}{{ method.superclassCall }}{% else %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% endif %},
-    defaultCall: {%+ if container.isActor and not method.isAsync and not method.isStatic %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync and not method.isStatic %}await {%+ endif %}{{ method.defaultCall }}{% endif +%}
+    defaultCall: {%+ if container.isActor and not method.isStatic %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync and not method.isStatic %}await {%+ endif %}{{ method.defaultCall }}{% endif +%}
 ){% if method.returnsSending %}).value{% endif %}{{ method.self|closeNestedClosure }}
 """
 
@@ -62,7 +62,11 @@ extension {{ container.parentFullyQualifiedName }} {
 
     {{ container.accessibility|withSpace }}nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: {{ container.isImplementation }})
 
-    {% if container.isGeneric and not container.isImplementation and not container.hasOnlyPrimaryAssociatedTypes %}
+    {% if container.isActor %}
+    {{ container.accessibility|withSpace }}nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+        cuckoo_manager.refuseActorDefaultImplementation()
+    }
+    {% elif container.isGeneric and not container.isImplementation and not container.hasOnlyPrimaryAssociatedTypes %}
 \(Templates.typeErasure.indented())
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<\(typeErasureClassName)>()
@@ -119,7 +123,7 @@ extension {{ container.parentFullyQualifiedName }} {
                     {%- else -%}
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     {%- endif -%},
-                defaultCall: {%+ if property.isStatic %}Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}"){% elif container.isActor and not property.isAsync %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}{% if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub.value.{{property.name}}{% endif +%}
+                defaultCall: {%+ if property.isStatic %}Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}"){% elif container.isActor %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}{% if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub.value.{{property.name}}{% endif +%}
             )
         }
         {% ifnot property.isReadOnly %}
@@ -127,7 +131,7 @@ extension {{ container.parentFullyQualifiedName }} {
             {{ property.manager }}.setter(
                 "{{ property.name }}",
                 value: newValue,
-                invoke: { (implementation: {{ property.setterImplementationType|genericSafe }}) in implementation({{ property.setterImplementationArguments }}) },
+                invoke: { (implementation: {{ property.setterImplementationType|genericSafe }}, value) in implementation({{ property.setterImplementationArguments }}) },
                 superclassCall: {%+ if container.isImplementation -%}
                     super.{{ property.name }} = newValue
                     {%- else -%}

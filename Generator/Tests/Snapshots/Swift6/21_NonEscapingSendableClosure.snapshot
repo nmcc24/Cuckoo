@@ -24,8 +24,8 @@ nonisolated final class MockTransformer: Transformer, nonisolated Cuckoo.Protoco
 return cuckoo_manager.call(
             "transform(_ p0: @Sendable (String) async -> String?) -> String?",
             parameters: (p0),
-            escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
-            invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?) in implementation((p0)) },
+            escapingParameters: (({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") } as @Sendable (String) async -> String?)),
+            invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.transform(p0)
         )
@@ -39,8 +39,8 @@ return cuckoo_manager.call(
 return await cuckoo_manager.call(
             "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
             parameters: (p0),
-            escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
-            invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?) in await implementation((p0)) },
+            escapingParameters: (({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") } as @Sendable (String) -> String?)),
+            invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?, arguments) in await implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.transformAsync(p0)
         )
@@ -55,8 +55,8 @@ return await cuckoo_manager.call(
 return cuckoo_manager.call(
             "forEach(_ p0: @Sendable (Int, String) -> Void)",
             parameters: (p0),
-            escapingParameters: ({ @Sendable _, _ in fatalError("This is a stub! It's not supposed to be called!") }),
-            invoke: { (implementation: ((@escaping @Sendable (Int, String) -> Void)) -> Void) in implementation((p0)) },
+            escapingParameters: (({ @Sendable _, _ in fatalError("This is a stub! It's not supposed to be called!") } as @Sendable (Int, String) -> Void)),
+            invoke: { (implementation: ((@escaping @Sendable (Int, String) -> Void)) -> Void, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.forEach(p0)
         )
@@ -186,8 +186,8 @@ final class MockTransformingService: TransformingService, nonisolated Cuckoo.Cla
 return cuckoo_manager.call(
             "transform(_ p0: @Sendable (String) async -> String?) -> String?",
             parameters: (p0),
-            escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
-            invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?) in implementation((p0)) },
+            escapingParameters: (({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") } as @Sendable (String) async -> String?)),
+            invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?, arguments) in implementation(arguments) },
             superclassCall: super.transform(p0),
             defaultCall: __defaultImplStub.value.transform(p0)
         )
@@ -201,8 +201,8 @@ return cuckoo_manager.call(
 return await cuckoo_manager.call(
             "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
             parameters: (p0),
-            escapingParameters: ({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") }),
-            invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?) in await implementation((p0)) },
+            escapingParameters: (({ @Sendable _ in fatalError("This is a stub! It's not supposed to be called!") } as @Sendable (String) -> String?)),
+            invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?, arguments) in await implementation(arguments) },
             superclassCall: await super.transformAsync(p0),
             defaultCall: await __defaultImplStub.value.transformAsync(p0)
         )

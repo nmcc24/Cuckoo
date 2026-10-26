@@ -106,18 +106,21 @@ public final class MockManager: Sendable {
 
     // The `call` variants below differ only in effects. `invoke` runs a `then` closure: the generated mock
     // passes it, so the closure runs in the mock's isolation and the manager never calls user code itself.
+    // The manager hands `invoke` the call's arguments, so the closure captures none of them. Capturing a
+    // non-Sendable argument in an actor mock's closure is a "sending ... risks causing data races" error on
+    // Swift 6.2.
 
     private func callInternal<IN, OUT, ERROR, IMPL>(
         _ method: String,
         parameters: IN,
         escapingParameters: IN,
-        invoke: (IMPL) throws(ERROR) -> OUT,
+        invoke: (IMPL, IN) throws(ERROR) -> OUT,
         superclassCall: () throws(ERROR) -> OUT,
         defaultCall: () throws(ERROR) -> OUT
     ) throws(ERROR) -> OUT {
         switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
         case .stubbed(.callImplementation(let implementation)):
-            return try invoke(implementation)
+            return try invoke(implementation, parameters)
         case .stubbed(.returnValue(let value)):
             return value
         case .stubbed(.throwError(let error)):
@@ -138,13 +141,13 @@ public final class MockManager: Sendable {
         _ method: String,
         parameters: IN,
         escapingParameters: IN,
-        invoke: nonisolated(nonsending) (IMPL) async throws(ERROR) -> OUT,
+        invoke: nonisolated(nonsending) (IMPL, IN) async throws(ERROR) -> OUT,
         superclassCall: () async throws(ERROR) -> OUT,
         defaultCall: () async throws(ERROR) -> OUT
     ) async throws(ERROR) -> OUT {
         switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
         case .stubbed(.callImplementation(let implementation)):
-            return try await invoke(implementation)
+            return try await invoke(implementation, parameters)
         case .stubbed(.returnValue(let value)):
             return value
         case .stubbed(.throwError(let error)):
@@ -227,6 +230,12 @@ public final class MockManager: Sendable {
         }
     }
     
+    /// An actor mock's `enableDefaultImplementation`. An actor mock never forwards to a default implementation:
+    /// that would be another actor, and handing it a non-Sendable argument is a data race.
+    public func refuseActorDefaultImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
+        fail("Actor mocks have no default implementation. Stub their members instead.", file: file, fileID: fileID, filePath: filePath, line: line, column: column)
+    }
+
     func reset() {
         state.withLock { state in
             state.stubs.removeAll()
@@ -299,10 +308,10 @@ extension MockManager {
         fatalError("Cuckoo internal error: static member \(member) reached a default implementation, which static members don't have. Please report an issue to the Cuckoo repository.")
     }
 
-    /// Stands in for forwarding a synchronous member of an actor mock to its default implementation,
-    /// another actor, which can only be reached with `await`.
+    /// Stands in for forwarding a member of an actor mock to a default implementation, which actor mocks don't have.
+    /// An actor mock refuses to enable the default implementation, so this is never called.
     public static func crashOnActorDefaultImplementationCall<OUT>(_ member: String) -> OUT {
-        fatalError("An actor mock can't forward the synchronous member \(member) to its default implementation, which is another actor. Stub it instead.")
+        fatalError("Cuckoo internal error: actor mock member \(member) reached a default implementation, which actor mocks don't have. Please report an issue to the Cuckoo repository.")
     }
 
     /// Narrows an error thrown by a `then` closure to a typed-throws member's error type. The closure's type
@@ -323,7 +332,7 @@ extension MockManager {
         superclassCall: @autoclosure () -> T,
         defaultCall: @autoclosure () -> T
     ) -> T {
-        call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: invoke, superclassCall: superclassCall(), defaultCall: defaultCall())
+        call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: { implementation, _ in invoke(implementation) }, superclassCall: superclassCall(), defaultCall: defaultCall())
     }
 
     public nonisolated(nonsending) func getter<T, IMPL>(
@@ -332,13 +341,13 @@ extension MockManager {
         superclassCall: @autoclosure () async -> T,
         defaultCall: @autoclosure () async -> T
     ) async -> T {
-        await call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: invoke, superclassCall: await superclassCall(), defaultCall: await defaultCall())
+        await call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: { implementation, _ in await invoke(implementation) }, superclassCall: await superclassCall(), defaultCall: await defaultCall())
     }
 
     public func setter<T, IMPL>(
         _ property: String,
         value: T,
-        invoke: (IMPL) -> Void,
+        invoke: (IMPL, T) -> Void,
         superclassCall: @autoclosure () -> Void,
         defaultCall: @autoclosure () -> Void
     ) {
@@ -353,7 +362,7 @@ extension MockManager {
         superclassCall: @autoclosure () throws -> T,
         defaultCall: @autoclosure () throws -> T
     ) throws -> T {
-        try callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: invoke, superclassCall: try superclassCall(), defaultCall: try defaultCall())
+        try callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: { implementation, _ in try invoke(implementation) }, superclassCall: try superclassCall(), defaultCall: try defaultCall())
     }
 
     public nonisolated(nonsending) func getterThrows<T, IMPL>(
@@ -362,7 +371,7 @@ extension MockManager {
         superclassCall: @autoclosure () async throws -> T,
         defaultCall: @autoclosure () async throws -> T
     ) async throws -> T {
-        try await callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: invoke, superclassCall: try await superclassCall(), defaultCall: try await defaultCall())
+        try await callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: { implementation, _ in try await invoke(implementation) }, superclassCall: try await superclassCall(), defaultCall: try await defaultCall())
     }
 }
 
@@ -371,7 +380,7 @@ extension MockManager {
         _ method: String,
         parameters: IN,
         escapingParameters: IN,
-        invoke: (IMPL) -> OUT,
+        invoke: (IMPL, IN) -> OUT,
         superclassCall: @autoclosure () -> OUT,
         defaultCall: @autoclosure () -> OUT
     ) -> OUT {
@@ -382,7 +391,7 @@ extension MockManager {
         _ method: String,
         parameters: IN,
         escapingParameters: IN,
-        invoke: nonisolated(nonsending) (IMPL) async -> OUT,
+        invoke: nonisolated(nonsending) (IMPL, IN) async -> OUT,
         superclassCall: @autoclosure () async -> OUT,
         defaultCall: @autoclosure () async -> OUT
     ) async -> OUT {
@@ -396,7 +405,7 @@ extension MockManager {
         parameters: IN,
         escapingParameters: IN,
         errorType: ERROR.Type,
-        invoke: (IMPL) throws(ERROR) -> OUT,
+        invoke: (IMPL, IN) throws(ERROR) -> OUT,
         superclassCall: @autoclosure () throws(ERROR) -> OUT,
         defaultCall: @autoclosure () throws(ERROR) -> OUT
     ) throws(ERROR) -> OUT {
@@ -408,7 +417,7 @@ extension MockManager {
         parameters: IN,
         escapingParameters: IN,
         errorType: ERROR.Type,
-        invoke: nonisolated(nonsending) (IMPL) async throws(ERROR) -> OUT,
+        invoke: nonisolated(nonsending) (IMPL, IN) async throws(ERROR) -> OUT,
         superclassCall: @autoclosure () async throws(ERROR) -> OUT,
         defaultCall: @autoclosure () async throws(ERROR) -> OUT
     ) async throws(ERROR) -> OUT {
@@ -421,7 +430,7 @@ extension MockManager {
         _ method: String,
         parameters: IN,
         escapingParameters: IN,
-        invoke: (IMPL) throws -> OUT,
+        invoke: (IMPL, IN) throws -> OUT,
         superclassCall: @autoclosure () throws -> OUT,
         defaultCall: @autoclosure () throws -> OUT
     ) rethrows -> OUT {
@@ -432,7 +441,7 @@ extension MockManager {
         _ method: String,
         parameters: IN,
         escapingParameters: IN,
-        invoke: nonisolated(nonsending) (IMPL) async throws -> OUT,
+        invoke: nonisolated(nonsending) (IMPL, IN) async throws -> OUT,
         superclassCall: @autoclosure () async throws -> OUT,
         defaultCall: @autoclosure () async throws -> OUT
     ) async rethrows -> OUT {

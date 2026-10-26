@@ -23,7 +23,7 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
             "sort(_ p0: some Collection<Int>) -> [Int]",
             parameters: (p0 as any Collection<Int>),
             escapingParameters: (p0 as any Collection<Int>),
-            invoke: { (implementation: ((any Collection<Int>)) -> [Int]) in implementation((p0 as any Collection<Int>)) },
+            invoke: { (implementation: ((any Collection<Int>)) -> [Int], arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.sort(p0)
         )
