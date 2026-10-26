@@ -24,7 +24,7 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
             "load() async -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int) in await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int, arguments) in await implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.load()
         )
@@ -36,7 +36,7 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
             "compute() async -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int) in await implementation(()) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int, arguments) in await implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.compute()
         )

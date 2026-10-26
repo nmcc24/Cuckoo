@@ -30,7 +30,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             cuckoo_manager.setter(
                 "title",
                 value: newValue,
-                invoke: { (implementation: @MainActor @Sendable (String) -> Void) in implementation(newValue) },
+                invoke: { (implementation: @MainActor @Sendable (String) -> Void, value) in implementation(value) },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.title = newValue
             )
@@ -43,7 +43,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             "load(id p0: Int) -> String",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @MainActor @Sendable ((Int)) -> String) in implementation((p0)) },
+            invoke: { (implementation: @MainActor @Sendable ((Int)) -> String, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.load(id: p0)
         )
@@ -55,7 +55,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             parameters: (),
             escapingParameters: (),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: @MainActor @Sendable (()) async throws -> Void) async throws(any Swift.Error) in try await implementation(()) },
+            invoke: { (implementation: @MainActor @Sendable (()) async throws -> Void, arguments) async throws(any Swift.Error) in try await implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.refresh()
         )

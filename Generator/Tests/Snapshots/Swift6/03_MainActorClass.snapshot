@@ -30,7 +30,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "state",
                 value: newValue,
-                invoke: { (implementation: @MainActor @Sendable (String) -> Void) in implementation(newValue) },
+                invoke: { (implementation: @MainActor @Sendable (String) -> Void, value) in implementation(value) },
                 superclassCall: super.state = newValue,
                 defaultCall: __defaultImplStub.value.state = newValue
             )
@@ -43,7 +43,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             "reload() async",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @MainActor @Sendable (()) async -> Void) in await implementation(()) },
+            invoke: { (implementation: @MainActor @Sendable (()) async -> Void, arguments) in await implementation(arguments) },
             superclassCall: await super.reload(),
             defaultCall: await __defaultImplStub.value.reload()
         )
@@ -54,7 +54,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             "select(index p0: Int) -> Bool",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @MainActor @Sendable ((Int)) -> Bool) in implementation((p0)) },
+            invoke: { (implementation: @MainActor @Sendable ((Int)) -> Bool, arguments) in implementation(arguments) },
             superclassCall: super.select(index: p0),
             defaultCall: __defaultImplStub.value.select(index: p0)
         )

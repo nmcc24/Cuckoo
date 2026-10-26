@@ -69,7 +69,7 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             "getterImplementationType": getterType,
             "setterImplementationType": setterType,
             "getterImplementationArguments": isolatedParameter == nil ? "()" : "self",
-            "setterImplementationArguments": isolatedParameter == nil ? "newValue" : "self, newValue",
+            "setterImplementationArguments": isolatedParameter == nil ? "value" : "self, value",
             "stubGenericArguments": stubGenericArguments,
             "isolationAttribute": isolation?.sourceDescription ?? "",
             "isOverriding": parent.isClass,

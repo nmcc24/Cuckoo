@@ -152,10 +152,17 @@ extension Method {
             return type.isClosure && !type.isOptional ? "@escaping \(description)" : description
         }
         let recordedParameters = signature.parameters.map(\.recordedValue).joined(separator: ", ")
+        // The `then` closure reads the arguments from the manager's `arguments`, the recorded parameters, rather than
+        // capturing them; see `MockManager.callInternal`.
         let implementationArguments = if stubIsolation.isolatedParameter != nil {
-            (["self"] + signature.parameters.map(\.recordedValue)).joined(separator: ", ")
+            // An actor mock's closure takes the mock, then each parameter.
+            switch signature.parameters.count {
+            case 0: "self"
+            case 1: "self, arguments"
+            case let count: (["self"] + (0..<count).map { "arguments.\($0)" }).joined(separator: ", ")
+            }
         } else {
-            "(\(recordedParameters))"
+            "arguments"
         }
 
         /// The stub's input, output and `then` closure types. The mock's body names `Self` as written; the proxies,
@@ -195,7 +202,9 @@ extension Method {
                 // Swift 6 rejects a plain closure literal where a `@Sendable` one is expected.
                 let sendable = parameter.type.containsAttribute(named: "@Sendable") ? "@Sendable " : ""
 
-                return "{ \(sendable)\(parameterSignature) in fatalError(\"This is a stub! It's not supposed to be called!\") }"
+                // Typed, so the closure's `Never` result converts to a closure result too, such as `(Int) -> Int`.
+                let type = parameter.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe
+                return "({ \(sendable)\(parameterSignature) in fatalError(\"This is a stub! It's not supposed to be called!\") } as \(type))"
             } else {
                 return parameter.recordedValue
             }

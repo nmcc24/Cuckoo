@@ -10,11 +10,8 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Store>()
-
-    nonisolated func enableDefaultImplementation(_ stub: any Store) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+        cuckoo_manager.refuseActorDefaultImplementation()
     }
 
     var count: Int {
@@ -34,7 +31,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
             "increment() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockStore) -> Int) in implementation(self) },
+            invoke: { (implementation: @Sendable (isolated MockStore) -> Int, arguments) in implementation(self) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("increment() -> Int")
         )
@@ -45,9 +42,9 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
             "fetch() async -> [String]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockStore) async -> [String]) in await implementation(self) },
+            invoke: { (implementation: @Sendable (isolated MockStore) async -> [String], arguments) in await implementation(self) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub.value.fetch()
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("fetch() async -> [String]")
         )
     }
 

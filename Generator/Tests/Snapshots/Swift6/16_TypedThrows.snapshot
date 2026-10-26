@@ -24,7 +24,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             parameters: (),
             escapingParameters: (),
             errorType: (NetErr).self,
-            invoke: { (implementation: (()) throws -> Int) throws(NetErr) in do { return try implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NetErr).self, member: "call() throws(NetErr) -> Int") } },
+            invoke: { (implementation: (()) throws -> Int, arguments) throws(NetErr) in do { return try implementation(arguments) } catch { throw Cuckoo.MockManager.typedError(error, as: (NetErr).self, member: "call() throws(NetErr) -> Int") } },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.call()
         )
@@ -36,7 +36,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             parameters: (),
             escapingParameters: (),
             errorType: (NetErr).self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(NetErr) in do { return try await implementation(()) } catch { throw Cuckoo.MockManager.typedError(error, as: (NetErr).self, member: "callAsync() async throws(NetErr) -> Int") } },
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int, arguments) async throws(NetErr) in do { return try await implementation(arguments) } catch { throw Cuckoo.MockManager.typedError(error, as: (NetErr).self, member: "callAsync() async throws(NetErr) -> Int") } },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.callAsync()
         )
