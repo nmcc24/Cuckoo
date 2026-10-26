@@ -149,7 +149,7 @@ Breaking changes accepted in 3.0:
 | `nonisolated(nonsending)` / `@concurrent` / `sending` / `isolated` | preserved on the mock signature; stripped from matcher, tuple and generic positions |
 | `@MainActor class C` | `@MainActor class MockC: C, Cuckoo.ClassMock` |
 | `some P` parameter | mock keeps `some P`; proxies take `M: Matchable` with `MatchedType == any P` |
-| `each T` parameter packs | recorded as one `Cuckoo.ParameterPack` (its values as `[Any]`), matched with `anyPack()`, `equal(toPack:)` or a closure; a class's pack methods aren't mocked, because Swift can't override them |
+| `each T` parameter packs | recorded as one `Cuckoo.ParameterPack` (its values as `[Any]`), matched with `any()`, `equal(to:)` or a closure; a class's pack methods aren't mocked, because Swift can't override them |
 | `~Copyable` / `consuming` / `borrowing` | call recorded with a placeholder; parameter matchable only with `any()` or a `borrowing` predicate closure |
 | `subscript` | `subscript` mocks with `stub.subscript(key).get/.set` and verify equivalents |
 | `static` / `class` members | supported through a per-type static manager that is task-local and reset per test (#521) |
@@ -353,7 +353,7 @@ Exit criteria: `swift7_linux` is green, with no expected failures beyond the one
 API decisions for items 1–3 (2026-10-25):
 - subscripts mirror properties: `stub[key].get`, `stub[key].set(value)`, `verify(mock)[key].get()`;
 - static members are stubbed in a task-local registry, so parallel tests don't see each other's stubs;
-- a parameter pack is matched as one value (`anyPack()` or a closure over the whole pack);
+- a parameter pack is matched as one value (`any()` or a closure over the whole pack);
 - a `~Copyable` argument isn't recorded at first, then is borrowed into `then` closures (item 3b);
 - an `inout` parameter's `then` closure can write back to the caller.
 
@@ -369,12 +369,12 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
 2. ☁️ Opaque parameters (11, Brightify/Cuckoo#470), parameter packs (14) and `~Copyable` parameters (15).
    - Opaque parameters already work: the generator records `some P` as `any P`. The subscripts PR adds a runtime test.
    - **Parameter packs: done** (https://github.com/nmcc24/Cuckoo/pull/18).
-     - A pack argument is recorded as one `Cuckoo.ParameterPack`, whose `values` are the pack's values as `[Any]`. Tests match it with `anyPack()`, `equal(toPack: 1, "a")` for `Equatable` values, or a `ParameterMatcher` closure, and a `then` closure receives the `ParameterPack`.
-     - The proxies leave out a pack that Swift couldn't infer from their signature. A stubbing proxy keeps a pack that the return type uses, so `when(stub.combine(anyPack())).thenReturn((1, "a"))` infers it from the stubbed value.
+     - A pack argument is recorded as one `Cuckoo.ParameterPack`, whose `values` are the pack's values as `[Any]`. Tests match it with `any()`, `equal(to: 1, "a")` for `Equatable` values, or a `ParameterMatcher` closure, and a `then` closure receives the `ParameterPack`.
+     - The proxies leave out a pack that Swift couldn't infer from their signature. A stubbing proxy keeps a pack that the return type uses, so `when(stub.combine(any())).thenReturn((1, "a"))` infers it from the stubbed value.
      - A class's methods with a pack aren't mocked and keep the real implementation, because Swift can't override them (Swift 6.2–6.4 report that the override overrides nothing). Protocols are unaffected.
      - Swift 6.2 rejected a non-Sendable argument to a synchronous actor-mock method ("sending ... risks causing data races"), and a `ParameterPack` is never Sendable; 6.3 accepts both. This predated packs (fixture 22). **Fixed on the branch** (decided 2026-10-26, scope option 2): `MockManager` hands the recorded arguments to `invoke`, so no mock's `then` closure captures them, on every Swift version. The one-argument `invoke` is gone, and the 6.2 expected-failure list with it.
      - Actor mocks have no default implementation (decided 2026-10-26). Forwarding a non-Sendable argument to another actor is a data race on every Swift version, so the async forward Phase 3 added didn't compile for such members. `enableDefaultImplementation` on an actor mock reports a failure and leaves the setting off, as static members do.
-     - Next, in its own PR after the packs PR (decided 2026-10-26): match a pack with `any()` and an `equal(to:)` pack overload instead of `anyPack()` and `equal(toPack:)`, if Swift 6.2–6.4 resolve the overload without ambiguity.
+     - A pack is matched with the usual `any()` and with an `equal(to:)` overload that takes a pack (decided 2026-10-26), replacing the first PR's `anyPack()` and `equal(toPack:)`. Swift prefers the non-pack overload whenever both fit, so `equal(to: 5)` for an `Int` parameter is unchanged.
 3. ☁️ `inout` stubbing (Brightify/Cuckoo#337), `Self` (Brightify/Cuckoo#304), generic init (Brightify/Cuckoo#362), class-constrained protocols (Brightify/Cuckoo#447, Brightify/Cuckoo#376), parent associated types (Brightify/Cuckoo#576).
    - 3b. ☁️ `~Copyable` arguments borrowed into `then` closures (L): needs `~Copyable` suppression through `MockManager`'s generics.
 4. ☁️ `inOrder`, `within:` / `eventually`, `thenNeverReturn`, delayed returns, and closest-match failure diffs.
