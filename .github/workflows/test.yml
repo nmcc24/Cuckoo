@@ -210,9 +210,23 @@ jobs:
     if: always()
     needs: [generator_linux, swift7_linux, tsan_linux, generator_macOS, test_macOS, test_iOS]
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
     steps:
       - name: Fail unless every job succeeded
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
         run: |
           echo '${{ toJSON(needs) }}'
           exit 1
+      # A matrix job's result in `needs` reads `success` even when some of its legs were cancelled, such as a macOS
+      # leg that never got a runner, so every leg's own conclusion is checked too.
+      - name: Fail unless every matrix leg succeeded
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          not_passed="$(gh api --paginate "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs?filter=latest" \
+            --jq '.jobs[] | select(.name != "CI passed" and .conclusion != "success") | "\(.name): \(.conclusion // .status)"')"
+          if [ -n "$not_passed" ]; then
+            echo "$not_passed"
+            exit 1
+          fi
