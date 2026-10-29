@@ -19871,10 +19871,273 @@ import Foundation
 @testable public import Cuckoo
 @testable public import CuckooTestSources
 
+nonisolated final class MockShape: Shape, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any Shape
+    typealias Stubbing = __StubbingProxy_Shape
+    typealias Verification = __VerificationProxy_Shape
+    typealias __CuckooSelf = MockShape
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Shape>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any Shape) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    var name: String {
+        get {
+            return cuckoo_manager.getter(
+                "name",
+                invoke: { (implementation: (()) -> String) in implementation(()) },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.name
+            )
+        }
+    }
+
+
+    func scaled(by p0: Int) -> __CuckooSelf {
+        return cuckoo_manager.call(
+            "scaled(by p0: Int) -> Self",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Int)) -> __CuckooSelf, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("scaled(by p0: Int) -> Self")
+        )
+    }
+
+    func overlaps(_ p0: __CuckooSelf) -> Bool {
+        return cuckoo_manager.call(
+            "overlaps(_ p0: Self) -> Bool",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((__CuckooSelf)) -> Bool, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("overlaps(_ p0: Self) -> Bool")
+        )
+    }
+
+    func union(with p0: [__CuckooSelf]) -> __CuckooSelf? {
+        return cuckoo_manager.call(
+            "union(with p0: [Self]) -> Self?",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: (([__CuckooSelf])) -> __CuckooSelf?, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("union(with p0: [Self]) -> Self?")
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Shape: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        var name: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockShape, String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckoo_manager, name: "name")
+        }
+        
+        func scaled<M1: Cuckoo.Matchable>(by p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), __CuckooSelf, ((Int)) -> __CuckooSelf, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockShape.self,
+                method: "scaled(by p0: Int) -> Self",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func overlaps<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(__CuckooSelf), Bool, ((__CuckooSelf)) -> Bool, Cuckoo.StubSharing.Confined> where M1.MatchedType == __CuckooSelf {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockShape.self,
+                method: "overlaps(_ p0: Self) -> Bool",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func union<M1: Cuckoo.Matchable>(with p0: M1) -> Cuckoo.ProtocolStubFunction<([__CuckooSelf]), __CuckooSelf?, (([__CuckooSelf])) -> __CuckooSelf?, Cuckoo.StubSharing.Confined> where M1.MatchedType == [__CuckooSelf] {
+            let matchers: [Cuckoo.ParameterMatcher<([__CuckooSelf])>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockShape.self,
+                method: "union(with p0: [Self]) -> Self?",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Shape: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        var name: Cuckoo.VerifyReadOnlyProperty<String> {
+            return .init(manager: cuckoo_manager, name: "name", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
+        @discardableResult
+        func scaled<M1: Cuckoo.Matchable>(by p0: M1) -> Cuckoo.__DoNotUse<(Int), __CuckooSelf> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "scaled(by p0: Int) -> Self",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func overlaps<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(__CuckooSelf), Bool> where M1.MatchedType == __CuckooSelf {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "overlaps(_ p0: Self) -> Bool",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func union<M1: Cuckoo.Matchable>(with p0: M1) -> Cuckoo.__DoNotUse<([__CuckooSelf]), __CuckooSelf?> where M1.MatchedType == [__CuckooSelf] {
+            let matchers: [Cuckoo.ParameterMatcher<([__CuckooSelf])>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "union(with p0: [Self]) -> Self?",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ShapeStub:Shape {
+    typealias __CuckooSelf = ShapeStub
+    
+    var name: String {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (String).self)
+        }
+    }
+
+
+    
+    func scaled(by p0: Int) -> __CuckooSelf {
+        return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
+    }
+    
+    func overlaps(_ p0: __CuckooSelf) -> Bool {
+        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+    }
+    
+    func union(with p0: [__CuckooSelf]) -> __CuckooSelf? {
+        return DefaultValueRegistry.defaultValue(for: (__CuckooSelf?).self)
+    }
+}
+
+
+final class MockPolygon: Polygon, nonisolated Cuckoo.ClassMock {
+    typealias MocksType = Polygon
+    typealias Stubbing = __StubbingProxy_Polygon
+    typealias Verification = __VerificationProxy_Polygon
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<Polygon>()
+
+    nonisolated func enableDefaultImplementation(_ stub: Polygon) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    override func duplicate() -> Self {
+        return cuckoo_manager.call(
+            "duplicate() -> Self",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Self, arguments) in implementation(arguments) },
+            superclassCall: super.duplicate(),
+            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("duplicate() -> Self")
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Polygon: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func duplicate() -> Cuckoo.ClassStubFunction<(), MockPolygon, (()) -> MockPolygon, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPolygon.self,
+                method: "duplicate() -> Self",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Polygon: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func duplicate() -> Cuckoo.__DoNotUse<(), MockPolygon> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "duplicate() -> Self",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class PolygonStub:Polygon {
+
+
+    
+    override func duplicate() -> Self {
+        return DefaultValueRegistry.defaultValue(for: (Self).self)
+    }
+}
+
+
+
+
+public import Cuckoo
+import Foundation
+@testable public import Cuckoo
+@testable public import CuckooTestSources
+
 nonisolated final class MockStaticFactory: StaticFactory, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
     typealias MocksType = any StaticFactory
     typealias Stubbing = __StubbingProxy_StaticFactory
     typealias Verification = __VerificationProxy_StaticFactory
+    typealias __CuckooSelf = MockStaticFactory
     typealias StaticStubbing = __StaticStubbingProxy_StaticFactory
     typealias StaticVerification = __StaticVerificationProxy_StaticFactory
 
@@ -19932,12 +20195,12 @@ nonisolated final class MockStaticFactory: StaticFactory, nonisolated Cuckoo.Pro
         )
     }
 
-    static func make() -> Self {
+    static func make() -> __CuckooSelf {
         return cuckoo_staticManager.call(
             "static make() -> Self",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Self, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> __CuckooSelf, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static make() -> Self")
         )
@@ -20023,7 +20286,7 @@ nonisolated final class MockStaticFactory: StaticFactory, nonisolated Cuckoo.Pro
             return .init(manager: cuckoo_manager, name: "name")
         }
         
-        func make() -> Cuckoo.ProtocolStubFunction<(), MockStaticFactory, (()) -> MockStaticFactory, Cuckoo.StubSharing.Confined> {
+        func make() -> Cuckoo.ProtocolStubFunction<(), __CuckooSelf, (()) -> __CuckooSelf, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStaticFactory.self,
                 method: "static make() -> Self",
@@ -20078,7 +20341,7 @@ nonisolated final class MockStaticFactory: StaticFactory, nonisolated Cuckoo.Pro
         
         
         @discardableResult
-        func make() -> Cuckoo.__DoNotUse<(), MockStaticFactory> {
+        func make() -> Cuckoo.__DoNotUse<(), __CuckooSelf> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "static make() -> Self",
@@ -20126,6 +20389,7 @@ nonisolated final class MockStaticFactory: StaticFactory, nonisolated Cuckoo.Pro
 }
 
 nonisolated final class StaticFactoryStub:StaticFactory {
+    typealias __CuckooSelf = StaticFactoryStub
     
     static var count: Int {
         get {
@@ -20146,8 +20410,8 @@ nonisolated final class StaticFactoryStub:StaticFactory {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
     
-    static func make() -> Self {
-        return DefaultValueRegistry.defaultValue(for: (Self).self)
+    static func make() -> __CuckooSelf {
+        return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
     }
     
     static func load(id p0: Int) async throws -> String {
