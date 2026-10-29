@@ -25,6 +25,8 @@ struct Variable: Token, HasAccessibility, HasAttributes {
     var isConstant: Bool
     /// A `static` or `class` member, recorded by the mock type's static manager.
     var isStatic = false
+    /// Whether the type names `Self`; see ``Token/resolvingSelf()``.
+    var mentionsSelf = false
 
     func serialize() -> [String: Any] {
         let readOnlyVerifyString = isReadOnly ? "ReadOnly" : ""
@@ -74,6 +76,7 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             "isolationAttribute": isolation?.sourceDescription ?? "",
             "isOverriding": parent.isClass,
             "isStatic": isStatic,
+            "mentionsSelf": mentionsSelf,
             "staticKeyword": isStatic ? "static " : "",
             "manager": isStatic ? "cuckoo_staticManager" : "cuckoo_manager",
             "name": name,

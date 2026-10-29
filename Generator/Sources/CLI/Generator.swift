@@ -53,11 +53,12 @@ final class Generator {
             }
         }
         let flatMappedFiles = files.map { $0.flatMappingMemberContainers() }
-        let finalFiles = if module.options.enableInheritance {
+        let inheritedFiles = if module.options.enableInheritance {
             bindingSuperclasses(mergingInheritance(flatMappedFiles))
         } else {
             flatMappedFiles
         }
+        let finalFiles = inheritedFiles.map { file in file.replacing(tokens: file.tokens.map { $0.resolvingSelf() }) }
 
         // filter classes/protocols based on the settings passed to the generator
         var typeFilters: [TokenFilter] = []

@@ -23,6 +23,10 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
     var isolation: Isolation?
     /// A `static` or `class` subscript, recorded by the mock type's static manager.
     var isStatic = false
+    /// Whether a key or the value names `Self`; see ``Token/resolvingSelf()``.
+    var mentionsSelf = false
+    /// The signature the accessors are recorded under, when it differs from the declared one: as written with `Self`.
+    var recordedSignature: String?
 
     var isReadOnly: Bool {
         setterAccessibility?.isAccessible != true
@@ -51,7 +55,7 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
     }
 
     /// The subscript's own signature: `(_ p0: String) -> Int?`, with the parameters' inner names the accessors use.
-    private var signature: String {
+    var signature: String {
         let generics = genericParameters.isEmpty ? "" : "<\(genericParameters.map(\.description).joined(separator: ", "))>"
         let whereClause = whereConstraints.isEmpty ? "" : " where \(whereConstraints.joined(separator: ", "))"
         // The accessors' signature gives the parameters their inner names.
@@ -77,7 +81,7 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
             isOptional: false,
             compilationConditions: compilationConditions,
             isolation: isolation,
-            recordedName: "\(isStatic ? "static " : "")subscript\(signature)#\(kind)",
+            recordedName: "\(isStatic ? "static " : "")subscript\(recordedSignature ?? signature)#\(kind)",
             isStatic: isStatic
         )
     }
@@ -96,11 +100,13 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
 
         var serializedGetter = getter.serialize()
         serializedGetter["superclassCall"] = "super[\(keyArguments)]"
+        serializedGetter["mentionsSelf"] = mentionsSelf
         if !isStatic {
             serializedGetter["defaultCall"] = "__defaultImplStub.value[\(keyArguments)]"
         }
         var serializedSetter = setter.serialize()
         serializedSetter["superclassCall"] = "super[\(keyArguments)] = \(newValueName)"
+        serializedSetter["mentionsSelf"] = mentionsSelf
         if !isStatic {
             serializedSetter["defaultCall"] = "__defaultImplStub.value[\(keyArguments)] = \(newValueName)"
         }
