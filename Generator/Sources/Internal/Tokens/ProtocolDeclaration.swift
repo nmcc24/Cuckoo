@@ -12,7 +12,12 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var enclosingCompilationConditions: [String]
     /// The global actor the type is isolated to, if any.
     var isolation: Isolation?
-    var isNSObjectProtocol = false
+    /// The class every conforming type must inherit from, which the mock and stub then subclass: a class the
+    /// protocol names, directly or through another protocol, or `NSObject` for an `NSObjectProtocol`.
+    var superclass: String?
+    /// Whether ``superclass`` is declared in the sources. The mock then takes on the class's isolation, as
+    /// a subclass must, instead of being `nonisolated`.
+    var isSuperclassDeclared = false
 
     /// Whether the protocol refines `Actor`, so its mock is an `actor`.
     var isActor: Bool {
@@ -32,25 +37,19 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             members: members,
             enclosingCompilationConditions: enclosingCompilationConditions,
             isolation: isolation,
-            isNSObjectProtocol: isNSObjectProtocol
+            superclass: superclass,
+            isSuperclassDeclared: isSuperclassDeclared
         )
     }
 
-    func replacing(isNSObjectProtocol: Bool) -> ProtocolDeclaration {
-        ProtocolDeclaration(
-            parent: parent,
-            attributes: attributes,
-            accessibility: accessibility,
-            name: name,
-            associatedTypes: associatedTypes,
-            primaryAssociatedTypes: primaryAssociatedTypes,
-            genericRequirements: genericRequirements,
-            inheritedTypes: inheritedTypes,
-            members: members,
-            enclosingCompilationConditions: enclosingCompilationConditions,
-            isolation: isolation,
-            isNSObjectProtocol: isNSObjectProtocol
-        )
+    /// The protocol bound to `superclass`, with `declaration` when the class is declared in the sources. Its
+    /// isolation becomes the protocol's, unless the protocol states its own.
+    func replacing(superclass: String, declaration: ClassDeclaration?) -> ProtocolDeclaration {
+        var protocolDeclaration = self
+        protocolDeclaration.superclass = superclass
+        protocolDeclaration.isSuperclassDeclared = declaration != nil
+        protocolDeclaration.isolation = isolation ?? declaration?.isolation
+        return protocolDeclaration
     }
     
     var genericParameters: [GenericParameter] {

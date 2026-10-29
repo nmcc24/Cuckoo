@@ -20,11 +20,12 @@ extension Token {
             (self as? any HasGenerics)?.genericsSerialize(),
             asProtocol.map {
                 [
-                    "isNSObjectProtocol": $0.isNSObjectProtocol,
+                    "superclass": $0.superclass ?? "",
                     "isActor": $0.isActor,
                     // Its mock and stub are explicitly `nonisolated`, so they don't take on the module's
-                    // default isolation (`-default-isolation MainActor`).
-                    "isNonisolatedProtocol": !$0.isActor && $0.isolation == nil,
+                    // default isolation (`-default-isolation MainActor`). A subclass of a declared class
+                    // takes on that class's isolation instead.
+                    "isNonisolatedProtocol": !$0.isActor && $0.isolation == nil && !$0.isSuperclassDeclared,
                 ]
             },
             (self as? any HasInheritance)?.inheritanceSerialize(),
