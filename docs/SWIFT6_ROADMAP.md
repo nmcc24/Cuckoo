@@ -328,7 +328,7 @@ Exit criteria: fixtures 01–06 typecheck and have behavioural tests; also typec
 - **Item 2:** `Actor` protocols get `actor` mocks and stubs. Fixture 02 compiles and left the expected-failures list.
 - **Item 4:** the generator states isolation wherever the module default would otherwise decide it (mocks and stubs of protocols without isolation, the proxies, the type-erased default implementation, the conformance to the Cuckoo protocols). CI runs the matrix with `-default-isolation MainActor` too, against `Fixtures/Swift6/expected-failures-default-mainactor.txt`. Two known gaps there:
   - a subclass of a class that relies on its implicit `init` doesn't compile in that mode, with or without Cuckoo (`class Base {}; final class Sub: Base {}`, Swift 6.2–6.4), so class mocks of such classes fail (fixtures 07, 19, 20, 21);
-  - the type-erased default implementation of a generic protocol (fixture 05) is nonisolated, but the module's default makes the protocol MainActor-isolated, which the generator can't see. A Cuckoofile option naming the source module's default isolation would fix it; not started.
+  - the type-erased default implementation of a generic protocol (fixtures 05 and 27) is nonisolated, but the module's default makes the protocol MainActor-isolated, which the generator can't see. A Cuckoofile option naming the source module's default isolation would fix it; not started.
 - **Item 5:** `Tests/Swift/IsolationTest.swift` (Swift Testing) and `IsolationXCTest.swift` stub, verify and spy on MainActor, global-actor, actor and `Sendable` mocks, including from concurrent tasks. They run in `swift test` and in the Tuist schemes.
 - **API change:** stub function types gained two generic parameters (closure type and sharing), so code that names one to pick an overload writes `as ClassStubNoReturnFunction<(Int?, String), _, _>`.
 - **Typed throws:** the closure type throws untyped errors, and the mock narrows them back to the member's error type, because a typed-throws function type as a generic argument needs the iOS 18 / macOS 15 runtime (§3.4).
@@ -387,15 +387,18 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
      - Source break: a `then` closure written with an explicit non-`inout` parameter type, such as `{ (value: Int) in … }`, no longer compiles and needs `inout Int`. Closures that let Swift infer the type are unaffected. Goes in the Phase 5 migration guide.
      - Along the way, a type whose attributes are all stripped (`inout`, `sending`, `@escaping`) prints without a stray leading space, which only changes whitespace in the generated mocks.
    - The rest of item 3 ships as three PRs, because only generic init already worked (probe, 2026-10-29): generic init with class-bound protocols, then `Self`, then parent associated types.
-   - **Generic init and class-bound protocols: on the branch.**
+   - ✅ **Generic init and class-bound protocols** (https://github.com/nmcc24/Cuckoo/pull/25).
      - Generic initializers already worked; fixture 24 and runtime tests now cover them.
      - A protocol that requires a class declared in the sources, as `protocol P: Base` or `where Self: Base`, directly or through another protocol, gets a mock and stub that subclass `Base`. `Base`'s own members keep their real implementation, and the mock takes `Base`'s isolation instead of being `nonisolated`. The `NSObjectProtocol` → `NSObject` path is now the same mechanism. `AnyObject` protocols already worked.
      - `where Self: X` now counts as `: X` everywhere, so `where Self: Sendable` and `where Self: Actor` are seen too.
      - A class from another module (`protocol P: UIView`) isn't recognised, because the generator can't tell it from a protocol; its mock still doesn't compile.
-   - **`Self` in parameters and nested types: on the branch.**
+   - **`Self` in parameters and nested types** (https://github.com/nmcc24/Cuckoo/pull/26).
      - A protocol's mock and stub are `final` classes, which can write `Self` only as a result. Where a member names `Self`, each declares `typealias __CuckooSelf` to itself and the member names that instead, so `Self` works as a parameter, inside `[Self]` or `[String: Self]`, in closures, subscripts and static members. Calls are still recorded, and named in failures, with `Self` as written. Actor protocols' mocks are actors and keep `Self`; class mocks keep it too, since a class can only use it as a result.
      - A member that takes or returns `Self` can't forward to a default implementation, whose `Self` is another type: it stops the test with a message saying to stub it, in protocol and class mocks alike.
-   - **Associated types inherited from a parent protocol:** to do. A child protocol's mock needs its parents' associated types (and same-type constraints such as `where Item == String`) as generic parameters.
+   - **Associated types inherited from a parent protocol: on the branch.**
+     - A child protocol's mock and stub take its parents' associated types as generic parameters, with their constraints, through any depth of inheritance and from several parents.
+     - A type the child fixes, as `Parent<Int>` or `where Item == String`, becomes a typealias in the mock and stub instead of a generic parameter. A constraint the child adds, such as `where Item: Hashable`, is carried over.
+     - The parent must be declared in the sources, like the class of a class-bound protocol.
    - 3b. ☁️ `~Copyable` arguments borrowed into `then` closures (L): needs `~Copyable` suppression through `MockManager`'s generics.
 4. ☁️ `inOrder`, `within:` / `eventually`, `thenNeverReturn`, delayed returns, and closest-match failure diffs.
 5. ☁️ Config options: prefix/suffix, regex array, `@_spi`.
