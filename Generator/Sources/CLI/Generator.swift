@@ -65,8 +65,8 @@ final class Generator {
         if module.options.protocolsOnly {
             typeFilters.append(ignoreClasses)
         }
-        if let regex = module.regex {
-            typeFilters.append(try keepMatching(pattern: regex))
+        if !module.regexes.isEmpty {
+            typeFilters.append(try keepMatching(patterns: module.regexes))
         }
         if !module.exclude.isEmpty {
             typeFilters.append(ignoreExcluded(in: module.exclude))
@@ -82,7 +82,7 @@ final class Generator {
                 contents: [
                     module.options.omitHeaders ? nil : FileHeaderHandler.header(for: file, timestamp: timestamp),
                     FileHeaderHandler.imports(for: file, imports: module.imports, publicImports: module.publicImports, testableImports: module.testableImports, publicModules: sharedPublicModules ?? publicModules(in: [file], module: module)),
-                    try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation),
+                    try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming),
                 ]
                 .compactMap { $0 }
                 .joined(separator: "\n\n")
@@ -163,17 +163,19 @@ final class Generator {
         !token.isClass
     }
 
-    // filter that keeps the classes/protocols that match the passed regular expression
-    private static func keepMatching(pattern: String) throws -> TokenFilter {
-        do {
-            let regex = try NSRegularExpression(pattern: pattern, options: [])
-
-            return { token in
-                guard let namedToken = token as? any HasName else { return true }
-                return regex.firstMatch(in: namedToken.name, options: [], range: NSMakeRange(0, namedToken.name.count)) != nil
+    // filter that keeps the classes/protocols whose name matches any of the passed regular expressions
+    private static func keepMatching(patterns: [String]) throws -> TokenFilter {
+        let regexes = try patterns.map { pattern in
+            do {
+                return try NSRegularExpression(pattern: pattern, options: [])
+            } catch {
+                throw GeneratorError.invalidRegex(pattern, error: error)
             }
-        } catch {
-            throw GeneratorError.invalidRegex(pattern, error: error)
+        }
+        return { token in
+            guard let namedToken = token as? any HasName else { return true }
+            let range = NSRange(namedToken.name.startIndex..., in: namedToken.name)
+            return regexes.contains { $0.firstMatch(in: namedToken.name, options: [], range: range) != nil }
         }
     }
 

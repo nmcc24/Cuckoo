@@ -138,7 +138,9 @@ struct SnapshotTests {
                     keepDocumentation: keepDocumentation,
                     enableInheritance: nil,
                     protocolsOnly: nil,
-                    omitHeaders: true
+                    omitHeaders: true,
+                    mockPrefix: nil,
+                    mockSuffix: nil
                 ),
                 xcodeproj: nil
             )
