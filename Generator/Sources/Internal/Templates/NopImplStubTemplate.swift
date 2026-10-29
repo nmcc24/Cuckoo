@@ -4,6 +4,9 @@ extension Templates {
 {{ attribute }}
 {% endfor %}
 {{container.accessibility|withSpace}}{% if container.isNonisolatedProtocol %}nonisolated {%+ endif %}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.name }}Stub{{ container.genericParameters }}: {% if container.superclass %}{{ container.superclass }}, {% endif %}{{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %} {
+    {% if container.declaresSelfTypealias %}
+    {{ container.accessibility|withSpace }}typealias \(SelfResolution.typealiasName) = {{ container.name }}Stub
+    {% endif %}
     {% for property in container.allProperties %}
     {{ property.compilationConditionCheck }}
     {% if debug %}

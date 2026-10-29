@@ -52,6 +52,9 @@ extension ContainerToken {
             "allMethods": methods + staticMethods,
             "allSubscripts": subscripts + staticSubscripts,
             "typealiases": typealiases,
+            // A protocol's members name `Self` through this typealias; see `Token.resolvingSelf()`.
+            "declaresSelfTypealias": (self as? ProtocolDeclaration).map { !$0.isActor } == true
+                && (allMethods.contains(where: \.mentionsSelf) || variables.contains(where: \.mentionsSelf) || allSubscripts.contains(where: \.mentionsSelf)),
             "properties": properties,
             "initializers": initializers,
             "methods": methods,

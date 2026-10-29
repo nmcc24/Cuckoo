@@ -19,6 +19,8 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
     var recordedName: String?
     /// A `static` or `class` member, recorded by the mock type's static manager.
     var isStatic = false
+    /// Whether a parameter or the result names `Self`; see ``Token/resolvingSelf()``.
+    var mentionsSelf = false
 
     var fullSignature: String {
         [
@@ -196,8 +198,9 @@ extension Method {
             return "var __inout\(index) = \(value); defer { \(escapeReservedKeywords(for: parameter.usableName)) = __inout\(index) };"
         }.joined(separator: " ")
 
-        /// The stub's input, output and `then` closure types. The mock's body names `Self` as written; the proxies,
+        /// The stub's input, output and `then` closure types. A class mock's body names `Self` as written; the proxies,
         /// where `Self` would be the proxy, name the mock, which is `final`, so both are the same type at runtime.
+        /// A protocol's members already name `Self` through a typealias; see `Token.resolvingSelf()`.
         func stubTypes(resolvingSelfAs selfType: String?) -> (input: String, output: String, implementation: String) {
             func resolved(_ type: ComplexType) -> ComplexType {
                 selfType.flatMap { selfType in type.replaceTypes(named: ["Self"], with: { _ in selfType }) } ?? type
@@ -290,6 +293,7 @@ extension Method {
                 ? "Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\"\(fullyQualifiedName)\")"
                 : "__defaultImplStub.value.\(name)\(isOptional ? "!" : "")(\(forwardingCall))",
             "isStatic": isStatic,
+            "mentionsSelf": mentionsSelf,
             "staticKeyword": isStatic ? "static " : "",
             "manager": isStatic ? "cuckoo_staticManager" : "cuckoo_manager",
             "staticGenericCall": staticGenericCall,

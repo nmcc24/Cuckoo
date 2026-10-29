@@ -18,7 +18,7 @@ let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
     {% endif %}
     invoke: { (implementation: {{ method.implementationType|genericSafe }}, arguments) {%+ if method.throwsOnly %}{% if method.isAsync %}async {%+ endif %}throws({{ method.throwTypeError }}) {%+ endif %}in {%+ if method.inoutPrologue %}{{ method.inoutPrologue }} {%+ endif %}{% if method.hasTypedThrows %}do { return try {%+ if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}) } catch { throw Cuckoo.MockManager.typedError(error, as: ({{ method.throwTypeError }}).self, member: "{{ method.fullyQualifiedName }}") }{% else %}{% if method.inoutPrologue %}return {%+ endif %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}implementation({{ method.implementationArguments }}){% endif %} },
     superclassCall: {%+ if not container.isImplementation %}Cuckoo.MockManager.crashOnProtocolSuperclassCall(){% elif method.hasNoncopyableParams %}Cuckoo.MockManager.crashOnNoncopyableArgumentForward("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync %}await {%+ endif %}{{ method.superclassCall }}{% endif %},
-    defaultCall: {%+ if container.isActor and not method.isStatic %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% elif method.hasNoncopyableParams and not method.isStatic %}Cuckoo.MockManager.crashOnNoncopyableArgumentForward("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync and not method.isStatic %}await {%+ endif %}{{ method.defaultCall }}{% endif +%}
+    defaultCall: {%+ if container.isActor and not method.isStatic %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% elif method.mentionsSelf and not method.isStatic %}Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("{{ method.fullyQualifiedName }}"){% elif method.hasNoncopyableParams and not method.isStatic %}Cuckoo.MockManager.crashOnNoncopyableArgumentForward("{{ method.fullyQualifiedName }}"){% else %}{% if method.isAsync and not method.isStatic %}await {%+ endif %}{{ method.defaultCall }}{% endif +%}
 ){% if method.returnsSending %}).value{% endif %}{{ method.self|closeNestedClosure }}
 """
 
@@ -50,6 +50,9 @@ extension {{ container.parentFullyQualifiedName }} {
     {% endif %}
     {{ container.accessibility|withSpace }}typealias Stubbing = __StubbingProxy_{{ container.name }}
     {{ container.accessibility|withSpace }}typealias Verification = __VerificationProxy_{{ container.name }}
+    {% if container.declaresSelfTypealias %}
+    {{ container.accessibility|withSpace }}typealias \(SelfResolution.typealiasName) = {{ container.mockName }}
+    {% endif %}
     {% if container.hasStaticMembers %}
     {{ container.accessibility|withSpace }}typealias StaticStubbing = __StaticStubbingProxy_{{ container.name }}
     {{ container.accessibility|withSpace }}typealias StaticVerification = __StaticVerificationProxy_{{ container.name }}
@@ -123,7 +126,7 @@ extension {{ container.parentFullyQualifiedName }} {
                     {%- else -%}
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     {%- endif -%},
-                defaultCall: {%+ if property.isStatic %}Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}"){% elif container.isActor %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}{% if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub.value.{{property.name}}{% endif +%}
+                defaultCall: {%+ if property.isStatic %}Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}"){% elif container.isActor %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% elif property.mentionsSelf %}Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("{{ property.name }}"){% else %}{% if property.isThrowing %}try {%+ endif %}{% if property.isAsync %}await {%+ endif %}__defaultImplStub.value.{{property.name}}{% endif +%}
             )
         }
         {% ifnot property.isReadOnly %}
@@ -137,7 +140,7 @@ extension {{ container.parentFullyQualifiedName }} {
                     {%- else -%}
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     {%- endif -%},
-                defaultCall: {%+ if property.isStatic %}Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}"){% elif container.isActor %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% else %}__defaultImplStub.value.{{property.name}} = newValue{% endif +%}
+                defaultCall: {%+ if property.isStatic %}Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}"){% elif container.isActor %}Cuckoo.MockManager.crashOnActorDefaultImplementationCall("{{ property.name }}"){% elif property.mentionsSelf %}Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("{{ property.name }}"){% else %}__defaultImplStub.value.{{property.name}} = newValue{% endif +%}
             )
         }
         {% endif %}
