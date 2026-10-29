@@ -129,6 +129,6 @@ struct CuckooTraitTests {
             verify(mock, times(2)).count(characters: "a")
         }
         #expect(log.all.count == 2)
-        #expect(log.all.last == "Wanted 2 times but invoked 1 times.")
+        #expect(log.all.last == "Wanted 2 times but invoked 1 times.\nCalls to count(characters:):\n  1. count(\"a\") matches")
     }
 }
