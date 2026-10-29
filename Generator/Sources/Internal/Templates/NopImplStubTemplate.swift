@@ -7,6 +7,11 @@ extension Templates {
     {% if container.declaresSelfTypealias %}
     {{ container.accessibility|withSpace }}typealias \(SelfResolution.typealiasName) = {{ container.name }}Stub
     {% endif %}
+    {% if not container.isImplementation %}
+    {% for typealias in container.typealiases %}
+    {{ container.accessibility|withSpace }}{{ typealias }}
+    {% endfor %}
+    {% endif %}
     {% for property in container.allProperties %}
     {{ property.compilationConditionCheck }}
     {% if debug %}
