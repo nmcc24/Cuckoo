@@ -8,7 +8,8 @@ final class Module: Sendable {
     let testableImports: [String]
     let sources: [Path]?
     let exclude: [String]
-    let regex: String?
+    /// Patterns a type's name must match one of to be mocked. Empty mocks every type.
+    let regexes: [String]
     let output: String
     let filenameFormat: String?
     let options: Options
@@ -30,7 +31,7 @@ final class Module: Sendable {
             Path(source, expandingTilde: true).relative(to: configurationPath.parent)
         }
         self.exclude = dto.exclude?.map(\.trimmed) ?? []
-        self.regex = dto.regex
+        self.regexes = dto.regex?.values ?? []
         self.output = (overriddenOutput ?? dto.output ?? output)!
         self.filenameFormat = dto.filenameFormat
         self.options = Options(
@@ -38,11 +39,34 @@ final class Module: Sendable {
             keepDocumentation: dto.options?.keepDocumentation ?? true,
             enableInheritance: dto.options?.enableInheritance ?? true,
             protocolsOnly: dto.options?.protocolsOnly ?? false,
-            omitHeaders: dto.options?.omitHeaders ?? false
+            omitHeaders: dto.options?.omitHeaders ?? false,
+            mockNaming: MockNaming(
+                prefix: dto.options?.mockPrefix?.trimmed ?? MockNaming.default.prefix,
+                suffix: dto.options?.mockSuffix?.trimmed ?? MockNaming.default.suffix
+            )
         )
 
         if let filenameFormat, !filenameFormat.contains("{}") {
             throw ModuleInitError.wrongFilenameFormat
+        }
+        try Self.validate(options.mockNaming, moduleName: name)
+    }
+
+    /// The mock's name must be a different identifier from the mocked type's, and from the `<Type>Stub` class
+    /// generated next to it.
+    private static func validate(_ naming: MockNaming, moduleName: String) throws {
+        let identifierCharacters = { (text: String) in
+            text.allSatisfy { $0 == "_" || $0.isLetter || $0.isNumber }
+        }
+        guard identifierCharacters(naming.prefix), identifierCharacters(naming.suffix),
+              naming.prefix.first?.isNumber != true else {
+            throw ModuleInitError.invalidMockNaming(name: moduleName, reason: "`mockPrefix` and `mockSuffix` may only contain letters, digits and underscores, and `mockPrefix` can't start with a digit.")
+        }
+        guard !naming.prefix.isEmpty || !naming.suffix.isEmpty else {
+            throw ModuleInitError.invalidMockNaming(name: moduleName, reason: "`mockPrefix` and `mockSuffix` can't both be empty, or each mock would have its mocked type's name.")
+        }
+        guard !(naming.prefix.isEmpty && naming.suffix == "Stub") else {
+            throw ModuleInitError.invalidMockNaming(name: moduleName, reason: "`mockSuffix = \"Stub\"` without a prefix gives mocks the name of the `<Type>Stub` classes Cuckoo generates next to them.")
         }
     }
 
@@ -52,12 +76,14 @@ final class Module: Sendable {
         let enableInheritance: Bool
         let protocolsOnly: Bool
         let omitHeaders: Bool
+        let mockNaming: MockNaming
     }
 
     enum ModuleInitError: Error, CustomStringConvertible {
         case missingOutput(name: String)
         case wrongFilenameFormat
         case xcodeprojRemoved(name: String, target: String?)
+        case invalidMockNaming(name: String, reason: String)
 
         var description: String {
             switch self {
@@ -72,6 +98,8 @@ final class Module: Sendable {
                 The `xcodeproj` option was removed in Cuckoo 3. List module \(name)'s files with `sources` instead, \
                 e.g. `sources = ["\(folder)/**/*.swift"]`\(reading).
                 """
+            case .invalidMockNaming(let name, let reason):
+                return "Invalid mock naming in module \(name): \(reason)"
             }
         }
     }
@@ -84,7 +112,7 @@ extension Module {
         let testableImports: [String]?
         let sources: [String]?
         let exclude: [String]?
-        let regex: String?
+        let regex: Patterns?
         let output: String?
         let filenameFormat: String?
         let options: Options?
@@ -96,6 +124,26 @@ extension Module {
             let enableInheritance: Bool?
             let protocolsOnly: Bool?
             let omitHeaders: Bool?
+            let mockPrefix: String?
+            let mockSuffix: String?
+        }
+
+        /// `regex`: one pattern, or an array of them.
+        struct Patterns: Decodable {
+            let values: [String]
+
+            init(from decoder: any Decoder) throws {
+                if let pattern = try? decoder.singleValueContainer().decode(String.self) {
+                    values = [pattern]
+                    return
+                }
+                var patterns = try decoder.unkeyedContainer()
+                var values: [String] = []
+                while !patterns.isAtEnd {
+                    values.append(try patterns.decode(String.self))
+                }
+                self.values = values
+            }
         }
 
         /// The `xcodeproj` table Cuckoo 2 read a target's files from. It's still decoded, so a
@@ -114,7 +162,7 @@ extension Module: CustomDebugStringConvertible {
             "testable imports:\(testableImports.map { "\n\t-\($0.bold)" }.joined(separator: ", "))",
             sources.map { "sources:\($0.map { "\n\t-\($0.rawValue.bold)" }.joined())" },
             "excluded types:\(exclude.map { "\n\t-\($0.bold)" }.joined())",
-            regex.map { "regex: \($0.bold)" },
+            regexes.isEmpty ? nil : "regex:\(regexes.map { "\n\t-\($0.bold)" }.joined())",
             "output: \(output.bold)",
             filenameFormat.map { "filename format: \($0.bold)" },
             "options:\(options.debugDescription.components(separatedBy: "\n").map { "\n\t- \($0)" }.joined())",
@@ -132,6 +180,8 @@ extension Module.Options: CustomDebugStringConvertible {
             "enable inheritance: \(String(enableInheritance).bold)",
             "protocols only: \(String(protocolsOnly).bold)",
             "omit headers: \(String(omitHeaders).bold)",
+            "mock prefix: \(mockNaming.prefix.bold)",
+            "mock suffix: \(mockNaming.suffix.bold)",
         ]
         .compactMap { $0 }
         .joined(separator: "\n")

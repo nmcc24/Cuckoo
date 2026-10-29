@@ -110,8 +110,9 @@ sources = [
     "Tests/Swift/Source/*.swift",
 ]
 exclude = ["ExcludedTestClass"]
-# Optionally you can use a regular expression to filter only specific classes/protocols.
-# regex = ""
+# Optionally mock only the classes/protocols whose name matches one of these regular expressions.
+# A single pattern also works: regex = "Service$"
+# regex = ["Service$", "^Repository"]
 
 [modules.MyProject.options]
 # glob = false
@@ -120,6 +121,9 @@ keepDocumentation = false
 # enableInheritance = false
 # protocolsOnly = true
 # omitHeaders = true
+# Mocks are named `<mockPrefix><Type><mockSuffix>`: `MockService` by default.
+# mockPrefix = "Mock"
+# mockSuffix = ""
 
 # You can define as many modules as you need, each with different sources/options/output.
 [modules.AnotherProject]

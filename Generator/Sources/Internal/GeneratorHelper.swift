@@ -11,17 +11,25 @@ struct GeneratorHelper {
     private static let extensions = createExtensions()
 
     @StaticActor
-    static func generate(tokens: [any Token], keepDocumentation: Bool = true, debug: Bool = false) throws -> String {
-        let containers = tokens.map { $0.serialize() }
+    static func generate(
+        tokens: [any Token],
+        keepDocumentation: Bool = true,
+        mockNaming: MockNaming = .default,
+        debug: Bool = false
+    ) throws -> String {
+        // Serializing the tokens and the template filters both name mocks.
+        try MockNaming.$current.withValue(mockNaming) {
+            let containers = tokens.map { $0.serialize() }
 
-        let environment = Environment(
-            extensions: extensions,
-            trimBehaviour: .smart
-        )
-        return try environment.renderTemplate(
-            string: Templates.mock,
-            context: ["containers": containers, "keepDocumentation": keepDocumentation, "debug": debug]
-        )
+            let environment = Environment(
+                extensions: extensions,
+                trimBehaviour: .smart
+            )
+            return try environment.renderTemplate(
+                string: Templates.mock,
+                context: ["containers": containers, "keepDocumentation": keepDocumentation, "debug": debug]
+            )
+        }
     }
 
     private static func matchableGenericTypes(from method: Method, forVerification: Bool = false) -> String {

@@ -4,7 +4,7 @@ protocol HasName: Token {
 
 extension HasName {
     var mockName: String {
-        "Mock\(name)"
+        MockNaming.current.mockName(of: name)
     }
 
     var fullyQualifiedName: String {

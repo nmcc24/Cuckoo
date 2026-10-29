@@ -51,6 +51,8 @@ struct CuckoofileTests {
             enableInheritance = false
             protocolsOnly = true
             omitHeaders = true
+            mockPrefix = "Fake"
+            mockSuffix = "Double"
             """)["App"])
 
         #expect(module.imports == ["Foundation", "UIKit"])
@@ -59,7 +61,7 @@ struct CuckoofileTests {
         // Relative sources resolve against the Cuckoofile's folder; absolute ones are kept.
         #expect(module.sources?.map(\.rawValue) == ["/project/Sources/App/**/*.swift", "/absolute/File.swift"])
         #expect(module.exclude == ["Excluded", "AlsoExcluded"])
-        #expect(module.regex == "^Service")
+        #expect(module.regexes == ["^Service"])
         #expect(module.output == "Tests/Mocks")
         #expect(module.filenameFormat == "{}Mock")
         #expect(module.options.glob == false)
@@ -67,6 +69,7 @@ struct CuckoofileTests {
         #expect(module.options.enableInheritance == false)
         #expect(module.options.protocolsOnly == true)
         #expect(module.options.omitHeaders == true)
+        #expect(module.options.mockNaming == MockNaming(prefix: "Fake", suffix: "Double"))
     }
 
     @Test
@@ -81,13 +84,61 @@ struct CuckoofileTests {
         #expect(module.testableImports.isEmpty)
         #expect(module.sources == nil)
         #expect(module.exclude.isEmpty)
-        #expect(module.regex == nil)
+        #expect(module.regexes.isEmpty)
         #expect(module.filenameFormat == nil)
         #expect(module.options.glob == true)
         #expect(module.options.keepDocumentation == true)
         #expect(module.options.enableInheritance == true)
         #expect(module.options.protocolsOnly == false)
         #expect(module.options.omitHeaders == false)
+        #expect(module.options.mockNaming == MockNaming(prefix: "Mock", suffix: ""))
+    }
+
+    /// `regex` takes one pattern or an array of them (Brightify/Cuckoo#535).
+    @Test
+    func regexArray() throws {
+        let module = try #require(try parse("""
+            [modules.App]
+            output = "Mocks.swift"
+            regex = ["^Service", "Repository$"]
+            """)["App"])
+        #expect(module.regexes == ["^Service", "Repository$"])
+    }
+
+    /// Mocks can be named `<prefix><Type><suffix>` (Brightify/Cuckoo#564).
+    @Test
+    func mockNamingWithSuffixOnly() throws {
+        let module = try #require(try parse("""
+            [modules.App]
+            output = "Mocks.swift"
+            [modules.App.options]
+            mockPrefix = ""
+            mockSuffix = "Mock"
+            """)["App"])
+        #expect(module.options.mockNaming.mockName(of: "Service") == "ServiceMock")
+    }
+
+    @Test(arguments: [
+        ("\"\"", "\"\"", "can't both be empty"),
+        ("\"\"", "\"Stub\"", "`<Type>Stub` classes"),
+        ("\"Mock-\"", "\"\"", "letters, digits and underscores"),
+        ("\"1Mock\"", "\"\"", "can't start with a digit"),
+        ("\"Mock\"", "\" Fake\"", nil),
+    ])
+    func mockNamingIsValidated(prefix: String, suffix: String, error: String?) throws {
+        let contents = """
+            [modules.App]
+            output = "Mocks.swift"
+            [modules.App.options]
+            mockPrefix = \(prefix)
+            mockSuffix = \(suffix)
+            """
+        guard let error else {
+            #expect(try parse(contents)["App"]?.options.mockNaming == MockNaming(prefix: "Mock", suffix: "Fake"))
+            return
+        }
+        let thrown = try #require(throws: Cuckoofile.ParseError.self) { try parse(contents) }
+        #expect(String(describing: thrown).contains(error))
     }
 
     @Test
