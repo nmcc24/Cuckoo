@@ -122,13 +122,12 @@ Breaking changes accepted in 3.0:
    - actor mocks (`Shared`): `@Sendable` closures that receive `isolated MockX` first, then the call's arguments. The manager hands the arguments to the mock's `invoke` closure rather than letting it capture them (Phase 4 item 2), and actor mocks have no default implementation.
    - Async members get async closures; nonisolated ones are `nonisolated(nonsending)`. The runtime never calls user closures itself: the mock passes an `invoke` closure, formed in its own isolation.
 7. **New verification features:**
-   - `inOrder { verify(a).x(); verify(b).y() }` (#34);
-   - `verify(mock, .times(1), within: .seconds(1))` and `await eventually { … }` for async code paths (#277);
+   - `inOrder { verify(a).x(); verify(b).y() }` and `inOrder(strict: true) { … }` (#34);
+   - `await eventually { … }` for async code paths (#277), in place of a `verify(…, within:)` that would need async verification proxies;
    - `verifyNoMoreInteractions(a, b)`;
    - a `Sendable`, typed `ArgumentCaptor`.
 8. **New stubbing features:**
-   - `thenNeverReturn()` for async members, which suspends until cancelled (#556);
-   - `thenReturn(after: .milliseconds(…), value)`;
+   - not `thenNeverReturn()` (#556) or delayed returns (decided 2026-10-29): a `then` closure already does both, e.g. `then { _ in try await Task.sleep(for: .seconds(1)); return 42 }`, and they'd need async-only stub function types in the generator. The Phase 5 docs show the recipes;
    - `thenCallRealImplementation()` for default-implementation mocks;
    - `inout` mutation (#337).
 9. **Typed throws end to end.** The `"No-care?"` queue hack goes away. `then` closures use `throws(E)`.
@@ -392,7 +391,7 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
      - A protocol that requires a class declared in the sources, as `protocol P: Base` or `where Self: Base`, directly or through another protocol, gets a mock and stub that subclass `Base`. `Base`'s own members keep their real implementation, and the mock takes `Base`'s isolation instead of being `nonisolated`. The `NSObjectProtocol` → `NSObject` path is now the same mechanism. `AnyObject` protocols already worked.
      - `where Self: X` now counts as `: X` everywhere, so `where Self: Sendable` and `where Self: Actor` are seen too.
      - A class from another module (`protocol P: UIView`) isn't recognised, because the generator can't tell it from a protocol; its mock still doesn't compile.
-   - **`Self` in parameters and nested types** (https://github.com/nmcc24/Cuckoo/pull/26).
+   - ✅ **`Self` in parameters and nested types** (https://github.com/nmcc24/Cuckoo/pull/26).
      - A protocol's mock and stub are `final` classes, which can write `Self` only as a result. Where a member names `Self`, each declares `typealias __CuckooSelf` to itself and the member names that instead, so `Self` works as a parameter, inside `[Self]` or `[String: Self]`, in closures, subscripts and static members. Calls are still recorded, and named in failures, with `Self` as written. Actor protocols' mocks are actors and keep `Self`; class mocks keep it too, since a class can only use it as a result.
      - A member that takes or returns `Self` can't forward to a default implementation, whose `Self` is another type: it stops the test with a message saying to stub it, in protocol and class mocks alike.
    - **Associated types inherited from a parent protocol: on the branch.**
@@ -400,7 +399,9 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
      - A type the child fixes, as `Parent<Int>` or `where Item == String`, becomes a typealias in the mock and stub instead of a generic parameter. A constraint the child adds, such as `where Item: Hashable`, is carried over.
      - The parent must be declared in the sources, like the class of a class-bound protocol.
    - 3b. ☁️ `~Copyable` arguments borrowed into `then` closures (L): needs `~Copyable` suppression through `MockManager`'s generics.
-4. ☁️ `inOrder`, `within:` / `eventually`, `thenNeverReturn`, delayed returns, and closest-match failure diffs.
+4. ☁️ Verification APIs, in four runtime-only PRs (decided 2026-10-29): `eventually` (S), a `Sendable` `ArgumentCaptor` (S), `inOrder` relaxed and strict (M), and failure diagnostics that list the member's actual calls and name the argument that differs (S). `thenNeverReturn` and delayed returns are dropped (§3.1 item 8). What each matcher expected (`expected "Alice"`) needs a description on every matcher (M); it follows only if missed.
+   - Later: `inOrder`'s process-wide call counter is a `Locked<Int>`, because `Synchronization.Atomic` needs iOS 18 / macOS 15. Switch to `Atomic` once the floor reaches them.
+   - **`eventually`: on the branch.** `await eventually(timeout:pollingInterval:) { … }` reruns the block, holding back its failures through the task-local failure handler, until it passes or the timeout (1 s by default) runs out; then it reports the last run's failures, once. It replaces `verify(…, within:)`: `verify`'s generated proxies are synchronous, so waiting inside them would need an async copy of every one. It runs in the caller's isolation and only retries Cuckoo's own failures.
 5. ☁️ Config options: prefix/suffix, regex array, `@_spi`.
 6. ☁️ Import isolation in single-file output (M). A single generated file merges every source file's imports, so a name one import declares (e.g. `SwiftUI.Namespace`) makes same-named source types ambiguous in all mocks once they live outside the source module. The runtime tests work around it with a separate `CuckooSwiftUI` Cuckoofile module.
    - Fix: the generated file declares an alias for each top-level source type (`typealias Namespace = CuckooTestSources.Namespace`), with the mocks' access level. A module-level declaration beats imports, and mock bodies stay unchanged. Verified with swiftc.
