@@ -3,6 +3,8 @@ import Foundation
 public final class MockManager: Sendable {
     private struct RecordedCall {
         let id: Int
+        /// The call's place among the calls to every mock, for `inOrder`.
+        let sequence: Int
         let call: any StubCall
     }
 
@@ -53,7 +55,7 @@ public final class MockManager: Sendable {
         let (stubs, isSuperclassSpyEnabled, isDefaultImplementationEnabled) = state.withLock { state in
             let id = state.nextCallID
             state.nextCallID += 1
-            state.calls.append(RecordedCall(id: id, call: call))
+            state.calls.append(RecordedCall(id: id, sequence: CallSequence.next(), call: call))
             state.unverifiedCallIDs.insert(id)
             return (state.stubs, state.isSuperclassSpyEnabled, state.isDefaultImplementationEnabled)
         }
@@ -182,6 +184,10 @@ public final class MockManager: Sendable {
             guard recorded.call.method == method, let call = recorded.call as? ConcreteStubCall<IN> else { return false }
             return parameterMatchers.allSatisfy { $0.matches(call.parameters) }
         }
+        if let order = InOrder.current {
+            verifyInOrder(order, matching: matching, callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return __DoNotUse()
+        }
         state.withLock { state in
             state.unverifiedCallIDs.subtract(matching.map(\.id))
         }
@@ -192,6 +198,27 @@ public final class MockManager: Sendable {
             reportFailure(message, at: sourceLocation)
         }
         return __DoNotUse()
+    }
+
+    /// A `verify` inside `inOrder`: it only looks at the calls after the ones the previous `verify` matched.
+    private func verifyInOrder(_ order: InOrder, matching: [RecordedCall], callMatcher: CallMatcher, sourceLocation: SourceLocation) {
+        let cursor = order.cursor
+        let candidates = matching.filter { $0.sequence > cursor }
+        guard let accepted = callMatcher.acceptedPrefix(of: candidates, callOf: \.call) else {
+            order.involve(self)
+            let message = "Wanted \(callMatcher.name) in order but invoked \(candidates.count) times after the previous verification (\(matching.count) times in all)."
+            reportFailure(message + "\n" + order.describeCalls(), at: sourceLocation)
+            return
+        }
+        state.withLock { state in
+            state.unverifiedCallIDs.subtract(accepted.map(\.id))
+        }
+        order.advance(past: accepted.map { SequencedCall(sequence: $0.sequence, call: $0.call) }, of: self)
+    }
+
+    /// Every recorded call with its place among the calls to every mock.
+    func sequencedCalls() -> [SequencedCall] {
+        state.withLock { $0.calls.map { SequencedCall(sequence: $0.sequence, call: $0.call) } }
     }
 
     public func enableSuperclassSpy() {
@@ -260,18 +287,8 @@ public final class MockManager: Sendable {
             state.calls.filter { state.unverifiedCallIDs.contains($0.id) }.map(\.call)
         }
         if unverified.isEmpty == false {
-            let unverifiedCalls = unverified.map { call in
-                    if let bracketIndex = call.method.range(of: "(")?.lowerBound {
-                        let name = call.method[..<bracketIndex]
-                        return name + call.parametersAsString
-                    } else {
-                        if call.method.hasSuffix("#set") {
-                            return call.method + call.parametersAsString
-                        } else {
-                            return call.method
-                        }
-                    }
-                }.enumerated().map { "\($0 + 1). " + $1 }.joined(separator: "\n")
+            let unverifiedCalls = unverified.map(\.readableDescription)
+                .enumerated().map { "\($0 + 1). " + $1 }.joined(separator: "\n")
             let message = "No more interactions wanted but some found:\n"
             reportFailure(message + unverifiedCalls, at: sourceLocation)
         }
