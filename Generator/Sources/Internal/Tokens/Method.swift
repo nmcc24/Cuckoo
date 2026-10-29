@@ -254,7 +254,8 @@ extension Method {
         return [
             "self": self,
             "documentation": documentation,
-            "attributes": attributes,
+            "attributes": repeatedAttributes,
+            "spiAttributes": spiAttributes(at: accessibility),
             "isOverriding": parent.isClass,
             "name": name,
             "accessibility": accessibility.sourceName,

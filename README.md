@@ -103,7 +103,8 @@ output = "Tests/Swift/Generated/GeneratedMocks+MyProject.swift"
 imports = ["Foundation"]
 # Public imports if needed due to imports being internal by default from Swift 6.
 publicImports = ["ExampleModule"]
-# @testable imports if needed.
+# @testable imports if needed. If the mocked declarations use `@_spi(Group)`, these imports get the same
+# groups, since a testable import doesn't make SPI visible.
 testableImports = ["RxSwift"]
 # Files to read, relative to the Cuckoofile. `**` matches subfolders, and `{A,B}` either name.
 sources = [

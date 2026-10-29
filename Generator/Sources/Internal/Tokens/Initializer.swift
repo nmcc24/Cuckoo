@@ -29,7 +29,8 @@ extension Initializer: Serializable {
         return [
             "documentation": documentation,
             "accessibility": accessibility.sourceName,
-            "attributes": attributes,
+            "attributes": repeatedAttributes,
+            "spiAttributes": spiAttributes(at: accessibility),
             "signature": signature.description,
             "hasCompilationCondition": hasCompilationCondition,
             "compilationConditionCheck": compilationConditionCheck,

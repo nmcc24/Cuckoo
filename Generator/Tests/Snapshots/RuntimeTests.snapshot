@@ -20466,6 +20466,129 @@ import Foundation
 public import Cuckoo
 import Foundation
 @testable public import Cuckoo
+@_spi(CuckooTests) @testable public import CuckooTestSources
+
+public nonisolated final class MockVault: Vault, nonisolated Cuckoo.ProtocolMock {
+    public typealias MocksType = any Vault
+    public typealias Stubbing = __StubbingProxy_Vault
+    public typealias Verification = __VerificationProxy_Vault
+
+    // Original typealiases
+
+    public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Vault>()
+
+    public nonisolated func enableDefaultImplementation(_ stub: any Vault) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    public func isOpen() -> Bool {
+        return cuckoo_manager.call(
+            "isOpen() -> Bool",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Bool, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.isOpen()
+        )
+    }
+
+    @_spi(CuckooTests)
+    public func unlock(with p0: AccessToken) -> Bool {
+        return cuckoo_manager.call(
+            "unlock(with p0: AccessToken) -> Bool",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((AccessToken)) -> Bool, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.unlock(with: p0)
+        )
+    }
+
+    public nonisolated struct __StubbingProxy_Vault: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        public init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func isOpen() -> Cuckoo.ProtocolStubFunction<(), Bool, (()) -> Bool, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockVault.self,
+                method: "isOpen() -> Bool",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func unlock<M1: Cuckoo.Matchable>(with p0: M1) -> Cuckoo.ProtocolStubFunction<(AccessToken), Bool, ((AccessToken)) -> Bool, Cuckoo.StubSharing.Confined> where M1.MatchedType == AccessToken {
+            let matchers: [Cuckoo.ParameterMatcher<(AccessToken)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockVault.self,
+                method: "unlock(with p0: AccessToken) -> Bool",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    public nonisolated struct __VerificationProxy_Vault: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func isOpen() -> Cuckoo.__DoNotUse<(), Bool> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "isOpen() -> Bool",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func unlock<M1: Cuckoo.Matchable>(with p0: M1) -> Cuckoo.__DoNotUse<(AccessToken), Bool> where M1.MatchedType == AccessToken {
+            let matchers: [Cuckoo.ParameterMatcher<(AccessToken)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "unlock(with p0: AccessToken) -> Bool",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+public nonisolated final class VaultStub:Vault {
+
+
+    
+    public func isOpen() -> Bool {
+        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+    }
+    
+    @_spi(CuckooTests)
+    public func unlock(with p0: AccessToken) -> Bool {
+        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+    }
+}
+
+
+
+
+public import Cuckoo
+import Foundation
+@testable public import Cuckoo
 @testable public import CuckooTestSources
 
 nonisolated final class MockShape: Shape, nonisolated Cuckoo.ProtocolMock {

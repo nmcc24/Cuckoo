@@ -18,6 +18,24 @@ struct FileHeaderHandler {
         testableImports: [String],
         publicModules: Set<String>
     ) -> String {
+        // `@_spi` groups per module: what the sources import, and for the mocked modules, every group the mocked
+        // declarations use, because a testable import doesn't make SPI visible.
+        var spiGroups: [String: [String]] = [:]
+        func add(_ groups: [String], to module: String) {
+            for group in groups where !spiGroups[module, default: []].contains(group) {
+                spiGroups[module, default: []].append(group)
+            }
+        }
+        for sourceImport in file.imports {
+            add(sourceImport.spiGroups, to: sourceImport.description)
+        }
+        let declaredGroups = declaredSPIGroups(in: file.tokens)
+        for module in testableImports where module != "Cuckoo" {
+            add(declaredGroups, to: module)
+        }
+        func spi(_ module: String) -> String {
+            spiGroups[module, default: []].map { "@_spi(\($0)) " }.joined()
+        }
         func access(_ module: String) -> String {
             publicModules.contains(module) ? "public " : ""
         }
@@ -29,16 +47,29 @@ struct FileHeaderHandler {
         let conditionalImports = file.imports
             .filter { !$0.compilationConditions.isEmpty }
             .filter { !unconditionalImports.contains($0.description) && !testableImports.contains($0.description) }
-            .map { "#if \($0.compilationConditions.joined(separator: " && "))\n\(access($0.description))import \($0)\n#endif" }
+            .map { "#if \($0.compilationConditions.joined(separator: " && "))\n\(spi($0.description))\(access($0.description))import \($0)\n#endif" }
         return [
             !publicImports.contains("Cuckoo") ? ["\(access("Cuckoo"))import Cuckoo"] : [],
-            unconditionalImports.map { "\(access($0))import \($0)" },
+            unconditionalImports.map { "\(spi($0))\(access($0))import \($0)" },
             conditionalImports,
-            publicImports.map { "public import \($0)" },
-            testableImports.map { "@testable \(access($0))import \($0)" },
+            publicImports.map { "\(spi($0))public import \($0)" },
+            testableImports.map { "\(spi($0))@testable \(access($0))import \($0)" },
         ]
         .flatMap { $0 }
         .joined(separator: "\n")
+    }
+
+    /// The `@_spi` groups of the declarations in `tokens` and of their members, in order of appearance.
+    private static func declaredSPIGroups(in tokens: [any Token]) -> [String] {
+        var groups: [String] = []
+        func collect(_ token: any Token) {
+            for group in ((token as? any HasAttributes)?.attributes ?? []).compactMap(\.spiGroup) where !groups.contains(group) {
+                groups.append(group)
+            }
+            (token as? any HasMembers)?.members.forEach(collect)
+        }
+        tokens.forEach(collect)
+        return groups
     }
 
     private static func getRelativePath(to file: FileRepresentation) -> String {

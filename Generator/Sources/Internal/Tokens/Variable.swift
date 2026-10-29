@@ -88,7 +88,8 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             "isReadOnly": isReadOnly,
             "stubType": (parent.isClass ? "Class" : "Protocol") + "ToBeStubbed\(readOnlyStubString)\(optionalString)\(throwingString)Property",
             "verifyType": "Verify\(readOnlyVerifyString)\(optionalString)Property",
-            "attributes": attributes,
+            "attributes": repeatedAttributes,
+            "spiAttributes": spiAttributes(at: accessibility),
             "hasCompilationCondition": hasCompilationCondition,
             "compilationConditionCheck": compilationConditionCheck,
         ]

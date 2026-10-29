@@ -19,6 +19,9 @@ extension Templates {
         {% if not property.isReadOnly %}
         private let _setter_storage$${{ property.name }}: ({{ property.type }}) -> Void
         {% endif %}
+        {% for attribute in property.spiAttributes %}
+        {{ attribute }}
+        {% endfor %}
         {{ container.accessibility|withSpace }}var {{ property.name }}: {{ property.type }} {
             get { return _getter_storage$${{ property.name }}() }
             {% if not property.isReadOnly %}
@@ -40,6 +43,9 @@ extension Templates {
         private let _subscript_setter_storage$${{ forloop.counter }}: ({{ subscript.keyTypes }}{% if subscript.keyTypes %}, {% endif %}{{ subscript.returnType }}) -> Void
         {% endif %}
         {% endif %}
+        {% for attribute in subscript.spiAttributes %}
+        {{ attribute }}
+        {% endfor %}
         {{ container.accessibility|withSpace }}subscript{{ subscript.signature }} {
             get {{ subscript.getterEffects }}{
                 {% if subscript.hasGenericParams %}
@@ -114,6 +120,9 @@ extension Templates {
         {% if initializer.hasCompilationCondition %}
         {{ initializer.compilationConditionCheck }}
         {% endif %}
+        {% for attribute in initializer.spiAttributes %}
+        {{ attribute }}
+        {% endfor %}
         {{ container.accessibility|withSpace }}required init{{initializer.signature}} {
             fatalError("`DefaultImplCaller` class is only used for calling default implementation and can't be initialized on its own.")
         }
@@ -129,6 +138,9 @@ extension Templates {
         {% if not method.hasGenericParams %}
         private let _storage${{ forloop.counter }}${{ method.name }}: ({{ method.inputTypes }}) {% if method.isAsync %} async{% endif %} {% if method.isThrowing %} throws{% endif %} -> {{ method.returnType }}
         {% endif %}
+        {% for attribute in method.spiAttributes %}
+        {{ attribute }}
+        {% endfor %}
         {{ container.accessibility|withSpace }}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
             {% if method.hasGenericParams and method.hasNonPrimaryAssociatedTypeParams %}
             {# A `sending` argument is passed in rather than captured: a captured value can't be sent on. #}
@@ -159,6 +171,9 @@ extension Templates {
         {% if property.hasCompilationCondition %}
         {{ property.compilationConditionCheck }}
         {% endif %}
+        {% for attribute in property.spiAttributes %}
+        {{ attribute }}
+        {% endfor %}
         {{ container.accessibility|withSpace }}static var {{ property.name }}: {{ property.type }} {
             get {%+ if property.isAsync %}async {%+ endif %}{% if property.isThrowing %}throws {%+ endif %}{ Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ property.name }}") }
             {% if not property.isReadOnly %}
@@ -174,6 +189,9 @@ extension Templates {
         {% if method.hasCompilationCondition %}
         {{ method.compilationConditionCheck }}
         {% endif %}
+        {% for attribute in method.spiAttributes %}
+        {{ attribute }}
+        {% endfor %}
         {{ container.accessibility|withSpace }}static func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
             Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ method.fullyQualifiedName }}")
         }
@@ -186,6 +204,9 @@ extension Templates {
         {% if subscript.hasCompilationCondition %}
         {{ subscript.compilationConditionCheck }}
         {% endif %}
+        {% for attribute in subscript.spiAttributes %}
+        {{ attribute }}
+        {% endfor %}
         {{ container.accessibility|withSpace }}static subscript{{ subscript.signature }} {
             get {{ subscript.getterEffects }}{ Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("{{ subscript.getter.fullyQualifiedName }}") }
             {% if not subscript.isReadOnly %}

@@ -33,6 +33,9 @@ let __{{ name }} = Cuckoo.__SendingArgument({{ name }})
 {% for attribute in container.attributes %}
 {{ attribute }}
 {% endfor %}
+{% for attribute in container.spiAttributes %}
+{{ attribute }}
+{% endfor %}
 {% if container.hasParent %}
 extension {{ container.parentFullyQualifiedName }} {
 {% endif %}
@@ -113,6 +116,9 @@ extension {{ container.parentFullyQualifiedName }} {
     {% for attribute in property.attributes %}
     {{ attribute }}
     {% endfor %}
+    {% for attribute in property.spiAttributes %}
+    {{ attribute }}
+    {% endfor %}
     {% if property.isolationAttribute %}
     {{ property.isolationAttribute }}
     {% endif %}
@@ -162,6 +168,9 @@ extension {{ container.parentFullyQualifiedName }} {
     /// {{ docString }}
     {% endfor %}
     {% endif %}
+    {% for attribute in initializer.spiAttributes %}
+    {{ attribute }}
+    {% endfor %}
     {{ initializer.accessibility|withSpace }}required init{{initializer.signature}} {}
     {% if initializer.hasCompilationCondition %}
     #endif
@@ -181,6 +190,9 @@ extension {{ container.parentFullyQualifiedName }} {
     {% endfor %}
     {% endif %}
     {% for attribute in method.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    {% for attribute in method.spiAttributes %}
     {{ attribute }}
     {% endfor %}
     {% if method.isolationAttribute %}
@@ -207,6 +219,9 @@ extension {{ container.parentFullyQualifiedName }} {
     {% endfor %}
     {% endif %}
     {% for attribute in subscript.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    {% for attribute in subscript.spiAttributes %}
     {{ attribute }}
     {% endfor %}
     {% if subscript.isolationAttribute %}
