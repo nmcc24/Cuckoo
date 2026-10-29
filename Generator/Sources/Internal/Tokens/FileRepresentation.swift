@@ -25,10 +25,6 @@ extension FileRepresentation {
         return replacing(tokens: mergedTokens)
     }
 
-    func inheritNSObject(protocols: [ProtocolDeclaration]) -> FileRepresentation {
-        replacing(tokens: tokens.map { $0.inheritingNSObject(protocols: protocols) })
-    }
-
     func flatMappingMemberContainers() -> FileRepresentation {
         replacing(tokens: tokens.flatMap { $0.flatMappingMemberContainers() })
     }
@@ -47,8 +43,10 @@ extension Token {
     fileprivate func mergingInheritance(with files: [FileRepresentation]) -> any Token {
         guard let token = self as? any Token & HasMembers & HasInheritance else { return self }
 
+        // A protocol bound to a class doesn't take the class's members: the mock subclasses the class instead.
         let inheritedRepresentations = token.inheritedTypes
             .compactMap { Self.findToken(forClassOrProtocol: $0, in: files) }
+            .filter { !(token.isProtocol && $0.isClass) }
             .compactMap { $0.mergingInheritance(with: files) }
 
         let mergedTokens = inheritedRepresentations
@@ -73,11 +71,6 @@ extension Token {
             assertionFailure("This case should not be possible.")
             return token
         }
-    }
-
-    fileprivate func inheritingNSObject(protocols: [ProtocolDeclaration]) -> any Token {
-        guard let protocolToken = self as? ProtocolDeclaration, !protocolToken.isNSObjectProtocol else { return self }
-        return protocols.contains { $0.name == protocolToken.name } ? protocolToken.replacing(isNSObjectProtocol: true) : self
     }
 }
 

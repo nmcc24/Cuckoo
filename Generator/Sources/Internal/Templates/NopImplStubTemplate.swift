@@ -3,7 +3,7 @@ extension Templates {
 {% for attribute in container.attributes %}
 {{ attribute }}
 {% endfor %}
-{{container.accessibility|withSpace}}{% if container.isNonisolatedProtocol %}nonisolated {%+ endif %}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.name }}Stub{{ container.genericParameters }}: {% if container.isNSObjectProtocol %}NSObject, {% endif %}{{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %} {
+{{container.accessibility|withSpace}}{% if container.isNonisolatedProtocol %}nonisolated {%+ endif %}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.name }}Stub{{ container.genericParameters }}: {% if container.superclass %}{{ container.superclass }}, {% endif %}{{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %} {
     {% for property in container.allProperties %}
     {{ property.compilationConditionCheck }}
     {% if debug %}

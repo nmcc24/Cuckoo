@@ -54,7 +54,7 @@ final class Generator {
         }
         let flatMappedFiles = files.map { $0.flatMappingMemberContainers() }
         let finalFiles = if module.options.enableInheritance {
-            inheritNSObject(mergingInheritance(flatMappedFiles))
+            bindingSuperclasses(mergingInheritance(flatMappedFiles))
         } else {
             flatMappedFiles
         }
@@ -108,37 +108,39 @@ final class Generator {
         filesRepresentation.compactMap { $0.mergingInheritance(with: filesRepresentation) }
     }
 
-    private static func inheritNSObject(_ filesRepresentation: [FileRepresentation]) -> [FileRepresentation] {
-        func containsRecursively(name: String) -> Bool {
-            guard let protocolDeclaration = protocolDeclarationDictionary[name] else { return false }
-            let collapsedInheritedTypesName = protocolDeclaration.inheritedTypes
-            if collapsedInheritedTypesName.contains(where: { $0 == "NSObjectProtocol" }) {
-                return true
-            } else {
-                return protocolDeclaration.inheritedTypes.contains { inheritanceType in
-                    containsRecursively(name: inheritanceType)
-                }
-            }
-        }
-
-        let protocolDeclarationDictionary: [String: ProtocolDeclaration] = Dictionary(
-            filesRepresentation.flatMap { file in
-                file.tokens.compactMap { token -> (name: String, protocolDeclaration: ProtocolDeclaration)? in
-                    guard let protocolDeclaration = token as? ProtocolDeclaration else { return nil }
-                    return (name: protocolDeclaration.name, protocolDeclaration: protocolDeclaration)
-                }
-            }
-        ) { former, latter in
+    /// Binds every protocol that requires a superclass to it: a class declared in the sources that the protocol
+    /// names, as `protocol P: Base` or `where Self: Base`, directly or through another protocol, or `NSObject` for
+    /// an `NSObjectProtocol`. The protocol's mock and stub then subclass it.
+    private static func bindingSuperclasses(_ filesRepresentation: [FileRepresentation]) -> [FileRepresentation] {
+        let tokens = filesRepresentation.flatMap(\.tokens)
+        let protocols = Dictionary(tokens.compactMap { $0.asProtocol.map { ($0.name, $0) } }) { former, latter in
             log(.info, message: "Duplicate protocol '\(former.name)' in source set, behavior is undefined.")
             return latter
         }
+        let classes = Dictionary(tokens.compactMap { $0.asClass.map { ($0.name, $0) } }) { _, latter in latter }
 
-        let nsObjectProtocols: [ProtocolDeclaration] = protocolDeclarationDictionary.values.reduce(into: []) { protocols, protocolDeclaration in
-            guard containsRecursively(name: protocolDeclaration.name) else { return }
-            protocols.append(protocolDeclaration)
+        func superclass(of name: String, visited: Set<String>) -> (name: String, declaration: ClassDeclaration?)? {
+            guard !visited.contains(name), let protocolDeclaration = protocols[name] else { return nil }
+            for inheritedType in protocolDeclaration.inheritedTypes {
+                if inheritedType == "NSObjectProtocol" {
+                    return ("NSObject", nil)
+                }
+                if let declaration = classes[inheritedType] {
+                    return (inheritedType, declaration)
+                }
+            }
+            return protocolDeclaration.inheritedTypes.lazy
+                .compactMap { superclass(of: $0, visited: visited.union([name])) }
+                .first
         }
 
-        return filesRepresentation.map { $0.inheritNSObject(protocols: nsObjectProtocols) }
+        return filesRepresentation.map { file in
+            file.replacing(tokens: file.tokens.map { token in
+                guard let protocolDeclaration = token.asProtocol,
+                      let superclass = superclass(of: protocolDeclaration.name, visited: []) else { return token }
+                return protocolDeclaration.replacing(superclass: superclass.name, declaration: superclass.declaration)
+            })
+        }
     }
 
     private static func removeTypes(from files: [FileRepresentation], using filters: [TokenFilter]) -> [FileRepresentation] {

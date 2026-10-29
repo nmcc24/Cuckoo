@@ -129,7 +129,13 @@ final class Crawler: SyntaxVisitor {
 
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
         debug(node)
+        // `where Self: Base` binds conforming types as `: Base` does.
         let inheritedTypes = inheritedTypes(from: node.inheritanceClause?.inheritedTypes)
+            + (node.genericWhereClause?.requirements ?? []).flatMap { requirement -> [String] in
+                guard let conformance = requirement.requirement.as(ConformanceRequirementSyntax.self),
+                      conformance.leftType.trimmedDescription == "Self" else { return [] }
+                return self.inheritedTypes(from: conformance.rightType)
+            }
         var token = ProtocolDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
