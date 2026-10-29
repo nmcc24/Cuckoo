@@ -325,7 +325,7 @@ extension ComplexType: CustomStringConvertible {
     var description: String {
         switch self {
         case .attributed(let attributes, let baseType):
-            return "\(attributes.joined(separator: " ")) \(baseType.description)"
+            return (attributes + [baseType.description]).joined(separator: " ")
         case .optional(let wrappedType, let isImplicit):
             let suffix = isImplicit ? "!" : "?"
             if wrappedType.isClosure {
