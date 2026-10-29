@@ -76,6 +76,10 @@ extension Method {
 
     /// Whether a parameter is `~Copyable`. The mock can't forward such a call to the superclass or a default
     /// implementation; see `Cuckoo.MockManager.crashOnNoncopyableArgumentForward`.
+    var hasInoutParams: Bool {
+        signature.parameters.contains(where: \.isInout)
+    }
+
     var hasNoncopyableParams: Bool {
         signature.parameters.contains(where: \.isNoncopyable)
     }
@@ -166,16 +170,29 @@ extension Method {
         let recordedParameters = signature.parameters.map(\.recordedValue).joined(separator: ", ")
         // The `then` closure reads the arguments from the manager's `arguments`, the recorded parameters, rather than
         // capturing them; see `MockManager.callInternal`.
+        let parameterCount = signature.parameters.count
+        // Each parameter's recorded value; an `inout` one is passed through a local variable the mock writes back.
+        let separateArguments = signature.parameters.enumerated().map { index, parameter in
+            if parameter.isInout {
+                "&__inout\(index)"
+            } else {
+                parameterCount == 1 ? "arguments" : "arguments.\(index)"
+            }
+        }
         let implementationArguments = if stubIsolation.isolatedParameter != nil {
             // An actor mock's closure takes the mock, then each parameter.
-            switch signature.parameters.count {
-            case 0: "self"
-            case 1: "self, arguments"
-            case let count: (["self"] + (0..<count).map { "arguments.\($0)" }).joined(separator: ", ")
-            }
+            (["self"] + separateArguments).joined(separator: ", ")
+        } else if hasInoutParams {
+            // A closure with an `inout` parameter takes each parameter, since a tuple can't hold an `inout` one.
+            separateArguments.joined(separator: ", ")
         } else {
             "arguments"
         }
+        // The `then` closure can change an `inout` argument; the mock writes it back to the caller's variable.
+        let inoutPrologue = signature.parameters.enumerated().filter { $0.element.isInout }.map { index, parameter in
+            let value = parameterCount == 1 ? "arguments" : "arguments.\(index)"
+            return "var __inout\(index) = \(value); defer { \(escapeReservedKeywords(for: parameter.usableName)) = __inout\(index) };"
+        }.joined(separator: " ")
 
         /// The stub's input, output and `then` closure types. The mock's body names `Self` as written; the proxies,
         /// where `Self` would be the proxy, name the mock, which is `final`, so both are the same type at runtime.
@@ -186,9 +203,16 @@ extension Method {
             let parameterTypes = signature.parameters.map { resolved($0.matchedType) }
             let input = parameterTypes.map(\.genericArgumentSafe.description).joined(separator: ", ")
             let output = returnType.map { resolved($0.withoutAttributes(except: ["@MainActor", "@Sendable"])).genericArgumentSafe.description } ?? "Void"
+            // An `inout` parameter stays `inout` in the `then` closure, which can change the caller's variable.
+            let separateParameterTypes = zip(signature.parameters, parameterTypes).map { parameter, type in
+                "\(parameter.isInout ? "inout " : "")\(escapingIfClosure(type))"
+            }
             let implementationInput = if let isolatedParameter = stubIsolation.isolatedParameter {
                 // An actor mock's closure takes the mock, then each parameter.
-                "(\(([isolatedParameter] + parameterTypes.map(escapingIfClosure)).joined(separator: ", ")))"
+                "(\(([isolatedParameter] + separateParameterTypes).joined(separator: ", ")))"
+            } else if hasInoutParams {
+                // A tuple can't hold an `inout` parameter, so the closure takes each parameter.
+                "(\(separateParameterTypes.joined(separator: ", ")))"
             } else if parameterTypes.count == 1 {
                 // Other closures take the parameters as one tuple, the way they're recorded.
                 "((\(escapingIfClosure(parameterTypes[0]))))"
@@ -236,6 +260,7 @@ extension Method {
             "sendingParameterDeclarations": signature.parameters.filter(\.isSending).map { "_ \(escapeReservedKeywords(for: $0.usableName)): \($0.type)" },
             "recordedParameters": recordedParameters,
             "implementationArguments": implementationArguments,
+            "inoutPrologue": inoutPrologue,
             "escapingParameterNames": escapingParameterNames,
             "returnType": returnType?.description ?? "",
             "returnsSending": returnType?.containsAttribute(named: "sending") ?? false,
