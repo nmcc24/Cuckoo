@@ -381,11 +381,19 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
      - The mock can't forward such a call to the superclass or a default implementation, because the forward is a closure, which can't capture the argument. Reaching it stops the test with a message saying to stub the member.
      - `~Copyable` return values and properties stay unsupported until item 3b, which needs `~Copyable` suppression through `MockManager`'s generics anyway.
 3. ☁️ `inout` stubbing (Brightify/Cuckoo#337), `Self` (Brightify/Cuckoo#304), generic init (Brightify/Cuckoo#362), class-constrained protocols (Brightify/Cuckoo#447, Brightify/Cuckoo#376), parent associated types (Brightify/Cuckoo#576).
-   - **`inout` stubbing: on the branch.**
+   - **`inout` stubbing: done** (https://github.com/nmcc24/Cuckoo/pull/24).
      - A `then` closure takes an `inout` parameter as `inout`, and whatever it writes reaches the caller once the call returns, also when the closure throws. Protocol, class and actor mocks, sync and async, throwing and typed-throwing members all write back.
      - The recorded arguments and the matchers see the value the caller passed in, so `verify` checks the original value, not the written-back one.
      - Source break: a `then` closure written with an explicit non-`inout` parameter type, such as `{ (value: Int) in … }`, no longer compiles and needs `inout Int`. Closures that let Swift infer the type are unaffected. Goes in the Phase 5 migration guide.
      - Along the way, a type whose attributes are all stripped (`inout`, `sending`, `@escaping`) prints without a stray leading space, which only changes whitespace in the generated mocks.
+   - The rest of item 3 ships as three PRs, because only generic init already worked (probe, 2026-10-29): generic init with class-bound protocols, then `Self`, then parent associated types.
+   - **Generic init and class-bound protocols: on the branch.**
+     - Generic initializers already worked; fixture 24 and runtime tests now cover them.
+     - A protocol that requires a class declared in the sources, as `protocol P: Base` or `where Self: Base`, directly or through another protocol, gets a mock and stub that subclass `Base`. `Base`'s own members keep their real implementation, and the mock takes `Base`'s isolation instead of being `nonisolated`. The `NSObjectProtocol` → `NSObject` path is now the same mechanism. `AnyObject` protocols already worked.
+     - `where Self: X` now counts as `: X` everywhere, so `where Self: Sendable` and `where Self: Actor` are seen too.
+     - A class from another module (`protocol P: UIView`) isn't recognised, because the generator can't tell it from a protocol; its mock still doesn't compile.
+   - **`Self` in parameters and nested types:** to do. The mock writes its own name where `Self` can't appear in a class; members that take or return `Self` can't forward to a default implementation and stop the test with a message, as `~Copyable` arguments do.
+   - **Associated types inherited from a parent protocol:** to do. A child protocol's mock needs its parents' associated types (and same-type constraints such as `where Item == String`) as generic parameters.
    - 3b. ☁️ `~Copyable` arguments borrowed into `then` closures (L): needs `~Copyable` suppression through `MockManager`'s generics.
 4. ☁️ `inOrder`, `within:` / `eventually`, `thenNeverReturn`, delayed returns, and closest-match failure diffs.
 5. ☁️ Config options: prefix/suffix, regex array, `@_spi`.
