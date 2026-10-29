@@ -273,8 +273,8 @@ return cuckoo_manager.call(
 return cuckoo_manager.call(
             "withAutoClosure(action p0: @autoclosure () -> Int) -> Int",
             parameters: (p0),
-            escapingParameters: (({ () in fatalError("This is a stub! It's not supposed to be called!") } as  () -> Int)),
-            invoke: { (implementation: ((@escaping  () -> Int)) -> Int, arguments) in implementation(arguments) },
+            escapingParameters: (({ () in fatalError("This is a stub! It's not supposed to be called!") } as () -> Int)),
+            invoke: { (implementation: ((@escaping () -> Int)) -> Int, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withAutoClosure(action: p0())
         )
@@ -302,7 +302,7 @@ return cuckoo_manager.call(
             "withEscape(_ p0: String, action p1: @escaping (String) -> Void)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((String,  (String) -> Void)) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: ((String, (String) -> Void)) -> Void, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.withEscape(p0, action: p1)
         )
@@ -417,7 +417,7 @@ return cuckoo_manager.call(
             "multilineMethod(completion p0: @escaping (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((@escaping  (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: ((@escaping (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)) -> Void, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.multilineMethod(completion: p0)
         )
@@ -428,7 +428,7 @@ return cuckoo_manager.call(
             "genericMultilineMethod<T, U, V> (completion p0: @escaping (_ bar: V, _ baz: U, _ qux: T) -> Void)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((@escaping  (_ bar: V, _ baz: U, _ qux: T) -> Void)) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: ((@escaping (_ bar: V, _ baz: U, _ qux: T) -> Void)) -> Void, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.genericMultilineMethod(completion: p0)
         )
@@ -563,8 +563,8 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withAutoClosure<M1: Cuckoo.Matchable>(action p0: M1) -> Cuckoo.ProtocolStubFunction<( () -> Int), Int, ((@escaping  () -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType ==  () -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<( () -> Int)>] = [wrap(matchable: p0) { $0 }]
+        func withAutoClosure<M1: Cuckoo.Matchable>(action p0: M1) -> Cuckoo.ProtocolStubFunction<(() -> Int), Int, ((@escaping () -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == () -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Int)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withAutoClosure(action p0: @autoclosure () -> Int) -> Int",
                 parameterMatchers: matchers
@@ -579,8 +579,8 @@ return cuckoo_manager.call(
             ))
         }
         
-        func withEscape<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String,  (String) -> Void), ((String,  (String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType ==  (String) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<(String,  (String) -> Void)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func withEscape<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, (String) -> Void), ((String, (String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(String, (String) -> Void)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "withEscape(_ p0: String, action p1: @escaping (String) -> Void)",
                 parameterMatchers: matchers
@@ -659,16 +659,16 @@ return cuckoo_manager.call(
             ))
         }
         
-        func multilineMethod<M1: Cuckoo.Matchable>(completion p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<( (_ bar: Int, _ baz: Int, _ qux: Int) -> Void), ((@escaping  (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType ==  (_ bar: Int, _ baz: Int, _ qux: Int) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<( (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)>] = [wrap(matchable: p0) { $0 }]
+        func multilineMethod<M1: Cuckoo.Matchable>(completion p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<((_ bar: Int, _ baz: Int, _ qux: Int) -> Void), ((@escaping (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (_ bar: Int, _ baz: Int, _ qux: Int) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((_ bar: Int, _ baz: Int, _ qux: Int) -> Void)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "multilineMethod(completion p0: @escaping (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)",
                 parameterMatchers: matchers
             ))
         }
         
-        func genericMultilineMethod<M1: Cuckoo.Matchable, T, U, V>(completion p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<( (_ bar: V, _ baz: U, _ qux: T) -> Void), ((@escaping  (_ bar: V, _ baz: U, _ qux: T) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType ==  (_ bar: V, _ baz: U, _ qux: T) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<( (_ bar: V, _ baz: U, _ qux: T) -> Void)>] = [wrap(matchable: p0) { $0 }]
+        func genericMultilineMethod<M1: Cuckoo.Matchable, T, U, V>(completion p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<((_ bar: V, _ baz: U, _ qux: T) -> Void), ((@escaping (_ bar: V, _ baz: U, _ qux: T) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (_ bar: V, _ baz: U, _ qux: T) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((_ bar: V, _ baz: U, _ qux: T) -> Void)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTestedProtocol.self,
                 method: "genericMultilineMethod<T, U, V> (completion p0: @escaping (_ bar: V, _ baz: U, _ qux: T) -> Void)",
                 parameterMatchers: matchers
@@ -822,8 +822,8 @@ return cuckoo_manager.call(
         
         
         @discardableResult
-        func withAutoClosure<M1: Cuckoo.Matchable>(action p0: M1) -> Cuckoo.__DoNotUse<( () -> Int), Int> where M1.MatchedType ==  () -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<( () -> Int)>] = [wrap(matchable: p0) { $0 }]
+        func withAutoClosure<M1: Cuckoo.Matchable>(action p0: M1) -> Cuckoo.__DoNotUse<(() -> Int), Int> where M1.MatchedType == () -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Int)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "withAutoClosure(action p0: @autoclosure () -> Int) -> Int",
                 callMatcher: callMatcher,
@@ -846,8 +846,8 @@ return cuckoo_manager.call(
         
         
         @discardableResult
-        func withEscape<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.__DoNotUse<(String,  (String) -> Void), Void> where M1.MatchedType == String, M2.MatchedType ==  (String) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<(String,  (String) -> Void)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func withEscape<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.__DoNotUse<(String, (String) -> Void), Void> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(String, (String) -> Void)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
                 "withEscape(_ p0: String, action p1: @escaping (String) -> Void)",
                 callMatcher: callMatcher,
@@ -966,8 +966,8 @@ return cuckoo_manager.call(
         
         
         @discardableResult
-        func multilineMethod<M1: Cuckoo.Matchable>(completion p0: M1) -> Cuckoo.__DoNotUse<( (_ bar: Int, _ baz: Int, _ qux: Int) -> Void), Void> where M1.MatchedType ==  (_ bar: Int, _ baz: Int, _ qux: Int) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<( (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)>] = [wrap(matchable: p0) { $0 }]
+        func multilineMethod<M1: Cuckoo.Matchable>(completion p0: M1) -> Cuckoo.__DoNotUse<((_ bar: Int, _ baz: Int, _ qux: Int) -> Void), Void> where M1.MatchedType == (_ bar: Int, _ baz: Int, _ qux: Int) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((_ bar: Int, _ baz: Int, _ qux: Int) -> Void)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "multilineMethod(completion p0: @escaping (_ bar: Int, _ baz: Int, _ qux: Int) -> Void)",
                 callMatcher: callMatcher,
@@ -978,8 +978,8 @@ return cuckoo_manager.call(
         
         
         @discardableResult
-        func genericMultilineMethod<M1: Cuckoo.Matchable, T, U, V>(completion p0: M1) -> Cuckoo.__DoNotUse<( (_ bar: V, _ baz: U, _ qux: T) -> Void), Void> where M1.MatchedType ==  (_ bar: V, _ baz: U, _ qux: T) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<( (_ bar: V, _ baz: U, _ qux: T) -> Void)>] = [wrap(matchable: p0) { $0 }]
+        func genericMultilineMethod<M1: Cuckoo.Matchable, T, U, V>(completion p0: M1) -> Cuckoo.__DoNotUse<((_ bar: V, _ baz: U, _ qux: T) -> Void), Void> where M1.MatchedType == (_ bar: V, _ baz: U, _ qux: T) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((_ bar: V, _ baz: U, _ qux: T) -> Void)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "genericMultilineMethod<T, U, V> (completion p0: @escaping (_ bar: V, _ baz: U, _ qux: T) -> Void)",
                 callMatcher: callMatcher,
