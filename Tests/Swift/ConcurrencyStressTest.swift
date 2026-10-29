@@ -106,4 +106,24 @@ struct ConcurrencyStressTests {
         // Each queued answer goes to exactly one call.
         #expect(received.sorted() == answers)
     }
+
+    @Test
+    func aCaptorInAStubCapturesEveryConcurrentCall() async {
+        let mock = MockConcurrentCounter()
+        let captor = ArgumentCaptor<String>()
+        stub(mock) { stub in
+            when(stub.count(characters: captor.capture())).thenReturn(1)
+        }
+
+        await withTaskGroup(of: Void.self) { group in
+            for index in 0..<Self.iterations {
+                group.addTask {
+                    _ = mock.count(characters: "\(index)")
+                }
+            }
+        }
+
+        #expect(captor.allValues.count == Self.iterations)
+        #expect(Set(captor.allValues) == Set((0..<Self.iterations).map { "\($0)" }))
+    }
 }

@@ -29,4 +29,9 @@ final class ArgumentCaptorTest: XCTestCase {
         XCTAssertNil(captor.value)
         XCTAssertTrue(captor.allValues.isEmpty)
     }
+
+    func testIsSendableWhenItsValuesAre() {
+        let captor: any Sendable = ArgumentCaptor<Int>()
+        XCTAssertTrue(captor is ArgumentCaptor<Int>)
+    }
 }
