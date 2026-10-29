@@ -122,7 +122,8 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
         return [
             "self": self,
             "documentation": documentation,
-            "attributes": attributes,
+            "attributes": repeatedAttributes,
+            "spiAttributes": spiAttributes(at: accessibility),
             "isOverriding": parent.isClass,
             "isStatic": isStatic,
             "staticKeyword": isStatic ? "static " : "",

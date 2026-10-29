@@ -3,6 +3,9 @@ extension Templates {
 {% for attribute in container.attributes %}
 {{ attribute }}
 {% endfor %}
+{% for attribute in container.spiAttributes %}
+{{ attribute }}
+{% endfor %}
 {{container.accessibility|withSpace}}{% if container.isNonisolatedProtocol %}nonisolated {%+ endif %}{% if container.isActor %}actor{% else %}final class{% endif %} {{ container.name }}Stub{{ container.genericParameters }}: {% if container.superclass %}{{ container.superclass }}, {% endif %}{{ container.name }}{% if container.isImplementation %}{{ container.genericArguments }}{% endif %} {
     {% if container.declaresSelfTypealias %}
     {{ container.accessibility|withSpace }}typealias \(SelfResolution.typealiasName) = {{ container.name }}Stub
@@ -18,6 +21,9 @@ extension Templates {
     // {{property}}
     {% endif %}
     {% for attribute in property.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    {% for attribute in property.spiAttributes %}
     {{ attribute }}
     {% endfor %}
     {% if property.isolationAttribute %}
@@ -38,6 +44,9 @@ extension Templates {
 
     {% for initializer in container.initializers %}
     {{ initializer.compilationConditionCheck }}
+    {% for attribute in initializer.spiAttributes %}
+    {{ attribute }}
+    {% endfor %}
     {{ initializer.accessibility|withSpace }}required init{{initializer.signature}} {}
     {% if initializer.hasCompilationCondition %}
     #endif
@@ -50,6 +59,9 @@ extension Templates {
     // {{method}}
     {% endif %}
     {% for attribute in method.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    {% for attribute in method.spiAttributes %}
     {{ attribute }}
     {% endfor %}
     {% if method.isolationAttribute %}
@@ -69,6 +81,9 @@ extension Templates {
 
     {{ subscript.compilationConditionCheck }}
     {% for attribute in subscript.attributes %}
+    {{ attribute }}
+    {% endfor %}
+    {% for attribute in subscript.spiAttributes %}
     {{ attribute }}
     {% endfor %}
     {% if subscript.isolationAttribute %}

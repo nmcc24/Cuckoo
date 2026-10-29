@@ -42,9 +42,15 @@ extension HasAttributes {
         hasCompilationCondition ? "#if \(allCompilationConditions.joined(separator: " && "))" : ""
     }
 
-    func attributesSerialize() -> GeneratorContext {
-        [
-            "attributes": attributes,
-        ]
+    /// The attributes every generated copy of the declaration repeats. `@_spi` isn't one of them: see ``spiAttributes(at:)``.
+    var repeatedAttributes: [Attribute] {
+        attributes.filter { $0.spiGroup == nil }
+    }
+
+    /// The declaration's `@_spi` attributes, for a copy the mocks declare at `accessibility`. Only public and open
+    /// declarations can be SPI. The proxies' members are internal and go without; the `@_spi` import of the mocked
+    /// module lets them use SPI types.
+    func spiAttributes(at accessibility: Accessibility) -> [Attribute] {
+        accessibility == .public || accessibility == .open ? attributes.filter { $0.spiGroup != nil } : []
     }
 }

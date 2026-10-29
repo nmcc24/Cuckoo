@@ -95,7 +95,8 @@ final class Crawler: SyntaxVisitor {
             .library(name: path)
         }
         let isPublic = node.modifiers.contains { $0.name.tokenKind == .keyword(.public) }
-        imports.append(Import(target: target, compilationConditions: compilationConditions, isPublic: isPublic))
+        let spiGroups = attributes(from: node.attributes).compactMap(\.spiGroup)
+        imports.append(Import(target: target, compilationConditions: compilationConditions, isPublic: isPublic, spiGroups: spiGroups))
         return .skipChildren
     }
 
@@ -706,6 +707,9 @@ extension Crawler {
                         .split(separator: ",")
                         .map { String($0).trimmed } ?? []
                 )
+            case "_spi":
+                guard let group = attribute.arguments?.trimmedDescription, !group.isEmpty else { return nil }
+                return .spi(group: group)
             // These will need some more work, not sure if worth the effort.
 //            case "objc":
 //                return .objc

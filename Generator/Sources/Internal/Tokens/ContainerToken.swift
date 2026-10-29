@@ -58,7 +58,8 @@ extension ContainerToken {
             "properties": properties,
             "initializers": initializers,
             "methods": methods,
-            "attributes": attributes,
+            "attributes": repeatedAttributes,
+            "spiAttributes": spiAttributes(at: accessibility),
         ]
         .compactMapValues { $0 }
     }
