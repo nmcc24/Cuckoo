@@ -74,12 +74,14 @@ extension Method {
         return isolation
     }
 
-    /// Whether a parameter is `~Copyable`. The mock can't forward such a call to the superclass or a default
-    /// implementation; see `Cuckoo.MockManager.crashOnNoncopyableArgumentForward`.
+    /// Whether a parameter is `inout`. The implementation then takes separate parameters, since a tuple can't
+    /// hold an `inout`, and the mock writes the value back to the caller.
     var hasInoutParams: Bool {
         signature.parameters.contains(where: \.isInout)
     }
 
+    /// Whether a parameter is `~Copyable`. The mock can't forward such a call to the superclass or a default
+    /// implementation; see `Cuckoo.MockManager.crashOnNoncopyableArgumentForward`.
     var hasNoncopyableParams: Bool {
         signature.parameters.contains(where: \.isNoncopyable)
     }
