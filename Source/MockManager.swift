@@ -314,6 +314,12 @@ extension MockManager {
         fatalError("Cuckoo internal error: actor mock member \(member) reached a default implementation, which actor mocks don't have. Please report an issue to the Cuckoo repository.")
     }
 
+    /// Stands in for forwarding a member that takes or returns `Self` to a default implementation, whose `Self`
+    /// is another type than the mock.
+    public static func crashOnSelfDefaultImplementationCall<OUT>(_ member: String) -> OUT {
+        fatalError("Cuckoo can't call the default implementation of \(member), because it takes or returns Self, which is another type there than the mock. Stub it instead.")
+    }
+
     /// Stands in for forwarding a member with a `~Copyable` argument to the superclass or a default implementation.
     /// The mock forwards through a closure, which can't capture a `~Copyable` argument to pass it on.
     public static func crashOnNoncopyableArgumentForward<OUT>(_ member: String) -> OUT {
