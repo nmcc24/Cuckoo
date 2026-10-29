@@ -1,3 +1,5 @@
+import Foundation
+
 struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var parent: Reference<any Token>?
 
@@ -52,6 +54,49 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         return protocolDeclaration
     }
     
+    /// The protocol with the associated types it inherits from `parents`, each with the primary associated types
+    /// it's written with, as in `: Parent<String>`. The mock declares inherited associated types as generic
+    /// parameters, as it does the protocol's own. One the protocol fixes, with `Parent<String>` or `where Item == String`,
+    /// becomes a typealias instead, and a `where Item: Hashable` requirement constrains the generic parameter.
+    func inheritingAssociatedTypes(from parents: [(declaration: ProtocolDeclaration, arguments: [String])]) -> ProtocolDeclaration {
+        var fixedTypes: [(name: String, type: String)] = []
+        var constraints: [String: [String]] = [:]
+        for (parent, arguments) in parents {
+            fixedTypes += zip(parent.primaryAssociatedTypes, arguments).map { ($0.name, $1) }
+        }
+        for requirement in genericRequirements {
+            let separator = requirement.range(of: "==") ?? requirement.range(of: ":")
+            guard let separator else { continue }
+            var name = requirement[..<separator.lowerBound].trimmingCharacters(in: .whitespaces)
+            if name.hasPrefix("Self.") {
+                name.removeFirst("Self.".count)
+            }
+            let type = requirement[separator.upperBound...].trimmingCharacters(in: .whitespaces)
+            if requirement[separator] == "==" {
+                fixedTypes.append((name, type))
+            } else {
+                constraints[name, default: []].append(type)
+            }
+        }
+        let fixedNames = Set(fixedTypes.map(\.name))
+        let inheritedAssociatedTypes = parents.flatMap(\.declaration.genericParameters)
+
+        var protocolDeclaration = self
+        protocolDeclaration.associatedTypes = (associatedTypes + inheritedAssociatedTypes)
+            .merged()
+            .filter { !fixedNames.contains($0.name) }
+            .map { GenericParameter(name: $0.name, inheritedTypes: ($0.inheritedTypes + constraints[$0.name, default: []]).uniquing(), isPack: $0.isPack) }
+        protocolDeclaration.primaryAssociatedTypes = primaryAssociatedTypes.filter { !fixedNames.contains($0.name) }
+        // A parent's typealiases arrive with its members; keep one of each.
+        var aliases: Set<String> = []
+        protocolDeclaration.members = (members + fixedTypes.map { Typealias(alias: $0.name, original: $0.type) as any Token })
+            .filter { member in
+                guard let typealiasToken = member as? Typealias else { return true }
+                return aliases.insert(typealiasToken.alias).inserted
+            }
+        return protocolDeclaration
+    }
+
     var genericParameters: [GenericParameter] {
         (associatedTypes + primaryAssociatedTypes).merged()
     }

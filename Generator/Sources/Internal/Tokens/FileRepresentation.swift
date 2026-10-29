@@ -44,8 +44,9 @@ extension Token {
         guard let token = self as? any Token & HasMembers & HasInheritance else { return self }
 
         // A protocol bound to a class doesn't take the class's members: the mock subclasses the class instead.
+        // A protocol's parent can be written with its primary associated types, as `Parent<String>`.
         let inheritedRepresentations = token.inheritedTypes
-            .compactMap { Self.findToken(forClassOrProtocol: $0, in: files) }
+            .compactMap { Self.findToken(forClassOrProtocol: token.isProtocol ? $0.withoutGenericArguments : $0, in: files) }
             .filter { !(token.isProtocol && $0.isClass) }
             .compactMap { $0.mergingInheritance(with: files) }
 
@@ -66,7 +67,10 @@ extension Token {
         case let classToken as ClassDeclaration:
             return classToken.replacing(members: mergedTokens)
         case let protocolToken as ProtocolDeclaration:
-            return protocolToken.replacing(members: mergedTokens)
+            let parents = inheritedRepresentations.compactMap { $0 as? ProtocolDeclaration }.map { parent in
+                (declaration: parent, arguments: protocolToken.inheritedTypes.first { $0.withoutGenericArguments == parent.name }?.genericArguments ?? [])
+            }
+            return protocolToken.replacing(members: mergedTokens).inheritingAssociatedTypes(from: parents)
         default:
             assertionFailure("This case should not be possible.")
             return token

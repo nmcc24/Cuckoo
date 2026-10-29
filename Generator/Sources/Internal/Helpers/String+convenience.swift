@@ -32,3 +32,36 @@ extension String {
         return mutableString
     }
 }
+
+extension String {
+    /// A type written as `Parent<String, Int>`, without its generic arguments: `Parent`.
+    var withoutGenericArguments: String {
+        guard let openingBracket = firstIndex(of: "<") else { return self }
+        return String(self[..<openingBracket]).trimmingCharacters(in: .whitespaces)
+    }
+
+    /// A type's top-level generic arguments: `["String", "[Int: Bool]"]` for `Parent<String, [Int: Bool]>`.
+    var genericArguments: [String] {
+        guard let openingBracket = firstIndex(of: "<"), hasSuffix(">") else { return [] }
+        var arguments: [String] = []
+        var current = ""
+        var depth = 0
+        for character in self[index(after: openingBracket)..<index(before: endIndex)] {
+            switch character {
+            case "<", "[", "(":
+                depth += 1
+            case ">", "]", ")":
+                depth -= 1
+            case "," where depth == 0:
+                arguments.append(current.trimmingCharacters(in: .whitespaces))
+                current = ""
+                continue
+            default:
+                break
+            }
+            current.append(character)
+        }
+        arguments.append(current.trimmingCharacters(in: .whitespaces))
+        return arguments
+    }
+}
