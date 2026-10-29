@@ -63,10 +63,16 @@ public final class MockManager: Sendable {
         // Newest stub first. A stub has no action yet while another thread is still between `when` and
         // `then…`, so it's skipped rather than treated as broken; an older stub can still answer.
         var sawUnfinishedStub = false
+        // For each stub that didn't match, newest first, the first argument it rejected.
+        var mismatches: [Int] = []
         let candidates = stubs.lazy
             .filter { $0.method == method }
             .compactMap { $0 as? ConcreteStub<IN, OUT, ERROR, IMPL> }
-        for stub in candidates where stub.matches(parameters) {
+        for stub in candidates {
+            if let mismatch = stub.firstMismatch(in: parameters) {
+                mismatches.append(mismatch)
+                continue
+            }
             guard let action = stub.nextAction() else {
                 sawUnfinishedStub = true
                 continue
@@ -88,9 +94,18 @@ public final class MockManager: Sendable {
             fail("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
             return .unstubbed
         } else {
-            fail("No stub for method `\(method)` using parameters \(parameters).")
+            fail("No stub for method `\(method)` using parameters \(parameters).\n" + describeStubs(of: method, mismatches: mismatches))
             return .unstubbed
         }
+    }
+
+    /// Why no stub of `method` answered a call: the argument each one rejected, or that there are none.
+    private func describeStubs(of method: String, mismatches: [Int]) -> String {
+        let member = MemberSignature(method)
+        guard !mismatches.isEmpty else {
+            return "The mock has no stub for \(member.name)."
+        }
+        return "Stubs of \(member.name), newest first:\n" + numberedList(mismatches.map { "\(member.argument(at: $0)) doesn't match" })
     }
 
     /// The default value an unstubbed call returns, or a crash if its type has none.
@@ -180,10 +195,13 @@ public final class MockManager: Sendable {
 
     public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> __DoNotUse<IN, OUT> {
         let recordedCalls = state.withLock { $0.calls }
-        let matching = recordedCalls.filter { recorded in
-            guard recorded.call.method == method, let call = recorded.call as? ConcreteStubCall<IN> else { return false }
-            return parameterMatchers.allSatisfy { $0.matches(call.parameters) }
+        // Each call to this member with the first argument its matcher rejected, or `nil` if the call matches. Like
+        // stub matching, it stops at that argument.
+        let callsToMember = recordedCalls.compactMap { recorded -> (recorded: RecordedCall, mismatch: Int?)? in
+            guard recorded.call.method == method, let call = recorded.call as? ConcreteStubCall<IN> else { return nil }
+            return (recorded, parameterMatchers.firstIndex { !$0.matches(call.parameters) })
         }
+        let matching = callsToMember.filter { $0.mismatch == nil }.map(\.recorded)
         if let order = InOrder.current {
             verifyInOrder(order, matching: matching, callMatcher: callMatcher, sourceLocation: sourceLocation)
             return __DoNotUse()
@@ -195,9 +213,28 @@ public final class MockManager: Sendable {
         let calls = matching.map(\.call)
         if callMatcher.matches(calls) == false {
             let message = "Wanted \(callMatcher.name) but \(calls.count == 0 ? "not invoked" : "invoked \(calls.count) times")."
-            reportFailure(message, at: sourceLocation)
+            reportFailure(message + "\n" + describeCalls(of: method, callsToMember: callsToMember, among: recordedCalls), at: sourceLocation)
         }
         return __DoNotUse()
+    }
+
+    /// What a failed `verify` of `method` saw: its calls and the argument each one that didn't match got wrong, or
+    /// else every call the mock received.
+    private func describeCalls(of method: String, callsToMember: [(recorded: RecordedCall, mismatch: Int?)], among recordedCalls: [RecordedCall]) -> String {
+        let member = MemberSignature(method)
+        guard !callsToMember.isEmpty else {
+            guard !recordedCalls.isEmpty else {
+                return "The mock received no calls."
+            }
+            return "\(member.name) wasn't called. The mock received:\n" + numberedList(recordedCalls.map(\.call.readableDescription))
+        }
+        return "Calls to \(member.name):\n" + numberedList(callsToMember.map { recorded, mismatch in
+            let call = recorded.call.readableDescription
+            guard let mismatch else {
+                return call + " matches"
+            }
+            return call + ": \(member.argument(at: mismatch)) doesn't match"
+        })
     }
 
     /// A `verify` inside `inOrder`: it only looks at the calls after the ones the previous `verify` matched.

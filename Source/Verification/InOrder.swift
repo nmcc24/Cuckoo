@@ -1,5 +1,3 @@
-import Foundation
-
 /// Checks that the calls verified in `block` happened in the order of the `verify` calls, across mocks.
 ///
 /// ```swift
@@ -127,18 +125,5 @@ extension CallMatcher {
             return calls.prefix(count)
         }
         return nil
-    }
-}
-
-extension StubCall {
-    /// The call as a test reads it: the member's name and its arguments.
-    var readableDescription: String {
-        if let bracketIndex = method.range(of: "(")?.lowerBound {
-            return method[..<bracketIndex] + parametersAsString
-        } else if method.hasSuffix("#set") {
-            return method + parametersAsString
-        } else {
-            return method
-        }
     }
 }

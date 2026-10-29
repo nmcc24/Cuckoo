@@ -12,7 +12,7 @@ final class FailTest: XCTestCase {
             verify(mock).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted 1 times but not invoked.")
+        XCTAssertEqual(error, "Wanted 1 times but not invoked.\nThe mock received no calls.")
     }
 
     func testNoInvocation2Wanted() {
@@ -27,7 +27,7 @@ final class FailTest: XCTestCase {
             verify(mock, times(2)).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted 2 times but invoked 1 times.")
+        XCTAssertEqual(error, "Wanted 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
     }
 
     func testInvocationNeverWanted() {
@@ -42,7 +42,7 @@ final class FailTest: XCTestCase {
             verify(mock, never()).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted never but invoked 1 times.")
+        XCTAssertEqual(error, "Wanted never but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
     }
 
     func testInvocationAtLeast2Wanted() {
@@ -57,7 +57,7 @@ final class FailTest: XCTestCase {
             verify(mock, atLeast(2)).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted at least 2 times but invoked 1 times.")
+        XCTAssertEqual(error, "Wanted at least 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
     }
 
     func test2InvocationAtMost1Wanted() {
@@ -73,7 +73,7 @@ final class FailTest: XCTestCase {
             verify(mock, atMost(1)).noReturn()
         }
         
-        XCTAssertEqual(error, "Wanted at most 1 times but invoked 2 times.")
+        XCTAssertEqual(error, "Wanted at most 1 times but invoked 2 times.\nCalls to noReturn():\n  1. noReturn() matches\n  2. noReturn() matches")
     }
 
     func testCallMatcherOr() {
@@ -86,7 +86,7 @@ final class FailTest: XCTestCase {
             verify(mock, times(1).or(times(2))).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted either 1 times or 2 times but not invoked.")
+        XCTAssertEqual(error, "Wanted either 1 times or 2 times but not invoked.\nThe mock received no calls.")
     }
 
     func testCallMatcherAnd() {
@@ -99,7 +99,7 @@ final class FailTest: XCTestCase {
             verify(mock, atLeast(1).and(atMost(2))).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted both at least 1 times and at most 2 times but not invoked.")
+        XCTAssertEqual(error, "Wanted both at least 1 times and at most 2 times but not invoked.\nThe mock received no calls.")
     }
 
     func testVerifyNoMoreInteractionsFail() {
@@ -135,7 +135,7 @@ struct FailSwiftTestingTests {
             verify(mock).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted 1 times but not invoked."
+                "Wanted 1 times but not invoked.\nThe mock received no calls."
             ]
         }
     }
@@ -153,7 +153,7 @@ struct FailSwiftTestingTests {
             verify(mock, times(2)).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted 2 times but invoked 1 times."
+                "Wanted 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches"
             ]
         }
     }
@@ -171,7 +171,7 @@ struct FailSwiftTestingTests {
             verify(mock, never()).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted never but invoked 1 times."
+                "Wanted never but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches"
             ]
         }
     }
@@ -189,7 +189,7 @@ struct FailSwiftTestingTests {
             verify(mock, atLeast(2)).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted at least 2 times but invoked 1 times."
+                "Wanted at least 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches"
             ]
         }
     }
@@ -208,7 +208,7 @@ struct FailSwiftTestingTests {
             verify(mock, atMost(1)).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted at most 1 times but invoked 2 times."
+                "Wanted at most 1 times but invoked 2 times.\nCalls to noReturn():\n  1. noReturn() matches\n  2. noReturn() matches"
             ]
         }
     }
@@ -224,7 +224,7 @@ struct FailSwiftTestingTests {
             verify(mock, times(1).or(times(2))).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted either 1 times or 2 times but not invoked."
+                "Wanted either 1 times or 2 times but not invoked.\nThe mock received no calls."
             ]
         }
     }
@@ -240,7 +240,7 @@ struct FailSwiftTestingTests {
             verify(mock, atLeast(1).and(atMost(2))).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted both at least 1 times and at most 2 times but not invoked."
+                "Wanted both at least 1 times and at most 2 times but not invoked.\nThe mock received no calls."
             ]
         }
     }

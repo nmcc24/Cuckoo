@@ -53,7 +53,7 @@ struct EventuallyTests {
                 verify(mock).count(characters: "a")
             }
         }
-        #expect(messages == ["Still failing after 0.05 seconds: Wanted 1 times but not invoked."])
+        #expect(messages == ["Still failing after 0.05 seconds: Wanted 1 times but not invoked.\nThe mock received no calls."])
     }
 
     @Test
