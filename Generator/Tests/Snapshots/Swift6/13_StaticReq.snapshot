@@ -5,6 +5,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
     typealias MocksType = any Factory
     typealias Stubbing = __StubbingProxy_Factory
     typealias Verification = __VerificationProxy_Factory
+    typealias __CuckooSelf = MockFactory
     typealias StaticStubbing = __StaticStubbingProxy_Factory
     typealias StaticVerification = __StaticVerificationProxy_Factory
 
@@ -51,12 +52,12 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
         )
     }
 
-    static func make() -> Self {
+    static func make() -> __CuckooSelf {
         return cuckoo_staticManager.call(
             "static make() -> Self",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Self, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> __CuckooSelf, arguments) in implementation(arguments) },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static make() -> Self")
         )
@@ -138,7 +139,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             return .init(manager: cuckoo_manager, name: "count")
         }
         
-        func make() -> Cuckoo.ProtocolStubFunction<(), MockFactory, (()) -> MockFactory, Cuckoo.StubSharing.Confined> {
+        func make() -> Cuckoo.ProtocolStubFunction<(), __CuckooSelf, (()) -> __CuckooSelf, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockFactory.self,
                 method: "static make() -> Self",
@@ -189,7 +190,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
         
         
         @discardableResult
-        func make() -> Cuckoo.__DoNotUse<(), MockFactory> {
+        func make() -> Cuckoo.__DoNotUse<(), __CuckooSelf> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "static make() -> Self",
@@ -237,6 +238,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
 }
 
 nonisolated final class FactoryStub:Factory {
+    typealias __CuckooSelf = FactoryStub
     
     static var count: Int {
         get {
@@ -251,8 +253,8 @@ nonisolated final class FactoryStub:Factory {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
     
-    static func make() -> Self {
-        return DefaultValueRegistry.defaultValue(for: (Self).self)
+    static func make() -> __CuckooSelf {
+        return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
     }
     
     static func load(id p0: Int) async throws -> String {
