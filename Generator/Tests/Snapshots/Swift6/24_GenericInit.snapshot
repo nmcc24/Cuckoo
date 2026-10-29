@@ -1,0 +1,171 @@
+import Cuckoo
+import Foundation
+
+nonisolated final class MockConfigurable: Configurable, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any Configurable
+    typealias Stubbing = __StubbingProxy_Configurable
+    typealias Verification = __VerificationProxy_Configurable
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Configurable>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any Configurable) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    required init<T> (value p0: T) {}
+    required init<C: Collection> (items p0: C) where C.Element == Int {}
+    required init<T: Equatable> (maybe p0: T) {}
+
+    func describe() -> String {
+        return cuckoo_manager.call(
+            "describe() -> String",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> String, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.describe()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Configurable: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func describe() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockConfigurable.self,
+                method: "describe() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Configurable: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func describe() -> Cuckoo.__DoNotUse<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "describe() -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ConfigurableStub:Configurable {
+
+    
+    required init<T> (value p0: T) {}
+    
+    required init<C: Collection> (items p0: C) where C.Element == Int {}
+    
+    required init<T: Equatable> (maybe p0: T) {}
+
+    
+    func describe() -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+}
+
+
+final class MockBox: Box, nonisolated Cuckoo.ClassMock {
+    typealias MocksType = Box
+    typealias Stubbing = __StubbingProxy_Box
+    typealias Verification = __VerificationProxy_Box
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<Box>()
+
+    nonisolated func enableDefaultImplementation(_ stub: Box) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    override func label(prefix p0: String) -> String {
+        return cuckoo_manager.call(
+            "label(prefix p0: String) -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((String)) -> String, arguments) in implementation(arguments) },
+            superclassCall: super.label(prefix: p0),
+            defaultCall: __defaultImplStub.value.label(prefix: p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Box: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func label<M1: Cuckoo.Matchable>(prefix p0: M1) -> Cuckoo.ClassStubFunction<(String), String, ((String)) -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockBox.self,
+                method: "label(prefix p0: String) -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Box: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func label<M1: Cuckoo.Matchable>(prefix p0: M1) -> Cuckoo.__DoNotUse<(String), String> where M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "label(prefix p0: String) -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class BoxStub:Box {
+
+
+    
+    override func label(prefix p0: String) -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+}
+
+
+
