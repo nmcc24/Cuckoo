@@ -30,6 +30,7 @@ import Combine
 @testable public import protocol CuckooTestSources.GenericProtocol
 @testable public import protocol CuckooTestSources.PrimaryAssociatedTypeProtocol
 @testable public import protocol CuckooTestSources.MixedPrimaryAssociatedTypeProtocol
+@testable public import protocol CuckooTestSources.Labeler
 @testable public import struct CuckooTestSources.Unit
 @testable public import struct CuckooTestSources.CuckooTestSources
 @testable public import protocol CuckooTestSources.UnitConverter
@@ -4178,6 +4179,251 @@ nonisolated final class MixedPrimaryAssociatedTypeProtocolStub<Input: Equatable,
     
     func convertToOutput<T> (value p0: sending T, input p1: sending Input, convert p2: @escaping @MainActor @Sendable (T, Input) async throws -> sending Output?) async rethrows -> Output {
         return DefaultValueRegistry.defaultValue(for: (Output).self)
+    }
+}
+
+
+
+
+// runtime support for constrained protocols with primary associated types
+@available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
+nonisolated final class MockLabeler<Input, Output>: Labeler, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = DefaultImplCaller
+    typealias Stubbing = __StubbingProxy_Labeler
+    typealias Verification = __VerificationProxy_Labeler
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    nonisolated final class DefaultImplCaller: Labeler, @unchecked Sendable {
+        private let reference: () -> any Labeler<Input>
+    
+        
+        init<_CUCKOO$$GENERIC: Labeler>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+            self.reference = reference
+    
+        }
+    
+
+        func label<T> (_ p0: T) -> Output {
+            
+            func openExistential<_CUCKOO$$GENERIC: Labeler<Input>>(_ opened: _CUCKOO$$GENERIC) -> Output {
+                return opened.label(p0) as! Output
+            }
+            return openExistential(reference())
+        }
+
+        func labels<T> (_ p0: [T]) -> [Output] {
+            
+            func openExistential<_CUCKOO$$GENERIC: Labeler<Input>>(_ opened: _CUCKOO$$GENERIC) -> [Output] {
+                return opened.labels(p0) as! [Output]
+            }
+            return openExistential(reference())
+        }
+
+        func pair<T> (_ p0: T, input p1: Input) -> (Output, T) {
+            
+            func openExistential<_CUCKOO$$GENERIC: Labeler<Input>>(_ opened: _CUCKOO$$GENERIC) -> (Output, T) {
+                return opened.pair(p0, input: p1) as! (Output, T)
+            }
+            return openExistential(reference())
+        }
+
+        func lookup<T> (_ p0: T) async throws -> Output? {
+            
+            #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
+            nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: Labeler<Input>>(_ opened: _CUCKOO$$GENERIC) async throws -> Output? {
+                return try await opened.lookup(p0) as! Output?
+            }
+            #else
+            func openExistential<_CUCKOO$$GENERIC: Labeler<Input>>(_ opened: _CUCKOO$$GENERIC) async throws -> Output? {
+                return try await opened.lookup(p0) as! Output?
+            }
+            #endif
+            return try await openExistential(reference())
+        }
+    }
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Labeler>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+        var mutableStub = stub
+        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Labeler>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func label<T> (_ p0: T) -> Output {
+        return cuckoo_manager.call(
+            "label<T> (_ p0: T) -> Output",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((T)) -> Output, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.label(p0)
+        )
+    }
+
+    func labels<T> (_ p0: [T]) -> [Output] {
+        return cuckoo_manager.call(
+            "labels<T> (_ p0: [T]) -> [Output]",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: (([T])) -> [Output], arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.labels(p0)
+        )
+    }
+
+    func pair<T> (_ p0: T, input p1: Input) -> (Output, T) {
+        return cuckoo_manager.call(
+            "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
+            parameters: (p0, p1),
+            escapingParameters: (p0, p1),
+            invoke: { (implementation: ((T, Input)) -> (Output, T), arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.pair(p0, input: p1)
+        )
+    }
+
+    func lookup<T> (_ p0: T) async throws -> Output? {
+        return try await cuckoo_manager.callThrows(
+            "lookup<T> (_ p0: T) async throws -> Output?",
+            parameters: (p0),
+            escapingParameters: (p0),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: nonisolated(nonsending) ((T)) async throws -> Output?, arguments) async throws(any Swift.Error) in try await implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await __defaultImplStub.value.lookup(p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Labeler: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func label<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(T), Output, ((T)) -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockLabeler.self,
+                method: "label<T> (_ p0: T) -> Output",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func labels<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<([T]), [Output], (([T])) -> [Output], Cuckoo.StubSharing.Confined> where M1.MatchedType == [T] {
+            let matchers: [Cuckoo.ParameterMatcher<([T])>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockLabeler.self,
+                method: "labels<T> (_ p0: [T]) -> [Output]",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func pair<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, input p1: M2) -> Cuckoo.ProtocolStubFunction<(T, Input), (Output, T), ((T, Input)) -> (Output, T), Cuckoo.StubSharing.Confined> where M1.MatchedType == T, M2.MatchedType == Input {
+            let matchers: [Cuckoo.ParameterMatcher<(T, Input)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockLabeler.self,
+                method: "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func lookup<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(T), Output?,any Swift.Error, nonisolated(nonsending) ((T)) async throws -> Output?, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockLabeler.self,
+                method: "lookup<T> (_ p0: T) async throws -> Output?",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Labeler: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func label<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.__DoNotUse<(T), Output> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "label<T> (_ p0: T) -> Output",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func labels<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.__DoNotUse<([T]), [Output]> where M1.MatchedType == [T] {
+            let matchers: [Cuckoo.ParameterMatcher<([T])>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "labels<T> (_ p0: [T]) -> [Output]",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func pair<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, input p1: M2) -> Cuckoo.__DoNotUse<(T, Input), (Output, T)> where M1.MatchedType == T, M2.MatchedType == Input {
+            let matchers: [Cuckoo.ParameterMatcher<(T, Input)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return cuckoo_manager.verify(
+                "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func lookup<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.__DoNotUse<(T), Output?> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "lookup<T> (_ p0: T) async throws -> Output?",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class LabelerStub<Input, Output>:Labeler {
+
+
+    
+    func label<T> (_ p0: T) -> Output {
+        return DefaultValueRegistry.defaultValue(for: (Output).self)
+    }
+    
+    func labels<T> (_ p0: [T]) -> [Output] {
+        return DefaultValueRegistry.defaultValue(for: ([Output]).self)
+    }
+    
+    func pair<T> (_ p0: T, input p1: Input) -> (Output, T) {
+        return DefaultValueRegistry.defaultValue(for: ((Output, T)).self)
+    }
+    
+    func lookup<T> (_ p0: T) async throws -> Output? {
+        return DefaultValueRegistry.defaultValue(for: (Output?).self)
     }
 }
 

@@ -124,9 +124,13 @@ extension Method {
         )
     }
     
-    var hasNonPrimaryAssociatedTypeParams: Bool {
+    /// A generic method can't be stored as a closure, so the default implementation calls it on the existential, which
+    /// erases the non-primary associated types. Where its parameters or its return type use one, the call goes through
+    /// the opened existential instead, casting between the two types the generic initializer requires to be equal.
+    var usesNonPrimaryAssociatedTypes: Bool {
         guard let parent = parent?.asProtocol else { return false }
-        return signature.containsTypes(named: parent.nonPrimaryAssociatedTypes.map(\.name))
+        let names = parent.nonPrimaryAssociatedTypes.map(\.name)
+        return signature.containsTypes(named: names) || returnType?.containsTypes(named: names) == true
     }
 
     func serialize() -> [String : Any] {
@@ -322,7 +326,7 @@ extension Method {
             "hasGenericParams": hasGenericParams,
             "hasNoncopyableParams": hasNoncopyableParams,
             "genericParameters": signature.genericParameters.sourceDescription,
-            "hasNonPrimaryAssociatedTypeParams": hasNonPrimaryAssociatedTypeParams,
+            "usesNonPrimaryAssociatedTypes": usesNonPrimaryAssociatedTypes,
             "hasCompilationCondition": hasCompilationCondition,
             "compilationConditionCheck": compilationConditionCheck,
         ]

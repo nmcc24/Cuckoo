@@ -1,0 +1,647 @@
+import Cuckoo
+import Foundation
+
+// runtime support for constrained protocols with primary associated types
+@available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
+nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = DefaultImplCaller
+    typealias Stubbing = __StubbingProxy_Converter
+    typealias Verification = __VerificationProxy_Converter
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    nonisolated final class DefaultImplCaller: Converter, @unchecked Sendable {
+        private let reference: () -> any Converter<Input>
+    
+        
+        init<_CUCKOO$$GENERIC: Converter>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+            self.reference = reference
+    
+            _storage$2$convert = defaultImpl.pointee.convert
+        }
+    
+
+        func convert<T> (value p0: T) -> Output {
+            
+            func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC) -> Output {
+                return opened.convert(value: p0) as! Output
+            }
+            return openExistential(reference())
+        }
+
+        private let _storage$2$convert: (Input) -> Output
+        func convert(input p0: Input) -> Output {
+            return _storage$2$convert(p0)
+        }
+
+        func wrap<T> (_ p0: T) -> [Output] {
+            
+            func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC) -> [Output] {
+                return opened.wrap(p0) as! [Output]
+            }
+            return openExistential(reference())
+        }
+
+        func pair<T> (_ p0: T, input p1: Input) -> (Output, T) {
+            
+            func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC) -> (Output, T) {
+                return opened.pair(p0, input: p1) as! (Output, T)
+            }
+            return openExistential(reference())
+        }
+
+        func merge<T> (_ p0: T, into p1: Output) -> Output {
+            
+            func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC) -> Output {
+                return opened.merge(p0, into: p1 as! _CUCKOO$$GENERIC.Output) as! Output
+            }
+            return openExistential(reference())
+        }
+
+        func lookup<T> (_ p0: T) -> Output? {
+            
+            func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC) -> Output? {
+                return opened.lookup(p0) as! Output?
+            }
+            return openExistential(reference())
+        }
+
+        func collect<T> (_ p0: [Output], tag p1: T) -> [String: Output] {
+            
+            func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC) -> [String: Output] {
+                return opened.collect(p0 as! [_CUCKOO$$GENERIC.Output], tag: p1) as! [String: Output]
+            }
+            return openExistential(reference())
+        }
+
+        func result<T> (_ p0: T) -> Result<Output, any Error> {
+            
+            func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC) -> Result<Output, any Error> {
+                return opened.result(p0) as! Result<Output, any Error>
+            }
+            return openExistential(reference())
+        }
+
+        func nested<T> (_ p0: T) -> Wrapper.Output {
+            return reference().nested(p0)
+        }
+    }
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+        var mutableStub = stub
+        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
+        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func convert<T> (value p0: T) -> Output {
+        return cuckoo_manager.call(
+            "convert<T> (value p0: T) -> Output",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((T)) -> Output, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.convert(value: p0)
+        )
+    }
+
+    func convert(input p0: Input) -> Output {
+        return cuckoo_manager.call(
+            "convert(input p0: Input) -> Output",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Input)) -> Output, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.convert(input: p0)
+        )
+    }
+
+    func wrap<T> (_ p0: T) -> [Output] {
+        return cuckoo_manager.call(
+            "wrap<T> (_ p0: T) -> [Output]",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((T)) -> [Output], arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.wrap(p0)
+        )
+    }
+
+    func pair<T> (_ p0: T, input p1: Input) -> (Output, T) {
+        return cuckoo_manager.call(
+            "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
+            parameters: (p0, p1),
+            escapingParameters: (p0, p1),
+            invoke: { (implementation: ((T, Input)) -> (Output, T), arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.pair(p0, input: p1)
+        )
+    }
+
+    func merge<T> (_ p0: T, into p1: Output) -> Output {
+        return cuckoo_manager.call(
+            "merge<T> (_ p0: T, into p1: Output) -> Output",
+            parameters: (p0, p1),
+            escapingParameters: (p0, p1),
+            invoke: { (implementation: ((T, Output)) -> Output, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.merge(p0, into: p1)
+        )
+    }
+
+    func lookup<T> (_ p0: T) -> Output? {
+        return cuckoo_manager.call(
+            "lookup<T> (_ p0: T) -> Output?",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((T)) -> Output?, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.lookup(p0)
+        )
+    }
+
+    func collect<T> (_ p0: [Output], tag p1: T) -> [String: Output] {
+        return cuckoo_manager.call(
+            "collect<T> (_ p0: [Output], tag p1: T) -> [String: Output]",
+            parameters: (p0, p1),
+            escapingParameters: (p0, p1),
+            invoke: { (implementation: (([Output], T)) -> [String: Output], arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.collect(p0, tag: p1)
+        )
+    }
+
+    func result<T> (_ p0: T) -> Result<Output, any Error> {
+        return cuckoo_manager.call(
+            "result<T> (_ p0: T) -> Result<Output, any Error>",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((T)) -> Result<Output, any Error>, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.result(p0)
+        )
+    }
+
+    func nested<T> (_ p0: T) -> Wrapper.Output {
+        return cuckoo_manager.call(
+            "nested<T> (_ p0: T) -> Wrapper.Output",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((T)) -> Wrapper.Output, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.nested(p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Converter: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func convert<M1: Cuckoo.Matchable, T>(value p0: M1) -> Cuckoo.ProtocolStubFunction<(T), Output, ((T)) -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "convert<T> (value p0: T) -> Output",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func convert<M1: Cuckoo.Matchable>(input p0: M1) -> Cuckoo.ProtocolStubFunction<(Input), Output, ((Input)) -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == Input {
+            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "convert(input p0: Input) -> Output",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func wrap<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(T), [Output], ((T)) -> [Output], Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "wrap<T> (_ p0: T) -> [Output]",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func pair<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, input p1: M2) -> Cuckoo.ProtocolStubFunction<(T, Input), (Output, T), ((T, Input)) -> (Output, T), Cuckoo.StubSharing.Confined> where M1.MatchedType == T, M2.MatchedType == Input {
+            let matchers: [Cuckoo.ParameterMatcher<(T, Input)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func merge<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, into p1: M2) -> Cuckoo.ProtocolStubFunction<(T, Output), Output, ((T, Output)) -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == T, M2.MatchedType == Output {
+            let matchers: [Cuckoo.ParameterMatcher<(T, Output)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "merge<T> (_ p0: T, into p1: Output) -> Output",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func lookup<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(T), Output?, ((T)) -> Output?, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "lookup<T> (_ p0: T) -> Output?",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func collect<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, tag p1: M2) -> Cuckoo.ProtocolStubFunction<([Output], T), [String: Output], (([Output], T)) -> [String: Output], Cuckoo.StubSharing.Confined> where M1.MatchedType == [Output], M2.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<([Output], T)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "collect<T> (_ p0: [Output], tag p1: T) -> [String: Output]",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func result<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(T), Result<Output, any Error>, ((T)) -> Result<Output, any Error>, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "result<T> (_ p0: T) -> Result<Output, any Error>",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func nested<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(T), Wrapper.Output, ((T)) -> Wrapper.Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+                method: "nested<T> (_ p0: T) -> Wrapper.Output",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Converter: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func convert<M1: Cuckoo.Matchable, T>(value p0: M1) -> Cuckoo.__DoNotUse<(T), Output> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "convert<T> (value p0: T) -> Output",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func convert<M1: Cuckoo.Matchable>(input p0: M1) -> Cuckoo.__DoNotUse<(Input), Output> where M1.MatchedType == Input {
+            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "convert(input p0: Input) -> Output",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func wrap<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.__DoNotUse<(T), [Output]> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "wrap<T> (_ p0: T) -> [Output]",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func pair<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, input p1: M2) -> Cuckoo.__DoNotUse<(T, Input), (Output, T)> where M1.MatchedType == T, M2.MatchedType == Input {
+            let matchers: [Cuckoo.ParameterMatcher<(T, Input)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return cuckoo_manager.verify(
+                "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func merge<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, into p1: M2) -> Cuckoo.__DoNotUse<(T, Output), Output> where M1.MatchedType == T, M2.MatchedType == Output {
+            let matchers: [Cuckoo.ParameterMatcher<(T, Output)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return cuckoo_manager.verify(
+                "merge<T> (_ p0: T, into p1: Output) -> Output",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func lookup<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.__DoNotUse<(T), Output?> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "lookup<T> (_ p0: T) -> Output?",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func collect<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, tag p1: M2) -> Cuckoo.__DoNotUse<([Output], T), [String: Output]> where M1.MatchedType == [Output], M2.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<([Output], T)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return cuckoo_manager.verify(
+                "collect<T> (_ p0: [Output], tag p1: T) -> [String: Output]",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func result<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.__DoNotUse<(T), Result<Output, any Error>> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "result<T> (_ p0: T) -> Result<Output, any Error>",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func nested<M1: Cuckoo.Matchable, T>(_ p0: M1) -> Cuckoo.__DoNotUse<(T), Wrapper.Output> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "nested<T> (_ p0: T) -> Wrapper.Output",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ConverterStub<Input, Output>:Converter {
+
+
+    
+    func convert<T> (value p0: T) -> Output {
+        return DefaultValueRegistry.defaultValue(for: (Output).self)
+    }
+    
+    func convert(input p0: Input) -> Output {
+        return DefaultValueRegistry.defaultValue(for: (Output).self)
+    }
+    
+    func wrap<T> (_ p0: T) -> [Output] {
+        return DefaultValueRegistry.defaultValue(for: ([Output]).self)
+    }
+    
+    func pair<T> (_ p0: T, input p1: Input) -> (Output, T) {
+        return DefaultValueRegistry.defaultValue(for: ((Output, T)).self)
+    }
+    
+    func merge<T> (_ p0: T, into p1: Output) -> Output {
+        return DefaultValueRegistry.defaultValue(for: (Output).self)
+    }
+    
+    func lookup<T> (_ p0: T) -> Output? {
+        return DefaultValueRegistry.defaultValue(for: (Output?).self)
+    }
+    
+    func collect<T> (_ p0: [Output], tag p1: T) -> [String: Output] {
+        return DefaultValueRegistry.defaultValue(for: ([String: Output]).self)
+    }
+    
+    func result<T> (_ p0: T) -> Result<Output, any Error> {
+        return DefaultValueRegistry.defaultValue(for: (Result<Output, any Error>).self)
+    }
+    
+    func nested<T> (_ p0: T) -> Wrapper.Output {
+        return DefaultValueRegistry.defaultValue(for: (Wrapper.Output).self)
+    }
+}
+
+
+nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = DefaultImplCaller
+    typealias Stubbing = __StubbingProxy_Producer
+    typealias Verification = __VerificationProxy_Producer
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    nonisolated final class DefaultImplCaller: Producer, @unchecked Sendable {
+        private let reference: () -> any Producer
+    
+        
+        init<_CUCKOO$$GENERIC: Producer>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Output == Output {
+            self.reference = reference
+    
+        }
+    
+
+        func produce<T> (from p0: T) -> Output {
+            
+            func openExistential<_CUCKOO$$GENERIC: Producer>(_ opened: _CUCKOO$$GENERIC) -> Output {
+                return opened.produce(from: p0) as! Output
+            }
+            return openExistential(reference())
+        }
+
+        func consume<T> (_ p0: Output, with p1: T) {
+            
+            func openExistential<_CUCKOO$$GENERIC: Producer>(_ opened: _CUCKOO$$GENERIC) -> Void {
+                return opened.consume(p0 as! _CUCKOO$$GENERIC.Output, with: p1)
+            }
+            return openExistential(reference())
+        }
+
+        func produceAll<T> (from p0: [T]) async throws -> [Output] {
+            
+            #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
+            nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: Producer>(_ opened: _CUCKOO$$GENERIC) async throws -> [Output] {
+                return try await opened.produceAll(from: p0) as! [Output]
+            }
+            #else
+            func openExistential<_CUCKOO$$GENERIC: Producer>(_ opened: _CUCKOO$$GENERIC) async throws -> [Output] {
+                return try await opened.produceAll(from: p0) as! [Output]
+            }
+            #endif
+            return try await openExistential(reference())
+        }
+    }
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Producer>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Output == Output {
+        var mutableStub = stub
+        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Producer>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Output == Output {
+        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+
+    func produce<T> (from p0: T) -> Output {
+        return cuckoo_manager.call(
+            "produce<T> (from p0: T) -> Output",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((T)) -> Output, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.produce(from: p0)
+        )
+    }
+
+    func consume<T> (_ p0: Output, with p1: T) {
+        return cuckoo_manager.call(
+            "consume<T> (_ p0: Output, with p1: T)",
+            parameters: (p0, p1),
+            escapingParameters: (p0, p1),
+            invoke: { (implementation: ((Output, T)) -> Void, arguments) in implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.consume(p0, with: p1)
+        )
+    }
+
+    func produceAll<T> (from p0: [T]) async throws -> [Output] {
+        return try await cuckoo_manager.callThrows(
+            "produceAll<T> (from p0: [T]) async throws -> [Output]",
+            parameters: (p0),
+            escapingParameters: (p0),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: nonisolated(nonsending) (([T])) async throws -> [Output], arguments) async throws(any Swift.Error) in try await implementation(arguments) },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await __defaultImplStub.value.produceAll(from: p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Producer: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+    
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        
+        func produce<M1: Cuckoo.Matchable, T>(from p0: M1) -> Cuckoo.ProtocolStubFunction<(T), Output, ((T)) -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockProducer.self,
+                method: "produce<T> (from p0: T) -> Output",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func consume<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, with p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Output, T), ((Output, T)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Output, M2.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(Output, T)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockProducer.self,
+                method: "consume<T> (_ p0: Output, with p1: T)",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func produceAll<M1: Cuckoo.Matchable, T>(from p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<([T]), [Output],any Swift.Error, nonisolated(nonsending) (([T])) async throws -> [Output], Cuckoo.StubSharing.Confined> where M1.MatchedType == [T] {
+            let matchers: [Cuckoo.ParameterMatcher<([T])>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockProducer.self,
+                method: "produceAll<T> (from p0: [T]) async throws -> [Output]",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Producer: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+    
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+        
+        
+        @discardableResult
+        func produce<M1: Cuckoo.Matchable, T>(from p0: M1) -> Cuckoo.__DoNotUse<(T), Output> where M1.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "produce<T> (from p0: T) -> Output",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func consume<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, T>(_ p0: M1, with p1: M2) -> Cuckoo.__DoNotUse<(Output, T), Void> where M1.MatchedType == Output, M2.MatchedType == T {
+            let matchers: [Cuckoo.ParameterMatcher<(Output, T)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            return cuckoo_manager.verify(
+                "consume<T> (_ p0: Output, with p1: T)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
+        func produceAll<M1: Cuckoo.Matchable, T>(from p0: M1) -> Cuckoo.__DoNotUse<([T]), [Output]> where M1.MatchedType == [T] {
+            let matchers: [Cuckoo.ParameterMatcher<([T])>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "produceAll<T> (from p0: [T]) async throws -> [Output]",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ProducerStub<Output>:Producer {
+
+
+    
+    func produce<T> (from p0: T) -> Output {
+        return DefaultValueRegistry.defaultValue(for: (Output).self)
+    }
+    
+    func consume<T> (_ p0: Output, with p1: T) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    func produceAll<T> (from p0: [T]) async throws -> [Output] {
+        return DefaultValueRegistry.defaultValue(for: ([Output]).self)
+    }
+}
+
+
+

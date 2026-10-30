@@ -259,7 +259,7 @@ extension ComplexType {
             if !changed && newReturn == nil { return nil }
             return .closure(.init(parameters: newParams, effects: closure.effects, returnType: newReturn ?? closure.returnType))
         case .type(let name):
-            return name == typeName ? ComplexType.type(replacement) : nil
+            return TypeReferenceRewriter.replacing(typeName, with: replacement, in: name).map(ComplexType.type)
         }
     }
     
@@ -289,12 +289,58 @@ extension ComplexType {
         case .closure(let closure):
             (closure.parameters.map(\.type) + [closure.returnType]).contains(where: { $0.containsType(named: typeName)})
         case .type(let name):
-            name == typeName
+            TypeReferenceRewriter.replacing(typeName, with: typeName, in: name) != nil
         }
     }
     
     func containsTypes(named typeNames: [String]) -> Bool {
         typeNames.contains(where: { containsType(named: $0) })
+    }
+}
+
+/// Finds a type by name where it's used as a type anywhere inside another, such as `[Output]`, `(Output, T)`,
+/// `Result<Output, Error>` or `Self.Output`, but not a nested type of another type, such as `Wrapper.Output`.
+private final class TypeReferenceRewriter: SyntaxRewriter {
+    private let typeName: String
+    private let replacement: String
+    private var found = false
+
+    private init(typeName: String, replacement: String) {
+        self.typeName = typeName
+        self.replacement = replacement
+        super.init()
+    }
+
+    /// The type with every use of `typeName` replaced, or nil if it uses none.
+    static func replacing(_ typeName: String, with replacement: String, in type: String) -> String? {
+        if type == typeName { return replacement }
+        var parser = Parser(type)
+        let rewriter = TypeReferenceRewriter(typeName: typeName, replacement: replacement)
+        let rewritten = rewriter.rewrite(TypeSyntax.parse(from: &parser))
+        return rewriter.found ? rewritten.description : nil
+    }
+
+    override func visit(_ node: IdentifierTypeSyntax) -> TypeSyntax {
+        guard node.name.text == typeName else { return super.visit(node) }
+        return replaced(node)
+    }
+
+    override func visit(_ node: MemberTypeSyntax) -> TypeSyntax {
+        guard node.name.text == typeName, node.baseType.as(IdentifierTypeSyntax.self)?.name.text == "Self" else {
+            return super.visit(node)
+        }
+        return replaced(node)
+    }
+
+    private func replaced(_ node: some TypeSyntaxProtocol) -> TypeSyntax {
+        found = true
+        return TypeSyntax(
+            IdentifierTypeSyntax(
+                leadingTrivia: node.leadingTrivia,
+                name: .identifier(replacement),
+                trailingTrivia: node.trailingTrivia
+            )
+        )
     }
 }
 
