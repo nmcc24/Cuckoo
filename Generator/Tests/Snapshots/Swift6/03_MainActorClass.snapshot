@@ -80,7 +80,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
         }
         
         func select<M1: Cuckoo.Matchable>(index p0: M1) -> Cuckoo.ClassStubFunction<(Int), Bool, @MainActor @Sendable ((Int)) -> Bool, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockViewModel.self,
                 method: "select(index p0: Int) -> Bool",
                 parameterMatchers: matchers
@@ -118,7 +118,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
         
         @discardableResult
         func select<M1: Cuckoo.Matchable>(index p0: M1) -> Cuckoo.__DoNotUse<(Int), Bool> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "select(index p0: Int) -> Bool",
                 callMatcher: callMatcher,

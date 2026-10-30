@@ -73,7 +73,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
         }
         
         func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), String, @MainActor @Sendable ((Int)) -> String, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockMainActorService.self,
                 method: "load(id p0: Int) -> String",
                 parameterMatchers: matchers
@@ -107,7 +107,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
         
         @discardableResult
         func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "load(id p0: Int) -> String",
                 callMatcher: callMatcher,

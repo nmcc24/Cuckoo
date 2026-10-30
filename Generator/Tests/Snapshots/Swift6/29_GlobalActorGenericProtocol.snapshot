@@ -139,7 +139,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         }
         
         func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), Item?, @MainActor @Sendable ((Int)) -> Item?, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockInventory.self,
                 method: "item(at p0: Int) -> Item?",
                 parameterMatchers: matchers
@@ -177,7 +177,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         
         @discardableResult
         func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.__DoNotUse<(Int), Item?> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "item(at p0: Int) -> Item?",
                 callMatcher: callMatcher,
@@ -312,7 +312,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         }
         
         func entry<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), Entry?, @StorageActor @Sendable ((Key)) -> Entry?, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockLedger.self,
                 method: "entry(for p0: Key) -> Entry?",
                 parameterMatchers: matchers
@@ -320,7 +320,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         }
         
         func record<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Entry, Key), @StorageActor @Sendable ((Entry, Key)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Entry, M2.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockLedger.self,
                 method: "record(_ p0: Entry, for p1: Key)",
                 parameterMatchers: matchers
@@ -342,7 +342,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         
         @discardableResult
         func entry<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), Entry?> where M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "entry(for p0: Key) -> Entry?",
                 callMatcher: callMatcher,
@@ -354,7 +354,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         
         @discardableResult
         func record<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.__DoNotUse<(Entry, Key), Void> where M1.MatchedType == Entry, M2.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
                 "record(_ p0: Entry, for p1: Key)",
                 callMatcher: callMatcher,
