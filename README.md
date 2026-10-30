@@ -110,6 +110,9 @@ testableImports = ["RxSwift"]
 sources = [
     "Tests/Swift/Source/*.swift",
 ]
+# Or by the Swift module each set of files belongs to. The mocks then import each of their types by name,
+# so a type that another import also declares (SwiftUI's `Namespace`, say) isn't ambiguous in them.
+# sources = { MyProject = ["Sources/MyProject/**/*.swift"], Core = ["Sources/Core/**/*.swift"] }
 exclude = ["ExcludedTestClass"]
 # Optionally mock only the classes/protocols whose name matches one of these regular expressions.
 # A single pattern also works: regex = "Service$"
@@ -148,14 +151,13 @@ sources = [
     "Sources/TargetA/InternalProtocolA.swift"
 ]
 
-# AggregationTarget mocks - demonstrates multiple testableImports
+# AggregationTarget mocks - demonstrates sources from several modules
 [modules.AggregationTargetTests]
 imports = ["Foundation", "TargetA", "TargetB"]
-sources = [
-    "Sources/TargetA/ProtocolA.swift",
-    "Sources/TargetB/ProtocolB.swift",
-]
+sources = { TargetA = ["Sources/TargetA/ProtocolA.swift"], TargetB = ["Sources/TargetB/ProtocolB.swift"] }
 ```
+
+For a dependency module's own entry, the plugin tells the generator which Swift module the files in that target's folder belong to, so the mocks import each of their types by name, as the table form of `sources` does. An entry whose sources come from several modules, such as the aggregation one above, names them in the table form.
 
 `Package.swift`:
 
