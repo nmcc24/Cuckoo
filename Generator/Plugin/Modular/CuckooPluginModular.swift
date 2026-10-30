@@ -20,7 +20,8 @@ struct CuckooPluginModular: BuildToolPlugin {
             .map { module in
                 SourceModule(
                     name: module.moduleName,
-                    sources: module.sourceFiles.filter { $0.type == .source }.map(\.url)
+                    sources: module.sourceFiles.filter { $0.type == .source }.map(\.url),
+                    swiftModule: (module.moduleName, module.directoryURL)
                 )
             }
 
@@ -60,7 +61,8 @@ extension CuckooPluginModular: XcodeBuildToolPlugin {
                         .map { module in
                             SourceModule(
                                 name: module.moduleName,
-                                sources: module.sourceFiles.filter { $0.type == .source }.map(\.url)
+                                sources: module.sourceFiles.filter { $0.type == .source }.map(\.url),
+                                swiftModule: (module.moduleName, module.directoryURL)
                             )
                         }
                 case .target(let target):
@@ -97,6 +99,10 @@ extension CuckooPluginModular: XcodeBuildToolPlugin {
 struct SourceModule {
     let name: String
     let sources: [URL]
+    /// The Swift module the sources are compiled into, and its directory, where it's certain: not for a test
+    /// target's own entry, which gathers the sources of all its dependencies, nor for an Xcode target, whose
+    /// display name may differ. The Cuckoofile entry may list files from elsewhere, which belong to other modules.
+    var swiftModule: (name: String, directory: URL)? = nil
 }
 
 private func commandsPerModule(
@@ -120,7 +126,10 @@ private func commandsPerModule(
                 "DERIVED_SOURCES_DIR": derivedSourcesDir.path(),
                 "CUCKOO_OVERRIDE_OUTPUT": outputURL.path(),
                 "CUCKOO_MODULE_NAME": sourceModule.name,
-            ],
+                // The generated file imports the sources' types from it by name; see `sources` in the README.
+                "CUCKOO_SOURCE_MODULE": sourceModule.swiftModule?.name,
+                "CUCKOO_SOURCE_MODULE_DIRECTORY": sourceModule.swiftModule?.directory.path(percentEncoded: false),
+            ].compactMapValues { $0 },
             inputFiles: [configurationURL] + sourceModule.sources,
             outputFiles: [outputURL]
         )

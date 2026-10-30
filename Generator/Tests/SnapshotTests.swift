@@ -114,7 +114,8 @@ struct SnapshotTests {
     }
 
     private func generateFiles(
-        sources: [String],
+        sources: [String] = [],
+        sourcesByModule: [String: [String]]? = nil,
         testableImports: [String]? = nil,
         exclude: [String]? = nil,
         keepDocumentation: Bool? = nil,
@@ -128,7 +129,7 @@ struct SnapshotTests {
                 imports: ["Foundation"],
                 publicImports: nil,
                 testableImports: testableImports,
-                sources: sources,
+                sources: sourcesByModule.map { .byModule($0) } ?? .paths(sources),
                 exclude: exclude,
                 regex: nil,
                 output: "unused.swift",

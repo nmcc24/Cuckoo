@@ -47,12 +47,17 @@ struct GenerateCommand: AsyncParsableCommand {
 
         overriddenOutput = ProcessInfo.processInfo.environment["CUCKOO_OVERRIDE_OUTPUT"]
         let requestedModuleName = ProcessInfo.processInfo.environment["CUCKOO_MODULE_NAME"]
+        let environment = ProcessInfo.processInfo.environment
+        let sourceModule = environment["CUCKOO_SOURCE_MODULE"].flatMap { name in
+            environment["CUCKOO_SOURCE_MODULE_DIRECTORY"].map { Module.SourceModule(name: name, directory: Path($0)) }
+        }
 
         let modules = try Cuckoofile.modules(
             from: configurationFile.contents,
             configurationPath: configurationFile.path,
             overriddenOutput: overriddenOutput,
-            requestedModuleName: requestedModuleName
+            requestedModuleName: requestedModuleName,
+            sourceModule: sourceModule
         )
 
         if modules.isEmpty {

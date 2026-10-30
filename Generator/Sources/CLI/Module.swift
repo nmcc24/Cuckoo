@@ -7,6 +7,10 @@ final class Module: Sendable {
     let publicImports: [String]
     let testableImports: [String]
     let sources: [Path]?
+    /// The Swift module each of `sources` belongs to, from the table form of `sources`.
+    let swiftModules: [Path: String]
+    /// The Swift module the build plugin generates for, which the files in its directory belong to.
+    let sourceModule: SourceModule?
     let exclude: [String]
     /// Patterns a type's name must match one of to be mocked. Empty mocks every type.
     let regexes: [String]
@@ -14,7 +18,16 @@ final class Module: Sendable {
     let filenameFormat: String?
     let options: Options
 
-    init(name: String, output: String?, overriddenOutput: String? = nil, configurationPath: Path, dto: DTO) throws {
+    /// - Parameter sourceModule: The Swift module the build plugin generates for. The table form of `sources`
+    ///   names the modules explicitly instead.
+    init(
+        name: String,
+        output: String?,
+        overriddenOutput: String? = nil,
+        sourceModule: SourceModule? = nil,
+        configurationPath: Path,
+        dto: DTO
+    ) throws {
         if let xcodeproj = dto.xcodeproj {
             throw ModuleInitError.xcodeprojRemoved(name: name, target: xcodeproj.target)
         }
@@ -27,8 +40,23 @@ final class Module: Sendable {
         self.imports = dto.imports?.map(\.trimmed) ?? []
         self.publicImports = dto.publicImports?.map(\.trimmed) ?? []
         self.testableImports = dto.testableImports?.map(\.trimmed) ?? []
-        self.sources = dto.sources?.map(\.trimmed).map { source in
-            Path(source, expandingTilde: true).relative(to: configurationPath.parent)
+        func path(_ source: String) -> Path {
+            Path(source.trimmed, expandingTilde: true).relative(to: configurationPath.parent)
+        }
+        switch dto.sources {
+        case nil:
+            self.sources = nil
+            self.swiftModules = [:]
+            self.sourceModule = sourceModule
+        case .paths(let paths)?:
+            self.sources = paths.map(path)
+            self.swiftModules = [:]
+            self.sourceModule = sourceModule
+        case .byModule(let pathsByModule)?:
+            let sources = pathsByModule.sorted { $0.key < $1.key }.flatMap { module, paths in paths.map { (path($0), module.trimmed) } }
+            self.sources = sources.map(\.0)
+            self.swiftModules = Dictionary(sources) { first, _ in first }
+            self.sourceModule = nil
         }
         self.exclude = dto.exclude?.map(\.trimmed) ?? []
         self.regexes = dto.regex?.values ?? []
@@ -106,11 +134,24 @@ final class Module: Sendable {
 }
 
 extension Module {
+    /// A Swift module and the directory of its sources. A file elsewhere, which a Cuckoofile module may also
+    /// list, belongs to another module.
+    struct SourceModule: Sendable {
+        let name: String
+        let directory: Path
+
+        func contains(_ file: Path) -> Bool {
+            file.standardRawValue.hasPrefix(directory.standardRawValue + "/")
+        }
+    }
+}
+
+extension Module {
     struct DTO: Decodable {
         let imports: [String]?
         let publicImports: [String]?
         let testableImports: [String]?
-        let sources: [String]?
+        let sources: Sources?
         let exclude: [String]?
         let regex: Patterns?
         let output: String?
@@ -126,6 +167,41 @@ extension Module {
             let omitHeaders: Bool?
             let mockPrefix: String?
             let mockSuffix: String?
+        }
+
+        /// `sources`: an array of paths, or a table of them by the Swift module they belong to, e.g.
+        /// `{ App = ["App/**/*.swift"], Core = ["Core/**/*.swift"] }`.
+        enum Sources: Decodable {
+            case paths([String])
+            case byModule([String: [String]])
+
+            init(from decoder: any Decoder) throws {
+                if var list = try? decoder.unkeyedContainer() {
+                    var paths: [String] = []
+                    while !list.isAtEnd {
+                        paths.append(try list.decode(String.self))
+                    }
+                    self = .paths(paths)
+                    return
+                }
+                let table = try decoder.container(keyedBy: ModuleKey.self)
+                self = .byModule(try Dictionary(uniqueKeysWithValues: table.allKeys.map { key in
+                    (key.stringValue, try table.decode([String].self, forKey: key))
+                }))
+            }
+
+            private struct ModuleKey: CodingKey {
+                let stringValue: String
+                var intValue: Int? { nil }
+
+                init(stringValue: String) {
+                    self.stringValue = stringValue
+                }
+
+                init?(intValue: Int) {
+                    nil
+                }
+            }
         }
 
         /// `regex`: one pattern, or an array of them.
