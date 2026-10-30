@@ -128,7 +128,7 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
         }
         
         func take<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(NonSendableBox), ((NonSendableBox)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == NonSendableBox {
-            let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockTransfer.self,
                 method: "take(_ p0: sending NonSendableBox)",
                 parameterMatchers: matchers
@@ -158,7 +158,7 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
         
         @discardableResult
         func take<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(NonSendableBox), Void> where M1.MatchedType == NonSendableBox {
-            let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "take(_ p0: sending NonSendableBox)",
                 callMatcher: callMatcher,
@@ -267,7 +267,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
         
         func convert<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, T>(value p0: M1, input p1: M2, fallback p2: M3) -> Cuckoo.ProtocolStubFunction<(T, Input, Output), Output, nonisolated(nonsending) ((T, Input, Output)) async -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == T, M2.MatchedType == Input, M3.MatchedType == Output {
-            let matchers: [Cuckoo.ParameterMatcher<(T, Input, Output)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+            let matchers: [Cuckoo.ParameterMatcher<(T, Input, Output)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }, Cuckoo.wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
                 method: "convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output",
                 parameterMatchers: matchers
@@ -289,7 +289,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         
         @discardableResult
         func convert<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, T>(value p0: M1, input p1: M2, fallback p2: M3) -> Cuckoo.__DoNotUse<(T, Input, Output), Output> where M1.MatchedType == T, M2.MatchedType == Input, M3.MatchedType == Output {
-            let matchers: [Cuckoo.ParameterMatcher<(T, Input, Output)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+            let matchers: [Cuckoo.ParameterMatcher<(T, Input, Output)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }, Cuckoo.wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
                 "convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output",
                 callMatcher: callMatcher,

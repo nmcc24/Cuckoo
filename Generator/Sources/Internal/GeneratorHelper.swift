@@ -72,7 +72,7 @@ struct GeneratorHelper {
             .enumerated()
             .compactMap { index, parameter in
                 let name = escapeReservedKeywords(for: parameter.usableName)
-                return "wrap(matchable: \(name)) { $0\(parameters.count > 1 ? ".\(index)" : "") }"
+                return "Cuckoo.wrap(matchable: \(name)) { $0\(parameters.count > 1 ? ".\(index)" : "") }"
             }
             .joined(separator: ", ")
         return "let matchers: [Cuckoo.ParameterMatcher<(\(genericSafeType(from: tupleType)))>] = [\(matchers)]"

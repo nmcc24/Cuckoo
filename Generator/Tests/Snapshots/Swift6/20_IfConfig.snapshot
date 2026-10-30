@@ -394,7 +394,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
         #endif
         
         func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), Item, ((Int)) -> Item, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockPlatformedStore.self,
                 method: "item(at p0: Int) -> Item",
                 parameterMatchers: matchers
@@ -435,7 +435,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
         
         @discardableResult
         func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.__DoNotUse<(Int), Item> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "item(at p0: Int) -> Item",
                 callMatcher: callMatcher,

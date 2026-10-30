@@ -125,7 +125,7 @@ final class MockBox: Box, nonisolated Cuckoo.ClassMock {
         }
         
         func label<M1: Cuckoo.Matchable>(prefix p0: M1) -> Cuckoo.ClassStubFunction<(String), String, ((String)) -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockBox.self,
                 method: "label(prefix p0: String) -> String",
                 parameterMatchers: matchers
@@ -147,7 +147,7 @@ final class MockBox: Box, nonisolated Cuckoo.ClassMock {
         
         @discardableResult
         func label<M1: Cuckoo.Matchable>(prefix p0: M1) -> Cuckoo.__DoNotUse<(String), String> where M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "label(prefix p0: String) -> String",
                 callMatcher: callMatcher,

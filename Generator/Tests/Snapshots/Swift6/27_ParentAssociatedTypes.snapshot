@@ -61,7 +61,7 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
         }
         
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRepository.self,
                 method: "fetch(id p0: ID) -> Item?",
                 parameterMatchers: matchers
@@ -83,7 +83,7 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
         
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "fetch(id p0: ID) -> Item?",
                 callMatcher: callMatcher,
@@ -206,7 +206,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         }
         
         func evict<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ID), ((ID)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockCachedRepository.self,
                 method: "evict(id p0: ID)",
                 parameterMatchers: matchers
@@ -214,7 +214,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         }
         
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockCachedRepository.self,
                 method: "fetch(id p0: ID) -> Item?",
                 parameterMatchers: matchers
@@ -248,7 +248,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         
         @discardableResult
         func evict<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Void> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "evict(id p0: ID)",
                 callMatcher: callMatcher,
@@ -260,7 +260,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "fetch(id p0: ID) -> Item?",
                 callMatcher: callMatcher,
@@ -451,7 +451,7 @@ return cuckoo_manager.call(
         }
         
         func sorted<M1: Cuckoo.Matchable>(by p0: M1) -> Cuckoo.ProtocolStubFunction<((Element, Element) -> Bool), [Element], ((@escaping (Element, Element) -> Bool)) -> [Element], Cuckoo.StubSharing.Confined> where M1.MatchedType == (Element, Element) -> Bool {
-            let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockSortedRepository.self,
                 method: "sorted(by p0: (Element, Element) -> Bool) -> [Element]",
                 parameterMatchers: matchers
@@ -481,7 +481,7 @@ return cuckoo_manager.call(
         
         @discardableResult
         func sorted<M1: Cuckoo.Matchable>(by p0: M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where M1.MatchedType == (Element, Element) -> Bool {
-            let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "sorted(by p0: (Element, Element) -> Bool) -> [Element]",
                 callMatcher: callMatcher,
@@ -604,7 +604,7 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
         }
         
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStringRepository.self,
                 method: "fetch(id p0: ID) -> Item?",
                 parameterMatchers: matchers
@@ -638,7 +638,7 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
         
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "fetch(id p0: ID) -> Item?",
                 callMatcher: callMatcher,
@@ -907,7 +907,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         }
         
         func evict<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ID), ((ID)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockHashedRepository.self,
                 method: "evict(id p0: ID)",
                 parameterMatchers: matchers
@@ -915,7 +915,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         }
         
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockHashedRepository.self,
                 method: "fetch(id p0: ID) -> Item?",
                 parameterMatchers: matchers
@@ -961,7 +961,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         
         @discardableResult
         func evict<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Void> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "evict(id p0: ID)",
                 callMatcher: callMatcher,
@@ -973,7 +973,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "fetch(id p0: ID) -> Item?",
                 callMatcher: callMatcher,
@@ -1171,7 +1171,7 @@ return cuckoo_manager.call(
         }
         
         func evict<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ID), ((ID)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAuditedRepository.self,
                 method: "evict(id p0: ID)",
                 parameterMatchers: matchers
@@ -1179,7 +1179,7 @@ return cuckoo_manager.call(
         }
         
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAuditedRepository.self,
                 method: "fetch(id p0: ID) -> Item?",
                 parameterMatchers: matchers
@@ -1187,7 +1187,7 @@ return cuckoo_manager.call(
         }
         
         func sorted<M1: Cuckoo.Matchable>(by p0: M1) -> Cuckoo.ProtocolStubFunction<((Element, Element) -> Bool), [Element], ((@escaping (Element, Element) -> Bool)) -> [Element], Cuckoo.StubSharing.Confined> where M1.MatchedType == (Element, Element) -> Bool {
-            let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAuditedRepository.self,
                 method: "sorted(by p0: (Element, Element) -> Bool) -> [Element]",
                 parameterMatchers: matchers
@@ -1241,7 +1241,7 @@ return cuckoo_manager.call(
         
         @discardableResult
         func evict<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Void> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "evict(id p0: ID)",
                 callMatcher: callMatcher,
@@ -1253,7 +1253,7 @@ return cuckoo_manager.call(
         
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
-            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "fetch(id p0: ID) -> Item?",
                 callMatcher: callMatcher,
@@ -1265,7 +1265,7 @@ return cuckoo_manager.call(
         
         @discardableResult
         func sorted<M1: Cuckoo.Matchable>(by p0: M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where M1.MatchedType == (Element, Element) -> Bool {
-            let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "sorted(by p0: (Element, Element) -> Bool) -> [Element]",
                 callMatcher: callMatcher,

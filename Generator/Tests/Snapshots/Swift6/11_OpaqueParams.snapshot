@@ -37,7 +37,7 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
         }
         
         func sort<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(any Collection<Int>), [Int], ((any Collection<Int>)) -> [Int], Cuckoo.StubSharing.Confined> where M1.MatchedType == any Collection<Int> {
-            let matchers: [Cuckoo.ParameterMatcher<(any Collection<Int>)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(any Collection<Int>)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockSorter.self,
                 method: "sort(_ p0: some Collection<Int>) -> [Int]",
                 parameterMatchers: matchers
@@ -59,7 +59,7 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
         
         @discardableResult
         func sort<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(any Collection<Int>), [Int]> where M1.MatchedType == any Collection<Int> {
-            let matchers: [Cuckoo.ParameterMatcher<(any Collection<Int>)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(any Collection<Int>)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "sort(_ p0: some Collection<Int>) -> [Int]",
                 callMatcher: callMatcher,

@@ -48,7 +48,7 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
         }
         
         func save<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), @DatabaseActor @Sendable ((String)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRepository.self,
                 method: "save(_ p0: String)",
                 parameterMatchers: matchers
@@ -78,7 +78,7 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
         
         @discardableResult
         func save<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "save(_ p0: String)",
                 callMatcher: callMatcher,
