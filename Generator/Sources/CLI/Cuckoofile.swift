@@ -16,11 +16,14 @@ enum Cuckoofile {
     ///   - configurationPath: Where the Cuckoofile is; relative paths in it resolve against its folder.
     ///   - overriddenOutput: An output path that replaces every module's and the global output (the build plugins set it).
     ///   - requestedModuleName: If set, only the module with this name is returned.
+    ///   - sourceModule: The Swift module the build plugin generates for, and its directory. A module that names
+    ///     modules in `sources` keeps its own.
     static func modules(
         from contents: String,
         configurationPath: Path,
         overriddenOutput: String?,
-        requestedModuleName: String?
+        requestedModuleName: String?,
+        sourceModule: Module.SourceModule? = nil
     ) throws -> [Module] {
         let file: File
         do {
@@ -38,6 +41,7 @@ enum Cuckoofile {
                     name: moduleName,
                     output: file.output,
                     overriddenOutput: overriddenOutput,
+                    sourceModule: sourceModule,
                     configurationPath: configurationPath,
                     dto: dto
                 )
