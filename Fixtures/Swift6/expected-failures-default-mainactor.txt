@@ -1,5 +1,5 @@
 # Fixtures whose generated mocks don't compile yet with -default-isolation MainActor, one name per line.
-# CI runs: SWIFT6_MATRIX_EXPECTED=Fixtures/Swift6/expected-failures-default-mainactor.txt scripts/swift6-matrix.sh -default-isolation MainActor
+# CI runs (the script sets the Cuckoofile's defaultIsolation = "MainActor" to match): SWIFT6_MATRIX_EXPECTED=Fixtures/Swift6/expected-failures-default-mainactor.txt scripts/swift6-matrix.sh -default-isolation MainActor
 # The script fails on an unlisted failure and on a listed fixture that now passes.
 #
 # A subclass of a class that uses its implicit init doesn't compile in this mode, with or without
@@ -10,9 +10,3 @@
 19_Unavailable
 20_IfConfig
 21_NonEscapingSendableClosure
-#
-# The type-erased default implementation of a generic protocol is nonisolated, but in this mode the
-# protocol itself is MainActor-isolated, which the generator can't see:
-05_SendableProtocol
-27_ParentAssociatedTypes
-28_SPI

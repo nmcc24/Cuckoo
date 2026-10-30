@@ -101,6 +101,40 @@ struct GeneratorOptionsTests {
         #expect(!output.contains("@_spi(Admin)\n    public func reset"))
     }
 
+    /// `defaultIsolation = "MainActor"` gives the types that state no isolation the module's default, as the
+    /// compiler does, so a generic protocol's default-implementation wrapper is isolated like the protocol.
+    @Test
+    func defaultIsolationIsolatesUnannotatedTypes() async throws {
+        let source = """
+            protocol Store {
+                associatedtype Key: Hashable
+                func value(for key: Key) -> Int
+            }
+            nonisolated protocol Clock {
+                func now() -> Int
+            }
+            """
+        let isolated = try await generate(source: source, options: #"defaultIsolation = "MainActor""#)
+        #expect(isolated.contains("@MainActor final class DefaultImplCaller: Store {"))
+        #expect(isolated.contains("@MainActor func enableDefaultImplementation<"))
+        #expect(isolated.contains("final class MockStore<Key: Hashable>: Store,"))
+        #expect(!isolated.contains("nonisolated final class MockStore"))
+        // A protocol that opts out stays nonisolated.
+        #expect(isolated.contains("nonisolated final class MockClock"))
+
+        let plain = try await generate(source: source, options: #"defaultIsolation = "nonisolated""#)
+        #expect(plain == (try await generate(source: source)))
+        #expect(plain.contains("nonisolated final class DefaultImplCaller: Store, @unchecked Sendable {"))
+    }
+
+    @Test
+    func defaultIsolationIsValidated() async throws {
+        let error = await #expect(throws: (any Error).self) {
+            try await generate(source: "protocol Store {}", options: #"defaultIsolation = "@MainActor""#)
+        }
+        #expect(String(describing: try #require(error)).contains(#"use "MainActor" or "nonisolated""#))
+    }
+
     private func occurrences(of text: String, in output: String) -> Int {
         output.components(separatedBy: text).count - 1
     }

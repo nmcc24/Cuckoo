@@ -56,6 +56,12 @@ if [[ -f "$VERSION_EXPECTED" ]]; then
   EXPECTED_FAILURES+=$'\n'"$(grep -v '^#' "$VERSION_EXPECTED" || true)"
 fi
 
+# A module built with `-default-isolation MainActor` says so in its Cuckoofile, so the mocks match its types.
+OPTIONS=""
+if [[ " $* " == *" -default-isolation MainActor "* ]]; then
+  OPTIONS=$'\n[modules.Fix.options]\ndefaultIsolation = "MainActor"'
+fi
+
 status=0
 for f in "$ROOT"/Fixtures/Swift6/*.swift; do
   n="$(basename "$f" .swift)"
@@ -63,7 +69,7 @@ for f in "$ROOT"/Fixtures/Swift6/*.swift; do
 [modules.Fix]
 imports = ["Foundation"]
 sources = ["$f"]
-output = "$WORK/gen/$n.mock.swift"
+output = "$WORK/gen/$n.mock.swift"$OPTIONS
 EOF
   "$GEN" --configuration "$WORK/Cuckoofile.toml" > "$WORK/logs/$n.gen.log" 2>&1
   "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" \

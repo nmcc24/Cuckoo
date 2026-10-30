@@ -71,13 +71,26 @@ final class Module: Sendable {
             mockNaming: MockNaming(
                 prefix: dto.options?.mockPrefix?.trimmed ?? MockNaming.default.prefix,
                 suffix: dto.options?.mockSuffix?.trimmed ?? MockNaming.default.suffix
-            )
+            ),
+            defaultIsolation: try Self.defaultIsolation(dto.options?.defaultIsolation, moduleName: name)
         )
 
         if let filenameFormat, !filenameFormat.contains("{}") {
             throw ModuleInitError.wrongFilenameFormat
         }
         try Self.validate(options.mockNaming, moduleName: name)
+    }
+
+    /// `defaultIsolation` takes the values SwiftPM's and Xcode's default-isolation settings do.
+    private static func defaultIsolation(_ value: String?, moduleName: String) throws -> Isolation? {
+        switch value?.trimmed {
+        case nil, "nonisolated":
+            nil
+        case "MainActor":
+            .globalActor("MainActor")
+        case let value?:
+            throw ModuleInitError.invalidDefaultIsolation(name: moduleName, value: value)
+        }
     }
 
     /// The mock's name must be a different identifier from the mocked type's, and from the `<Type>Stub` class
@@ -105,6 +118,9 @@ final class Module: Sendable {
         let protocolsOnly: Bool
         let omitHeaders: Bool
         let mockNaming: MockNaming
+        /// The isolation of the sources' types that don't state one, as the module's `defaultIsolation` setting
+        /// gives them. `nil` is `nonisolated`, Swift's default.
+        let defaultIsolation: Isolation?
     }
 
     enum ModuleInitError: Error, CustomStringConvertible {
@@ -112,6 +128,7 @@ final class Module: Sendable {
         case wrongFilenameFormat
         case xcodeprojRemoved(name: String, target: String?)
         case invalidMockNaming(name: String, reason: String)
+        case invalidDefaultIsolation(name: String, value: String)
 
         var description: String {
             switch self {
@@ -128,6 +145,8 @@ final class Module: Sendable {
                 """
             case .invalidMockNaming(let name, let reason):
                 return "Invalid mock naming in module \(name): \(reason)"
+            case .invalidDefaultIsolation(let name, let value):
+                return "Invalid `defaultIsolation = \"\(value)\"` in module \(name): use \"MainActor\" or \"nonisolated\", as the module's own default isolation."
             }
         }
     }
@@ -167,6 +186,7 @@ extension Module {
             let omitHeaders: Bool?
             let mockPrefix: String?
             let mockSuffix: String?
+            let defaultIsolation: String?
         }
 
         /// `sources`: an array of paths, or a table of them by the Swift module they belong to, e.g.
