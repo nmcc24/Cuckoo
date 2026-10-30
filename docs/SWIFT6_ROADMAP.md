@@ -141,7 +141,8 @@ Breaking changes accepted in 3.0:
 |---|---|
 | `protocol P` | `nonisolated final class MockP: P, nonisolated Cuckoo.ProtocolMock`, `Sendable` exactly when `P` is. Explicit `nonisolated` keeps it independent of the module's default isolation. |
 | `@MainActor protocol P` | `@MainActor final class MockP: P, nonisolated Cuckoo.ProtocolMock` with `nonisolated let cuckoo_manager`; proxies `nonisolated` |
-| `@SomeGlobalActor protocol P` | same as above with that actor |
+| `@SomeGlobalActor protocol P` | same as above with that actor. A generic one's type-erased default implementation and the generic `enableDefaultImplementation` overloads are isolated to it too. |
+| `protocol P` in a module with `defaultIsolation = "MainActor"` (Cuckoofile) | as `@MainActor protocol P`; `nonisolated protocol P` stays nonisolated |
 | `protocol P: Actor` | `actor MockP: P, Cuckoo.ProtocolMock` with `nonisolated let cuckoo_manager`. Sync requirements are actor-isolated and record synchronously; `enableDefaultImplementation` forwards async requirements only, and a sync one reached that way crashes with a message saying so. |
 | `nonisolated func` in an isolated protocol | `nonisolated func` in the mock |
 | `@MainActor func` in a plain protocol | member-level `@MainActor` preserved |
@@ -327,7 +328,7 @@ Exit criteria: fixtures 01–06 typecheck and have behavioural tests; also typec
 - **Item 2:** `Actor` protocols get `actor` mocks and stubs. Fixture 02 compiles and left the expected-failures list.
 - **Item 4:** the generator states isolation wherever the module default would otherwise decide it (mocks and stubs of protocols without isolation, the proxies, the type-erased default implementation, the conformance to the Cuckoo protocols). CI runs the matrix with `-default-isolation MainActor` too, against `Fixtures/Swift6/expected-failures-default-mainactor.txt`. Two known gaps there:
   - a subclass of a class that relies on its implicit `init` doesn't compile in that mode, with or without Cuckoo (`class Base {}; final class Sub: Base {}`, Swift 6.2–6.4), so class mocks of such classes fail (fixtures 07, 19, 20, 21);
-  - the type-erased default implementation of a generic protocol (fixtures 05, 27 and 28) is nonisolated, but the module's default makes the protocol MainActor-isolated, which the generator can't see. A Cuckoofile option naming the source module's default isolation would fix it; not started.
+  - the type-erased default implementation of a generic protocol (fixtures 05, 27 and 28) was nonisolated, but the module's default makes the protocol MainActor-isolated, which the generator can't see. **Fixed in Phase 4 (c):** a module's `defaultIsolation = "MainActor"` option gives its unannotated protocols and classes that isolation, and the wrapper of a global-actor protocol is isolated to that actor (this was also broken for an explicit `@MainActor` generic protocol, fixture 29). The matrix script sets the option in that mode.
 - **Item 5:** `Tests/Swift/IsolationTest.swift` (Swift Testing) and `IsolationXCTest.swift` stub, verify and spy on MainActor, global-actor, actor and `Sendable` mocks, including from concurrent tasks. They run in `swift test` and in the Tuist schemes.
 - **API change:** stub function types gained two generic parameters (closure type and sharing), so code that names one to pick an overload writes `as ClassStubNoReturnFunction<(Int?, String), _, _>`.
 - **Typed throws:** the closure type throws untyped errors, and the mock narrows them back to the member's error type, because a typed-throws function type as a generic argument needs the iOS 18 / macOS 15 runtime (§3.4).
@@ -416,6 +417,8 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
    - The runtime tests are one module again, with SwiftUI's fixture next to `Namespace`; they also cover a `Unit` type that clashes with Foundation's and a type named `CuckooTestSources`. Generator tests cover the table form, the plugin's module, `#if`, and both output kinds. The fixture matrix compiles each fixture and its mock in one module, so it can't show the clash.
    - Later, once Swift 6.4 is the minimum: module selectors (`App::Namespace`, SE-0491) could qualify names inline instead.
 7. ☁️ Generic methods whose return type alone uses a non-primary associated type (`func convert<T>(value: T) -> Output` on `protocol P<Input>`). The type-erased default implementation returns `Any` where `Output` is expected, so the mock doesn't compile.
+
+- ☁️ Default isolation (S, Phase 4 (c)). **On the branch.** `defaultIsolation = "MainActor"` in a module's Cuckoofile `options` mirrors SwiftPM's and Xcode's default-isolation setting, which the generator can't read: protocols and classes that state no isolation become MainActor-isolated, as the compiler makes them. Fixtures 05, 27 and 28 left the default-MainActor expected failures; only the four implicit-`init` subclass fixtures remain there. Generic global-actor protocols (fixture 29) now compile in every mode.
 
 Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item above.
 

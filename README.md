@@ -128,6 +128,10 @@ keepDocumentation = false
 # Mocks are named `<mockPrefix><Type><mockSuffix>`: `MockService` by default.
 # mockPrefix = "Mock"
 # mockSuffix = ""
+# The module's default isolation, when it builds with `-default-isolation MainActor` (SwiftPM's
+# `.defaultIsolation(MainActor.self)`, Xcode's "Default Actor Isolation"). The generator can't read build
+# settings, so state it here: types that state no isolation are then MainActor-isolated, as in the module.
+# defaultIsolation = "MainActor"
 
 # You can define as many modules as you need, each with different sources/options/output.
 [modules.AnotherProject]
