@@ -150,7 +150,7 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
             "newValueMatcherIndex": newValueMatcherIndex,
             "newValueMatcherGeneric": "M\(newValueMatcherIndex): Cuckoo.\(matchedNewValueType.isOptional ? "OptionalMatchable" : "Matchable")",
             "newValueMatcherConstraint": "M\(newValueMatcherIndex).\(matchedNewValueType.isOptional ? "OptionalMatchedType" : "MatchedType") == \(matchedNewValueType.unoptionaled.description.replacingOccurrences(of: "!", with: "?"))",
-            "newValueMatcher": "wrap(matchable: \(newValueName)) { \(newValueProjection) }",
+            "newValueMatcher": "Cuckoo.wrap(matchable: \(newValueName)) { \(newValueProjection) }",
             "keyClosureParameters": keys.enumerated().map { index, key in key.name == "_" ? "$\(index)" : "\(key.name): $\(index)" }.joined(separator: ", "),
             "keyTypes": keys.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
             "hasCompilationCondition": hasCompilationCondition,

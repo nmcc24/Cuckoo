@@ -85,7 +85,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         }
         
         func add<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int), (inout Int) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccumulator.self,
                 method: "add(_ p0: inout Int)",
                 parameterMatchers: matchers
@@ -93,7 +93,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         }
         
         func append<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(_ p0: M1, _ p1: M2, count p2: M3) -> Cuckoo.ProtocolStubFunction<(String, String, Int), Bool, (inout String, String, inout Int) -> Bool, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == String, M3.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(String, String, Int)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String, String, Int)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }, Cuckoo.wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccumulator.self,
                 method: "append(_ p0: inout String, _ p1: String, count p2: inout Int) -> Bool",
                 parameterMatchers: matchers
@@ -101,7 +101,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         }
         
         func load<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<([UInt8]), Int,any Swift.Error, nonisolated(nonsending) (inout [UInt8]) async throws -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == [UInt8] {
-            let matchers: [Cuckoo.ParameterMatcher<([UInt8])>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<([UInt8])>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccumulator.self,
                 method: "load(_ p0: inout [UInt8]) async throws -> Int",
                 parameterMatchers: matchers
@@ -109,7 +109,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         }
         
         func parse<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(Int), String,ParseError, (inout Int) throws -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccumulator.self,
                 method: "parse(_ p0: inout Int) throws(ParseError) -> String",
                 parameterMatchers: matchers
@@ -131,7 +131,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         
         @discardableResult
         func add<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "add(_ p0: inout Int)",
                 callMatcher: callMatcher,
@@ -143,7 +143,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         
         @discardableResult
         func append<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(_ p0: M1, _ p1: M2, count p2: M3) -> Cuckoo.__DoNotUse<(String, String, Int), Bool> where M1.MatchedType == String, M2.MatchedType == String, M3.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(String, String, Int)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String, String, Int)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }, Cuckoo.wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
                 "append(_ p0: inout String, _ p1: String, count p2: inout Int) -> Bool",
                 callMatcher: callMatcher,
@@ -155,7 +155,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         
         @discardableResult
         func load<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<([UInt8]), Int> where M1.MatchedType == [UInt8] {
-            let matchers: [Cuckoo.ParameterMatcher<([UInt8])>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<([UInt8])>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "load(_ p0: inout [UInt8]) async throws -> Int",
                 callMatcher: callMatcher,
@@ -167,7 +167,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         
         @discardableResult
         func parse<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "parse(_ p0: inout Int) throws(ParseError) -> String",
                 callMatcher: callMatcher,
@@ -185,7 +185,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         }
         
         func reset<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int), (inout Int) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccumulator.self,
                 method: "static reset(_ p0: inout Int)",
                 parameterMatchers: matchers
@@ -207,7 +207,7 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
         
         @discardableResult
         func reset<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "static reset(_ p0: inout Int)",
                 callMatcher: callMatcher,
@@ -288,7 +288,7 @@ actor MockAccumulatorActor: AccumulatorActor, Cuckoo.ProtocolMock {
         }
         
         func add<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, step p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Int, Int), @Sendable (isolated MockAccumulatorActor, inout Int, Int) -> Void, Cuckoo.StubSharing.Shared> where M1.MatchedType == Int, M2.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccumulatorActor.self,
                 method: "add(_ p0: inout Int, step p1: Int)",
                 parameterMatchers: matchers
@@ -296,7 +296,7 @@ actor MockAccumulatorActor: AccumulatorActor, Cuckoo.ProtocolMock {
         }
         
         func load<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<([UInt8]), Int, @Sendable (isolated MockAccumulatorActor, inout [UInt8]) async -> Int, Cuckoo.StubSharing.Shared> where M1.MatchedType == [UInt8] {
-            let matchers: [Cuckoo.ParameterMatcher<([UInt8])>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<([UInt8])>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccumulatorActor.self,
                 method: "load(_ p0: inout [UInt8]) async -> Int",
                 parameterMatchers: matchers
@@ -318,7 +318,7 @@ actor MockAccumulatorActor: AccumulatorActor, Cuckoo.ProtocolMock {
         
         @discardableResult
         func add<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, step p1: M2) -> Cuckoo.__DoNotUse<(Int, Int), Void> where M1.MatchedType == Int, M2.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
                 "add(_ p0: inout Int, step p1: Int)",
                 callMatcher: callMatcher,
@@ -330,7 +330,7 @@ actor MockAccumulatorActor: AccumulatorActor, Cuckoo.ProtocolMock {
         
         @discardableResult
         func load<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<([UInt8]), Int> where M1.MatchedType == [UInt8] {
-            let matchers: [Cuckoo.ParameterMatcher<([UInt8])>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<([UInt8])>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "load(_ p0: inout [UInt8]) async -> Int",
                 callMatcher: callMatcher,
@@ -391,7 +391,7 @@ final class MockMainActorAccumulator: MainActorAccumulator, nonisolated Cuckoo.P
         }
         
         func add<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int), @MainActor @Sendable (inout Int) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockMainActorAccumulator.self,
                 method: "add(_ p0: inout Int)",
                 parameterMatchers: matchers
@@ -413,7 +413,7 @@ final class MockMainActorAccumulator: MainActorAccumulator, nonisolated Cuckoo.P
         
         @discardableResult
         func add<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "add(_ p0: inout Int)",
                 callMatcher: callMatcher,
@@ -485,7 +485,7 @@ return cuckoo_manager.call(
         }
         
         func double<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), (inout Int) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockDoubler.self,
                 method: "double(_ p0: inout Int)",
                 parameterMatchers: matchers
@@ -493,7 +493,7 @@ return cuckoo_manager.call(
         }
         
         func apply<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, _ p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(Int, (Int) -> Int), (inout Int, @escaping (Int) -> Int) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int, M2.MatchedType == (Int) -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int, (Int) -> Int)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int, (Int) -> Int)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockDoubler.self,
                 method: "apply(_ p0: inout Int, _ p1: (Int) -> Int)",
                 parameterMatchers: matchers
@@ -515,7 +515,7 @@ return cuckoo_manager.call(
         
         @discardableResult
         func double<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "double(_ p0: inout Int)",
                 callMatcher: callMatcher,
@@ -527,7 +527,7 @@ return cuckoo_manager.call(
         
         @discardableResult
         func apply<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, _ p1: M2) -> Cuckoo.__DoNotUse<(Int, (Int) -> Int), Void> where M1.MatchedType == Int, M2.MatchedType == (Int) -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int, (Int) -> Int)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int, (Int) -> Int)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
                 "apply(_ p0: inout Int, _ p1: (Int) -> Int)",
                 callMatcher: callMatcher,

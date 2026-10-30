@@ -37,7 +37,7 @@ nonisolated final class MockIsolatedWork: IsolatedWork, nonisolated Cuckoo.Proto
         }
         
         func run<M1: Cuckoo.OptionalMatchable>(isolation p0: M1) -> Cuckoo.ProtocolStubFunction<((any Actor)?), Int, nonisolated(nonsending) (((any Actor)?)) async -> Int, Cuckoo.StubSharing.Confined> where M1.OptionalMatchedType == (any Actor)? {
-            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockIsolatedWork.self,
                 method: "run(isolation p0: isolated (any Actor)?) async -> Int",
                 parameterMatchers: matchers
@@ -59,7 +59,7 @@ nonisolated final class MockIsolatedWork: IsolatedWork, nonisolated Cuckoo.Proto
         
         @discardableResult
         func run<M1: Cuckoo.OptionalMatchable>(isolation p0: M1) -> Cuckoo.__DoNotUse<((any Actor)?), Int> where M1.OptionalMatchedType == (any Actor)? {
-            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "run(isolation p0: isolated (any Actor)?) async -> Int",
                 callMatcher: callMatcher,
