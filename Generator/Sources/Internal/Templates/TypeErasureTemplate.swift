@@ -147,7 +147,7 @@ extension Templates {
         {{ attribute }}
         {% endfor %}
         {{ container.accessibility|withSpace }}func {{ method.name|escapeReservedKeywords }}{{ method.signature }} {
-            {% if method.hasGenericParams and method.hasNonPrimaryAssociatedTypeParams %}
+            {% if method.hasGenericParams and method.usesNonPrimaryAssociatedTypes %}
             {# A `sending` argument is passed in rather than captured: a captured value can't be sent on. #}
             {% for variant in method.localFunctionVariants %}
             {% if variant.directive %}
