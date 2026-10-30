@@ -21,6 +21,11 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// a subclass must, instead of being `nonisolated`.
     var isSuperclassDeclared = false
 
+    /// The global actor the protocol is isolated to, if any.
+    var globalActor: String? {
+        if case .globalActor(let name)? = isolation { name } else { nil }
+    }
+
     /// Whether the protocol refines `Actor`, so its mock is an `actor`.
     var isActor: Bool {
         inheritedTypes.contains { $0 == "Actor" || $0 == "_Concurrency.Actor" }

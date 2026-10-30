@@ -25,7 +25,10 @@ extension Token {
                     // Its mock and stub are explicitly `nonisolated`, so they don't take on the module's
                     // default isolation (`-default-isolation MainActor`). A subclass of a declared class
                     // takes on that class's isolation instead.
-                    "isNonisolatedProtocol": !$0.isActor && $0.isolation == nil && !$0.isSuperclassDeclared,
+                    "isNonisolatedProtocol": !$0.isActor && ($0.isolation == nil || $0.isolation == .nonisolated) && !$0.isSuperclassDeclared,
+                    // The global actor the protocol is isolated to, which its requirements take on.
+                    "globalActor": $0.globalActor ?? "",
+                    "globalActorAttribute": $0.globalActor.map { "@\($0) " } ?? "",
                 ]
             },
             (self as? any HasInheritance)?.inheritanceSerialize(),

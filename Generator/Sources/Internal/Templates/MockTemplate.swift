@@ -76,14 +76,23 @@ extension {{ container.parentFullyQualifiedName }} {
 \(Templates.typeErasure.indented())
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<\(typeErasureClassName)>()
+    {% if container.globalActor %}
 
-    {{ container.accessibility|withSpace }}nonisolated func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(_ stub: \(staticGenericParameter)) where {{ container.genericProtocolIdentity }} {
+    {# For developers: `Mock`'s requirement. Wrapping a default implementation reads it on the global actor, so the
+    generic overloads below are isolated to it. #}
+    {{ container.accessibility|withSpace }}nonisolated func enableDefaultImplementation(_ stub: \(typeErasureClassName)) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    {% endif %}
+
+    {{ container.globalActorAttribute }}{{ container.accessibility|withSpace }}{% if not container.globalActor %}nonisolated {%+ endif %}func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(_ stub: \(staticGenericParameter)) where {{ container.genericProtocolIdentity }} {
         var mutableStub = stub
         __defaultImplStub.value = \(typeErasureClassName)(from: &mutableStub, keeping: mutableStub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    {{ container.accessibility|withSpace }}nonisolated func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(mutating stub: UnsafeMutablePointer<\(staticGenericParameter)>) where {{ container.genericProtocolIdentity }} {
+    {{ container.globalActorAttribute }}{{ container.accessibility|withSpace }}{% if not container.globalActor %}nonisolated {%+ endif %}func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(mutating stub: UnsafeMutablePointer<\(staticGenericParameter)>) where {{ container.genericProtocolIdentity }} {
         __defaultImplStub.value = \(typeErasureClassName)(from: stub, keeping: stub.pointee)
         cuckoo_manager.enableDefaultStubImplementation()
     }
