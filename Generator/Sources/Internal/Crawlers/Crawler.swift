@@ -86,7 +86,7 @@ final class Crawler: SyntaxVisitor {
     }
 
     override func visit(_ node: ImportDeclSyntax) -> SyntaxVisitorContinueKind {
-        let path = node.path.description
+        let path = node.path.trimmedDescription
         let target: Import.Target = if let importKind = node.importKindSpecifier?.trimmed.text {
             // Component import.
             .component(kind: importKind, name: path)
