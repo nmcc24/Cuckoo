@@ -33,25 +33,15 @@ struct SnapshotTests {
     /// Mirrors the `CuckooTestSources` module in `Cuckoofile.toml`, which generates the mocks used by the runtime test suite.
     @Test
     func runtimeTestSources() async throws {
-        let contents = try await generate(
-            sources: ["Tests/Swift/Source/*.swift"],
+        let contents = try await generateFiles(
+            sourcesByModule: ["CuckooTestSources": ["Tests/Swift/Source/*.swift"]],
             testableImports: ["Cuckoo", "CuckooTestSources"],
             exclude: ["ExcludedTestClass", "ExcludedProtocol"],
-            keepDocumentation: false
+            keepDocumentation: false,
+            singleFileOutput: true
         )
+        .joined(separator: "\n\n") + "\n"
         try assertSnapshot(contents, named: "RuntimeTests")
-    }
-
-    /// Mirrors the `CuckooTestSourcesSwiftUI` module in `Cuckoofile.toml`, which keeps SwiftUI's imports out of the other mocks.
-    @Test
-    func runtimeTestSwiftUISources() async throws {
-        let contents = try await generate(
-            sources: ["Tests/Swift/Source/SwiftUI/*.swift"],
-            testableImports: ["Cuckoo", "CuckooTestSourcesSwiftUI"],
-            exclude: [],
-            keepDocumentation: false
-        )
-        try assertSnapshot(contents, named: "RuntimeTestsSwiftUI")
     }
 
     /// Doc comments are copied onto mock members unless `keepDocumentation = false`.

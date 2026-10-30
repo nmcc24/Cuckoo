@@ -90,21 +90,15 @@ let package = Package(
         ),
         // The runtime test suite, laid out the way users consume Cuckoo: the code under test is a plain
         // module, and the modular plugin generates one mocks file per module it depends on, configured in
-        // Cuckoofile.toml. The SwiftUI fixture is its own module because a generated file shares one import list.
+        // Cuckoofile.toml.
         .target(
             name: "CuckooTestSources",
             path: "Tests/Swift/Source",
-            exclude: ["SwiftUI"],
-            swiftSettings: swiftSettings
-        ),
-        .target(
-            name: "CuckooTestSourcesSwiftUI",
-            path: "Tests/Swift/Source/SwiftUI",
             swiftSettings: swiftSettings
         ),
         .target(
             name: "CuckooMocks",
-            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooTestSourcesSwiftUI"],
+            dependencies: ["Cuckoo", "CuckooTestSources"],
             path: "Tests/Swift/Mocks",
             swiftSettings: swiftSettings,
             plugins: ["CuckooPluginModular"]
