@@ -13,13 +13,20 @@ final class Generator {
     static func generate(for module: Module, singleFileOutput: Bool, verbose: Bool) async throws -> [GeneratedFile] {
         let sources = module.sources ?? []
 
-        let inputPathValues: [Path]
-        if module.options.glob {
-            inputPathValues = sources.flatMap { Glob(pattern: $0.description).paths.map { Path($0) } }
-        } else {
-            inputPathValues = sources
+        func expand(_ source: Path) -> [Path] {
+            module.options.glob ? Glob(pattern: source.description).paths.map { Path($0) } : [source]
         }
-        let sortedInputPathValues = Set(inputPathValues.map { $0.standardRawValue }).sorted()
+        let sortedInputPathValues = Set(sources.flatMap(expand).map { $0.standardRawValue }).sorted()
+        // The Swift module of each input file, where it's known: from the table form of `sources`, where a file
+        // that two modules' globs match stays with the first, or for the files in its directory, from the plugin.
+        let swiftModules = Dictionary(
+            sources.flatMap { source in
+                expand(source).compactMap { path in
+                    (module.swiftModules[source] ?? module.sourceModule.flatMap { $0.contains(path) ? $0.name : nil })
+                        .map { (path.standardRawValue, $0) }
+                }
+            }
+        ) { first, _ in first }
 
         let inputFiles = sortedInputPathValues
             .map { Path($0) }
@@ -28,11 +35,17 @@ final class Generator {
 
         // An attribute isolates a declaration only if it names a global actor, and an argument is recorded as a
         // placeholder if its type is `~Copyable`. Either may be declared in another file.
-        let declaredNames = await inputFiles
-            .concurrentCompactMap { file in
-                (try? String(contentsOf: file.path.url, encoding: .utf8)).map(Crawler.declaredNames(in:))
-            }
-            .reduce(into: Crawler.DeclaredNames()) { $0.formUnion($1) }
+        let scannedFiles = await inputFiles.concurrentCompactMap { file -> (names: Crawler.DeclaredNames, swiftModule: String?, types: [TopLevelType])? in
+            guard let source = try? String(contentsOf: file.path.url, encoding: .utf8) else { return nil }
+            let swiftModule = swiftModules[file.path.standardRawValue]
+            return (Crawler.declaredNames(in: source), swiftModule, swiftModule.map { _ in Crawler.topLevelTypes(in: source) } ?? [])
+        }
+        let declaredNames = scannedFiles.reduce(into: Crawler.DeclaredNames()) { $0.formUnion($1.names) }
+        // Every type the sources of a known module declare, which the generated files import by name.
+        let typesByModule = scannedFiles.reduce(into: [String: [TopLevelType]]()) { typesByModule, file in
+            guard let swiftModule = file.swiftModule else { return }
+            typesByModule[swiftModule, default: []] += file.types
+        }
 
         let files: [FileRepresentation] = await inputFiles.concurrentCompactMap { file in
             do {
@@ -76,12 +89,21 @@ final class Generator {
 
         let timestamp = verbose ? Date().description : nil
         let sharedPublicModules = singleFileOutput ? publicModules(in: mockableFiles, module: module) : nil
+        // A single file needs the scoped imports once, in its first part.
+        let firstPath = mockableFiles.first?.file.path
         return try await mockableFiles.concurrentMap { file in
             await GeneratedFile(
                 path: file.file.path,
                 contents: [
                     module.options.omitHeaders ? nil : FileHeaderHandler.header(for: file, timestamp: timestamp),
-                    FileHeaderHandler.imports(for: file, imports: module.imports, publicImports: module.publicImports, testableImports: module.testableImports, publicModules: sharedPublicModules ?? publicModules(in: [file], module: module)),
+                    FileHeaderHandler.imports(
+                        for: file,
+                        imports: module.imports,
+                        publicImports: module.publicImports,
+                        testableImports: module.testableImports,
+                        publicModules: sharedPublicModules ?? publicModules(in: [file], module: module),
+                        typesByModule: !singleFileOutput || file.file.path == firstPath ? typesByModule : [:]
+                    ),
                     try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming),
                 ]
                 .compactMap { $0 }

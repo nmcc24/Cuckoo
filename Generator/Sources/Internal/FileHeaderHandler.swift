@@ -16,7 +16,8 @@ struct FileHeaderHandler {
         imports: [String],
         publicImports: [String],
         testableImports: [String],
-        publicModules: Set<String>
+        publicModules: Set<String>,
+        typesByModule: [String: [TopLevelType]] = [:]
     ) -> String {
         // `@_spi` groups per module: what the sources import, and for the mocked modules, every group the mocked
         // declarations use, because a testable import doesn't make SPI visible.
@@ -48,12 +49,28 @@ struct FileHeaderHandler {
             .filter { !$0.compilationConditions.isEmpty }
             .filter { !unconditionalImports.contains($0.description) && !testableImports.contains($0.description) }
             .map { "#if \($0.compilationConditions.joined(separator: " && "))\n\(spi($0.description))\(access($0.description))import \($0)\n#endif" }
+        // A scoped import of each type the module declares beats every whole-module import, so the type's name
+        // means it in the mocks even where another imported module declares the same name. Without a testable
+        // import, only the public types are visible.
+        let scopedImports = (testableImports + publicImports + unconditionalImports).flatMap { module -> [String] in
+            let testable = testableImports.contains(module)
+            let prefix = testable ? "\(spi(module))@testable \(access(module))"
+                : publicImports.contains(module) ? "\(spi(module))public " : "\(spi(module))\(access(module))"
+            return (typesByModule[module] ?? [])
+                .filter { testable || $0.accessibility == .public || $0.accessibility == .open }
+                .map { type in
+                    let line = "\(prefix)import \(type.kind) \(module).\(type.name)"
+                    guard !type.compilationConditions.isEmpty else { return line }
+                    return "#if \(type.compilationConditions.joined(separator: " && "))\n\(line)\n#endif"
+                }
+        }
         return [
             !publicImports.contains("Cuckoo") ? ["\(access("Cuckoo"))import Cuckoo"] : [],
             unconditionalImports.map { "\(spi($0))\(access($0))import \($0)" },
             conditionalImports,
             publicImports.map { "\(spi($0))public import \($0)" },
             testableImports.map { "\(spi($0))@testable \(access($0))import \($0)" },
+            scopedImports,
         ]
         .flatMap { $0 }
         .joined(separator: "\n")
