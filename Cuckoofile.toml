@@ -6,9 +6,10 @@
 [modules.CuckooTestSources]
 imports = ["Foundation"]
 testableImports = ["Cuckoo", "CuckooTestSources"]
-sources = [
-    "Tests/Swift/Source/*.swift",
-]
+# Naming the Swift module the sources belong to lets the mocks import each of their types by name, so a
+# same-named type of another import (SwiftUI's `Namespace` next to the one in GenericClass.swift) isn't
+# ambiguous. The modular plugin knows the module of an array of sources; Tuist's run needs it spelled out.
+sources = { CuckooTestSources = ["Tests/Swift/Source/*.swift"] }
 exclude = [
     "ExcludedTestClass",
     "ExcludedProtocol",
@@ -17,20 +18,5 @@ exclude = [
 output = "Tests/Swift/Generated/GeneratedMocks.swift"
 
 [modules.CuckooTestSources.options]
-glob = true
-keepDocumentation = false
-
-# SwiftUI declares common names such as `Namespace`. A single generated file shares one import list,
-# so `import SwiftUI` would make same-named test types ambiguous in every other mock. Keep it apart,
-# in a module of its own.
-[modules.CuckooTestSourcesSwiftUI]
-imports = ["Foundation"]
-testableImports = ["Cuckoo", "CuckooTestSourcesSwiftUI"]
-sources = [
-    "Tests/Swift/Source/SwiftUI/*.swift",
-]
-output = "Tests/Swift/Generated/GeneratedMocks+SwiftUI.swift"
-
-[modules.CuckooTestSourcesSwiftUI.options]
 glob = true
 keepDocumentation = false

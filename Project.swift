@@ -8,9 +8,6 @@ let commonBuildSettingsBase: [String: SettingValue] = [
 let testSourcesBuildSettingsBase: [String: SettingValue] = [
     "PRODUCT_NAME": .string("CuckooTestSources"),
 ]
-let testSourcesSwiftUIBuildSettingsBase: [String: SettingValue] = [
-    "PRODUCT_NAME": .string("CuckooTestSourcesSwiftUI"),
-]
 let mocksBuildSettingsBase: [String: SettingValue] = [
     "PRODUCT_NAME": .string("CuckooMocks"),
     "SYSTEM_FRAMEWORK_SEARCH_PATHS": .string("$(PLATFORM_DIR)/Developer/Library/Frameworks"),
@@ -53,28 +50,12 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
         bundleId: "org.brightify.Cuckoo.TestSources",
         deploymentTargets: platform.deploymentTargets,
         infoPlist: .default,
-        sources: SourceFilesList.sourceFilesList(globs: [
-            .glob("Tests/Swift/Source/**", excluding: ["Tests/Swift/Source/SwiftUI/**"]),
-        ]),
+        sources: [
+            "Tests/Swift/Source/**",
+        ],
         settings: Settings.settings(base: testSourcesBuildSettingsBase)
     )
     targets.append(testSourcesTarget)
-
-    // SwiftUI declares common names such as `Namespace`, so its fixture is a module of its own,
-    // with a mocks file of its own (Cuckoofile.toml). Package.swift has the same split.
-    let testSourcesSwiftUITarget = Target.target(
-        name: "Cuckoo-\(platform)Tests-SourcesSwiftUI",
-        destinations: platform.destinations,
-        product: .framework,
-        bundleId: "org.brightify.Cuckoo.TestSourcesSwiftUI",
-        deploymentTargets: platform.deploymentTargets,
-        infoPlist: .default,
-        sources: [
-            "Tests/Swift/Source/SwiftUI/**",
-        ],
-        settings: Settings.settings(base: testSourcesSwiftUIBuildSettingsBase)
-    )
-    targets.append(testSourcesSwiftUITarget)
 
     let mocksTarget = Target.target(
         name: "Cuckoo-\(platform)Tests-Mocks",
@@ -110,7 +91,6 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
         dependencies: [
             .target(defaultTarget),
             .target(testSourcesTarget),
-            .target(testSourcesSwiftUITarget),
             .sdk(name: "XCTest", type: .framework, status: .optional),
         ],
         settings: Settings.settings(base: mocksBuildSettingsBase)
@@ -149,7 +129,6 @@ func platformSet(platform: PlatformType) -> (targets: [Target], schemes: [Scheme
             buildAction: BuildAction.buildAction(targets: [
                 defaultTarget.reference,
                 testSourcesTarget.reference,
-                testSourcesSwiftUITarget.reference,
                 mocksTarget.reference,
             ]),
             testAction: TestAction.targets([TestableTarget.testableTarget(target: defaultTestTarget.reference)])

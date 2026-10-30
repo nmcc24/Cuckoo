@@ -282,12 +282,12 @@ struct CuckoofileTests {
             String(contentsOf: url, encoding: .utf8),
             configurationPath: Path(url.path)
         )
-        #expect(modules.keys.sorted() == ["CuckooTestSources", "CuckooTestSourcesSwiftUI"])
+        #expect(modules.keys.sorted() == ["CuckooTestSources"])
         #expect(modules["CuckooTestSources"]?.output == "Tests/Swift/Generated/GeneratedMocks.swift")
         #expect(modules["CuckooTestSources"]?.testableImports == ["Cuckoo", "CuckooTestSources"])
         #expect(modules["CuckooTestSources"]?.exclude == ["ExcludedTestClass", "ExcludedProtocol"])
         #expect(modules["CuckooTestSources"]?.options.keepDocumentation == false)
-        #expect(modules["CuckooTestSourcesSwiftUI"]?.output == "Tests/Swift/Generated/GeneratedMocks+SwiftUI.swift")
+        #expect(modules["CuckooTestSources"]?.swiftModules.values.sorted() == ["CuckooTestSources"])
     }
 
     /// Every TOML example in the README parses, except the Cuckoo 2 half of the migration example, which
