@@ -69,8 +69,9 @@ struct FileHeaderHandler {
         // import, only the public types are visible.
         let scopedImports = (testableImports + publicImports + unconditionalImports).flatMap { module -> [String] in
             let testable = testableImports.contains(module)
-            let prefix = testable ? "\(spi(module))@testable \(access(module))"
-                : publicImports.contains(module) ? "\(spi(module))public " : "\(spi(module))\(access(module))"
+            // The module's own import carries its `@_spi` groups, which also cover the scoped imports.
+            let prefix = testable ? "@testable \(access(module))"
+                : publicImports.contains(module) ? "public " : access(module)
             return (typesByModule[module] ?? [])
                 .filter { testable || $0.accessibility == .public || $0.accessibility == .open }
                 .map { type in
