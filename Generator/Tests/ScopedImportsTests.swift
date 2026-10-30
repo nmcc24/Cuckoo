@@ -136,6 +136,31 @@ struct ScopedImportsTests {
         #expect(scopedImports(in: output.joined()).isEmpty)
     }
 
+    /// A joined file has every source's imports once, at its top, and each module once, in its strongest form.
+    @Test
+    func joinedFileImportsEachModuleOnceAtTheTop() async throws {
+        let output = try await generate(
+            moduleKeys: """
+                sources = { App = ["App/*.swift"], Core = ["Core/*.swift"] }
+                imports = ["Foundation"]
+                testableImports = ["Cuckoo", "App", "Core"]
+                """
+        )
+        #expect(output.count == 2)
+        let lines = output[0].components(separatedBy: "\n")
+        let importLines = lines.prefix { $0.contains("import ") || $0.hasPrefix("#if") || $0 == "#endif" }
+        #expect(Array(importLines.prefix(4)) == [
+            "import Foundation",
+            "@testable public import Cuckoo",
+            "@testable public import App",
+            "@testable public import Core",
+        ])
+        let allImports = output.joined(separator: "\n").components(separatedBy: "\n").filter { $0.contains("import ") }
+        #expect(Set(allImports).count == allImports.count)
+        #expect(allImports.count == importLines.filter { $0.contains("import ") }.count)
+        #expect(!output[1].contains("import "))
+    }
+
     private func scopedImports(in output: String) -> [String] {
         output.components(separatedBy: "\n").filter { line in
             line.hasPrefix("#if") || ["struct", "class", "enum", "protocol", "typealias"].contains { line.contains("import \($0) ") }

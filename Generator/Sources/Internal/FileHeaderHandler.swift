@@ -11,8 +11,9 @@ struct FileHeaderHandler {
         .joined(separator: " ")
     }
 
+    /// The imports of the mocks of `files`, each once: one file's, or every file's when they're joined into one.
     static func imports(
-        for file: FileRepresentation,
+        for files: [FileRepresentation],
         imports: [String],
         publicImports: [String],
         testableImports: [String],
@@ -27,10 +28,11 @@ struct FileHeaderHandler {
                 spiGroups[module, default: []].append(group)
             }
         }
-        for sourceImport in file.imports {
+        let sourceImports = files.flatMap(\.imports)
+        for sourceImport in sourceImports {
             add(sourceImport.spiGroups, to: sourceImport.description)
         }
-        let declaredGroups = declaredSPIGroups(in: file.tokens)
+        let declaredGroups = declaredSPIGroups(in: files.flatMap(\.tokens))
         for module in testableImports where module != "Cuckoo" {
             add(declaredGroups, to: module)
         }
@@ -40,15 +42,28 @@ struct FileHeaderHandler {
         func access(_ module: String) -> String {
             publicModules.contains(module) ? "public " : ""
         }
+        // A module imports once, with the strongest form asked for: testable, then public, then plain.
         let unconditionalImports = OrderedSet(
-            file.imports.filter { $0.compilationConditions.isEmpty }.map(\.description) + imports
+            ["Cuckoo"] + sourceImports.filter { $0.compilationConditions.isEmpty }.map(\.description) + imports
         ).values
-        .filter { !testableImports.contains($0) }
-        // An import inside `#if` keeps its condition, so the mocks build wherever the source does.
-        let conditionalImports = file.imports
-            .filter { !$0.compilationConditions.isEmpty }
-            .filter { !unconditionalImports.contains($0.description) && !testableImports.contains($0.description) }
-            .map { "#if \($0.compilationConditions.joined(separator: " && "))\n\(spi($0.description))\(access($0.description))import \($0)\n#endif" }
+        .filter { !testableImports.contains($0) && !publicImports.contains($0) }
+        // An import inside `#if` keeps its condition, so the mocks build wherever the source does. Imports under the
+        // same condition share one block.
+        var importsByCondition: [(condition: String, imports: OrderedSet<String>)] = []
+        for sourceImport in sourceImports where !sourceImport.compilationConditions.isEmpty {
+            let module = sourceImport.description
+            guard !unconditionalImports.contains(module) && !testableImports.contains(module) && !publicImports.contains(module) else { continue }
+            let condition = sourceImport.compilationConditions.joined(separator: " && ")
+            let line = "\(spi(module))\(access(module))import \(module)"
+            if let index = importsByCondition.firstIndex(where: { $0.condition == condition }) {
+                importsByCondition[index].imports.insert(line)
+            } else {
+                importsByCondition.append((condition, OrderedSet([line])))
+            }
+        }
+        let conditionalImports = importsByCondition.map { condition, imports in
+            (["#if \(condition)"] + imports.values + ["#endif"]).joined(separator: "\n")
+        }
         // A scoped import of each type the module declares beats every whole-module import, so the type's name
         // means it in the mocks even where another imported module declares the same name. Without a testable
         // import, only the public types are visible.
@@ -65,7 +80,6 @@ struct FileHeaderHandler {
                 }
         }
         return [
-            !publicImports.contains("Cuckoo") ? ["\(access("Cuckoo"))import Cuckoo"] : [],
             unconditionalImports.map { "\(spi($0))\(access($0))import \($0)" },
             conditionalImports,
             publicImports.map { "\(spi($0))public import \($0)" },

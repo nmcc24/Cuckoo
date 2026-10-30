@@ -88,22 +88,26 @@ final class Generator {
         let mockableFiles = parsedFiles.map { $0.replacing(tokens: $0.tokens.filter { $0.isMockable }) }
 
         let timestamp = verbose ? Date().description : nil
-        let sharedPublicModules = singleFileOutput ? publicModules(in: mockableFiles, module: module) : nil
-        // A single file needs the scoped imports once, in its first part.
+        @Sendable func imports(for files: [FileRepresentation]) -> String {
+            FileHeaderHandler.imports(
+                for: files,
+                imports: module.imports,
+                publicImports: module.publicImports,
+                testableImports: module.testableImports,
+                publicModules: publicModules(in: files, module: module),
+                typesByModule: typesByModule
+            )
+        }
+        // A single file has every file's imports once, at its top.
         let firstPath = mockableFiles.first?.file.path
+        let sharedImports = singleFileOutput ? imports(for: mockableFiles) : nil
         return try await mockableFiles.concurrentMap { file in
             await GeneratedFile(
                 path: file.file.path,
                 contents: [
+                    file.file.path == firstPath ? sharedImports : nil,
                     module.options.omitHeaders ? nil : FileHeaderHandler.header(for: file, timestamp: timestamp),
-                    FileHeaderHandler.imports(
-                        for: file,
-                        imports: module.imports,
-                        publicImports: module.publicImports,
-                        testableImports: module.testableImports,
-                        publicModules: sharedPublicModules ?? publicModules(in: [file], module: module),
-                        typesByModule: !singleFileOutput || file.file.path == firstPath ? typesByModule : [:]
-                    ),
+                    sharedImports == nil ? imports(for: [file]) : nil,
                     try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming),
                 ]
                 .compactMap { $0 }
