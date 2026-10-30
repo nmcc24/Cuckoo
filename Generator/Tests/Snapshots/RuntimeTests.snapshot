@@ -1,139 +1,143 @@
-public import Cuckoo
 import Foundation
+import class Foundation.NSArray
+#if (canImport(SwiftUI))
+import SwiftUI
+import Combine
+#endif
 @testable public import Cuckoo
-@testable public import CuckooTestSources
-@testable public import class CuckooTestSources.Widget
-@testable public import protocol CuckooTestSources.WidgetDelegate
-@testable public import protocol CuckooTestSources.WidgetModel
-@testable public import protocol CuckooTestSources.WidgetScreen
-@testable public import protocol CuckooTestSources.TitledWidgetScreen
-@testable public import class CuckooTestSources.GenericInitBox
-@testable public import protocol CuckooTestSources.GenericInitFactory
-@testable public import class CuckooTestSources.ClassForStubTesting
-@testable public import class CuckooTestSources.ClassWithOptionals
-@testable public import class CuckooTestSources.ClassWithTypeAlias
-@testable public import struct CuckooTestSources.StubError
-@testable public import class CuckooTestSources.ClassWithTypedThrows
-@testable public import class CuckooTestSources.ClassWithUnavailablePlatformMembers
-@testable public import class CuckooTestSources.ExcludedTestClass
-@testable public import class CuckooTestSources.IncludedTestClass
-@testable public import protocol CuckooTestSources.IncludedProtocol
-@testable public import protocol CuckooTestSources.ExcludedProtocol
-@testable public import class CuckooTestSources.GenericClass
-@testable public import enum CuckooTestSources.Namespace
-@testable public import class CuckooTestSources.wViewyContwollew
-@testable public import class CuckooTestSources.GenericMethodClass
-@testable public import protocol CuckooTestSources.GenericProtocol
-@testable public import protocol CuckooTestSources.PrimaryAssociatedTypeProtocol
-@testable public import protocol CuckooTestSources.MixedPrimaryAssociatedTypeProtocol
-@testable public import struct CuckooTestSources.Unit
-@testable public import struct CuckooTestSources.CuckooTestSources
-@testable public import protocol CuckooTestSources.UnitConverter
-@testable public import protocol CuckooTestSources.Store
-@testable public import protocol CuckooTestSources.CachingStore
-@testable public import protocol CuckooTestSources.NamedStore
-@testable public import protocol CuckooTestSources.Feed
-@testable public import protocol CuckooTestSources.IntFeed
-@testable public import protocol CuckooTestSources.Counter
-@testable public import protocol CuckooTestSources.InoutCounterStore
-@testable public import class CuckooTestSources.CounterClass
-@testable public import class CuckooTestSources.RecordingViewModel
-@testable public import protocol CuckooTestSources.MainActorService
-@testable public import class CuckooTestSources.MainActorViewModel
-@testable public import class CuckooTestSources.TestDatabaseActor
-@testable public import protocol CuckooTestSources.DatabaseStore
-@testable public import protocol CuckooTestSources.CounterStore
-@testable public import protocol CuckooTestSources.SendableService
-@testable public import class CuckooTestSources.Ledger
-@testable public import protocol CuckooTestSources.LedgerStore
-@testable public import class CuckooTestSources.RealLedgerStore
-@testable public import class CuckooTestSources.Multi
-@testable public import class CuckooTestSources.MultiNestedClass
-@testable public import protocol CuckooTestSources.PlainProtocolToTestNSObjectProtocolInheritance
-@testable public import protocol CuckooTestSources.ProtocolNotInheritingFromNSObjectProtocol
-@testable public import protocol CuckooTestSources.ProtocolInheritingFromNSObjectProtocol
-@testable public import protocol CuckooTestSources.ChildProtocolInheritingFromNSObjectProtocol
-@testable public import protocol CuckooTestSources.ProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
-@testable public import protocol CuckooTestSources.ChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
-@testable public import protocol CuckooTestSources.ProtocolInheritingFromNSObjectProtocolAndOtherProtocol
-@testable public import protocol CuckooTestSources.ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol
-@testable public import class CuckooTestSources.Nested
-@testable public import struct CuckooTestSources.NestedStruct
-@testable public import struct CuckooTestSources.Ticket
-@testable public import protocol CuckooTestSources.TicketOffice
-@testable public import protocol CuckooTestSources.TicketDesk
-@testable public import class CuckooTestSources.TicketShredder
+@_spi(CuckooTests) @testable public import CuckooTestSources
+@_spi(CuckooTests) @testable public import class CuckooTestSources.Widget
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.WidgetDelegate
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.WidgetModel
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.WidgetScreen
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.TitledWidgetScreen
+@_spi(CuckooTests) @testable public import class CuckooTestSources.GenericInitBox
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.GenericInitFactory
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClassForStubTesting
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClassWithOptionals
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClassWithTypeAlias
+@_spi(CuckooTests) @testable public import struct CuckooTestSources.StubError
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClassWithTypedThrows
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClassWithUnavailablePlatformMembers
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ExcludedTestClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.IncludedTestClass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.IncludedProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ExcludedProtocol
+@_spi(CuckooTests) @testable public import class CuckooTestSources.GenericClass
+@_spi(CuckooTests) @testable public import enum CuckooTestSources.Namespace
+@_spi(CuckooTests) @testable public import class CuckooTestSources.wViewyContwollew
+@_spi(CuckooTests) @testable public import class CuckooTestSources.GenericMethodClass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.GenericProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.PrimaryAssociatedTypeProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.MixedPrimaryAssociatedTypeProtocol
+@_spi(CuckooTests) @testable public import struct CuckooTestSources.Unit
+@_spi(CuckooTests) @testable public import struct CuckooTestSources.CuckooTestSources
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.UnitConverter
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.Store
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.CachingStore
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.NamedStore
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.Feed
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.IntFeed
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.Counter
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.InoutCounterStore
+@_spi(CuckooTests) @testable public import class CuckooTestSources.CounterClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.RecordingViewModel
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.MainActorService
+@_spi(CuckooTests) @testable public import class CuckooTestSources.MainActorViewModel
+@_spi(CuckooTests) @testable public import class CuckooTestSources.TestDatabaseActor
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.DatabaseStore
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.CounterStore
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.SendableService
+@_spi(CuckooTests) @testable public import class CuckooTestSources.Ledger
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.LedgerStore
+@_spi(CuckooTests) @testable public import class CuckooTestSources.RealLedgerStore
+@_spi(CuckooTests) @testable public import class CuckooTestSources.Multi
+@_spi(CuckooTests) @testable public import class CuckooTestSources.MultiNestedClass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.PlainProtocolToTestNSObjectProtocolInheritance
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ProtocolNotInheritingFromNSObjectProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ProtocolInheritingFromNSObjectProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ChildProtocolInheritingFromNSObjectProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ChildProtocolInheritingFromNSObjectProtocolUsingProtocolComposition
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ProtocolInheritingFromNSObjectProtocolAndOtherProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ChildProtocolInheritingFromNSObjectProtocolAndOtherProtocol
+@_spi(CuckooTests) @testable public import class CuckooTestSources.Nested
+@_spi(CuckooTests) @testable public import struct CuckooTestSources.NestedStruct
+@_spi(CuckooTests) @testable public import struct CuckooTestSources.Ticket
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.TicketOffice
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.TicketDesk
+@_spi(CuckooTests) @testable public import class CuckooTestSources.TicketShredder
 #if (canImport(ObjectiveC))
-@testable public import protocol CuckooTestSources.ObjcProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ObjcProtocol
 #endif
 #if (canImport(ObjectiveC))
-@testable public import class CuckooTestSources.ObjcClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ObjcClass
 #endif
 #if (canImport(ObjectiveC))
-@testable public import class CuckooTestSources.ObjcMembersClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ObjcMembersClass
 #endif
-@testable public import class CuckooTestSources.OpenClass
-@testable public import protocol CuckooTestSources.ParameterPackProtocol
-@testable public import class CuckooTestSources.ParameterPackClass
-@testable public import struct CuckooTestSources.DoublingWrapper
-@testable public import struct CuckooTestSources.Wrappers
-@testable public import struct CuckooTestSources.AccessToken
-@testable public import protocol CuckooTestSources.Vault
-@testable public import protocol CuckooTestSources.Shape
-@testable public import class CuckooTestSources.Polygon
-@testable public import protocol CuckooTestSources.StaticFactory
-@testable public import class CuckooTestSources.StaticMembersClass
-@testable public import protocol CuckooTestSources.GenericStaticFactory
-@testable public import protocol CuckooTestSources.SubscriptProtocol
-@testable public import class CuckooTestSources.SubscriptClass
-@testable public import protocol CuckooTestSources.GenericSubscriptProtocol
-@testable public import class CuckooTestSources.GenericSubscriptImplementation
+@_spi(CuckooTests) @testable public import class CuckooTestSources.OpenClass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ParameterPackProtocol
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ParameterPackClass
+@_spi(CuckooTests) @testable public import struct CuckooTestSources.DoublingWrapper
+@_spi(CuckooTests) @testable public import struct CuckooTestSources.Wrappers
+@_spi(CuckooTests) @testable public import struct CuckooTestSources.AccessToken
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.Vault
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.Shape
+@_spi(CuckooTests) @testable public import class CuckooTestSources.Polygon
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.StaticFactory
+@_spi(CuckooTests) @testable public import class CuckooTestSources.StaticMembersClass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.GenericStaticFactory
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.SubscriptProtocol
+@_spi(CuckooTests) @testable public import class CuckooTestSources.SubscriptClass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.GenericSubscriptProtocol
+@_spi(CuckooTests) @testable public import class CuckooTestSources.GenericSubscriptImplementation
 #if (canImport(SwiftUI))
-@testable public import protocol CuckooTestSources.SwiftUIViewModelProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.SwiftUIViewModelProtocol
 #endif
 #if (canImport(SwiftUI))
-@testable public import class CuckooTestSources.SwiftUIViewModel
+@_spi(CuckooTests) @testable public import class CuckooTestSources.SwiftUIViewModel
 #endif
-@testable public import protocol CuckooTestSources.UnavailableProtocol
-@testable public import class CuckooTestSources.TestedClass
-@testable public import class CuckooTestSources.OpenTestedClass
-@testable public import class CuckooTestSources.PublicTestedClass
-@testable public import class CuckooTestSources.PublicPublicTestedClass
-@testable public import class CuckooTestSources.ClassWithInnerEnum
-@testable public import class CuckooTestSources.ClassUsingInnerEnum
-@testable public import class CuckooTestSources.FinalClass
-@testable public import protocol CuckooTestSources.GenericFunctionProtocol
-@testable public import class CuckooTestSources.OptionalParamsClass
-@testable public import class CuckooTestSources.InternalFieldsInPublicClass
-@testable public import class CuckooTestSources.PublicClassWithInternalFieldsUsingPublicType
-@testable public import class CuckooTestSources.InternalType
-@testable public import class CuckooTestSources.PublicType
-@testable public import class CuckooTestSources.FinalFields
-@testable public import class CuckooTestSources.InoutMethodClass
-@testable public import class CuckooTestSources.ClosureNClass
-@testable public import class CuckooTestSources.ClosureNThrowingClass
-@testable public import class CuckooTestSources.ClosureNThrowingThrowsClass
-@testable public import class CuckooTestSources.ClosureNRethrowingClass
-@testable public import class CuckooTestSources.TypeIsRightClass
-@testable public import class CuckooTestSources.ConvenienceMatchersAmbiguer
-@testable public import struct CuckooTestSources.LongType
-@testable public import protocol CuckooTestSources.TestedProtocol
-@testable public import protocol CuckooTestSources.EmptyLabelProtocol
-@testable public import protocol CuckooTestSources.OnlyLabelProtocol
-@testable public import class CuckooTestSources.OnlyLabelClass
-@testable public import protocol CuckooTestSources.PublicoProtocolo
-@testable public import protocol CuckooTestSources.SimpleProtocol
-@testable public import protocol CuckooTestSources.SendableProtocol
-@testable public import protocol CuckooTestSources.ConcurrentCounter
-@testable public import class CuckooTestSources.SimpleClass
-@testable public import class CuckooTestSources.SimpleSubclass
-@testable public import protocol CuckooTestSources.TestedSubProtocol
-@testable public import class CuckooTestSources.TestedSubclass
-@testable public import class CuckooTestSources.TestedSubSubClass
-@testable public import class CuckooTestSources.UnavailablePlatformClass
-@testable public import protocol CuckooTestSources.UnavailablePlatformProtocol
-@testable public import protocol CuckooTestSources.UnicodeTest
-@testable public import protocol CuckooTestSources.UnicodeNameTest_トř🦅
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.UnavailableProtocol
+@_spi(CuckooTests) @testable public import class CuckooTestSources.TestedClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.OpenTestedClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.PublicTestedClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.PublicPublicTestedClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClassWithInnerEnum
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClassUsingInnerEnum
+@_spi(CuckooTests) @testable public import class CuckooTestSources.FinalClass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.GenericFunctionProtocol
+@_spi(CuckooTests) @testable public import class CuckooTestSources.OptionalParamsClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.InternalFieldsInPublicClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.PublicClassWithInternalFieldsUsingPublicType
+@_spi(CuckooTests) @testable public import class CuckooTestSources.InternalType
+@_spi(CuckooTests) @testable public import class CuckooTestSources.PublicType
+@_spi(CuckooTests) @testable public import class CuckooTestSources.FinalFields
+@_spi(CuckooTests) @testable public import class CuckooTestSources.InoutMethodClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClosureNClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClosureNThrowingClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClosureNThrowingThrowsClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ClosureNRethrowingClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.TypeIsRightClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.ConvenienceMatchersAmbiguer
+@_spi(CuckooTests) @testable public import struct CuckooTestSources.LongType
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.TestedProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.EmptyLabelProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.OnlyLabelProtocol
+@_spi(CuckooTests) @testable public import class CuckooTestSources.OnlyLabelClass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.PublicoProtocolo
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.SimpleProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.SendableProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.ConcurrentCounter
+@_spi(CuckooTests) @testable public import class CuckooTestSources.SimpleClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.SimpleSubclass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.TestedSubProtocol
+@_spi(CuckooTests) @testable public import class CuckooTestSources.TestedSubclass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.TestedSubSubClass
+@_spi(CuckooTests) @testable public import class CuckooTestSources.UnavailablePlatformClass
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.UnavailablePlatformProtocol
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.UnicodeTest
+@_spi(CuckooTests) @testable public import protocol CuckooTestSources.UnicodeNameTest_トř🦅
 
 final class MockWidget: Widget, nonisolated Cuckoo.ClassMock {
     typealias MocksType = Widget
@@ -728,11 +732,6 @@ nonisolated final class GenericInitFactoryStub:GenericInitFactory {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.ClassMock {
     typealias MocksType = ClassForStubTesting
     typealias Stubbing = __StubbingProxy_ClassForStubTesting
@@ -1304,11 +1303,6 @@ final class ClassForStubTestingStub:ClassForStubTesting {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 final class MockClassWithOptionals: ClassWithOptionals, nonisolated Cuckoo.ClassMock {
     typealias MocksType = ClassWithOptionals
     typealias Stubbing = __StubbingProxy_ClassWithOptionals
@@ -1670,11 +1664,6 @@ final class ClassWithOptionalsStub:ClassWithOptionals {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 public final class MockClassWithTypeAlias: ClassWithTypeAlias, nonisolated Cuckoo.ClassMock {
     public typealias MocksType = ClassWithTypeAlias
     public typealias Stubbing = __StubbingProxy_ClassWithTypeAlias
@@ -1756,11 +1745,6 @@ public final class ClassWithTypeAliasStub:ClassWithTypeAlias {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 final class MockClassWithTypedThrows: ClassWithTypedThrows, nonisolated Cuckoo.ClassMock {
     typealias MocksType = ClassWithTypedThrows
@@ -1987,11 +1971,6 @@ final class ClassWithTypedThrowsStub:ClassWithTypedThrows {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 final class MockClassWithUnavailablePlatformMembers: ClassWithUnavailablePlatformMembers, nonisolated Cuckoo.ClassMock {
     typealias MocksType = ClassWithUnavailablePlatformMembers
@@ -2275,11 +2254,6 @@ final class ClassWithUnavailablePlatformMembersStub:ClassWithUnavailablePlatform
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 final class MockIncludedTestClass: IncludedTestClass, nonisolated Cuckoo.ClassMock {
     typealias MocksType = IncludedTestClass
     typealias Stubbing = __StubbingProxy_IncludedTestClass
@@ -2404,11 +2378,6 @@ nonisolated final class IncludedProtocolStub:IncludedProtocol {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 final class MockGenericClass<T: CustomStringConvertible, U: Codable & CustomStringConvertible, V: Hashable & Equatable>: GenericClass<T, U, V>, nonisolated Cuckoo.ClassMock {
     typealias MocksType = GenericClass<T, U, V>
@@ -3024,11 +2993,6 @@ final class GenericClassStub<T: CustomStringConvertible, U: Codable & CustomStri
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 final class MockwViewyContwollew: wViewyContwollew, nonisolated Cuckoo.ClassMock {
     typealias MocksType = wViewyContwollew
     typealias Stubbing = __StubbingProxy_wViewyContwollew
@@ -3400,11 +3364,6 @@ final class GenericMethodClassStub<ClassyT: CustomStringConvertible>:GenericMeth
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
@@ -4225,11 +4184,6 @@ nonisolated final class MixedPrimaryAssociatedTypeProtocolStub<Input: Equatable,
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 nonisolated final class MockUnitConverter: UnitConverter, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any UnitConverter
     typealias Stubbing = __StubbingProxy_UnitConverter
@@ -4345,11 +4299,6 @@ nonisolated final class UnitConverterStub:UnitConverter {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 nonisolated final class MockStore<Key: Hashable, Value>: Store, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
@@ -4943,11 +4892,6 @@ nonisolated final class IntFeedStub:IntFeed {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 nonisolated final class MockCounter: Counter, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Counter
     typealias Stubbing = __StubbingProxy_Counter
@@ -5254,11 +5198,6 @@ final class CounterClassStub:CounterClass {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any MainActorService
@@ -6131,11 +6070,6 @@ actor LedgerStoreStub:LedgerStore {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 @available(swift 4.0)
 extension Multi.Nested {
@@ -8040,11 +7974,6 @@ final class NestedExtensionTestedClassStub:NestedExtensionTestedClass {
 }
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 @available(swift 4.0)
 final class MockMulti: Multi, nonisolated Cuckoo.ClassMock {
@@ -12078,11 +12007,6 @@ final class NestedSubclassStub:NestedSubclass {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 final class MockMultiNestedClass: MultiNestedClass, nonisolated Cuckoo.ClassMock {
     typealias MocksType = MultiNestedClass
     typealias Stubbing = __StubbingProxy_MultiNestedClass
@@ -12128,11 +12052,6 @@ final class MultiNestedClassStub:MultiNestedClass {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 nonisolated final class MockPlainProtocolToTestNSObjectProtocolInheritance: PlainProtocolToTestNSObjectProtocolInheritance, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any PlainProtocolToTestNSObjectProtocolInheritance
@@ -12487,11 +12406,6 @@ nonisolated final class ChildProtocolInheritingFromNSObjectProtocolAndOtherProto
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 @available(swift 4.0)
 extension Nested {
@@ -13263,11 +13177,6 @@ final class NestedExtensionTestedClassStub:NestedExtensionTestedClass {
 }
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 @available(swift 4.0)
 final class MockNested: Nested, nonisolated Cuckoo.ClassMock {
@@ -15983,11 +15892,6 @@ final class NestedTestedClassStub:NestedTestedClass {
 }
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 extension NestedStruct {
 final class MockNestedTestedSubclass: NestedTestedSubclass, nonisolated Cuckoo.ClassMock {
@@ -19791,11 +19695,6 @@ final class NestedExtensionTestedClassStub:NestedExtensionTestedClass {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 nonisolated final class MockTicketOffice: TicketOffice, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any TicketOffice
     typealias Stubbing = __StubbingProxy_TicketOffice
@@ -20102,11 +20001,6 @@ final class TicketShredderStub:TicketShredder {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 #if (canImport(ObjectiveC))
 nonisolated final class MockObjcProtocol: ObjcProtocol, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any ObjcProtocol
@@ -20352,11 +20246,6 @@ final class ObjcMembersClassStub:ObjcMembersClass {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 public final class MockOpenClass: OpenClass, nonisolated Cuckoo.ClassMock {
     public typealias MocksType = OpenClass
     public typealias Stubbing = __StubbingProxy_OpenClass
@@ -20437,11 +20326,6 @@ public final class OpenClassStub:OpenClass {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 nonisolated final class MockParameterPackProtocol: ParameterPackProtocol, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any ParameterPackProtocol
@@ -20709,17 +20593,7 @@ final class ParameterPackClassStub:ParameterPackClass {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
-
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@_spi(CuckooTests) @testable public import CuckooTestSources
 
 public nonisolated final class MockVault: Vault, nonisolated Cuckoo.ProtocolMock {
     public typealias MocksType = any Vault
@@ -20838,11 +20712,6 @@ public nonisolated final class VaultStub:Vault {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 nonisolated final class MockShape: Shape, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Shape
@@ -21100,11 +20969,6 @@ final class PolygonStub:Polygon {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 nonisolated final class MockStaticFactory: StaticFactory, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
     typealias MocksType = any StaticFactory
@@ -21700,11 +21564,6 @@ nonisolated final class GenericStaticFactoryStub<Product>:GenericStaticFactory {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 nonisolated final class MockSubscriptProtocol: SubscriptProtocol, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any SubscriptProtocol
@@ -22688,17 +22547,6 @@ nonisolated final class GenericSubscriptProtocolStub<Value>:GenericSubscriptProt
 
 
 
-public import Cuckoo
-import Foundation
-#if (canImport(SwiftUI))
-import SwiftUI
-#endif
-#if (canImport(SwiftUI))
-import Combine
-#endif
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 #if (canImport(SwiftUI))
 nonisolated final class MockSwiftUIViewModelProtocol: SwiftUIViewModelProtocol, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any SwiftUIViewModelProtocol
@@ -22792,12 +22640,6 @@ final class SwiftUIViewModelStub:SwiftUIViewModel {
 #endif
 
 
-
-public import Cuckoo
-import class Foundation.NSArray 
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 @available(iOS 42.0, *)
 nonisolated final class MockUnavailableProtocol: UnavailableProtocol, nonisolated Cuckoo.ProtocolMock {
@@ -29170,11 +29012,6 @@ final class ConvenienceMatchersAmbiguerStub:ConvenienceMatchersAmbiguer {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any TestedProtocol
     typealias Stubbing = __StubbingProxy_TestedProtocol
@@ -31293,11 +31130,6 @@ final class SimpleSubclassStub:SimpleSubclass {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any TestedSubProtocol
     typealias Stubbing = __StubbingProxy_TestedSubProtocol
@@ -32533,11 +32365,6 @@ nonisolated final class TestedSubProtocolStub:TestedSubProtocol {
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
     typealias MocksType = TestedSubclass
@@ -37770,11 +37597,6 @@ final class TestedSubSubClassStub:TestedSubSubClass {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 @available(tvOS, unavailable)
 final class MockUnavailablePlatformClass: UnavailablePlatformClass, nonisolated Cuckoo.ClassMock {
     typealias MocksType = UnavailablePlatformClass
@@ -37858,11 +37680,6 @@ final class UnavailablePlatformClassStub:UnavailablePlatformClass {
 
 
 
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
-
 @available(tvOS, unavailable)
 nonisolated final class MockUnavailablePlatformProtocol: UnavailablePlatformProtocol, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any UnavailablePlatformProtocol
@@ -37935,11 +37752,6 @@ nonisolated final class UnavailablePlatformProtocolStub:UnavailablePlatformProto
 
 
 
-
-public import Cuckoo
-import Foundation
-@testable public import Cuckoo
-@testable public import CuckooTestSources
 
 nonisolated final class MockUnicodeTest: UnicodeTest, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any UnicodeTest
