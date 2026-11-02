@@ -315,10 +315,15 @@ struct CuckoofileTests {
             configurationPath: Self.configurationPath,
             overriddenOutput: "/derived/Mocks.swift",
             requestedModuleName: nil,
-            pluginSources: [Path("/project/Sources/TargetA/A.swift")]
+            pluginSources: [
+                Module.PluginSource(path: Path("/project/Sources/TargetA/A.swift"), swiftModule: "TargetA"),
+                Module.PluginSource(path: Path("/project/Sources/TargetB/B.swift"), swiftModule: "TargetB"),
+            ]
         ).first)
         #expect(pluginListed.name == "TargetA")
+        // A single-file plugin lists every dependency's files; the module takes those of the target with its name.
         #expect(pluginListed.sources == [Path("/project/Sources/TargetA/A.swift")])
+        #expect(pluginListed.swiftModules == [Path("/project/Sources/TargetA/A.swift"): "TargetA"])
         #expect(pluginListed.sourcesAreFromPlugin)
 
         let modular = try parse(examples[2], overriddenOutput: "/derived/Mocks.swift")

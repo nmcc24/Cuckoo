@@ -1,11 +1,9 @@
 import Foundation
 import Testing
-#if canImport(CuckooGenerator)
 @testable import CuckooGenerator
-#endif
 
-/// The build plugins pass the files of the target they generate for with `--sources-list`. A module without
-/// `sources` mocks exactly those files; one with `sources` keeps its own. The SwiftPM runtime suite runs it
+/// The build plugins pass the files of the targets they generate for with `--sources-list`. A module without
+/// `sources` mocks the files of the target with its name, or all of them; one with `sources` keeps its own. The SwiftPM runtime suite runs it
 /// end to end through `CuckooPluginModular` (`CuckooPluginTestSources`).
 @Suite
 struct SourcesListTests {
@@ -13,10 +11,11 @@ struct SourcesListTests {
     func listIsReadOnePathPerLine() throws {
         try withDirectory { directory in
             let list = directory.appendingPathComponent("Sources.txt")
-            try "/abs/A.swift\r\n\nrelative/B.swift\n".write(to: list, atomically: true, encoding: .utf8)
+            try "/abs/A.swift\r\n\nApp\trelative/B.swift\n\t/abs/C.swift\n".write(to: list, atomically: true, encoding: .utf8)
             #expect(try GenerateCommand.sourcesList(at: list.path) == [
-                Path("/abs/A.swift"),
-                (Path.current + Path("relative/B.swift")).standardized,
+                Module.PluginSource(path: Path("/abs/A.swift"), swiftModule: nil),
+                Module.PluginSource(path: (Path.current + Path("relative/B.swift")).standardized, swiftModule: "App"),
+                Module.PluginSource(path: Path("/abs/C.swift"), swiftModule: nil),
             ])
         }
     }
@@ -37,6 +36,34 @@ struct SourcesListTests {
         #expect(!output.contains("class MockStore"))
         // The plugin names the module the files in its directory belong to.
         #expect(output.contains("@testable import protocol App.Screen"))
+    }
+
+    /// The single-file plugin lists every dependency's files. A module named like one of them takes its files, and
+    /// knows their module without the plugin naming one.
+    @Test
+    func moduleNamedLikeAListedModuleTakesItsFiles() async throws {
+        let output = try await generate(
+            moduleName: "Core",
+            moduleKeys: "",
+            listing: [("App", "App/Screen[1].swift"), ("Core", "Core/Store.swift")],
+            sourceModule: false
+        )
+        #expect(output.contains("class MockStore"))
+        #expect(!output.contains("class MockScreen"))
+        #expect(output.contains("@testable import protocol Core.Store"))
+    }
+
+    @Test
+    func moduleNamedLikeNoListedModuleTakesEveryFile() async throws {
+        let output = try await generate(
+            moduleKeys: "",
+            listing: [("App", "App/Screen[1].swift"), ("Core", "Core/Store.swift")],
+            sourceModule: false
+        )
+        #expect(output.contains("class MockStore"))
+        #expect(output.contains("class MockScreen"))
+        #expect(output.contains("@testable import protocol App.Screen"))
+        #expect(output.contains("@testable import protocol Core.Store"))
     }
 
     @Test
@@ -60,6 +87,15 @@ struct SourcesListTests {
     }
 
     private func generate(moduleKeys: String, listing: [String]?) async throws -> String {
+        try await generate(moduleKeys: moduleKeys, listing: listing?.map { (nil, $0) }, sourceModule: true)
+    }
+
+    private func generate(
+        moduleName: String = "Mocks",
+        moduleKeys: String,
+        listing: [(String?, String)]?,
+        sourceModule: Bool
+    ) async throws -> String {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooSourcesList-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
         do {
@@ -74,19 +110,19 @@ struct SourcesListTests {
             }
             let modules = try Cuckoofile.modules(
                 from: """
-                    [modules.Mocks]
+                    [modules.\(moduleName)]
                     output = "Mocks.swift"
                     testableImports = ["App", "Core"]
                     \(moduleKeys)
 
-                    [modules.Mocks.options]
+                    [modules.\(moduleName).options]
                     omitHeaders = true
                     """,
                 configurationPath: Path(directory.appendingPathComponent("Cuckoofile.toml").path),
                 overriddenOutput: nil,
                 requestedModuleName: nil,
-                sourceModule: Module.SourceModule(name: "App", directory: Path(directory.appendingPathComponent("App").path)),
-                pluginSources: listing.map { $0.map { Path(directory.appendingPathComponent($0).path) } }
+                sourceModule: sourceModule ? Module.SourceModule(name: "App", directory: Path(directory.appendingPathComponent("App").path)) : nil,
+                pluginSources: listing.map { $0.map { Module.PluginSource(path: Path(directory.appendingPathComponent($1).path), swiftModule: $0) } }
             )
             let module = try #require(modules.first)
             return try await Generator.generate(for: module, singleFileOutput: true, verbose: false)

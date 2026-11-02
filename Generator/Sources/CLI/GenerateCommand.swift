@@ -21,8 +21,9 @@ struct GenerateCommand: AsyncParsableCommand {
     @Option(
         name: [.customLong("sources-list")],
         help: """
-            A file listing source files, one path per line, for the modules that don't set `sources`. \
-            The build plugins pass the files of the target they generate for.
+            A file listing source files, one per line, for the modules that don't set `sources`: a path, or the \
+            Swift module the file belongs to, a tab and the path. The build plugins pass the files of the targets \
+            they generate for.
             """,
         completion: .file()
     )
@@ -141,8 +142,9 @@ struct GenerateCommand: AsyncParsableCommand {
         }
     }
 
-    /// The paths in a `--sources-list` file, one per line. A relative path resolves against the current directory.
-    static func sourcesList(at path: String) throws -> [Path] {
+    /// The files in a `--sources-list` file, one per line: a path, or a Swift module, a tab and a path. A relative
+    /// path resolves against the current directory.
+    static func sourcesList(at path: String) throws -> [Module.PluginSource] {
         let contents: String
         do {
             contents = try String(contentsOfFile: Path(path, expandingTilde: true).rawValue, encoding: .utf8)
@@ -151,7 +153,16 @@ struct GenerateCommand: AsyncParsableCommand {
         }
         return contents
             .split(whereSeparator: \.isNewline)
-            .map { Path(String($0)).absolute }
+            .map { line in
+                guard let tab = line.firstIndex(of: "\t") else {
+                    return Module.PluginSource(path: Path(String(line)).absolute, swiftModule: nil)
+                }
+                let swiftModule = String(line[..<tab])
+                return Module.PluginSource(
+                    path: Path(String(line[line.index(after: tab)...])).absolute,
+                    swiftModule: swiftModule.isEmpty ? nil : swiftModule
+                )
+            }
     }
 
     private enum GenerateError: Error, CustomStringConvertible {
