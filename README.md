@@ -138,6 +138,8 @@ keepDocumentation = false
 # ...
 ```
 
+`CuckooPluginSingleFile` writes every module into its one `GeneratedMocks.swift`, with the imports of all of them at the top. A module without `sources` mocks the files of the test target's dependency with its name, or the files of every dependency if none has its name.
+
 #### For CuckooPluginModular
 
 `CuckooPluginSingleFile` puts all mocks into a single `GeneratedMocks.swift` file in derived data. In a Swift Package with multiple targets this is problematic because each test target compiles independently and may not have visibility into types from unrelated modules. Use `CuckooPluginModular` instead: it inspects your test target's dependencies and runs the generator once per dependency module, producing a separate `GeneratedMocks_<ModuleName>.swift` for each.
