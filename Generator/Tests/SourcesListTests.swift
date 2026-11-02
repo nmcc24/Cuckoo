@@ -1,0 +1,97 @@
+import Foundation
+import Testing
+#if canImport(CuckooGenerator)
+@testable import CuckooGenerator
+#endif
+
+/// The build plugins pass the files of the target they generate for with `--sources-list`. A module without
+/// `sources` mocks exactly those files; one with `sources` keeps its own. The SwiftPM runtime suite runs it
+/// end to end through `CuckooPluginModular` (`CuckooPluginTestSources`).
+@Suite
+struct SourcesListTests {
+    @Test
+    func listIsReadOnePathPerLine() throws {
+        try withDirectory { directory in
+            let list = directory.appendingPathComponent("Sources.txt")
+            try "/abs/A.swift\r\n\nrelative/B.swift\n".write(to: list, atomically: true, encoding: .utf8)
+            #expect(try GenerateCommand.sourcesList(at: list.path) == [
+                Path("/abs/A.swift"),
+                (Path.current + Path("relative/B.swift")).standardized,
+            ])
+        }
+    }
+
+    @Test
+    func unreadableListIsReported() {
+        let error = #expect(throws: (any Error).self) {
+            try GenerateCommand.sourcesList(at: "/nonexistent/Sources.txt")
+        }
+        #expect(error.map(String.init(describing:))?.contains("Failed to read the sources list at '/nonexistent/Sources.txt'") == true)
+    }
+
+    /// Listed paths are files, not globs: `[1]` would otherwise be a character class that doesn't match itself.
+    @Test
+    func moduleWithoutSourcesMocksTheListedFiles() async throws {
+        let output = try await generate(moduleKeys: "", listing: ["App/Screen[1].swift"])
+        #expect(output.contains("class MockScreen"))
+        #expect(!output.contains("class MockStore"))
+        // The plugin names the module the files in its directory belong to.
+        #expect(output.contains("@testable import protocol App.Screen"))
+    }
+
+    @Test
+    func moduleWithSourcesIgnoresTheList() async throws {
+        let output = try await generate(moduleKeys: #"sources = ["Core/*.swift"]"#, listing: ["App/Screen[1].swift"])
+        #expect(output.contains("class MockStore"))
+        #expect(!output.contains("class MockScreen"))
+    }
+
+    @Test
+    func withoutListOrSourcesNothingIsMocked() async throws {
+        let output = try await generate(moduleKeys: "", listing: nil)
+        #expect(output.isEmpty)
+    }
+
+    private func withDirectory<T>(_ body: (URL) throws -> T) rethrows -> T {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooSourcesList-\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        return try body(directory)
+    }
+
+    private func generate(moduleKeys: String, listing: [String]?) async throws -> String {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooSourcesList-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        do {
+            let files = [
+                "App/Screen[1].swift": "protocol Screen {\n    func show()\n}\n",
+                "Core/Store.swift": "protocol Store {\n    func load() -> Int\n}\n",
+            ]
+            for (path, source) in files {
+                let url = directory.appendingPathComponent(path)
+                try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try source.write(to: url, atomically: true, encoding: .utf8)
+            }
+            let modules = try Cuckoofile.modules(
+                from: """
+                    [modules.Mocks]
+                    output = "Mocks.swift"
+                    testableImports = ["App", "Core"]
+                    \(moduleKeys)
+
+                    [modules.Mocks.options]
+                    omitHeaders = true
+                    """,
+                configurationPath: Path(directory.appendingPathComponent("Cuckoofile.toml").path),
+                overriddenOutput: nil,
+                requestedModuleName: nil,
+                sourceModule: Module.SourceModule(name: "App", directory: Path(directory.appendingPathComponent("App").path)),
+                pluginSources: listing.map { $0.map { Path(directory.appendingPathComponent($0).path) } }
+            )
+            let module = try #require(modules.first)
+            return try await Generator.generate(for: module, singleFileOutput: true, verbose: false)
+                .map(\.contents)
+                .joined(separator: "\n")
+        }
+    }
+}

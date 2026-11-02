@@ -14,7 +14,7 @@ final class Generator {
         let sources = module.sources ?? []
 
         func expand(_ source: Path) -> [Path] {
-            module.options.glob ? Glob(pattern: source.description).paths.map { Path($0) } : [source]
+            module.options.glob && !module.sourcesAreFromPlugin ? Glob(pattern: source.description).paths.map { Path($0) } : [source]
         }
         let sortedInputPathValues = Set(sources.flatMap(expand).map { $0.standardRawValue }).sorted()
         // The Swift module of each input file, where it's known: from the table form of `sources`, where a file

@@ -7,6 +7,8 @@ final class Module: Sendable {
     let publicImports: [String]
     let testableImports: [String]
     let sources: [Path]?
+    /// Whether `sources` are the files a build plugin listed, which are used as they are instead of as globs.
+    let sourcesAreFromPlugin: Bool
     /// The Swift module each of `sources` belongs to, from the table form of `sources`.
     let swiftModules: [Path: String]
     /// The Swift module the build plugin generates for, which the files in its directory belong to.
@@ -18,13 +20,17 @@ final class Module: Sendable {
     let filenameFormat: String?
     let options: Options
 
-    /// - Parameter sourceModule: The Swift module the build plugin generates for. The table form of `sources`
-    ///   names the modules explicitly instead.
+    /// - Parameters:
+    ///   - sourceModule: The Swift module the build plugin generates for. The table form of `sources` names the
+    ///     modules explicitly instead.
+    ///   - pluginSources: The source files of the target the build plugin generates for. A module without
+    ///     `sources` mocks them; one with `sources` keeps its own.
     init(
         name: String,
         output: String?,
         overriddenOutput: String? = nil,
         sourceModule: SourceModule? = nil,
+        pluginSources: [Path]? = nil,
         configurationPath: Path,
         dto: DTO
     ) throws {
@@ -43,9 +49,10 @@ final class Module: Sendable {
         func path(_ source: String) -> Path {
             Path(source.trimmed, expandingTilde: true).relative(to: configurationPath.parent)
         }
+        self.sourcesAreFromPlugin = dto.sources == nil && pluginSources != nil
         switch dto.sources {
         case nil:
-            self.sources = nil
+            self.sources = pluginSources
             self.swiftModules = [:]
             self.sourceModule = sourceModule
         case .paths(let paths)?:
@@ -141,7 +148,8 @@ final class Module: Sendable {
                 let reading = target.map { " (it read the files of target \($0))" } ?? ""
                 return """
                 The `xcodeproj` option was removed in Cuckoo 3. List module \(name)'s files with `sources` instead, \
-                e.g. `sources = ["\(folder)/**/*.swift"]`\(reading).
+                e.g. `sources = ["\(folder)/**/*.swift"]`\(reading). With a build plugin, leave `sources` out to mock \
+                the files of the target the plugin generates for.
                 """
             case .invalidMockNaming(let name, let reason):
                 return "Invalid mock naming in module \(name): \(reason)"
@@ -256,7 +264,7 @@ extension Module: CustomDebugStringConvertible {
             "imports:\(imports.map { "\n\t-\($0.bold)" }.joined(separator: ", "))",
             "public imports:\(publicImports.map { "\n\t-\($0.bold)" }.joined(separator: ", "))",
             "testable imports:\(testableImports.map { "\n\t-\($0.bold)" }.joined(separator: ", "))",
-            sources.map { "sources:\($0.map { "\n\t-\($0.rawValue.bold)" }.joined())" },
+            sources.map { "sources\(sourcesAreFromPlugin ? " (from the build plugin)" : ""):\($0.map { "\n\t-\($0.rawValue.bold)" }.joined())" },
             "excluded types:\(exclude.map { "\n\t-\($0.bold)" }.joined())",
             regexes.isEmpty ? nil : "regex:\(regexes.map { "\n\t-\($0.bold)" }.joined())",
             "output: \(output.bold)",

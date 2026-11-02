@@ -18,6 +18,16 @@ struct GenerateCommand: AsyncParsableCommand {
     )
     var configurationPath: String?
 
+    @Option(
+        name: [.customLong("sources-list")],
+        help: """
+            A file listing source files, one path per line, for the modules that don't set `sources`. \
+            The build plugins pass the files of the target they generate for.
+            """,
+        completion: .file()
+    )
+    var sourcesListPath: String?
+
     @Flag(help: "Include extra information during generation and in the generated code.")
     var verbose = false
 
@@ -52,12 +62,15 @@ struct GenerateCommand: AsyncParsableCommand {
             environment["CUCKOO_SOURCE_MODULE_DIRECTORY"].map { Module.SourceModule(name: name, directory: Path($0)) }
         }
 
+        let pluginSources = try sourcesListPath.map(Self.sourcesList(at:))
+
         let modules = try Cuckoofile.modules(
             from: configurationFile.contents,
             configurationPath: configurationFile.path,
             overriddenOutput: overriddenOutput,
             requestedModuleName: requestedModuleName,
-            sourceModule: sourceModule
+            sourceModule: sourceModule,
+            pluginSources: pluginSources
         )
 
         if modules.isEmpty {
@@ -128,8 +141,22 @@ struct GenerateCommand: AsyncParsableCommand {
         }
     }
 
+    /// The paths in a `--sources-list` file, one per line. A relative path resolves against the current directory.
+    static func sourcesList(at path: String) throws -> [Path] {
+        let contents: String
+        do {
+            contents = try String(contentsOfFile: Path(path, expandingTilde: true).rawValue, encoding: .utf8)
+        } catch {
+            throw GenerateError.unreadableSourcesList(path: path, error)
+        }
+        return contents
+            .split(whereSeparator: \.isNewline)
+            .map { Path(String($0)).absolute }
+    }
+
     private enum GenerateError: Error, CustomStringConvertible {
         case missingConfiguration
+        case unreadableSourcesList(path: String, any Error)
 
         var description: String {
             switch self {
@@ -138,6 +165,8 @@ struct GenerateCommand: AsyncParsableCommand {
                 Failed to find Cuckoofile configuration.
                 Expected in project folder through $PROJECT_DIR or in the same directory where the Cuckoonator was called.
                 """
+            case .unreadableSourcesList(let path, let error):
+                return "Failed to read the sources list at '\(path)': \(error)"
             }
         }
     }
