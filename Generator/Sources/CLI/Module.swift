@@ -1,5 +1,4 @@
 import Foundation
-import Rainbow
 
 final class Module: Sendable {
     let name: String

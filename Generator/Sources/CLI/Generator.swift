@@ -1,5 +1,4 @@
 import Foundation
-import Rainbow
 
 final class Generator {
     typealias TokenFilter = (any Token) -> Bool

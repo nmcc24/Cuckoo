@@ -58,7 +58,6 @@ let package = Package(
         // .package(url: "https://github.com/swiftlang/swift-format", "600.0.0"..<"605.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2"),
         .package(url: "https://github.com/dduan/TOMLDecoder", .upToNextMinor(from: "0.4.5")),
-        .package(url: "https://github.com/onevcat/Rainbow", from: "4.2.2"),
     ],
     targets: [
         .target(
@@ -76,7 +75,6 @@ let package = Package(
                 .product(name: "SwiftParser", package: "swift-syntax"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "TOMLDecoder", package: "TOMLDecoder"),
-                .product(name: "Rainbow", package: "Rainbow"),
             ],
             path: "Generator/Sources",
             swiftSettings: swiftSettings
