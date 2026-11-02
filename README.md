@@ -558,7 +558,7 @@ Cuckoo is open for everyone and we'd like you to help us make the best Swift moc
 The project consists of two parts - runtime and code generator. When you open the `Cuckoo.xcworkspace` in Xcode, you'll see these directories:
     - `Source` - runtime sources
     - `Tests` - tests for the runtime part
-    - `Generator.xcodeproj` - project containing generator source code (use the `Generator` scheme to run it)
+    - `Generator.xcodeproj` - project containing generator source code (use the `Generator` scheme to run it); Tuist generates it, so only its `Package.resolved` lockfile is tracked
 
 Thank you for your help!
 

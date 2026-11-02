@@ -4,6 +4,12 @@ set -e
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
+# Tuist generates the Xcode project, as `make` does. Only its Package.resolved is tracked.
+if [[ ! -f "$SCRIPT_DIR/Generator/Generator.xcodeproj/project.pbxproj" ]]; then
+    echo "Generating Generator.xcodeproj with Tuist."
+    (cd "$SCRIPT_DIR" && export TUIST_PROJECT_DIR="$SCRIPT_DIR" && mise exec -- tuist install && mise exec -- tuist generate --no-open)
+fi
+
 rm -rf "$SCRIPT_DIR/Generator/bin/cuckoonator"
 env -i PATH="$PATH" HOME="$HOME" xcodebuild build \
     -project "$SCRIPT_DIR/Generator/Generator.xcodeproj" \
