@@ -96,18 +96,24 @@ let package = Package(
             path: "Tests/Swift/Source",
             swiftSettings: swiftSettings
         ),
+        // Its Cuckoofile entry lists no `sources`, so the plugin's `--sources-list` picks its files.
+        .target(
+            name: "CuckooPluginTestSources",
+            path: "Tests/Plugin/Source",
+            swiftSettings: swiftSettings
+        ),
         .target(
             name: "CuckooMocks",
-            dependencies: ["Cuckoo", "CuckooTestSources"],
+            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources"],
             path: "Tests/Swift/Mocks",
             swiftSettings: swiftSettings,
             plugins: ["CuckooPluginModular"]
         ),
         .testTarget(
             name: "CuckooTests",
-            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooMocks"],
+            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooMocks"],
             path: "Tests",
-            exclude: ["Swift/Source", "Swift/Generated", "Swift/Mocks", "OCMock", "Info.plist"],
+            exclude: ["Swift/Source", "Swift/Generated", "Swift/Mocks", "Plugin/Source", "OCMock", "Info.plist"],
             swiftSettings: swiftSettings
         ),
         .plugin(

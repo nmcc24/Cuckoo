@@ -144,6 +144,16 @@ keepDocumentation = false
 
 A `Cuckoofile.toml` entry is required for each module you want to generate mocks for. The plugin looks up the test target's own name (e.g. `[modules.TargetATests]`), letting you specify which source files to mock and which imports to add. Modules without a matching entry produce an empty file and no mocks.
 
+Both plugins pass the generator the source files of the targets they generate for. An entry without `sources` mocks exactly those files, so it follows the target's membership, including Xcode's synchronised folders:
+
+```toml
+# Mocks every file of TargetA.
+[modules.TargetA]
+testableImports = ["Cuckoo", "TargetA"]
+```
+
+An entry with `sources` mocks only the files its globs match, as below.
+
 **Example `Cuckoofile.toml` for modular projects:**
 
 ```toml
