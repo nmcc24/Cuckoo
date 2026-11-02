@@ -88,6 +88,19 @@ extension Method {
         signature.parameters.contains(where: \.isNoncopyable)
     }
 
+    /// Whether the `then` closure takes the parameter's own argument, borrowed. A `~Copyable` argument is recorded as
+    /// a placeholder, but the mock passes the argument itself to the closure, which the manager calls before the
+    /// member returns. A generic one stays the placeholder: the proxies leave its type out, so Swift couldn't infer it.
+    func passesBorrowed(_ parameter: MethodParameter) -> Bool {
+        parameter.isNoncopyable && !parameter.isInout
+            && !signature.genericParameters.contains { parameter.type.description.mentions($0.name) }
+    }
+
+    /// Whether the `then` closure takes each parameter on its own: a tuple can't hold an `inout` or `~Copyable` one.
+    private var passesSeparateArguments: Bool {
+        hasInoutParams || signature.parameters.contains(where: passesBorrowed)
+    }
+
     var hasGenericParams: Bool {
         !signature.genericParameters.isEmpty
     }
@@ -199,6 +212,8 @@ extension Method {
         let separateArguments = signature.parameters.enumerated().map { index, parameter in
             if parameter.isInout {
                 "&__inout\(index)"
+            } else if passesBorrowed(parameter) {
+                escapeReservedKeywords(for: parameter.usableName)
             } else {
                 parameterCount == 1 ? "arguments" : "arguments.\(index)"
             }
@@ -206,8 +221,7 @@ extension Method {
         let implementationArguments = if stubIsolation.isolatedParameter != nil {
             // An actor mock's closure takes the mock, then each parameter.
             (["self"] + separateArguments).joined(separator: ", ")
-        } else if hasInoutParams {
-            // A closure with an `inout` parameter takes each parameter, since a tuple can't hold an `inout` one.
+        } else if passesSeparateArguments {
             separateArguments.joined(separator: ", ")
         } else {
             "arguments"
@@ -229,14 +243,18 @@ extension Method {
             let input = parameterTypes.map(\.genericArgumentSafe.description).joined(separator: ", ")
             let output = returnType.map { resolved($0.withoutAttributes(except: ["@MainActor", "@Sendable"])).genericArgumentSafe.description } ?? "Void"
             // An `inout` parameter stays `inout` in the `then` closure, which can change the caller's variable.
+            // A `~Copyable` one is borrowed for the closure's call.
             let separateParameterTypes = zip(signature.parameters, parameterTypes).map { parameter, type in
-                "\(parameter.isInout ? "inout " : "")\(escapingIfClosure(type))"
+                if passesBorrowed(parameter) {
+                    "borrowing \(resolved(parameter.type.withoutAttributes()).genericArgumentSafe.description)"
+                } else {
+                    "\(parameter.isInout ? "inout " : "")\(escapingIfClosure(type))"
+                }
             }
             let implementationInput = if let isolatedParameter = stubIsolation.isolatedParameter {
                 // An actor mock's closure takes the mock, then each parameter.
                 "(\(([isolatedParameter] + separateParameterTypes).joined(separator: ", ")))"
-            } else if hasInoutParams {
-                // A tuple can't hold an `inout` parameter, so the closure takes each parameter.
+            } else if passesSeparateArguments {
                 "(\(separateParameterTypes.joined(separator: ", ")))"
             } else if parameterTypes.count == 1 {
                 // Other closures take the parameters as one tuple, the way they're recorded.
