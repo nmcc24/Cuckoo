@@ -18,12 +18,15 @@ enum Cuckoofile {
     ///   - requestedModuleName: If set, only the module with this name is returned.
     ///   - sourceModule: The Swift module the build plugin generates for, and its directory. A module that names
     ///     modules in `sources` keeps its own.
+    ///   - pluginSources: The source files the build plugin passes with `--sources-list`, which modules without
+    ///     `sources` mock.
     static func modules(
         from contents: String,
         configurationPath: Path,
         overriddenOutput: String?,
         requestedModuleName: String?,
-        sourceModule: Module.SourceModule? = nil
+        sourceModule: Module.SourceModule? = nil,
+        pluginSources: [Path]? = nil
     ) throws -> [Module] {
         let file: File
         do {
@@ -42,6 +45,7 @@ enum Cuckoofile {
                     output: file.output,
                     overriddenOutput: overriddenOutput,
                     sourceModule: sourceModule,
+                    pluginSources: pluginSources,
                     configurationPath: configurationPath,
                     dto: dto
                 )
