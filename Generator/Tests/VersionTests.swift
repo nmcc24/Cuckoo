@@ -3,7 +3,7 @@ import Testing
 @testable import CuckooGenerator
 
 struct VersionTests {
-    /// The `run` script compares the generator's `--version` with the `version` file and rebuilds on a mismatch (#601).
+    /// The generator's `--version` reports the release in the `version` file (Brightify/Cuckoo#601).
     @Test
     func generatorVersionMatchesVersionFile() throws {
         let versionFile = URL(fileURLWithPath: #filePath)
