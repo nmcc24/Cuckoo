@@ -114,13 +114,16 @@ private func commandsPerModule(
     let configurationURL = projectDir.appending(path: "Cuckoofile.toml")
     let executable = try executableFactory("CuckooGenerator").url
 
-    return sourceModules.map { sourceModule in
+    return try sourceModules.map { sourceModule in
         let outputURL = derivedSourcesDir.appending(component: "GeneratedMocks_\(sourceModule.name).swift")
+        // The Cuckoofile module mocks these files unless it lists its own `sources`.
+        let sourcesListURL = derivedSourcesDir.appending(component: "Sources_\(sourceModule.name).txt")
+        try writeSourcesList(sourceModule.sources, to: sourcesListURL)
 
         return .buildCommand(
             displayName: "Run Cuckoonator for \(sourceModule.name)",
             executable: executable,
-            arguments: [],
+            arguments: ["--sources-list", sourcesListURL.path(percentEncoded: false)],
             environment: [
                 "PROJECT_DIR": projectDir.path(),
                 "DERIVED_SOURCES_DIR": derivedSourcesDir.path(),
@@ -130,8 +133,17 @@ private func commandsPerModule(
                 "CUCKOO_SOURCE_MODULE": sourceModule.swiftModule?.name,
                 "CUCKOO_SOURCE_MODULE_DIRECTORY": sourceModule.swiftModule?.directory.path(percentEncoded: false),
             ].compactMapValues { $0 },
-            inputFiles: [configurationURL] + sourceModule.sources,
+            inputFiles: [configurationURL, sourcesListURL] + sourceModule.sources,
             outputFiles: [outputURL]
         )
     }
+}
+
+/// Writes the source files, one path per line, for the generator's `--sources-list`. An unchanged list isn't
+/// rewritten, so the build only reruns the generator when the target's files change.
+private func writeSourcesList(_ sources: [URL], to url: URL) throws {
+    let contents = Data(sources.map { $0.path(percentEncoded: false) + "\n" }.joined().utf8)
+    guard (try? Data(contentsOf: url)) != contents else { return }
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try contents.write(to: url, options: .atomic)
 }

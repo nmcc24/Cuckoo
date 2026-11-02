@@ -20,3 +20,9 @@ output = "Tests/Swift/Generated/GeneratedMocks.swift"
 [modules.CuckooTestSources.options]
 glob = true
 keepDocumentation = false
+
+# No `sources`: under SwiftPM, the plugin passes the target's files with `--sources-list`. The Tuist run has no
+# plugin, so it writes an empty file, and the test using these mocks is SwiftPM only.
+[modules.CuckooPluginTestSources]
+testableImports = ["Cuckoo", "CuckooPluginTestSources"]
+output = "Tests/Swift/Generated/GeneratedMocks_PluginTestSources.swift"
