@@ -23,14 +23,15 @@ final class Module: Sendable {
     /// - Parameters:
     ///   - sourceModule: The Swift module the build plugin generates for. The table form of `sources` names the
     ///     modules explicitly instead.
-    ///   - pluginSources: The source files of the target the build plugin generates for. A module without
-    ///     `sources` mocks them; one with `sources` keeps its own.
+    ///   - pluginSources: The source files of the targets the build plugin generates for. A module without
+    ///     `sources` mocks the files of the target with its name, or every file if no target has its name; one with
+    ///     `sources` keeps its own.
     init(
         name: String,
         output: String?,
         overriddenOutput: String? = nil,
         sourceModule: SourceModule? = nil,
-        pluginSources: [Path]? = nil,
+        pluginSources: [PluginSource]? = nil,
         configurationPath: Path,
         dto: DTO
     ) throws {
@@ -52,8 +53,10 @@ final class Module: Sendable {
         self.sourcesAreFromPlugin = dto.sources == nil && pluginSources != nil
         switch dto.sources {
         case nil:
-            self.sources = pluginSources
-            self.swiftModules = [:]
+            let ownSources = pluginSources?.filter { $0.swiftModule == name }
+            let listed = ownSources?.isEmpty == false ? ownSources : pluginSources
+            self.sources = listed?.map(\.path)
+            self.swiftModules = Dictionary((listed ?? []).compactMap { source in source.swiftModule.map { (source.path, $0) } }) { first, _ in first }
             self.sourceModule = sourceModule
         case .paths(let paths)?:
             self.sources = paths.map(path)
@@ -157,6 +160,14 @@ final class Module: Sendable {
                 return "Invalid `defaultIsolation = \"\(value)\"` in module \(name): use \"MainActor\" or \"nonisolated\", as the module's own default isolation."
             }
         }
+    }
+}
+
+extension Module {
+    /// A file the build plugin lists with `--sources-list`, and the Swift module it belongs to where the plugin knows it.
+    struct PluginSource: Hashable, Sendable {
+        let path: Path
+        let swiftModule: String?
     }
 }
 

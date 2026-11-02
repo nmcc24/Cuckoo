@@ -32,7 +32,8 @@ struct CuckooPluginModular: BuildToolPlugin {
         if let testTarget = target as? SourceModuleTarget, testTarget.kind == .test {
             let selfModule = SourceModule(
                 name: target.name,
-                sources: sourceModules.flatMap(\.sources)
+                sources: sourceModules.flatMap(\.sources),
+                listedSources: sourceModules.flatMap(\.listedSources)
             )
             allSourceModules.append(selfModule)
         }
@@ -82,7 +83,8 @@ extension CuckooPluginModular: XcodeBuildToolPlugin {
         var allSourceModules = sourceModules
         let selfModule = SourceModule(
             name: target.displayName,
-            sources: sourceModules.flatMap(\.sources)
+            sources: sourceModules.flatMap(\.sources),
+            listedSources: sourceModules.flatMap(\.listedSources)
         )
         allSourceModules.append(selfModule)
 
@@ -102,7 +104,16 @@ struct SourceModule {
     /// The Swift module the sources are compiled into, and its directory, where it's certain: not for a test
     /// target's own entry, which gathers the sources of all its dependencies, nor for an Xcode target, whose
     /// display name may differ. The Cuckoofile entry may list files from elsewhere, which belong to other modules.
-    var swiftModule: (name: String, directory: URL)? = nil
+    let swiftModule: (name: String, directory: URL)?
+    /// The sources passed with `--sources-list`, each with its Swift module where it's certain.
+    let listedSources: [ListedSource]
+
+    init(name: String, sources: [URL], swiftModule: (name: String, directory: URL)? = nil, listedSources: [ListedSource]? = nil) {
+        self.name = name
+        self.sources = sources
+        self.swiftModule = swiftModule
+        self.listedSources = listedSources ?? sources.map { ListedSource(swiftModule: swiftModule?.name, url: $0) }
+    }
 }
 
 private func commandsPerModule(
@@ -118,7 +129,7 @@ private func commandsPerModule(
         let outputURL = derivedSourcesDir.appending(component: "GeneratedMocks_\(sourceModule.name).swift")
         // The Cuckoofile module mocks these files unless it lists its own `sources`.
         let sourcesListURL = derivedSourcesDir.appending(component: "Sources_\(sourceModule.name).txt")
-        try writeSourcesList(sourceModule.sources, to: sourcesListURL)
+        try writeSourcesList(sourceModule.listedSources, to: sourcesListURL)
 
         return .buildCommand(
             displayName: "Run Cuckoonator for \(sourceModule.name)",
@@ -139,10 +150,16 @@ private func commandsPerModule(
     }
 }
 
-/// Writes the source files, one path per line, for the generator's `--sources-list`. An unchanged list isn't
-/// rewritten, so the build only reruns the generator when the target's files change.
-private func writeSourcesList(_ sources: [URL], to url: URL) throws {
-    let contents = Data(sources.map { $0.path(percentEncoded: false) + "\n" }.joined().utf8)
+/// A file for the generator's `--sources-list`, and the Swift module it belongs to where that's certain.
+struct ListedSource {
+    let swiftModule: String?
+    let url: URL
+}
+
+/// Writes the source files for the generator's `--sources-list`, one per line: the Swift module, a tab and the path.
+/// An unchanged list isn't rewritten, so the build only reruns the generator when the target's files change.
+private func writeSourcesList(_ sources: [ListedSource], to url: URL) throws {
+    let contents = Data(sources.map { "\($0.swiftModule ?? "")\t\($0.url.path(percentEncoded: false))\n" }.joined().utf8)
     guard (try? Data(contentsOf: url)) != contents else { return }
     try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
     try contents.write(to: url, options: .atomic)

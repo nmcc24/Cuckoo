@@ -26,7 +26,7 @@ enum Cuckoofile {
         overriddenOutput: String?,
         requestedModuleName: String?,
         sourceModule: Module.SourceModule? = nil,
-        pluginSources: [Path]? = nil
+        pluginSources: [Module.PluginSource]? = nil
     ) throws -> [Module] {
         let file: File
         do {
