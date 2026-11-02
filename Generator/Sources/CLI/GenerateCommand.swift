@@ -89,55 +89,63 @@ struct GenerateCommand: AsyncParsableCommand {
         // To not capture mutating self.
         let verbose = self.verbose
 
-        await modules.concurrentForEach { module in
+        // Modules that write to the same file, as all of them do under the single-file build plugin, are joined into it.
+        var fileOutputs: [(path: Path, modules: [Module])] = []
+        var directoryOutputs: [(path: Path, module: Module)] = []
+        for module in modules {
+            let outputPath = Path(module.output, expandingTilde: true)
+            let absoluteOutputPath = outputPath.isAbsolute ? outputPath : configurationFile.path.parent + outputPath
+            // An existing directory, or a path without an extension, is a directory of one file per source.
+            if absoluteOutputPath.isDirectory || absoluteOutputPath.pathExtension.isEmpty {
+                directoryOutputs.append((absoluteOutputPath, module))
+            } else if let index = fileOutputs.firstIndex(where: { $0.path.standardRawValue == absoluteOutputPath.standardRawValue }) {
+                fileOutputs[index].modules.append(module)
+            } else {
+                fileOutputs.append((absoluteOutputPath, [module]))
+            }
+        }
+
+        await directoryOutputs.concurrentForEach { output in
+            let module = output.module
             do {
-                let outputPath = Path(module.output, expandingTilde: true)
-                let absoluteOutputPath: Path
-                if outputPath.isAbsolute {
-                    absoluteOutputPath = outputPath
-                } else {
-                    absoluteOutputPath = configurationFile.path.parent + outputPath
-                }
-                let isOutputDirectory: Bool
-                if absoluteOutputPath.exists && absoluteOutputPath.isDirectory {
-                    isOutputDirectory = true
-                } else {
-                    isOutputDirectory = absoluteOutputPath.pathExtension.isEmpty
-                    // Create directory structure.
-                    if isOutputDirectory {
-                        try absoluteOutputPath.createDirectory(withIntermediateDirectories: true)
-                    } else {
-                        try absoluteOutputPath.parent.createDirectory(withIntermediateDirectories: true)
-                    }
-                }
-                let generatedFiles = try await Generator.generate(
-                    for: module,
-                    singleFileOutput: !isOutputDirectory,
-                    verbose: verbose
-                )
-                if isOutputDirectory {
-                    await generatedFiles.concurrentForEach { generatedFile in
-                        let originalFileName = generatedFile.path.fileNameWithoutExtension
-                        let fileNameWithoutExtension = module.filenameFormat
-                            .map { $0.replacingOccurrences(of: "{}", with: originalFileName) }
-                            ?? originalFileName
-                        let outputFile = TextFile(path: absoluteOutputPath + "\(fileNameWithoutExtension).swift")
-                        do {
-                            try outputFile.write(generatedFile.contents)
-                        } catch {
-                            log(.error, message: "Failed to write to file '\(outputFile)':", error)
-                        }
-                    }
-                } else {
-                    let outputFile = TextFile(path: absoluteOutputPath)
+                try output.path.createDirectory(withIntermediateDirectories: true)
+                let generatedFiles = try await Generator.generate(for: module, singleFileOutput: false, verbose: verbose)
+                await generatedFiles.concurrentForEach { generatedFile in
+                    let originalFileName = generatedFile.path.fileNameWithoutExtension
+                    let fileNameWithoutExtension = module.filenameFormat
+                        .map { $0.replacingOccurrences(of: "{}", with: originalFileName) }
+                        ?? originalFileName
+                    let outputFile = TextFile(path: output.path + "\(fileNameWithoutExtension).swift")
                     do {
-                        try outputFile.write(generatedFiles.map(\.contents).joined(separator: "\n\n"))
+                        try outputFile.write(generatedFile.contents)
                     } catch {
                         log(.error, message: "Failed to write to file '\(outputFile)':", error)
                     }
                 }
             } catch {
                 log(.error, message: "Failed to generate mocks for module \(module.name):", error)
+            }
+        }
+
+        await fileOutputs.concurrentForEach { output in
+            let names = output.modules.map(\.name).joined(separator: ", ")
+            do {
+                try output.path.parent.createDirectory(withIntermediateDirectories: true)
+                let contents = if let module = output.modules.first, output.modules.count == 1 {
+                    try await Generator.generate(for: module, singleFileOutput: true, verbose: verbose)
+                        .map(\.contents)
+                        .joined(separator: "\n\n")
+                } else {
+                    try await Generator.generateJoined(for: output.modules, verbose: verbose)
+                }
+                let outputFile = TextFile(path: output.path)
+                do {
+                    try outputFile.write(contents)
+                } catch {
+                    log(.error, message: "Failed to write to file '\(outputFile)':", error)
+                }
+            } catch {
+                log(.error, message: "Failed to generate mocks for module \(names):", error)
             }
         }
     }

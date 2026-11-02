@@ -9,8 +9,60 @@ final class Generator {
         let contents: String
     }
 
+    /// A module's sources, crawled and filtered down to the files with something to mock.
+    private struct PreparedModule: Sendable {
+        let module: Module
+        let files: [FileRepresentation]
+        /// Every type the sources of a known Swift module declare, which the generated files import by name.
+        let typesByModule: [String: [TopLevelType]]
+
+        /// The imports the mocks of `files` need, each once.
+        func imports(for files: [FileRepresentation]) -> String {
+            FileHeaderHandler.imports(
+                for: files,
+                imports: module.imports,
+                publicImports: module.publicImports,
+                testableImports: module.testableImports,
+                publicModules: Generator.publicModules(in: files, module: module),
+                typesByModule: typesByModule
+            )
+        }
+    }
+
     /// - Parameter singleFileOutput: whether the files are joined into one, which then needs one access level per import.
     static func generate(for module: Module, singleFileOutput: Bool, verbose: Bool) async throws -> [GeneratedFile] {
+        let prepared = try await prepare(module)
+        // A single file has every file's imports once, at its top.
+        let sharedImports = singleFileOutput ? prepared.imports(for: prepared.files) : nil
+        return try await render(prepared, sharedImports: sharedImports, verbose: verbose)
+    }
+
+    /// The mocks of several modules joined into one file, as the build plugins and a shared `output` write them. The
+    /// imports of all the modules come once, at the top, each module in the strongest form any of them asks for.
+    static func generateJoined(for modules: [Module], verbose: Bool) async throws -> String {
+        var prepared: [PreparedModule] = []
+        for module in modules {
+            prepared.append(try await prepare(module))
+        }
+        let sharedImports = FileHeaderHandler.imports(
+            for: prepared.flatMap(\.files),
+            imports: OrderedSet(prepared.flatMap(\.module.imports)).values,
+            publicImports: OrderedSet(prepared.flatMap(\.module.publicImports)).values,
+            testableImports: OrderedSet(prepared.flatMap(\.module.testableImports)).values,
+            publicModules: prepared.reduce(into: Set<String>()) { $0.formUnion(publicModules(in: $1.files, module: $1.module)) },
+            typesByModule: prepared.reduce(into: [String: [TopLevelType]]()) { typesByModule, module in
+                typesByModule.merge(module.typesByModule) { existing, added in existing + added.filter { !existing.contains($0) } }
+            }
+        )
+        var contents: [String] = prepared.contains { !$0.files.isEmpty } ? [sharedImports] : []
+        for module in prepared {
+            // The shared imports stand in for the module's own, so none are repeated.
+            contents += try await render(module, sharedImports: "", verbose: verbose).map(\.contents)
+        }
+        return contents.filter { !$0.isEmpty }.joined(separator: "\n\n")
+    }
+
+    private static func prepare(_ module: Module) async throws -> PreparedModule {
         let sources = module.sources ?? []
 
         func expand(_ source: Path) -> [Path] {
@@ -87,28 +139,22 @@ final class Generator {
         }
         let parsedFiles = removeTypes(from: finalFiles, using: typeFilters)
         let mockableFiles = parsedFiles.map { $0.replacing(tokens: $0.tokens.filter { $0.isMockable }) }
+        return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule)
+    }
 
+    /// - Parameter sharedImports: the imports of a single output file, which go at the top of its first file; without
+    ///   them, every file has its own.
+    private static func render(_ prepared: PreparedModule, sharedImports: String?, verbose: Bool) async throws -> [GeneratedFile] {
+        let module = prepared.module
         let timestamp = verbose ? Date().description : nil
-        @Sendable func imports(for files: [FileRepresentation]) -> String {
-            FileHeaderHandler.imports(
-                for: files,
-                imports: module.imports,
-                publicImports: module.publicImports,
-                testableImports: module.testableImports,
-                publicModules: publicModules(in: files, module: module),
-                typesByModule: typesByModule
-            )
-        }
-        // A single file has every file's imports once, at its top.
-        let firstPath = mockableFiles.first?.file.path
-        let sharedImports = singleFileOutput ? imports(for: mockableFiles) : nil
-        return try await mockableFiles.concurrentMap { file in
+        let firstPath = prepared.files.first?.file.path
+        return try await prepared.files.concurrentMap { file in
             await GeneratedFile(
                 path: file.file.path,
                 contents: [
-                    file.file.path == firstPath ? sharedImports : nil,
+                    file.file.path == firstPath && sharedImports?.isEmpty == false ? sharedImports : nil,
                     module.options.omitHeaders ? nil : FileHeaderHandler.header(for: file, timestamp: timestamp),
-                    sharedImports == nil ? imports(for: [file]) : nil,
+                    sharedImports == nil ? prepared.imports(for: [file]) : nil,
                     try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming),
                 ]
                 .compactMap { $0 }
@@ -121,7 +167,7 @@ final class Generator {
     /// testable imports, and whatever the sources import publicly. Under `InternalImportsByDefault`, a plain import
     /// is internal and a public mock can't use its types. Where no mock is public, every import stays plain, because
     /// a public import that no public declaration uses is a warning.
-    private static func publicModules(in files: [FileRepresentation], module: Module) -> Set<String> {
+    fileprivate static func publicModules(in files: [FileRepresentation], module: Module) -> Set<String> {
         let hasPublicMocks = files.contains { file in
             file.tokens.contains { token in
                 guard let token = token as? any HasAccessibility else { return false }
