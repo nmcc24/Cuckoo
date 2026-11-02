@@ -1,6 +1,5 @@
 import Foundation
 import TOMLDecoder
-import Rainbow
 
 /// Reads `Cuckoofile.toml` into the modules to generate.
 enum Cuckoofile {
