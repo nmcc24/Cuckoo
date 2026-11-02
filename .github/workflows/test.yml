@@ -129,28 +129,6 @@ jobs:
         env:
           SWIFT6_MATRIX_EXPECTED: Fixtures/Swift6/expected-failures-default-mainactor.txt
 
-  test_macOS:
-    name: Build and Test on macOS (${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        runner: [macos-26, xcode-27]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-      - name: Show toolchain
-        run: echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1)"
-      - uses: jdx/mise-action@v5
-        with:
-          install: false
-          experimental: true
-      - name: Test
-        run: |
-          make
-          set -o pipefail && xcodebuild test -scheme "Cuckoo-macOS" -workspace Cuckoo.xcworkspace \
-            | xcbeautify --renderer github-actions
-
   test_iOS:
     name: Build and Test on Apple simulators (${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
@@ -163,10 +141,6 @@ jobs:
         uses: actions/checkout@v7
       - name: Show toolchain
         run: echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1)"
-      - uses: jdx/mise-action@v5
-        with:
-          install: false
-          experimental: true
       - name: Pick a simulator
         run: |
           # Use whichever iPhone simulator the image ships, rather than pinning a model and OS.
@@ -175,7 +149,6 @@ jobs:
           echo "IOS_SIMULATOR_ID=$SIMULATOR_ID" >> "$GITHUB_ENV"
           # Boot it now, so its system finishes starting up while the package builds.
           xcrun simctl boot "$SIMULATOR_ID"
-      # These run before `make`: once the Tuist workspace exists, xcodebuild picks it over Package.swift.
       # The shared CuckooTests scheme builds only the runtime side for the simulator; the generator is
       # built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
       # Swift, so what can break there is compile-time (APIs, availability, imports).
@@ -196,19 +169,13 @@ jobs:
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
             -destination "generic/platform=watchOS Simulator" \
             | xcbeautify --renderer github-actions
-      - name: Test the Tuist project
-        run: |
-          make
-          set -o pipefail && xcodebuild test -scheme "Cuckoo-iOS" -workspace Cuckoo.xcworkspace \
-            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" \
-            | xcbeautify --renderer github-actions
 
   # The single check that master's ruleset requires. It depends on every other job, so
   # adding or removing matrix entries never leaves the ruleset requiring a stale check name.
   ci_passed:
     name: CI passed
     if: always()
-    needs: [generator_linux, swift7_linux, tsan_linux, generator_macOS, test_macOS, test_iOS]
+    needs: [generator_linux, swift7_linux, tsan_linux, generator_macOS, test_iOS]
     runs-on: ubuntu-latest
     permissions:
       actions: read

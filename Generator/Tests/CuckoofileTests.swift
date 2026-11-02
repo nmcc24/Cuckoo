@@ -1,8 +1,6 @@
 import Foundation
 import Testing
-#if canImport(CuckooGenerator)
 @testable import CuckooGenerator
-#endif
 
 /// Pins how `Cuckoofile.toml` is read: every key, how outputs fall back and override each other, module
 /// filtering, and which configurations are rejected.
@@ -278,13 +276,14 @@ struct CuckoofileTests {
     @Test
     func repositoryCuckoofile() throws {
         let url = Self.repositoryRoot.appendingPathComponent("Cuckoofile.toml")
+        // The plugins set every module's output.
         let modules = try parse(
             String(contentsOf: url, encoding: .utf8),
-            configurationPath: Path(url.path)
+            configurationPath: Path(url.path),
+            overriddenOutput: "/derived/GeneratedMocks.swift"
         )
         #expect(modules.keys.sorted() == ["CuckooPluginTestSources", "CuckooTestSources"])
         #expect(modules["CuckooPluginTestSources"]?.sources == nil)
-        #expect(modules["CuckooTestSources"]?.output == "Tests/Swift/Generated/GeneratedMocks.swift")
         #expect(modules["CuckooTestSources"]?.testableImports == ["Cuckoo", "CuckooTestSources"])
         #expect(modules["CuckooTestSources"]?.exclude == ["ExcludedTestClass", "ExcludedProtocol"])
         #expect(modules["CuckooTestSources"]?.options.keepDocumentation == false)

@@ -1,8 +1,6 @@
 import Foundation
 import Testing
-#if canImport(CuckooGenerator)
 @testable import CuckooGenerator
-#endif
 
 /// Where the Swift module of the sources is known, the generated file imports each type they declare by name, so
 /// the name means that type even where another import of the joined file declares the same name. The fixture

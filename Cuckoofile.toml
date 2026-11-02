@@ -1,28 +1,24 @@
-# The runtime test suite's mocks. Under SwiftPM, `CuckooPluginModular` generates one file per dependency
-# of the `CuckooMocks` target, from the module here with the same name, so keep the names in step with Package.swift.
-# Tuist (`make`) generates every module into `output`.
-# output = "Tests/Swift/Generated/GeneratedMocks.swift"
+# The runtime test suite's mocks. `CuckooPluginModular` generates one file per dependency of the `CuckooMocks`
+# target, from the module here with the same name, so keep the names in step with Package.swift.
+# `CuckooPluginSingleFile` generates every module into one file for `CuckooSingleFileMocks`.
 
 [modules.CuckooTestSources]
 imports = ["Foundation"]
 testableImports = ["Cuckoo", "CuckooTestSources"]
 # Naming the Swift module the sources belong to lets the mocks import each of their types by name, so a
 # same-named type of another import (SwiftUI's `Namespace` next to the one in GenericClass.swift) isn't
-# ambiguous. The modular plugin knows the module of an array of sources; Tuist's run needs it spelled out.
+# ambiguous. The plugins know the module of a listed file; a `sources` table spells it out.
 sources = { CuckooTestSources = ["Tests/Swift/Source/*.swift"] }
 exclude = [
     "ExcludedTestClass",
     "ExcludedProtocol",
 ]
 # regex = ""
-output = "Tests/Swift/Generated/GeneratedMocks.swift"
 
 [modules.CuckooTestSources.options]
 glob = true
 keepDocumentation = false
 
-# No `sources`: under SwiftPM, the plugin passes the target's files with `--sources-list`. The Tuist run has no
-# plugin, so it writes an empty file, and the test using these mocks is SwiftPM only.
+# No `sources`: the plugins pass the files of the target with the module's name with `--sources-list`.
 [modules.CuckooPluginTestSources]
 testableImports = ["Cuckoo", "CuckooPluginTestSources"]
-output = "Tests/Swift/Generated/GeneratedMocks_PluginTestSources.swift"

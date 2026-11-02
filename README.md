@@ -2,7 +2,6 @@
 ## Mock your Swift objects!
 
 [![Platform](https://img.shields.io/cocoapods/p/Cuckoo.svg?style=flat)](http://cocoapods.org/pods/Cuckoo)
-[![CocoaPods ready](https://img.shields.io/badge/CocoaPods-ready-brightgreen?style=flat)](http://cocoapods.org/pods/Cuckoo)
 [![SPM ready](https://img.shields.io/badge/SwiftPM-ready-brightgreen?style=flat)](https://swift.org/package-manager)
 [![License](https://img.shields.io/cocoapods/l/Cuckoo.svg?style=flat)](http://cocoapods.org/pods/Cuckoo)
 
@@ -53,40 +52,6 @@ URL: `https://github.com/Brightify/Cuckoo.git`
 When you're all set, go to your test target's Build Phases and add plug-in `CuckooPluginSingleFile` to the **Run Build Tool Plug-ins**.
 
 Alternatively, if your project has multiple modules and you want to generate separate mock files per dependency, use `CuckooPluginModular` instead. This plugin automatically detects source modules from your test target's dependencies and generates a dedicated mock file for each one (`GeneratedMocks_<ModuleName>.swift`). See [section 2](#2-cuckoofile-customization) for configuration details.
-
-#### CocoaPods
-Cuckoo runtime is available through [CocoaPods](http://cocoapods.org). To install it, simply add the following line to your **test target** in your Podfile:
-
-```ruby
-pod 'Cuckoo', '~> 2.0'
-```
-
-And add the following `Run script` build phase to your test target's `Build Phases` above the `Compile Sources` phase:
-
-```bash
-# Skip for indexing
-if [ $ACTION == "indexbuild" ]; then
-  exit 0
-fi
-
-# Skip for preview builds
-if [ "${ENABLE_PREVIEWS}" = "YES" ]; then
-  exit 0
-fi
-
-"${PODS_ROOT}/Cuckoo/run"
-```
-
-After running once, locate `GeneratedMocks.swift` and drag it into your Xcode test target group.
-
-**IMPORTANT**: To make your mocking journey easier, make absolutely sure that the run script is above the `Compile Sources` phase.
-
-**NOTE**: From Xcode 15 the flag `ENABLE_USER_SCRIPT_SANDBOXING` in Build Settings is `Yes` by default. That means Xcode will sandbox the script so reading input files and writing output file will be forbidden. As a result running above script may fail to access the files. To prevent Xcode from sandboxing the script, change this option to `No`.
-
-Input files can be also specified directly in `Run script` in `Input Files` form.
-
-Note: All paths in the Run script must be absolute. Variable `PROJECT_DIR` automatically points to your project directory.
-**Remember to include paths to inherited Classes and Protocols for mocking/stubbing parent and grandparents.**
 
 ### 2. Cuckoofile customization
 At the root of your project, create `Cuckoofile.toml` configuration file.
@@ -511,25 +476,6 @@ let constant2 = MyType(...)
 let constant3 = anything as MyType
 ```
 
-## Cuckoo run script
-#### Build Options
-These options are only used for downloading or building the generator and don't interfere with the result of the generated mocks.
-
-When the [run script](run) is executed without any parameters, it simply searches for the `cuckoonator` file and builds it from source code if it's missing, running the generator afterwards.
-
-To download the generator from GitHub instead of building it, use the `--download` option as the first argument (i.e. `run --download`). If you're having issues with rather long build time (especially in CI), this might be the way to fix it.
-
-**NOTE**: If you encounter Github API rate limit using the `--download` option, the [run script](run) refers to the environment variable `GITHUB_ACCESS_TOKEN`.
-Add this line (replacing the Xs with your [GitHub token](https://github.com/settings/tokens), no additional permissions are needed) to the script build phase above the `run` call:
-```bash
-export GITHUB_ACCESS_TOKEN="XXXXXXX"
-```
-
-The build option `--clean` forces either build or download of the version specified even if the generator is present.
-The run script also syncs the generator to the correct version (either by building from source or downloading with `--download`) if needed.
-
-We recommend only using `--clean` when you're trying to fix a compile problem as it forces the build (or download) every time which makes the testing way longer than it needs to be.
-
 ## Objective-C Support
 For Objective-C support, Cuckoo wraps `OCMock` and uses its battle-tested functionality to bring support for mocking various Objective-C classes and protocols to Swift.
 
@@ -560,17 +506,14 @@ Detailed usage is available in Cuckoo tests along with DOs and DON'Ts of this Sw
 ## Contribute
 Cuckoo is open for everyone and we'd like you to help us make the best Swift mocking library. For Cuckoo development, follow these steps:
 1. Clone the **Cuckoo** repository.
-2. Make sure you have [Mise](https://mise.jdx.dev/getting-started.html) installed.
-3. Run `make` at the root of the repository. This will install dependencies, generate the project, and open it in Xcode.
-4. Select any scheme of `Cuckoo-iOS`, `Cuckoo-tvOS`, or `Cuckoo-macOS` and verify by running the tests (⌘+U).
-5. Peek around or file a pull request with your changes.
+2. Open `Package.swift` in Xcode, or run `swift test` (on macOS or Linux). It runs the generator's unit and snapshot tests and the runtime tests, with mocks the plugins generate from `Cuckoofile.toml`.
+3. To test on a simulator, use the shared `CuckooTests` scheme with `xcodebuild -skipPackagePluginValidation`.
+4. Peek around or file a pull request with your changes.
 
-**NOTE**: Make sure to run `make` again whenever you checkout another branch, the project utilizes [Tuist](https://github.com/tuist/tuist) for project generation.
-
-The project consists of two parts - runtime and code generator. When you open the `Cuckoo.xcworkspace` in Xcode, you'll see these directories:
+The package consists of two parts - runtime and code generator:
     - `Source` - runtime sources
-    - `Tests` - tests for the runtime part
-    - `Generator.xcodeproj` - project containing generator source code (use the `Generator` scheme to run it); Tuist generates it, so only its `Package.resolved` lockfile is tracked
+    - `Generator` - the generator (`CuckooGenerator`), its build plugins and its tests
+    - `Tests` - tests for the runtime part, in Swift 6 mode like everything else
 
 Thank you for your help!
 

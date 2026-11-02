@@ -1,9 +1,6 @@
 import Foundation
 import Testing
-#if canImport(CuckooGenerator)
-// SwiftPM tests the executable target; the Tuist test target compiles the generator sources in directly.
 @testable import CuckooGenerator
-#endif
 
 /// Golden-file tests: generate mocks for known inputs and compare them with the checked-in output in `Snapshots/`.
 ///

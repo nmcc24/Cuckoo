@@ -1,9 +1,6 @@
 import Foundation
 import Testing
-#if canImport(CuckooGenerator)
-// SwiftPM tests the executable target; the Tuist test target compiles the generator sources in directly.
 @testable import CuckooGenerator
-#endif
 
 struct VersionTests {
     /// The `run` script compares the generator's `--version` with the `version` file and rebuilds on a mismatch (#601).
