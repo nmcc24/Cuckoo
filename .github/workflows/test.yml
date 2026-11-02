@@ -23,7 +23,7 @@ concurrency:
 jobs:
   generator_linux:
     name: SwiftPM tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }}${{ matrix.swift-syntax && format(', swift-syntax {0}', matrix.swift-syntax) || '' }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: swift:${{ matrix.swift }}
     strategy:
       fail-fast: false
@@ -60,7 +60,7 @@ jobs:
   # failures is the one its configuration shares with the generator_linux job.
   swift7_linux:
     name: Swift 7 upcoming features on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: swift:${{ matrix.swift }}
     strategy:
       fail-fast: false
@@ -89,7 +89,7 @@ jobs:
 
   tsan_linux:
     name: Runtime tests under the Thread Sanitizer on Linux (Swift 6.3)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -176,7 +176,7 @@ jobs:
     name: CI passed
     if: always()
     needs: [generator_linux, swift7_linux, tsan_linux, generator_macOS, test_iOS]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: read
     steps:
