@@ -7,12 +7,23 @@ final class Crawler: SyntaxVisitor {
     ///   with one of these names isolates the declaration; see ``declaredNames(in:)``.
     /// - Parameter noncopyableTypes: The `~Copyable` types declared in the module, whose arguments mocks record as
     ///   placeholders.
-    static func crawl(url: URL, globalActors: Set<String> = [], noncopyableTypes: Set<String> = []) throws -> Crawler {
+    static func crawl(
+        url: URL,
+        globalActors: Set<String> = [],
+        noncopyableTypes: Set<String> = [],
+        defaultIsolation: Isolation? = nil
+    ) throws -> Crawler {
         let file = try String(contentsOf: url, encoding: .utf8)
-        return crawl(source: file, url: url, globalActors: globalActors, noncopyableTypes: noncopyableTypes)
+        return crawl(source: file, url: url, globalActors: globalActors, noncopyableTypes: noncopyableTypes, defaultIsolation: defaultIsolation)
     }
 
-    static func crawl(source: String, url: URL, globalActors: Set<String> = [], noncopyableTypes: Set<String> = []) -> Crawler {
+    static func crawl(
+        source: String,
+        url: URL,
+        globalActors: Set<String> = [],
+        noncopyableTypes: Set<String> = [],
+        defaultIsolation: Isolation? = nil
+    ) -> Crawler {
         let syntaxTree = Parser.parse(source: source)
         #if DEBUG
         // Comment out the line above and uncomment the one below to test specific strings.
@@ -23,7 +34,8 @@ final class Crawler: SyntaxVisitor {
             url: url,
             locationConverter: SourceLocationConverter(fileName: url.path, tree: syntaxTree),
             globalActors: globalActors.union(["MainActor"]),
-            noncopyableTypes: noncopyableTypes
+            noncopyableTypes: noncopyableTypes,
+            defaultIsolation: defaultIsolation
         )
         let crawler = Self(container: nil, context: context)
         crawler.walk(syntaxTree)
@@ -36,13 +48,22 @@ final class Crawler: SyntaxVisitor {
         let locationConverter: SourceLocationConverter
         let globalActors: Set<String>
         let noncopyableTypes: Set<String>
+        /// The module's `defaultIsolation` option: the isolation of the protocols and classes that state none.
+        let defaultIsolation: Isolation?
         var diagnostics: [Diagnostic] = []
 
-        init(url: URL, locationConverter: SourceLocationConverter, globalActors: Set<String>, noncopyableTypes: Set<String>) {
+        init(
+            url: URL,
+            locationConverter: SourceLocationConverter,
+            globalActors: Set<String>,
+            noncopyableTypes: Set<String>,
+            defaultIsolation: Isolation?
+        ) {
             self.url = url
             self.locationConverter = locationConverter
             self.globalActors = globalActors
             self.noncopyableTypes = noncopyableTypes
+            self.defaultIsolation = defaultIsolation
         }
     }
 
@@ -116,7 +137,7 @@ final class Crawler: SyntaxVisitor {
             inheritedTypes: inheritedTypes(from: node.inheritanceClause?.inheritedTypes),
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions,
-            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
+            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers) ?? context.defaultIsolation
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -150,6 +171,10 @@ final class Crawler: SyntaxVisitor {
             enclosingCompilationConditions: enclosingCompilationConditions,
             isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
         )
+        // An actor-constrained protocol is isolated to its conforming actor, never to the default.
+        if token.isolation == nil, !token.isActor {
+            token.isolation = context.defaultIsolation
+        }
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
