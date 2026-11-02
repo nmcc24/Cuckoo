@@ -6,6 +6,7 @@ protocol TicketOffice {
     func redeem(_ ticket: consuming Ticket, guest: String) -> Bool
     func peek(_ ticket: borrowing Ticket) -> Int
     func hold<T: ~Copyable>(_ value: consuming T)
+    func upgrade(_ ticket: consuming Ticket?, to row: Int) async throws -> Int
 }
 
 protocol TicketDesk: Actor {

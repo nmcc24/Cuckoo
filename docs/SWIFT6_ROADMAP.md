@@ -150,7 +150,7 @@ Breaking changes accepted in 3.0:
 | `@MainActor class C` | `@MainActor class MockC: C, Cuckoo.ClassMock` |
 | `some P` parameter | mock keeps `some P`; proxies take `M: Matchable` with `MatchedType == any P` |
 | `each T` parameter packs | recorded as one `Cuckoo.ParameterPack` (its values as `[Any]`), matched with `any()`, `equal(to:)` or a closure; a class's pack methods aren't mocked, because Swift can't override them |
-| `~Copyable` / `consuming` / `borrowing` | a `~Copyable` argument is recorded as a `Cuckoo.NoncopyableArgument` placeholder, matched with `any()`, and `then` receives the placeholder; the member can't forward to a superclass or default implementation. Copyable arguments keep full matching whatever their ownership specifier. Borrowing the argument into `then` is item 3b. |
+| `~Copyable` / `consuming` / `borrowing` | a `~Copyable` argument is recorded as a `Cuckoo.NoncopyableArgument` placeholder, matched with `any()`, and `then` borrows the argument itself (a generic `T: ~Copyable` one stays the placeholder); the member can't forward to a superclass or default implementation. Copyable arguments keep full matching whatever their ownership specifier. `~Copyable` return values and properties are unsupported. |
 | `subscript` | `subscript` mocks with `stub.subscript(key).get/.set` and verify equivalents |
 | `static` / `class` members | supported through a per-type static manager that is task-local and reset per test (#521) |
 | `@available`, `#if` | availability propagated to every generated member; `#if` mirrored into the output, not evaluated |
@@ -354,7 +354,7 @@ API decisions for items 1–3 (2026-10-25):
 - subscripts mirror properties: `stub[key].get`, `stub[key].set(value)`, `verify(mock)[key].get()`;
 - static members are stubbed in a task-local registry, so parallel tests don't see each other's stubs;
 - a parameter pack is matched as one value (`any()` or a closure over the whole pack);
-- a `~Copyable` argument is recorded as a placeholder at first (option A, decided 2026-10-26), then is borrowed into `then` closures (item 3b, last);
+- a `~Copyable` argument is recorded as a placeholder at first (option A, decided 2026-10-26), then is borrowed into `then` closures (item 3b, last; arguments only, decided 2026-11-02);
 - an `inout` parameter's `then` closure can write back to the caller.
 
 PRs, in order: subscripts (with an opaque-parameter test), statics, then one each for packs, `~Copyable` and `inout`, then the small items of 3 together, then items 4 and 5, and 3b last, because item 4 reshapes the same `MockManager` generics.
@@ -379,7 +379,7 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
      - A `~Copyable` argument is recorded as a `Cuckoo.NoncopyableArgument`, which names its type. Tests match it with `any()`, other arguments of the same call keep their usual matchers, and a `then` closure receives the placeholder.
      - The generator treats a parameter as `~Copyable` when its type, alone or optional, is a struct or enum the module declares `~Copyable`, or a generic parameter declared `T: ~Copyable` (or `where T: ~Copyable`). A pre-pass over every source file collects those types, as it does global actors. Copyable `borrowing` and `consuming` parameters, and closures taking a `~Copyable` value, keep full matching.
      - The mock can't forward such a call to the superclass or a default implementation, because the forward is a closure, which can't capture the argument. Reaching it stops the test with a message saying to stub the member.
-     - `~Copyable` return values and properties stay unsupported until item 3b, which needs `~Copyable` suppression through `MockManager`'s generics anyway.
+     - `~Copyable` return values and properties stay unsupported; item 3b covers arguments only and leaves them to a later design.
 3. ☁️ `inout` stubbing (Brightify/Cuckoo#337), `Self` (Brightify/Cuckoo#304), generic init (Brightify/Cuckoo#362), class-constrained protocols (Brightify/Cuckoo#447, Brightify/Cuckoo#376), parent associated types (Brightify/Cuckoo#576).
    - **`inout` stubbing: done** (https://github.com/nmcc24/Cuckoo/pull/24).
      - A `then` closure takes an `inout` parameter as `inout`, and whatever it writes reaches the caller once the call returns, also when the closure throws. Protocol, class and actor mocks, sync and async, throwing and typed-throwing members all write back.
@@ -399,7 +399,11 @@ PRs, in order: subscripts (with an opaque-parameter test), statics, then one eac
      - A child protocol's mock and stub take its parents' associated types as generic parameters, with their constraints, through any depth of inheritance and from several parents.
      - A type the child fixes, as `Parent<Int>` or `where Item == String`, becomes a typealias in the mock and stub instead of a generic parameter. A constraint the child adds, such as `where Item: Hashable`, is carried over.
      - The parent must be declared in the sources, like the class of a class-bound protocol.
-   - 3b. ☁️ `~Copyable` arguments borrowed into `then` closures (L): needs `~Copyable` suppression through `MockManager`'s generics.
+   - 3b. ☁️ `~Copyable` arguments borrowed into `then` closures. **On the branch.** Arguments only (decided 2026-11-02, size M); return values get their own design and PR.
+     - The stub still records and matches the placeholder, but the mock hands the `then` closure the argument itself, borrowed: the manager calls the closure through a non-escaping `invoke` before the member returns, which may capture a `borrowing` or `consuming` parameter. The closure takes each parameter on its own, as with `inout`, because a tuple can't hold a `~Copyable` value. Protocol, class and actor mocks, sync and async, throwing and typed-throwing members all borrow (Swift 6.2–6.4).
+     - A generic `T: ~Copyable` argument stays the placeholder: the proxies leave `T` out, so Swift couldn't infer the closure's type. `inout` `~Copyable` parameters do too.
+     - Source break for Phase 5's migration guide: a `then` closure that read the `NoncopyableArgument` placeholder now gets the value. An optional `~Copyable` argument is read with a borrowing `switch`, since `?.` would consume it.
+     - Later (own design): `~Copyable` return values and properties. `thenReturn` can't work for them (a stored value can't be handed out twice), so only `then` closures could produce one, and `MockManager`'s generics need `~Copyable` suppression throughout.
 4. ☁️ Verification APIs, in four runtime-only PRs (decided 2026-10-29): `eventually` (S), a `Sendable` `ArgumentCaptor` (S), `inOrder` relaxed and strict (M), and failure diagnostics that list the member's actual calls and name the argument that differs (S). `thenNeverReturn` and delayed returns are dropped (§3.1 item 8). What each matcher expected (`expected "Alice"`) needs a description on every matcher (M); it follows only if missed.
    - Later: `inOrder`'s process-wide call counter is a `Locked<Int>`, because `Synchronization.Atomic` needs iOS 18 / macOS 15. Switch to `Atomic` once the floor reaches them.
    - ✅ **`eventually`** (https://github.com/nmcc24/Cuckoo/pull/28). `await eventually(timeout:pollingInterval:) { … }` reruns the block, holding back its failures through the task-local failure handler, until it passes or the timeout (1 s by default) runs out; then it reports the last run's failures, once. It replaces `verify(…, within:)`: `verify`'s generated proxies are synchronous, so waiting inside them would need an async copy of every one. It runs in the caller's isolation and only retries Cuckoo's own failures.
