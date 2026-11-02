@@ -1,8 +1,6 @@
 import Foundation
 import Testing
-#if canImport(CuckooGenerator)
 @testable import CuckooGenerator
-#endif
 
 @Suite
 struct ModuleTests {

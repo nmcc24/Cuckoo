@@ -1,8 +1,6 @@
 import Foundation
 import Testing
-#if canImport(CuckooGenerator)
 @testable import CuckooGenerator
-#endif
 
 /// What the Cuckoofile options do to the generated mocks. The fixture matrix and the runtime tests compile the
 /// results; these pin the generated text.

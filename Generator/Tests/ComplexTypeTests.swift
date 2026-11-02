@@ -1,7 +1,5 @@
 import Testing
-#if canImport(CuckooGenerator)
 @testable import CuckooGenerator
-#endif
 
 /// The default implementation casts a method's associated types when its parameters or return type use them,
 /// wherever inside the type they appear.
