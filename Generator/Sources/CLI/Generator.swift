@@ -53,7 +53,8 @@ final class Generator {
                 let crawler = try Crawler.crawl(
                     url: file.path.url,
                     globalActors: declaredNames.globalActors,
-                    noncopyableTypes: declaredNames.noncopyableTypes
+                    noncopyableTypes: declaredNames.noncopyableTypes,
+                    defaultIsolation: module.options.defaultIsolation
                 )
                 for diagnostic in crawler.diagnostics {
                     FileHandle.standardError.write(Data("\(diagnostic)\n".utf8))
@@ -65,10 +66,7 @@ final class Generator {
                 return nil
             }
         }
-        let flatMappedFiles = files.map { file in
-            let file = file.flatMappingMemberContainers()
-            return file.replacing(tokens: file.tokens.map { applyingDefaultIsolation(module.options.defaultIsolation, to: $0) })
-        }
+        let flatMappedFiles = files.map { $0.flatMappingMemberContainers() }
         let inheritedFiles = if module.options.enableInheritance {
             bindingSuperclasses(mergingInheritance(flatMappedFiles))
         } else {
@@ -132,21 +130,6 @@ final class Generator {
         }
         guard hasPublicMocks else { return [] }
         return Set(["Cuckoo"] + module.testableImports + files.flatMap { $0.imports.filter(\.isPublic).map(\.description) })
-    }
-
-    /// A protocol or class that states no isolation takes the module's default, as the compiler gives it. An
-    /// actor protocol stays an actor's.
-    private static func applyingDefaultIsolation(_ isolation: Isolation?, to token: any Token) -> any Token {
-        guard let isolation else { return token }
-        if var protocolDeclaration = token as? ProtocolDeclaration, protocolDeclaration.isolation == nil, !protocolDeclaration.isActor {
-            protocolDeclaration.isolation = isolation
-            return protocolDeclaration
-        }
-        if var classDeclaration = token as? ClassDeclaration, classDeclaration.isolation == nil {
-            classDeclaration.isolation = isolation
-            return classDeclaration
-        }
-        return token
     }
 
     private static func mergingInheritance(_ filesRepresentation: [FileRepresentation]) -> [FileRepresentation] {

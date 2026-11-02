@@ -157,7 +157,7 @@ extension Templates {
                 return {% if method.isThrowing %} try{% endif %} {% if method.isAsync %} await{% endif %} opened.{{ method.name }}{{ method.staticGenericCall }}
             }
             {% endfor %}
-            {% if method.isAsync %}
+            {% if method.localFunctionVariantsAreConditional %}
             #endif
             {% endif %}
             return {% if method.isThrowing %} try{% endif %} {% if method.isAsync %} await{% endif %} openExistential(reference(){% for name in method.sendingParameterNames %}, {{ name }}{% endfor %})

@@ -124,6 +124,11 @@ extension Method {
         )
     }
     
+    /// Whether the member runs on a global actor, its own or its protocol's.
+    private var isGlobalActorIsolated: Bool {
+        if case .globalActor? = isolation ?? parent?.asProtocol?.isolation { true } else { false }
+    }
+
     /// A generic method can't be stored as a closure, so the default implementation calls it on the existential, which
     /// erases the non-primary associated types. Where its parameters or its return type use one, the call goes through
     /// the opened existential instead, casting between the two types the generic initializer requires to be equal.
@@ -160,6 +165,17 @@ extension Method {
             staticGenericCall = "(\(call))"
         }
         
+        // Under NonisolatedNonsendingByDefault, Swift 6.2 treats an async local function as `@concurrent`, so it
+        // gets `nonisolated(nonsending)` there. Spelled out on 6.2 without the feature, it fails instead.
+        // A global actor's member needs neither: its local function is isolated to the actor, and
+        // `nonisolated(nonsending)` would run the actor-isolated call from a nonisolated context.
+        // Drop the first variant when Swift 6.2 support ends.
+        let localFunctionVariants = isAsync && !isGlobalActorIsolated
+            ? [
+                ["directive": "#if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)", "modifier": "nonisolated(nonsending) "],
+                ["directive": "#else", "modifier": ""],
+            ]
+            : [["directive": "", "modifier": ""]]
         let stubFunctionPrefix = parent.isClass ? "Class" : "Protocol"
         let returnString = returnType?.isVoid == false ? "" : "NoReturn"
         let throwingString = isThrowing ? "Throwing" : ""
@@ -276,15 +292,8 @@ extension Method {
             "returnsSending": returnType?.containsAttribute(named: "sending") ?? false,
             "genericReturnType": returnType == nil ? "" : genericReturnType,
             "isAsync": isAsync,
-            // Under NonisolatedNonsendingByDefault, Swift 6.2 treats an async local function as `@concurrent`, so it
-            // gets `nonisolated(nonsending)` there. Spelled out on 6.2 without the feature, it fails instead.
-            // Drop the first variant when Swift 6.2 support ends.
-            "localFunctionVariants": isAsync
-                ? [
-                    ["directive": "#if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)", "modifier": "nonisolated(nonsending) "],
-                    ["directive": "#else", "modifier": ""],
-                ]
-                : [["directive": "", "modifier": ""]],
+            "localFunctionVariants": localFunctionVariants,
+            "localFunctionVariantsAreConditional": localFunctionVariants.count > 1,
             "isThrowing": isThrowing,
             "throwsOnly": throwsOnly,
             "hasTypedThrows": signature.throwType?.isTyped ?? false,
