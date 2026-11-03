@@ -86,14 +86,8 @@ extension {{ container.parentFullyQualifiedName }} {
     }
     {% endif %}
 
-    {{ container.globalActorAttribute }}{{ container.accessibility|withSpace }}{% if not container.globalActor %}nonisolated {%+ endif %}func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(_ stub: \(staticGenericParameter)) where {{ container.genericProtocolIdentity }} {
-        var mutableStub = stub
-        __defaultImplStub.value = \(typeErasureClassName)(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    {{ container.globalActorAttribute }}{{ container.accessibility|withSpace }}{% if not container.globalActor %}nonisolated {%+ endif %}func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}>(mutating stub: UnsafeMutablePointer<\(staticGenericParameter)>) where {{ container.genericProtocolIdentity }} {
-        __defaultImplStub.value = \(typeErasureClassName)(from: stub, keeping: stub.pointee)
+    {{ container.globalActorAttribute }}{{ container.accessibility|withSpace }}{% if not container.globalActor %}nonisolated {%+ endif %}func enableDefaultImplementation<\(staticGenericParameter): {{ container.name }}{% if not container.globalActor %} & SendableMetatype{% endif %}>(_ stub: \(staticGenericParameter)) where {{ container.genericProtocolIdentity }}{% if not container.globalActor %}{{ container.sendableMetatypeRequirements }}{% endif %} {
+        __defaultImplStub.value = \(typeErasureClassName)(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
     {% else %}

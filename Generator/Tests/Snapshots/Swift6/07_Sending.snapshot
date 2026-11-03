@@ -207,12 +207,14 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: Converter, @unchecked Sendable {
-        private let reference: () -> any Converter<Input>
+    nonisolated final class DefaultImplCaller: Converter, Sendable {
+        private let reference: @Sendable () -> any Converter<Input>
     
         
-        init<_CUCKOO$$GENERIC: Converter>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
         }
     
@@ -234,14 +236,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 

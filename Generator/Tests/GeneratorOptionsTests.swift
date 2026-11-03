@@ -126,7 +126,7 @@ struct GeneratorOptionsTests {
 
         let plain = try await generate(source: source, options: #"defaultIsolation = "nonisolated""#)
         #expect(plain == (try await generate(source: source)))
-        #expect(plain.contains("nonisolated final class DefaultImplCaller: Store, @unchecked Sendable {"))
+        #expect(plain.contains("nonisolated final class DefaultImplCaller: Store, Sendable {"))
         #expect(plain.contains("nonisolated(nonsending) func openExistential"))
     }
 

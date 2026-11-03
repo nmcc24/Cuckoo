@@ -27,14 +27,16 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         }
     
         
-        init<_CUCKOO$$GENERIC: Inventory>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: Inventory>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _getter_storage$$count = { defaultImpl.pointee.count }
-            _getter_storage$$items = { defaultImpl.pointee.items }
-            _setter_storage$$items = { defaultImpl.pointee.items = $0 }
-            _storage$1$item = defaultImpl.pointee.item
-            _storage$2$reload = defaultImpl.pointee.reload
+            _getter_storage$$count = { box.value.count }
+            _getter_storage$$items = { box.value.items }
+            _setter_storage$$items = { box.value.items = $0 }
+            _storage$1$item = { p0 in box.value.item(at: p0) }
+            _storage$2$reload = { try await box.value.reload() }
         }
     
 
@@ -58,13 +60,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
     }
 
     @MainActor func enableDefaultImplementation<_CUCKOO$$GENERIC: Inventory>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    @MainActor func enableDefaultImplementation<_CUCKOO$$GENERIC: Inventory>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Item == Item {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -243,11 +239,13 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         private let reference: () -> any Ledger<Entry>
     
         
-        init<_CUCKOO$$GENERIC: Ledger>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: Ledger>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$entry = defaultImpl.pointee.entry
-            _storage$2$record = defaultImpl.pointee.record
+            _storage$1$entry = { p0 in box.value.entry(for: p0) }
+            _storage$2$record = { p0, p1 in box.value.record(p0, for: p1) }
         }
     
 
@@ -271,13 +269,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
     }
 
     @StorageActor func enableDefaultImplementation<_CUCKOO$$GENERIC: Ledger>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    @StorageActor func enableDefaultImplementation<_CUCKOO$$GENERIC: Ledger>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 

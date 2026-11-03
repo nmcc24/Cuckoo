@@ -3378,50 +3378,52 @@ nonisolated final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, n
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: GenericProtocol, @unchecked Sendable {
-        private let reference: () -> any GenericProtocol<C>
+    nonisolated final class DefaultImplCaller: GenericProtocol, Sendable {
+        private let reference: @Sendable () -> any GenericProtocol<C>
     
-        private let _getter_storage$$readOnlyPropertyC: () -> C
+        private let _getter_storage$$readOnlyPropertyC: @Sendable () -> C
         var readOnlyPropertyC: C {
             get { return _getter_storage$$readOnlyPropertyC() }
         }
     
-        private let _getter_storage$$readWritePropertyV: () -> V
-        private let _setter_storage$$readWritePropertyV: (V) -> Void
+        private let _getter_storage$$readWritePropertyV: @Sendable () -> V
+        private let _setter_storage$$readWritePropertyV: @Sendable (V) -> Void
         var readWritePropertyV: V {
             get { return _getter_storage$$readWritePropertyV() }
             set { _setter_storage$$readWritePropertyV(newValue) }
         }
     
-        private let _getter_storage$$constant: () -> Int
+        private let _getter_storage$$constant: @Sendable () -> Int
         var constant: Int {
             get { return _getter_storage$$constant() }
         }
     
-        private let _getter_storage$$optionalProperty: () -> V?
-        private let _setter_storage$$optionalProperty: (V?) -> Void
+        private let _getter_storage$$optionalProperty: @Sendable () -> V?
+        private let _setter_storage$$optionalProperty: @Sendable (V?) -> Void
         var optionalProperty: V? {
             get { return _getter_storage$$optionalProperty() }
             set { _setter_storage$$optionalProperty(newValue) }
         }
     
         
-        init<_CUCKOO$$GENERIC: GenericProtocol>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.C == C, _CUCKOO$$GENERIC.V == V {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: GenericProtocol & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.C == C, _CUCKOO$$GENERIC.V == V, C: SendableMetatype, V: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _getter_storage$$readOnlyPropertyC = { defaultImpl.pointee.readOnlyPropertyC }
-            _getter_storage$$readWritePropertyV = { defaultImpl.pointee.readWritePropertyV }
-            _setter_storage$$readWritePropertyV = { defaultImpl.pointee.readWritePropertyV = $0 }
-            _getter_storage$$constant = { defaultImpl.pointee.constant }
-            _getter_storage$$optionalProperty = { defaultImpl.pointee.optionalProperty }
-            _setter_storage$$optionalProperty = { defaultImpl.pointee.optionalProperty = $0 }
-            _storage$1$callSomeC = defaultImpl.pointee.callSomeC
-            _storage$2$callSomeV = defaultImpl.pointee.callSomeV
-            _storage$3$compute = defaultImpl.pointee.compute
-            _storage$4$noReturn = defaultImpl.pointee.noReturn
-            _storage$5$computeAsync = defaultImpl.pointee.computeAsync
-            _storage$6$noReturnAsync = defaultImpl.pointee.noReturnAsync
-            _storage$7$closureParameter = defaultImpl.pointee.closureParameter
+            _getter_storage$$readOnlyPropertyC = { box.value.readOnlyPropertyC }
+            _getter_storage$$readWritePropertyV = { box.value.readWritePropertyV }
+            _setter_storage$$readWritePropertyV = { box.value.readWritePropertyV = $0 }
+            _getter_storage$$constant = { box.value.constant }
+            _getter_storage$$optionalProperty = { box.value.optionalProperty }
+            _setter_storage$$optionalProperty = { box.value.optionalProperty = $0 }
+            _storage$1$callSomeC = { p0 in box.value.callSomeC(theC: p0) }
+            _storage$2$callSomeV = { p0 in box.value.callSomeV(theV: p0) }
+            _storage$3$compute = { p0, p1 in box.value.compute(classy: p0, value: p1) }
+            _storage$4$noReturn = { box.value.noReturn() }
+            _storage$5$computeAsync = { p0, p1 in await box.value.computeAsync(classy: p0, value: p1) }
+            _storage$6$noReturnAsync = { await box.value.noReturnAsync() }
+            _storage$7$closureParameter = { p0 in box.value.closureParameter(closure: p0) }
         }
         /// MARK:- ignored required initializers
         required init(theC p0: C, theV p1: V) {
@@ -3429,37 +3431,37 @@ nonisolated final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, n
         }
     
 
-        private let _storage$1$callSomeC: (C) -> Int
+        private let _storage$1$callSomeC: @Sendable (C) -> Int
         func callSomeC(theC p0: C) -> Int {
             return _storage$1$callSomeC(p0)
         }
 
-        private let _storage$2$callSomeV: (V) -> Int
+        private let _storage$2$callSomeV: @Sendable (V) -> Int
         func callSomeV(theV p0: V) -> Int {
             return _storage$2$callSomeV(p0)
         }
 
-        private let _storage$3$compute: (C, V) -> C
+        private let _storage$3$compute: @Sendable (C, V) -> C
         func compute(classy p0: C, value p1: V) -> C {
             return _storage$3$compute(p0, p1)
         }
 
-        private let _storage$4$noReturn: () -> Void
+        private let _storage$4$noReturn: @Sendable () -> Void
         func noReturn() {
             return _storage$4$noReturn()
         }
 
-        private let _storage$5$computeAsync: (C, V) async -> (C, V)
+        private let _storage$5$computeAsync: @Sendable (C, V) async -> (C, V)
         func computeAsync(classy p0: C, value p1: V) async -> (C, V) {
             return await _storage$5$computeAsync(p0, p1)
         }
 
-        private let _storage$6$noReturnAsync: () async -> Void
+        private let _storage$6$noReturnAsync: @Sendable () async -> Void
         func noReturnAsync() async {
             return await _storage$6$noReturnAsync()
         }
 
-        private let _storage$7$closureParameter: (@escaping () -> Void) -> Void
+        private let _storage$7$closureParameter: @Sendable (@escaping () -> Void) -> Void
         func closureParameter(closure p0: @escaping () -> Void) {
             return _storage$7$closureParameter(p0)
         }
@@ -3479,14 +3481,8 @@ nonisolated final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, n
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: GenericProtocol>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.C == C, _CUCKOO$$GENERIC.V == V {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: GenericProtocol>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.C == C, _CUCKOO$$GENERIC.V == V {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: GenericProtocol & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.C == C, _CUCKOO$$GENERIC.V == V, C: SendableMetatype, V: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -4049,19 +4045,21 @@ nonisolated final class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable,
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: MixedPrimaryAssociatedTypeProtocol, @unchecked Sendable {
-        private let reference: () -> any MixedPrimaryAssociatedTypeProtocol<Input>
+    nonisolated final class DefaultImplCaller: MixedPrimaryAssociatedTypeProtocol, Sendable {
+        private let reference: @Sendable () -> any MixedPrimaryAssociatedTypeProtocol<Input>
     
-        private let _getter_storage$$defaultOutput: () -> Output
+        private let _getter_storage$$defaultOutput: @Sendable () -> Output
         var defaultOutput: Output {
             get { return _getter_storage$$defaultOutput() }
         }
     
         
-        init<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _getter_storage$$defaultOutput = { defaultImpl.pointee.defaultOutput }
+            _getter_storage$$defaultOutput = { box.value.defaultOutput }
         }
     
 
@@ -4082,14 +4080,8 @@ nonisolated final class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable,
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -4197,12 +4189,14 @@ nonisolated final class MockLabeler<Input, Output>: Labeler, nonisolated Cuckoo.
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: Labeler, @unchecked Sendable {
-        private let reference: () -> any Labeler<Input>
+    nonisolated final class DefaultImplCaller: Labeler, Sendable {
+        private let reference: @Sendable () -> any Labeler<Input>
     
         
-        init<_CUCKOO$$GENERIC: Labeler>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: Labeler & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
         }
     
@@ -4248,14 +4242,8 @@ nonisolated final class MockLabeler<Input, Output>: Labeler, nonisolated Cuckoo.
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Labeler>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Labeler>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Labeler & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -4556,18 +4544,20 @@ nonisolated final class MockStore<Key: Hashable, Value>: Store, nonisolated Cuck
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: Store, @unchecked Sendable {
-        private let reference: () -> any Store
+    nonisolated final class DefaultImplCaller: Store, Sendable {
+        private let reference: @Sendable () -> any Store
     
         
-        init<_CUCKOO$$GENERIC: Store>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: Store & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$value = defaultImpl.pointee.value
+            _storage$1$value = { p0 in box.value.value(for: p0) }
         }
     
 
-        private let _storage$1$value: (Key) -> Value?
+        private let _storage$1$value: @Sendable (Key) -> Value?
         func value(for p0: Key) -> Value? {
             return _storage$1$value(p0)
         }
@@ -4575,14 +4565,8 @@ nonisolated final class MockStore<Key: Hashable, Value>: Store, nonisolated Cuck
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Store>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Store>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Store & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -4659,24 +4643,26 @@ nonisolated final class MockCachingStore<Key: Hashable, Value>: CachingStore, no
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: CachingStore, @unchecked Sendable {
-        private let reference: () -> any CachingStore
+    nonisolated final class DefaultImplCaller: CachingStore, Sendable {
+        private let reference: @Sendable () -> any CachingStore
     
         
-        init<_CUCKOO$$GENERIC: CachingStore>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: CachingStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$cachedKeys = defaultImpl.pointee.cachedKeys
-            _storage$2$value = defaultImpl.pointee.value
+            _storage$1$cachedKeys = { box.value.cachedKeys() }
+            _storage$2$value = { p0 in box.value.value(for: p0) }
         }
     
 
-        private let _storage$1$cachedKeys: () -> [Key]
+        private let _storage$1$cachedKeys: @Sendable () -> [Key]
         func cachedKeys() -> [Key] {
             return _storage$1$cachedKeys()
         }
 
-        private let _storage$2$value: (Key) -> Value?
+        private let _storage$2$value: @Sendable (Key) -> Value?
         func value(for p0: Key) -> Value? {
             return _storage$2$value(p0)
         }
@@ -4684,14 +4670,8 @@ nonisolated final class MockCachingStore<Key: Hashable, Value>: CachingStore, no
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: CachingStore>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: CachingStore>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: CachingStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -4804,24 +4784,26 @@ nonisolated final class MockNamedStore<Key: Hashable>: NamedStore, nonisolated C
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: NamedStore, @unchecked Sendable {
-        private let reference: () -> any NamedStore
+    nonisolated final class DefaultImplCaller: NamedStore, Sendable {
+        private let reference: @Sendable () -> any NamedStore
     
         
-        init<_CUCKOO$$GENERIC: NamedStore>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: NamedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$names = defaultImpl.pointee.names
-            _storage$2$value = defaultImpl.pointee.value
+            _storage$1$names = { box.value.names() }
+            _storage$2$value = { p0 in box.value.value(for: p0) }
         }
     
 
-        private let _storage$1$names: () -> [Value]
+        private let _storage$1$names: @Sendable () -> [Value]
         func names() -> [Value] {
             return _storage$1$names()
         }
 
-        private let _storage$2$value: (Key) -> Value?
+        private let _storage$2$value: @Sendable (Key) -> Value?
         func value(for p0: Key) -> Value? {
             return _storage$2$value(p0)
         }
@@ -4829,14 +4811,8 @@ nonisolated final class MockNamedStore<Key: Hashable>: NamedStore, nonisolated C
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: NamedStore>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: NamedStore>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Key == Key {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: NamedStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -30503,30 +30479,32 @@ nonisolated final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, nonisolat
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: EmptyLabelProtocol, @unchecked Sendable {
-        private let reference: () -> any EmptyLabelProtocol
+    nonisolated final class DefaultImplCaller: EmptyLabelProtocol, Sendable {
+        private let reference: @Sendable () -> any EmptyLabelProtocol
     
         
-        init<_CUCKOO$$GENERIC: EmptyLabelProtocol>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: EmptyLabelProtocol & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$empty = defaultImpl.pointee.empty
-            _storage$2$empty = defaultImpl.pointee.empty
-            _storage$3$empty = defaultImpl.pointee.empty
+            _storage$1$empty = { p0 in box.value.empty(p0) }
+            _storage$2$empty = { p0 in box.value.empty(p0) }
+            _storage$3$empty = { p0 in box.value.empty(p0) }
         }
     
 
-        private let _storage$1$empty: (String) -> Void
+        private let _storage$1$empty: @Sendable (String) -> Void
         func empty(_ p0: String) {
             return _storage$1$empty(p0)
         }
 
-        private let _storage$2$empty: (String) -> Int
+        private let _storage$2$empty: @Sendable (String) -> Int
         func empty(_ p0: String) -> Int {
             return _storage$2$empty(p0)
         }
 
-        private let _storage$3$empty: (T) -> T
+        private let _storage$3$empty: @Sendable (T) -> T
         func empty(_ p0: T) -> T {
             return _storage$3$empty(p0)
         }
@@ -30534,14 +30512,8 @@ nonisolated final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, nonisolat
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EmptyLabelProtocol>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EmptyLabelProtocol>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.T == T {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EmptyLabelProtocol & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -30986,23 +30958,25 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    public nonisolated final class DefaultImplCaller: PublicoProtocolo, @unchecked Sendable {
-        private let reference: () -> any PublicoProtocolo
+    public nonisolated final class DefaultImplCaller: PublicoProtocolo, Sendable {
+        private let reference: @Sendable () -> any PublicoProtocolo
     
-        private let _getter_storage$$stringoStar: () -> String
-        private let _setter_storage$$stringoStar: (String) -> Void
+        private let _getter_storage$$stringoStar: @Sendable () -> String
+        private let _setter_storage$$stringoStar: @Sendable (String) -> Void
         public var stringoStar: String {
             get { return _getter_storage$$stringoStar() }
             set { _setter_storage$$stringoStar(newValue) }
         }
     
         
-        init<_CUCKOO$$GENERIC: PublicoProtocolo>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: PublicoProtocolo & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo, InternaloTypo: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _getter_storage$$stringoStar = { defaultImpl.pointee.stringoStar }
-            _setter_storage$$stringoStar = { defaultImpl.pointee.stringoStar = $0 }
-            _storage$1$internalMethod = defaultImpl.pointee.internalMethod
+            _getter_storage$$stringoStar = { box.value.stringoStar }
+            _setter_storage$$stringoStar = { box.value.stringoStar = $0 }
+            _storage$1$internalMethod = { box.value.internalMethod() }
         }
         /// MARK:- ignored required initializers
         public required init(hola p0: String) {
@@ -31010,7 +30984,7 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
         }
     
 
-        private let _storage$1$internalMethod: () -> Void
+        private let _storage$1$internalMethod: @Sendable () -> Void
         public func internalMethod() {
             return _storage$1$internalMethod()
         }
@@ -31018,14 +30992,8 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    public nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PublicoProtocolo>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    public nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PublicoProtocolo>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    public nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PublicoProtocolo & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo, InternaloTypo: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 

@@ -126,24 +126,26 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: KeyValueStore, @unchecked Sendable {
-        private let reference: () -> any KeyValueStore
+    nonisolated final class DefaultImplCaller: KeyValueStore, Sendable {
+        private let reference: @Sendable () -> any KeyValueStore
     
-        private let _getter_storage$$count: () -> Int
+        private let _getter_storage$$count: @Sendable () -> Int
         var count: Int {
             get { return _getter_storage$$count() }
         }
     
         
-        init<_CUCKOO$$GENERIC: KeyValueStore>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: KeyValueStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _getter_storage$$count = { defaultImpl.pointee.count }
-            _storage$1$value = defaultImpl.pointee.value
+            _getter_storage$$count = { box.value.count }
+            _storage$1$value = { p0 in box.value.value(for: p0) }
         }
     
 
-        private let _storage$1$value: (Key) -> String?
+        private let _storage$1$value: @Sendable (Key) -> String?
         func value(for p0: Key) -> String? {
             return _storage$1$value(p0)
         }
@@ -151,14 +153,8 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyValueStore>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyValueStore>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Key == Key {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyValueStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
