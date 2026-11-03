@@ -266,7 +266,7 @@ final class Generator {
         var description: String {
             switch self {
             case .invalidRegex(let regex, let error):
-                return "Invalid regular expression \"\(regex.bold)\" because \(error.localizedDescription)."
+                return "Invalid regular expression \"\(regex)\" because \(error.localizedDescription)."
             }
         }
     }
