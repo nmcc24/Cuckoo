@@ -11,18 +11,20 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: Repository, @unchecked Sendable {
-        private let reference: () -> any Repository
+    nonisolated final class DefaultImplCaller: Repository, Sendable {
+        private let reference: @Sendable () -> any Repository
     
         
-        init<_CUCKOO$$GENERIC: Repository>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: Repository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$fetch = defaultImpl.pointee.fetch
+            _storage$1$fetch = { p0 in box.value.fetch(id: p0) }
         }
     
 
-        private let _storage$1$fetch: (ID) -> Item?
+        private let _storage$1$fetch: @Sendable (ID) -> Item?
         func fetch(id p0: ID) -> Item? {
             return _storage$1$fetch(p0)
         }
@@ -30,14 +32,8 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Repository>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Repository>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Repository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -114,30 +110,32 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: CachedRepository, @unchecked Sendable {
-        private let reference: () -> any CachedRepository
+    nonisolated final class DefaultImplCaller: CachedRepository, Sendable {
+        private let reference: @Sendable () -> any CachedRepository
     
         
-        init<_CUCKOO$$GENERIC: CachedRepository>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: CachedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$cached = defaultImpl.pointee.cached
-            _storage$2$evict = defaultImpl.pointee.evict
-            _storage$3$fetch = defaultImpl.pointee.fetch
+            _storage$1$cached = { box.value.cached() }
+            _storage$2$evict = { p0 in box.value.evict(id: p0) }
+            _storage$3$fetch = { p0 in box.value.fetch(id: p0) }
         }
     
 
-        private let _storage$1$cached: () -> [Item]
+        private let _storage$1$cached: @Sendable () -> [Item]
         func cached() -> [Item] {
             return _storage$1$cached()
         }
 
-        private let _storage$2$evict: (ID) -> Void
+        private let _storage$2$evict: @Sendable (ID) -> Void
         func evict(id p0: ID) {
             return _storage$2$evict(p0)
         }
 
-        private let _storage$3$fetch: (ID) -> Item?
+        private let _storage$3$fetch: @Sendable (ID) -> Item?
         func fetch(id p0: ID) -> Item? {
             return _storage$3$fetch(p0)
         }
@@ -145,14 +143,8 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: CachedRepository>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: CachedRepository>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: CachedRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -380,24 +372,26 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: SortedRepository, @unchecked Sendable {
-        private let reference: () -> any SortedRepository
+    nonisolated final class DefaultImplCaller: SortedRepository, Sendable {
+        private let reference: @Sendable () -> any SortedRepository
     
         
-        init<_CUCKOO$$GENERIC: SortedRepository>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: SortedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$sorted = defaultImpl.pointee.sorted
-            _storage$2$all = defaultImpl.pointee.all
+            _storage$1$sorted = { p0 in box.value.sorted(by: p0) }
+            _storage$2$all = { box.value.all() }
         }
     
 
-        private let _storage$1$sorted: ((Element, Element) -> Bool) -> [Element]
+        private let _storage$1$sorted: @Sendable ((Element, Element) -> Bool) -> [Element]
         func sorted(by p0: (Element, Element) -> Bool) -> [Element] {
             return _storage$1$sorted(p0)
         }
 
-        private let _storage$2$all: () -> [Element]
+        private let _storage$2$all: @Sendable () -> [Element]
         func all() -> [Element] {
             return _storage$2$all()
         }
@@ -405,14 +399,8 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: SortedRepository>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: SortedRepository>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Element == Element {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: SortedRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -529,24 +517,26 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: StringRepository, @unchecked Sendable {
-        private let reference: () -> any StringRepository
+    nonisolated final class DefaultImplCaller: StringRepository, Sendable {
+        private let reference: @Sendable () -> any StringRepository
     
         
-        init<_CUCKOO$$GENERIC: StringRepository>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ID == ID {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: StringRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ID == ID, ID: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$joined = defaultImpl.pointee.joined
-            _storage$2$fetch = defaultImpl.pointee.fetch
+            _storage$1$joined = { box.value.joined() }
+            _storage$2$fetch = { p0 in box.value.fetch(id: p0) }
         }
     
 
-        private let _storage$1$joined: () -> String
+        private let _storage$1$joined: @Sendable () -> String
         func joined() -> String {
             return _storage$1$joined()
         }
 
-        private let _storage$2$fetch: (ID) -> Item?
+        private let _storage$2$fetch: @Sendable (ID) -> Item?
         func fetch(id p0: ID) -> Item? {
             return _storage$2$fetch(p0)
         }
@@ -554,14 +544,8 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: StringRepository>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ID == ID {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: StringRepository>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.ID == ID {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: StringRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ID == ID, ID: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -790,36 +774,38 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: HashedRepository, @unchecked Sendable {
-        private let reference: () -> any HashedRepository
+    nonisolated final class DefaultImplCaller: HashedRepository, Sendable {
+        private let reference: @Sendable () -> any HashedRepository
     
         
-        init<_CUCKOO$$GENERIC: HashedRepository>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: HashedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$uniqued = defaultImpl.pointee.uniqued
-            _storage$2$cached = defaultImpl.pointee.cached
-            _storage$3$evict = defaultImpl.pointee.evict
-            _storage$4$fetch = defaultImpl.pointee.fetch
+            _storage$1$uniqued = { box.value.uniqued() }
+            _storage$2$cached = { box.value.cached() }
+            _storage$3$evict = { p0 in box.value.evict(id: p0) }
+            _storage$4$fetch = { p0 in box.value.fetch(id: p0) }
         }
     
 
-        private let _storage$1$uniqued: () -> Set<Item>
+        private let _storage$1$uniqued: @Sendable () -> Set<Item>
         func uniqued() -> Set<Item> {
             return _storage$1$uniqued()
         }
 
-        private let _storage$2$cached: () -> [Item]
+        private let _storage$2$cached: @Sendable () -> [Item]
         func cached() -> [Item] {
             return _storage$2$cached()
         }
 
-        private let _storage$3$evict: (ID) -> Void
+        private let _storage$3$evict: @Sendable (ID) -> Void
         func evict(id p0: ID) {
             return _storage$3$evict(p0)
         }
 
-        private let _storage$4$fetch: (ID) -> Item?
+        private let _storage$4$fetch: @Sendable (ID) -> Item?
         func fetch(id p0: ID) -> Item? {
             return _storage$4$fetch(p0)
         }
@@ -827,14 +813,8 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: HashedRepository>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: HashedRepository>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: HashedRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
@@ -1016,48 +996,50 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: AuditedRepository, @unchecked Sendable {
-        private let reference: () -> any AuditedRepository
+    nonisolated final class DefaultImplCaller: AuditedRepository, Sendable {
+        private let reference: @Sendable () -> any AuditedRepository
     
         
-        init<_CUCKOO$$GENERIC: AuditedRepository>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, _CUCKOO$$GENERIC.Element == Element {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: AuditedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, _CUCKOO$$GENERIC.Element == Element, Item: SendableMetatype, ID: SendableMetatype, Element: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
-            _storage$1$audit = defaultImpl.pointee.audit
-            _storage$2$cached = defaultImpl.pointee.cached
-            _storage$3$evict = defaultImpl.pointee.evict
-            _storage$4$fetch = defaultImpl.pointee.fetch
-            _storage$5$sorted = defaultImpl.pointee.sorted
-            _storage$6$all = defaultImpl.pointee.all
+            _storage$1$audit = { box.value.audit() }
+            _storage$2$cached = { box.value.cached() }
+            _storage$3$evict = { p0 in box.value.evict(id: p0) }
+            _storage$4$fetch = { p0 in box.value.fetch(id: p0) }
+            _storage$5$sorted = { p0 in box.value.sorted(by: p0) }
+            _storage$6$all = { box.value.all() }
         }
     
 
-        private let _storage$1$audit: () -> (Item?, [Element])
+        private let _storage$1$audit: @Sendable () -> (Item?, [Element])
         func audit() -> (Item?, [Element]) {
             return _storage$1$audit()
         }
 
-        private let _storage$2$cached: () -> [Item]
+        private let _storage$2$cached: @Sendable () -> [Item]
         func cached() -> [Item] {
             return _storage$2$cached()
         }
 
-        private let _storage$3$evict: (ID) -> Void
+        private let _storage$3$evict: @Sendable (ID) -> Void
         func evict(id p0: ID) {
             return _storage$3$evict(p0)
         }
 
-        private let _storage$4$fetch: (ID) -> Item?
+        private let _storage$4$fetch: @Sendable (ID) -> Item?
         func fetch(id p0: ID) -> Item? {
             return _storage$4$fetch(p0)
         }
 
-        private let _storage$5$sorted: ((Element, Element) -> Bool) -> [Element]
+        private let _storage$5$sorted: @Sendable ((Element, Element) -> Bool) -> [Element]
         func sorted(by p0: (Element, Element) -> Bool) -> [Element] {
             return _storage$5$sorted(p0)
         }
 
-        private let _storage$6$all: () -> [Element]
+        private let _storage$6$all: @Sendable () -> [Element]
         func all() -> [Element] {
             return _storage$6$all()
         }
@@ -1065,14 +1047,8 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: AuditedRepository>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, _CUCKOO$$GENERIC.Element == Element {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: AuditedRepository>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, _CUCKOO$$GENERIC.Element == Element {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: AuditedRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, _CUCKOO$$GENERIC.Element == Element, Item: SendableMetatype, ID: SendableMetatype, Element: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 

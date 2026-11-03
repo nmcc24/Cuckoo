@@ -36,6 +36,10 @@ extension HasGenerics {
                 .map { "\(Templates.staticGenericParameter).\($0.name) == \($0.name)" }
                 .joined(separator: ", ")
             : nil
+        // A nonisolated `DefaultImplCaller`'s `@Sendable` closures capture these parameters' metatypes.
+        let sendableMetatypeRequirements = isProtocol
+            ? genericParameters.map { ", \($0.name): SendableMetatype" }.joined()
+            : nil
         let genericPrimaryAssociatedTypeArguments: String?
         if let protocolDeclaration = asProtocol, hasPrimaryAssociatedTypes {
             let arguments = protocolDeclaration.primaryAssociatedTypes.map { $0.name }.joined(separator: ", ")
@@ -51,6 +55,7 @@ extension HasGenerics {
             "hasPrimaryAssociatedTypes": hasPrimaryAssociatedTypes,
             "hasOnlyPrimaryAssociatedTypes": hasOnlyPrimaryAssociatedTypes,
             "genericProtocolIdentity": genericProtocolIdentity as Any,
+            "sendableMetatypeRequirements": sendableMetatypeRequirements as Any,
             "genericPrimaryAssociatedTypeArguments": genericPrimaryAssociatedTypeArguments as Any,
         ]
         .compactMapValues { $0 }

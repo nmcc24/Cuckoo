@@ -284,38 +284,40 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    nonisolated final class DefaultImplCaller: PlatformedStore, @unchecked Sendable {
-        private let reference: () -> any PlatformedStore
+    nonisolated final class DefaultImplCaller: PlatformedStore, Sendable {
+        private let reference: @Sendable () -> any PlatformedStore
     
         #if (DEBUG)
-        private let _getter_storage$$debugItems: () -> [Item]
+        private let _getter_storage$$debugItems: @Sendable () -> [Item]
         var debugItems: [Item] {
             get { return _getter_storage$$debugItems() }
         }
         #endif
     
         
-        init<_CUCKOO$$GENERIC: PlatformedStore>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
-            self.reference = reference
+        init<_CUCKOO$$GENERIC: PlatformedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = { box.value }
     
             #if (DEBUG)
-            _getter_storage$$debugItems = { defaultImpl.pointee.debugItems }
+            _getter_storage$$debugItems = { box.value.debugItems }
             #endif
             #if (DEBUG)
-            _storage$1$dump = defaultImpl.pointee.dump
+            _storage$1$dump = { box.value.dump() }
             #endif
-            _storage$2$item = defaultImpl.pointee.item
+            _storage$2$item = { p0 in box.value.item(at: p0) }
         }
     
 
         #if (DEBUG)
-        private let _storage$1$dump: () -> String
+        private let _storage$1$dump: @Sendable () -> String
         func dump() -> String {
             return _storage$1$dump()
         }
         #endif
 
-        private let _storage$2$item: (Int) -> Item
+        private let _storage$2$item: @Sendable (Int) -> Item
         func item(at p0: Int) -> Item {
             return _storage$2$item(p0)
         }
@@ -323,14 +325,8 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
-        var mutableStub = stub
-        __defaultImplStub.value = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.Item == Item {
-        __defaultImplStub.value = DefaultImplCaller(from: stub, keeping: stub.pointee)
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 

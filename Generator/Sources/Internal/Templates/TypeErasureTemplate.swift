@@ -2,27 +2,27 @@ import Foundation
 
 extension Templates {
     static let typeErasure = """
-    {# For developers: `@unchecked` because the stored closures read the default implementation through an
-    `UnsafeMutablePointer`, which can't be checked `Sendable`. A mock of a `Sendable` generic protocol needs the
-    conformance. Removing it needs the erasure rebuilt on a Sendable box (roadmap Phase 5). A protocol isolated
-    to a global actor gets a caller isolated to it, which is `Sendable` and can read the requirements. #}
+    {# For developers: the caller erases the default implementation's type. Its closures share one
+    `Cuckoo.DefaultImplementation` box, which is `Sendable`, so the closures are `@Sendable` and the caller is
+    checked `Sendable`, as a mock of a `Sendable` generic protocol needs. A protocol isolated to a global actor
+    gets a caller isolated to it, which is `Sendable` and can read the requirements. #}
     {% if container.globalActor %}
     @{{ container.globalActor }} {{ container.accessibility|withSpace }}final class \(typeErasureClassName): {{ container.name }} {
     {% else %}
-    {{ container.accessibility|withSpace }}nonisolated final class \(typeErasureClassName): {{ container.name }}, @unchecked Sendable {
+    {{ container.accessibility|withSpace }}nonisolated final class \(typeErasureClassName): {{ container.name }}, Sendable {
     {% endif %}
         {% if container.declaresSelfTypealias %}
         {{ container.accessibility|withSpace }}typealias \(SelfResolution.typealiasName) = \(typeErasureClassName)
         {% endif %}
-        private let reference: () -> any {{ container.name }}{{ container.genericPrimaryAssociatedTypeArguments }}
+        private let reference: {%+ if not container.globalActor %}@Sendable {%+ endif %}() -> any {{ container.name }}{{ container.genericPrimaryAssociatedTypeArguments }}
 
         {% for property in container.properties %}
         {% if property.hasCompilationCondition %}
         {{ property.compilationConditionCheck }}
         {% endif %}
-        private let _getter_storage$${{ property.name }}: () -> {{ property.type }}
+        private let _getter_storage$${{ property.name }}: {%+ if not container.globalActor %}@Sendable {%+ endif %}() -> {{ property.type }}
         {% if not property.isReadOnly %}
-        private let _setter_storage$${{ property.name }}: ({{ property.type }}) -> Void
+        private let _setter_storage$${{ property.name }}: {%+ if not container.globalActor %}@Sendable {%+ endif %}({{ property.type }}) -> Void
         {% endif %}
         {% for attribute in property.spiAttributes %}
         {{ attribute }}
@@ -43,9 +43,9 @@ extension Templates {
         {{ subscript.compilationConditionCheck }}
         {% endif %}
         {% if not subscript.hasGenericParams %}
-        private let _subscript_getter_storage$${{ forloop.counter }}: ({{ subscript.keyTypes }}) {%+ if subscript.getterEffects %}{{ subscript.getterEffects }}{% endif %}-> {{ subscript.returnType }}
+        private let _subscript_getter_storage$${{ forloop.counter }}: {%+ if not container.globalActor %}@Sendable {%+ endif %}({{ subscript.keyTypes }}) {%+ if subscript.getterEffects %}{{ subscript.getterEffects }}{% endif %}-> {{ subscript.returnType }}
         {% if not subscript.isReadOnly %}
-        private let _subscript_setter_storage$${{ forloop.counter }}: ({{ subscript.keyTypes }}{% if subscript.keyTypes %}, {% endif %}{{ subscript.returnType }}) -> Void
+        private let _subscript_setter_storage$${{ forloop.counter }}: {%+ if not container.globalActor %}@Sendable {%+ endif %}({{ subscript.keyTypes }}{% if subscript.keyTypes %}, {% endif %}{{ subscript.returnType }}) -> Void
         {% endif %}
         {% endif %}
         {% for attribute in subscript.spiAttributes %}
@@ -75,18 +75,20 @@ extension Templates {
         {% endif %}
 
         {% endfor %}
-        {# For developers: The `keeping reference: Any` is necessary because when called from the `enableDefaultImplementation(stub:)` method
-        instead of `enableDefaultImplementation(mutating:)`, we need to prevent the struct getting deallocated. #}
-        init<\(staticGenericParameter): {{ container.name }}>(from defaultImpl: UnsafeMutablePointer<\(staticGenericParameter)>, keeping reference: @escaping @autoclosure () -> \(staticGenericParameter)) where {{ container.genericProtocolIdentity }} {
-            self.reference = reference
+        {# For developers: every closure reads the default implementation from the box when it runs, and a
+        mutating requirement writes it back, so a value-type default implementation keeps its changes. #}
+        init<\(staticGenericParameter): {{ container.name }}{% if not container.globalActor %} & SendableMetatype{% endif %}>(_ defaultImpl: \(staticGenericParameter)) where {{ container.genericProtocolIdentity }}{% if not container.globalActor %}{{ container.sendableMetatypeRequirements }}{% endif %} {
+            let box = Cuckoo.DefaultImplementation<\(staticGenericParameter)>()
+            box.value = defaultImpl
+            reference = { box.value }
 
             {% for property in container.properties %}
             {% if property.hasCompilationCondition %}
             {{ property.compilationConditionCheck }}
             {% endif %}
-            _getter_storage$${{ property.name }} = { defaultImpl.pointee.{{ property.name }} }
+            _getter_storage$${{ property.name }} = { box.value.{{ property.name }} }
             {% if not property.isReadOnly %}
-            _setter_storage$${{ property.name }} = { defaultImpl.pointee.{{ property.name }} = $0 }
+            _setter_storage$${{ property.name }} = { box.value.{{ property.name }} = $0 }
             {% endif %}
             {% if property.hasCompilationCondition %}
             #endif
@@ -97,9 +99,9 @@ extension Templates {
             {% if subscript.hasCompilationCondition %}
             {{ subscript.compilationConditionCheck }}
             {% endif %}
-            _subscript_getter_storage$${{ forloop.counter }} = { {%+ if subscript.isThrowing %}try {%+ endif %}{% if subscript.isAsync %}await {%+ endif %}defaultImpl.pointee[{{ subscript.keyClosureParameters }}] }
+            _subscript_getter_storage$${{ forloop.counter }} = { {%+ if subscript.isThrowing %}try {%+ endif %}{% if subscript.isAsync %}await {%+ endif %}box.value[{{ subscript.keyClosureParameters }}] }
             {% if not subscript.isReadOnly %}
-            _subscript_setter_storage$${{ forloop.counter }} = { defaultImpl.pointee[{{ subscript.keyClosureParameters }}] = ${{ subscript.keyCount }} }
+            _subscript_setter_storage$${{ forloop.counter }} = { box.value[{{ subscript.keyClosureParameters }}] = ${{ subscript.keyCount }} }
             {% endif %}
             {% if subscript.hasCompilationCondition %}
             #endif
@@ -111,7 +113,7 @@ extension Templates {
             {% if method.hasCompilationCondition %}
             {{ method.compilationConditionCheck }}
             {% endif %}
-            _storage${{ forloop.counter }}${{ method.name }} = defaultImpl.pointee.{{ method.name }}
+            _storage${{ forloop.counter }}${{ method.name }} = { {%+ if method.parameterNames %}{{ method.parameterNames }} in {%+ endif %}{% if method.isThrowing %}try {%+ endif %}{% if method.isAsync %}await {%+ endif %}box.value.{{ method.name|escapeReservedKeywords }}({{ method.call }}) }
             {% if method.hasCompilationCondition %}
             #endif
             {% endif %}
@@ -141,7 +143,7 @@ extension Templates {
         {{ method.compilationConditionCheck }}
         {% endif %}
         {% if not method.hasGenericParams %}
-        private let _storage${{ forloop.counter }}${{ method.name }}: ({{ method.inputTypes }}) {% if method.isAsync %} async{% endif %} {% if method.isThrowing %} throws{% endif %} -> {{ method.returnType }}
+        private let _storage${{ forloop.counter }}${{ method.name }}: {%+ if not container.globalActor %}@Sendable {%+ endif %}({{ method.inputTypes }}) {% if method.isAsync %} async{% endif %} {% if method.isThrowing %} throws{% endif %} -> {{ method.returnType }}
         {% endif %}
         {% for attribute in method.spiAttributes %}
         {{ attribute }}
