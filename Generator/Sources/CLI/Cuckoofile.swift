@@ -73,7 +73,7 @@ enum Cuckoofile {
             switch self {
             case .unreadable(let error):
                 return """
-                Cuckoofile can't be read. Define modules as \("[modules.ModuleName]".bold) tables with properties beneath.
+                Cuckoofile can't be read. Define modules as `[modules.ModuleName]` tables with properties beneath.
                 \(error)
                 """
             case .configurationErrors(let details):

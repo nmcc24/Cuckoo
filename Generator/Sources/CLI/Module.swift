@@ -271,14 +271,14 @@ extension Module {
 extension Module: CustomDebugStringConvertible {
     var debugDescription: String {
         [
-            "imports:\(imports.map { "\n\t-\($0.bold)" }.joined(separator: ", "))",
-            "public imports:\(publicImports.map { "\n\t-\($0.bold)" }.joined(separator: ", "))",
-            "testable imports:\(testableImports.map { "\n\t-\($0.bold)" }.joined(separator: ", "))",
-            sources.map { "sources\(sourcesAreFromPlugin ? " (from the build plugin)" : ""):\($0.map { "\n\t-\($0.rawValue.bold)" }.joined())" },
-            "excluded types:\(exclude.map { "\n\t-\($0.bold)" }.joined())",
-            regexes.isEmpty ? nil : "regex:\(regexes.map { "\n\t-\($0.bold)" }.joined())",
-            "output: \(output.bold)",
-            filenameFormat.map { "filename format: \($0.bold)" },
+            "imports:\(imports.map { "\n\t-\($0)" }.joined(separator: ", "))",
+            "public imports:\(publicImports.map { "\n\t-\($0)" }.joined(separator: ", "))",
+            "testable imports:\(testableImports.map { "\n\t-\($0)" }.joined(separator: ", "))",
+            sources.map { "sources\(sourcesAreFromPlugin ? " (from the build plugin)" : ""):\($0.map { "\n\t-\($0.rawValue)" }.joined())" },
+            "excluded types:\(exclude.map { "\n\t-\($0)" }.joined())",
+            regexes.isEmpty ? nil : "regex:\(regexes.map { "\n\t-\($0)" }.joined())",
+            "output: \(output)",
+            filenameFormat.map { "filename format: \($0)" },
             "options:\(options.debugDescription.components(separatedBy: "\n").map { "\n\t- \($0)" }.joined())",
         ]
         .compactMap { $0 }
@@ -289,13 +289,13 @@ extension Module: CustomDebugStringConvertible {
 extension Module.Options: CustomDebugStringConvertible {
     var debugDescription: String {
         [
-            "glob: \(String(glob).bold)",
-            "keep documentation: \(String(keepDocumentation).bold)",
-            "enable inheritance: \(String(enableInheritance).bold)",
-            "protocols only: \(String(protocolsOnly).bold)",
-            "omit headers: \(String(omitHeaders).bold)",
-            "mock prefix: \(mockNaming.prefix.bold)",
-            "mock suffix: \(mockNaming.suffix.bold)",
+            "glob: \(glob)",
+            "keep documentation: \(keepDocumentation)",
+            "enable inheritance: \(enableInheritance)",
+            "protocols only: \(protocolsOnly)",
+            "omit headers: \(omitHeaders)",
+            "mock prefix: \(mockNaming.prefix)",
+            "mock suffix: \(mockNaming.suffix)",
         ]
         .compactMap { $0 }
         .joined(separator: "\n")
