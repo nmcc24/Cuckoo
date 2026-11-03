@@ -258,20 +258,9 @@ let original = OriginalClass<Int>(value: 12)
 mock.enableDefaultImplementation(original)
 ```
 
-For passing classes into the method, nothing changes whether you're mocking a class or a protocol. However, there is a difference if you're using a `struct` to conform to the original protocol we are mocking:
+A `struct` default implementation is copied when you enable it. Changes made through the mock stay in the mock's copy, and later changes to your own variable don't reach the mock. To share state between the test and the mock, pass a class.
 
-```swift
-let original = ConformingStruct<String>(value: "Hello, Cuckoo!")
-mock.enableDefaultImplementation(original)
-// or if you need to track changes:
-mock.enableDefaultImplementation(mutating: &original)
-```
-
-Note that this only concerns `struct`s. `enableDefaultImplementation(_:)` and `enableDefaultImplementation(mutating:)` are different in state tracking.
-
-The standard non-mutating method `enableDefaultImplementation(_:)` creates a copy of the `struct` for default implementation and works with that. However, the mutating method `enableDefaultImplementation(mutating:)` takes a reference to the struct and the changes of the `original` are reflected in the default implementation calls even after enabling default implementation.
-
-We recommend using the non-mutating method for enabling default implementation unless you need to track the changes for consistency within your code.
+Cuckoo 3 removes `enableDefaultImplementation(mutating:)`, which kept a pointer to your variable after the call returned. Pass a class instead if the test needs to see the changes.
 
 ##### Chain stubbing
 It is possible to chain stubbing. This is useful for when you need to define different behavior for multiple calls in order. The last behavior will be used for all calls after that. The syntax goes like this:
