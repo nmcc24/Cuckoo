@@ -6,6 +6,7 @@ public struct ParameterPack: CustomStringConvertible {
     /// The pack's values, in order.
     public let values: [Any]
 
+    /// Records `values` as one pack.
     public init<each Value>(_ values: repeat each Value) {
         var collected: [Any] = []
         for value in repeat each values {
@@ -19,10 +20,12 @@ public struct ParameterPack: CustomStringConvertible {
         values.count
     }
 
+    /// The value at `index`.
     public subscript(index: Int) -> Any {
         values[index]
     }
 
+    /// The values, comma-separated in parentheses, as in failure messages.
     public var description: String {
         "(\(values.map { String(describing: $0) }.joined(separator: ", ")))"
     }

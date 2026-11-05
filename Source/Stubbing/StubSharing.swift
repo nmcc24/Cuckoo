@@ -8,7 +8,10 @@
 /// - ``Isolated``: the mocked type is isolated to an actor (`@MainActor`, another global actor, or an actor
 ///   instance), so every call runs there. A returned value is sent to it.
 public enum StubSharing {
+    /// The mocked type isn't `Sendable`: any value can be returned.
     public enum Confined {}
+    /// The mocked type is `Sendable` and nonisolated: returned values must be `Sendable`.
     public enum Shared {}
+    /// The mocked type is isolated to an actor: a returned value is sent to it.
     public enum Isolated {}
 }

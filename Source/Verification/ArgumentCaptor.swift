@@ -15,6 +15,7 @@ public final class ArgumentCaptor<T> {
         values.withLock { $0 }
     }
 
+    /// Creates a captor with no captured arguments.
     public init() {
     }
 

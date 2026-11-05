@@ -6,10 +6,12 @@ public import Testing
 public struct CuckooTrait: TestTrait, SuiteTrait, TestScoping {
     fileprivate let configure: @Sendable (inout CuckooConfiguration) -> Void
 
+    /// `true`: on a suite, the trait applies to every test in it and in its nested suites.
     public var isRecursive: Bool {
         true
     }
 
+    /// Runs `function` with the trait's configuration and a fresh ``StaticStubs`` registry.
     public func provideScope(
         for test: Test,
         testCase: Test.Case?,

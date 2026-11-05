@@ -92,6 +92,7 @@ public func anyString() -> ParameterMatcher<String?> {
     notNil()
 }
 
+/// Returns a matcher matching any non-`nil` optional throwing closure.
 public func anyOptionalThrowingClosure<IN, OUT>() -> ParameterMatcher<(((IN)) throws -> OUT)?> {
     notNil()
 }

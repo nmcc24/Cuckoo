@@ -17,8 +17,10 @@ public struct CuckooConfiguration: Sendable {
 
     /// Default values that take precedence over `DefaultValueRegistry` for this scope.
     public var defaultValues: DefaultValues
+    /// Receives each failure instead of the test framework, `nil` by default.
     public var failureHandler: FailureHandler?
 
+    /// Creates a configuration with `defaultValues` and `failureHandler`.
     public init(defaultValues: DefaultValues = DefaultValues(), failureHandler: FailureHandler? = nil) {
         self.defaultValues = defaultValues
         self.failureHandler = failureHandler
@@ -32,9 +34,11 @@ public struct CuckooConfiguration: Sendable {
 public struct DefaultValues: Sendable {
     private var values: [ObjectIdentifier: any Sendable] = [:]
 
+    /// Creates an empty set of default values.
     public init() {
     }
 
+    /// Registers `value` as the default for `type` in this set.
     public mutating func register<T: Sendable>(_ value: T, for type: T.Type = T.self) {
         // Boxed explicitly, so a registered `nil` is stored rather than removing the entry.
         let boxed: any Sendable = value
