@@ -1,27 +1,33 @@
-/**
-    Matchable can be anything that can produce its own parameter matcher.
-    It is used instead of concrete value for stubbing and verification.
-*/
+/// A value that can stand for an argument in stubbing and verification, by producing its own matcher.
+///
+/// Literals and common standard types conform, so `when(stub.greet("Ann"))` matches the argument `"Ann"`.
+/// Every `Equatable` type that adopts `Matchable` gets an `equal(to:)` matcher for free.
 public protocol Matchable {
+    /// The type of the arguments this value matches.
     associatedtype MatchedType
-    
-    /// Matcher for this instance. This should be an equalTo type of a matcher, but it is not required.
+
+    /// The matcher this value stands for, usually `equal(to:)` of the value itself.
     var matcher: ParameterMatcher<MatchedType> { get }
 }
 
+/// A value that can stand for an optional argument, so `"Ann"` matches a `String?` parameter too.
 public protocol OptionalMatchable {
+    /// The wrapped type of the optional arguments this value matches.
     associatedtype OptionalMatchedType
 
+    /// The matcher for an optional argument: it matches when the argument holds an equal value.
     var optionalMatcher: ParameterMatcher<OptionalMatchedType?> { get }
 }
 
 public extension Matchable {
+    /// Returns a matcher that accepts an argument either this value or `otherMatchable` accepts.
     func or<M>(_ otherMatchable: M) -> ParameterMatcher<MatchedType> where M: Matchable, M.MatchedType == MatchedType {
         return ParameterMatcher {
             return self.matcher.matches($0) || otherMatchable.matcher.matches($0)
         }
     }
     
+    /// Returns a matcher that accepts an argument only when this value and `otherMatchable` both accept it.
     func and<M>(_ otherMatchable: M) -> ParameterMatcher<MatchedType> where M: Matchable, M.MatchedType == MatchedType {
         return ParameterMatcher {
             return self.matcher.matches($0) && otherMatchable.matcher.matches($0)
@@ -30,8 +36,10 @@ public extension Matchable {
 }
 
 extension Optional: Matchable where Wrapped: Matchable, Wrapped.MatchedType == Wrapped {
+    /// An optional matches optional arguments.
     public typealias MatchedType = Wrapped?
 
+    /// Matches `nil` against `nil`, and a wrapped value with the wrapped value's matcher.
     public var matcher: ParameterMatcher<Wrapped?> {
         return ParameterMatcher<Wrapped?> { other in
             switch (self, other) {
@@ -47,8 +55,10 @@ extension Optional: Matchable where Wrapped: Matchable, Wrapped.MatchedType == W
 }
 
 extension Optional: OptionalMatchable where Wrapped: OptionalMatchable, Wrapped.OptionalMatchedType == Wrapped {
+    /// An optional matches optional arguments of its wrapped type.
     public typealias OptionalMatchedType = Wrapped
 
+    /// Matches `nil` against `nil`, and a wrapped value with the wrapped value's optional matcher.
     public var optionalMatcher: ParameterMatcher<Wrapped?> {
         return ParameterMatcher<Wrapped?> { other in
             switch (self, other) {
@@ -64,12 +74,14 @@ extension Optional: OptionalMatchable where Wrapped: OptionalMatchable, Wrapped.
 }
 
 extension Matchable where Self: Equatable {
+    /// Matches an argument equal to this value.
     public var matcher: ParameterMatcher<Self> {
         return equal(to: self)
     }
 }
 
 extension OptionalMatchable where OptionalMatchedType == Self, Self: Equatable {
+    /// Matches an optional argument that holds a value equal to this one.
     public var optionalMatcher: ParameterMatcher<OptionalMatchedType?> {
         return ParameterMatcher { other in
             return Optional(self) == other

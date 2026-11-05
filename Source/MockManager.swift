@@ -1,5 +1,9 @@
 import Foundation
 
+/// Records a mock's calls and holds its stubs. Every generated mock owns one, as `cuckoo_manager`.
+///
+/// Tests don't call it directly: ``stub(_:block:)-(M,_)``, ``verify(_:_:file:fileID:filePath:line:column:)->M.Verification``
+/// and the reset functions go through it. Its methods are public for the generated mocks.
 public final class MockManager: Sendable {
     private struct RecordedCall {
         let id: Int
@@ -34,6 +38,7 @@ public final class MockManager: Sendable {
     /// A mock type's manager for its static members, which have no default implementation to forward to.
     private let isStatic: Bool
 
+    /// Creates the manager of a mock. `hasParent` says whether the mock can call a real implementation.
     public init(hasParent: Bool) {
         self.hasParent = hasParent
         self.isStatic = false
@@ -181,18 +186,22 @@ public final class MockManager: Sendable {
         }
     }
 
+    /// Adds a stub of a class mock's `method` for calls whose arguments match `parameterMatchers`.
     public func createStub<MOCK: ClassMock, IN, OUT, ERROR, IMPL>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ClassConcreteStub<IN, OUT, ERROR, IMPL> {
         let stub = ClassConcreteStub<IN, OUT, ERROR, IMPL>(method: method, parameterMatchers: parameterMatchers)
         state.withLock { $0.stubs.insert(stub, at: 0) }
         return stub
     }
 
+    /// Adds a stub of a protocol mock's `method` for calls whose arguments match `parameterMatchers`.
     public func createStub<MOCK: ProtocolMock, IN, OUT, ERROR, IMPL>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ConcreteStub<IN, OUT, ERROR, IMPL> {
         let stub = ConcreteStub<IN, OUT, ERROR, IMPL>(method: method, parameterMatchers: parameterMatchers)
         state.withLock { $0.stubs.insert(stub, at: 0) }
         return stub
     }
 
+    /// Checks the recorded calls of `method` whose arguments match `parameterMatchers` against `callMatcher`, and
+    /// reports a failure at `sourceLocation` when they don't match.
     public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> __DoNotUse<IN, OUT> {
         let recordedCalls = state.withLock { $0.calls }
         // Each call to this member with the first argument its matcher rejected, or `nil` if the call matches. Like
@@ -258,6 +267,7 @@ public final class MockManager: Sendable {
         state.withLock { $0.calls.map { SequencedCall(sequence: $0.sequence, call: $0.call) } }
     }
 
+    /// Makes unstubbed calls run the superclass's real implementation. Allowed only before stubbing.
     public func enableSuperclassSpy() {
         let error: String? = state.withLock { state in
             guard state.calls.isEmpty else {
@@ -274,6 +284,7 @@ public final class MockManager: Sendable {
         }
     }
 
+    /// Makes unstubbed calls forward to the default implementation. Allowed only before stubbing.
     public func enableDefaultStubImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
         guard !isStatic else {
             fail("Static members have no default implementation. Stub them instead.", file: file, fileID: fileID, filePath: filePath, line: line, column: column)
@@ -347,11 +358,13 @@ public final class MockManager: Sendable {
 }
 
 extension MockManager {
+    /// Calls `call` with `value`, which a generated mock knows isn't `nil`.
     public static func callOrCrash<T, OUT>(_ value: T?, call: (T) throws -> OUT) rethrows -> OUT {
         guard let value = value else { return crashOnProtocolSuperclassCall() }
         return try call(value)
     }
 
+    /// Stands in for a protocol mock's superclass call, which can't happen.
     public static func crashOnProtocolSuperclassCall<OUT>() -> OUT {
         fatalError("This should never get called. If it does, please report an issue to Cuckoo repository.")
     }
@@ -392,6 +405,7 @@ extension MockManager {
 }
 
 extension MockManager {
+    /// Records a read of `property` and answers it from a stub, the superclass or the default implementation.
     public func getter<T, IMPL>(
         _ property: String,
         invoke: (IMPL) -> T,
@@ -401,6 +415,7 @@ extension MockManager {
         call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: { implementation, _ in invoke(implementation) }, superclassCall: superclassCall(), defaultCall: defaultCall())
     }
 
+    /// Records a read of an async `property` and answers it from a stub, the superclass or the default implementation.
     public nonisolated(nonsending) func getter<T, IMPL>(
         _ property: String,
         invoke: nonisolated(nonsending) (IMPL) async -> T,
@@ -410,6 +425,7 @@ extension MockManager {
         await call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: { implementation, _ in await invoke(implementation) }, superclassCall: await superclassCall(), defaultCall: await defaultCall())
     }
 
+    /// Records an assignment to `property` and answers it from a stub, the superclass or the default implementation.
     public func setter<T, IMPL>(
         _ property: String,
         value: T,
@@ -422,6 +438,8 @@ extension MockManager {
 }
 
 extension MockManager {
+    /// Records a read of a throwing `property` and answers it from a stub, the superclass or the default
+    /// implementation.
     public func getterThrows<T, IMPL>(
         _ property: String,
         invoke: (IMPL) throws -> T,
@@ -431,6 +449,8 @@ extension MockManager {
         try callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: { implementation, _ in try invoke(implementation) }, superclassCall: try superclassCall(), defaultCall: try defaultCall())
     }
 
+    /// Records a read of an async throwing `property` and answers it from a stub, the superclass or the default
+    /// implementation.
     public nonisolated(nonsending) func getterThrows<T, IMPL>(
         _ property: String,
         invoke: nonisolated(nonsending) (IMPL) async throws -> T,
@@ -442,6 +462,7 @@ extension MockManager {
 }
 
 extension MockManager {
+    /// Records a call of `method` and answers it from a stub, the superclass or the default implementation.
     public func call<IN, OUT, IMPL>(
         _ method: String,
         parameters: IN,
@@ -453,6 +474,7 @@ extension MockManager {
         callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
     }
 
+    /// Records a call of an async `method` and answers it from a stub, the superclass or the default implementation.
     public nonisolated(nonsending) func call<IN, OUT, IMPL>(
         _ method: String,
         parameters: IN,
@@ -466,6 +488,7 @@ extension MockManager {
 }
 
 extension MockManager {
+    /// Records a call of a throwing `method` and answers it from a stub, the superclass or the default implementation.
     public func callThrows<IN, OUT, ERROR, IMPL>(
         _ method: String,
         parameters: IN,
@@ -478,6 +501,8 @@ extension MockManager {
         try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
     }
 
+    /// Records a call of an async throwing `method` and answers it from a stub, the superclass or the default
+    /// implementation.
     public nonisolated(nonsending) func callThrows<IN, OUT, ERROR, IMPL>(
         _ method: String,
         parameters: IN,
@@ -492,6 +517,8 @@ extension MockManager {
 }
 
 extension MockManager {
+    /// Records a call of a rethrowing `method` and answers it from a stub, the superclass or the default
+    /// implementation.
     public func callRethrows<IN, OUT, IMPL>(
         _ method: String,
         parameters: IN,
@@ -503,6 +530,8 @@ extension MockManager {
         try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
     }
 
+    /// Records a call of an async rethrowing `method` and answers it from a stub, the superclass or the default
+    /// implementation.
     public nonisolated(nonsending) func callRethrows<IN, OUT, IMPL>(
         _ method: String,
         parameters: IN,

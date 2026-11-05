@@ -5,6 +5,7 @@
 public final class DefaultImplementation<Stub>: Sendable {
     private let stub = Locked<Stub?>(nil)
 
+    /// Creates an empty holder; the generated mock sets ``value`` in `enableDefaultImplementation`.
     public init() {
     }
 

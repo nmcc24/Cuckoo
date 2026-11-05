@@ -1,8 +1,14 @@
+/// A stub of one member and its argument matchers, with the answers queued for matching calls.
 public protocol Stub {
+    /// The stubbed member, as failure messages name it, such as `greet(name: String) -> String`.
     var method: String { get }
 }
 
+/// A stub of a member whose arguments are `IN`, which returns `OUT`, throws `ERROR` and runs `IMPL` closures.
+///
+/// The stubbing proxies create it; tests reach it through `when(…)` and the `then…` calls.
 public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub {
+    /// The stubbed member, as failure messages name it.
     public let method: String
     let parameterMatchers: [ParameterMatcher<IN>]
     private let actions = Locked<[StubAction<OUT, ERROR, IMPL>]>([])
@@ -35,4 +41,5 @@ public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub {
     }
 }
 
+/// A stub of a class mock's member, which can also call the real implementation.
 public class ClassConcreteStub<IN, OUT, ERROR: Error, IMPL>: ConcreteStub<IN, OUT, ERROR, IMPL> { }

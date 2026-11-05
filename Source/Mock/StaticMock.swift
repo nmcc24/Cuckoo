@@ -1,7 +1,9 @@
 /// A mock whose type has static or class members. Their stubs and calls can't live in an instance's manager,
 /// so they live in the current task's ``StaticStubs`` registry, one manager per mock type.
 public protocol StaticMock {
+    /// The proxy `stub(MockX.self)` hands to its block, with one stubbing member per static member.
     associatedtype StaticStubbing: StubbingProxy
+    /// The proxy `verify(MockX.self)` returns, with one verifying member per static member.
     associatedtype StaticVerification: VerificationProxy
 
     /// Whether the mocked type is a class, whose real static members can be called.
@@ -24,6 +26,7 @@ public extension StaticMock {
 public final class StaticStubs: Sendable {
     private let managers = Locked<[ObjectIdentifier: MockManager]>([:])
 
+    /// Creates an empty registry. `withStaticStubs { }` and the `.cuckoo()` trait create one for you.
     public init() {
     }
 

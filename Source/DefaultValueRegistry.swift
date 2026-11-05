@@ -22,28 +22,34 @@ public enum DefaultValueRegistry {
     
     private static let registeredTypes = Locked(defaultRegisteredTypes)
     
+    /// Registers `value` as the default for `type`, replacing any earlier one, for every test.
     public static func register<T: Sendable>(value: T, forType type: T.Type) {
         // Boxed explicitly, so a registered `nil` is stored rather than removing the entry.
         let boxed: any Sendable = value
         registeredTypes.withLock { $0[ObjectIdentifier(type)] = boxed }
     }
     
+    /// The registered default for a set type, or an empty set.
     public static func defaultValue<T>(for type: Set<T>.Type) -> Set<T> {
         return defaultValueOrNil(for: type) ?? []
     }
     
+    /// The registered default for an array type, or an empty array.
     public static func defaultValue<T>(for type: Array<T>.Type) -> Array<T> {
         return defaultValueOrNil(for: type) ?? []
     }
     
+    /// The registered default for a dictionary type, or an empty dictionary.
     public static func defaultValue<K, V>(for type: Dictionary<K, V>.Type) -> Dictionary<K, V> {
         return defaultValueOrNil(for: type) ?? [:]
     }
     
+    /// The registered default for an optional type, or `nil`.
     public static func defaultValue<T>(for type: Optional<T>.Type) -> Optional<T> {
         return defaultValueOrNil(for: type) ?? nil
     }
     
+    /// The registered default for `type`. Crashes when none is registered, with a message naming the type.
     public static func defaultValue<T>(for type: T.Type) -> T {
         if let registeredDefault = defaultValueOrNil(for: type) {
             return registeredDefault
@@ -51,6 +57,7 @@ public enum DefaultValueRegistry {
         fatalError("Type \(T.self) does not have default return value registered.")
     }
     
+    /// Removes every registered default except the built-in ones (numbers, `String`, `Bool`, `Void`).
     public static func reset() {
         registeredTypes.withLock { $0 = defaultRegisteredTypes }
     }
@@ -83,6 +90,7 @@ public enum DefaultValueRegistry {
     
     // Overloads for tuples.
     
+    /// The default for a tuple type: each element's default.
     public static func defaultValue<P1, P2>(for type: (P1, P2).Type) -> (P1, P2) {
         if let registeredDefault = defaultValueOrNil(for: type) {
             return registeredDefault
@@ -91,6 +99,7 @@ public enum DefaultValueRegistry {
         }
     }
     
+    /// The default for a tuple type: each element's default.
     public static func defaultValue<P1, P2, P3>(for type: (P1, P2, P3).Type) -> (P1, P2, P3) {
         if let registeredDefault = defaultValueOrNil(for: type) {
             return registeredDefault
@@ -99,6 +108,7 @@ public enum DefaultValueRegistry {
         }
     }
     
+    /// The default for a tuple type: each element's default.
     public static func defaultValue<P1, P2, P3, P4>(for type: (P1, P2, P3, P4).Type) -> (P1, P2, P3, P4) {
         if let registeredDefault = defaultValueOrNil(for: type) {
             return registeredDefault
@@ -107,6 +117,7 @@ public enum DefaultValueRegistry {
         }
     }
     
+    /// The default for a tuple type: each element's default.
     public static func defaultValue<P1, P2, P3, P4, P5>(for type: (P1, P2, P3, P4, P5).Type) -> (P1, P2, P3, P4, P5) {
         if let registeredDefault = defaultValueOrNil(for: type) {
             return registeredDefault
@@ -115,6 +126,7 @@ public enum DefaultValueRegistry {
         }
     }
     
+    /// The default for a tuple type: each element's default.
     public static func defaultValue<P1, P2, P3, P4, P5, P6>(for type: (P1, P2, P3, P4, P5, P6).Type) -> (P1, P2, P3, P4, P5, P6) {
         if let registeredDefault = defaultValueOrNil(for: type) {
             return registeredDefault
