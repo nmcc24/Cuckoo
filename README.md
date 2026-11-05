@@ -56,6 +56,8 @@ The documentation is a DocC catalog in [`Source/Cuckoo.docc`](Source/Cuckoo.docc
 - [Matching arguments and calls](Source/Cuckoo.docc/Matching.md): matchers for arguments, collections and call
   counts.
 
+- [Migrating from Cuckoo 2](Source/Cuckoo.docc/MigratingFromCuckoo2.md): what changes for an existing suite.
+
 The list of changes is in the [changelog](CHANGELOG.md).
 
 ## Contribute
