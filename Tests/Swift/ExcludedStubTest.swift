@@ -2,8 +2,7 @@ import XCTest
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-// This test case is intentionally ran only without `OCMock` because it depends on creating some very particular classes.
-// Other test cases are included in the `OCMock` target because they test general Cuckoo functionality.
+// `Cuckoofile.toml` excludes `ExcludedTestClass`, so no mock is generated for it, while `IncludedTestClass` gets one.
 final class ExcludedStubTest: XCTestCase {
     func testClassAvailability() {
         XCTAssertNotNil(ExcludedTestClass())

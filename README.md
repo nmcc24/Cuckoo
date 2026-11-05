@@ -24,7 +24,6 @@ Cuckoo is a powerful mocking framework that supports:
 - [x] inheritance (grandparent methods)
 - [x] generics
 - [x] simple type inference for instance variables (works with initializers, `as TYPE` notation, and can be overridden by specifying type explicitly)
-- [x] [Objective-C mocks utilizing OCMock](#objective-c-support)
 
 ## What will not be supported
 Due to the limitations mentioned above, unoverridable code structures are not supportable by Cuckoo. This includes:
@@ -465,33 +464,6 @@ let constant2 = MyType(...)
 let constant3 = anything as MyType
 ```
 
-## Objective-C Support
-For Objective-C support, Cuckoo wraps `OCMock` and uses its battle-tested functionality to bring support for mocking various Objective-C classes and protocols to Swift.
-
-For example:
-```swift
-let tableView = UITableView()
-// stubbing the class is very similar to stubbing with Cuckoo, note the `objcStub` method.
-let mock = objcStub(for: UITableViewController.self) { stubber, mock in
-  stubber.when(mock.numberOfSections(in: tableView)).thenReturn(1)
-  stubber.when(mock.tableView(tableView, accessoryButtonTappedForRowWith: IndexPath(row: 14, section: 2))).then { args in
-    // An unfortunate drawback is that arguments will miss type information, so the closure needs to cast them manually.
-    let (tableView, indexPath) = (args[0] as! UITableView, args[1] as! IndexPath)
-    print(tableView, indexPath)
-  }
-}
-
-// Invoking is exactly the same as you'd expect.
-XCTAssertEqual(mock.numberOfSections(in: tableView), 1)
-mock.tableView(tableView, accessoryButtonTappedForRowWith: IndexPath(row: 14, section: 2))
-
-// `objcVerify` replaces `verify` to test the interaction with methods/variables.
-objcVerify(mock.numberOfSections(in: tableView))
-objcVerify(mock.tableView(tableView, accessoryButtonTappedForRowWith: IndexPath(row: 14, section: 2)))
-```
-
-Detailed usage is available in Cuckoo tests along with DOs and DON'Ts of this Swift-ObjC bridge.
-
 ## Contribute
 Cuckoo is open for everyone and we'd like you to help us make the best Swift mocking library. For Cuckoo development, follow these steps:
 1. Clone the **Cuckoo** repository.
@@ -512,7 +484,6 @@ Thank you for your help!
 
 ## Used libraries
 - [ArgumentParser](https://github.com/apple/swift-argument-parser)
-- [FileKit](https://github.com/nvzqz/FileKit)
 - [SwiftSyntax](https://github.com/apple/swift-syntax)
 
 ## License

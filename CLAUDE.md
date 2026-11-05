@@ -8,7 +8,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
   - D1: keep the name Cuckoo.
   - D2: minimum iOS 17 / macOS 14 / tvOS 17 / watchOS 10.
   - D3: drop CocoaPods and the `run` script.
-  - D4: the OCMock bridge becomes an opt-in SwiftPM product behind a package trait.
+  - D4 (reversed 2026-11-05): the OCMock bridge is removed.
 - **Swift 6.2 is the minimum toolchain.** Don't add workarounds for Swift 6.1 or older.
 
 ## Working rules agreed with the maintainer
