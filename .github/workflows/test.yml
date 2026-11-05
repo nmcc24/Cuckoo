@@ -87,6 +87,18 @@ jobs:
         env:
           SWIFT6_MATRIX_EXPECTED: Fixtures/Swift6/expected-failures-default-mainactor.txt
 
+  # The runtime's DocC documentation, built with the toolchain's docc. Any docc warning (a broken symbol link, a
+  # documented parameter that doesn't exist) fails the job.
+  docs_linux:
+    name: Documentation (Swift 6.3)
+    runs-on: ubuntu-24.04
+    container: swift:6.3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Build the documentation
+        run: scripts/build-docs.sh
+
   tsan_linux:
     name: Runtime tests under the Thread Sanitizer on Linux (Swift 6.3)
     runs-on: ubuntu-24.04
@@ -175,7 +187,7 @@ jobs:
   ci_passed:
     name: CI passed
     if: always()
-    needs: [generator_linux, swift7_linux, tsan_linux, generator_macOS, test_iOS]
+    needs: [generator_linux, swift7_linux, docs_linux, tsan_linux, generator_macOS, test_iOS]
     runs-on: ubuntu-24.04
     permissions:
       actions: read
