@@ -290,51 +290,60 @@ struct CuckoofileTests {
         #expect(modules["CuckooTestSources"]?.swiftModules.values.sorted() == ["CuckooTestSources"])
     }
 
-    /// Every TOML example in the README parses, except the Cuckoo 2 half of the migration example, which
-    /// is rejected with the way to migrate. The plugin examples have no output of their own, because
-    /// the plugin provides one.
+    /// Every TOML example in the documentation articles parses, except the Cuckoo 2 half of the migration
+    /// example, which is rejected with the way to migrate. Examples without an output get the plugin's.
     @Test
-    func readmeExamples() throws {
-        let readme = try String(
-            contentsOf: Self.repositoryRoot.appendingPathComponent("README.md"),
-            encoding: .utf8
-        )
-        let examples = readme.components(separatedBy: "```toml\n").dropFirst().map {
-            $0.components(separatedBy: "```").first ?? ""
+    func documentationExamples() throws {
+        func examples(in article: String) throws -> [String] {
+            let text = try String(
+                contentsOf: Self.repositoryRoot.appendingPathComponent("Source/Cuckoo.docc/\(article).md"),
+                encoding: .utf8
+            )
+            return text.components(separatedBy: "```toml\n").dropFirst().map {
+                $0.components(separatedBy: "```").first ?? ""
+            }
         }
-        try #require(examples.count == 5)
 
-        let configuration = try parse(examples[0])
-        #expect(configuration.keys.sorted() == ["AnotherProject", "MyProject"])
-        #expect(configuration["MyProject"]?.output == "Tests/Swift/Generated/GeneratedMocks+MyProject.swift")
-        #expect(configuration["AnotherProject"]?.output == "Tests/Swift/Generated/GeneratedMocks.swift")
-
+        let gettingStarted = try examples(in: "GettingStarted")
+        try #require(gettingStarted.count == 1)
         let pluginListed = try #require(try Cuckoofile.modules(
-            from: examples[1],
+            from: gettingStarted[0],
             configurationPath: Self.configurationPath,
             overriddenOutput: "/derived/Mocks.swift",
             requestedModuleName: nil,
             pluginSources: [
-                Module.PluginSource(path: Path("/project/Sources/TargetA/A.swift"), swiftModule: "TargetA"),
-                Module.PluginSource(path: Path("/project/Sources/TargetB/B.swift"), swiftModule: "TargetB"),
+                Module.PluginSource(path: Path("/project/Sources/App/A.swift"), swiftModule: "App"),
+                Module.PluginSource(path: Path("/project/Sources/Core/B.swift"), swiftModule: "Core"),
             ]
         ).first)
-        #expect(pluginListed.name == "TargetA")
-        // A single-file plugin lists every dependency's files; the module takes those of the target with its name.
-        #expect(pluginListed.sources == [Path("/project/Sources/TargetA/A.swift")])
-        #expect(pluginListed.swiftModules == [Path("/project/Sources/TargetA/A.swift"): "TargetA"])
+        #expect(pluginListed.name == "App")
+        #expect(pluginListed.testableImports == ["App"])
+        // The plugin lists every dependency's files; the module takes those of the target with its name.
+        #expect(pluginListed.sources == [Path("/project/Sources/App/A.swift")])
         #expect(pluginListed.sourcesAreFromPlugin)
 
-        let modular = try parse(examples[2], overriddenOutput: "/derived/Mocks.swift")
-        #expect(modular.keys.sorted() == ["AggregationTargetTests", "TargetATests"])
-        #expect(modular["AggregationTargetTests"]?.imports == ["Foundation", "TargetA", "TargetB"])
+        let cuckoofile = try examples(in: "Cuckoofile")
+        try #require(cuckoofile.count == 5)
+
+        let full = try #require(try parse(cuckoofile[0])["App"])
+        #expect(full.output == "Tests/Generated/GeneratedMocks.swift")
+        #expect(full.imports == ["Foundation"])
+        #expect(full.exclude == ["AppDelegate"])
+        #expect(full.options.keepDocumentation == false)
+        #expect(full.options.defaultIsolation == .globalActor("MainActor"))
+
+        let globs = try #require(try parse(cuckoofile[1], overriddenOutput: "/derived/Mocks.swift")["App"])
+        #expect(globs.sources?.map(\.rawValue) == ["/project/Sources/App/**/*.swift", "/project/Sources/Shared/{Clock,Store}.swift"])
+
+        let byModule = try #require(try parse(cuckoofile[2], overriddenOutput: "/derived/Mocks.swift")["AppAndCore"])
+        #expect(byModule.swiftModules.values.sorted() == ["App", "Core"])
 
         let cuckoo2 = try #require(throws: Cuckoofile.ParseError.self) {
-            try parse(examples[3])
+            try parse(cuckoofile[3])
         }
         #expect(String(describing: cuckoo2).contains(#"sources = ["MyApp/**/*.swift"]"#))
 
-        let cuckoo3 = try #require(try parse(examples[4])["MyApp"])
+        let cuckoo3 = try #require(try parse(cuckoofile[4])["MyApp"])
         #expect(cuckoo3.sources?.map(\.rawValue) == ["/project/MyApp/**/*.swift", "/project/Shared/**/*.swift"])
     }
 }
