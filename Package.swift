@@ -50,7 +50,6 @@ let package = Package(
         // ),
     ],
     dependencies: [
-        // Any dependency changes must also be reflected in Generator/Project.swift.
         // Up to the next major release, so Cuckoo resolves alongside users' other packages. Packages still
         // at 0.x may break in a minor release, so they stop at the next minor one. The lockfiles pin exact revisions.
         .package(url: "https://github.com/kylef/Stencil", .upToNextMinor(from: "0.15.1")),
