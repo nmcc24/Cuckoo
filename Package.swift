@@ -110,7 +110,7 @@ let package = Package(
             name: "CuckooTests",
             dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooMocks"],
             path: "Tests",
-            exclude: ["Swift/Source", "Swift/Mocks", "Plugin/Source", "SingleFile", "OCMock", "Info.plist"],
+            exclude: ["Swift/Source", "Swift/Mocks", "Plugin/Source", "SingleFile", "Info.plist"],
             swiftSettings: swiftSettings
         ),
         // The single-file plugin generates every Cuckoofile module into one file, as build-script users get it,
