@@ -464,6 +464,14 @@ Exit criteria: all 18 matrix fixtures at 0 errors; new fixtures for every item a
    - The main risk is `tsan_linux`, which runs on the host: `sudo sysctl -w vm.mmap_rnd_bits=28`, then `docker run swift:6.3` with TSan. Check that TSan starts cleanly and finds no races, and whether the `sysctl` is still needed.
    - Also check that Docker and `gh` are on the image, that the container jobs' JavaScript actions still run, and that job times are comparable.
    - Fallback: keep only `tsan_linux` pinned to 24.04 for now. Update the CLAUDE.md pinning line either way.
+13. ☁️ Review: do we still need both `CuckooPluginModular` and `CuckooPluginSingleFile`? (raised by Nuno 2026-11-05; review at the end of the roadmap). Since `--sources-list` (item 3), both plugins list the target's files, and a Cuckoofile module without `sources` follows its target. What differs now:
+   - Modular runs the generator once per dependency, into one file each, and tells it the dependency's Swift module, so mocks name their types by module without a `sources` table. It needs a Cuckoofile entry per dependency, and a dependency without one gets an empty file.
+   - SingleFile runs it once into one file, with every module's imports merged at the top. That merged file is the only place merged-import bugs (the SwiftUI `Namespace` clash) show up, and `CuckooSingleFileTests` covers it.
+   - Options: keep both; fold them into one plugin that writes one file per dependency by default and joins them when asked; or keep only Modular. Weigh migration cost for 2.x users of SingleFile, the build-graph cost of one command per dependency, and the test matrix. Also decide what happens to the commented-out `CuckooPluginIndividualFiles` in `Package.swift`.
+   - Leading option: one `CuckooPlugin` that emits one build command per Cuckoofile module, so a change in one module regenerates only its mocks and the commands run in parallel. It matches modules by the module names their `sources` give, so entry names no longer have to equal target names, which is the mistake users make with Modular now. The test target's own entry stops being a special case.
+   - If we keep only one plugin, keep the merged-import coverage `CuckooSingleFileTests` gives, from a generator test if not a plugin.
+   - Measure first: compare incremental builds on a real multi-module project. If the difference is small, single-file behaviour alone is simpler still.
+   - Renaming the plugins breaks setups. Keep the old names as thin aliases for one release, or make the break in 3.0 and cover it in the migration guide.
 ### Phase 6: Release and upstreaming (S)
 - 3.0.0-beta tags on the fork.
 - Offer Brightify the independent fixes (#601, the swift-syntax range, the Linux Glob fix, `keepDocumentation`) as separate small PRs.
