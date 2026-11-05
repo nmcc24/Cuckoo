@@ -31,6 +31,7 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 - <doc:StubbingAndVerification>
 - <doc:Matching>
 - <doc:MigratingFromCuckoo2>
+- <doc:Cookbook>
 
 ### Mocks
 
