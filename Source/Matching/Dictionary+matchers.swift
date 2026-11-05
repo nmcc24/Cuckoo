@@ -25,7 +25,7 @@ public func containsAnyOf<K, V: Equatable>(_ inputDictionary: [K: V]) -> Paramet
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains any of the key-value pairs from the passed dictionary.
  * - parameter inputDictionary: Dictionary that is used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsAnyOf<K, V>(
@@ -51,7 +51,7 @@ public func containsAllOf<K, V: Equatable>(_ inputDictionary: [K: V]) -> Paramet
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains all of the key-value pairs from the passed dictionary.
  * - parameter inputDictionary: Dictionary that is used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsAllOf<K, V>(_ inputDictionary: [K: V], where equality: @escaping (V, V) -> Bool) -> ParameterMatcher<[K: V]> {
@@ -74,7 +74,7 @@ public func containsNoneOf<K, V: Equatable>(_ inputDictionary: [K: V]) -> Parame
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains none of the key-value pairs from the passed dictionary.
  * - parameter inputDictionary: Dictionary that is used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsNoneOf<K, V>(
@@ -89,7 +89,7 @@ public func containsNoneOf<K, V>(
 // MARK: - Contains ANY of the elements as keys.
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains any of the passed keys.
- * - parameter values: Variadic keys that are used for matching.
+ * - parameter elements: Variadic keys that are used for matching.
  * - returns: ParameterMatcher object.
  */
 public func containsAnyKeysOf<K, V>(values elements: K...) -> ParameterMatcher<[K: V]> {
@@ -109,7 +109,7 @@ public func containsAnyKeysOf<S: Sequence, V>(_ elements: S) -> ParameterMatcher
 // MARK: - Contains ALL of the elements as keys.
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains all of the passed keys.
- * - parameter values: Variadic keys that are used for matching
+ * - parameter elements: Variadic keys that are used for matching
  * - returns: ParameterMatcher object.
  */
 public func containsAllKeysOf<K, V>(values elements: K...) -> ParameterMatcher<[K: V]> {
@@ -129,7 +129,7 @@ public func containsAllKeysOf<S: Sequence, V>(_ elements: S) -> ParameterMatcher
 // MARK: - Contains NONE of the elements as keys.
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains none of the passed keys.
- * - parameter values: Variadic keys that are used for matching
+ * - parameter elements: Variadic keys that are used for matching
  * - returns: ParameterMatcher object.
  */
 public func containsNoKeysOf<K, V>(values elements: K...) -> ParameterMatcher<[K: V]> {
@@ -149,8 +149,8 @@ public func containsNoKeysOf<S: Sequence, V>(_ elements: S) -> ParameterMatcher<
 // MARK: - Contains ANY of the elements as values.
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains any of the passed values.
- * - parameter values: Variadic values that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter elements: Variadic values that are used for matching.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsAnyValuesOf<K, V>(
@@ -162,7 +162,7 @@ public func containsAnyValuesOf<K, V>(
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains any of the passed values.
  * - parameter elements: Values that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsAnyValuesOf<K, S: Sequence>(
@@ -176,7 +176,7 @@ public func containsAnyValuesOf<K, S: Sequence>(
 
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains any of the passed values.
- * - parameter values: Variadic keys that are used for matching
+ * - parameter elements: Variadic keys that are used for matching
  * - returns: ParameterMatcher object.
  */
 public func containsAnyValuesOf<K, V: Equatable>(values elements: V...) -> ParameterMatcher<[K: V]> {
@@ -196,7 +196,7 @@ public func containsAnyValuesOf<K, S: Sequence>(
 
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains any of the passed values.
- * - parameter values: Variadic values that are used for matching
+ * - parameter elements: Variadic values that are used for matching
  * - returns: ParameterMatcher object.
  */
 public func containsAnyValuesOf<K, V: Hashable>(values elements: V...) -> ParameterMatcher<[K: V]> {
@@ -218,8 +218,8 @@ public func containsAnyValuesOf<K, S: Sequence>(
 // MARK: - Contains ALL of the elements as values.
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains all of the passed values.
- * - parameter values: Variadic values that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter elements: Variadic values that are used for matching.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsAllValuesOf<K, V>(
@@ -231,7 +231,7 @@ public func containsAllValuesOf<K, V>(
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains all of the passed values.
  * - parameter elements: Values that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsAllValuesOf<K, S: Sequence>(
@@ -245,7 +245,7 @@ public func containsAllValuesOf<K, S: Sequence>(
 
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains all of the passed values.
- * - parameter values: Variadic values that are used for matching.
+ * - parameter elements: Variadic values that are used for matching.
  * - returns: ParameterMatcher object.
  */
 public func containsAllValuesOf<K, V: Equatable>(values elements: V...) -> ParameterMatcher<[K: V]> {
@@ -264,7 +264,7 @@ public func containsAllValuesOf<K, S: Sequence>(
 
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains all of the passed values.
- * - parameter values: Variadic values that are used for matching.
+ * - parameter elements: Variadic values that are used for matching.
  * - returns: ParameterMatcher object.
  */
 public func containsAllValuesOf<K, V: Hashable>(values elements: V...) -> ParameterMatcher<[K: V]> {
@@ -286,8 +286,8 @@ public func containsAllValuesOf<K, S: Sequence>(
 // MARK: - Contains NONE of the elements as values.
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains none of the passed values.
- * - parameter values: Variadic values that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter elements: Variadic values that are used for matching.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsNoValuesOf<K, V>(
@@ -299,7 +299,7 @@ public func containsNoValuesOf<K, V>(
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains none of the passed values.
  * - parameter elements: Values that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsNoValuesOf<K, S: Sequence>(
@@ -311,7 +311,7 @@ public func containsNoValuesOf<K, S: Sequence>(
 
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains none of the passed values.
- * - parameter values: Variadic values that are used for matching.
+ * - parameter elements: Variadic values that are used for matching.
  * - returns: ParameterMatcher object.
  */
 public func containsNoValuesOf<K, V: Equatable>(values elements: V...) -> ParameterMatcher<[K: V]> {
@@ -330,7 +330,7 @@ public func containsNoValuesOf<K, S: Sequence>(
 
 /**
  * Matcher for dictionaries that checks if the matching dictionary contains none of the passed values.
- * - parameter values: Variadic values that are used for matching.
+ * - parameter elements: Variadic values that are used for matching.
  * - returns: ParameterMatcher object.
  */
 public func containsNoValuesOf<K, V: Hashable>(values elements: V...) -> ParameterMatcher<[K: V]> {
