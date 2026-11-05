@@ -13,8 +13,8 @@ extension Array: Matchable where Element: Matchable, Element == Element.MatchedT
 // MARK: - Contains ANY of the elements.
 /**
  * Matcher for sequences of elements that checks if at least one of the passed elements matches the passed sequence.
- * - parameter values: Variadic elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter elements: Variadic elements that are used for matching.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsAnyOf<T, S: Sequence>(
@@ -26,7 +26,7 @@ public func containsAnyOf<T, S: Sequence>(
 /**
  * Matcher for sequences of elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsAnyOf<IN: Sequence, OUT: Sequence>(
@@ -44,7 +44,7 @@ public func containsAnyOf<IN: Sequence, OUT: Sequence>(
 
 /**
  * Matcher for sequences of `Equatable` elements that checks if at least one of the passed elements matches the passed sequence.
- * - parameter values: Variadic elements that are used for matching.
+ * - parameter elements: Variadic elements that are used for matching.
  * - returns: ParameterMatcher object.
  */
 public func containsAnyOf<T: Equatable, S: Sequence>(
@@ -65,7 +65,7 @@ public func containsAnyOf<IN: Sequence, OUT: Sequence>(
 
 /**
  * Matcher for sequences of `Hashable` elements that checks if at least one of the passed elements matches the passed sequence.
- * - parameter values: Variadic elements that are used for matching.
+ * - parameter elements: Variadic elements that are used for matching.
  * - returns: ParameterMatcher object.
  */
 public func containsAnyOf<T: Hashable, S: Sequence>(
@@ -92,8 +92,8 @@ public func containsAnyOf<IN: Sequence, OUT: Sequence>(
 // MARK: - Contains ALL of the elements.
 /**
  * Matcher for sequences of elements that checks if all of the passed elements match the passed sequence.
- * - parameter values: Variadic elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter elements: Variadic elements that are used for matching.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  * - NOTE: When matching an Array, this matcher expects items as many times as they are present in the passed elements.
  */
@@ -106,7 +106,7 @@ public func containsAllOf<T, S: Sequence>(
 /**
  * Matcher for sequences of elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  * - NOTE: When passing an Array, this matcher expects items as many times as they are present in the passed elements.
  */
@@ -129,7 +129,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
 
 /**
  * Matcher for sequences of `Equatable` elements that checks if all of the passed elements match the passed sequence.
- * - parameter values: Variadic elements that are used for matching.
+ * - parameter elements: Variadic elements that are used for matching.
  * - returns: ParameterMatcher object.
  * - NOTE: When passing an Array, this matcher expects items as many times as they are present in the passed elements.
  */
@@ -152,7 +152,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
 
 /**
  * Matcher for sequences of `Hashable` elements that checks if all of the passed elements match the passed sequence.
- * - parameter values: Variadic elements that are used for matching.
+ * - parameter elements: Variadic elements that are used for matching.
  * - returns: ParameterMatcher object.
  * - NOTE: When passing an Array, this matcher expects items as many times as they are present in the passed elements.
  */
@@ -200,8 +200,8 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
 // MARK: - Contains NONE of the elements.
 /**
  * Matcher for sequences of elements that checks if none of the passed elements match the passed sequence.
- * - parameter values: Variadic elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter elements: Variadic elements that are used for matching.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsNoneOf<T, S: Sequence>(
@@ -213,7 +213,7 @@ public func containsNoneOf<T, S: Sequence>(
 /**
  * Matcher for sequences of elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsNoneOf<IN: Sequence, OUT: Sequence>(
@@ -225,8 +225,7 @@ public func containsNoneOf<IN: Sequence, OUT: Sequence>(
 
 /**
  * Matcher for sequences of `Equatable` elements that checks if none of the passed elements match the passed sequence.
- * - parameter values: Variadic elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter elements: Variadic elements that are used for matching.
  * - returns: ParameterMatcher object.
  */
 public func containsNoneOf<T: Equatable, S: Sequence>(
@@ -237,7 +236,6 @@ public func containsNoneOf<T: Equatable, S: Sequence>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsNoneOf<IN: Sequence, OUT: Sequence>(
@@ -248,8 +246,7 @@ public func containsNoneOf<IN: Sequence, OUT: Sequence>(
 
 /**
  * Matcher for sequences of `Hashable` elements that checks if none of the passed elements match the passed sequence.
- * - parameter values: Variadic elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
+ * - parameter elements: Variadic elements that are used for matching.
  * - returns: ParameterMatcher object.
  */
 public func containsNoneOf<T: Hashable, S: Sequence>(
@@ -260,7 +257,6 @@ public func containsNoneOf<T: Hashable, S: Sequence>(
 /**
  * Matcher for sequences of `Hashable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - parameter where: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
 public func containsNoneOf<IN: Sequence, OUT: Sequence>(
@@ -273,7 +269,7 @@ public func containsNoneOf<IN: Sequence, OUT: Sequence>(
 // MARK: - Has length N (exact, at least, at most).
 /**
  * Matcher for collections of elements that checks if the collection is exactly N elements long.
- * - parameter exactly: Required length of the matching collection.
+ * - parameter requiredExactLength: Required length of the matching collection.
  * - returns: ParameterMatcher object.
  */
 public func hasLength<C: Collection>(exactly requiredExactLength: Int) -> ParameterMatcher<C> {
@@ -284,7 +280,7 @@ public func hasLength<C: Collection>(exactly requiredExactLength: Int) -> Parame
 
 /**
  * Matcher for collections of elements that checks if the collection is at least N elements long with the option to include the number itself (default).
- * - parameter atLeast: Required minimum length of the matching collection.
+ * - parameter requiredMinimumLength: Required minimum length of the matching collection.
  * - parameter inclusive: Whether the minimum length itself should be included.
  * - returns: ParameterMatcher object.
  */
@@ -299,7 +295,7 @@ public func hasLength<C: Collection>(
 
 /**
  * Matcher for collections of elements that checks if the collection is at most N elements long with the option to include the number itself (default).
- * - parameter atMost: Required maximum length of the matching collection.
+ * - parameter requiredMaximumLength: Required maximum length of the matching collection.
  * - parameter inclusive: Whether the maximum length itself should be included.
  * - returns: ParameterMatcher object.
  */
@@ -314,7 +310,7 @@ public func hasLength<C: Collection>(
 
 /**
  * Matcher for collections of elements that checks if the collection is at between N and M elements long with the option to include the bounds as well (default).
- * - parameter inRange: Required length range of the matching collection.
+ * - parameter requiredLengthRange: Required length range of the matching collection.
  * - parameter inclusive: Whether the length range bounds should be included.
  * - returns: ParameterMatcher object.
  */
