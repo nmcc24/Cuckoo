@@ -140,7 +140,7 @@ private func commandsPerModule(
                 "DERIVED_SOURCES_DIR": derivedSourcesDir.path(),
                 "CUCKOO_OVERRIDE_OUTPUT": outputURL.path(),
                 "CUCKOO_MODULE_NAME": sourceModule.name,
-                // The generated file imports the sources' types from it by name; see `sources` in the README.
+                // The generated file imports the sources' types from it by name; see `sources` in Source/Cuckoo.docc/Cuckoofile.md.
                 "CUCKOO_SOURCE_MODULE": sourceModule.swiftModule?.name,
                 "CUCKOO_SOURCE_MODULE_DIRECTORY": sourceModule.swiftModule?.directory.path(percentEncoded: false),
             ].compactMapValues { $0 },
