@@ -17,7 +17,6 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-
     func save(_ p0: String) {
         return cuckoo_manager.call(
             "save(_ p0: String)",
@@ -81,7 +80,6 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func save<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
@@ -94,7 +92,6 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func all() -> Cuckoo.__DoNotUse<(), [String]> {
@@ -110,9 +107,6 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
 }
 
 final class RepositoryStub: Repository {
-
-
-
     func save(_ p0: String) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -121,6 +115,3 @@ final class RepositoryStub: Repository {
         return DefaultValueRegistry.defaultValue(for: ([String]).self)
     }
 }
-
-
-

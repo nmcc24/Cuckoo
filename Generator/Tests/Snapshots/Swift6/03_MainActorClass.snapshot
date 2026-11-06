@@ -41,7 +41,6 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
         }
     }
 
-
     override func reload() async {
         return await cuckoo_manager.call(
             "reload() async",
@@ -113,7 +112,6 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             return .init(manager: cuckoo_manager, name: "state", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func reload() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -124,7 +122,6 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func select<M1: Cuckoo.Matchable>(index p0: M1) -> Cuckoo.__DoNotUse<(Int), Bool> where M1.MatchedType == Int {
@@ -142,7 +139,6 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
 }
 
 final class ViewModelStub: ViewModel {
-
     override var state: String {
         get {
             return DefaultValueRegistry.defaultValue(for: (String).self)
@@ -150,8 +146,6 @@ final class ViewModelStub: ViewModel {
         set {
         }
     }
-
-
 
     override func reload() async {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
@@ -161,6 +155,3 @@ final class ViewModelStub: ViewModel {
         return DefaultValueRegistry.defaultValue(for: (Bool).self)
     }
 }
-
-
-

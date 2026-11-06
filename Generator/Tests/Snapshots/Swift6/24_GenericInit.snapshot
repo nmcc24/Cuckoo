@@ -64,7 +64,6 @@ nonisolated final class MockConfigurable: Configurable, nonisolated Cuckoo.Proto
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func describe() -> Cuckoo.__DoNotUse<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -79,8 +78,6 @@ nonisolated final class MockConfigurable: Configurable, nonisolated Cuckoo.Proto
 }
 
 nonisolated final class ConfigurableStub: Configurable {
-
-
     required init<T> (value p0: T) {
     }
 
@@ -90,12 +87,10 @@ nonisolated final class ConfigurableStub: Configurable {
     required init<T: Equatable> (maybe p0: T) {
     }
 
-
     func describe() -> String {
         return DefaultValueRegistry.defaultValue(for: (String).self)
     }
 }
-
 
 final class MockBox: Box, nonisolated Cuckoo.ClassMock {
     typealias MocksType = Box
@@ -112,7 +107,6 @@ final class MockBox: Box, nonisolated Cuckoo.ClassMock {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     override func label(prefix p0: String) -> String {
         return cuckoo_manager.call(
@@ -156,7 +150,6 @@ final class MockBox: Box, nonisolated Cuckoo.ClassMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func label<M1: Cuckoo.Matchable>(prefix p0: M1) -> Cuckoo.__DoNotUse<(String), String> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
@@ -173,13 +166,7 @@ final class MockBox: Box, nonisolated Cuckoo.ClassMock {
 }
 
 final class BoxStub: Box {
-
-
-
     override func label(prefix p0: String) -> String {
         return DefaultValueRegistry.defaultValue(for: (String).self)
     }
 }
-
-
-

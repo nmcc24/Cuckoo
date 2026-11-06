@@ -58,7 +58,7 @@ final class Generator {
             // The shared imports stand in for the module's own, so none are repeated.
             contents += try await render(module, sharedImports: "", verbose: verbose).map(\.contents)
         }
-        return contents.filter { !$0.isEmpty }.joined(separator: "\n\n")
+        return contents.joinedByBlankLines()
     }
 
     private static func prepare(_ module: Module) async throws -> PreparedModule {
@@ -157,7 +157,7 @@ final class Generator {
                     try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming),
                 ]
                 .compactMap { $0 }
-                .joined(separator: "\n\n")
+                .joinedByBlankLines()
             )
         }
     }

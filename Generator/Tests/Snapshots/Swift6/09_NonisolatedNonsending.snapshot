@@ -17,7 +17,6 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-
     nonisolated(nonsending)
     func load() async -> Int {
         return await cuckoo_manager.call(
@@ -81,7 +80,6 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func load() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -92,7 +90,6 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func compute() -> Cuckoo.__DoNotUse<(), Int> {
@@ -108,9 +105,6 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
 }
 
 nonisolated final class LoaderStub: Loader {
-
-
-
     nonisolated(nonsending)
     func load() async -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
@@ -121,6 +115,3 @@ nonisolated final class LoaderStub: Loader {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
 }
-
-
-

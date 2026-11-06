@@ -42,7 +42,6 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
         }
     }
 
-
     public func open() {
         return cuckoo_manager.call(
             "open()",
@@ -115,7 +114,6 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
             return .init(manager: cuckoo_manager, name: "token", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func open() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -126,7 +124,6 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func secret<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Token), Token> where M1.MatchedType == Token {
@@ -144,7 +141,6 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
 }
 
 public nonisolated final class ServiceStub: Service {
-
     @_spi(Internal)
     public var token: Token {
         get {
@@ -153,8 +149,6 @@ public nonisolated final class ServiceStub: Service {
         set {
         }
     }
-
-
 
     public func open() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
@@ -165,7 +159,6 @@ public nonisolated final class ServiceStub: Service {
         return DefaultValueRegistry.defaultValue(for: (Token).self)
     }
 }
-
 
 @_spi(Admin)
 public nonisolated final class MockAdminService: AdminService, nonisolated Cuckoo.ProtocolMock {
@@ -183,7 +176,6 @@ public nonisolated final class MockAdminService: AdminService, nonisolated Cucko
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     public func reset(_ p0: Token) {
         return cuckoo_manager.call(
@@ -227,7 +219,6 @@ public nonisolated final class MockAdminService: AdminService, nonisolated Cucko
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func reset<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Token), Void> where M1.MatchedType == Token {
             let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
@@ -245,14 +236,10 @@ public nonisolated final class MockAdminService: AdminService, nonisolated Cucko
 
 @_spi(Admin)
 public nonisolated final class AdminServiceStub: AdminService {
-
-
-
     public func reset(_ p0: Token) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
 
 public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuckoo.ProtocolMock {
     public typealias MocksType = DefaultImplCaller
@@ -263,10 +250,8 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
 
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     public nonisolated final class DefaultImplCaller: Repository, Sendable {
         private let reference: @Sendable () -> any Repository
-
 
         init<_CUCKOO$$GENERIC: Repository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -282,7 +267,6 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
                 box.value.secret(p0)
             }
         }
-
 
         private let _storage$1$fetch: @Sendable () -> Item?
         public func fetch() -> Item? {
@@ -302,7 +286,6 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
         __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     public func fetch() -> Item? {
         return cuckoo_manager.call(
@@ -368,7 +351,6 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func fetch() -> Cuckoo.__DoNotUse<(), Item?> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -379,7 +361,6 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func secret<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Token), Void> where M1.MatchedType == Token {
@@ -397,9 +378,6 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
 }
 
 public nonisolated final class RepositoryStub<Item>: Repository {
-
-
-
     public func fetch() -> Item? {
         return DefaultValueRegistry.defaultValue(for: (Item?).self)
     }
@@ -409,7 +387,6 @@ public nonisolated final class RepositoryStub<Item>: Repository {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
 
 public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
     public typealias MocksType = Session
@@ -426,7 +403,6 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     public override func start() {
         return cuckoo_manager.call(
@@ -492,7 +468,6 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func start() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -503,7 +478,6 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func resume<M1: Cuckoo.Matchable>(with p0: M1) -> Cuckoo.__DoNotUse<(Token), Void> where M1.MatchedType == Token {
@@ -521,9 +495,6 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
 }
 
 public final class SessionStub: Session {
-
-
-
     public override func start() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -533,7 +504,6 @@ public final class SessionStub: Session {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
 
 extension Admin {
     public final class MockConsole: Console, nonisolated Cuckoo.ClassMock {
@@ -551,7 +521,6 @@ extension Admin {
             __defaultImplStub.value = stub
             cuckoo_manager.enableDefaultStubImplementation()
         }
-
 
         public override func run(_ p0: Token) {
             return cuckoo_manager.call(
@@ -595,7 +564,6 @@ extension Admin {
                 self.sourceLocation = sourceLocation
             }
 
-
             @discardableResult
             func run<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Token), Void> where M1.MatchedType == Token {
                 let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
@@ -612,14 +580,8 @@ extension Admin {
     }
 
     public final class ConsoleStub: Console {
-
-
-
         public override func run(_ p0: Token) {
             return DefaultValueRegistry.defaultValue(for: (Void).self)
         }
     }
-
 }
-
-
