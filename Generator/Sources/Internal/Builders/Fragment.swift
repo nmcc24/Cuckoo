@@ -26,6 +26,24 @@ enum Fragment {
         }
         return member.detached
     }
+    /// `value` as a Swift string literal, quoted and escaped, the way `\(literal:)` spells one in SwiftSyntaxBuilder.
+    static func literal(_ value: String) -> String {
+        var escaped = "\""
+        for scalar in value.unicodeScalars {
+            switch scalar {
+            case "\\": escaped += "\\\\"
+            case "\"": escaped += "\\\""
+            case "\n": escaped += "\\n"
+            case "\r": escaped += "\\r"
+            case "\t": escaped += "\\t"
+            case "\0": escaped += "\\0"
+            case _ where scalar.properties.generalCategory == .control:
+                escaped += "\\u{\(String(scalar.value, radix: 16))}"
+            default: escaped.unicodeScalars.append(scalar)
+            }
+        }
+        return escaped + "\""
+    }
 }
 
 enum FragmentError: Error, CustomStringConvertible {
