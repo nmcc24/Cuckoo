@@ -24,7 +24,9 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
             "load() async -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int, arguments) in await implementation(arguments) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int, arguments) in
+                await implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.load()
         )
@@ -36,7 +38,9 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
             "compute() async -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int, arguments) in await implementation(arguments) },
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int, arguments) in
+                await implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.compute()
         )
@@ -44,11 +48,11 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated struct __StubbingProxy_Loader: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
-        
+
         func load() -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockLoader.self,
@@ -56,7 +60,7 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
                 parameterMatchers: matchers
             ))
         }
-        
+
         func compute() -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockLoader.self,
@@ -70,14 +74,14 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
-        
+
+
         @discardableResult
         func load() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -88,8 +92,8 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
                 sourceLocation: sourceLocation
             )
         }
-        
-        
+
+
         @discardableResult
         func compute() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -103,15 +107,15 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
     }
 }
 
-nonisolated final class LoaderStub:Loader {
+nonisolated final class LoaderStub: Loader {
 
 
-    
+
     nonisolated(nonsending)
     func load() async -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
-    
+
     @concurrent
     func compute() async -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)

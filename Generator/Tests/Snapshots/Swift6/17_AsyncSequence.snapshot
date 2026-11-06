@@ -22,7 +22,9 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "stream",
-                invoke: { (implementation: (()) -> AsyncStream<Int>) in implementation(()) },
+                invoke: { (implementation: (()) -> AsyncStream<Int>) in
+                    implementation(())
+                },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.stream
             )
@@ -35,7 +37,9 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
             "updates() -> any AsyncSequence<Int, Never>",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> any AsyncSequence<Int, Never>, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> any AsyncSequence<Int, Never>, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.updates()
         )
@@ -43,15 +47,15 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated struct __StubbingProxy_Events: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
-        
+
         var stream: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockEvents, AsyncStream<Int>, (()) -> AsyncStream<Int>, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "stream")
         }
-        
+
         func updates() -> Cuckoo.ProtocolStubFunction<(), any AsyncSequence<Int, Never>, (()) -> any AsyncSequence<Int, Never>, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockEvents.self,
@@ -65,18 +69,18 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
+
         var stream: Cuckoo.VerifyReadOnlyProperty<AsyncStream<Int>> {
             return .init(manager: cuckoo_manager, name: "stream", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
-        
-        
+
+
         @discardableResult
         func updates() -> Cuckoo.__DoNotUse<(), any AsyncSequence<Int, Never>> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -91,8 +95,8 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
 }
 
 @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
-nonisolated final class EventsStub:Events {
-    
+nonisolated final class EventsStub: Events {
+
     var stream: AsyncStream<Int> {
         get {
             return DefaultValueRegistry.defaultValue(for: (AsyncStream<Int>).self)
@@ -100,7 +104,7 @@ nonisolated final class EventsStub:Events {
     }
 
 
-    
+
     func updates() -> any AsyncSequence<Int, Never> {
         return DefaultValueRegistry.defaultValue(for: (any AsyncSequence<Int, Never>).self)
     }

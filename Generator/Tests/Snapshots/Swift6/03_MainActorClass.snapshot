@@ -21,7 +21,9 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
         get {
             return cuckoo_manager.getter(
                 "state",
-                invoke: { (implementation: @MainActor @Sendable (()) -> String) in implementation(()) },
+                invoke: { (implementation: @MainActor @Sendable (()) -> String) in
+                    implementation(())
+                },
                 superclassCall: super.state,
                 defaultCall: __defaultImplStub.value.state
             )
@@ -30,7 +32,9 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "state",
                 value: newValue,
-                invoke: { (implementation: @MainActor @Sendable (String) -> Void, value) in implementation(value) },
+                invoke: { (implementation: @MainActor @Sendable (String) -> Void, value) in
+                    implementation(value)
+                },
                 superclassCall: super.state = newValue,
                 defaultCall: __defaultImplStub.value.state = newValue
             )
@@ -43,7 +47,9 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             "reload() async",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @MainActor @Sendable (()) async -> Void, arguments) in await implementation(arguments) },
+            invoke: { (implementation: @MainActor @Sendable (()) async -> Void, arguments) in
+                await implementation(arguments)
+            },
             superclassCall: await super.reload(),
             defaultCall: await __defaultImplStub.value.reload()
         )
@@ -54,7 +60,9 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             "select(index p0: Int) -> Bool",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @MainActor @Sendable ((Int)) -> Bool, arguments) in implementation(arguments) },
+            invoke: { (implementation: @MainActor @Sendable ((Int)) -> Bool, arguments) in
+                implementation(arguments)
+            },
             superclassCall: super.select(index: p0),
             defaultCall: __defaultImplStub.value.select(index: p0)
         )
@@ -62,15 +70,15 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __StubbingProxy_ViewModel: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
-        
+
         var state: Cuckoo.ClassToBeStubbedProperty<MockViewModel, String, @MainActor @Sendable (()) -> String, @MainActor @Sendable (String) -> Void, Cuckoo.StubSharing.Isolated> {
             return .init(manager: cuckoo_manager, name: "state")
         }
-        
+
         func reload() -> Cuckoo.ClassStubNoReturnFunction<(), @MainActor @Sendable (()) async -> Void, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockViewModel.self,
@@ -78,9 +86,11 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
                 parameterMatchers: matchers
             ))
         }
-        
+
         func select<M1: Cuckoo.Matchable>(index p0: M1) -> Cuckoo.ClassStubFunction<(Int), Bool, @MainActor @Sendable ((Int)) -> Bool, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return .init(stub: cuckoo_manager.createStub(for: MockViewModel.self,
                 method: "select(index p0: Int) -> Bool",
                 parameterMatchers: matchers
@@ -92,18 +102,18 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
+
         var state: Cuckoo.VerifyProperty<String> {
             return .init(manager: cuckoo_manager, name: "state", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
-        
-        
+
+
         @discardableResult
         func reload() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -114,11 +124,13 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
                 sourceLocation: sourceLocation
             )
         }
-        
-        
+
+
         @discardableResult
         func select<M1: Cuckoo.Matchable>(index p0: M1) -> Cuckoo.__DoNotUse<(Int), Bool> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return cuckoo_manager.verify(
                 "select(index p0: Int) -> Bool",
                 callMatcher: callMatcher,
@@ -129,21 +141,22 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
     }
 }
 
-final class ViewModelStub:ViewModel {
-    
+final class ViewModelStub: ViewModel {
+
     override var state: String {
         get {
             return DefaultValueRegistry.defaultValue(for: (String).self)
         }
-        set {}
+        set {
+        }
     }
 
 
-    
+
     override func reload() async {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
-    
+
     override func select(index p0: Int) -> Bool {
         return DefaultValueRegistry.defaultValue(for: (Bool).self)
     }
