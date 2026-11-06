@@ -953,13 +953,8 @@ extension Crawler {
 }
 
 extension GenericParameterSyntax {
-    /// Whether this is a parameter pack (`each T`). swift-syntax 601 replaced `eachKeyword` with `specifier`,
-    /// which also holds the `let` of a value generic.
+    /// Whether this is a parameter pack (`each T`). The `specifier` also holds the `let` of a value generic.
     var isPack: Bool {
-        #if canImport(SwiftSyntax601)
         specifier?.tokenKind == .keyword(.each)
-        #else
-        eachKeyword != nil
-        #endif
     }
 }
