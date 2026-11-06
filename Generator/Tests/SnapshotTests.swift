@@ -37,7 +37,7 @@ struct SnapshotTests {
             keepDocumentation: false,
             singleFileOutput: true
         )
-        .joined(separator: "\n\n") + "\n"
+        .joinedByBlankLines()
         try assertSnapshot(contents, named: "RuntimeTests")
     }
 
@@ -97,7 +97,7 @@ struct SnapshotTests {
             keepDocumentation: keepDocumentation,
             singleFileOutput: true
         )
-        .joined(separator: "\n\n") + "\n"
+        .joinedByBlankLines()
     }
 
     private func generateFiles(
@@ -140,6 +140,7 @@ struct SnapshotTests {
 
     private func assertSnapshot(_ actual: String, named name: String, sourceLocation: SourceLocation = #_sourceLocation) throws {
         let url = Self.snapshotsDirectory.appendingPathComponent("\(name).snapshot")
+        #expect(!actual.contains("\n\n\n"), "\(name) has two blank lines in a row", sourceLocation: sourceLocation)
         let isRecording = ProcessInfo.processInfo.environment["CUCKOO_RECORD_SNAPSHOTS"] == "1"
         let expected = try? String(contentsOf: url, encoding: .utf8)
 

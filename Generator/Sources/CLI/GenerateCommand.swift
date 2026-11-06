@@ -134,7 +134,7 @@ struct GenerateCommand: AsyncParsableCommand {
                 let contents = if let module = output.modules.first, output.modules.count == 1 {
                     try await Generator.generate(for: module, singleFileOutput: true, verbose: verbose)
                         .map(\.contents)
-                        .joined(separator: "\n\n")
+                        .joinedByBlankLines()
                 } else {
                     try await Generator.generateJoined(for: output.modules, verbose: verbose)
                 }

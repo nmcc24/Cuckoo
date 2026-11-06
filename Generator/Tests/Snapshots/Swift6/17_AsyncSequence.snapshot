@@ -31,7 +31,6 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
         }
     }
 
-
     func updates() -> any AsyncSequence<Int, Never> {
         return cuckoo_manager.call(
             "updates() -> any AsyncSequence<Int, Never>",
@@ -80,7 +79,6 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
             return .init(manager: cuckoo_manager, name: "stream", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func updates() -> Cuckoo.__DoNotUse<(), any AsyncSequence<Int, Never>> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -96,19 +94,13 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
 
 @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
 nonisolated final class EventsStub: Events {
-
     var stream: AsyncStream<Int> {
         get {
             return DefaultValueRegistry.defaultValue(for: (AsyncStream<Int>).self)
         }
     }
 
-
-
     func updates() -> any AsyncSequence<Int, Never> {
         return DefaultValueRegistry.defaultValue(for: (any AsyncSequence<Int, Never>).self)
     }
 }
-
-
-

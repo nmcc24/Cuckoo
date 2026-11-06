@@ -17,7 +17,6 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-
     func get(url p0: String, completion p1: @escaping @Sendable (Result<String, Error>) -> Void) {
         return cuckoo_manager.call(
             "get(url p0: String, completion p1: @escaping @Sendable (Result<String, Error>) -> Void)",
@@ -86,7 +85,6 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func get<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(url p0: M1, completion p1: M2) -> Cuckoo.__DoNotUse<(String, @Sendable (Result<String, Error>) -> Void), Void> where M1.MatchedType == String, M2.MatchedType == @Sendable (Result<String, Error>) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(String, @Sendable (Result<String, Error>) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
@@ -101,7 +99,6 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func get<M1: Cuckoo.Matchable>(url p0: M1) -> Cuckoo.__DoNotUse<(String), String> where M1.MatchedType == String {
@@ -119,9 +116,6 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
 }
 
 nonisolated final class NetworkingStub: Networking {
-
-
-
     func get(url p0: String, completion p1: @escaping @Sendable (Result<String, Error>) -> Void) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -130,7 +124,6 @@ nonisolated final class NetworkingStub: Networking {
         return DefaultValueRegistry.defaultValue(for: (String).self)
     }
 }
-
 
 nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueStore, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
@@ -141,7 +134,6 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     nonisolated final class DefaultImplCaller: KeyValueStore, Sendable {
         private let reference: @Sendable () -> any KeyValueStore
 
@@ -151,7 +143,6 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
                 return _getter_storage$$count()
             }
         }
-
 
         init<_CUCKOO$$GENERIC: KeyValueStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -167,7 +158,6 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
                 box.value.value(for: p0)
             }
         }
-
 
         private let _storage$1$value: @Sendable (Key) -> String?
         func value(for p0: Key) -> String? {
@@ -194,7 +184,6 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
             )
         }
     }
-
 
     func value(for p0: Key) -> String? {
         return cuckoo_manager.call(
@@ -246,7 +235,6 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
             return .init(manager: cuckoo_manager, name: "count", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func value<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), String?> where M1.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
@@ -263,19 +251,13 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
 }
 
 nonisolated final class KeyValueStoreStub<Key: Hashable & Sendable>: KeyValueStore {
-
     var count: Int {
         get {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
         }
     }
 
-
-
     func value(for p0: Key) -> String? {
         return DefaultValueRegistry.defaultValue(for: (String?).self)
     }
 }
-
-
-

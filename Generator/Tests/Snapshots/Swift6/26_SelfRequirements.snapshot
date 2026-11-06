@@ -57,7 +57,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
         }
     }
 
-
     func copy() -> __CuckooSelf {
         return cuckoo_manager.call(
             "copy() -> Self",
@@ -137,7 +136,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
     }
 
     func visit(_ p0: (__CuckooSelf) -> Void) {
-
 		return withoutActuallyEscaping(p0, do: { (p0: @escaping (__CuckooSelf) -> Void) in
 		        return cuckoo_manager.call(
 		                    "visit(_ p0: (Self) -> Void)",
@@ -152,7 +150,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
 		                    defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("visit(_ p0: (Self) -> Void)")
 		                )
 		})
-
     }
 
     static func combine(_ p0: __CuckooSelf, _ p1: __CuckooSelf) -> __CuckooSelf {
@@ -299,7 +296,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             return .init(manager: cuckoo_manager, name: "next", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func copy() -> Cuckoo.__DoNotUse<(), __CuckooSelf> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -310,7 +306,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func merged<M1: Cuckoo.Matchable>(with p0: M1) -> Cuckoo.__DoNotUse<(__CuckooSelf), __CuckooSelf> where M1.MatchedType == __CuckooSelf {
@@ -325,7 +320,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             )
         }
 
-
         @discardableResult
         func isSame<M1: Cuckoo.Matchable>(as p0: M1) -> Cuckoo.__DoNotUse<(__CuckooSelf), Bool> where M1.MatchedType == __CuckooSelf {
             let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
@@ -339,7 +333,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             )
         }
 
-
         @discardableResult
         func sibling() -> Cuckoo.__DoNotUse<(), __CuckooSelf?> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -350,7 +343,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func children() -> Cuckoo.__DoNotUse<(), [__CuckooSelf]> {
@@ -363,7 +355,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             )
         }
 
-
         @discardableResult
         func indexed() -> Cuckoo.__DoNotUse<(), [String: __CuckooSelf]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -374,7 +365,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func visit<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((__CuckooSelf) -> Void), Void> where M1.MatchedType == (__CuckooSelf) -> Void {
@@ -388,7 +378,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 sourceLocation: sourceLocation
             )
         }
-
 
         subscript <M1: Cuckoo.Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -446,7 +435,6 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func combine<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, _ p1: M2) -> Cuckoo.__DoNotUse<(__CuckooSelf, __CuckooSelf), __CuckooSelf> where M1.MatchedType == __CuckooSelf, M2.MatchedType == __CuckooSelf {
             let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf, __CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
@@ -481,8 +469,6 @@ nonisolated final class DuplicableStub: Duplicable {
         }
     }
 
-
-
     func copy() -> __CuckooSelf {
         return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
     }
@@ -515,14 +501,12 @@ nonisolated final class DuplicableStub: Duplicable {
         return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
     }
 
-
     subscript(_ p0: Int) -> __CuckooSelf {
         get {
             return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
         }
     }
 }
-
 
 nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any AsyncCloner
@@ -540,7 +524,6 @@ nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.Protoco
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func clone() async throws -> __CuckooSelf {
         return try await cuckoo_manager.callThrows(
@@ -606,7 +589,6 @@ nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.Protoco
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func clone() -> Cuckoo.__DoNotUse<(), __CuckooSelf> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -617,7 +599,6 @@ nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.Protoco
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func compare<M1: Cuckoo.Matchable>(with p0: M1) -> Cuckoo.__DoNotUse<(__CuckooSelf), Bool> where M1.MatchedType == __CuckooSelf {
@@ -637,8 +618,6 @@ nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.Protoco
 nonisolated final class AsyncClonerStub: AsyncCloner {
     typealias __CuckooSelf = AsyncClonerStub
 
-
-
     func clone() async throws -> __CuckooSelf {
         return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
     }
@@ -647,7 +626,6 @@ nonisolated final class AsyncClonerStub: AsyncCloner {
         return DefaultValueRegistry.defaultValue(for: (Bool).self)
     }
 }
-
 
 final class MockMainActorPeer: MainActorPeer, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any MainActorPeer
@@ -665,7 +643,6 @@ final class MockMainActorPeer: MainActorPeer, nonisolated Cuckoo.ProtocolMock {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func pair(with p0: __CuckooSelf) -> __CuckooSelf {
         return cuckoo_manager.call(
@@ -709,7 +686,6 @@ final class MockMainActorPeer: MainActorPeer, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func pair<M1: Cuckoo.Matchable>(with p0: M1) -> Cuckoo.__DoNotUse<(__CuckooSelf), __CuckooSelf> where M1.MatchedType == __CuckooSelf {
             let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
@@ -728,13 +704,10 @@ final class MockMainActorPeer: MainActorPeer, nonisolated Cuckoo.ProtocolMock {
 final class MainActorPeerStub: MainActorPeer {
     typealias __CuckooSelf = MainActorPeerStub
 
-
-
     func pair(with p0: __CuckooSelf) -> __CuckooSelf {
         return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
     }
 }
-
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
@@ -754,7 +727,6 @@ nonisolated final class MockStack<Element>: Stack, nonisolated Cuckoo.ProtocolMo
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func pushing(_ p0: Element) -> __CuckooSelf {
         return cuckoo_manager.call(
@@ -821,7 +793,6 @@ nonisolated final class MockStack<Element>: Stack, nonisolated Cuckoo.ProtocolMo
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func pushing<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Element), __CuckooSelf> where M1.MatchedType == Element {
             let matchers: [Cuckoo.ParameterMatcher<(Element)>] = [Cuckoo.wrap(matchable: p0) {
@@ -834,7 +805,6 @@ nonisolated final class MockStack<Element>: Stack, nonisolated Cuckoo.ProtocolMo
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func appending<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(__CuckooSelf), __CuckooSelf> where M1.MatchedType == __CuckooSelf {
@@ -854,8 +824,6 @@ nonisolated final class MockStack<Element>: Stack, nonisolated Cuckoo.ProtocolMo
 nonisolated final class StackStub<Element>: Stack {
     typealias __CuckooSelf = StackStub
 
-
-
     func pushing(_ p0: Element) -> __CuckooSelf {
         return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
     }
@@ -864,7 +832,6 @@ nonisolated final class StackStub<Element>: Stack {
         return DefaultValueRegistry.defaultValue(for: (__CuckooSelf).self)
     }
 }
-
 
 actor MockActorPeer: ActorPeer, Cuckoo.ProtocolMock {
     typealias MocksType = any ActorPeer
@@ -878,7 +845,6 @@ actor MockActorPeer: ActorPeer, Cuckoo.ProtocolMock {
     nonisolated func enableDefaultImplementation(_ stub: MocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
-
 
     func peer() -> Self {
         return cuckoo_manager.call(
@@ -920,7 +886,6 @@ actor MockActorPeer: ActorPeer, Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func peer() -> Cuckoo.__DoNotUse<(), MockActorPeer> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -935,14 +900,10 @@ actor MockActorPeer: ActorPeer, Cuckoo.ProtocolMock {
 }
 
 actor ActorPeerStub: ActorPeer {
-
-
-
     func peer() -> Self {
         return DefaultValueRegistry.defaultValue(for: (Self).self)
     }
 }
-
 
 final class MockNode: Node, nonisolated Cuckoo.ClassMock {
     typealias MocksType = Node
@@ -959,7 +920,6 @@ final class MockNode: Node, nonisolated Cuckoo.ClassMock {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     override func copy() -> Self {
         return cuckoo_manager.call(
@@ -1024,7 +984,6 @@ final class MockNode: Node, nonisolated Cuckoo.ClassMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func copy() -> Cuckoo.__DoNotUse<(), MockNode> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -1035,7 +994,6 @@ final class MockNode: Node, nonisolated Cuckoo.ClassMock {
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func compare<M1: Cuckoo.Matchable>(to p0: M1) -> Cuckoo.__DoNotUse<(Node), Bool> where M1.MatchedType == Node {
@@ -1053,9 +1011,6 @@ final class MockNode: Node, nonisolated Cuckoo.ClassMock {
 }
 
 final class NodeStub: Node {
-
-
-
     override func copy() -> Self {
         return DefaultValueRegistry.defaultValue(for: (Self).self)
     }
@@ -1064,6 +1019,3 @@ final class NodeStub: Node {
         return DefaultValueRegistry.defaultValue(for: (Bool).self)
     }
 }
-
-
-

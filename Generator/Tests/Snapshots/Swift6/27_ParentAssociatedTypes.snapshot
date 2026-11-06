@@ -10,10 +10,8 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     nonisolated final class DefaultImplCaller: Repository, Sendable {
         private let reference: @Sendable () -> any Repository
-
 
         init<_CUCKOO$$GENERIC: Repository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -27,7 +25,6 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
             }
         }
 
-
         private let _storage$1$fetch: @Sendable (ID) -> Item?
         func fetch(id p0: ID) -> Item? {
             return _storage$1$fetch(p0)
@@ -40,7 +37,6 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
         __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func fetch(id p0: ID) -> Item? {
         return cuckoo_manager.call(
@@ -84,7 +80,6 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
@@ -101,14 +96,10 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
 }
 
 nonisolated final class RepositoryStub<Item, ID: Hashable>: Repository {
-
-
-
     func fetch(id p0: ID) -> Item? {
         return DefaultValueRegistry.defaultValue(for: (Item?).self)
     }
 }
-
 
 nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedRepository, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
@@ -119,10 +110,8 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     nonisolated final class DefaultImplCaller: CachedRepository, Sendable {
         private let reference: @Sendable () -> any CachedRepository
-
 
         init<_CUCKOO$$GENERIC: CachedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -141,7 +130,6 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
                 box.value.fetch(id: p0)
             }
         }
-
 
         private let _storage$1$cached: @Sendable () -> [Item]
         func cached() -> [Item] {
@@ -165,7 +153,6 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func cached() -> [Item] {
         return cuckoo_manager.call(
@@ -253,7 +240,6 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func cached() -> Cuckoo.__DoNotUse<(), [Item]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -264,7 +250,6 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func evict<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Void> where M1.MatchedType == ID {
@@ -278,7 +263,6 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
@@ -296,9 +280,6 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
 }
 
 nonisolated final class CachedRepositoryStub<Item, ID: Hashable>: CachedRepository {
-
-
-
     func cached() -> [Item] {
         return DefaultValueRegistry.defaultValue(for: ([Item]).self)
     }
@@ -311,7 +292,6 @@ nonisolated final class CachedRepositoryStub<Item, ID: Hashable>: CachedReposito
         return DefaultValueRegistry.defaultValue(for: (Item?).self)
     }
 }
-
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
@@ -330,7 +310,6 @@ nonisolated final class MockPrimaryRepository<Element>: PrimaryRepository, nonis
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func all() -> [Element] {
         return cuckoo_manager.call(
@@ -372,7 +351,6 @@ nonisolated final class MockPrimaryRepository<Element>: PrimaryRepository, nonis
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func all() -> Cuckoo.__DoNotUse<(), [Element]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -387,14 +365,10 @@ nonisolated final class MockPrimaryRepository<Element>: PrimaryRepository, nonis
 }
 
 nonisolated final class PrimaryRepositoryStub<Element>: PrimaryRepository {
-
-
-
     func all() -> [Element] {
         return DefaultValueRegistry.defaultValue(for: ([Element]).self)
     }
 }
-
 
 nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
@@ -405,10 +379,8 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     nonisolated final class DefaultImplCaller: SortedRepository, Sendable {
         private let reference: @Sendable () -> any SortedRepository
-
 
         init<_CUCKOO$$GENERIC: SortedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -424,7 +396,6 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
                 box.value.all()
             }
         }
-
 
         private let _storage$1$sorted: @Sendable ((Element, Element) -> Bool) -> [Element]
         func sorted(by p0: (Element, Element) -> Bool) -> [Element] {
@@ -444,9 +415,7 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-
     func sorted(by p0: (Element, Element) -> Bool) -> [Element] {
-
 		return withoutActuallyEscaping(p0, do: { (p0: @escaping (Element, Element) -> Bool) -> [Element] in
 		        return cuckoo_manager.call(
 		                    "sorted(by p0: (Element, Element) -> Bool) -> [Element]",
@@ -461,7 +430,6 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
 		                    defaultCall: __defaultImplStub.value.sorted(by: p0)
 		                )
 		})
-
     }
 
     func all() -> [Element] {
@@ -514,7 +482,6 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func sorted<M1: Cuckoo.Matchable>(by p0: M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where M1.MatchedType == (Element, Element) -> Bool {
             let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) {
@@ -527,7 +494,6 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func all() -> Cuckoo.__DoNotUse<(), [Element]> {
@@ -543,9 +509,6 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
 }
 
 nonisolated final class SortedRepositoryStub<Element>: SortedRepository {
-
-
-
     func sorted(by p0: (Element, Element) -> Bool) -> [Element] {
         return DefaultValueRegistry.defaultValue(for: ([Element]).self)
     }
@@ -554,7 +517,6 @@ nonisolated final class SortedRepositoryStub<Element>: SortedRepository {
         return DefaultValueRegistry.defaultValue(for: ([Element]).self)
     }
 }
-
 
 nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
@@ -566,10 +528,8 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     nonisolated final class DefaultImplCaller: StringRepository, Sendable {
         private let reference: @Sendable () -> any StringRepository
-
 
         init<_CUCKOO$$GENERIC: StringRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ID == ID, ID: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -585,7 +545,6 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
                 box.value.fetch(id: p0)
             }
         }
-
 
         private let _storage$1$joined: @Sendable () -> String
         func joined() -> String {
@@ -604,7 +563,6 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
         __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func joined() -> String {
         return cuckoo_manager.call(
@@ -669,7 +627,6 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func joined() -> Cuckoo.__DoNotUse<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -680,7 +637,6 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
@@ -700,8 +656,6 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
 nonisolated final class StringRepositoryStub<ID: Hashable>: StringRepository {
     typealias Item = String
 
-
-
     func joined() -> String {
         return DefaultValueRegistry.defaultValue(for: (String).self)
     }
@@ -710,7 +664,6 @@ nonisolated final class StringRepositoryStub<ID: Hashable>: StringRepository {
         return DefaultValueRegistry.defaultValue(for: (Item?).self)
     }
 }
-
 
 nonisolated final class MockIntRepository: IntRepository, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any IntRepository
@@ -728,7 +681,6 @@ nonisolated final class MockIntRepository: IntRepository, nonisolated Cuckoo.Pro
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func sum() -> Element {
         return cuckoo_manager.call(
@@ -791,7 +743,6 @@ nonisolated final class MockIntRepository: IntRepository, nonisolated Cuckoo.Pro
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func sum() -> Cuckoo.__DoNotUse<(), Element> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -802,7 +753,6 @@ nonisolated final class MockIntRepository: IntRepository, nonisolated Cuckoo.Pro
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func all() -> Cuckoo.__DoNotUse<(), [Element]> {
@@ -820,8 +770,6 @@ nonisolated final class MockIntRepository: IntRepository, nonisolated Cuckoo.Pro
 nonisolated final class IntRepositoryStub: IntRepository {
     typealias Element = Int
 
-
-
     func sum() -> Element {
         return DefaultValueRegistry.defaultValue(for: (Element).self)
     }
@@ -830,7 +778,6 @@ nonisolated final class IntRepositoryStub: IntRepository {
         return DefaultValueRegistry.defaultValue(for: ([Element]).self)
     }
 }
-
 
 nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: HashedRepository, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
@@ -841,10 +788,8 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     nonisolated final class DefaultImplCaller: HashedRepository, Sendable {
         private let reference: @Sendable () -> any HashedRepository
-
 
         init<_CUCKOO$$GENERIC: HashedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -866,7 +811,6 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
                 box.value.fetch(id: p0)
             }
         }
-
 
         private let _storage$1$uniqued: @Sendable () -> Set<Item>
         func uniqued() -> Set<Item> {
@@ -895,7 +839,6 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func uniqued() -> Set<Item> {
         return cuckoo_manager.call(
@@ -1004,7 +947,6 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func uniqued() -> Cuckoo.__DoNotUse<(), Set<Item>> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -1016,7 +958,6 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
             )
         }
 
-
         @discardableResult
         func cached() -> Cuckoo.__DoNotUse<(), [Item]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -1027,7 +968,6 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func evict<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Void> where M1.MatchedType == ID {
@@ -1041,7 +981,6 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
@@ -1059,9 +998,6 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
 }
 
 nonisolated final class HashedRepositoryStub<Item: Hashable, ID: Hashable>: HashedRepository {
-
-
-
     func uniqued() -> Set<Item> {
         return DefaultValueRegistry.defaultValue(for: (Set<Item>).self)
     }
@@ -1079,7 +1015,6 @@ nonisolated final class HashedRepositoryStub<Item: Hashable, ID: Hashable>: Hash
     }
 }
 
-
 nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: AuditedRepository, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_AuditedRepository
@@ -1089,10 +1024,8 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     nonisolated final class DefaultImplCaller: AuditedRepository, Sendable {
         private let reference: @Sendable () -> any AuditedRepository
-
 
         init<_CUCKOO$$GENERIC: AuditedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, _CUCKOO$$GENERIC.Element == Element, Item: SendableMetatype, ID: SendableMetatype, Element: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -1120,7 +1053,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
                 box.value.all()
             }
         }
-
 
         private let _storage$1$audit: @Sendable () -> (Item?, [Element])
         func audit() -> (Item?, [Element]) {
@@ -1159,7 +1091,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func audit() -> (Item?, [Element]) {
         return cuckoo_manager.call(
@@ -1214,7 +1145,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
     }
 
     func sorted(by p0: (Element, Element) -> Bool) -> [Element] {
-
 		return withoutActuallyEscaping(p0, do: { (p0: @escaping (Element, Element) -> Bool) -> [Element] in
 		        return cuckoo_manager.call(
 		                    "sorted(by p0: (Element, Element) -> Bool) -> [Element]",
@@ -1229,7 +1159,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
 		                    defaultCall: __defaultImplStub.value.sorted(by: p0)
 		                )
 		})
-
     }
 
     func all() -> [Element] {
@@ -1318,7 +1247,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func audit() -> Cuckoo.__DoNotUse<(), (Item?, [Element])> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -1330,7 +1258,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             )
         }
 
-
         @discardableResult
         func cached() -> Cuckoo.__DoNotUse<(), [Item]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -1341,7 +1268,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func evict<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Void> where M1.MatchedType == ID {
@@ -1356,7 +1282,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             )
         }
 
-
         @discardableResult
         func fetch<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
@@ -1370,7 +1295,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             )
         }
 
-
         @discardableResult
         func sorted<M1: Cuckoo.Matchable>(by p0: M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where M1.MatchedType == (Element, Element) -> Bool {
             let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) {
@@ -1383,7 +1307,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func all() -> Cuckoo.__DoNotUse<(), [Element]> {
@@ -1399,9 +1322,6 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
 }
 
 nonisolated final class AuditedRepositoryStub<Item, ID: Hashable, Element>: AuditedRepository {
-
-
-
     func audit() -> (Item?, [Element]) {
         return DefaultValueRegistry.defaultValue(for: ((Item?, [Element])).self)
     }
@@ -1426,6 +1346,3 @@ nonisolated final class AuditedRepositoryStub<Item, ID: Hashable, Element>: Audi
         return DefaultValueRegistry.defaultValue(for: ([Element]).self)
     }
 }
-
-
-

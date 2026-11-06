@@ -41,7 +41,7 @@ struct GeneratorHelper {
     static func format(_ source: String) throws -> String {
         let tree = Parser.parse(source: source)
         guard tree.hasError else {
-            return tree.formatted().description
+            return SingleBlankLines().rewrite(tree.formatted()).description
         }
         let converter = SourceLocationConverter(fileName: "", tree: tree)
         let firstError = tree.tokens(viewMode: .all).first { token in
@@ -51,6 +51,34 @@ struct GeneratorHelper {
         let lines = source.split(separator: "\n", omittingEmptySubsequences: false)
         let text = lines.indices.contains(line - 1) ? lines[line - 1].trimmingCharacters(in: .whitespaces) : ""
         throw FormatError.unparsableOutput(line: line, text: text)
+    }
+
+    /// Keeps at most one blank line between declarations and statements, and none just inside braces. The newlines
+    /// between tokens are trivia, so string literals and comments keep theirs.
+    private final class SingleBlankLines: SyntaxRewriter {
+        override func visit(_ token: TokenSyntax) -> TokenSyntax {
+            // No blank line just inside braces.
+            let opensOrCloses = token.tokenKind == .rightBrace || token.previousToken(viewMode: .sourceAccurate)?.tokenKind == .leftBrace
+            let limit = opensOrCloses ? 1 : 2
+            var pieces: [TriviaPiece] = []
+            var newlines = 0
+            for piece in token.leadingTrivia {
+                switch piece {
+                case .newlines(let count):
+                    // Whitespace before a newline only ends a line.
+                    while let last = pieces.last, last.isSpaceOrTab { pieces.removeLast() }
+                    let kept = min(count, limit - newlines)
+                    newlines += kept
+                    if kept > 0 { pieces.append(.newlines(kept)) }
+                case .spaces, .tabs:
+                    pieces.append(piece)
+                default:
+                    newlines = 0
+                    pieces.append(piece)
+                }
+            }
+            return token.with(\.leadingTrivia, Trivia(pieces: pieces))
+        }
     }
 
     enum FormatError: Error, CustomStringConvertible {
@@ -269,4 +297,13 @@ fileprivate let reservedKeywords: Set = [
 /// Utility function for escaping reserved keywords for a symbol name.
 func escapeReservedKeywords(for name: String) -> String {
     reservedKeywords.contains(name) ? "`\(name)`" : name
+}
+
+private extension TriviaPiece {
+    var isSpaceOrTab: Bool {
+        switch self {
+        case .spaces, .tabs: true
+        default: false
+        }
+    }
 }
