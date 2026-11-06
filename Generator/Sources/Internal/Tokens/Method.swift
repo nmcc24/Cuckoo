@@ -142,6 +142,11 @@ extension Method {
         if case .globalActor? = isolation ?? parent?.asProtocol?.isolation { true } else { false }
     }
 
+    /// The type a stub asks `DefaultValueRegistry` for, as the stub's generic arguments name it; empty for no return type.
+    var defaultValueType: String {
+        returnType.map { $0.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description } ?? ""
+    }
+
     /// A generic method can't be stored as a closure, so the default implementation calls it on the existential, which
     /// erases the non-primary associated types. Where its parameters or its return type use one, the call goes through
     /// the opened existential instead, casting between the two types the generic initializer requires to be equal.
@@ -270,7 +275,7 @@ extension Method {
             )
             return (input, output, implementation)
         }
-        let (genericInputTypes, genericReturnType, implementationType) = stubTypes(resolvingSelfAs: nil)
+        let (genericInputTypes, _, implementationType) = stubTypes(resolvingSelfAs: nil)
         let proxyTypes = stubTypes(resolvingSelfAs: parent.value.mockTypeName)
 
         let escapingParameterNames = signature.parameters.map { parameter in
@@ -308,7 +313,7 @@ extension Method {
             "escapingParameterNames": escapingParameterNames,
             "returnType": returnType?.description ?? "",
             "returnsSending": returnType?.containsAttribute(named: "sending") ?? false,
-            "genericReturnType": returnType == nil ? "" : genericReturnType,
+            "genericReturnType": defaultValueType,
             "isAsync": isAsync,
             "localFunctionVariants": localFunctionVariants,
             "localFunctionVariantsAreConditional": localFunctionVariants.count > 1,
