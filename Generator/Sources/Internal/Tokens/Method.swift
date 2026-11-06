@@ -177,6 +177,11 @@ extension Method {
         stubTypes(resolvingSelfAs: parent?.value.mockTypeName)
     }
 
+    /// The verification proxy's return type, which names no generic parameter it leaves out; its result is never used.
+    var verificationReturnType: String {
+        genericsOmittedFromProxy(forVerification: true).contains(where: returnTypeMentions) ? "Any" : proxyStubTypes.output
+    }
+
     /// The stub's input, output and `then` closure types. A class mock's body names `Self` as written; the proxies,
     /// where `Self` would be the proxy, name the mock, which is `final`, so both are the same type at runtime.
     /// A protocol's members already name `Self` through a typealias; see `Token.resolvingSelf()`.
@@ -293,7 +298,6 @@ extension Method {
         }.joined(separator: " ")
 
         let (genericInputTypes, _, implementationType) = stubTypes(resolvingSelfAs: nil)
-        let proxyTypes = proxyStubTypes
 
         let escapingParameterNames = signature.parameters.map { parameter in
             if !parameter.type.containsAttribute(named: "@escaping"), let closure = parameter.type.findClosure() {
@@ -354,21 +358,11 @@ extension Method {
             "parameterSignature": signature.parameters.map { $0.description }.joined(separator: ", "),
             "parameterSignatureWithoutNames": signature.parameters.map { "\($0.name): \($0.type)" }.joined(separator: ", "),
             "argumentSignature": signature.parameters.map { $0.type.description }.joined(separator: ", "),
-            "stubFunction": stubFunction,
             "implementationType": implementationType,
-            "sharingType": stubIsolation.sharingType,
             "isolationAttribute": isolation?.sourceDescription ?? "",
             "executionAttribute": executionAttribute ?? "",
             "inputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
             "genericInputTypes": genericInputTypes,
-            // The proxies' versions of the stub's types; see `stubTypes(resolvingSelfAs:)`.
-            "stubInputTypes": proxyTypes.input,
-            "stubReturnType": proxyTypes.output,
-            "stubImplementationType": proxyTypes.implementation,
-            // The verification proxy's return type names no generic parameter it leaves out; its result is never used.
-            "verificationReturnType": genericsOmittedFromProxy(forVerification: true).contains(where: returnTypeMentions)
-                ? "Any"
-                : proxyTypes.output,
             "isOptional": isOptional,
             "hasClosureParams": hasClosureParams,
             "hasOptionalParams": hasOptionalParams,
