@@ -17,7 +17,6 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-
     func call() throws(NetErr) -> Int {
         return try cuckoo_manager.callThrows(
             "call() throws(NetErr) -> Int",
@@ -89,7 +88,6 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func call() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -100,7 +98,6 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func callAsync() -> Cuckoo.__DoNotUse<(), Int> {
@@ -116,9 +113,6 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
 }
 
 nonisolated final class TypedAPIStub: TypedAPI {
-
-
-
     func call() throws(NetErr) -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
@@ -127,6 +121,3 @@ nonisolated final class TypedAPIStub: TypedAPI {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
 }
-
-
-

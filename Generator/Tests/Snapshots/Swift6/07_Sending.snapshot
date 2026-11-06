@@ -41,7 +41,6 @@ final class MockNonSendableBox: NonSendableBox, nonisolated Cuckoo.ClassMock {
         }
     }
 
-
     nonisolated struct __StubbingProxy_NonSendableBox: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
 
@@ -72,7 +71,6 @@ final class MockNonSendableBox: NonSendableBox, nonisolated Cuckoo.ClassMock {
 }
 
 final class NonSendableBoxStub: NonSendableBox {
-
     override var v: Int {
         get {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
@@ -80,10 +78,7 @@ final class NonSendableBoxStub: NonSendableBox {
         set {
         }
     }
-
-
 }
-
 
 nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any Transfer
@@ -100,7 +95,6 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func take(_ p0: sending NonSendableBox) {
         let __p0 = Cuckoo.__SendingArgument(p0)
@@ -166,7 +160,6 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func take<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(NonSendableBox), Void> where M1.MatchedType == NonSendableBox {
             let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [Cuckoo.wrap(matchable: p0) {
@@ -179,7 +172,6 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func make() -> Cuckoo.__DoNotUse<(), NonSendableBox> {
@@ -195,9 +187,6 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
 }
 
 nonisolated final class TransferStub: Transfer {
-
-
-
     func take(_ p0: sending NonSendableBox) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -206,7 +195,6 @@ nonisolated final class TransferStub: Transfer {
         return DefaultValueRegistry.defaultValue(for: (NonSendableBox).self)
     }
 }
-
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
@@ -219,10 +207,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     nonisolated final class DefaultImplCaller: Converter, Sendable {
         private let reference: @Sendable () -> any Converter<Input>
-
 
         init<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -230,12 +216,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             reference = {
                 box.value
             }
-
         }
 
-
         func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
-
             #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
             nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC, _ p0: sending T, _ p1: sending Input) async -> Output {
                 return await opened.convert(value: p0, input: p1, fallback: p2 as! _CUCKOO$$GENERIC.Output) as! Output
@@ -255,7 +238,6 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
         let __p0 = Cuckoo.__SendingArgument(p0)
@@ -305,7 +287,6 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func convert<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, T>(value p0: M1, input p1: M2, fallback p2: M3) -> Cuckoo.__DoNotUse<(T, Input, Output), Output> where M1.MatchedType == T, M2.MatchedType == Input, M3.MatchedType == Output {
             let matchers: [Cuckoo.ParameterMatcher<(T, Input, Output)>] = [Cuckoo.wrap(matchable: p0) {
@@ -326,13 +307,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 }
 
 nonisolated final class ConverterStub<Input, Output>: Converter {
-
-
-
     func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
         return DefaultValueRegistry.defaultValue(for: (Output).self)
     }
 }
-
-
-

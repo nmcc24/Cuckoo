@@ -17,7 +17,6 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-
     #if !os(iOS)
     @available(iOS, unavailable)
     func notOnIOS() {
@@ -224,7 +223,6 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
         }
         #endif
 
-
         @available(iOSApplicationExtension, unavailable)
         @discardableResult
         func notInExtensions() -> Cuckoo.__DoNotUse<(), Void> {
@@ -237,7 +235,6 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             )
         }
 
-
         @available(*, deprecated, message: "use kept()")
         @discardableResult
         func deprecated() -> Cuckoo.__DoNotUse<(), Void> {
@@ -249,7 +246,6 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func kept() -> Cuckoo.__DoNotUse<(), Void> {
@@ -265,8 +261,6 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
 }
 
 nonisolated final class LegacyStub: Legacy {
-
-
     #if !os(iOS)
     @available(iOS, unavailable)
     func notOnIOS() {
@@ -301,7 +295,6 @@ nonisolated final class LegacyStub: Legacy {
     }
 }
 
-
 final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
     typealias MocksType = LegacyService
     typealias Stubbing = __StubbingProxy_LegacyService
@@ -317,7 +310,6 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     #if !os(macOS)
     @available(macOS, unavailable, message: "not on macOS")
@@ -399,7 +391,6 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
         }
         #endif
 
-
         @discardableResult
         func kept() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -414,8 +405,6 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
 }
 
 final class LegacyServiceStub: LegacyService {
-
-
     #if !os(macOS)
     @available(macOS, unavailable, message: "not on macOS")
     override func notOnMacOS() {
@@ -427,7 +416,6 @@ final class LegacyServiceStub: LegacyService {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
 
 final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
     typealias MocksType = LegacyView
@@ -444,7 +432,6 @@ final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     override func kept() {
         return cuckoo_manager.call(
@@ -486,7 +473,6 @@ final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func kept() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -501,13 +487,7 @@ final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
 }
 
 final class LegacyViewStub: LegacyView {
-
-
-
     override func kept() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
-
-

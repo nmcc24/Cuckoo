@@ -41,7 +41,6 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
         }
     }
 
-
     func load(id p0: Int) -> String {
         return cuckoo_manager.call(
             "load(id p0: Int) -> String",
@@ -114,7 +113,6 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             return .init(manager: cuckoo_manager, name: "title", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -127,7 +125,6 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func refresh() -> Cuckoo.__DoNotUse<(), Void> {
@@ -143,7 +140,6 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
 }
 
 final class MainActorServiceStub: MainActorService {
-
     var title: String {
         get {
             return DefaultValueRegistry.defaultValue(for: (String).self)
@@ -151,8 +147,6 @@ final class MainActorServiceStub: MainActorService {
         set {
         }
     }
-
-
 
     func load(id p0: Int) -> String {
         return DefaultValueRegistry.defaultValue(for: (String).self)
@@ -162,6 +156,3 @@ final class MainActorServiceStub: MainActorService {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
-
-

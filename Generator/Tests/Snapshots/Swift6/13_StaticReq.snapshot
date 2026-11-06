@@ -44,7 +44,6 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
         }
     }
 
-
     func build() -> Int {
         return cuckoo_manager.call(
             "build() -> Int",
@@ -127,7 +126,6 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func build() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -204,7 +202,6 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             return .init(manager: cuckoo_manager, name: "count", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func make() -> Cuckoo.__DoNotUse<(), __CuckooSelf> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -215,7 +212,6 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
@@ -229,7 +225,6 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
                 sourceLocation: sourceLocation
             )
         }
-
 
         subscript <M1: Cuckoo.Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
@@ -268,8 +263,6 @@ nonisolated final class FactoryStub: Factory {
         }
     }
 
-
-
     func build() -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
@@ -282,14 +275,12 @@ nonisolated final class FactoryStub: Factory {
         return DefaultValueRegistry.defaultValue(for: (String).self)
     }
 
-
     static subscript(_ p0: String) -> Int {
         get {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
         }
     }
 }
-
 
 final class MockMainActorRegistry: MainActorRegistry, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
     typealias MocksType = any MainActorRegistry
@@ -321,7 +312,6 @@ final class MockMainActorRegistry: MainActorRegistry, nonisolated Cuckoo.Protoco
             )
         }
     }
-
 
     static func current() -> String {
         return cuckoo_staticManager.call(
@@ -391,7 +381,6 @@ final class MockMainActorRegistry: MainActorRegistry, nonisolated Cuckoo.Protoco
             return .init(manager: cuckoo_manager, name: "shared", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func current() -> Cuckoo.__DoNotUse<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -406,20 +395,16 @@ final class MockMainActorRegistry: MainActorRegistry, nonisolated Cuckoo.Protoco
 }
 
 final class MainActorRegistryStub: MainActorRegistry {
-
     static var shared: Int {
         get {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
         }
     }
 
-
-
     static func current() -> String {
         return DefaultValueRegistry.defaultValue(for: (String).self)
     }
 }
-
 
 nonisolated final class MockSendableClock: SendableClock, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
     typealias MocksType = any SendableClock
@@ -438,7 +423,6 @@ nonisolated final class MockSendableClock: SendableClock, nonisolated Cuckoo.Pro
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     static func now() -> Int {
         return cuckoo_staticManager.call(
@@ -500,7 +484,6 @@ nonisolated final class MockSendableClock: SendableClock, nonisolated Cuckoo.Pro
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func now() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -515,14 +498,10 @@ nonisolated final class MockSendableClock: SendableClock, nonisolated Cuckoo.Pro
 }
 
 nonisolated final class SendableClockStub: SendableClock {
-
-
-
     static func now() -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
 }
-
 
 actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
     typealias MocksType = any ActorCatalog
@@ -538,7 +517,6 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
     nonisolated func enableDefaultImplementation(_ stub: MocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
-
 
     func items() -> [String] {
         return cuckoo_manager.call(
@@ -593,7 +571,6 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func items() -> Cuckoo.__DoNotUse<(), [String]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -633,7 +610,6 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func identifier() -> Cuckoo.__DoNotUse<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -648,9 +624,6 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
 }
 
 actor ActorCatalogStub: ActorCatalog {
-
-
-
     func items() -> [String] {
         return DefaultValueRegistry.defaultValue(for: ([String]).self)
     }
@@ -659,7 +632,6 @@ actor ActorCatalogStub: ActorCatalog {
         return DefaultValueRegistry.defaultValue(for: (String).self)
     }
 }
-
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
@@ -680,7 +652,6 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func use(_ p0: Product) {
         return cuckoo_manager.call(
@@ -737,7 +708,6 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func use<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Product), Void> where M1.MatchedType == Product {
             let matchers: [Cuckoo.ParameterMatcher<(Product)>] = [Cuckoo.wrap(matchable: p0) {
@@ -779,7 +749,6 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func make() -> Cuckoo.__DoNotUse<(), Product> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -794,9 +763,6 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
 }
 
 nonisolated final class GenericFactoryStub<Product>: GenericFactory {
-
-
-
     func use(_ p0: Product) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -805,6 +771,3 @@ nonisolated final class GenericFactoryStub<Product>: GenericFactory {
         return DefaultValueRegistry.defaultValue(for: (Product).self)
     }
 }
-
-
-

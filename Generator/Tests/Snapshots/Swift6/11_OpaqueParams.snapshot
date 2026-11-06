@@ -17,7 +17,6 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-
     func sort(_ p0: some Collection<Int>) -> [Int] {
         return cuckoo_manager.call(
             "sort(_ p0: some Collection<Int>) -> [Int]",
@@ -60,7 +59,6 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func sort<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(any Collection<Int>), [Int]> where M1.MatchedType == any Collection<Int> {
             let matchers: [Cuckoo.ParameterMatcher<(any Collection<Int>)>] = [Cuckoo.wrap(matchable: p0) {
@@ -77,13 +75,7 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
 }
 
 nonisolated final class SorterStub: Sorter {
-
-
-
     func sort(_ p0: some Collection<Int>) -> [Int] {
         return DefaultValueRegistry.defaultValue(for: ([Int]).self)
     }
 }
-
-
-

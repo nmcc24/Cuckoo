@@ -10,7 +10,6 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     @MainActor final class DefaultImplCaller: Inventory {
         private let reference: () -> any Inventory
 
@@ -31,7 +30,6 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
                 _setter_storage$$items(newValue)
             }
         }
-
 
         init<_CUCKOO$$GENERIC: Inventory>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -57,7 +55,6 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             }
         }
 
-
         private let _storage$1$item: (Int) -> Item?
         func item(at p0: Int) -> Item? {
             return _storage$1$item(p0)
@@ -70,7 +67,6 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
     }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
-
 
     nonisolated func enableDefaultImplementation(_ stub: DefaultImplCaller) {
         __defaultImplStub.value = stub
@@ -118,7 +114,6 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             )
         }
     }
-
 
     func item(at p0: Int) -> Item? {
         return cuckoo_manager.call(
@@ -200,7 +195,6 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             return .init(manager: cuckoo_manager, name: "items", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.__DoNotUse<(Int), Item?> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -213,7 +207,6 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func reload() -> Cuckoo.__DoNotUse<(), Void> {
@@ -229,7 +222,6 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
 }
 
 final class InventoryStub<Item: Sendable>: Inventory {
-
     var count: Int {
         get {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
@@ -244,8 +236,6 @@ final class InventoryStub<Item: Sendable>: Inventory {
         }
     }
 
-
-
     func item(at p0: Int) -> Item? {
         return DefaultValueRegistry.defaultValue(for: (Item?).self)
     }
@@ -254,7 +244,6 @@ final class InventoryStub<Item: Sendable>: Inventory {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
 
 // runtime support for constrained protocols with primary associated types
 @available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)
@@ -267,10 +256,8 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-
     @StorageActor final class DefaultImplCaller: Ledger {
         private let reference: () -> any Ledger<Entry>
-
 
         init<_CUCKOO$$GENERIC: Ledger>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
@@ -287,7 +274,6 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
             }
         }
 
-
         private let _storage$1$entry: (Key) -> Entry?
         func entry(for p0: Key) -> Entry? {
             return _storage$1$entry(p0)
@@ -301,7 +287,6 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-
     nonisolated func enableDefaultImplementation(_ stub: DefaultImplCaller) {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
@@ -311,7 +296,6 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         __defaultImplStub.value = DefaultImplCaller(stub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
-
 
     func entry(for p0: Key) -> Entry? {
         return cuckoo_manager.call(
@@ -380,7 +364,6 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
             self.sourceLocation = sourceLocation
         }
 
-
         @discardableResult
         func entry<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), Entry?> where M1.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
@@ -393,7 +376,6 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func record<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.__DoNotUse<(Entry, Key), Void> where M1.MatchedType == Entry, M2.MatchedType == Key {
@@ -413,9 +395,6 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
 }
 
 final class LedgerStub<Entry, Key: Hashable>: Ledger {
-
-
-
     func entry(for p0: Key) -> Entry? {
         return DefaultValueRegistry.defaultValue(for: (Entry?).self)
     }
@@ -424,6 +403,3 @@ final class LedgerStub<Entry, Key: Hashable>: Ledger {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
-
-

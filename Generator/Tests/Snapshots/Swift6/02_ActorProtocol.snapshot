@@ -27,7 +27,6 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
         }
     }
 
-
     func increment() -> Int {
         return cuckoo_manager.call(
             "increment() -> Int",
@@ -97,7 +96,6 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
             return .init(manager: cuckoo_manager, name: "count", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-
         @discardableResult
         func increment() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -108,7 +106,6 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
                 sourceLocation: sourceLocation
             )
         }
-
 
         @discardableResult
         func fetch() -> Cuckoo.__DoNotUse<(), [String]> {
@@ -124,14 +121,11 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
 }
 
 actor StoreStub: Store {
-
     var count: Int {
         get {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
         }
     }
-
-
 
     func increment() -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
@@ -141,6 +135,3 @@ actor StoreStub: Store {
         return DefaultValueRegistry.defaultValue(for: ([String]).self)
     }
 }
-
-
-
