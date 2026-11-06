@@ -1,3 +1,5 @@
+import SwiftParser
+import SwiftSyntax
 import Testing
 @testable import CuckooGenerator
 
@@ -33,5 +35,24 @@ struct FragmentTests {
         } throws: { error in
             String(describing: error).contains("`AStub` doesn't parse")
         }
+    }
+
+    @Test
+    func quotesALiteral() {
+        #expect(Fragment.literal("load(_ p0: String) -> Int") == #""load(_ p0: String) -> Int""#)
+    }
+
+    @Test(arguments: [
+        #"say(_ p0: String = "hi")"#,
+        #"path\(to)\n"#,
+        "line\nbreak\r\ttab\0nul\u{7}bell",
+        "`raw identifier` ü 🐦",
+    ])
+    func escapesALiteralThatParsesBackToTheSameString(_ value: String) throws {
+        let source = "let s = \(Fragment.literal(value))"
+        let tree = Parser.parse(source: source)
+        #expect(!tree.hasError)
+        let literal = try #require(tree.statements.first?.item.as(VariableDeclSyntax.self)?.bindings.first?.initializer?.value.as(StringLiteralExprSyntax.self))
+        #expect(literal.representedLiteralValue == value)
     }
 }

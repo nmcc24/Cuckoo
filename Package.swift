@@ -81,7 +81,11 @@ let package = Package(
         ),
         .testTarget(
             name: "CuckooGeneratorTests",
-            dependencies: ["CuckooGenerator"],
+            dependencies: [
+                "CuckooGenerator",
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftParser", package: "swift-syntax"),
+            ],
             path: "Generator/Tests",
             exclude: ["Snapshots"],
             swiftSettings: swiftSettings
