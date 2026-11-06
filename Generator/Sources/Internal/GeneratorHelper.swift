@@ -83,7 +83,10 @@ struct GeneratorHelper {
                     pieces.append(piece)
                 }
             }
-            return token.with(\.leadingTrivia, Trivia(pieces: pieces))
+            let trivia = Trivia(pieces: pieces)
+            // Returning the token itself when nothing changed keeps the rewriter from rebuilding every node above it.
+            guard trivia != token.leadingTrivia else { return token }
+            return token.with(\.leadingTrivia, trivia)
         }
     }
 
