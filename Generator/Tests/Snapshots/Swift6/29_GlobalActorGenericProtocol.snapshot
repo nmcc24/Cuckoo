@@ -10,35 +10,53 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    
+
     @MainActor final class DefaultImplCaller: Inventory {
         private let reference: () -> any Inventory
-    
+
         private let _getter_storage$$count: () -> Int
         var count: Int {
-            get { return _getter_storage$$count() }
+            get {
+                return _getter_storage$$count()
+            }
         }
-    
+
         private let _getter_storage$$items: () -> [Item]
         private let _setter_storage$$items: ([Item]) -> Void
         var items: [Item] {
-            get { return _getter_storage$$items() }
-            set { _setter_storage$$items(newValue) }
+            get {
+                return _getter_storage$$items()
+            }
+            set {
+                _setter_storage$$items(newValue)
+            }
         }
-    
-        
+
+
         init<_CUCKOO$$GENERIC: Inventory>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = { box.value }
-    
-            _getter_storage$$count = { box.value.count }
-            _getter_storage$$items = { box.value.items }
-            _setter_storage$$items = { box.value.items = $0 }
-            _storage$1$item = { p0 in box.value.item(at: p0) }
-            _storage$2$reload = { try await box.value.reload() }
+            reference = {
+                box.value
+            }
+
+            _getter_storage$$count = {
+                box.value.count
+            }
+            _getter_storage$$items = {
+                box.value.items
+            }
+            _setter_storage$$items = {
+                box.value.items = $0
+            }
+            _storage$1$item = { p0 in
+                box.value.item(at: p0)
+            }
+            _storage$2$reload = {
+                try await box.value.reload()
+            }
         }
-    
+
 
         private let _storage$1$item: (Int) -> Item?
         func item(at p0: Int) -> Item? {
@@ -53,7 +71,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    
+
     nonisolated func enableDefaultImplementation(_ stub: DefaultImplCaller) {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
@@ -68,7 +86,9 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         get {
             return cuckoo_manager.getter(
                 "count",
-                invoke: { (implementation: @MainActor @Sendable (()) -> Int) in implementation(()) },
+                invoke: { (implementation: @MainActor @Sendable (()) -> Int) in
+                    implementation(())
+                },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.count
             )
@@ -79,7 +99,9 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         get {
             return cuckoo_manager.getter(
                 "items",
-                invoke: { (implementation: @MainActor @Sendable (()) -> [Item]) in implementation(()) },
+                invoke: { (implementation: @MainActor @Sendable (()) -> [Item]) in
+                    implementation(())
+                },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.items
             )
@@ -88,7 +110,9 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             cuckoo_manager.setter(
                 "items",
                 value: newValue,
-                invoke: { (implementation: @MainActor @Sendable ([Item]) -> Void, value) in implementation(value) },
+                invoke: { (implementation: @MainActor @Sendable ([Item]) -> Void, value) in
+                    implementation(value)
+                },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.items = newValue
             )
@@ -101,7 +125,9 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             "item(at p0: Int) -> Item?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @MainActor @Sendable ((Int)) -> Item?, arguments) in implementation(arguments) },
+            invoke: { (implementation: @MainActor @Sendable ((Int)) -> Item?, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.item(at: p0)
         )
@@ -113,7 +139,9 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             parameters: (),
             escapingParameters: (),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: @MainActor @Sendable (()) async throws -> Void, arguments) async throws(any Swift.Error) in try await implementation(arguments) },
+            invoke: { (implementation: @MainActor @Sendable (()) async throws -> Void, arguments) async throws(any Swift.Error) in
+                try await implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await __defaultImplStub.value.reload()
         )
@@ -121,28 +149,30 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
 
     nonisolated struct __StubbingProxy_Inventory: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
-        
+
         var count: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockInventory, Int, @MainActor @Sendable (()) -> Int, Cuckoo.StubSharing.Isolated> {
             return .init(manager: cuckoo_manager, name: "count")
         }
-        
+
         var items: Cuckoo.ProtocolToBeStubbedProperty<MockInventory, [Item], @MainActor @Sendable (()) -> [Item], @MainActor @Sendable ([Item]) -> Void, Cuckoo.StubSharing.Isolated> {
             return .init(manager: cuckoo_manager, name: "items")
         }
-        
+
         func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), Item?, @MainActor @Sendable ((Int)) -> Item?, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return .init(stub: cuckoo_manager.createStub(for: MockInventory.self,
                 method: "item(at p0: Int) -> Item?",
                 parameterMatchers: matchers
             ))
         }
-        
-        func reload() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(),any Swift.Error, @MainActor @Sendable (()) async throws -> Void, Cuckoo.StubSharing.Isolated> {
+
+        func reload() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(), any Swift.Error, @MainActor @Sendable (()) async throws -> Void, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockInventory.self,
                 method: "reload() async throws",
@@ -155,25 +185,27 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
+
         var count: Cuckoo.VerifyReadOnlyProperty<Int> {
             return .init(manager: cuckoo_manager, name: "count", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
-        
+
         var items: Cuckoo.VerifyProperty<[Item]> {
             return .init(manager: cuckoo_manager, name: "items", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
-        
-        
+
+
         @discardableResult
         func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.__DoNotUse<(Int), Item?> where M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return cuckoo_manager.verify(
                 "item(at p0: Int) -> Item?",
                 callMatcher: callMatcher,
@@ -181,8 +213,8 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
                 sourceLocation: sourceLocation
             )
         }
-        
-        
+
+
         @discardableResult
         func reload() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -196,27 +228,28 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
     }
 }
 
-final class InventoryStub<Item: Sendable>:Inventory {
-    
+final class InventoryStub<Item: Sendable>: Inventory {
+
     var count: Int {
         get {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
         }
     }
-    
+
     var items: [Item] {
         get {
             return DefaultValueRegistry.defaultValue(for: ([Item]).self)
         }
-        set {}
+        set {
+        }
     }
 
 
-    
+
     func item(at p0: Int) -> Item? {
         return DefaultValueRegistry.defaultValue(for: (Item?).self)
     }
-    
+
     func reload() async throws {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -234,20 +267,26 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    
+
     @StorageActor final class DefaultImplCaller: Ledger {
         private let reference: () -> any Ledger<Entry>
-    
-        
+
+
         init<_CUCKOO$$GENERIC: Ledger>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = { box.value }
-    
-            _storage$1$entry = { p0 in box.value.entry(for: p0) }
-            _storage$2$record = { p0, p1 in box.value.record(p0, for: p1) }
+            reference = {
+                box.value
+            }
+
+            _storage$1$entry = { p0 in
+                box.value.entry(for: p0)
+            }
+            _storage$2$record = { p0, p1 in
+                box.value.record(p0, for: p1)
+            }
         }
-    
+
 
         private let _storage$1$entry: (Key) -> Entry?
         func entry(for p0: Key) -> Entry? {
@@ -262,7 +301,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
-    
+
     nonisolated func enableDefaultImplementation(_ stub: DefaultImplCaller) {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
@@ -279,7 +318,9 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
             "entry(for p0: Key) -> Entry?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @StorageActor @Sendable ((Key)) -> Entry?, arguments) in implementation(arguments) },
+            invoke: { (implementation: @StorageActor @Sendable ((Key)) -> Entry?, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.entry(for: p0)
         )
@@ -290,7 +331,9 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
             "record(_ p0: Entry, for p1: Key)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: @StorageActor @Sendable ((Entry, Key)) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: @StorageActor @Sendable ((Entry, Key)) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.record(p0, for: p1)
         )
@@ -298,21 +341,27 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
 
     nonisolated struct __StubbingProxy_Ledger: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
-        
+
         func entry<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), Entry?, @StorageActor @Sendable ((Key)) -> Entry?, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return .init(stub: cuckoo_manager.createStub(for: MockLedger.self,
                 method: "entry(for p0: Key) -> Entry?",
                 parameterMatchers: matchers
             ))
         }
-        
+
         func record<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Entry, Key), @StorageActor @Sendable ((Entry, Key)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Entry, M2.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }]
             return .init(stub: cuckoo_manager.createStub(for: MockLedger.self,
                 method: "record(_ p0: Entry, for p1: Key)",
                 parameterMatchers: matchers
@@ -324,17 +373,19 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
-        
+
+
         @discardableResult
         func entry<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), Entry?> where M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return cuckoo_manager.verify(
                 "entry(for p0: Key) -> Entry?",
                 callMatcher: callMatcher,
@@ -342,11 +393,15 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
                 sourceLocation: sourceLocation
             )
         }
-        
-        
+
+
         @discardableResult
         func record<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.__DoNotUse<(Entry, Key), Void> where M1.MatchedType == Entry, M2.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) { $0.0 }, Cuckoo.wrap(matchable: p1) { $0.1 }]
+            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }]
             return cuckoo_manager.verify(
                 "record(_ p0: Entry, for p1: Key)",
                 callMatcher: callMatcher,
@@ -357,14 +412,14 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
     }
 }
 
-final class LedgerStub<Entry, Key: Hashable>:Ledger {
+final class LedgerStub<Entry, Key: Hashable>: Ledger {
 
 
-    
+
     func entry(for p0: Key) -> Entry? {
         return DefaultValueRegistry.defaultValue(for: (Entry?).self)
     }
-    
+
     func record(_ p0: Entry, for p1: Key) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }

@@ -18,7 +18,9 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
         get {
             return cuckoo_manager.getter(
                 "count",
-                invoke: { (implementation: @Sendable (isolated MockStore) -> Int) in implementation(self) },
+                invoke: { (implementation: @Sendable (isolated MockStore) -> Int) in
+                    implementation(self)
+                },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("count")
             )
@@ -31,7 +33,9 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
             "increment() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockStore) -> Int, arguments) in implementation(self) },
+            invoke: { (implementation: @Sendable (isolated MockStore) -> Int, arguments) in
+                implementation(self)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("increment() -> Int")
         )
@@ -42,7 +46,9 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
             "fetch() async -> [String]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockStore) async -> [String], arguments) in await implementation(self) },
+            invoke: { (implementation: @Sendable (isolated MockStore) async -> [String], arguments) in
+                await implementation(self)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("fetch() async -> [String]")
         )
@@ -50,15 +56,15 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
 
     nonisolated struct __StubbingProxy_Store: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
-        
+
         var count: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockStore, Int, @Sendable (isolated MockStore) -> Int, Cuckoo.StubSharing.Shared> {
             return .init(manager: cuckoo_manager, name: "count")
         }
-        
+
         func increment() -> Cuckoo.ProtocolStubFunction<(), Int, @Sendable (isolated MockStore) -> Int, Cuckoo.StubSharing.Shared> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStore.self,
@@ -66,7 +72,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
                 parameterMatchers: matchers
             ))
         }
-        
+
         func fetch() -> Cuckoo.ProtocolStubFunction<(), [String], @Sendable (isolated MockStore) async -> [String], Cuckoo.StubSharing.Shared> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStore.self,
@@ -80,18 +86,18 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
+
         var count: Cuckoo.VerifyReadOnlyProperty<Int> {
             return .init(manager: cuckoo_manager, name: "count", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
-        
-        
+
+
         @discardableResult
         func increment() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -102,8 +108,8 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
                 sourceLocation: sourceLocation
             )
         }
-        
-        
+
+
         @discardableResult
         func fetch() -> Cuckoo.__DoNotUse<(), [String]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -117,8 +123,8 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
     }
 }
 
-actor StoreStub:Store {
-    
+actor StoreStub: Store {
+
     var count: Int {
         get {
             return DefaultValueRegistry.defaultValue(for: (Int).self)
@@ -126,11 +132,11 @@ actor StoreStub:Store {
     }
 
 
-    
+
     func increment() -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
-    
+
     func fetch() async -> [String] {
         return DefaultValueRegistry.defaultValue(for: ([String]).self)
     }

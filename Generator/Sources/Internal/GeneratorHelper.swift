@@ -1,5 +1,8 @@
 import Foundation
 import Stencil
+import SwiftBasicFormat
+import SwiftParser
+import SwiftSyntax
 
 @globalActor
 actor StaticActor {
@@ -25,10 +28,39 @@ struct GeneratorHelper {
                 extensions: extensions,
                 trimBehaviour: .smart
             )
-            return try environment.renderTemplate(
+            let rendered = try environment.renderTemplate(
                 string: Templates.mock,
                 context: ["containers": containers, "keepDocumentation": keepDocumentation, "debug": debug]
             )
+            return try format(rendered)
+        }
+    }
+
+    /// Lays `source` out with swift-syntax's formatter. Output that doesn't parse is a generator bug, which would
+    /// format into something worse, so it fails generation with the line the parser stopped at.
+    static func format(_ source: String) throws -> String {
+        let tree = Parser.parse(source: source)
+        guard tree.hasError else {
+            return tree.formatted().description
+        }
+        let converter = SourceLocationConverter(fileName: "", tree: tree)
+        let firstError = tree.tokens(viewMode: .all).first { token in
+            token.presence == .missing || token.parent?.is(UnexpectedNodesSyntax.self) == true
+        }
+        let line = firstError.map { converter.location(for: $0.positionAfterSkippingLeadingTrivia).line } ?? 1
+        let lines = source.split(separator: "\n", omittingEmptySubsequences: false)
+        let text = lines.indices.contains(line - 1) ? lines[line - 1].trimmingCharacters(in: .whitespaces) : ""
+        throw FormatError.unparsableOutput(line: line, text: text)
+    }
+
+    enum FormatError: Error, CustomStringConvertible {
+        case unparsableOutput(line: Int, text: String)
+
+        var description: String {
+            switch self {
+            case .unparsableOutput(let line, let text):
+                return "The generated mocks don't parse, at line \(line): `\(text)`. Please report this as a Cuckoo bug, with the declaration it mocks."
+            }
         }
     }
 

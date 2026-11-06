@@ -23,7 +23,9 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
             "save(_ p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @DatabaseActor @Sendable ((String)) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: @DatabaseActor @Sendable ((String)) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.save(p0)
         )
@@ -34,7 +36,9 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
             "all() -> [String]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @DatabaseActor @Sendable (()) -> [String], arguments) in implementation(arguments) },
+            invoke: { (implementation: @DatabaseActor @Sendable (()) -> [String], arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.all()
         )
@@ -42,19 +46,21 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated struct __StubbingProxy_Repository: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
-        
+
         func save<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), @DatabaseActor @Sendable ((String)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return .init(stub: cuckoo_manager.createStub(for: MockRepository.self,
                 method: "save(_ p0: String)",
                 parameterMatchers: matchers
             ))
         }
-        
+
         func all() -> Cuckoo.ProtocolStubFunction<(), [String], @DatabaseActor @Sendable (()) -> [String], Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockRepository.self,
@@ -68,17 +74,19 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
-        
+
+
         @discardableResult
         func save<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return cuckoo_manager.verify(
                 "save(_ p0: String)",
                 callMatcher: callMatcher,
@@ -86,8 +94,8 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
                 sourceLocation: sourceLocation
             )
         }
-        
-        
+
+
         @discardableResult
         func all() -> Cuckoo.__DoNotUse<(), [String]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -101,14 +109,14 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
     }
 }
 
-final class RepositoryStub:Repository {
+final class RepositoryStub: Repository {
 
 
-    
+
     func save(_ p0: String) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
-    
+
     func all() -> [String] {
         return DefaultValueRegistry.defaultValue(for: ([String]).self)
     }
