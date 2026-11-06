@@ -18,8 +18,8 @@ concurrency:
 # Swift 6.4 made swiftbuild the default build system; older toolchains use the native one.
 # SwiftPM 6.4 deprecates native, so Linux tests 6.4 with swiftbuild only. On macOS each image runs only its
 # default build system, because macOS runners queue far longer than Linux ones.
-# Package.resolved pins the newest swift-syntax; one Linux job also builds against the
-# lowest version Package.swift allows, so both ends of the range stay tested.
+# Package.resolved pins the newest swift-syntax; Linux jobs also pin the first release of every older major
+# Package.swift allows, so each one the generator can build with stays tested.
 jobs:
   generator_linux:
     name: SwiftPM tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }}${{ matrix.swift-syntax && format(', swift-syntax {0}', matrix.swift-syntax) || '' }})
@@ -31,6 +31,7 @@ jobs:
         include:
           - { swift: "6.2", build-system: native }
           - { swift: "6.2", build-system: native, swift-syntax: "602.0.0" }
+          - { swift: "6.3", build-system: native, swift-syntax: "603.0.0" }
           - { swift: "6.3", build-system: native }
           - { swift: "6.4", build-system: swiftbuild }
     env:
