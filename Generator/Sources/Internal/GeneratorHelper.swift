@@ -101,7 +101,7 @@ struct GeneratorHelper {
         }
     }
 
-    private static func matchableGenericTypes(from method: Method, forVerification: Bool = false) -> String {
+    static func matchableGenericTypes(from method: Method, forVerification: Bool = false) -> String {
         let genericParameters = method.proxyGenerics(forVerification: forVerification).parameters
         guard !method.signature.parameters.isEmpty || !genericParameters.isEmpty else { return "" }
 
@@ -113,7 +113,7 @@ struct GeneratorHelper {
         return "<\((matchableGenericParameters + methodGenericParameters).joined(separator: ", "))>"
     }
 
-    private static func matchableGenericsWhereClause(from method: Method, forVerification: Bool = false) -> String {
+    static func matchableGenericsWhereClause(from method: Method, forVerification: Bool = false) -> String {
         guard method.signature.parameters.isEmpty == false else { return "" }
 
         let matchableWhereConstraints = method.signature.parameters.enumerated().map { index, parameter -> String in
@@ -124,7 +124,7 @@ struct GeneratorHelper {
         return " where \((matchableWhereConstraints + methodWhereConstraints).joined(separator: ", "))"
     }
 
-    private static func matchableParameterSignature(with parameters: [MethodParameter]) -> String {
+    static func matchableParameterSignature(with parameters: [MethodParameter]) -> String {
         guard !parameters.isEmpty else { return "" }
 
         return parameters.enumerated()
@@ -132,7 +132,7 @@ struct GeneratorHelper {
             .joined(separator: ", ")
     }
 
-    private static func parameterMatchers(for parameters: [MethodParameter]) -> String {
+    static func parameterMatchers(for parameters: [MethodParameter]) -> String {
         guard parameters.isEmpty == false else { return "let matchers: [Cuckoo.ParameterMatcher<Void>] = []" }
 
         let tupleType = parameters.map { $0.matchedType.genericArgumentSafe.description }.joined(separator: ", ")
