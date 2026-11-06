@@ -73,7 +73,7 @@ extension {{ container.parentFullyQualifiedName }} {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
     {% elif container.isGeneric and not container.isImplementation and not container.hasOnlyPrimaryAssociatedTypes %}
-\(Templates.typeErasure.indented())
+    {{ container.typeErasure }}
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<\(typeErasureClassName)>()
     {% if container.globalActor %}

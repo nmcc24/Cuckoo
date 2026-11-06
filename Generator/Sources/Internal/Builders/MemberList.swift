@@ -12,7 +12,9 @@ struct MemberList {
 
     mutating func append(_ source: String, of declaration: String) throws {
         var member = try Fragment.member(source, of: declaration)
-        member.leadingTrivia = .newlines(separated ? 2 : 1)
+        // A comment before the member stays; the newlines and indentation before it are replaced.
+        let comments = member.leadingTrivia.pieces.drop { $0.isNewline || $0.isSpaceOrTab }
+        member.leadingTrivia = .newlines(separated ? 2 : 1) + Trivia(pieces: Array(comments))
         separated = false
         list.append(member)
     }

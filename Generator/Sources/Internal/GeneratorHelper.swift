@@ -28,6 +28,10 @@ struct GeneratorHelper {
                     context["nopImplStub"] = try NopImplStubBuilder.build(container)
                     context["stubbingProxy"] = try StubbingProxyBuilder.build(container, isStatic: false)
                     context["verificationProxy"] = try VerificationProxyBuilder.build(container, isStatic: false)
+                    // A generic protocol's mock calls its default implementation through a type-erasing caller.
+                    if let protocolDeclaration = container.asProtocol, !protocolDeclaration.isActor, container.isGeneric, !container.hasOnlyPrimaryAssociatedTypes {
+                        context["typeErasure"] = try TypeErasureBuilder.build(container)
+                    }
                     let hasStaticMembers = container.mockedProperties.contains(where: \.isStatic)
                         || container.mockedMethods.contains(where: \.isStatic) || container.mockedSubscripts.contains(where: \.isStatic)
                     if hasStaticMembers {
@@ -292,7 +296,7 @@ func escapeReservedKeywords(for name: String) -> String {
     reservedKeywords.contains(name) ? "`\(name)`" : name
 }
 
-private extension TriviaPiece {
+extension TriviaPiece {
     var isSpaceOrTab: Bool {
         switch self {
         case .spaces, .tabs: true
