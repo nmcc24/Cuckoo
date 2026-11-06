@@ -25,7 +25,9 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             "notOnIOS()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.notOnIOS()
         )
@@ -39,7 +41,9 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             "notOnTVOS()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.notOnTVOS()
         )
@@ -53,7 +57,9 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             "notOnCatalyst()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.notOnCatalyst()
         )
@@ -66,7 +72,9 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             "notInExtensions()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.notInExtensions()
         )
@@ -78,7 +86,9 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             "deprecated()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.deprecated()
         )
@@ -89,7 +99,9 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             "kept()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.kept()
         )
@@ -97,7 +109,7 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated struct __StubbingProxy_Legacy: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
@@ -131,7 +143,7 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             ))
         }
         #endif
-        
+
         @available(iOSApplicationExtension, unavailable)
         func notInExtensions() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -140,7 +152,7 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
                 parameterMatchers: matchers
             ))
         }
-        
+
         @available(*, deprecated, message: "use kept()")
         func deprecated() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -149,7 +161,7 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
                 parameterMatchers: matchers
             ))
         }
-        
+
         func kept() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockLegacy.self,
@@ -163,13 +175,13 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
+
         #if !os(iOS)
         @available(iOS, unavailable)
         @discardableResult
@@ -183,7 +195,7 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             )
         }
         #endif
-        
+
         #if !os(tvOS)
         @available(tvOS, unavailable, message: "not on tvOS")
         @discardableResult
@@ -197,7 +209,7 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             )
         }
         #endif
-        
+
         #if !targetEnvironment(macCatalyst)
         @available(macCatalyst, unavailable)
         @discardableResult
@@ -211,8 +223,8 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
             )
         }
         #endif
-        
-        
+
+
         @available(iOSApplicationExtension, unavailable)
         @discardableResult
         func notInExtensions() -> Cuckoo.__DoNotUse<(), Void> {
@@ -224,8 +236,8 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
                 sourceLocation: sourceLocation
             )
         }
-        
-        
+
+
         @available(*, deprecated, message: "use kept()")
         @discardableResult
         func deprecated() -> Cuckoo.__DoNotUse<(), Void> {
@@ -237,8 +249,8 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
                 sourceLocation: sourceLocation
             )
         }
-        
-        
+
+
         @discardableResult
         func kept() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -252,7 +264,7 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
     }
 }
 
-nonisolated final class LegacyStub:Legacy {
+nonisolated final class LegacyStub: Legacy {
 
 
     #if !os(iOS)
@@ -273,17 +285,17 @@ nonisolated final class LegacyStub:Legacy {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     #endif
-    
+
     @available(iOSApplicationExtension, unavailable)
     func notInExtensions() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
-    
+
     @available(*, deprecated, message: "use kept()")
     func deprecated() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
-    
+
     func kept() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -314,7 +326,9 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
             "notOnMacOS()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: super.notOnMacOS(),
             defaultCall: __defaultImplStub.value.notOnMacOS()
         )
@@ -326,7 +340,9 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
             "kept()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: super.kept(),
             defaultCall: __defaultImplStub.value.kept()
         )
@@ -334,7 +350,7 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __StubbingProxy_LegacyService: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
@@ -348,7 +364,7 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
             ))
         }
         #endif
-        
+
         func kept() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockLegacyService.self,
@@ -362,13 +378,13 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
+
         #if !os(macOS)
         @available(macOS, unavailable, message: "not on macOS")
         @discardableResult
@@ -382,8 +398,8 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
             )
         }
         #endif
-        
-        
+
+
         @discardableResult
         func kept() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -397,7 +413,7 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
     }
 }
 
-final class LegacyServiceStub:LegacyService {
+final class LegacyServiceStub: LegacyService {
 
 
     #if !os(macOS)
@@ -406,7 +422,7 @@ final class LegacyServiceStub:LegacyService {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     #endif
-    
+
     override func kept() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -435,7 +451,9 @@ final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
             "kept()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: super.kept(),
             defaultCall: __defaultImplStub.value.kept()
         )
@@ -443,11 +461,11 @@ final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __StubbingProxy_LegacyView: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
-        
+
         func kept() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockLegacyView.self,
@@ -461,14 +479,14 @@ final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
-        
+
+
         @discardableResult
         func kept() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -482,10 +500,10 @@ final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
     }
 }
 
-final class LegacyViewStub:LegacyView {
+final class LegacyViewStub: LegacyView {
 
 
-    
+
     override func kept() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }

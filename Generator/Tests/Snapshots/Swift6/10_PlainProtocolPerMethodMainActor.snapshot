@@ -22,7 +22,9 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
         get {
             return cuckoo_manager.getter(
                 "lastEvent",
-                invoke: { (implementation: @MainActor @Sendable (()) -> String?) in implementation(()) },
+                invoke: { (implementation: @MainActor @Sendable (()) -> String?) in
+                    implementation(())
+                },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: __defaultImplStub.value.lastEvent
             )
@@ -36,7 +38,9 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
             "track(event p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @MainActor @Sendable ((String)) -> Void, arguments) in implementation(arguments) },
+            invoke: { (implementation: @MainActor @Sendable ((String)) -> Void, arguments) in
+                implementation(arguments)
+            },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub.value.track(event: p0)
         )
@@ -44,17 +48,19 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
 
     nonisolated struct __StubbingProxy_Analytics: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-    
+
         init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
-        
+
         var lastEvent: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAnalytics, String?, @MainActor @Sendable (()) -> String?, Cuckoo.StubSharing.Isolated> {
             return .init(manager: cuckoo_manager, name: "lastEvent")
         }
-        
+
         func track<M1: Cuckoo.Matchable>(event p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), @MainActor @Sendable ((String)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return .init(stub: cuckoo_manager.createStub(for: MockAnalytics.self,
                 method: "track(event p0: String)",
                 parameterMatchers: matchers
@@ -66,21 +72,23 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
-    
+
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
         }
-        
+
         var lastEvent: Cuckoo.VerifyReadOnlyProperty<String?> {
             return .init(manager: cuckoo_manager, name: "lastEvent", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
-        
-        
+
+
         @discardableResult
         func track<M1: Cuckoo.Matchable>(event p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) { $0 }]
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
             return cuckoo_manager.verify(
                 "track(event p0: String)",
                 callMatcher: callMatcher,
@@ -91,8 +99,8 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
     }
 }
 
-nonisolated final class AnalyticsStub:Analytics {
-    
+nonisolated final class AnalyticsStub: Analytics {
+
     @MainActor
     var lastEvent: String? {
         get {
@@ -101,7 +109,7 @@ nonisolated final class AnalyticsStub:Analytics {
     }
 
 
-    
+
     @MainActor
     func track(event p0: String) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
