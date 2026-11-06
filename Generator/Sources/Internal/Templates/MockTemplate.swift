@@ -258,7 +258,7 @@ extension {{ container.parentFullyQualifiedName }} {
     {% endif %}
 }
 
-\(Templates.noImplStub)
+{{ container.nopImplStub }}
 
 {% if container.hasParent %}
 }
