@@ -22,7 +22,13 @@ struct GeneratorHelper {
     ) throws -> String {
         // Serializing the tokens and the template filters both name mocks.
         try MockNaming.$current.withValue(mockNaming) {
-            let containers = tokens.map { $0.serialize() }
+            let containers = try tokens.map { token in
+                var context = token.serialize()
+                if let container = token as? any ContainerToken {
+                    context["nopImplStub"] = try NopImplStubBuilder.build(container)
+                }
+                return context
+            }
 
             let environment = Environment(
                 extensions: extensions,
@@ -138,7 +144,7 @@ struct GeneratorHelper {
         return "let matchers: [Cuckoo.ParameterMatcher<(\(genericSafeType(from: tupleType)))>] = [\(matchers)]"
     }
 
-    private static func genericSafeType(from type: String) -> String {
+    static func genericSafeType(from type: String) -> String {
         return type.replacingOccurrences(of: "!", with: "?")
     }
 
@@ -210,7 +216,7 @@ struct GeneratorHelper {
         return parent
     }
 
-    private static func removeClosureArgumentNames(for type: String) -> String {
+    static func removeClosureArgumentNames(for type: String) -> String {
         type.replacingOccurrences(
             of: "_\\s+?[_a-zA-Z]\\w*?\\s*?:",
             with: "",
