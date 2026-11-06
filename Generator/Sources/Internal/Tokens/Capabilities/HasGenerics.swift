@@ -30,24 +30,28 @@ extension HasGenerics {
         return protocolDeclaration.primaryAssociatedTypes.count == protocolDeclaration.genericParameters.count
     }
 
+    /// The `where` constraints that make a protocol's generic parameters the static generic type's, or `nil` for a
+    /// class.
+    var genericProtocolIdentity: String? {
+        guard isProtocol else { return nil }
+        return genericParameters
+            .map { "\(Templates.staticGenericParameter).\($0.name) == \($0.name)" }
+            .joined(separator: ", ")
+    }
+
+    /// A nonisolated `DefaultImplCaller`'s `@Sendable` closures capture these parameters' metatypes. `nil` for a class.
+    var sendableMetatypeRequirements: String? {
+        guard isProtocol else { return nil }
+        return genericParameters.map { ", \($0.name): SendableMetatype" }.joined()
+    }
+
+    /// A protocol's primary associated types, in angle brackets, or `nil` if it has none.
+    var genericPrimaryAssociatedTypeArguments: String? {
+        guard let protocolDeclaration = asProtocol, hasPrimaryAssociatedTypes else { return nil }
+        return "<\(protocolDeclaration.primaryAssociatedTypes.map { $0.name }.joined(separator: ", "))>"
+    }
+
     func genericsSerialize() -> GeneratorContext {
-        let genericProtocolIdentity = isProtocol
-            ? genericParameters
-                .map { "\(Templates.staticGenericParameter).\($0.name) == \($0.name)" }
-                .joined(separator: ", ")
-            : nil
-        // A nonisolated `DefaultImplCaller`'s `@Sendable` closures capture these parameters' metatypes.
-        let sendableMetatypeRequirements = isProtocol
-            ? genericParameters.map { ", \($0.name): SendableMetatype" }.joined()
-            : nil
-        let genericPrimaryAssociatedTypeArguments: String?
-        if let protocolDeclaration = asProtocol, hasPrimaryAssociatedTypes {
-            let arguments = protocolDeclaration.primaryAssociatedTypes.map { $0.name }.joined(separator: ", ")
-            genericPrimaryAssociatedTypeArguments = "<\(arguments)>"
-        } else {
-            genericPrimaryAssociatedTypeArguments = nil
-        }
-        
         return [
             "isGeneric": isGeneric,
             "genericParameters": genericParametersString,
@@ -56,7 +60,6 @@ extension HasGenerics {
             "hasOnlyPrimaryAssociatedTypes": hasOnlyPrimaryAssociatedTypes,
             "genericProtocolIdentity": genericProtocolIdentity as Any,
             "sendableMetatypeRequirements": sendableMetatypeRequirements as Any,
-            "genericPrimaryAssociatedTypeArguments": genericPrimaryAssociatedTypeArguments as Any,
         ]
         .compactMapValues { $0 }
     }
