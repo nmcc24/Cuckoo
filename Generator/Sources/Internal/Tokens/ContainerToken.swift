@@ -1,19 +1,46 @@
 protocol ContainerToken: Token, HasAttributes, HasAccessibility, HasName, HasGenerics, HasMembers, HasInheritance {}
 
 extension ContainerToken {
-    func containerSerialize() -> GeneratorContext {
-        func withAdjustedAccessibility<TokenType: HasAccessibility>(token: TokenType) -> TokenType {
-            // We only want to adjust tokens that are accessible and lower than the enclosing type
-            guard token.accessibility.isAccessible && token.accessibility < accessibility else { return token }
-            var mutableToken = token
-            mutableToken.accessibility = accessibility
-            return mutableToken
+    /// The members, with the access level of each accessible one raised to the type's when it's lower.
+    var accessibilityAdjustedMembers: [any Token] {
+        members.map { child -> any Token in
+            guard var member = child as? any Token & HasAccessibility,
+                  member.accessibility.isAccessible, member.accessibility < accessibility else { return child }
+            member.accessibility = accessibility
+            return member
         }
+    }
 
-        let accessibilityAdjustedMembers = members.map { child -> any Token in
-            guard let memberWithAccessibility = child as? any Token & HasAccessibility else { return child }
-            return withAdjustedAccessibility(token: memberWithAccessibility)
-        }
+    /// The members a mock and its stub declare, instance members first, then `static` and `class` ones.
+    var mockedProperties: [Variable] {
+        let variables = accessibilityAdjustedMembers.compactMap { $0 as? Variable }.filter { !$0.isConstant }
+        return variables.filter { !$0.isStatic } + variables.filter(\.isStatic)
+    }
+
+    var mockedMethods: [Method] {
+        let methods = accessibilityAdjustedMembers.compactMap { $0 as? Method }
+        return methods.filter { !$0.isStatic } + methods.filter(\.isStatic)
+    }
+
+    var mockedSubscripts: [Subscript] {
+        let subscripts = accessibilityAdjustedMembers.compactMap { $0 as? Subscript }
+        return subscripts.filter { !$0.isStatic } + subscripts.filter(\.isStatic)
+    }
+
+    /// A class's initializers are inherited, so only a protocol's are declared.
+    var mockedInitializers: [Initializer] {
+        isClass ? [] : accessibilityAdjustedMembers.compactMap { $0 as? Initializer }
+    }
+
+    /// A protocol's members name `Self` through this typealias; see `Token.resolvingSelf()`.
+    var declaresSelfTypealias: Bool {
+        asProtocol.map { !$0.isActor } == true
+            && (mockedMethods.contains(where: \.mentionsSelf) || mockedProperties.contains(where: \.mentionsSelf)
+                || mockedSubscripts.contains(where: \.mentionsSelf))
+    }
+
+    func containerSerialize() -> GeneratorContext {
+        let accessibilityAdjustedMembers = accessibilityAdjustedMembers
 
         let typealiases = members.compactMap { ($0 as? Typealias)?.description }
 
@@ -52,9 +79,7 @@ extension ContainerToken {
             "allMethods": methods + staticMethods,
             "allSubscripts": subscripts + staticSubscripts,
             "typealiases": typealiases,
-            // A protocol's members name `Self` through this typealias; see `Token.resolvingSelf()`.
-            "declaresSelfTypealias": (self as? ProtocolDeclaration).map { !$0.isActor } == true
-                && (allMethods.contains(where: \.mentionsSelf) || variables.contains(where: \.mentionsSelf) || allSubscripts.contains(where: \.mentionsSelf)),
+            "declaresSelfTypealias": declaresSelfTypealias,
             "properties": properties,
             "initializers": initializers,
             "methods": methods,
