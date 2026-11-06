@@ -26,6 +26,12 @@ struct GeneratorHelper {
                 var context = token.serialize()
                 if let container = token as? any ContainerToken {
                     context["nopImplStub"] = try NopImplStubBuilder.build(container)
+                    context["stubbingProxy"] = try StubbingProxyBuilder.build(container, isStatic: false)
+                    let hasStaticMembers = container.mockedProperties.contains(where: \.isStatic)
+                        || container.mockedMethods.contains(where: \.isStatic) || container.mockedSubscripts.contains(where: \.isStatic)
+                    if hasStaticMembers {
+                        context["staticStubbingProxy"] = try StubbingProxyBuilder.build(container, isStatic: true)
+                    }
                 }
                 return context
             }
