@@ -122,19 +122,15 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
             "returnType": returnType.description,
             "isAsync": isAsync,
             "isThrowing": throwType != nil,
-            "getterEffects": [isAsync ? "async" : nil, throwType?.description].compactMap { $0 }.map { "\($0) " }.joined(),
+            "getterEffects": getterEffects,
             "isReadOnly": isReadOnly,
-            "hasGenericParams": !genericParameters.isEmpty,
             "isolationAttribute": isolation?.sourceDescription ?? "",
             "getter": serializedGetter,
             "setter": serializedSetter,
             // The setter lists hold the one accessor, so a template's `for` can name it `method`.
             "getters": [serializedGetter],
             "setters": isReadOnly ? [] : [serializedSetter],
-            "keyCount": keys.count,
             "newValueName": newValueName,
-            "keyClosureParameters": keys.enumerated().map { index, key in key.name == "_" ? "$\(index)" : "\(key.name): $\(index)" }.joined(separator: ", "),
-            "keyTypes": keys.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
             "hasCompilationCondition": hasCompilationCondition,
             "compilationConditionCheck": compilationConditionCheck,
         ]
@@ -155,6 +151,21 @@ extension Subscript {
     /// The `where` clause with a leading space, or nothing.
     var whereClause: String {
         whereConstraints.isEmpty ? "" : " where \(whereConstraints.joined(separator: ", "))"
+    }
+
+    /// The getter's effects, each followed by a space.
+    var getterEffects: String {
+        [isAsync ? "async" : nil, throwType?.description].compactMap { $0 }.map { "\($0) " }.joined()
+    }
+
+    /// The keys' types as a closure's parameter list names them.
+    var keyTypes: String {
+        getter.signature.parameters.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", ")
+    }
+
+    /// The arguments that pass a closure's parameters to the subscript as its keys, `key: $0`.
+    var keyClosureParameters: String {
+        getter.signature.parameters.enumerated().map { index, key in key.name == "_" ? "$\(index)" : "\(key.name): $\(index)" }.joined(separator: ", ")
     }
 
     /// The setter's last parameter.

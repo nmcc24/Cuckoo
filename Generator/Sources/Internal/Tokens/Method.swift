@@ -230,44 +230,67 @@ extension Method {
         return (input, output, implementation)
     }
 
+    /// The arguments that call the method with its own parameters, `label: p0`.
+    var call: String {
+        signature.parameters.map(\.call).joined(separator: ", ")
+    }
+
+    /// The parameters' names, as the method's body refers to them.
+    var parameterNames: String {
+        signature.parameters.map { escapeReservedKeywords(for: $0.usableName) }.joined(separator: ", ")
+    }
+
+    var sendingParameterNames: [String] {
+        signature.parameters.filter(\.isSending).map { escapeReservedKeywords(for: $0.usableName) }
+    }
+
+    /// The `sending` parameters as a local function declares them, `_ p0: T`.
+    var sendingParameterDeclarations: [String] {
+        signature.parameters.filter(\.isSending).map { "_ \(escapeReservedKeywords(for: $0.usableName)): \($0.type)" }
+    }
+
+    /// The parameters' types as a closure's parameter list names them.
+    var inputTypes: String {
+        signature.parameters.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", ")
+    }
+
+    /// The parenthesized arguments that call the method on a value of the static generic type; the arguments and the
+    /// result are cast where they use the protocol's non-primary associated types.
+    var staticGenericCall: String {
+        guard let parent = parent?.asProtocol, !parent.nonPrimaryAssociatedTypes.isEmpty else {
+            return "(\(call))"
+        }
+        let nonPrimary = parent.nonPrimaryAssociatedTypes.map(\.name)
+        let staticGenericCallableParameters = signature.parameters
+            .map { $0.callAndCastTypes(named: nonPrimary, as: { Templates.staticGenericParameter + ".\($0)" }) }
+            .joined(separator: ", ")
+        if let returnType, returnType.containsTypes(named: nonPrimary) {
+            return "(\(staticGenericCallableParameters))".forceCast(as: returnType)
+        }
+        return "(\(staticGenericCallableParameters))"
+    }
+
+    /// The `#if` directive and modifier of each copy of a local function the mock declares.
+    ///
+    /// Under NonisolatedNonsendingByDefault, Swift 6.2 treats an async local function as `@concurrent`, so it
+    /// gets `nonisolated(nonsending)` there. Spelled out on 6.2 without the feature, it fails instead.
+    /// A global actor's member needs neither: its local function is isolated to the actor, and
+    /// `nonisolated(nonsending)` would run the actor-isolated call from a nonisolated context.
+    /// Drop the first variant when Swift 6.2 support ends.
+    var localFunctionVariants: [(directive: String, modifier: String)] {
+        guard isAsync && !isGlobalActorIsolated else { return [("", "")] }
+        return [
+            ("#if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)", "nonisolated(nonsending) "),
+            ("#else", ""),
+        ]
+    }
+
     func serialize() -> [String : Any] {
         guard let parent else {
             fatalError("Failed to find parent of method \(fullSignature). Please file a bug.")
         }
         
-        let call = signature.parameters
-            .map(\.call)
-            .joined(separator: ", ")
         let forwardingCall = signature.parameters.map(\.forwardingCall).joined(separator: ", ")
-        
-        let staticGenericCall: String
-        if let parent = parent.asProtocol, !parent.nonPrimaryAssociatedTypes.isEmpty {
-            let nonPrimary = parent.nonPrimaryAssociatedTypes.map(\.name)
-            
-            let staticGenericCallableParameters = signature.parameters
-                .map { $0.callAndCastTypes(named: nonPrimary, as: { Templates.staticGenericParameter + ".\($0)" }) }
-                .joined(separator: ", ")
-            
-            staticGenericCall = if let returnType, returnType.containsTypes(named: nonPrimary) {
-                "(\(staticGenericCallableParameters))".forceCast(as: returnType)
-            } else {
-                "(\(staticGenericCallableParameters))"
-            }
-        } else {
-            staticGenericCall = "(\(call))"
-        }
-        
-        // Under NonisolatedNonsendingByDefault, Swift 6.2 treats an async local function as `@concurrent`, so it
-        // gets `nonisolated(nonsending)` there. Spelled out on 6.2 without the feature, it fails instead.
-        // A global actor's member needs neither: its local function is isolated to the actor, and
-        // `nonisolated(nonsending)` would run the actor-isolated call from a nonisolated context.
-        // Drop the first variant when Swift 6.2 support ends.
-        let localFunctionVariants = isAsync && !isGlobalActorIsolated
-            ? [
-                ["directive": "#if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)", "modifier": "nonisolated(nonsending) "],
-                ["directive": "#else", "modifier": ""],
-            ]
-            : [["directive": "", "modifier": ""]]
         let stubIsolation = self.stubIsolation
         let recordedParameters = signature.parameters.map(\.recordedValue).joined(separator: ", ")
         // The `then` closure reads the arguments from the manager's `arguments`, the recorded parameters, rather than
@@ -325,9 +348,7 @@ extension Method {
             "accessibility": accessibility.sourceName,
             "signature": signature.description,
             "parameters": signature.parameters,
-            "parameterNames": signature.parameters.map { escapeReservedKeywords(for: $0.usableName) }.joined(separator: ", "),
-            "sendingParameterNames": signature.parameters.filter(\.isSending).map { escapeReservedKeywords(for: $0.usableName) },
-            "sendingParameterDeclarations": signature.parameters.filter(\.isSending).map { "_ \(escapeReservedKeywords(for: $0.usableName)): \($0.type)" },
+            "sendingParameterNames": sendingParameterNames,
             "recordedParameters": recordedParameters,
             "implementationArguments": implementationArguments,
             "inoutPrologue": inoutPrologue,
@@ -336,15 +357,12 @@ extension Method {
             "returnsSending": returnType?.containsAttribute(named: "sending") ?? false,
             "genericReturnType": defaultValueType,
             "isAsync": isAsync,
-            "localFunctionVariants": localFunctionVariants,
-            "localFunctionVariantsAreConditional": localFunctionVariants.count > 1,
             "isThrowing": isThrowing,
             "throwsOnly": throwsOnly,
             "hasTypedThrows": signature.throwType?.isTyped ?? false,
             "throwType": signature.throwType?.keyword ?? "",
             "throwTypeError": signature.throwType?.type ?? "",
             "fullyQualifiedName": fullyQualifiedName,
-            "call": call,
             "forwardingCall": forwardingCall,
             "superclassCall": "super.\(name)(\(forwardingCall))",
             "defaultCall": isStatic
@@ -354,22 +372,18 @@ extension Method {
             "mentionsSelf": mentionsSelf,
             "staticKeyword": isStatic ? "static " : "",
             "manager": isStatic ? "cuckoo_staticManager" : "cuckoo_manager",
-            "staticGenericCall": staticGenericCall,
             "parameterSignature": signature.parameters.map { $0.description }.joined(separator: ", "),
             "parameterSignatureWithoutNames": signature.parameters.map { "\($0.name): \($0.type)" }.joined(separator: ", "),
             "argumentSignature": signature.parameters.map { $0.type.description }.joined(separator: ", "),
             "implementationType": implementationType,
             "isolationAttribute": isolation?.sourceDescription ?? "",
             "executionAttribute": executionAttribute ?? "",
-            "inputTypes": signature.parameters.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
             "genericInputTypes": genericInputTypes,
             "isOptional": isOptional,
             "hasClosureParams": hasClosureParams,
             "hasOptionalParams": hasOptionalParams,
-            "hasGenericParams": hasGenericParams,
             "hasNoncopyableParams": hasNoncopyableParams,
             "genericParameters": signature.genericParameters.sourceDescription,
-            "usesNonPrimaryAssociatedTypes": usesNonPrimaryAssociatedTypes,
             "hasCompilationCondition": hasCompilationCondition,
             "compilationConditionCheck": compilationConditionCheck,
         ]
