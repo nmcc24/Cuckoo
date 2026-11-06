@@ -156,6 +156,75 @@ extension Method {
         return signature.containsTypes(named: names) || returnType?.containsTypes(named: names) == true
     }
 
+    /// The stub function type the stubbing proxy returns, such as `Cuckoo.ProtocolStubThrowingFunction`.
+    var stubFunction: String {
+        let prefix = parent?.isClass == true ? "Class" : "Protocol"
+        let returnString = returnType?.isVoid == false ? "" : "NoReturn"
+        let throwingString = isThrowing ? "Throwing" : ""
+        return "Cuckoo.\(prefix)Stub\(returnString)\(throwingString)Function"
+    }
+
+    /// The isolation and sharing of the stub's `then` closures.
+    var stubIsolation: StubIsolation {
+        guard let parent else {
+            fatalError("Failed to find parent of method \(fullSignature). Please file a bug.")
+        }
+        return parent.value.stubIsolation(forMember: stubbedIsolation)
+    }
+
+    /// The stub's types as the proxies name them; see `stubTypes(resolvingSelfAs:)`.
+    var proxyStubTypes: (input: String, output: String, implementation: String) {
+        stubTypes(resolvingSelfAs: parent?.value.mockTypeName)
+    }
+
+    /// The stub's input, output and `then` closure types. A class mock's body names `Self` as written; the proxies,
+    /// where `Self` would be the proxy, name the mock, which is `final`, so both are the same type at runtime.
+    /// A protocol's members already name `Self` through a typealias; see `Token.resolvingSelf()`.
+    func stubTypes(resolvingSelfAs selfType: String?) -> (input: String, output: String, implementation: String) {
+        func resolved(_ type: ComplexType) -> ComplexType {
+            selfType.flatMap { selfType in type.replaceTypes(named: ["Self"], with: { _ in selfType }) } ?? type
+        }
+        // A closure that is one of the `then` closure's own parameters must be `@escaping` to take it;
+        // inside a tuple of several, closures already escape.
+        func escapingIfClosure(_ type: ComplexType) -> String {
+            let description = type.genericArgumentSafe.description
+            return type.isClosure && !type.isOptional ? "@escaping \(description)" : description
+        }
+        let stubIsolation = self.stubIsolation
+        let parameterTypes = signature.parameters.map { resolved($0.matchedType) }
+        let input = parameterTypes.map(\.genericArgumentSafe.description).joined(separator: ", ")
+        let output = returnType.map { resolved($0.withoutAttributes(except: ["@MainActor", "@Sendable"])).genericArgumentSafe.description } ?? "Void"
+        // An `inout` parameter stays `inout` in the `then` closure, which can change the caller's variable.
+        // A `~Copyable` one is borrowed for the closure's call.
+        let separateParameterTypes = zip(signature.parameters, parameterTypes).map { parameter, type in
+            if passesBorrowed(parameter) {
+                "borrowing \(resolved(parameter.type.withoutAttributes()).genericArgumentSafe.description)"
+            } else {
+                "\(parameter.isInout ? "inout " : "")\(escapingIfClosure(type))"
+            }
+        }
+        let implementationInput = if let isolatedParameter = stubIsolation.isolatedParameter {
+            // An actor mock's closure takes the mock, then each parameter.
+            "(\(([isolatedParameter] + separateParameterTypes).joined(separator: ", ")))"
+        } else if passesSeparateArguments {
+            "(\(separateParameterTypes.joined(separator: ", ")))"
+        } else if parameterTypes.count == 1 {
+            // Other closures take the parameters as one tuple, the way they're recorded.
+            "((\(escapingIfClosure(parameterTypes[0]))))"
+        } else {
+            "((\(input)))"
+        }
+        // Untyped even for typed throws: a typed-throws function type as a generic argument needs runtime
+        // support that iOS 17 and macOS 14 lack. The mock narrows the error where it calls the closure.
+        let implementation = stubIsolation.implementationType(
+            input: implementationInput,
+            output: output,
+            isAsync: isAsync,
+            throwsClause: isThrowing ? "throws" : nil
+        )
+        return (input, output, implementation)
+    }
+
     func serialize() -> [String : Any] {
         guard let parent else {
             fatalError("Failed to find parent of method \(fullSignature). Please file a bug.")
@@ -194,21 +263,7 @@ extension Method {
                 ["directive": "#else", "modifier": ""],
             ]
             : [["directive": "", "modifier": ""]]
-        let stubFunctionPrefix = parent.isClass ? "Class" : "Protocol"
-        let returnString = returnType?.isVoid == false ? "" : "NoReturn"
-        let throwingString = isThrowing ? "Throwing" : ""
-        let stubFunction = "Cuckoo.\(stubFunctionPrefix)Stub\(returnString)\(throwingString)Function"
-
-        let stubIsolation = parent.value.stubIsolation(forMember: stubbedIsolation)
-        // Untyped even for typed throws: a typed-throws function type as a generic argument needs runtime
-        // support that iOS 17 and macOS 14 lack. The mock narrows the error where it calls the closure.
-        let throwsClause: String? = isThrowing ? "throws" : nil
-        // A closure that is one of the `then` closure's own parameters must be `@escaping` to take it;
-        // inside a tuple of several, closures already escape.
-        func escapingIfClosure(_ type: ComplexType) -> String {
-            let description = type.genericArgumentSafe.description
-            return type.isClosure && !type.isOptional ? "@escaping \(description)" : description
-        }
+        let stubIsolation = self.stubIsolation
         let recordedParameters = signature.parameters.map(\.recordedValue).joined(separator: ", ")
         // The `then` closure reads the arguments from the manager's `arguments`, the recorded parameters, rather than
         // capturing them; see `MockManager.callInternal`.
@@ -237,46 +292,8 @@ extension Method {
             return "var __inout\(index) = \(value); defer { \(escapeReservedKeywords(for: parameter.usableName)) = __inout\(index) };"
         }.joined(separator: " ")
 
-        /// The stub's input, output and `then` closure types. A class mock's body names `Self` as written; the proxies,
-        /// where `Self` would be the proxy, name the mock, which is `final`, so both are the same type at runtime.
-        /// A protocol's members already name `Self` through a typealias; see `Token.resolvingSelf()`.
-        func stubTypes(resolvingSelfAs selfType: String?) -> (input: String, output: String, implementation: String) {
-            func resolved(_ type: ComplexType) -> ComplexType {
-                selfType.flatMap { selfType in type.replaceTypes(named: ["Self"], with: { _ in selfType }) } ?? type
-            }
-            let parameterTypes = signature.parameters.map { resolved($0.matchedType) }
-            let input = parameterTypes.map(\.genericArgumentSafe.description).joined(separator: ", ")
-            let output = returnType.map { resolved($0.withoutAttributes(except: ["@MainActor", "@Sendable"])).genericArgumentSafe.description } ?? "Void"
-            // An `inout` parameter stays `inout` in the `then` closure, which can change the caller's variable.
-            // A `~Copyable` one is borrowed for the closure's call.
-            let separateParameterTypes = zip(signature.parameters, parameterTypes).map { parameter, type in
-                if passesBorrowed(parameter) {
-                    "borrowing \(resolved(parameter.type.withoutAttributes()).genericArgumentSafe.description)"
-                } else {
-                    "\(parameter.isInout ? "inout " : "")\(escapingIfClosure(type))"
-                }
-            }
-            let implementationInput = if let isolatedParameter = stubIsolation.isolatedParameter {
-                // An actor mock's closure takes the mock, then each parameter.
-                "(\(([isolatedParameter] + separateParameterTypes).joined(separator: ", ")))"
-            } else if passesSeparateArguments {
-                "(\(separateParameterTypes.joined(separator: ", ")))"
-            } else if parameterTypes.count == 1 {
-                // Other closures take the parameters as one tuple, the way they're recorded.
-                "((\(escapingIfClosure(parameterTypes[0]))))"
-            } else {
-                "((\(input)))"
-            }
-            let implementation = stubIsolation.implementationType(
-                input: implementationInput,
-                output: output,
-                isAsync: isAsync,
-                throwsClause: throwsClause
-            )
-            return (input, output, implementation)
-        }
         let (genericInputTypes, _, implementationType) = stubTypes(resolvingSelfAs: nil)
-        let proxyTypes = stubTypes(resolvingSelfAs: parent.value.mockTypeName)
+        let proxyTypes = proxyStubTypes
 
         let escapingParameterNames = signature.parameters.map { parameter in
             if !parameter.type.containsAttribute(named: "@escaping"), let closure = parameter.type.findClosure() {

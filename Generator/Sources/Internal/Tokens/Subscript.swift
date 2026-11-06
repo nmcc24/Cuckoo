@@ -94,9 +94,7 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
         let getter = getter
         let setter = setter
         let keys = getter.signature.parameters
-        let newValue = setter.signature.parameters[keys.count]
         let keyArguments = keys.map(\.forwardingCall).joined(separator: ", ")
-        let newValueName = escapeReservedKeywords(for: newValue.usableName)
 
         var serializedGetter = getter.serialize()
         serializedGetter["superclassCall"] = "super[\(keyArguments)]"
@@ -111,14 +109,6 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
             serializedSetter["defaultCall"] = "__defaultImplStub.value[\(keyArguments)] = \(newValueName)"
         }
 
-        // A stubbing or verification proxy's setter matches the keys with the matchers its subscript got, reading
-        // them out of the setter's parameters, which are the keys and then the new value.
-        let keyProjection = keys.count == 1 ? "$0.0" : "(\(keys.indices.map { "$0.\($0)" }.joined(separator: ", ")))"
-        let keyMatchers = keys.isEmpty ? "" : "self.matchers.map { matcher in Cuckoo.ParameterMatcher { matcher.matches(\(keyProjection)) } } + "
-        let newValueProjection = keys.isEmpty ? "$0" : "$0.\(keys.count)"
-        let matchedNewValueType = newValue.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe
-        let newValueMatcherIndex = keys.count + 1
-
         return [
             "self": self,
             "documentation": documentation,
@@ -129,9 +119,9 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
             "staticKeyword": isStatic ? "static " : "",
             "accessibility": accessibility.sourceName,
             "signature": signature,
-            "genericParameters": genericParameters.isEmpty ? "" : genericParameters.sourceDescription,
-            "genericArguments": genericParameters.isEmpty ? "" : "<\(genericParameters.map(\.name).joined(separator: ", "))>",
-            "whereClause": whereConstraints.isEmpty ? "" : " where \(whereConstraints.joined(separator: ", "))",
+            "genericParameters": genericParametersClause,
+            "genericArguments": genericArgumentsClause,
+            "whereClause": whereClause,
             "returnType": returnType.description,
             "isAsync": isAsync,
             "isThrowing": throwType != nil,
@@ -148,14 +138,73 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
             "keyCount": keys.count,
             "newValueName": newValueName,
             "newValueMatcherIndex": newValueMatcherIndex,
-            "newValueMatcherGeneric": "M\(newValueMatcherIndex): Cuckoo.\(matchedNewValueType.isOptional ? "OptionalMatchable" : "Matchable")",
-            "newValueMatcherConstraint": "M\(newValueMatcherIndex).\(matchedNewValueType.isOptional ? "OptionalMatchedType" : "MatchedType") == \(matchedNewValueType.unoptionaled.description.replacingOccurrences(of: "!", with: "?"))",
-            "newValueMatcher": "Cuckoo.wrap(matchable: \(newValueName)) { \(newValueProjection) }",
+            "newValueMatcherGeneric": newValueMatcherGeneric,
+            "newValueMatcherConstraint": newValueMatcherConstraint,
+            "newValueMatcher": newValueMatcher,
             "keyClosureParameters": keys.enumerated().map { index, key in key.name == "_" ? "$\(index)" : "\(key.name): $\(index)" }.joined(separator: ", "),
             "keyTypes": keys.map { $0.type.withoutAttributes(except: ["@escaping", "@MainActor", "@Sendable"]).genericArgumentSafe.description }.joined(separator: ", "),
             "hasCompilationCondition": hasCompilationCondition,
             "compilationConditionCheck": compilationConditionCheck,
         ]
+    }
+}
+
+extension Subscript {
+    /// The generic parameters, in angle brackets, or nothing.
+    var genericParametersClause: String {
+        genericParameters.isEmpty ? "" : genericParameters.sourceDescription
+    }
+
+    /// The generic parameters' names, in angle brackets, or nothing.
+    var genericArgumentsClause: String {
+        genericParameters.isEmpty ? "" : "<\(genericParameters.map(\.name).joined(separator: ", "))>"
+    }
+
+    /// The `where` clause with a leading space, or nothing.
+    var whereClause: String {
+        whereConstraints.isEmpty ? "" : " where \(whereConstraints.joined(separator: ", "))"
+    }
+
+    /// The setter's last parameter.
+    private var newValue: MethodParameter {
+        setter.signature.parameters[parameters.count]
+    }
+
+    var newValueName: String {
+        escapeReservedKeywords(for: newValue.usableName)
+    }
+
+    // A stubbing or verification proxy's setter matches the keys with the matchers its subscript got, reading
+    // them out of the setter's parameters, which are the keys and then the new value.
+
+    /// The matchers of the keys, followed by ` + `, or nothing for a subscript without keys.
+    var keyMatchers: String {
+        let keys = parameters
+        guard !keys.isEmpty else { return "" }
+        let keyProjection = keys.count == 1 ? "$0.0" : "(\(keys.indices.map { "$0.\($0)" }.joined(separator: ", ")))"
+        return "self.matchers.map { matcher in Cuckoo.ParameterMatcher { matcher.matches(\(keyProjection)) } } + "
+    }
+
+    /// The number in the new value's matcher's generic parameter, `M<n>`.
+    var newValueMatcherIndex: Int {
+        parameters.count + 1
+    }
+
+    private var matchedNewValueType: ComplexType {
+        newValue.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe
+    }
+
+    var newValueMatcherGeneric: String {
+        "M\(newValueMatcherIndex): Cuckoo.\(matchedNewValueType.isOptional ? "OptionalMatchable" : "Matchable")"
+    }
+
+    var newValueMatcherConstraint: String {
+        let type = matchedNewValueType
+        return "M\(newValueMatcherIndex).\(type.isOptional ? "OptionalMatchedType" : "MatchedType") == \(type.unoptionaled.description.replacingOccurrences(of: "!", with: "?"))"
+    }
+
+    var newValueMatcher: String {
+        "Cuckoo.wrap(matchable: \(newValueName)) { \(parameters.isEmpty ? "$0" : "$0.\(parameters.count)") }"
     }
 }
 

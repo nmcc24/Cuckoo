@@ -28,22 +28,27 @@ struct Variable: Token, HasAccessibility, HasAttributes {
     /// Whether the type names `Self`; see ``Token/resolvingSelf()``.
     var mentionsSelf = false
 
-    func serialize() -> [String: Any] {
-        let readOnlyVerifyString = isReadOnly ? "ReadOnly" : ""
-        let readOnlyStubString = effects.isThrowing ? "" : readOnlyVerifyString
+    /// The stub type the stubbing proxy returns, such as `ProtocolToBeStubbedReadOnlyProperty`.
+    var stubType: String {
+        let readOnlyStubString = effects.isThrowing || !isReadOnly ? "" : "ReadOnly"
         let optionalString = type.isOptional && !isReadOnly ? "Optional" : ""
         let throwingString = effects.isThrowing ? "Throwing" : ""
+        return (parent?.isClass == true ? "Class" : "Protocol") + "ToBeStubbed\(readOnlyStubString)\(optionalString)\(throwingString)Property"
+    }
 
+    /// The isolation and sharing of the stub's `then` closures. An actor's static members aren't isolated to an instance.
+    var stubIsolation: StubIsolation {
         guard let parent else {
             fatalError("Failed to find parent of variable \(name). Please file a bug.")
         }
-
-        // An actor's static members aren't isolated to an instance.
         let stubbedIsolation: Isolation? = isStatic && isolation == nil && parent.value.asProtocol?.isActor == true ? .nonisolated : isolation
-        let stubIsolation = parent.value.stubIsolation(forMember: stubbedIsolation)
-        let storedType = isReadOnly ? type : type.unoptionaled
+        return parent.value.stubIsolation(forMember: stubbedIsolation)
+    }
+
+    /// The `then` closure types of the getter and the setter. An actor mock's closures take the mock first.
+    var implementationTypes: (getter: String, setter: String) {
+        let stubIsolation = self.stubIsolation
         let valueType = type.description
-        // An actor mock's closures take the mock first.
         let isolatedParameter = stubIsolation.isolatedParameter
         let getterType = stubIsolation.implementationType(
             input: isolatedParameter.map { "(\($0))" } ?? "(())",
@@ -57,14 +62,31 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             isAsync: false,
             throwsClause: nil
         )
-        let stubGenericArguments = [
-            storedType.description,
-            getterType,
-            isReadOnly || effects.isThrowing ? nil : setterType,
-            stubIsolation.sharingType,
-        ]
-        .compactMap { $0 }
-        .joined(separator: ", ")
+        return (getterType, setterType)
+    }
+
+    /// The stub type's generic arguments after the mock's type.
+    var stubGenericArguments: String {
+        let storedType = isReadOnly ? type : type.unoptionaled
+        let types = implementationTypes
+        var arguments = [storedType.description, types.getter]
+        if !isReadOnly && !effects.isThrowing {
+            arguments.append(types.setter)
+        }
+        arguments.append(stubIsolation.sharingType)
+        return arguments.joined(separator: ", ")
+    }
+
+    func serialize() -> [String: Any] {
+        let readOnlyVerifyString = isReadOnly ? "ReadOnly" : ""
+        let optionalString = type.isOptional && !isReadOnly ? "Optional" : ""
+
+        guard let parent else {
+            fatalError("Failed to find parent of variable \(name). Please file a bug.")
+        }
+
+        let (getterType, setterType) = implementationTypes
+        let isolatedParameter = stubIsolation.isolatedParameter
 
         return [
             "documentation": documentation,
@@ -86,7 +108,7 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             "isAsync": effects.isAsync,
             "isThrowing": effects.isThrowing,
             "isReadOnly": isReadOnly,
-            "stubType": (parent.isClass ? "Class" : "Protocol") + "ToBeStubbed\(readOnlyStubString)\(optionalString)\(throwingString)Property",
+            "stubType": stubType,
             "verifyType": "Verify\(readOnlyVerifyString)\(optionalString)Property",
             "attributes": repeatedAttributes,
             "spiAttributes": spiAttributes(at: accessibility),
