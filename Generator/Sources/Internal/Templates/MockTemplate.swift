@@ -247,12 +247,12 @@ extension {{ container.parentFullyQualifiedName }} {
     {% endif %}
     {% endfor %}
 
-\(Templates.stubbingProxy(isStatic: false).indented())
+    {{ container.stubbingProxy }}
 
 \(Templates.verificationProxy(isStatic: false).indented())
     {% if container.hasStaticMembers %}
 
-\(Templates.stubbingProxy(isStatic: true).indented())
+    {{ container.staticStubbingProxy }}
 
 \(Templates.verificationProxy(isStatic: true).indented())
     {% endif %}
