@@ -77,10 +77,12 @@ struct Variable: Token, HasAccessibility, HasAttributes {
         return arguments.joined(separator: ", ")
     }
 
-    func serialize() -> [String: Any] {
-        let readOnlyVerifyString = isReadOnly ? "ReadOnly" : ""
-        let optionalString = type.isOptional && !isReadOnly ? "Optional" : ""
+    /// The type the verification proxy's property returns, such as `VerifyReadOnlyProperty`.
+    var verifyType: String {
+        "Verify\(isReadOnly ? "ReadOnly" : "")\(type.isOptional && !isReadOnly ? "Optional" : "")Property"
+    }
 
+    func serialize() -> [String: Any] {
         guard let parent else {
             fatalError("Failed to find parent of variable \(name). Please file a bug.")
         }
@@ -94,7 +96,6 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             "setterImplementationType": setterType,
             "getterImplementationArguments": isolatedParameter == nil ? "()" : "self",
             "setterImplementationArguments": isolatedParameter == nil ? "value" : "self, value",
-            "stubGenericArguments": stubGenericArguments,
             "isolationAttribute": isolation?.sourceDescription ?? "",
             "isOverriding": parent.isClass,
             "isStatic": isStatic,
@@ -103,13 +104,10 @@ struct Variable: Token, HasAccessibility, HasAttributes {
             "manager": isStatic ? "cuckoo_staticManager" : "cuckoo_manager",
             "name": name,
             "type": type.description,
-            "nonOptionalType": type.unoptionaled.description,
             "accessibility": accessibility.sourceName,
             "isAsync": effects.isAsync,
             "isThrowing": effects.isThrowing,
             "isReadOnly": isReadOnly,
-            "stubType": stubType,
-            "verifyType": "Verify\(readOnlyVerifyString)\(optionalString)Property",
             "attributes": repeatedAttributes,
             "spiAttributes": spiAttributes(at: accessibility),
             "hasCompilationCondition": hasCompilationCondition,

@@ -27,10 +27,12 @@ struct GeneratorHelper {
                 if let container = token as? any ContainerToken {
                     context["nopImplStub"] = try NopImplStubBuilder.build(container)
                     context["stubbingProxy"] = try StubbingProxyBuilder.build(container, isStatic: false)
+                    context["verificationProxy"] = try VerificationProxyBuilder.build(container, isStatic: false)
                     let hasStaticMembers = container.mockedProperties.contains(where: \.isStatic)
                         || container.mockedMethods.contains(where: \.isStatic) || container.mockedSubscripts.contains(where: \.isStatic)
                     if hasStaticMembers {
                         context["staticStubbingProxy"] = try StubbingProxyBuilder.build(container, isStatic: true)
+                        context["staticVerificationProxy"] = try VerificationProxyBuilder.build(container, isStatic: true)
                     }
                 }
                 return context
@@ -241,30 +243,6 @@ extension GeneratorHelper {
         stencilExtension.registerFilter("genericSafe") { (value: Any?) in
             guard let string = value as? String else { return value }
             return genericSafeType(from: string)
-        }
-        stencilExtension.registerFilter("matchableGenericNames") { (value: Any?) in
-            guard let method = value as? Method else { return value }
-            return matchableGenericTypes(from: method)
-        }
-        stencilExtension.registerFilter("matchableGenericWhereClause") { (value: Any?) in
-            guard let method = value as? Method else { return value }
-            return matchableGenericsWhereClause(from: method)
-        }
-        stencilExtension.registerFilter("matchableVerificationGenericNames") { (value: Any?) in
-            guard let method = value as? Method else { return value }
-            return matchableGenericTypes(from: method, forVerification: true)
-        }
-        stencilExtension.registerFilter("matchableVerificationGenericWhereClause") { (value: Any?) in
-            guard let method = value as? Method else { return value }
-            return matchableGenericsWhereClause(from: method, forVerification: true)
-        }
-        stencilExtension.registerFilter("matchableParameterSignature") { (value: Any?) in
-            guard let parameters = value as? [MethodParameter] else { return value }
-            return matchableParameterSignature(with: parameters)
-        }
-        stencilExtension.registerFilter("parameterMatchers") { (value: Any?) in
-            guard let parameters = value as? [MethodParameter] else { return value }
-            return parameterMatchers(for: parameters)
         }
         stencilExtension.registerFilter("openNestedClosure") { (value: Any?) in
             guard let method = value as? Method else { return value }

@@ -249,12 +249,12 @@ extension {{ container.parentFullyQualifiedName }} {
 
     {{ container.stubbingProxy }}
 
-\(Templates.verificationProxy(isStatic: false).indented())
+    {{ container.verificationProxy }}
     {% if container.hasStaticMembers %}
 
     {{ container.staticStubbingProxy }}
 
-\(Templates.verificationProxy(isStatic: true).indented())
+    {{ container.staticVerificationProxy }}
     {% endif %}
 }
 
