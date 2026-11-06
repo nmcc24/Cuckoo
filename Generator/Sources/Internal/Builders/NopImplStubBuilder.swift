@@ -34,11 +34,9 @@ enum NopImplStubBuilder {
             try members.append(subscriptDeclaration, source: source(of: subscriptDeclaration), of: "\(container.name)[]")
         }
 
-        let header = lines(
-            container.repeatedAttributes.map(\.description)
-                + container.spiAttributes(at: container.accessibility).map(\.description)
-                + ["\(container.accessibility.spaced)\(keyword(of: container)) \(name)\(container.genericParametersString): \(inheritance(of: container)) {\n}"]
-        )
+        var headerLines = container.repeatedAttributes.map(\.description) + container.spiAttributes(at: container.accessibility).map(\.description)
+        headerLines.append("\(container.accessibility.spaced)\(keyword(of: container)) \(name)\(container.genericParametersString): \(inheritance(of: container)) {\n}")
+        let header = lines(headerLines)
         let declaration = try Fragment.declaration(header, of: name)
         if var classDeclaration = declaration.as(ClassDeclSyntax.self) {
             classDeclaration.memberBlock.members = members.list
@@ -96,55 +94,62 @@ enum NopImplStubBuilder {
     private static func source(of property: Variable) -> String {
         let effects = (property.effects.isAsync ? "async " : "") + (property.effects.isThrowing ? "throws " : "")
         let type = GeneratorHelper.removeClosureArgumentNames(for: GeneratorHelper.genericSafeType(from: property.type.description))
-        return lines(
-            attributes(of: property, at: property.accessibility, isolation: property.isolation)
-                + ["\(property.accessibility.spaced)\(modifiers(of: property, isStatic: property.isStatic))var \(property.name): \(property.type.description) {"]
-                + ["    get \(effects){"]
-                + ["        return DefaultValueRegistry.defaultValue(for: (\(type)).self)"]
-                + ["    }"]
-                + (property.isReadOnly ? [] : ["    set {}"])
-                + ["}"]
-        )
+        let modifiers = modifiers(of: property, isStatic: property.isStatic)
+        var source = attributes(of: property, at: property.accessibility, isolation: property.isolation)
+        source.append("\(property.accessibility.spaced)\(modifiers)var \(property.name): \(property.type.description) {")
+        source.append("    get \(effects){")
+        source.append("        return DefaultValueRegistry.defaultValue(for: (\(type)).self)")
+        source.append("    }")
+        if !property.isReadOnly {
+            source.append("    set {}")
+        }
+        source.append("}")
+        return lines(source)
     }
 
     private static func source(of initializer: Initializer) -> String {
         let access = initializer.parent?.asProtocol?.accessibility ?? initializer.accessibility
-        return lines(
-            initializer.spiAttributes(at: access).map(\.description)
-                + ["\(access.spaced)required init\(initializer.signature.description) {}"]
-        )
+        var source = initializer.spiAttributes(at: access).map(\.description)
+        source.append("\(access.spaced)required init\(initializer.signature.description) {}")
+        return lines(source)
     }
 
     private static func source(of method: Method) -> String {
         let type = GeneratorHelper.genericSafeType(from: method.defaultValueType)
-        return lines(
-            attributes(of: method, at: method.accessibility, isolation: method.isolation)
-                + [method.executionAttribute].compactMap { $0?.isEmpty == false ? $0 : nil }
-                + ["\(method.accessibility.spaced)\(modifiers(of: method, isStatic: method.isStatic))func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {"]
-                + ["    return DefaultValueRegistry.defaultValue(for: (\(type)).self)"]
-                + ["}"]
-        )
+        let modifiers = modifiers(of: method, isStatic: method.isStatic)
+        var source = attributes(of: method, at: method.accessibility, isolation: method.isolation)
+        if let execution = method.executionAttribute, !execution.isEmpty {
+            source.append(execution)
+        }
+        source.append("\(method.accessibility.spaced)\(modifiers)func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
+        source.append("    return DefaultValueRegistry.defaultValue(for: (\(type)).self)")
+        source.append("}")
+        return lines(source)
     }
 
     private static func source(of subscriptDeclaration: Subscript) -> String {
         let effects = [subscriptDeclaration.isAsync ? "async" : nil, subscriptDeclaration.throwType?.description].compactMap { $0 }.map { "\($0) " }.joined()
         let type = GeneratorHelper.removeClosureArgumentNames(for: GeneratorHelper.genericSafeType(from: subscriptDeclaration.getter.defaultValueType))
-        return lines(
-            attributes(of: subscriptDeclaration, at: subscriptDeclaration.accessibility, isolation: subscriptDeclaration.isolation)
-                + ["\(subscriptDeclaration.accessibility.spaced)\(modifiers(of: subscriptDeclaration, isStatic: subscriptDeclaration.isStatic))subscript\(subscriptDeclaration.signature) {"]
-                + ["    get \(effects){"]
-                + ["        return DefaultValueRegistry.defaultValue(for: (\(type)).self)"]
-                + ["    }"]
-                + (subscriptDeclaration.isReadOnly ? [] : ["    set {}"])
-                + ["}"]
-        )
+        let modifiers = modifiers(of: subscriptDeclaration, isStatic: subscriptDeclaration.isStatic)
+        var source = attributes(of: subscriptDeclaration, at: subscriptDeclaration.accessibility, isolation: subscriptDeclaration.isolation)
+        source.append("\(subscriptDeclaration.accessibility.spaced)\(modifiers)subscript\(subscriptDeclaration.signature) {")
+        source.append("    get \(effects){")
+        source.append("        return DefaultValueRegistry.defaultValue(for: (\(type)).self)")
+        source.append("    }")
+        if !subscriptDeclaration.isReadOnly {
+            source.append("    set {}")
+        }
+        source.append("}")
+        return lines(source)
     }
 
     /// The attributes every copy of the member repeats, its `@_spi` attributes at its access level, and its isolation.
     private static func attributes(of member: any HasAttributes, at access: Accessibility, isolation: Isolation?) -> [String] {
-        member.repeatedAttributes.map(\.description)
-            + member.spiAttributes(at: access).map(\.description)
-            + [isolation?.sourceDescription].compactMap { $0?.isEmpty == false ? $0 : nil }
+        var attributes = member.repeatedAttributes.map(\.description) + member.spiAttributes(at: access).map(\.description)
+        if let isolation = isolation?.sourceDescription, !isolation.isEmpty {
+            attributes.append(isolation)
+        }
+        return attributes
     }
 
     /// A class's members override the superclass's.
