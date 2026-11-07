@@ -1,5 +1,3 @@
-import Foundation
-
 /// Configures a mock while ``createMock(_:configuration:)`` creates it.
 public class MockBuilder {
     private let manager: MockManager
