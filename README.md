@@ -83,7 +83,6 @@ Thank you for your help!
 ## Used libraries
 - [ArgumentParser](https://github.com/apple/swift-argument-parser)
 - [SwiftSyntax](https://github.com/apple/swift-syntax)
-- [Stencil](https://github.com/kylef/Stencil)
 - [TOMLDecoder](https://github.com/dduan/TOMLDecoder)
 
 ## License

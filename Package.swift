@@ -52,7 +52,6 @@ let package = Package(
     dependencies: [
         // Up to the next major release, so Cuckoo resolves alongside users' other packages. Packages still
         // at 0.x may break in a minor release, so they stop at the next minor one. The lockfiles pin exact revisions.
-        .package(url: "https://github.com/kylef/Stencil", .upToNextMinor(from: "0.15.1")),
         .package(url: "https://github.com/swiftlang/swift-syntax", "602.0.0"..<"605.0.0"),
         // .package(url: "https://github.com/swiftlang/swift-format", "600.0.0"..<"605.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2"),
@@ -68,7 +67,6 @@ let package = Package(
         .executableTarget(
             name: "CuckooGenerator",
             dependencies: [
-                .product(name: "Stencil", package: "Stencil"),
                 // .product(name: "SwiftFormat", package: "swift-format"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftParser", package: "swift-syntax"),
