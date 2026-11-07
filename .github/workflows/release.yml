@@ -1,0 +1,152 @@
+name: Release
+# Releases a version with the prebuilt generator (roadmap Phase 5 item 2, option B). Run it by hand on master, with
+# the version that `version` and Generator/Sources/CLI/Version.swift already hold (bump them in a PR first).
+#
+# It builds the generator's `artifactbundle` for macOS (universal) and Linux (x86_64 and arm64), tests it the way a
+# user gets it, then tags one commit off master that points the plugins at the bundle, and publishes the release
+# with the bundle attached. Master keeps building the generator from source; only the tag carries the binary.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release, such as 3.0.0 or 3.0.0-beta.1 (a pre-release when it has a suffix)
+        required: true
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  VERSION: ${{ inputs.version }}
+
+jobs:
+  check:
+    name: Check the version
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: The version matches the sources, and its tag is free
+        run: |
+          [[ "$GITHUB_REF" == refs/heads/master ]] || { echo "::error::Release from master, not $GITHUB_REF."; exit 1; }
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "::error::Not a version: $VERSION"; exit 1; }
+          [[ "$(cat version)" == "$VERSION" ]] || { echo "::error::The version file holds $(cat version)."; exit 1; }
+          grep -qxF "let version = \"$VERSION\"" Generator/Sources/CLI/Version.swift \
+            || { echo "::error::Generator/Sources/CLI/Version.swift doesn't hold $VERSION."; exit 1; }
+          if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" >/dev/null; then
+            echo "::error::The tag $VERSION already exists."; exit 1
+          fi
+
+  build:
+    name: Build the generator (${{ matrix.name }})
+    needs: check
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { name: macOS, runner: macos-26 }
+          - { name: Linux x86_64, runner: ubuntu-24.04, container: "swift:6.3" }
+          - { name: Linux arm64, runner: ubuntu-24.04-arm, container: "swift:6.3" }
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Build
+        run: scripts/build-artifactbundle.sh build parts
+      - name: Upload
+        uses: actions/upload-artifact@v5
+        with:
+          name: part-${{ runner.os }}-${{ runner.arch }}
+          path: parts
+          if-no-files-found: error
+
+  bundle:
+    name: Bundle and smoke-test (${{ matrix.name }})
+    needs: build
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { name: macOS, runner: macos-26 }
+          - { name: Linux x86_64, runner: ubuntu-24.04, container: "swift:6.3" }
+          - { name: Linux arm64, runner: ubuntu-24.04-arm, container: "swift:6.3" }
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install zip
+        if: runner.os == 'Linux'
+        run: apt-get update -qq && apt-get install -y -qq zip
+      - name: Download the parts
+        uses: actions/download-artifact@v5
+        with:
+          pattern: part-*
+          path: parts
+      - name: Bundle
+        # Every leg merges the same parts; the macOS leg's zip is the one released.
+        run: scripts/build-artifactbundle.sh merge "$VERSION" bundle/CuckooGenerator.artifactbundle parts/*
+      - name: Smoke test
+        run: scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
+      - name: Upload the bundle
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v5
+        with:
+          name: bundle
+          path: bundle/CuckooGenerator.artifactbundle.zip
+          if-no-files-found: error
+
+  release:
+    name: Tag and publish
+    needs: bundle
+    runs-on: macos-26
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Download the bundle
+        uses: actions/download-artifact@v5
+        with:
+          name: bundle
+          path: bundle
+      - name: Release commit and tag
+        # The tagged commit is master plus this one change; it isn't pushed to any branch.
+        run: |
+          url="https://github.com/$GITHUB_REPOSITORY/releases/download/$VERSION/CuckooGenerator.artifactbundle.zip"
+          checksum="$(swift package compute-checksum bundle/CuckooGenerator.artifactbundle.zip)"
+          scripts/set-prebuilt-generator.sh remote "$url" "$checksum"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qam "Release $VERSION with the prebuilt generator" -m "Checksum: $checksum"
+          git tag -a "$VERSION" -m "Cuckoo $VERSION"
+          git push origin "refs/tags/$VERSION"
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prerelease=()
+          [[ "$VERSION" == *-* ]] && prerelease=(--prerelease)
+          gh release create "$VERSION" bundle/CuckooGenerator.artifactbundle.zip \
+            --verify-tag --title "$VERSION" --generate-notes "${prerelease[@]}"
+
+  verify:
+    name: Resolve the release by its tag (${{ matrix.name }})
+    needs: release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: macOS, runner: macos-26 }
+          - { name: Linux x86_64, runner: ubuntu-24.04, container: "swift:6.3" }
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Smoke test against the published tag
+        run: scripts/smoke-test-artifactbundle.sh --tag "$VERSION"
