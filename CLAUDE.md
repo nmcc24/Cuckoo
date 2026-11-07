@@ -19,6 +19,7 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
 - **Estimates are relative sizes (S/M/L), never durations.** The roadmap's §4 key defines them.
 - Small, logical commits.
 - **Zero warnings, each fixed at its root.** Treat every warning in our own targets (Source/, Tests/, generated mocks) as a defect. Don't silence one with `@retroactive`, `@preconcurrency`, `nonisolated(unsafe)` or `@unchecked Sendable` unless that's the correct design; if the proper fix is large, put it on the roadmap.
+- **Use the modern Swift APIs, not the Objective-C-era ones** (Nuno, 2026-11-07). Swift `Regex`, standard-library string operations (`split`, `replacing`, `contains`, `firstRange(of:)`, `trimming` helpers) and `URL(filePath:)`/`appending(path:)`, never `NSRegularExpression`, `NSString`/`NSRange` bridging, `components(separatedBy:)`, `replacingOccurrences` or `CharacterSet` trimming. On Linux those link ICU's 44 MB data into the prebuilt generator. Keep `NSLock` (`Mutex` needs iOS 18) and `NSException` in the runtime, which are deliberate.
 
 ## Git and merge rules
 - `master` is protected by the "Merge to master" ruleset:
