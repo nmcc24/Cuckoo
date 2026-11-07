@@ -1,5 +1,3 @@
-import Foundation
-
 enum CuckooGeneratorError: Error {
     case ioError(any Error)
     case unknownError(any Error)

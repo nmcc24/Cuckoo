@@ -1,5 +1,3 @@
-import Foundation
-
 enum Attribute: Hashable, CustomStringConvertible {
     case available(arguments: [String])
     case objc

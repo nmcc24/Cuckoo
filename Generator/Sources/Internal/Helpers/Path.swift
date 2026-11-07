@@ -1,4 +1,8 @@
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 
 /// Minimal file system path, a portable replacement for FileKit's `Path`.
 struct Path: Hashable, Sendable, CustomStringConvertible {
@@ -85,8 +89,13 @@ struct Path: Hashable, Sendable, CustomStringConvertible {
     }
 
     var isDirectory: Bool {
+        #if canImport(FoundationEssentials)
+        var isDirectory = false
+        return FileManager.default.fileExists(atPath: rawValue, isDirectory: &isDirectory) && isDirectory
+        #else
         var isDirectory: ObjCBool = false
         return FileManager.default.fileExists(atPath: rawValue, isDirectory: &isDirectory) && isDirectory.boolValue
+        #endif
     }
 
     func relative(to path: Path) -> Path {

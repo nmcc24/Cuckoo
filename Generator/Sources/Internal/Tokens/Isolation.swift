@@ -1,5 +1,3 @@
-import Foundation
-
 /// The actor isolation a declaration states in source.
 enum Isolation: Hashable {
     /// `@MainActor`, or another global actor.

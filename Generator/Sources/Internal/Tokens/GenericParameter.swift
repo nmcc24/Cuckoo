@@ -1,5 +1,3 @@
-import Foundation
-
 struct GenericParameter: Equatable {
     let name: String
     let inheritedTypes: [String]

@@ -1,4 +1,8 @@
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 
 final class Generator {
     typealias TokenFilter = (any Token) -> Bool
@@ -108,7 +112,7 @@ final class Generator {
                     defaultIsolation: module.options.defaultIsolation
                 )
                 for diagnostic in crawler.diagnostics {
-                    FileHandle.standardError.write(Data("\(diagnostic)\n".utf8))
+                    printToStandardError("\(diagnostic)\n")
                 }
                 log(.verbose, message: "Successfully processed file: \(file.path)")
                 return FileRepresentation(file: file, imports: crawler.imports, tokens: crawler.tokens)
@@ -265,7 +269,7 @@ final class Generator {
         var description: String {
             switch self {
             case .invalidRegex(let regex, let error):
-                return "Invalid regular expression \"\(regex)\" because \(error.localizedDescription)."
+                return "Invalid regular expression \"\(regex)\" because \(error)."
             }
         }
     }

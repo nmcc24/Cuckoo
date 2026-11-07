@@ -1,5 +1,3 @@
-import Foundation
-
 struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var parent: Reference<any Token>?
 

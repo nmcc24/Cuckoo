@@ -1,5 +1,3 @@
-import Foundation
-
 struct FileHeaderHandler {
     static func header(for file: FileRepresentation, timestamp: String?) -> String {
         let path = getRelativePath(to: file)

@@ -1,4 +1,15 @@
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+#if canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#else
+import Darwin
+#endif
 
 //  Adapted from https://gist.github.com/blakemerryman/76312e1cbf8aec248167
 /**
@@ -67,9 +78,7 @@ final class Glob: Collection {
             globfree(&gt)
         }
 
-        paths = Array(Set(paths)).sorted { lhs, rhs in
-            lhs.compare(rhs) != ComparisonResult.orderedDescending
-        }
+        paths = Set(paths).sorted()
 
         clearCaches()
     }
@@ -99,12 +108,7 @@ final class Glob: Collection {
         do {
             directories = try fileManager.subpathsOfDirectory(atPath: firstPart).compactMap { subpath in
                 let fullPath = (Path(firstPart) + subpath).rawValue
-                var isDirectory = ObjCBool(false)
-                if fileManager.fileExists(atPath: fullPath, isDirectory: &isDirectory) && isDirectory.boolValue {
-                    return fullPath
-                } else {
-                    return nil
-                }
+                return Path(fullPath).isDirectory ? fullPath : nil
             }
         } catch {
             directories = []
@@ -138,8 +142,7 @@ final class Glob: Collection {
             return isDirectory
         }
 
-        var isDirectoryBool = ObjCBool(false)
-        isDirectory = FileManager.default.fileExists(atPath: path, isDirectory: &isDirectoryBool) && isDirectoryBool.boolValue
+        isDirectory = Path(path).isDirectory
         isDirectoryCache[path] = isDirectory!
 
         return isDirectory!
