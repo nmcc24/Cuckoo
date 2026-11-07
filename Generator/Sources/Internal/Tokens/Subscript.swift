@@ -153,6 +153,27 @@ extension Subscript {
         whereConstraints.isEmpty ? "" : " where \(whereConstraints.joined(separator: ", "))"
     }
 
+    /// The getter as the mock's subscript calls it: it forwards to `super[...]` and the default implementation's subscript.
+    var mockedGetter: Method {
+        var getter = getter
+        let keyArguments = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
+        getter.superclassCallOverride = "super[\(keyArguments)]"
+        getter.defaultCallOverride = "__defaultImplStub.value[\(keyArguments)]"
+        getter.mentionsSelf = mentionsSelf
+        return getter
+    }
+
+    /// The setter as the mock's subscript calls it, assigning the new value through `super[...]` and the default
+    /// implementation's subscript.
+    var mockedSetter: Method {
+        var setter = setter
+        let keyArguments = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
+        setter.superclassCallOverride = "super[\(keyArguments)] = \(newValueName)"
+        setter.defaultCallOverride = "__defaultImplStub.value[\(keyArguments)] = \(newValueName)"
+        setter.mentionsSelf = mentionsSelf
+        return setter
+    }
+
     /// The getter's effects, each followed by a space.
     var getterEffects: String {
         [isAsync ? "async" : nil, throwType?.description].compactMap { $0 }.map { "\($0) " }.joined()

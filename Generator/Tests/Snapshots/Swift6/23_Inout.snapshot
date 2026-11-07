@@ -545,24 +545,24 @@ final class MockDoubler: Doubler, nonisolated Cuckoo.ClassMock {
     }
 
     override func apply(_ p0: inout Int, _ p1: (Int) -> Int) {
-			return withoutActuallyEscaping(p1, do: { (p1: @escaping (Int) -> Int) in
-			        return cuckoo_manager.call(
-			                    "apply(_ p0: inout Int, _ p1: (Int) -> Int)",
-			                    parameters: (p0, p1),
-			                    escapingParameters: (p0, ({ _ in
-			                                fatalError("This is a stub! It's not supposed to be called!")
-			                            } as (Int) -> Int)),
-			                    invoke: { (implementation: (inout Int, @escaping (Int) -> Int) -> Void, arguments) in
-			                        var __inout0 = arguments.0;
-			                        defer {
-			                            p0 = __inout0
-			                        };
-			                        return implementation(&__inout0, arguments.1)
-			                    },
-			                    superclassCall: super.apply(&p0, p1),
-			                    defaultCall: __defaultImplStub.value.apply(&p0, p1)
-			                )
-			})
+        return withoutActuallyEscaping(p1, do: { (p1: @escaping (Int) -> Int) in
+            return cuckoo_manager.call(
+                "apply(_ p0: inout Int, _ p1: (Int) -> Int)",
+                parameters: (p0, p1),
+                escapingParameters: (p0, ({ _ in
+                                        fatalError("This is a stub! It's not supposed to be called!")
+                                    } as (Int) -> Int)),
+                invoke: { (implementation: (inout Int, @escaping (Int) -> Int) -> Void, arguments) in
+                                var __inout0 = arguments.0;
+                                defer {
+                                    p0 = __inout0
+                                };
+                                return implementation(&__inout0, arguments.1)
+                            },
+                superclassCall: super.apply(&p0, p1),
+                defaultCall: __defaultImplStub.value.apply(&p0, p1)
+            )
+        })
     }
 
     nonisolated struct __StubbingProxy_Doubler: Cuckoo.StubbingProxy {
