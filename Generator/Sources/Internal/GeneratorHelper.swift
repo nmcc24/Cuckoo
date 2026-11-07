@@ -25,6 +25,7 @@ struct GeneratorHelper {
             let containers = try tokens.map { token in
                 var context = token.serialize()
                 if let container = token as? any ContainerToken {
+                    context["mockMembers"] = try MockMembersBuilder.build(container, options: .init(keepDocumentation: keepDocumentation, debug: debug))
                     context["nopImplStub"] = try NopImplStubBuilder.build(container)
                     context["stubbingProxy"] = try StubbingProxyBuilder.build(container, isStatic: false)
                     context["verificationProxy"] = try VerificationProxyBuilder.build(container, isStatic: false)
@@ -174,11 +175,12 @@ struct GeneratorHelper {
         method.isAsync
     }
 
-    private static func openNestedClosure(for method: Method) -> String {
+    /// The lines that open the closures or local functions making each non-escaping closure parameter escaping, so
+    /// the mock can record it; ``closeNestedClosure(for:)`` closes them after the body.
+    static func openNestedClosure(for method: Method) -> [String] {
         let parameters = nonEscapingClosureParameters(of: method)
-        guard !parameters.isEmpty else { return "" }
+        guard !parameters.isEmpty else { return [] }
         let returnSignature = if let returnType = method.returnType, !returnType.isVoid { " -> \(returnType.description)" } else { "" }
-        var fullString = "\n"
         if usesLocalFunctions(method) {
             // An async body goes into local functions: under NonisolatedNonsendingByDefault, a closure passed to
             // `withoutActuallyEscaping` runs concurrently, so capturing the non-`Sendable` mock is a data race. A
@@ -189,35 +191,36 @@ struct GeneratorHelper {
             let effects = ["async", method.signature.throwType.map { $0.isRethrowing ? "throws" : $0.description }]
                 .compactMap { $0 }
                 .joined(separator: " ")
-            for (index, parameter) in parameters {
-                let indents = String(repeating: "\t", count: index + 2)
-                fullString += "\(indents)\(execution)func \(localFunctionName(for: parameter))(_ \(parameter.usableName): @escaping \(parameter.type)) \(effects)\(returnSignature) {\n"
+            return parameters.enumerated().map { level, element in
+                let parameter = element.1
+                return "\(indentation(level))\(execution)func \(localFunctionName(for: parameter))(_ \(parameter.usableName): @escaping \(parameter.type)) \(effects)\(returnSignature) {"
             }
         } else {
             let tries = method.isThrowing ? "try " : ""
-            for (index, parameter) in parameters {
-                let indents = String(repeating: "\t", count: index + 2)
-                fullString += "\(indents)return \(tries)withoutActuallyEscaping(\(parameter.usableName), do: { (\(parameter.usableName): @escaping \(parameter.type))\(returnSignature) in\n"
+            return parameters.enumerated().map { level, element in
+                let parameter = element.1
+                return "\(indentation(level))return \(tries)withoutActuallyEscaping(\(parameter.usableName), do: { (\(parameter.usableName): @escaping \(parameter.type))\(returnSignature) in"
             }
         }
-        return fullString
     }
 
-    private static func closeNestedClosure(for method: Method) -> String {
+    static func closeNestedClosure(for method: Method) -> [String] {
         let parameters = nonEscapingClosureParameters(of: method)
-        guard !parameters.isEmpty else { return "" }
-        var fullString = "\n"
         let tries = method.isThrowing ? "try " : ""
-        for (index, parameter) in parameters.reversed() {
-            let indents = String(repeating: "\t", count: index + 2)
-            if usesLocalFunctions(method) {
-                fullString += "\(indents)}\n"
-                fullString += "\(indents)return \(tries)await withoutActuallyEscaping(\(parameter.usableName), do: \(localFunctionName(for: parameter)))\n"
+        return parameters.enumerated().reversed().flatMap { level, element in
+            let parameter = element.1
+            return if usesLocalFunctions(method) {
+                ["}", "return \(tries)await withoutActuallyEscaping(\(parameter.usableName), do: \(localFunctionName(for: parameter)))"]
+                    .map { indentation(level) + $0 }
             } else {
-                fullString += "\(indents)})\n"
+                [indentation(level) + "})"]
             }
         }
-        return fullString
+    }
+
+    /// The indentation of the closure or local function at `level`, counted from 0 for the outermost.
+    static func indentation(_ level: Int) -> String {
+        String(repeating: "    ", count: level)
     }
 
     private static func localFunctionName(for parameter: MethodParameter) -> String {
@@ -247,14 +250,6 @@ extension GeneratorHelper {
         stencilExtension.registerFilter("genericSafe") { (value: Any?) in
             guard let string = value as? String else { return value }
             return genericSafeType(from: string)
-        }
-        stencilExtension.registerFilter("openNestedClosure") { (value: Any?) in
-            guard let method = value as? Method else { return value }
-            return openNestedClosure(for: method)
-        }
-        stencilExtension.registerFilter("closeNestedClosure") { (value: Any?) in
-            guard let method = value as? Method else { return value }
-            return closeNestedClosure(for: method)
         }
         stencilExtension.registerFilter("escapeReservedKeywords") { (value: Any?) in
             guard let name = value as? String else { return value }
