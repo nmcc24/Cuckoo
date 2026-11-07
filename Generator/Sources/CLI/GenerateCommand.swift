@@ -2,9 +2,8 @@ import Foundation
 import ArgumentParser
 
 @main
-@available(macOS 12, *)
 struct GenerateCommand: AsyncParsableCommand {
-    nonisolated(unsafe) static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "Generate",
         abstract: "Cuckoo CLI tool for generating mocks according to the specified configuration.",
         version: version,
@@ -32,10 +31,11 @@ struct GenerateCommand: AsyncParsableCommand {
     @Flag(help: "Include extra information during generation and in the generated code.")
     var verbose = false
 
-    private var overriddenOutput: String?
+    func run() async throws {
+        try await Logger.$level.withValue(verbose ? .verbose : .info, operation: generate)
+    }
 
-    mutating func run() async throws {
-        Logger.shared.logLevel = verbose ? .verbose : .info
+    private func generate() async throws {
 
         let projectDir = ProcessInfo.processInfo.environment["PROJECT_DIR"]
         let configurationFile = [
@@ -56,7 +56,7 @@ struct GenerateCommand: AsyncParsableCommand {
 
         log(.info, message: "Using configuration file at path:", configurationFile.path)
 
-        overriddenOutput = ProcessInfo.processInfo.environment["CUCKOO_OVERRIDE_OUTPUT"]
+        let overriddenOutput = ProcessInfo.processInfo.environment["CUCKOO_OVERRIDE_OUTPUT"]
         let requestedModuleName = ProcessInfo.processInfo.environment["CUCKOO_MODULE_NAME"]
         let environment = ProcessInfo.processInfo.environment
         let sourceModule = environment["CUCKOO_SOURCE_MODULE"].flatMap { name in
@@ -85,9 +85,6 @@ struct GenerateCommand: AsyncParsableCommand {
             }
             return
         }
-
-        // To not capture mutating self.
-        let verbose = self.verbose
 
         // Modules that write to the same file, as all of them do under the single-file build plugin, are joined into it.
         var fileOutputs: [(path: Path, modules: [Module])] = []
