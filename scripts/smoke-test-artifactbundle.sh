@@ -25,7 +25,10 @@ else
     repo="$(cd "$(dirname "$0")/.." && pwd)"
     # The package as committed plus the working tree's changes, without build products.
     mkdir "$work/Cuckoo"
-    (cd "$repo" && git ls-files -z --cached --others --exclude-standard | xargs -0 tar -cf -) | tar -xf - -C "$work/Cuckoo"
+    # A CI container's checkout belongs to another user, which git refuses unless the directory is marked safe.
+    git -c safe.directory="$repo" -C "$repo" ls-files -z --cached --others --exclude-standard > "$work/files"
+    [[ -s "$work/files" ]] || { echo "No files listed in $repo" >&2; exit 1; }
+    (cd "$repo" && tar -cf - --null -T "$work/files") | tar -xf - -C "$work/Cuckoo"
     cp -R "$bundle" "$work/Cuckoo/CuckooGenerator.artifactbundle"
     "$work/Cuckoo/scripts/set-prebuilt-generator.sh" local CuckooGenerator.artifactbundle
     dependency='.package(path: "../Cuckoo")'
