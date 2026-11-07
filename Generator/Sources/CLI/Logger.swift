@@ -1,25 +1,17 @@
-import Foundation
-
-final class Logger {
-    enum LogLevel: Comparable {
+enum Logger {
+    enum LogLevel: Comparable, Sendable {
         case verbose
         case info
         case error
     }
 
-    nonisolated(unsafe) static let shared = Logger()
-
-    var logLevel: LogLevel = .info
-
-    private init() {}
-
-    func log(_ level: LogLevel, message: [Any], separator: String = " ") {
-        if level >= logLevel {
-            print(message.map(String.init(describing:)).joined(separator: separator))
-        }
-    }
+    /// The lowest level that's printed. `GenerateCommand` binds it for the whole run, and the tasks that generate
+    /// files concurrently inherit it.
+    @TaskLocal static var level: LogLevel = .info
 }
 
 func log(_ level: Logger.LogLevel, message: Any...) {
-    Logger.shared.log(level, message: message)
+    if level >= Logger.level {
+        print(message.map(String.init(describing:)).joined(separator: " "))
+    }
 }
