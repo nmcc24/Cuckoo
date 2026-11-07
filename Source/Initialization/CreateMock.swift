@@ -1,5 +1,3 @@
-import Foundation
-
 /// Creates the mock of `mockedType` and stubs it before it's returned.
 ///
 /// - Parameters:

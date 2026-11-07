@@ -1,9 +1,7 @@
-import Foundation
-
 extension StubCall {
     /// The call as a test reads it: the member's name and its arguments.
     var readableDescription: String {
-        if let bracketIndex = method.range(of: "(")?.lowerBound {
+        if let bracketIndex = method.firstIndex(of: "(") {
             return method[..<bracketIndex] + parametersAsString
         } else if method.hasSuffix("#set") {
             return method + parametersAsString
@@ -30,7 +28,7 @@ struct MemberSignature {
         }
         let parameters = Self.topLevelParameters(in: method[method.index(after: open)...])
         let declaredLabels = parameters.map { parameter in
-            String(parameter.trimmingCharacters(in: .whitespaces).prefix { $0 != " " && $0 != ":" })
+            String(parameter.drop(while: \.isSpace).prefix { $0 != " " && $0 != ":" })
         }
         name = String(method[..<open]) + "(" + declaredLabels.map { $0 + ":" }.joined() + ")"
         labels = declaredLabels + (isSetter ? ["newValue"] : [])
@@ -69,7 +67,7 @@ struct MemberSignature {
             case ")", "]", ">":
                 if depth == 0 {
                     let last = list[start..<index]
-                    if !last.trimmingCharacters(in: .whitespaces).isEmpty {
+                    if !last.allSatisfy(\.isSpace) {
                         parameters.append(last)
                     }
                     return parameters
@@ -89,4 +87,11 @@ struct MemberSignature {
 /// Numbers `lines` from 1, one per line, indented under a heading.
 func numberedList(_ lines: [String]) -> String {
     lines.enumerated().map { "  \($0 + 1). \($1)" }.joined(separator: "\n")
+}
+
+private extension Character {
+    /// Whitespace other than a line break.
+    var isSpace: Bool {
+        isWhitespace && !isNewline
+    }
 }
