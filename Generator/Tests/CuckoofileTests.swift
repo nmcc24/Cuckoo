@@ -6,7 +6,7 @@ import Testing
 /// filtering, and which configurations are rejected.
 @Suite
 struct CuckoofileTests {
-    private static let repositoryRoot = URL(fileURLWithPath: #filePath)
+    private static let repositoryRoot = URL(filePath: #filePath)
         .deletingLastPathComponent()
         .deletingLastPathComponent()
         .deletingLastPathComponent()
@@ -275,11 +275,11 @@ struct CuckoofileTests {
 
     @Test
     func repositoryCuckoofile() throws {
-        let url = Self.repositoryRoot.appendingPathComponent("Cuckoofile.toml")
+        let url = Self.repositoryRoot.appending(path: "Cuckoofile.toml")
         // The plugins set every module's output.
         let modules = try parse(
             String(contentsOf: url, encoding: .utf8),
-            configurationPath: Path(url.path),
+            configurationPath: Path(url.path(percentEncoded: false)),
             overriddenOutput: "/derived/GeneratedMocks.swift"
         )
         #expect(modules.keys.sorted() == ["CuckooPluginTestSources", "CuckooTestSources"])
@@ -296,7 +296,7 @@ struct CuckoofileTests {
     func documentationExamples() throws {
         func examples(in article: String) throws -> [String] {
             let text = try String(
-                contentsOf: Self.repositoryRoot.appendingPathComponent("Source/Cuckoo.docc/\(article).md"),
+                contentsOf: Self.repositoryRoot.appending(path: "Source/Cuckoo.docc/\(article).md"),
                 encoding: .utf8
             )
             return text.components(separatedBy: "```toml\n").dropFirst().map {

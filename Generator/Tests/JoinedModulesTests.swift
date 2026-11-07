@@ -8,14 +8,14 @@ import Testing
 struct JoinedModulesTests {
     @Test
     func modulesSharingAnOutputAreJoined() async throws {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooJoined-\(UUID().uuidString)")
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooJoined-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
         let files = [
             "App/Screen.swift": "import Foundation\n\nprotocol Screen {\n    func show()\n}\n",
             "Core/Store.swift": "public protocol Store {\n    func load() -> Int\n}\n",
         ]
         for (path, source) in files {
-            let url = directory.appendingPathComponent(path)
+            let url = directory.appending(path: path)
             try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
             try source.write(to: url, atomically: true, encoding: .utf8)
         }
@@ -33,7 +33,7 @@ struct JoinedModulesTests {
                 [modules.Core.options]
                 omitHeaders = true
                 """,
-            configurationPath: Path(directory.appendingPathComponent("Cuckoofile.toml").path),
+            configurationPath: Path(directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),
             overriddenOutput: "/derived/GeneratedMocks.swift",
             requestedModuleName: nil
         )

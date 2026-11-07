@@ -143,10 +143,10 @@ struct GeneratorOptionsTests {
     }
 
     private func generate(source: String, moduleKeys: String = "", options: String = "") async throws -> String {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooOptions-\(UUID().uuidString)")
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooOptions-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
-        try source.write(to: directory.appendingPathComponent("Source.swift"), atomically: true, encoding: .utf8)
+        try source.write(to: directory.appending(path: "Source.swift"), atomically: true, encoding: .utf8)
         let modules = try Cuckoofile.modules(
             from: """
                 [modules.App]
@@ -158,7 +158,7 @@ struct GeneratorOptionsTests {
                 omitHeaders = true
                 \(options)
                 """,
-            configurationPath: Path(directory.appendingPathComponent("Cuckoofile.toml").path),
+            configurationPath: Path(directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),
             overriddenOutput: nil,
             requestedModuleName: nil
         )
