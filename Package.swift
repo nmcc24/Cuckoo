@@ -18,6 +18,24 @@ let swiftSettings: [SwiftSetting] = [
     .split(separator: ",")
     .map { .enableUpcomingFeature(String($0)) }
 
+/// Where the plugins' generator comes from. Master builds it from source. The release workflow's tagged commit sets
+/// `prebuiltGenerator` to the release's `artifactbundle` (roadmap Phase 5 item 2), so plugin users don't compile
+/// swift-syntax; `scripts/smoke-test-artifactbundle.sh` sets a local bundle to test one before it's released.
+enum GeneratorBinary {
+    case remote(url: String, checksum: String)
+    case local(path: String)
+}
+
+let prebuiltGenerator: GeneratorBinary? = nil
+
+/// The plugins find the generator by its executable's name, `CuckooGenerator`, which the bundle's executable has too.
+let generator: Target.Dependency = prebuiltGenerator == nil ? "CuckooGenerator" : "CuckooGeneratorBinary"
+let generatorBinaryTargets: [Target] = switch prebuiltGenerator {
+case .remote(let url, let checksum): [.binaryTarget(name: "CuckooGeneratorBinary", url: url, checksum: checksum)]
+case .local(let path): [.binaryTarget(name: "CuckooGeneratorBinary", path: path)]
+case nil: []
+}
+
 let package = Package(
     name: "Cuckoo",
     platforms: [
@@ -135,13 +153,13 @@ let package = Package(
         .plugin(
             name: "CuckooPluginSingleFile",
             capability: .buildTool(),
-            dependencies: ["CuckooGenerator"],
+            dependencies: [generator],
             path: "Generator/Plugin/File"
         ),
         .plugin(
             name: "CuckooPluginModular",
             capability: .buildTool(),
-            dependencies: ["CuckooGenerator"],
+            dependencies: [generator],
             path: "Generator/Plugin/Modular"
         ),
         // .plugin(
@@ -150,5 +168,5 @@ let package = Package(
         //     dependencies: ["CuckooGenerator"],
         //     path: "Generator/Plugin/Directory"
         // ),
-    ]
+    ] + generatorBinaryTargets
 )
