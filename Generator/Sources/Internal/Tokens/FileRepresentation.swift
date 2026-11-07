@@ -1,5 +1,3 @@
-import Foundation
-
 struct FileRepresentation: @unchecked Sendable {
     let file: TextFile
     let imports: [Import]

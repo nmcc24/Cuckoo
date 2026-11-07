@@ -1,5 +1,3 @@
-import Foundation
-
 @dynamicMemberLookup
 final class Reference<Value> {
     private(set) var value: Value

@@ -1,4 +1,3 @@
-import Foundation
 import SwiftBasicFormat
 import SwiftParser
 import SwiftSyntax

@@ -1,4 +1,3 @@
-import Foundation
 import RegexBuilder
 
 struct Method: Token, HasAttributes, HasAccessibility, HasName {

@@ -1,5 +1,3 @@
-import Foundation
-
 struct OrderedSet<Element: Hashable>: ExpressibleByArrayLiteral {
     private(set) var values: [Element] = []
     private var members: Set<Element> = []

@@ -1,5 +1,3 @@
-import Foundation
-
 // Taken from https://www.swiftbysundell.com/articles/async-and-concurrent-forEach-and-map/
 
 extension Sequence {

@@ -1,5 +1,3 @@
-import Foundation
-
 enum WrappableType {
     indirect case optional(WrappableType)
     indirect case implicitlyUnwrappedOptional(WrappableType)

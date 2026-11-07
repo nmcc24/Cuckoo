@@ -1,5 +1,3 @@
-import Foundation
-
 final class Module: Sendable {
     let name: String
     let imports: [String]

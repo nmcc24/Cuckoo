@@ -1,5 +1,3 @@
-import Foundation
-
 /// A protocol's mock and stub are `final` classes, where `Self` means the class itself but can only be written as
 /// a method's or property's result. Their members name `Self` through a typealias each class declares to itself,
 /// so `Self` can stand anywhere: as a parameter, inside an array, or in a closure.
