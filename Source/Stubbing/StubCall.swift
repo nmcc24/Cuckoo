@@ -1,5 +1,3 @@
-import Foundation
-
 /// A call a mock recorded.
 public protocol StubCall {
     /// The called member, as failure messages name it.
@@ -18,7 +16,7 @@ public struct ConcreteStubCall<IN>: StubCall {
     /// The call's arguments in parentheses, as failure messages show them.
     public var parametersAsString: String {
         let string = String(describing: parameters)
-        if (string.range(of: ",") != nil && string.hasPrefix("(")) || string == "()" {
+        if (string.contains(",") && string.hasPrefix("(")) || string == "()" {
             return string
         } else {
             // If only one parameter add brackets and quotes
