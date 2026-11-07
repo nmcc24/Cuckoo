@@ -1,31 +1,18 @@
-import Foundation
-
-extension String {
+extension StringProtocol {
+    /// The string without the whitespace and newlines it starts and ends with.
     var trimmed: String {
-        return trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        String(trimming(where: \.isWhitespace))
     }
 
-    func takeUntil(occurence: String) -> String? {
-        return components(separatedBy: occurence).first
+    /// The string without the spaces and tabs it starts and ends with; newlines stay.
+    var trimmedSpaces: String {
+        String(trimming { $0.isWhitespace && !$0.isNewline })
     }
 
-    subscript(range: Range<Int>) -> String {
-        let stringRange = index(startIndex, offsetBy: range.lowerBound)..<index(startIndex, offsetBy: range.upperBound)
-        return String(self[stringRange])
-    }
-}
-
-extension String.UTF8View {
-    subscript(range: Range<Int>) -> String {
-        let stringRange = index(startIndex, offsetBy: range.lowerBound)..<index(startIndex, offsetBy: range.upperBound)
-        let subsequence: String.UTF8View.SubSequence = self[stringRange]
-        return String(subsequence) ?? ""
-    }
-}
-
-extension String {
-    func regexMatches(_ source: String) -> Bool {
-        let regex = try! NSRegularExpression(pattern: self)
-        return regex.firstMatch(in: source, range: NSRange(location: 0, length: source.count)) != nil
+    private func trimming(where isTrimmed: (Character) -> Bool) -> SubSequence {
+        guard let first = firstIndex(where: { !isTrimmed($0) }), let last = lastIndex(where: { !isTrimmed($0) }) else {
+            return self[endIndex...]
+        }
+        return self[first...last]
     }
 }

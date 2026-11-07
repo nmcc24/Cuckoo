@@ -27,7 +27,7 @@ extension ExprSyntaxProtocol {
 
 extension SyntaxProtocol {
     var filteredDescription: String {
-        trimmedDescription.replacingOccurrences(of: "\n", with: " ")
+        trimmedDescription.replacing("\n", with: " ")
     }
 
     func recursivelyNormalizingTrivia(leading: Trivia = [], trailing: Trivia = []) -> Self {

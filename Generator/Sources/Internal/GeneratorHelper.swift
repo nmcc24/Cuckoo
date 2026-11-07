@@ -28,7 +28,7 @@ struct GeneratorHelper {
         }
         let line = firstError.map { converter.location(for: $0.positionAfterSkippingLeadingTrivia).line } ?? 1
         let lines = source.split(separator: "\n", omittingEmptySubsequences: false)
-        let text = lines.indices.contains(line - 1) ? lines[line - 1].trimmingCharacters(in: .whitespaces) : ""
+        let text = lines.indices.contains(line - 1) ? lines[line - 1].trimmedSpaces : ""
         throw FormatError.unparsableOutput(line: line, text: text)
     }
 
@@ -121,7 +121,7 @@ struct GeneratorHelper {
     }
 
     static func genericSafeType(from type: String) -> String {
-        return type.replacingOccurrences(of: "!", with: "?")
+        return type.replacing("!", with: "?")
     }
 
     /// The non-escaping closure parameters, with their positions, which the mock makes escaping with
@@ -195,11 +195,7 @@ struct GeneratorHelper {
     }
 
     static func removeClosureArgumentNames(for type: String) -> String {
-        type.replacingOccurrences(
-            of: "_\\s+?[_a-zA-Z]\\w*?\\s*?:",
-            with: "",
-            options: .regularExpression
-        )
+        type.replacing(/_\s+?[_a-zA-Z]\w*?\s*?:/, with: "")
     }
 }
 

@@ -70,13 +70,13 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             fixedTypes += zip(parent.primaryAssociatedTypes, arguments).map { ($0.name, $1) }
         }
         for requirement in genericRequirements {
-            let separator = requirement.range(of: "==") ?? requirement.range(of: ":")
+            let separator = requirement.firstRange(of: "==") ?? requirement.firstRange(of: ":")
             guard let separator else { continue }
-            var name = requirement[..<separator.lowerBound].trimmingCharacters(in: .whitespaces)
+            var name = requirement[..<separator.lowerBound].trimmedSpaces
             if name.hasPrefix("Self.") {
                 name.removeFirst("Self.".count)
             }
-            let type = requirement[separator.upperBound...].trimmingCharacters(in: .whitespaces)
+            let type = requirement[separator.upperBound...].trimmedSpaces
             if requirement[separator] == "==" {
                 fixedTypes.append((name, type))
             } else {

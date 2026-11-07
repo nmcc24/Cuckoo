@@ -94,7 +94,7 @@ enum WrappableType {
             let (attributes, resultString) = ["@autoclosure", "@escaping", "@noescape"]
                 .reduce(([], trimmedValue)) { acc, next -> ([String], String) in
                     var (attributes, resultString) = acc
-                    guard let range = resultString.range(of: next) else { return acc }
+                    guard let range = resultString.firstRange(of: next) else { return acc }
                     resultString.removeSubrange(range)
                     attributes.append(next)
                     return (attributes, resultString)
@@ -142,7 +142,7 @@ extension WrappableType: Equatable {
         case (.attributed(let lhsWrapped, let lhsAttributes), .attributed(let rhsWrapped, let rhsAttributes)):
             return lhsWrapped == rhsWrapped && lhsAttributes == rhsAttributes
         case (.type(let lhsType), .type(let rhsType)):
-            return lhsType.components(separatedBy: .whitespacesAndNewlines).joined() == rhsType.components(separatedBy: .whitespacesAndNewlines).joined()
+            return lhsType.filter { !$0.isWhitespace } == rhsType.filter { !$0.isWhitespace }
         default:
             return false
         }

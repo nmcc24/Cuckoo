@@ -15,7 +15,7 @@ struct Path: Hashable, Sendable, CustomStringConvertible {
     }
 
     init(_ rawValue: String, expandingTilde: Bool) {
-        self.rawValue = expandingTilde ? NSString(string: rawValue).expandingTildeInPath : rawValue
+        self.rawValue = expandingTilde ? Path.expandingTilde(in: rawValue) : rawValue
     }
 
     var description: String {
@@ -23,7 +23,7 @@ struct Path: Hashable, Sendable, CustomStringConvertible {
     }
 
     var url: URL {
-        URL(fileURLWithPath: rawValue)
+        URL(filePath: rawValue)
     }
 
     var isAbsolute: Bool {
@@ -34,8 +34,22 @@ struct Path: Hashable, Sendable, CustomStringConvertible {
         isAbsolute ? standardized : (Path.current + self).standardized
     }
 
+    /// The path with empty and `.` components removed, `..` resolved against the components before it, and no
+    /// trailing separator. It reads the path's text only, never the file system.
     var standardized: Path {
-        Path(NSString(string: rawValue).standardizingPath)
+        var components: [Substring] = []
+        for component in rawValue.split(separator: "/") {
+            switch component {
+            case ".":
+                continue
+            case ".." where components.last.map({ $0 != ".." }) ?? isAbsolute:
+                if !components.isEmpty { components.removeLast() }
+            default:
+                components.append(component)
+            }
+        }
+        let joined = components.joined(separator: "/")
+        return Path(isAbsolute ? "/" + joined : joined.isEmpty ? "." : joined)
     }
 
     var standardRawValue: String {
@@ -43,24 +57,27 @@ struct Path: Hashable, Sendable, CustomStringConvertible {
     }
 
     var parent: Path {
-        let parent = NSString(string: rawValue).deletingLastPathComponent
-        return Path(parent.isEmpty ? "." : parent)
+        let names = rawValue.split(separator: "/")
+        guard names.count > 1 || (names.count == 1 && isAbsolute) else { return Path(isAbsolute ? "/" : ".") }
+        let parent = names.dropLast().joined(separator: "/")
+        return Path(isAbsolute ? "/" + parent : parent)
     }
 
+    /// The root (`/`) of an absolute path, then each name.
     var components: [Path] {
-        NSString(string: rawValue).pathComponents.map(Path.init)
+        (isAbsolute ? [Path("/")] : []) + rawValue.split(separator: "/").map { Path(String($0)) }
     }
 
     var fileName: String {
-        NSString(string: rawValue).lastPathComponent
+        rawValue.split(separator: "/").last.map(String.init) ?? (isAbsolute ? "/" : "")
     }
 
     var fileNameWithoutExtension: String {
-        NSString(string: fileName).deletingPathExtension
+        Path.splittingExtension(of: fileName).name
     }
 
     var pathExtension: String {
-        NSString(string: rawValue).pathExtension
+        Path.splittingExtension(of: fileName).extension
     }
 
     var exists: Bool {
@@ -94,7 +111,7 @@ struct Path: Hashable, Sendable, CustomStringConvertible {
         let common = zip(absolute.components, other.absolute.components)
             .prefix { $0 == $1 }
             .map(\.0.rawValue)
-        return Path(NSString.path(withComponents: common.isEmpty ? [Path.separator] : common))
+        return common.dropFirst().reduce(Path(common.first ?? Path.separator)) { $0 + $1 }
     }
 
     /// Direct children (`searchDepth: 0`) or descendants up to `searchDepth` levels deeper that satisfy `condition`.
@@ -118,11 +135,27 @@ struct Path: Hashable, Sendable, CustomStringConvertible {
 
     static func + (lhs: Path, rhs: String) -> Path {
         guard !lhs.rawValue.isEmpty else { return Path(rhs) }
-        return Path(NSString(string: lhs.rawValue).appendingPathComponent(rhs))
+        let base = lhs.rawValue.hasSuffix("/") && lhs.rawValue != "/" ? String(lhs.rawValue.dropLast()) : lhs.rawValue
+        let name = String(rhs.trimmingPrefix("/"))
+        guard !name.isEmpty else { return Path(base) }
+        return Path(base == "/" ? "/" + name : base + "/" + name)
     }
 
     static func + (lhs: String, rhs: Path) -> Path {
         Path(lhs) + rhs
+    }
+
+    /// `~` and `~/…` start from the user's home directory.
+    private static func expandingTilde(in path: String) -> String {
+        guard path == "~" || path.hasPrefix("~/") else { return path }
+        let home = ProcessInfo.processInfo.environment["HOME"] ?? FileManager.default.homeDirectoryForCurrentUser.path
+        return (Path(home) + String(path.dropFirst(2))).rawValue
+    }
+
+    /// A file name's extension is what follows its last `.`, unless that `.` starts the name, as in `.gitignore`.
+    private static func splittingExtension(of fileName: String) -> (name: String, extension: String) {
+        guard let dot = fileName.lastIndex(of: "."), dot != fileName.startIndex else { return (fileName, "") }
+        return (String(fileName[..<dot]), String(fileName[fileName.index(after: dot)...]))
     }
 }
 

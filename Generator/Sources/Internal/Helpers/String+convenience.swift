@@ -7,37 +7,10 @@ extension String {
 }
 
 extension String {
-    subscript(range: NSRange) -> String {
-        let fromIndex = self.index(self.startIndex, offsetBy: range.location)
-        let toIndex = self.index(fromIndex, offsetBy: range.length)
-        return String(self[fromIndex..<toIndex])
-    }
-}
-
-extension String {
-    func stringMatch(from match: NSTextCheckingResult, at range: Int = 0) -> String {
-        let matchRange = match.range(at: range)
-        let fromIndex = index(startIndex, offsetBy: matchRange.location)
-        let toIndex = index(fromIndex, offsetBy: matchRange.length)
-        return String(self[fromIndex..<toIndex])
-    }
-
-    func removing(match: NSTextCheckingResult, at range: Int = 0) -> String {
-        let matchRange = match.range(at: range)
-        let fromIndex = index(startIndex, offsetBy: matchRange.location)
-        let toIndex = index(fromIndex, offsetBy: matchRange.length)
-
-        var mutableString = self
-        mutableString.removeSubrange(fromIndex..<toIndex)
-        return mutableString
-    }
-}
-
-extension String {
     /// A type written as `Parent<String, Int>`, without its generic arguments: `Parent`.
     var withoutGenericArguments: String {
         guard let openingBracket = firstIndex(of: "<") else { return self }
-        return String(self[..<openingBracket]).trimmingCharacters(in: .whitespaces)
+        return self[..<openingBracket].trimmedSpaces
     }
 
     /// A type's top-level generic arguments: `["String", "[Int: Bool]"]` for `Parent<String, [Int: Bool]>`.
@@ -53,7 +26,7 @@ extension String {
             case ">", "]", ")":
                 depth -= 1
             case "," where depth == 0:
-                arguments.append(current.trimmingCharacters(in: .whitespaces))
+                arguments.append(current.trimmedSpaces)
                 current = ""
                 continue
             default:
@@ -61,7 +34,7 @@ extension String {
             }
             current.append(character)
         }
-        arguments.append(current.trimmingCharacters(in: .whitespaces))
+        arguments.append(current.trimmedSpaces)
         return arguments
     }
 }
