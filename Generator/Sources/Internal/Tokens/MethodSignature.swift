@@ -1,5 +1,3 @@
-import Foundation
-
 extension Method {
     struct Signature {
         let genericParameters: [GenericParameter]

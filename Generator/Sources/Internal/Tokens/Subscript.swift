@@ -1,5 +1,3 @@
-import Foundation
-
 /// A subscript. The mock records its accessors as calls named after the subscript's signature with `#get` or
 /// `#set`, as properties' accessors are, and stubs them through the method machinery: the getter is a method
 /// taking the keys, the setter one taking the keys and then the new value.

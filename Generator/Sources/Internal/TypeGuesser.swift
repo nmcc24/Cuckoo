@@ -1,5 +1,3 @@
-import Foundation
-
 struct TypeGuesser {
     static func guessType(from value: String) -> String? {
         guard !value.trimmed.isEmpty else { return nil }

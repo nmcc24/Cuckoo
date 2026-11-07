@@ -1,4 +1,3 @@
-import Foundation
 import TOMLDecoder
 
 /// Reads `Cuckoofile.toml` into the modules to generate.
