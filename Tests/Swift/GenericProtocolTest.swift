@@ -144,7 +144,6 @@ private struct MixedPrimaryAssociatedTypeProtocolConformerStruct<Input: Equatabl
     }
 }
 
-@available(iOS 16.0.0, macOS 13.0.0, watchOS 9.0, tvOS 16, *)
 final class GenericProtocolTest: XCTestCase {
     private func createMock<V>(value: V, classy: MockTestedClass = MockTestedClass()) -> MockGenericProtocol<MockTestedClass, V> {
         return MockGenericProtocol(theC: classy, theV: value)

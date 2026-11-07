@@ -23,10 +23,6 @@ enum MockBuilder {
         if let parentName {
             lines.append("extension \(parentName) {")
         }
-        if container.hasPrimaryAssociatedTypes {
-            lines.append("// runtime support for constrained protocols with primary associated types")
-            lines.append("@available(iOS 16, macOS 13, watchOS 9, tvOS 16, *)")
-        }
         lines.append(header(of: container, isActor: isActor, hasStaticMembers: hasStaticMembers))
 
         let mocksType = if usesTypeErasure {
