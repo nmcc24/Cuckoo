@@ -36,7 +36,9 @@ struct GenerateCommand: AsyncParsableCommand {
     var verbose = false
 
     func run() async throws {
-        try await Logger.$level.withValue(verbose ? .verbose : .info, operation: generate)
+        try await Logger.$level.withValue(verbose ? .verbose : .info) {
+            try await generate()
+        }
     }
 
     private func generate() async throws {
