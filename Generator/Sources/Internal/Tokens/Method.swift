@@ -1,4 +1,5 @@
 import Foundation
+import RegexBuilder
 
 struct Method: Token, HasAttributes, HasAccessibility, HasName {
     var parent: Reference<any Token>?
@@ -360,6 +361,10 @@ extension Method {
 private extension String {
     /// Whether the source text names `identifier` as a whole word.
     func mentions(_ identifier: String) -> Bool {
-        range(of: "\\b\(NSRegularExpression.escapedPattern(for: identifier))\\b", options: .regularExpression) != nil
+        contains(Regex {
+            Anchor.wordBoundary
+            identifier
+            Anchor.wordBoundary
+        }.wordBoundaryKind(.simple))
     }
 }

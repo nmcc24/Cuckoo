@@ -113,7 +113,7 @@ struct GenerateCommand: AsyncParsableCommand {
                 await generatedFiles.concurrentForEach { generatedFile in
                     let originalFileName = generatedFile.path.fileNameWithoutExtension
                     let fileNameWithoutExtension = module.filenameFormat
-                        .map { $0.replacingOccurrences(of: "{}", with: originalFileName) }
+                        .map { $0.replacing("{}", with: originalFileName) }
                         ?? originalFileName
                     let outputFile = TextFile(path: output.path + "\(fileNameWithoutExtension).swift")
                     do {

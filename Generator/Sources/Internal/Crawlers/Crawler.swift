@@ -664,12 +664,12 @@ extension Crawler {
         for piece in trivia.pieces.reversed() {
             switch piece {
             case .docLineComment(let string):
-                docStrings.insert(string.replacingOccurrences(of: "///", with: ""), at: 0)
+                docStrings.insert(string.replacing("///", with: ""), at: 0)
             case .docBlockComment(let string):
                 docStrings.insert(
                     contentsOf: string
-                        .components(separatedBy: .newlines)
-                        .map { $0.replacingOccurrences(of: "/**", with: "").replacingOccurrences(of: "*/", with: "") },
+                        .split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
+                        .map { String($0.replacing("/**", with: "").replacing("*/", with: "")) },
                     at: 0
                 )
             case .spaces, .tabs:
