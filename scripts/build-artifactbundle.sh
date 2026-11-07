@@ -30,10 +30,7 @@ build() {
             arch="$(uname -m)"
             name="linux-$arch"
             triples="\"$arch-unknown-linux-gnu\""
-            # Linking FoundationEssentials first keeps swift-corelibs Foundation, and with it ICU's 44 MB of data,
-            # out of the binary: TOMLDecoder imports Foundation, which puts it on the link line, and otherwise
-            # the linker takes symbols both define from it and then everything it needs.
-            arch_flags=(--static-swift-stdlib -Xlinker -lFoundationEssentials)
+            arch_flags=(--static-swift-stdlib)
             strip_flags=()
             ;;
         *)
@@ -54,7 +51,7 @@ build() {
     cp "$bin/CuckooGenerator" "$part/bin/CuckooGenerator"
     strip "${strip_flags[@]}" "$part/bin/CuckooGenerator"
     if grep -q icudt "$part/bin/CuckooGenerator"; then
-        echo "The generator links ICU's data; something in it needs swift-corelibs Foundation." >&2
+        echo "The generator links ICU's data (44 MB): something in it uses swift-corelibs Foundation rather than FoundationEssentials." >&2
         exit 1
     fi
     echo "$triples" > "$part/triples"
