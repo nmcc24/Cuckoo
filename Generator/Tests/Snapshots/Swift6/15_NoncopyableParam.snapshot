@@ -84,20 +84,20 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
     }
 
     func visit(_ p0: (borrowing Token) -> Void) {
-		return withoutActuallyEscaping(p0, do: { (p0: @escaping (borrowing Token) -> Void) in
-		        return cuckoo_manager.call(
-		                    "visit(_ p0: (borrowing Token) -> Void)",
-		                    parameters: (p0),
-		                    escapingParameters: (({ _ in
-		                                fatalError("This is a stub! It's not supposed to be called!")
-		                            } as (borrowing Token) -> Void)),
-		                    invoke: { (implementation: ((@escaping (borrowing Token) -> Void)) -> Void, arguments) in
-		                        implementation(arguments)
-		                    },
-		                    superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-		                    defaultCall: __defaultImplStub.value.visit(p0)
-		                )
-		})
+        return withoutActuallyEscaping(p0, do: { (p0: @escaping (borrowing Token) -> Void) in
+            return cuckoo_manager.call(
+                "visit(_ p0: (borrowing Token) -> Void)",
+                parameters: (p0),
+                escapingParameters: (({ _ in
+                                        fatalError("This is a stub! It's not supposed to be called!")
+                                    } as (borrowing Token) -> Void)),
+                invoke: { (implementation: ((@escaping (borrowing Token) -> Void)) -> Void, arguments) in
+                                implementation(arguments)
+                            },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.visit(p0)
+            )
+        })
     }
 
     nonisolated struct __StubbingProxy_Consumer: Cuckoo.StubbingProxy {

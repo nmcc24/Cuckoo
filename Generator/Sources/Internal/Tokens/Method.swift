@@ -21,6 +21,9 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
     var isStatic = false
     /// Whether a parameter or the result names `Self`; see ``Token/resolvingSelf()``.
     var mentionsSelf = false
+    /// What a subscript's accessor forwards to instead of a method call: `super[...]` and the default implementation's.
+    var superclassCallOverride: String?
+    var defaultCallOverride: String?
 
     var fullSignature: String {
         [
@@ -285,16 +288,14 @@ extension Method {
         ]
     }
 
-    func serialize() -> [String : Any] {
-        guard let parent else {
-            fatalError("Failed to find parent of method \(fullSignature). Please file a bug.")
-        }
-        
-        let forwardingCall = signature.parameters.map(\.forwardingCall).joined(separator: ", ")
-        let stubIsolation = self.stubIsolation
-        let recordedParameters = signature.parameters.map(\.recordedValue).joined(separator: ", ")
-        // The `then` closure reads the arguments from the manager's `arguments`, the recorded parameters, rather than
-        // capturing them; see `MockManager.callInternal`.
+    /// The parameters as the mock manager records them.
+    var recordedParameters: String {
+        signature.parameters.map(\.recordedValue).joined(separator: ", ")
+    }
+
+    /// The arguments the mock passes to the `then` closure. The closure reads them from the manager's `arguments`,
+    /// the recorded parameters, rather than capturing them; see `MockManager.callInternal`.
+    var implementationArguments: String {
         let parameterCount = signature.parameters.count
         // Each parameter's recorded value; an `inout` one is passed through a local variable the mock writes back.
         let separateArguments = signature.parameters.enumerated().map { index, parameter in
@@ -306,23 +307,29 @@ extension Method {
                 parameterCount == 1 ? "arguments" : "arguments.\(index)"
             }
         }
-        let implementationArguments = if stubIsolation.isolatedParameter != nil {
+        if stubIsolation.isolatedParameter != nil {
             // An actor mock's closure takes the mock, then each parameter.
-            (["self"] + separateArguments).joined(separator: ", ")
+            return (["self"] + separateArguments).joined(separator: ", ")
         } else if passesSeparateArguments {
-            separateArguments.joined(separator: ", ")
+            return separateArguments.joined(separator: ", ")
         } else {
-            "arguments"
+            return "arguments"
         }
-        // The `then` closure can change an `inout` argument; the mock writes it back to the caller's variable.
-        let inoutPrologue = signature.parameters.enumerated().filter { $0.element.isInout }.map { index, parameter in
+    }
+
+    /// The `then` closure can change an `inout` argument; the mock writes it back to the caller's variable.
+    var inoutPrologue: String {
+        let parameterCount = signature.parameters.count
+        return signature.parameters.enumerated().filter { $0.element.isInout }.map { index, parameter in
             let value = parameterCount == 1 ? "arguments" : "arguments.\(index)"
             return "var __inout\(index) = \(value); defer { \(escapeReservedKeywords(for: parameter.usableName)) = __inout\(index) };"
         }.joined(separator: " ")
+    }
 
-        let (genericInputTypes, _, implementationType) = stubTypes(resolvingSelfAs: nil)
-
-        let escapingParameterNames = signature.parameters.map { parameter in
+    /// The parameters as the mock manager records them for verification: a non-escaping closure is replaced by a stub
+    /// that crashes if called.
+    var escapingParameterNames: String {
+        signature.parameters.map { parameter in
             if !parameter.type.containsAttribute(named: "@escaping"), let closure = parameter.type.findClosure() {
                 let parameterCount = closure.parameters.count
                 let parameterSignature = parameterCount > 0 ? (1...parameterCount).map { _ in "_" }.joined(separator: ", ") : "()"
@@ -337,6 +344,32 @@ extension Method {
                 return parameter.recordedValue
             }
         }.joined(separator: ", ")
+    }
+
+    var returnsSending: Bool {
+        returnType?.containsAttribute(named: "sending") ?? false
+    }
+
+    /// The call that forwards to the superclass's implementation.
+    var superclassCall: String {
+        superclassCallOverride ?? "super.\(name)(\(signature.parameters.map(\.forwardingCall).joined(separator: ", ")))"
+    }
+
+    /// The call that forwards to the default implementation.
+    var defaultCall: String {
+        if isStatic {
+            return "Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\"\(fullyQualifiedName)\")"
+        }
+        return defaultCallOverride ?? "__defaultImplStub.value.\(name)\(isOptional ? "!" : "")(\(signature.parameters.map(\.forwardingCall).joined(separator: ", ")))"
+    }
+
+    func serialize() -> [String : Any] {
+        guard let parent else {
+            fatalError("Failed to find parent of method \(fullSignature). Please file a bug.")
+        }
+        
+        let forwardingCall = signature.parameters.map(\.forwardingCall).joined(separator: ", ")
+        let (genericInputTypes, _, implementationType) = stubTypes(resolvingSelfAs: nil)
 
         return [
             "self": self,
@@ -354,7 +387,7 @@ extension Method {
             "inoutPrologue": inoutPrologue,
             "escapingParameterNames": escapingParameterNames,
             "returnType": returnType?.description ?? "",
-            "returnsSending": returnType?.containsAttribute(named: "sending") ?? false,
+            "returnsSending": returnsSending,
             "genericReturnType": defaultValueType,
             "isAsync": isAsync,
             "isThrowing": isThrowing,
@@ -364,10 +397,8 @@ extension Method {
             "throwTypeError": signature.throwType?.type ?? "",
             "fullyQualifiedName": fullyQualifiedName,
             "forwardingCall": forwardingCall,
-            "superclassCall": "super.\(name)(\(forwardingCall))",
-            "defaultCall": isStatic
-                ? "Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\"\(fullyQualifiedName)\")"
-                : "__defaultImplStub.value.\(name)\(isOptional ? "!" : "")(\(forwardingCall))",
+            "superclassCall": superclassCall,
+            "defaultCall": defaultCall,
             "isStatic": isStatic,
             "mentionsSelf": mentionsSelf,
             "staticKeyword": isStatic ? "static " : "",
