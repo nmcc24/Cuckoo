@@ -10,9 +10,9 @@ struct SourcesListTests {
     @Test
     func listIsReadOnePathPerLine() throws {
         try withDirectory { directory in
-            let list = directory.appendingPathComponent("Sources.txt")
+            let list = directory.appending(path: "Sources.txt")
             try "/abs/A.swift\r\n\nApp\trelative/B.swift\n\t/abs/C.swift\n".write(to: list, atomically: true, encoding: .utf8)
-            #expect(try GenerateCommand.sourcesList(at: list.path) == [
+            #expect(try GenerateCommand.sourcesList(at: list.path(percentEncoded: false)) == [
                 Module.PluginSource(path: Path("/abs/A.swift"), swiftModule: nil),
                 Module.PluginSource(path: (Path.current + Path("relative/B.swift")).standardized, swiftModule: "App"),
                 Module.PluginSource(path: Path("/abs/C.swift"), swiftModule: nil),
@@ -80,7 +80,7 @@ struct SourcesListTests {
     }
 
     private func withDirectory<T>(_ body: (URL) throws -> T) rethrows -> T {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooSourcesList-\(UUID().uuidString)")
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooSourcesList-\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
         return try body(directory)
@@ -96,7 +96,7 @@ struct SourcesListTests {
         listing: [(String?, String)]?,
         sourceModule: Bool
     ) async throws -> String {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooSourcesList-\(UUID().uuidString)")
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooSourcesList-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
         do {
             let files = [
@@ -104,7 +104,7 @@ struct SourcesListTests {
                 "Core/Store.swift": "protocol Store {\n    func load() -> Int\n}\n",
             ]
             for (path, source) in files {
-                let url = directory.appendingPathComponent(path)
+                let url = directory.appending(path: path)
                 try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
                 try source.write(to: url, atomically: true, encoding: .utf8)
             }
@@ -118,11 +118,11 @@ struct SourcesListTests {
                     [modules.\(moduleName).options]
                     omitHeaders = true
                     """,
-                configurationPath: Path(directory.appendingPathComponent("Cuckoofile.toml").path),
+                configurationPath: Path(directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),
                 overriddenOutput: nil,
                 requestedModuleName: nil,
-                sourceModule: sourceModule ? Module.SourceModule(name: "App", directory: Path(directory.appendingPathComponent("App").path)) : nil,
-                pluginSources: listing.map { $0.map { Module.PluginSource(path: Path(directory.appendingPathComponent($1).path), swiftModule: $0) } }
+                sourceModule: sourceModule ? Module.SourceModule(name: "App", directory: Path(directory.appending(path: "App").path(percentEncoded: false))) : nil,
+                pluginSources: listing.map { $0.map { Module.PluginSource(path: Path(directory.appending(path: $1).path(percentEncoded: false)), swiftModule: $0) } }
             )
             let module = try #require(modules.first)
             return try await Generator.generate(for: module, singleFileOutput: true, verbose: false)

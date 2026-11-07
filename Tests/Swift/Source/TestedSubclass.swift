@@ -122,7 +122,7 @@ class TestedSubclass: TestedClass, TestedProtocol {
     @available(tvOS 13.0, *)
     @available(macOS 10.15, *)
     func asyncMethod() async {
-        try? await Task.sleep(nanoseconds: 10)
+        try? await Task.sleep(for: .nanoseconds(10))
     }
 
     func compositionalParameters(param1: any Numeric, param2: any OnlyLabelProtocol & Codable) {}

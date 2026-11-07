@@ -8,16 +8,16 @@ import Testing
 /// A missing snapshot is always written, and the test fails so new snapshots get reviewed.
 @Suite
 struct SnapshotTests {
-    private static let repositoryRoot = URL(fileURLWithPath: #filePath)
+    private static let repositoryRoot = URL(filePath: #filePath)
         .deletingLastPathComponent()
         .deletingLastPathComponent()
         .deletingLastPathComponent()
-    private static let snapshotsDirectory = URL(fileURLWithPath: #filePath)
+    private static let snapshotsDirectory = URL(filePath: #filePath)
         .deletingLastPathComponent()
-        .appendingPathComponent("Snapshots")
+        .appending(path: "Snapshots")
     private static let swift6Fixtures: [String] = {
-        let directory = repositoryRoot.appendingPathComponent("Fixtures/Swift6")
-        let files = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
+        let directory = repositoryRoot.appending(path: "Fixtures/Swift6")
+        let files = (try? FileManager.default.contentsOfDirectory(atPath: directory.path(percentEncoded: false))) ?? []
         return files.filter { $0.hasSuffix(".swift") }.sorted()
     }()
 
@@ -59,14 +59,14 @@ struct SnapshotTests {
     /// level per module, or the compiler warns about the conflicting ones.
     @Test
     func publicImportsFollowPublicMocks() async throws {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooPublicImports-\(UUID().uuidString)")
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooPublicImports-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
         try "public import Foundation\n\npublic protocol PublicService {\n    func url() -> URL\n}\n"
-            .write(to: directory.appendingPathComponent("A.swift"), atomically: true, encoding: .utf8)
+            .write(to: directory.appending(path: "A.swift"), atomically: true, encoding: .utf8)
         try "import Dispatch\n\nprotocol InternalService {\n    func run()\n}\n"
-            .write(to: directory.appendingPathComponent("B.swift"), atomically: true, encoding: .utf8)
-        let sources = [directory.appendingPathComponent("*.swift").path]
+            .write(to: directory.appending(path: "B.swift"), atomically: true, encoding: .utf8)
+        let sources = [directory.appending(path: "*.swift").path(percentEncoded: false)]
 
         let separate = try await generateFiles(sources: sources, testableImports: ["Sources"], singleFileOutput: false)
         #expect(separate.count == 2)
@@ -111,7 +111,7 @@ struct SnapshotTests {
         let module = try Module(
             name: "Snapshot",
             output: nil,
-            configurationPath: Path(Self.repositoryRoot.appendingPathComponent("Cuckoofile.toml").path),
+            configurationPath: Path(Self.repositoryRoot.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),
             dto: Module.DTO(
                 imports: ["Foundation"],
                 publicImports: nil,
@@ -139,7 +139,7 @@ struct SnapshotTests {
     }
 
     private func assertSnapshot(_ actual: String, named name: String, sourceLocation: SourceLocation = #_sourceLocation) throws {
-        let url = Self.snapshotsDirectory.appendingPathComponent("\(name).snapshot")
+        let url = Self.snapshotsDirectory.appending(path: "\(name).snapshot")
         #expect(!actual.contains("\n\n\n"), "\(name) has two blank lines in a row", sourceLocation: sourceLocation)
         let isRecording = ProcessInfo.processInfo.environment["CUCKOO_RECORD_SNAPSHOTS"] == "1"
         let expected = try? String(contentsOf: url, encoding: .utf8)

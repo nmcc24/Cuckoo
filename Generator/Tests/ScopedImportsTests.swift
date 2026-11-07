@@ -170,10 +170,10 @@ struct ScopedImportsTests {
         sourceModuleName: String? = nil,
         singleFileOutput: Bool = true
     ) async throws -> [String] {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CuckooScopedImports-\(UUID().uuidString)")
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooScopedImports-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
         for (path, source) in files {
-            let url = directory.appendingPathComponent(path)
+            let url = directory.appending(path: path)
             try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
             try source.write(to: url, atomically: true, encoding: .utf8)
         }
@@ -186,10 +186,10 @@ struct ScopedImportsTests {
                 [modules.Mocks.options]
                 omitHeaders = true
                 """,
-            configurationPath: Path(directory.appendingPathComponent("Cuckoofile.toml").path),
+            configurationPath: Path(directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),
             overriddenOutput: nil,
             requestedModuleName: nil,
-            sourceModule: sourceModuleName.map { Module.SourceModule(name: $0, directory: Path(directory.appendingPathComponent($0).path)) }
+            sourceModule: sourceModuleName.map { Module.SourceModule(name: $0, directory: Path(directory.appending(path: $0).path(percentEncoded: false))) }
         )
         let module = try #require(modules.first)
         return try await Generator.generate(for: module, singleFileOutput: singleFileOutput, verbose: false).map(\.contents)
