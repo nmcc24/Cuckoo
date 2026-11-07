@@ -82,38 +82,6 @@ struct Variable: Token, HasAccessibility, HasAttributes {
         "Verify\(isReadOnly ? "ReadOnly" : "")\(type.isOptional && !isReadOnly ? "Optional" : "")Property"
     }
 
-    func serialize() -> [String: Any] {
-        guard let parent else {
-            fatalError("Failed to find parent of variable \(name). Please file a bug.")
-        }
-
-        let (getterType, setterType) = implementationTypes
-        let isolatedParameter = stubIsolation.isolatedParameter
-
-        return [
-            "documentation": documentation,
-            "getterImplementationType": getterType,
-            "setterImplementationType": setterType,
-            "getterImplementationArguments": isolatedParameter == nil ? "()" : "self",
-            "setterImplementationArguments": isolatedParameter == nil ? "value" : "self, value",
-            "isolationAttribute": isolation?.sourceDescription ?? "",
-            "isOverriding": parent.isClass,
-            "isStatic": isStatic,
-            "mentionsSelf": mentionsSelf,
-            "staticKeyword": isStatic ? "static " : "",
-            "manager": isStatic ? "cuckoo_staticManager" : "cuckoo_manager",
-            "name": name,
-            "type": type.description,
-            "accessibility": accessibility.sourceName,
-            "isAsync": effects.isAsync,
-            "isThrowing": effects.isThrowing,
-            "isReadOnly": isReadOnly,
-            "attributes": repeatedAttributes,
-            "spiAttributes": spiAttributes(at: accessibility),
-            "hasCompilationCondition": hasCompilationCondition,
-            "compilationConditionCheck": compilationConditionCheck,
-        ]
-    }
 }
 
 extension Variable: Inheritable {

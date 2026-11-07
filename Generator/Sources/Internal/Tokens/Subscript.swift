@@ -86,55 +86,6 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
         )
     }
 
-    func serialize() -> [String: Any] {
-        guard let parent else {
-            fatalError("Failed to find parent of subscript \(signature). Please file a bug.")
-        }
-
-        let getter = getter
-        let setter = setter
-        let keys = getter.signature.parameters
-        let keyArguments = keys.map(\.forwardingCall).joined(separator: ", ")
-
-        var serializedGetter = getter.serialize()
-        serializedGetter["superclassCall"] = "super[\(keyArguments)]"
-        serializedGetter["mentionsSelf"] = mentionsSelf
-        if !isStatic {
-            serializedGetter["defaultCall"] = "__defaultImplStub.value[\(keyArguments)]"
-        }
-        var serializedSetter = setter.serialize()
-        serializedSetter["superclassCall"] = "super[\(keyArguments)] = \(newValueName)"
-        serializedSetter["mentionsSelf"] = mentionsSelf
-        if !isStatic {
-            serializedSetter["defaultCall"] = "__defaultImplStub.value[\(keyArguments)] = \(newValueName)"
-        }
-
-        return [
-            "self": self,
-            "documentation": documentation,
-            "attributes": repeatedAttributes,
-            "spiAttributes": spiAttributes(at: accessibility),
-            "isOverriding": parent.isClass,
-            "isStatic": isStatic,
-            "staticKeyword": isStatic ? "static " : "",
-            "accessibility": accessibility.sourceName,
-            "signature": signature,
-            "returnType": returnType.description,
-            "isAsync": isAsync,
-            "isThrowing": throwType != nil,
-            "getterEffects": getterEffects,
-            "isReadOnly": isReadOnly,
-            "isolationAttribute": isolation?.sourceDescription ?? "",
-            "getter": serializedGetter,
-            "setter": serializedSetter,
-            // The setter lists hold the one accessor, so a template's `for` can name it `method`.
-            "getters": [serializedGetter],
-            "setters": isReadOnly ? [] : [serializedSetter],
-            "newValueName": newValueName,
-            "hasCompilationCondition": hasCompilationCondition,
-            "compilationConditionCheck": compilationConditionCheck,
-        ]
-    }
 }
 
 extension Subscript {

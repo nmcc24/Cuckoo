@@ -17,10 +17,4 @@ extension HasName {
         return names.joined(separator: ".")
     }
 
-    func nameSerialize() -> GeneratorContext {
-        [
-            "name": name,
-            "mockName": mockName,
-        ]
-    }
 }

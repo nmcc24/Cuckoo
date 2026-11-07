@@ -1,57 +1,17 @@
 import Foundation
-import Stencil
 import SwiftBasicFormat
 import SwiftParser
 import SwiftSyntax
 
-@globalActor
-actor StaticActor {
-    static let shared = StaticActor()
-}
-
 struct GeneratorHelper {
-    @StaticActor
-    private static let extensions = createExtensions()
-
-    @StaticActor
-    static func generate(
-        tokens: [any Token],
-        keepDocumentation: Bool = true,
-        mockNaming: MockNaming = .default,
-        debug: Bool = false
-    ) throws -> String {
-        // Serializing the tokens and the template filters both name mocks.
+    /// The mocks and stubs of a file's mocked types, laid out.
+    static func generate(tokens: [any Token], keepDocumentation: Bool = true, mockNaming: MockNaming = .default) throws -> String {
+        // The builders name mocks through the tokens.
         try MockNaming.$current.withValue(mockNaming) {
-            let containers = try tokens.map { token in
-                var context = token.serialize()
-                if let container = token as? any ContainerToken {
-                    context["mockMembers"] = try MockMembersBuilder.build(container, options: .init(keepDocumentation: keepDocumentation, debug: debug))
-                    context["nopImplStub"] = try NopImplStubBuilder.build(container)
-                    context["stubbingProxy"] = try StubbingProxyBuilder.build(container, isStatic: false)
-                    context["verificationProxy"] = try VerificationProxyBuilder.build(container, isStatic: false)
-                    // A generic protocol's mock calls its default implementation through a type-erasing caller.
-                    if let protocolDeclaration = container.asProtocol, !protocolDeclaration.isActor, container.isGeneric, !container.hasOnlyPrimaryAssociatedTypes {
-                        context["typeErasure"] = try TypeErasureBuilder.build(container)
-                    }
-                    let hasStaticMembers = container.mockedProperties.contains(where: \.isStatic)
-                        || container.mockedMethods.contains(where: \.isStatic) || container.mockedSubscripts.contains(where: \.isStatic)
-                    if hasStaticMembers {
-                        context["staticStubbingProxy"] = try StubbingProxyBuilder.build(container, isStatic: true)
-                        context["staticVerificationProxy"] = try VerificationProxyBuilder.build(container, isStatic: true)
-                    }
-                }
-                return context
+            let mocks = try tokens.compactMap { $0 as? any ContainerToken }.map {
+                try MockBuilder.build($0, keepDocumentation: keepDocumentation)
             }
-
-            let environment = Environment(
-                extensions: extensions,
-                trimBehaviour: .smart
-            )
-            let rendered = try environment.renderTemplate(
-                string: Templates.mock,
-                context: ["containers": containers, "keepDocumentation": keepDocumentation, "debug": debug]
-            )
-            return try format(rendered)
+            return try format(mocks.joined())
         }
     }
 
@@ -240,34 +200,6 @@ struct GeneratorHelper {
             with: "",
             options: .regularExpression
         )
-    }
-}
-
-extension GeneratorHelper {
-    private static func createExtensions() -> [Extension] {
-        let stencilExtension = Extension()
-
-        stencilExtension.registerFilter("genericSafe") { (value: Any?) in
-            guard let string = value as? String else { return value }
-            return genericSafeType(from: string)
-        }
-        stencilExtension.registerFilter("escapeReservedKeywords") { (value: Any?) in
-            guard let name = value as? String else { return value }
-            return escapeReservedKeywords(for: name)
-        }
-        stencilExtension.registerFilter("removeClosureArgumentNames") { (value: Any?) in
-            guard let type = value as? String else { return value }
-            return removeClosureArgumentNames(for: type)
-        }
-        stencilExtension.registerFilter("withSpace") { (value: Any?) in
-            if let value = value as? String, !value.isEmpty {
-                return "\(value) "
-            } else {
-                return ""
-            }
-        }
-
-        return [stencilExtension]
     }
 }
 
