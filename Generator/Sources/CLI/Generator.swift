@@ -239,15 +239,14 @@ final class Generator {
     private static func keepMatching(patterns: [String]) throws -> TokenFilter {
         let regexes = try patterns.map { pattern in
             do {
-                return try NSRegularExpression(pattern: pattern, options: [])
+                return try Regex(pattern).wordBoundaryKind(.simple)
             } catch {
                 throw GeneratorError.invalidRegex(pattern, error: error)
             }
         }
         return { token in
             guard let namedToken = token as? any HasName else { return true }
-            let range = NSRange(namedToken.name.startIndex..., in: namedToken.name)
-            return regexes.contains { $0.firstMatch(in: namedToken.name, options: [], range: range) != nil }
+            return regexes.contains { namedToken.name.contains($0) }
         }
     }
 

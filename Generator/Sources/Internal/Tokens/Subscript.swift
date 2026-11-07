@@ -175,7 +175,7 @@ extension Subscript {
 
     var newValueMatcherConstraint: String {
         let type = matchedNewValueType
-        return "M\(newValueMatcherIndex).\(type.isOptional ? "OptionalMatchedType" : "MatchedType") == \(type.unoptionaled.description.replacingOccurrences(of: "!", with: "?"))"
+        return "M\(newValueMatcherIndex).\(type.isOptional ? "OptionalMatchedType" : "MatchedType") == \(type.unoptionaled.description.replacing("!", with: "?"))"
     }
 
     var newValueMatcher: String {

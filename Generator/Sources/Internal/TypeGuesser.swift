@@ -49,11 +49,6 @@ struct TypeGuesser {
     }
 
     private static func checkCasting(from value: String) -> String? {
-        let regex = try! NSRegularExpression(pattern: " as (.*)$")
-        let range = NSRange(location: 0, length: value.count)
-        guard let casting = regex.firstMatch(in: value, range: range) else { return nil }
-        let foundRange = casting.range(at: 1)
-        guard foundRange.location != NSNotFound else { return nil }
-        return value[foundRange]
+        value.firstMatch(of: /\ as (.*)$/).map { String($0.1) }
     }
 }

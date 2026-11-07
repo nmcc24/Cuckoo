@@ -10,7 +10,7 @@ enum SelfResolution {
 extension ComplexType {
     /// Whether the type names `Self`.
     var mentionsSelf: Bool {
-        description.range(of: #"\bSelf\b"#, options: .regularExpression) != nil
+        description.contains(/\bSelf\b/.wordBoundaryKind(.simple))
     }
 
     /// The type with `Self` replaced by `name`, except where it's qualified, as in `Self.Element`.
@@ -33,7 +33,7 @@ extension ComplexType {
                 )
             )
         case .type(let typeName):
-            .type(typeName.replacingOccurrences(of: #"\bSelf\b(?!\.)"#, with: name, options: .regularExpression))
+            .type(typeName.replacing(/\bSelf\b(?!\.)/.wordBoundaryKind(.simple), with: name))
         }
     }
 }

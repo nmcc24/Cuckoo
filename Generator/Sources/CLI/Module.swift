@@ -279,7 +279,7 @@ extension Module: CustomDebugStringConvertible {
             regexes.isEmpty ? nil : "regex:\(regexes.map { "\n\t-\($0)" }.joined())",
             "output: \(output)",
             filenameFormat.map { "filename format: \($0)" },
-            "options:\(options.debugDescription.components(separatedBy: "\n").map { "\n\t- \($0)" }.joined())",
+            "options:\(options.debugDescription.split(separator: "\n", omittingEmptySubsequences: false).map { "\n\t- \($0)" }.joined())",
         ]
         .compactMap { $0 }
         .joined(separator: "\n")

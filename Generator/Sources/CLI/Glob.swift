@@ -88,7 +88,7 @@ final class Glob: Collection {
         }
 
         var results = [String]()
-        var parts = pattern.components(separatedBy: "**")
+        var parts = pattern.split(separator: "**", omittingEmptySubsequences: false).map(String.init)
         let firstPart = parts.removeFirst()
         var lastPart = parts.joined(separator: "**")
 
@@ -98,7 +98,7 @@ final class Glob: Collection {
 
         do {
             directories = try fileManager.subpathsOfDirectory(atPath: firstPart).compactMap { subpath in
-                let fullPath = NSString(string: firstPart).appendingPathComponent(subpath)
+                let fullPath = (Path(firstPart) + subpath).rawValue
                 var isDirectory = ObjCBool(false)
                 if fileManager.fileExists(atPath: fullPath, isDirectory: &isDirectory) && isDirectory.boolValue {
                     return fullPath
@@ -125,7 +125,7 @@ final class Glob: Collection {
             lastPart = "*"
         }
         for directory in directories {
-            let partiallyResolvedPattern = NSString(string: directory).appendingPathComponent(lastPart)
+            let partiallyResolvedPattern = (Path(directory) + lastPart).rawValue
             results.append(contentsOf: expandGlobstar(pattern: partiallyResolvedPattern))
         }
 
