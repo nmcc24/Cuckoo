@@ -136,9 +136,9 @@ private func commandsPerModule(
             executable: executable,
             arguments: ["--sources-list", sourcesListURL.path(percentEncoded: false)],
             environment: [
-                "PROJECT_DIR": projectDir.path(),
-                "DERIVED_SOURCES_DIR": derivedSourcesDir.path(),
-                "CUCKOO_OVERRIDE_OUTPUT": outputURL.path(),
+                "PROJECT_DIR": projectDir.path(percentEncoded: false),
+                "DERIVED_SOURCES_DIR": derivedSourcesDir.path(percentEncoded: false),
+                "CUCKOO_OVERRIDE_OUTPUT": outputURL.path(percentEncoded: false),
                 "CUCKOO_MODULE_NAME": sourceModule.name,
                 // The generated file imports the sources' types from it by name; see `sources` in Source/Cuckoo.docc/Cuckoofile.md.
                 "CUCKOO_SOURCE_MODULE": sourceModule.swiftModule?.name,
