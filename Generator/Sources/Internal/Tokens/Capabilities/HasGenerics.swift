@@ -35,7 +35,7 @@ extension HasGenerics {
     var genericProtocolIdentity: String? {
         guard isProtocol else { return nil }
         return genericParameters
-            .map { "\(Templates.staticGenericParameter).\($0.name) == \($0.name)" }
+            .map { "\(GeneratedNames.staticGenericParameter).\($0.name) == \($0.name)" }
             .joined(separator: ", ")
     }
 
@@ -51,16 +51,4 @@ extension HasGenerics {
         return "<\(protocolDeclaration.primaryAssociatedTypes.map { $0.name }.joined(separator: ", "))>"
     }
 
-    func genericsSerialize() -> GeneratorContext {
-        return [
-            "isGeneric": isGeneric,
-            "genericParameters": genericParametersString,
-            "genericArguments": genericArgumentsString,
-            "hasPrimaryAssociatedTypes": hasPrimaryAssociatedTypes,
-            "hasOnlyPrimaryAssociatedTypes": hasOnlyPrimaryAssociatedTypes,
-            "genericProtocolIdentity": genericProtocolIdentity as Any,
-            "sendableMetatypeRequirements": sendableMetatypeRequirements as Any,
-        ]
-        .compactMapValues { $0 }
-    }
 }

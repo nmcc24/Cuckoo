@@ -3,9 +3,4 @@ protocol HasInheritance: Token {
 }
 
 extension HasInheritance {
-    func inheritanceSerialize() -> GeneratorContext {
-        [
-            "inheritedTypes": inheritedTypes,
-        ]
-    }
 }

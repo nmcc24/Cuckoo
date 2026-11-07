@@ -33,10 +33,6 @@ struct MethodParameter: Token {
         type.withoutAttributes().description.hasPrefix("repeat ")
     }
 
-    var isEscaping: Bool {
-        type.isClosure && (type.containsAttribute(named: "@escaping") || type.isOptional)
-    }
-    
     var call: String {
         call(value: escapeReservedKeywords(for: usableName))
     }
@@ -89,16 +85,4 @@ struct MethodParameter: Token {
         }
     }
 
-    func serialize() -> [String: Any] {
-        return [
-            "name": name,
-            "innerName": innerName ?? "",
-            "type": type,
-            "nameAndInnerName": nameAndInnerName,
-            "typeWithoutAttributes": type.withoutAttributes(),
-            "isClosure": type.isClosure,
-            "isOptional": type.isOptional,
-            "isEscaping": isEscaping
-        ]
-    }
 }

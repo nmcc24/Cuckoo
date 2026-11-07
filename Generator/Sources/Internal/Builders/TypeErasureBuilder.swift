@@ -11,7 +11,7 @@ import SwiftSyntax
 /// Like ``NopImplStubBuilder``, each member is parsed as it's built, and `GeneratorHelper.format` lays the file out.
 enum TypeErasureBuilder {
     static func build(_ container: any ContainerToken) throws -> String {
-        let name = Templates.typeErasureClassName
+        let name = GeneratedNames.typeErasureClassName
         let globalActor = container.asProtocol?.globalActor
         let context = Context(
             access: container.accessibility.spaced,
@@ -161,7 +161,7 @@ enum TypeErasureBuilder {
         methods: [Method],
         globalActor: String?
     ) -> String {
-        let generic = Templates.staticGenericParameter
+        let generic = GeneratedNames.staticGenericParameter
         let metatype = globalActor == nil ? " & SendableMetatype" : ""
         let requirements = (container.genericProtocolIdentity ?? "") + (globalActor == nil ? container.sendableMetatypeRequirements ?? "" : "")
         var body = [
@@ -203,7 +203,7 @@ enum TypeErasureBuilder {
     }
 
     private static func sources(of method: Method, number: Int, _ context: Context) -> [String] {
-        let generic = Templates.staticGenericParameter
+        let generic = GeneratedNames.staticGenericParameter
         let returnType = method.returnType?.description ?? ""
         let effects = (method.isAsync ? " async" : "") + (method.isThrowing ? " throws" : "")
         let tryAwait = (method.isThrowing ? "try " : "") + (method.isAsync ? "await " : "")

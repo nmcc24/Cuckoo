@@ -1,4 +1,3 @@
-import Foundation
 import SwiftSyntax
 
 /// Builds the mock's own members: its properties, initializers, methods and subscripts, each of which records the call
@@ -11,8 +10,6 @@ enum MockMembersBuilder {
     struct Options {
         /// Whether members keep their documentation comments.
         var keepDocumentation: Bool
-        /// Whether each member is preceded by a comment describing its token.
-        var debug: Bool
     }
 
     static func build(_ container: any ContainerToken, options: Options) throws -> String {
@@ -52,16 +49,9 @@ enum MockMembersBuilder {
         var isActor: Bool { container.asProtocol?.isActor == true }
     }
 
-    /// The comment describing the token, then its documentation, as the options ask for.
+    /// The member's documentation, if the options keep it.
     private static func comments(of token: any Token, documentation: [String], _ context: Context) -> [String] {
-        var lines: [String] = []
-        if context.options.debug {
-            lines.append("// \(String(describing: token).replacingOccurrences(of: "\n", with: " "))")
-        }
-        if context.options.keepDocumentation {
-            lines.append(contentsOf: documentation.map { "/// \($0)" })
-        }
-        return lines
+        context.options.keepDocumentation ? documentation.map { "/// \($0)" } : []
     }
 
     /// The attributes every copy repeats, the `@_spi` ones at its access level, and its isolation.
