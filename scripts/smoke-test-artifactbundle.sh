@@ -86,7 +86,9 @@ SWIFT
 cd "$consumer"
 # shellcheck disable=SC2086 # SWIFT_BUILD_FLAGS holds several flags.
 swift test ${SWIFT_BUILD_FLAGS:-}
-if [[ -n "$(find .build -name 'SwiftSyntax.swiftmodule' -print -quit)" ]]; then
+# SwiftPM on macOS also downloads swift-syntax's prebuilt macro support into .build/prebuilts, since swift-syntax
+# stays in the package graph; that's a download, not a build.
+if [[ -n "$(find .build -path .build/prebuilts -prune -o -name 'SwiftSyntax.swiftmodule' -print -quit)" ]]; then
     echo "The build compiled swift-syntax, so the plugins didn't use the prebuilt generator." >&2
     exit 1
 fi
