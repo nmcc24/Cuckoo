@@ -7,7 +7,7 @@ private typealias MethodToken = CuckooGenerator.Method
 
 /// Input the generator can't fully handle produces a warning and is skipped, instead of crashing the generator.
 struct CrawlerDiagnosticsTests {
-    private let url = URL(fileURLWithPath: "/project/Sources/Service.swift")
+    private let url = URL(filePath: "/project/Sources/Service.swift")
 
     @Test
     func propertyWithoutInferableTypeIsSkippedWithAWarning() throws {
