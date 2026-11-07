@@ -157,7 +157,7 @@ struct Path: Hashable, Sendable, CustomStringConvertible {
     /// `~` and `~/…` start from the user's home directory.
     private static func expandingTilde(in path: String) -> String {
         guard path == "~" || path.hasPrefix("~/") else { return path }
-        let home = ProcessInfo.processInfo.environment["HOME"] ?? FileManager.default.homeDirectoryForCurrentUser.path
+        let home = ProcessInfo.processInfo.environment["HOME"] ?? URL.homeDirectory.path(percentEncoded: false)
         return (Path(home) + String(path.dropFirst(2))).rawValue
     }
 
