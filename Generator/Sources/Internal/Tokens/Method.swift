@@ -63,14 +63,6 @@ extension Method {
         signature.returnType
     }
 
-    var hasClosureParams: Bool {
-        signature.parameters.contains { $0.type.isClosure }
-    }
-
-    var hasOptionalParams: Bool {
-        signature.parameters.contains { $0.type.isOptional }
-    }
-    
     /// The isolation the stubs take. An actor's static members aren't isolated to an instance.
     var stubbedIsolation: Isolation? {
         if isStatic && isolation == nil && parent?.value.asProtocol?.isActor == true {
@@ -265,7 +257,7 @@ extension Method {
         }
         let nonPrimary = parent.nonPrimaryAssociatedTypes.map(\.name)
         let staticGenericCallableParameters = signature.parameters
-            .map { $0.callAndCastTypes(named: nonPrimary, as: { Templates.staticGenericParameter + ".\($0)" }) }
+            .map { $0.callAndCastTypes(named: nonPrimary, as: { GeneratedNames.staticGenericParameter + ".\($0)" }) }
             .joined(separator: ", ")
         if let returnType, returnType.containsTypes(named: nonPrimary) {
             return "(\(staticGenericCallableParameters))".forceCast(as: returnType)
@@ -363,62 +355,6 @@ extension Method {
         return defaultCallOverride ?? "__defaultImplStub.value.\(name)\(isOptional ? "!" : "")(\(signature.parameters.map(\.forwardingCall).joined(separator: ", ")))"
     }
 
-    func serialize() -> [String : Any] {
-        guard let parent else {
-            fatalError("Failed to find parent of method \(fullSignature). Please file a bug.")
-        }
-        
-        let forwardingCall = signature.parameters.map(\.forwardingCall).joined(separator: ", ")
-        let (genericInputTypes, _, implementationType) = stubTypes(resolvingSelfAs: nil)
-
-        return [
-            "self": self,
-            "documentation": documentation,
-            "attributes": repeatedAttributes,
-            "spiAttributes": spiAttributes(at: accessibility),
-            "isOverriding": parent.isClass,
-            "name": name,
-            "accessibility": accessibility.sourceName,
-            "signature": signature.description,
-            "parameters": signature.parameters,
-            "sendingParameterNames": sendingParameterNames,
-            "recordedParameters": recordedParameters,
-            "implementationArguments": implementationArguments,
-            "inoutPrologue": inoutPrologue,
-            "escapingParameterNames": escapingParameterNames,
-            "returnType": returnType?.description ?? "",
-            "returnsSending": returnsSending,
-            "genericReturnType": defaultValueType,
-            "isAsync": isAsync,
-            "isThrowing": isThrowing,
-            "throwsOnly": throwsOnly,
-            "hasTypedThrows": signature.throwType?.isTyped ?? false,
-            "throwType": signature.throwType?.keyword ?? "",
-            "throwTypeError": signature.throwType?.type ?? "",
-            "fullyQualifiedName": fullyQualifiedName,
-            "forwardingCall": forwardingCall,
-            "superclassCall": superclassCall,
-            "defaultCall": defaultCall,
-            "isStatic": isStatic,
-            "mentionsSelf": mentionsSelf,
-            "staticKeyword": isStatic ? "static " : "",
-            "manager": isStatic ? "cuckoo_staticManager" : "cuckoo_manager",
-            "parameterSignature": signature.parameters.map { $0.description }.joined(separator: ", "),
-            "parameterSignatureWithoutNames": signature.parameters.map { "\($0.name): \($0.type)" }.joined(separator: ", "),
-            "argumentSignature": signature.parameters.map { $0.type.description }.joined(separator: ", "),
-            "implementationType": implementationType,
-            "isolationAttribute": isolation?.sourceDescription ?? "",
-            "executionAttribute": executionAttribute ?? "",
-            "genericInputTypes": genericInputTypes,
-            "isOptional": isOptional,
-            "hasClosureParams": hasClosureParams,
-            "hasOptionalParams": hasOptionalParams,
-            "hasNoncopyableParams": hasNoncopyableParams,
-            "genericParameters": signature.genericParameters.sourceDescription,
-            "hasCompilationCondition": hasCompilationCondition,
-            "compilationConditionCheck": compilationConditionCheck,
-        ]
-    }
 }
 
 private extension String {

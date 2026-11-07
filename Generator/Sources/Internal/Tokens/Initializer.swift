@@ -17,23 +17,3 @@ extension Initializer: Inheritable {
         return signature.isApiEqual(to: other.signature)
     }
 }
-
-extension Initializer: Serializable {
-    func serialize() -> GeneratorContext {
-        let accessibility: Accessibility
-        if let parentProtocol = parent?.asProtocol {
-            accessibility = parentProtocol.accessibility
-        } else {
-            accessibility = self.accessibility
-        }
-        return [
-            "documentation": documentation,
-            "accessibility": accessibility.sourceName,
-            "attributes": repeatedAttributes,
-            "spiAttributes": spiAttributes(at: accessibility),
-            "signature": signature.description,
-            "hasCompilationCondition": hasCompilationCondition,
-            "compilationConditionCheck": compilationConditionCheck,
-        ]
-    }
-}

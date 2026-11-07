@@ -6,10 +6,4 @@ protocol HasEnclosingCompilationConditions: Token {
 }
 
 extension HasEnclosingCompilationConditions {
-    func enclosingCompilationConditionsSerialize() -> GeneratorContext {
-        [
-            "hasEnclosingCompilationCondition": !enclosingCompilationConditions.isEmpty,
-            "enclosingCompilationConditionCheck": "#if \(enclosingCompilationConditions.joined(separator: " && "))",
-        ]
-    }
 }

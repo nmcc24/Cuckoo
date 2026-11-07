@@ -148,7 +148,7 @@ final class Generator {
         let timestamp = verbose ? Date().description : nil
         let firstPath = prepared.files.first?.file.path
         return try await prepared.files.concurrentMap { file in
-            await GeneratedFile(
+            GeneratedFile(
                 path: file.file.path,
                 contents: [
                     file.file.path == firstPath && sharedImports?.isEmpty == false ? sharedImports : nil,
