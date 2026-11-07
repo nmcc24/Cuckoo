@@ -100,6 +100,24 @@ jobs:
       - name: Build the documentation
         run: scripts/build-docs.sh
 
+  # The release workflow's prebuilt generator, built and tested here so a change that breaks the release build
+  # shows up in its PR rather than on release day. Linux only: the macOS bundle is built at release time.
+  bundle_linux:
+    name: Prebuilt generator bundle on Linux (Swift 6.3)
+    runs-on: ubuntu-24.04
+    container: swift:6.3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install zip
+        run: apt-get update -qq && apt-get install -y -qq zip
+      - name: Build the bundle
+        run: |
+          scripts/build-artifactbundle.sh build parts
+          scripts/build-artifactbundle.sh merge "$(cat version)" bundle/CuckooGenerator.artifactbundle parts
+      - name: Smoke test
+        run: scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
+
   tsan_linux:
     name: Runtime tests under the Thread Sanitizer on Linux (Swift 6.3)
     runs-on: ubuntu-24.04
@@ -188,7 +206,7 @@ jobs:
   ci_passed:
     name: CI passed
     if: always()
-    needs: [generator_linux, swift7_linux, docs_linux, tsan_linux, generator_macOS, test_iOS]
+    needs: [generator_linux, swift7_linux, docs_linux, bundle_linux, tsan_linux, generator_macOS, test_iOS]
     runs-on: ubuntu-24.04
     permissions:
       actions: read
