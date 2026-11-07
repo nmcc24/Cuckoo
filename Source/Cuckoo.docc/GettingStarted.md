@@ -44,7 +44,9 @@ the plugin the first time it runs; on CI, pass `-skipPackagePluginValidation` to
 - term `CuckooPluginSingleFile`: Generates every Cuckoofile module into a single file. Use it when one test target
   mocks types from one place, or when mocks of several modules must share a file.
 
-The generator builds from source with the plugin, so the first build compiles swift-syntax.
+A release's plugins run a prebuilt generator, on macOS and on Linux (x86_64 and arm64), so your build doesn't compile
+swift-syntax and its version doesn't constrain your other packages. A dependency on a branch or a commit instead
+builds the generator from source with the plugin.
 
 ### Write a Cuckoofile
 
