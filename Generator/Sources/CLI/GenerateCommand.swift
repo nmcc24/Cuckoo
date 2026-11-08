@@ -32,6 +32,15 @@ struct GenerateCommand: AsyncParsableCommand {
     )
     var sourcesListPath: String?
 
+    @Option(
+        name: [.customLong("source")],
+        help: """
+            A source file for the modules that don't set `sources`, in the form of a `--sources-list` line. Repeat it \
+            for each file. The build plugins pass a target's files this way unless the list is long.
+            """
+    )
+    var sourceEntries: [String] = []
+
     @Flag(help: "Include extra information during generation and in the generated code.")
     var verbose = false
 
@@ -69,7 +78,12 @@ struct GenerateCommand: AsyncParsableCommand {
             environment["CUCKOO_SOURCE_MODULE_DIRECTORY"].map { Module.SourceModule(name: name, directory: Path($0)) }
         }
 
-        let pluginSources = try sourcesListPath.map(Self.sourcesList(at:))
+        // The plugins pass a target's files as `--source` arguments, or as a `--sources-list` file when there are many.
+        let pluginSources: [Module.PluginSource]? = if sourcesListPath == nil && sourceEntries.isEmpty {
+            nil
+        } else {
+            try (sourcesListPath.map(Self.sourcesList(at:)) ?? []) + sourceEntries.map(Self.pluginSource(fromLine:))
+        }
 
         let modules = try Cuckoofile.modules(
             from: configurationFile.contents,
@@ -92,7 +106,7 @@ struct GenerateCommand: AsyncParsableCommand {
             return
         }
 
-        // Modules that write to the same file, as all of them do under the single-file build plugin, are joined into it.
+        // Modules that write to the same file are joined into it.
         var fileOutputs: [(path: Path, modules: [Module])] = []
         var directoryOutputs: [(path: Path, module: Module)] = []
         for module in modules {
@@ -162,18 +176,19 @@ struct GenerateCommand: AsyncParsableCommand {
         } catch {
             throw GenerateError.unreadableSourcesList(path: path, error)
         }
-        return contents
-            .split(whereSeparator: \.isNewline)
-            .map { line in
-                guard let tab = line.firstIndex(of: "\t") else {
-                    return Module.PluginSource(path: Path(String(line)).absolute, swiftModule: nil)
-                }
-                let swiftModule = String(line[..<tab])
-                return Module.PluginSource(
-                    path: Path(String(line[line.index(after: tab)...])).absolute,
-                    swiftModule: swiftModule.isEmpty ? nil : swiftModule
-                )
-            }
+        return contents.split(whereSeparator: \.isNewline).map(pluginSource(fromLine:))
+    }
+
+    /// One `--sources-list` line or `--source` value: a path, or a Swift module, a tab and a path.
+    static func pluginSource(fromLine line: some StringProtocol) -> Module.PluginSource {
+        guard let tab = line.firstIndex(of: "\t") else {
+            return Module.PluginSource(path: Path(String(line)).absolute, swiftModule: nil)
+        }
+        let swiftModule = String(line[..<tab])
+        return Module.PluginSource(
+            path: Path(String(line[line.index(after: tab)...])).absolute,
+            swiftModule: swiftModule.isEmpty ? nil : swiftModule
+        )
     }
 
     private enum GenerateError: Error, CustomStringConvertible {

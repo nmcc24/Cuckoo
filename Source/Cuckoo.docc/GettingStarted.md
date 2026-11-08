@@ -27,7 +27,7 @@ targets: [
     .testTarget(
         name: "AppTests",
         dependencies: ["App", .product(name: "Cuckoo", package: "Cuckoo")],
-        plugins: [.plugin(name: "CuckooPluginModular", package: "Cuckoo")]
+        plugins: [.plugin(name: "CuckooPlugin", package: "Cuckoo")]
     ),
 ]
 ```
@@ -36,21 +36,19 @@ In an Xcode project, add the package with File > Add Package Dependencies, link 
 target, and add the plugin under the test target's Build Phases > Run Build Tool Plug-ins. Xcode asks you to trust
 the plugin the first time it runs; on CI, pass `-skipPackagePluginValidation` to `xcodebuild`.
 
-### Choose a plugin
+### How the plugin generates
 
-- term `CuckooPluginModular`: Generates one file of mocks per module the test target depends on, from the
-  Cuckoofile entry with that module's name, plus one from the entry named after the test target itself. Use it in
-  packages and in projects with several modules.
-- term `CuckooPluginSingleFile`: Generates every Cuckoofile module into a single file. Use it when one test target
-  mocks types from one place, or when mocks of several modules must share a file.
+`CuckooPlugin` generates one file of mocks per module the test target depends on, from the Cuckoofile entry with
+that module's name, plus one from the entry named after the test target itself. Each file is its own build step, so
+a change in one module regenerates and recompiles only that module's mocks, and the steps run in parallel.
 
-A release's plugins run a prebuilt generator, on macOS and on Linux (x86_64 and arm64), so your build doesn't compile
+A release's plugin runs a prebuilt generator, on macOS and on Linux (x86_64 and arm64), so your build doesn't compile
 swift-syntax and its version doesn't constrain your other packages. A dependency on a branch or a commit instead
 builds the generator from source with the plugin.
 
 ### Write a Cuckoofile
 
-The plugins read `Cuckoofile.toml` at the root of the package or project. The smallest one names the module whose
+The plugin reads `Cuckoofile.toml` at the root of the package or project. The smallest one names the module whose
 types you want mocked:
 
 ```toml

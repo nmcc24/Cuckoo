@@ -23,7 +23,7 @@ concurrency:
 jobs:
   generator_linux:
     name: SwiftPM tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }}${{ matrix.swift-syntax && format(', swift-syntax {0}', matrix.swift-syntax) || '' }})
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     container: swift:${{ matrix.swift }}
     strategy:
       fail-fast: false
@@ -61,7 +61,7 @@ jobs:
   # failures is the one its configuration shares with the generator_linux job.
   swift7_linux:
     name: Swift 7 upcoming features on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }})
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     container: swift:${{ matrix.swift }}
     strategy:
       fail-fast: false
@@ -92,7 +92,7 @@ jobs:
   # documented parameter that doesn't exist) fails the job.
   docs_linux:
     name: Documentation (Swift 6.3)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     container: swift:6.3
     steps:
       - name: Checkout
@@ -104,7 +104,7 @@ jobs:
   # shows up in its PR rather than on release day. Linux only: the macOS bundle is built at release time.
   bundle_linux:
     name: Prebuilt generator bundle on Linux (Swift 6.3)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     container: swift:6.3
     steps:
       - name: Checkout
@@ -120,12 +120,13 @@ jobs:
 
   tsan_linux:
     name: Runtime tests under the Thread Sanitizer on Linux (Swift 6.3)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      # TSan can't map its shadow memory with the runner kernel's default ASLR entropy, and a
-      # container job can't change the host's sysctl, so this job runs the Swift image itself.
+      # TSan can't map its shadow memory with the runner kernel's default ASLR entropy (32 bits on
+      # Ubuntu 26.04), and a container job can't change the host's sysctl, so this job runs the Swift
+      # image itself.
       - name: Lower ASLR entropy for TSan
         run: sudo sysctl -w vm.mmap_rnd_bits=28
       - name: Runtime tests with --sanitize=thread
@@ -207,7 +208,7 @@ jobs:
     name: CI passed
     if: always()
     needs: [generator_linux, swift7_linux, docs_linux, bundle_linux, tsan_linux, generator_macOS, test_iOS]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       actions: read
     steps:

@@ -54,18 +54,9 @@ let package = Package(
             targets: ["CuckooGenerator"]
         ),
         .plugin(
-            name: "CuckooPluginSingleFile",
-            targets: ["CuckooPluginSingleFile"]
+            name: "CuckooPlugin",
+            targets: ["CuckooPlugin"]
         ),
-        .plugin(
-            name: "CuckooPluginModular",
-            targets: ["CuckooPluginModular"]
-        ),
-        // FIXME: Currently unusable because Xcode doesn't allow using prebuild commands with executable targets
-        // .plugin(
-        //     name: "CuckooPluginIndividualFiles",
-        //     targets: ["CuckooPluginIndividualFiles"]
-        // ),
     ],
     dependencies: [
         // Up to the next major release, so Cuckoo resolves alongside users' other packages. Packages still
@@ -107,7 +98,7 @@ let package = Package(
             swiftSettings: swiftSettings
         ),
         // The runtime test suite, laid out the way users consume Cuckoo: the code under test is a plain
-        // module, and the modular plugin generates one mocks file per module it depends on, configured in
+        // module, and `CuckooPlugin` generates one mocks file per module it depends on, configured in
         // Cuckoofile.toml.
         .target(
             name: "CuckooTestSources",
@@ -125,7 +116,7 @@ let package = Package(
             dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources"],
             path: "Tests/Swift/Mocks",
             swiftSettings: swiftSettings,
-            plugins: ["CuckooPluginModular"]
+            plugins: ["CuckooPlugin"]
         ),
         .testTarget(
             name: "CuckooTests",
@@ -134,39 +125,33 @@ let package = Package(
             exclude: ["Swift/Source", "Swift/Mocks", "Plugin/Source", "SingleFile", "Info.plist"],
             swiftSettings: swiftSettings
         ),
-        // The single-file plugin generates every Cuckoofile module into one file, as build-script users get it,
-        // which merges the imports of all the sources.
+        // A test-only plugin generates every Cuckoofile module into one file, as the generator does for modules that
+        // share an `output`, which merges the imports of all the sources.
         .target(
             name: "CuckooSingleFileMocks",
             dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources"],
             path: "Tests/SingleFile/Mocks",
             swiftSettings: swiftSettings,
-            plugins: ["CuckooPluginSingleFile"]
+            plugins: ["CuckooSingleFileTestPlugin"]
         ),
         .testTarget(
             name: "CuckooSingleFileTests",
             dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooSingleFileMocks"],
             path: "Tests/SingleFile",
-            exclude: ["Mocks"],
+            exclude: ["Mocks", "Plugin"],
             swiftSettings: swiftSettings
         ),
         .plugin(
-            name: "CuckooPluginSingleFile",
+            name: "CuckooPlugin",
             capability: .buildTool(),
             dependencies: [generator],
-            path: "Generator/Plugin/File"
+            path: "Generator/Plugin"
         ),
         .plugin(
-            name: "CuckooPluginModular",
+            name: "CuckooSingleFileTestPlugin",
             capability: .buildTool(),
             dependencies: [generator],
-            path: "Generator/Plugin/Modular"
+            path: "Tests/SingleFile/Plugin"
         ),
-        // .plugin(
-        //     name: "CuckooPluginIndividualFiles",
-        //     capability: .buildTool(),
-        //     dependencies: ["CuckooGenerator"],
-        //     path: "Generator/Plugin/Directory"
-        // ),
     ] + generatorBinaryTargets
 )

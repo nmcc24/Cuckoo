@@ -2,7 +2,7 @@ import Foundation
 import PackagePlugin
 
 @main
-struct CuckooPluginModular: BuildToolPlugin {
+struct CuckooPlugin: BuildToolPlugin {
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
         let sourceModules: [SourceModule] = target.dependencies
             .flatMap { dependency in
@@ -41,6 +41,7 @@ struct CuckooPluginModular: BuildToolPlugin {
         return try commandsPerModule(
             sourceModules: allSourceModules,
             executableFactory: context.tool(named:),
+            targetName: target.name,
             projectDir: context.package.directoryURL,
             derivedSourcesDir: context.pluginWorkDirectoryURL
         )
@@ -50,7 +51,7 @@ struct CuckooPluginModular: BuildToolPlugin {
 #if canImport(XcodeProjectPlugin)
 import XcodeProjectPlugin
 
-extension CuckooPluginModular: XcodeBuildToolPlugin {
+extension CuckooPlugin: XcodeBuildToolPlugin {
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
         let sourceModules: [SourceModule] = target.dependencies
             .flatMap { dependency in
@@ -91,6 +92,7 @@ extension CuckooPluginModular: XcodeBuildToolPlugin {
         return try commandsPerModule(
             sourceModules: allSourceModules,
             executableFactory: context.tool(named:),
+            targetName: target.displayName,
             projectDir: context.xcodeProject.directoryURL,
             derivedSourcesDir: context.pluginWorkDirectoryURL
         )
@@ -105,7 +107,7 @@ struct SourceModule {
     /// target's own entry, which gathers the sources of all its dependencies, nor for an Xcode target, whose
     /// display name may differ. The Cuckoofile entry may list files from elsewhere, which belong to other modules.
     let swiftModule: (name: String, directory: URL)?
-    /// The sources passed with `--sources-list`, each with its Swift module where it's certain.
+    /// The sources passed to the generator, each with its Swift module where it's certain.
     let listedSources: [ListedSource]
 
     init(name: String, sources: [URL], swiftModule: (name: String, directory: URL)? = nil, listedSources: [ListedSource]? = nil) {
@@ -119,6 +121,7 @@ struct SourceModule {
 private func commandsPerModule(
     sourceModules: [SourceModule],
     executableFactory: (String) throws -> PluginContext.Tool,
+    targetName: String,
     projectDir: URL,
     derivedSourcesDir: URL
 ) throws -> [Command] {
@@ -129,37 +132,57 @@ private func commandsPerModule(
         let outputURL = derivedSourcesDir.appending(component: "GeneratedMocks_\(sourceModule.name).swift")
         // The Cuckoofile module mocks these files unless it lists its own `sources`.
         let sourcesListURL = derivedSourcesDir.appending(component: "Sources_\(sourceModule.name).txt")
-        try writeSourcesList(sourceModule.listedSources, to: sourcesListURL)
+        let listing = try sourcesArguments(sourceModule.listedSources, listURL: sourcesListURL)
 
         return .buildCommand(
-            displayName: "Run Cuckoonator for \(sourceModule.name)",
+            // SwiftPM names a command by its display name and arguments, so two test targets that depend on the same
+            // module would get one command between them without the target's name here.
+            displayName: "Run Cuckoonator for \(sourceModule.name) in \(targetName)",
             executable: executable,
-            arguments: ["--sources-list", sourcesListURL.path(percentEncoded: false)],
+            arguments: listing.arguments,
             environment: [
                 "PROJECT_DIR": projectDir.path(percentEncoded: false),
                 "DERIVED_SOURCES_DIR": derivedSourcesDir.path(percentEncoded: false),
                 "CUCKOO_OVERRIDE_OUTPUT": outputURL.path(percentEncoded: false),
                 "CUCKOO_MODULE_NAME": sourceModule.name,
+                // A generator built from source with code coverage (an Xcode scheme gathering it) writes its profile
+                // here: the sandbox lets it write only in the plugin's work directory.
+                "LLVM_PROFILE_FILE": derivedSourcesDir.appending(component: "CuckooGenerator-%m.profraw").path(percentEncoded: false),
                 // The generated file imports the sources' types from it by name; see `sources` in Source/Cuckoo.docc/Cuckoofile.md.
                 "CUCKOO_SOURCE_MODULE": sourceModule.swiftModule?.name,
                 "CUCKOO_SOURCE_MODULE_DIRECTORY": sourceModule.swiftModule?.directory.path(percentEncoded: false),
             ].compactMapValues { $0 },
-            inputFiles: [configurationURL, sourcesListURL] + sourceModule.sources,
+            inputFiles: [configurationURL] + listing.inputFiles + sourceModule.sources,
             outputFiles: [outputURL]
         )
     }
 }
 
-/// A file for the generator's `--sources-list`, and the Swift module it belongs to where that's certain.
+/// A file for the generator's source listing, and the Swift module it belongs to where that's certain.
 struct ListedSource {
     let swiftModule: String?
     let url: URL
 }
 
+/// The generator's arguments for a target's files: one `--source` per file, so the command needs no file of its own
+/// and a deleted plugin directory regenerates on the next build. A long listing, which could pass the system's limit
+/// on command-line length, goes in a `--sources-list` file instead, as does an empty one, which `--source` can't express.
+private func sourcesArguments(_ sources: [ListedSource], listURL: URL) throws -> (arguments: [String], inputFiles: [URL]) {
+    let lines = sources.map { "\($0.swiftModule ?? "")\t\($0.url.path(percentEncoded: false))" }
+    if !lines.isEmpty && lines.reduce(0, { $0 + $1.utf8.count + 10 }) <= maximumInlineSourcesLength {
+        return (lines.flatMap { ["--source", $0] }, [])
+    }
+    try writeSourcesList(lines, to: listURL)
+    return (["--sources-list", listURL.path(percentEncoded: false)], [listURL])
+}
+
+/// Well under macOS's 1 MiB limit on a command's arguments and environment together.
+private let maximumInlineSourcesLength = 256 * 1024
+
 /// Writes the source files for the generator's `--sources-list`, one per line: the Swift module, a tab and the path.
 /// An unchanged list isn't rewritten, so the build only reruns the generator when the target's files change.
-private func writeSourcesList(_ sources: [ListedSource], to url: URL) throws {
-    let contents = Data(sources.map { "\($0.swiftModule ?? "")\t\($0.url.path(percentEncoded: false))\n" }.joined().utf8)
+private func writeSourcesList(_ lines: [String], to url: URL) throws {
+    let contents = Data(lines.map { "\($0)\n" }.joined().utf8)
     guard (try? Data(contentsOf: url)) != contents else { return }
     try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
     try contents.write(to: url, options: .atomic)

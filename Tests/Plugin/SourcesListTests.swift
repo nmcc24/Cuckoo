@@ -4,7 +4,7 @@ import Cuckoo
 @testable import CuckooPluginTestSources
 
 /// `CuckooPluginTestSources` has a Cuckoofile entry without `sources`, so its mocks come from the files
-/// `CuckooPluginModular` lists for the target.
+/// `CuckooPlugin` lists for the target.
 struct SourcesListTests {
     @Test
     func pluginListedFilesAreMocked() {

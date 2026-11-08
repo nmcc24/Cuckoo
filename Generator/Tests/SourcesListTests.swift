@@ -4,7 +4,7 @@ import Testing
 
 /// The build plugins pass the files of the targets they generate for with `--sources-list`. A module without
 /// `sources` mocks the files of the target with its name, or all of them; one with `sources` keeps its own. The SwiftPM runtime suite runs it
-/// end to end through `CuckooPluginModular` (`CuckooPluginTestSources`).
+/// end to end through `CuckooPlugin` (`CuckooPluginTestSources`).
 @Suite
 struct SourcesListTests {
     @Test
@@ -18,6 +18,15 @@ struct SourcesListTests {
                 Module.PluginSource(path: Path("/abs/C.swift"), swiftModule: nil),
             ])
         }
+    }
+
+    /// The plugins pass a short listing as `--source` arguments, in the form of the list's lines.
+    @Test
+    func sourceArgumentsAreReadLikeListLines() {
+        #expect(["App\t/abs/A.swift", "/abs/B.swift"].map(GenerateCommand.pluginSource(fromLine:)) == [
+            Module.PluginSource(path: Path("/abs/A.swift"), swiftModule: "App"),
+            Module.PluginSource(path: Path("/abs/B.swift"), swiftModule: nil),
+        ])
     }
 
     @Test
@@ -38,7 +47,7 @@ struct SourcesListTests {
         #expect(output.contains("@testable import protocol App.Screen"))
     }
 
-    /// The single-file plugin lists every dependency's files. A module named like one of them takes its files, and
+    /// The runtime suite's single-file test plugin lists every dependency's files. A module named like one of them takes its files, and
     /// knows their module without the plugin naming one.
     @Test
     func moduleNamedLikeAListedModuleTakesItsFiles() async throws {

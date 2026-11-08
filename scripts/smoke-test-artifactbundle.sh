@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Tests a prebuilt generator `artifactbundle` the way a user gets it (roadmap Phase 5 item 2): a small package
-# depends on a copy of this one whose plugins run the bundle, generates mocks with CuckooPluginModular and runs a
+# depends on a copy of this one whose plugins run the bundle, generates mocks with CuckooPlugin and runs a
 # test that stubs and verifies one. It fails if the build compiled swift-syntax, which the bundle is there to
 # avoid. (SwiftPM may still check swift-syntax out to resolve versions; it doesn't build it.)
 #
@@ -49,7 +49,7 @@ let package = Package(
         .testTarget(
             name: "AppTests",
             dependencies: ["App", .product(name: "Cuckoo", package: "Cuckoo")],
-            plugins: [.plugin(name: "CuckooPluginModular", package: "Cuckoo")]
+            plugins: [.plugin(name: "CuckooPlugin", package: "Cuckoo")]
         ),
     ]
 )
