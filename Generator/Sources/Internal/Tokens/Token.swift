@@ -1,4 +1,4 @@
-protocol Token {
+protocol Token: Sendable {
     var parent: Reference<any Token>? { get set }
 }
 
