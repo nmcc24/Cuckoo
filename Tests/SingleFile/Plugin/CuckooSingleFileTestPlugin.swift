@@ -1,8 +1,10 @@
 import Foundation
 import PackagePlugin
 
+/// Generates every Cuckoofile module into one file for `CuckooSingleFileMocks`, as the generator does for modules that
+/// share an `output`, so the runtime tests compile the merged imports. Only this package's tests use it.
 @main
-struct CuckooPluginFile: BuildToolPlugin {
+struct CuckooSingleFileTestPlugin: BuildToolPlugin {
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
         let sources: [ListedSource] = target.dependencies
             .flatMap { dependency in
@@ -29,40 +31,6 @@ struct CuckooPluginFile: BuildToolPlugin {
         )
     }
 }
-
-#if canImport(XcodeProjectPlugin)
-import XcodeProjectPlugin
-
-extension CuckooPluginFile: XcodeBuildToolPlugin {
-    func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
-        let sources: [ListedSource] = target.dependencies
-            .flatMap { dependency in
-                switch dependency {
-                case .product(let product):
-                    return product.targets
-                        .compactMap { $0 as? SwiftSourceModuleTarget }
-                        .filter { $0.kind == ModuleKind.generic && $0.moduleName != "Cuckoo" }
-                        .flatMap { module in
-                            module.sourceFiles.filter { $0.type == .source }.map { ListedSource(swiftModule: module.moduleName, url: $0.url) }
-                        }
-                case .target(let target):
-                    // An Xcode target's display name may differ from its Swift module's name.
-                    guard target.displayName != "Cuckoo" else { return [] }
-                    return target.inputFiles.filter { $0.type == .source }.map { ListedSource(swiftModule: nil, url: $0.url) }
-                @unknown default:
-                    return []
-                }
-            }
-
-        return try commands(
-            sources: sources,
-            executableFactory: context.tool(named:),
-            projectDir: context.xcodeProject.directoryURL,
-            derivedSourcesDir: context.pluginWorkDirectoryURL
-        )
-    }
-}
-#endif
 
 func commands(
     sources: [ListedSource],

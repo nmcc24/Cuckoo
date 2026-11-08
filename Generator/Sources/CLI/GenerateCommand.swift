@@ -92,7 +92,7 @@ struct GenerateCommand: AsyncParsableCommand {
             return
         }
 
-        // Modules that write to the same file, as all of them do under the single-file build plugin, are joined into it.
+        // Modules that write to the same file are joined into it.
         var fileOutputs: [(path: Path, modules: [Module])] = []
         var directoryOutputs: [(path: Path, module: Module)] = []
         for module in modules {
