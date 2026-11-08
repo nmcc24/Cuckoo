@@ -29,8 +29,8 @@ To try it:
 - One build plugin, `CuckooPlugin`, generating one file per module the test target depends on, so an edit
   regenerates and recompiles only that module's mocks. `CuckooPluginModular` is renamed; `CuckooPluginSingleFile`
   is removed.
-- Releases run a prebuilt generator (macOS, Linux x86_64 and arm64), so builds don't compile swift-syntax. From a branch or a commit, the plugin builds it from source
-  (swift-syntax `602.0.0..<605.0.0`).
+- Releases run a prebuilt generator (macOS, Linux x86_64 and arm64), so builds don't compile swift-syntax. From a
+  branch or a commit, the plugin builds it from source (swift-syntax `602.0.0..<605.0.0`).
 - The plugin passes the target's files to the generator: a Cuckoofile module without `sources` mocks them.
 - Code is generated with swift-syntax instead of Stencil, and is formatted. Generating the runtime's own test mocks
   went from 23 s to under a second.
