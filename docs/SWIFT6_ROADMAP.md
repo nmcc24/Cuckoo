@@ -2,7 +2,7 @@
 
 Status: draft, 2026-10-22. Branch `nmcc24/swift6-roadmap` on `nmcc24/Cuckoo` (fork of `Brightify/Cuckoo` at `7cef639`, v2.4.0).
 
-Goal: make Cuckoo (or a successor) fully Swift 6 compliant on Swift 6.2–6.4, able to mock `@MainActor`, global-actor and `Actor` protocols, and broaden what can be mocked. Swift 5 language mode support is dropped.
+Goal: make Cuckoo (or a successor) fully Swift 6 compliant on Swift 6.2–6.4, able to mock `@MainActor`, global-actor and `Actor` protocols, and broaden what can be mocked. The Swift 6 language mode is the target; the Swift 5 mode compiles but isn't tested.
 
 ---
 
@@ -96,7 +96,7 @@ Why not a brand-new project?
 A brand-new name or repo is still an option at the end of Phase 3 if the API diverges enough. Decision **D1** below.
 
 Breaking changes accepted in 3.0:
-- Swift 6 language mode only; Swift 6.2 toolchain minimum (needed for `nonisolated(nonsending)` and isolated conformances); tested on 6.2, 6.3 and 6.4.
+- Swift 6 language mode recommended (the mocks compile in the Swift 5 mode too, checked by hand 2026-11-06 with no CI leg; documented as untested, decided 2026-11-08); Swift 6.2 toolchain minimum (needed for `nonisolated(nonsending)` and isolated conformances); tested on 6.2, 6.3 and 6.4.
 - Minimum OS: iOS 17, macOS 14, tvOS 17, watchOS 10 (parameter-pack generic types need this runtime). Newer OS and compiler versions unlock extra features on top (§3.4). Decision **D2**.
 - SwiftPM only. CocoaPods trunk is moving to read-only, and the `run` script and podspec go away. Decision **D3**.
 - The OCMock bridge is removed. Decision **D4** (reversed 2026-11-05).

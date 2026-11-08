@@ -14,7 +14,8 @@ tests, then the behaviour changes, which show up as test failures.
 
 ### Requirements and installation
 
-- Swift 6.2 or later (Xcode 26 or later), and the Swift 6 language mode in the test target.
+- Swift 6.2 or later (Xcode 26 or later). The Swift 6 language mode is recommended, and it's what brings the
+  isolation checks below; the mocks also compile in the Swift 5 mode, which CI doesn't test.
 - iOS 17, macOS 14, tvOS 17 or watchOS 10, up from iOS 13 and macOS 10.15.
 - SwiftPM only. The podspec and the `run` script, which downloaded or built the generator for build-phase
   scripts, are gone. Add the package and the build plugin as <doc:GettingStarted> shows. To run the
