@@ -184,7 +184,10 @@ struct TextFile: Sendable, CustomStringConvertible {
         try String(contentsOfFile: path.rawValue, encoding: .utf8)
     }
 
+    /// Writes `contents`, unless the file already holds exactly that. An untouched file keeps its modification date,
+    /// so a build that regenerates unchanged mocks doesn't recompile them.
     func write(_ contents: String) throws {
+        if (try? read()) == contents { return }
         try contents.write(toFile: path.rawValue, atomically: true, encoding: .utf8)
     }
 }
