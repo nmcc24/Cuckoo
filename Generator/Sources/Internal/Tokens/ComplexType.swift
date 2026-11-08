@@ -1,7 +1,7 @@
 import SwiftSyntax
 import SwiftParser
 
-enum ComplexType {
+enum ComplexType: Sendable {
     indirect case attributed(attributes: [String], baseType: ComplexType)
     indirect case optional(wrappedType: ComplexType, isImplicit: Bool)
     indirect case array(elementType: ComplexType)
@@ -43,7 +43,7 @@ enum ComplexType {
     }
 
     // Can't use value type here.
-    final class Closure {
+    final class Closure: Sendable {
         let parameters: [Parameter]
         let effects: Effects
         let returnType: ComplexType
@@ -74,12 +74,12 @@ enum ComplexType {
             self.returnType = returnType
         }
 
-        struct Parameter: Equatable {
+        struct Parameter: Equatable, Sendable {
             let label: String?
             let type: ComplexType
         }
 
-        struct Effects: OptionSet, Equatable {
+        struct Effects: OptionSet, Equatable, Sendable {
             let rawValue: Int
 
             static let `async` = Effects(rawValue: 1 << 0)

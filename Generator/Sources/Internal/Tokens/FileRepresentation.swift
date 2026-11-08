@@ -1,4 +1,4 @@
-struct FileRepresentation: @unchecked Sendable {
+struct FileRepresentation: Sendable {
     let file: TextFile
     let imports: [Import]
     let tokens: [any Token]

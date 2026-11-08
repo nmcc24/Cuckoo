@@ -1,5 +1,5 @@
 extension Method {
-    struct Signature {
+    struct Signature: Sendable {
         let genericParameters: [GenericParameter]
         let parameters: [MethodParameter]
         let asyncType: AsyncType?
