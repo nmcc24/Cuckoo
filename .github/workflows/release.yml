@@ -25,7 +25,7 @@ env:
 jobs:
   check:
     name: Check the version
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -48,8 +48,8 @@ jobs:
       matrix:
         include:
           - { name: macOS, runner: macos-26 }
-          - { name: Linux x86_64, runner: ubuntu-24.04, container: "swift:6.3" }
-          - { name: Linux arm64, runner: ubuntu-24.04-arm, container: "swift:6.3" }
+          - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3" }
+          - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3" }
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
     steps:
@@ -72,8 +72,8 @@ jobs:
       matrix:
         include:
           - { name: macOS, runner: macos-26 }
-          - { name: Linux x86_64, runner: ubuntu-24.04, container: "swift:6.3" }
-          - { name: Linux arm64, runner: ubuntu-24.04-arm, container: "swift:6.3" }
+          - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3" }
+          - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3" }
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
     steps:
@@ -142,7 +142,7 @@ jobs:
       matrix:
         include:
           - { name: macOS, runner: macos-26 }
-          - { name: Linux x86_64, runner: ubuntu-24.04, container: "swift:6.3" }
+          - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3" }
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
     steps:
