@@ -185,7 +185,9 @@ jobs:
       # built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
       # Swift, so what can break there is compile-time (APIs, availability, imports).
       # Xcode 26.6 also builds the generator's dependencies for the destination, so they all have to build
-      # for tvOS and watchOS too.
+      # for tvOS and watchOS too. They build the arm64 slice only: the runners are Apple Silicon, and Xcode
+      # 27.2's linker warns on x86_64 objects that prelink an @objc protocol with a Swift protocol inheriting
+      # an Objective-C one (roadmap item 11).
       - name: Test the package on iOS
         run: |
           set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
@@ -194,12 +196,12 @@ jobs:
       - name: Build the package tests for tvOS
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "generic/platform=tvOS Simulator" \
+            -destination "generic/platform=tvOS Simulator" ARCHS=arm64 \
             | xcbeautify --renderer github-actions
       - name: Build the package tests for watchOS
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "generic/platform=watchOS Simulator" \
+            -destination "generic/platform=watchOS Simulator" ARCHS=arm64 \
             | xcbeautify --renderer github-actions
 
   # The single check that master's ruleset requires. It depends on every other job, so
