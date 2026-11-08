@@ -20,6 +20,15 @@ struct SourcesListTests {
         }
     }
 
+    /// The plugins pass a short listing as `--source` arguments, in the form of the list's lines.
+    @Test
+    func sourceArgumentsAreReadLikeListLines() {
+        #expect(["App\t/abs/A.swift", "/abs/B.swift"].map(GenerateCommand.pluginSource(fromLine:)) == [
+            Module.PluginSource(path: Path("/abs/A.swift"), swiftModule: "App"),
+            Module.PluginSource(path: Path("/abs/B.swift"), swiftModule: nil),
+        ])
+    }
+
     @Test
     func unreadableListIsReported() {
         let error = #expect(throws: (any Error).self) {
