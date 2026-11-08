@@ -128,7 +128,7 @@ jobs:
       # container job can't change the host's sysctl, so this job runs the Swift image itself.
       - name: Lower ASLR entropy for TSan
         run: |
-          echo "Default vm.mmap_rnd_bits: $(sysctl -n vm.mmap_rnd_bits)"
+          echo "Default vm.mmap_rnd_bits: $(sudo sysctl -n vm.mmap_rnd_bits)"
           sudo sysctl -w vm.mmap_rnd_bits=28
       - name: Runtime tests with --sanitize=thread
         run: |
