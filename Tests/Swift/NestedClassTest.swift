@@ -1,4 +1,4 @@
-import XCTest
+import Testing
 import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
@@ -7,61 +7,60 @@ extension Nested.NestedTestedClass: Mocked {
     typealias MockType = Nested.MockNestedTestedClass
 }
 
-final class NestedClassTest: XCTestCase {
+struct NestedClassTest {
 
-    private var mock: Nested.MockNestedTestedClass!
+    private let mock = Nested.MockNestedTestedClass()
 
-    override func setUp() {
-        super.setUp()
-
-        mock = Nested.MockNestedTestedClass()
-    }
-
-    func testReadOnlyPropertyWithMockCreator() {
+    @Test
+    func readOnlyPropertyWithMockCreator() {
         let mock = createMock(for: Nested.NestedTestedClass.self) { builder, stub in
             when(stub.readOnlyProperty.get).thenReturn("a")
 
             return Nested.MockNestedTestedClass()
         }
 
-        XCTAssertEqual(mock.readOnlyProperty, "a")
+        #expect(mock.readOnlyProperty == "a")
         verify(mock).readOnlyProperty.get()
     }
 
-    func testReadOnlyProperty() {
+    @Test
+    func readOnlyProperty() {
         let mock = Nested.MockNestedTestedClass()
 
         stub(mock) { mock in
             when(mock.readOnlyProperty.get).thenReturn("a")
         }
 
-        XCTAssertEqual(mock.readOnlyProperty, "a")
+        #expect(mock.readOnlyProperty == "a")
         verify(mock).readOnlyProperty.get()
     }
 
-    func testReadOnlyOptionalProperty() {
+    @Test
+    func readOnlyOptionalProperty() {
         let mock = Nested.MockNestedTestedClass()
 
         stub(mock) { mock in
             when(mock.readOnlyOptionalProperty.get).thenReturn("a")
         }
 
-        XCTAssertEqual(mock.readOnlyOptionalProperty, "a")
+        #expect(mock.readOnlyOptionalProperty == "a")
         verify(mock).readOnlyOptionalProperty.get()
     }
 
-    func testOptionalReadOnlyPropertyIsNil() {
+    @Test
+    func optionalReadOnlyPropertyIsNil() {
         let mock = Nested.MockNestedTestedClass()
 
         stub(mock) { mock in
             when(mock.readOnlyOptionalProperty.get).thenReturn(nil)
         }
 
-        XCTAssertNil(mock.readOnlyOptionalProperty)
+        #expect(mock.readOnlyOptionalProperty == nil)
         verify(mock).readOnlyOptionalProperty.get()
     }
 
-    func testReadWriteProperty() {
+    @Test
+    func readWriteProperty() {
         var called = false
         stub(mock) { mock in
             when(mock.readWriteProperty.get).thenReturn(1)
@@ -70,13 +69,14 @@ final class NestedClassTest: XCTestCase {
 
         mock.readWriteProperty = 0
 
-        XCTAssertEqual(mock.readWriteProperty, 1)
-        XCTAssertTrue(called)
+        #expect(mock.readWriteProperty == 1)
+        #expect(called)
         verify(mock).readWriteProperty.get()
         verify(mock).readWriteProperty.set(0)
     }
 
-    func testOptionalProperty() {
+    @Test
+    func optionalProperty() {
         var called = false
         stub(mock) { mock in
             when(mock.optionalProperty.get).thenReturn(nil)
@@ -85,13 +85,14 @@ final class NestedClassTest: XCTestCase {
 
         mock.optionalProperty = 0
 
-        XCTAssertNil(mock.optionalProperty)
-        XCTAssertTrue(called)
+        #expect(mock.optionalProperty == nil)
+        #expect(called)
         verify(mock).optionalProperty.get()
         verify(mock).optionalProperty.set(equal(to: 0))
     }
 
-    func testNoReturn() {
+    @Test
+    func noReturn() {
         var called = false
         stub(mock) { mock in
             when(mock.noReturn()).then { _ in called = true }
@@ -99,20 +100,22 @@ final class NestedClassTest: XCTestCase {
 
         mock.noReturn()
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).noReturn()
     }
 
-    func testCountCharacters() {
+    @Test
+    func countCharacters() {
         stub(mock) { mock in
             when(mock.count(characters: "a")).thenReturn(1)
         }
 
-        XCTAssertEqual(mock.count(characters: "a"), 1)
+        #expect(mock.count(characters: "a") == 1)
         verify(mock).count(characters: "a")
     }
 
-    func testWithThrows() {
+    @Test
+    func withThrows() {
         stub(mock) { mock in
             when(mock.withThrows()).thenThrow(TestError.unknown)
         }
@@ -124,11 +127,12 @@ final class NestedClassTest: XCTestCase {
             catched = true
         }
 
-        XCTAssertTrue(catched)
+        #expect(catched)
         verify(mock).withThrows()
     }
 
-    func testWithNoReturnThrows() {
+    @Test
+    func withNoReturnThrows() {
         stub(mock) { mock in
             when(mock.withNoReturnThrows()).thenThrow(TestError.unknown)
         }
@@ -140,11 +144,12 @@ final class NestedClassTest: XCTestCase {
             catched = true
         }
 
-        XCTAssertTrue(catched)
+        #expect(catched)
         verify(mock).withNoReturnThrows()
     }
 
-    func testWithClosure() {
+    @Test
+    func withClosure() {
         func anyNestedClosure<IN1, IN2, OUT>() -> ParameterMatcher<((IN1) -> IN2) -> OUT> {
             return ParameterMatcher()
         }
@@ -158,12 +163,12 @@ final class NestedClassTest: XCTestCase {
             when(mock.withNestedClosure2(anyNestedClosure())).then { $0({ Int($0) ?? 1 })({ Int($0) ?? 1 }) }
         }
 
-        XCTAssertEqual(mock.withClosure { _ in 1 }, 1)
-        XCTAssertEqual(mock.withClosureReturningVoid {_ in { return 1 } }, 1)
-        XCTAssertEqual(mock.withClosureReturningInt { _ in { _ in return 1 } }, 1)
-        XCTAssertEqual(mock.withOptionalClosureAlone { _ in { _ in return 1 } }, 1)
-        XCTAssertEqual(mock.withNestedClosure1 { _ in { _ in return 1 } }, 1)
-        XCTAssertEqual(mock.withNestedClosure2 { _ in { _ in return 1 } }, 1)
+        #expect(mock.withClosure { _ in 1 } == 1)
+        #expect(mock.withClosureReturningVoid {_ in { return 1 } } == 1)
+        #expect(mock.withClosureReturningInt { _ in { _ in return 1 } } == 1)
+        #expect(mock.withOptionalClosureAlone { _ in { _ in return 1 } } == 1)
+        #expect(mock.withNestedClosure1 { _ in { _ in return 1 } } == 1)
+        #expect(mock.withNestedClosure2 { _ in { _ in return 1 } } == 1)
 
         verify(mock).withClosure(anyClosure())
         verify(mock).withClosureReturningVoid(anyClosure())
@@ -173,7 +178,8 @@ final class NestedClassTest: XCTestCase {
         verify(mock).withNestedClosure2(anyNestedClosure())
     }
 
-    func testWithEscape() {
+    @Test
+    func withEscape() {
         var called = false
         stub(mock) { mock in
             when(mock.withEscape(anyString(), action: anyClosure())).then { text, closure in closure(text) }
@@ -181,11 +187,12 @@ final class NestedClassTest: XCTestCase {
 
         mock.withEscape("a") { called = $0 == "a" }
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).withEscape(anyString(), action: anyClosure())
     }
 
-    func testWithOptionalClosure() {
+    @Test
+    func withOptionalClosure() {
         var called = false
         stub(mock) { mock in
             when(mock.withOptionalClosure(anyString(), closure: anyClosure())).then { text, closure in closure?(text)  }
@@ -193,36 +200,39 @@ final class NestedClassTest: XCTestCase {
 
         mock.withOptionalClosure("a") { called = $0 == "a" }
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).withOptionalClosure(anyString(), closure: anyClosure())
     }
 
-    func testWithLabel() {
+    @Test
+    func withLabel() {
         var called = false
         stub(mock) { mock in
             when(mock.withLabelAndUnderscore(labelA: anyString(), anyString())).then { _ in called = true }
         }
 
         mock.withLabelAndUnderscore(labelA: "a", "b")
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).withLabelAndUnderscore(labelA: anyString(), anyString())
     }
 
-    func testCallingCountCharactersMethodWithHello() {
+    @Test
+    func callingCountCharactersMethodWithHello() {
         stub(mock) { mock in
             when(mock.callingCountCharactersMethodWithHello()).thenCallRealImplementation()
             when(mock.count(characters: any())).thenReturn(0)
         }
 
-        XCTAssertEqual(mock.callingCountCharactersMethodWithHello(), 0)
+        #expect(mock.callingCountCharactersMethodWithHello() == 0)
         verify(mock).callingCountCharactersMethodWithHello()
         verify(mock).count(characters: "Hello")
     }
 
-    func testDefaultImplCall() {
+    @Test
+    func defaultImplCall() {
         mock.enableDefaultImplementation(Nested.NestedTestedClassStub())
 
-        XCTAssertEqual(mock.callingCountCharactersMethodWithHello(), 0)
+        #expect(mock.callingCountCharactersMethodWithHello() == 0)
         verify(mock).callingCountCharactersMethodWithHello()
     }
 }
