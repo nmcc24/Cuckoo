@@ -10,7 +10,8 @@ the mocks always match the code.
 
 ### Requirements
 
-- Swift 6.2 or later (Xcode 26 or later), in the Swift 6 language mode.
+- Swift 6.2 or later (Xcode 26 or later). The Swift 6 language mode is recommended; the mocks also compile in
+  the Swift 5 mode, which CI doesn't test.
 - iOS 17, macOS 14, tvOS 17 or watchOS 10, or Linux.
 
 ### Add the package
