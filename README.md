@@ -65,13 +65,13 @@ The list of changes is in the [changelog](CHANGELOG.md).
 ## Contribute
 Cuckoo is open for everyone and we'd like you to help us make the best Swift mocking library. For Cuckoo development, follow these steps:
 1. Clone the **Cuckoo** repository.
-2. Open `Package.swift` in Xcode, or run `swift test` (on macOS or Linux). It runs the generator's unit and snapshot tests and the runtime tests, with mocks the plugins generate from `Cuckoofile.toml`.
+2. Open `Package.swift` in Xcode, or run `swift test` (on macOS or Linux). It runs the generator's unit and snapshot tests and the runtime tests, with mocks the plugin generates from `Cuckoofile.toml`.
 3. To test on a simulator, use the shared `CuckooTests` scheme with `xcodebuild -skipPackagePluginValidation`.
 4. Peek around or file a pull request with your changes.
 
 The package consists of two parts - runtime and code generator:
 - `Source` - runtime sources and the DocC catalog
-- `Generator` - the generator (`CuckooGenerator`), its build plugins and its tests
+- `Generator` - the generator (`CuckooGenerator`), its build plugin and its tests
 - `Tests` - tests for the runtime part, in Swift 6 mode like everything else
 
 Thank you for your help!

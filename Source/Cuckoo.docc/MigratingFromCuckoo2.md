@@ -17,15 +17,20 @@ tests, then the behaviour changes, which show up as test failures.
 - Swift 6.2 or later (Xcode 26 or later), and the Swift 6 language mode in the test target.
 - iOS 17, macOS 14, tvOS 17 or watchOS 10, up from iOS 13 and macOS 10.15.
 - SwiftPM only. The podspec and the `run` script, which downloaded or built the generator for build-phase
-  scripts, are gone. Add the package and one of the build plugins as <doc:GettingStarted> shows. To run the
+  scripts, are gone. Add the package and the build plugin as <doc:GettingStarted> shows. To run the
   generator from a script anyway, see "Running the generator yourself" in <doc:Cuckoofile>.
 
 ### The Cuckoofile
 
-- The `xcodeproj` table is removed. List the target's files with `sources` globs, or, with a build plugin, leave
+- The `xcodeproj` table is removed. List the target's files with `sources` globs, or, with the build plugin, leave
   `sources` out to mock the files of the target the plugin generates for. A leftover `xcodeproj` table fails with
   the `sources` line to write; <doc:Cuckoofile> shows the change.
-- With a build plugin, a module without `sources` mocks the target's own files, which the plugin lists. Entries
+- The two build plugins are now one, `CuckooPlugin`. Replace `CuckooPluginModular` with it, as is. With
+  `CuckooPluginSingleFile`, the plugin generates one file per dependency, from the entry with that dependency's
+  name, plus one from the entry named after the test target, instead of every entry into one file. Rename entries
+  to match, and move an entry that lists files from several modules to the test target's name. The tests don't
+  change: the mocks land in the same test module either way.
+- With the build plugin, a module without `sources` mocks the target's own files, which the plugin lists. Entries
   that list `sources` work as before.
 - New keys: `regex` also takes an array of patterns, `sources` takes a table by Swift module, and the options
   `mockPrefix`, `mockSuffix` and `defaultIsolation`. Set `defaultIsolation = "MainActor"` for a module built with

@@ -4,11 +4,11 @@ Tell the generator which files to read, which types to mock and what to import, 
 
 ## Overview
 
-`Cuckoofile.toml` sits at the root of the package or Xcode project, where the build plugins look for it. It holds
+`Cuckoofile.toml` sits at the root of the package or Xcode project, where the build plugin looks for it. It holds
 one table per module of mocks, `[modules.<Name>]`, and an optional top-level `output`:
 
 ```toml
-# The file a module without its own `output` writes to. The build plugins pick the output themselves.
+# The file a module without its own `output` writes to. The build plugin picks the output itself.
 output = "Tests/Generated/GeneratedMocks.swift"
 
 [modules.App]
@@ -22,9 +22,10 @@ keepDocumentation = false
 defaultIsolation = "MainActor"
 ```
 
-The name of a module matters with the build plugins. `CuckooPluginModular` generates one file per dependency of
-the test target, from the entry with that dependency's name, plus one from the entry named after the test target.
-A dependency without an entry gets an empty file. `CuckooPluginSingleFile` generates every entry into one file.
+The name of a module matters with the build plugin. `CuckooPlugin` generates one file per dependency of the test
+target, from the entry with that dependency's name, plus one from the entry named after the test target. A
+dependency without an entry gets an empty file, and an entry named after neither isn't generated for that target.
+To mock files from several modules in one entry, name it after the test target and list its `sources`.
 
 ### Sources
 
@@ -44,7 +45,7 @@ A dependency without an entry gets an empty file. `CuckooPluginSingleFile` gener
   sources = { App = ["Sources/App/**/*.swift"], Core = ["Sources/Core/**/*.swift"] }
   ```
 
-  With a build plugin, leave `sources` out to mock the files of the test target's dependency that has the
+  With the build plugin, leave `sources` out to mock the files of the test target's dependency that has the
   entry's name, or of every dependency if none has it. The plugin lists the target's own files, so this follows
   the target's membership, Xcode's synchronized folders included, and tells the generator which module the files
   belong to, as the table form does.
@@ -75,7 +76,7 @@ sources = ["MyApp/**/*.swift", "Shared/**/*.swift"]
 ```
 
 Globs select files by folder, not by target membership. If a folder also holds files the target doesn't compile,
-narrow the glob or list those types in `exclude`. With a build plugin, leave `sources` out instead, to mock the
+narrow the glob or list those types in `exclude`. With the build plugin, leave `sources` out instead, to mock the
 files of the target.
 
 ### Imports
@@ -93,7 +94,7 @@ The generated file always imports `Cuckoo`.
 
 - term `output`: Where to write the module's mocks. A path with a file extension is one file; modules with the
   same `output` are joined into it. An existing directory, or a path with no extension, gets one file per source
-  file. The build plugins replace `output` with a file in the build directory.
+  file. The build plugin replaces `output` with a file in the build directory.
 - term `filenameFormat`: For a directory `output`, the name of each file, with `{}` where the source file's name
   goes, such as `"{}Mocks"`. It must contain `{}`.
 
@@ -120,7 +121,7 @@ The `[modules.<Name>.options]` table:
 
 ### Running the generator yourself
 
-The build plugins are the way to run the generator. To run it from the command line, as a pre-build script or
+The build plugin is the way to run the generator. To run it from the command line, as a pre-build script or
 to look at what it writes, build `CuckooGenerator` and pass the Cuckoofile:
 
 ```sh
