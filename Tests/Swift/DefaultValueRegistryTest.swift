@@ -1,90 +1,101 @@
-import XCTest
 import Cuckoo
+import Testing
 
-final class DefaultValueRegistryTest: XCTestCase {
-    
-    override func setUp() {
-        super.setUp()
-        
-        DefaultValueRegistry.reset()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        
-        DefaultValueRegistry.reset()
-    }
-    
-    func testReset() {
-        XCTAssertEqual(0, DefaultValueRegistry.defaultValue(for: Int.self))
-        DefaultValueRegistry.register(value: 10, forType: Int.self)
-        DefaultValueRegistry.reset()
-        XCTAssertEqual(0, DefaultValueRegistry.defaultValue(for: Int.self))
-    }
-    
-    func testRegisterValue() {
-        let value = 10
-        DefaultValueRegistry.register(value: value, forType: Int.self)
-        XCTAssertEqual(value, DefaultValueRegistry.defaultValue(for: Int.self))
-    }
-    
-    func testRegisterSet() {
-        let value = Set([1])
-        DefaultValueRegistry.register(value: value, forType: Set<Int>.self)
-        XCTAssertEqual(value, DefaultValueRegistry.defaultValue(for: Set<Int>.self))
-    }
-    
-    func testRegisterArray() {
-        let value = [1]
-        DefaultValueRegistry.register(value: value, forType: Array<Int>.self)
-        XCTAssertEqual(value, DefaultValueRegistry.defaultValue(for: Array<Int>.self))
-    }
-    
-    func testRegisterDictionary() {
-        let value = ["A": 1]
-        DefaultValueRegistry.register(value: value, forType: Dictionary<String, Int>.self)
-        XCTAssertEqual(value, DefaultValueRegistry.defaultValue(for: Dictionary<String, Int>.self))
-    }
-    
-    func testRegisterOptional() {
-        let value = 1 as Int?
-        DefaultValueRegistry.register(value: value, forType: Optional<Int>.self)
-        XCTAssertEqual(value, DefaultValueRegistry.defaultValue(for: Optional<Int>.self))
-    }
-    
-    func testRegisterTuple1() {
-        let value = (1)
-        DefaultValueRegistry.register(value: value, forType: (Int).self)
-        XCTAssertTrue(value == DefaultValueRegistry.defaultValue(for: (Int).self))
+/// The registry is global, so these tests register defaults for `Marker` only, which no other test uses, and run
+/// one at a time because `reset()` clears what the others register.
+@Suite(.serialized)
+struct DefaultValueRegistryTest {
+    private struct Marker: Sendable, Hashable {
+        let value: Int
     }
 
-    func testRegisterTuple2() {
-        let value = (1, 1)
-        DefaultValueRegistry.register(value: value, forType: (Int, Int).self)
-        XCTAssertTrue(value == DefaultValueRegistry.defaultValue(for: (Int, Int).self))
+    init() {
+        DefaultValueRegistry.reset()
     }
-    
-    func testRegisterTuple3() {
-        let value = (1, 1, 1)
-        DefaultValueRegistry.register(value: value, forType: (Int, Int, Int).self)
-        XCTAssertTrue(value == DefaultValueRegistry.defaultValue(for: (Int, Int, Int).self))
+
+    @Test
+    func reset() {
+        DefaultValueRegistry.register(value: [Marker(value: 1)], forType: [Marker].self)
+        DefaultValueRegistry.reset()
+        #expect(DefaultValueRegistry.defaultValue(for: [Marker].self) == [])
     }
-    
-    func testRegisterTuple4() {
-        let value = (1, 1, 1, 1)
-        DefaultValueRegistry.register(value: value, forType: (Int, Int, Int, Int).self)
-        XCTAssertTrue(value == DefaultValueRegistry.defaultValue(for: (Int, Int, Int, Int).self))
+
+    @Test
+    func resetKeepsBuiltInDefaults() {
+        DefaultValueRegistry.reset()
+        #expect(DefaultValueRegistry.defaultValue(for: Int.self) == 0)
+        #expect(DefaultValueRegistry.defaultValue(for: String.self) == "")
+        #expect(DefaultValueRegistry.defaultValue(for: Bool.self) == false)
     }
-    
-    func testRegisterTuple5() {
-        let value = (1, 1, 1, 1, 1)
-        DefaultValueRegistry.register(value: value, forType: (Int, Int, Int, Int, Int).self)
-        XCTAssertTrue(value == DefaultValueRegistry.defaultValue(for: (Int, Int, Int, Int, Int).self))
+
+    @Test
+    func registerValue() {
+        let value = Marker(value: 10)
+        DefaultValueRegistry.register(value: value, forType: Marker.self)
+        #expect(DefaultValueRegistry.defaultValue(for: Marker.self) == value)
     }
-    
-    func testRegisterTuple6() {
-        let value = (1, 1, 1, 1, 1, 1)
-        DefaultValueRegistry.register(value: value, forType: (Int, Int, Int, Int, Int, Int).self)
-        XCTAssertTrue(value == DefaultValueRegistry.defaultValue(for: (Int, Int, Int, Int, Int, Int).self))
+
+    @Test
+    func registerSet() {
+        let value: Set = [Marker(value: 1)]
+        DefaultValueRegistry.register(value: value, forType: Set<Marker>.self)
+        #expect(DefaultValueRegistry.defaultValue(for: Set<Marker>.self) == value)
+    }
+
+    @Test
+    func registerArray() {
+        let value = [Marker(value: 1)]
+        DefaultValueRegistry.register(value: value, forType: Array<Marker>.self)
+        #expect(DefaultValueRegistry.defaultValue(for: Array<Marker>.self) == value)
+    }
+
+    @Test
+    func registerDictionary() {
+        let value = ["A": Marker(value: 1)]
+        DefaultValueRegistry.register(value: value, forType: Dictionary<String, Marker>.self)
+        #expect(DefaultValueRegistry.defaultValue(for: Dictionary<String, Marker>.self) == value)
+    }
+
+    @Test
+    func registerOptional() {
+        let value = Marker(value: 1) as Marker?
+        DefaultValueRegistry.register(value: value, forType: Optional<Marker>.self)
+        #expect(DefaultValueRegistry.defaultValue(for: Optional<Marker>.self) == value)
+    }
+
+    @Test
+    func registerTuple2() {
+        let value = (Marker(value: 1), Marker(value: 2))
+        DefaultValueRegistry.register(value: value, forType: (Marker, Marker).self)
+        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker).self) == value)
+    }
+
+    @Test
+    func registerTuple3() {
+        let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3))
+        DefaultValueRegistry.register(value: value, forType: (Marker, Marker, Marker).self)
+        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker).self) == value)
+    }
+
+    @Test
+    func registerTuple4() {
+        let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4))
+        DefaultValueRegistry.register(value: value, forType: (Marker, Marker, Marker, Marker).self)
+        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker).self) == value)
+    }
+
+    @Test
+    func registerTuple5() {
+        let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4), Marker(value: 5))
+        DefaultValueRegistry.register(value: value, forType: (Marker, Marker, Marker, Marker, Marker).self)
+        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker, Marker).self) == value)
+    }
+
+    @Test
+    func registerTuple6() {
+        let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4), Marker(value: 5),
+                     Marker(value: 6))
+        DefaultValueRegistry.register(value: value, forType: (Marker, Marker, Marker, Marker, Marker, Marker).self)
+        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker, Marker, Marker).self) == value)
     }
 }
