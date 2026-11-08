@@ -1,3 +1,63 @@
+# Changelog
+
+## 3.0.0-beta.1
+
+Cuckoo 3 is built for Swift 6: mocks keep the isolation and `Sendable`-ness of the types they mock, and the
+generator runs as a prebuilt binary from one build plugin. This is a beta of a major release; existing suites need
+the changes in the [migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md).
+
+To try it:
+
+```swift
+.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.1"),
+```
+
+### Requirements
+- Swift 6.2 or later (Xcode 26 or later), in the Swift 6 language mode.
+- iOS 17, macOS 14, tvOS 17 or watchOS 10, or Linux.
+- SwiftPM only: the podspec and the `run` script are removed.
+
+### Swift 6 concurrency
+- Mocks of `@MainActor` and global-actor types are isolated to that actor, mocks of `actor` protocols are actors,
+  and a mock is `Sendable` exactly when the mocked type is. Member-level isolation, `nonisolated`, `sending`,
+  `nonisolated(nonsending)` and `@concurrent` carry over to the mock.
+- A Cuckoofile `defaultIsolation = "MainActor"` option for modules built with MainActor default isolation.
+- The runtime is data-race safe: per-test state is task-local, and a `.cuckoo()` Swift Testing trait sets a test's
+  configuration, failure handler and default values.
+
+### Generator and plugin
+- One build plugin, `CuckooPlugin`, generating one file per module the test target depends on, so an edit
+  regenerates and recompiles only that module's mocks. `CuckooPluginModular` is renamed; `CuckooPluginSingleFile`
+  is removed.
+- Releases run a prebuilt generator (macOS, Linux x86_64 and arm64), so builds don't compile swift-syntax. From a branch or a commit, the plugin builds it from source
+  (swift-syntax `602.0.0..<605.0.0`).
+- The plugin passes the target's files to the generator: a Cuckoofile module without `sources` mocks them.
+- Code is generated with swift-syntax instead of Stencil, and is formatted. Generating the runtime's own test mocks
+  went from 23 s to under a second.
+- Mocks are written only when they change, so unchanged mocks aren't recompiled.
+- New Cuckoofile options: `regex` arrays, `sources` by Swift module, `mockPrefix` and `mockSuffix`; testable imports get the `@_spi` groups the mocked declarations use.
+- The generator reports its release with `--version` (Brightify/Cuckoo#601).
+
+### Mocking more
+- Subscripts, static and class members, opaque (`some`) parameters, parameter packs, `~Copyable` arguments,
+  `inout` stubbing that reaches the caller, `Self`, generic initializers, class-constrained protocols and
+  parent associated types.
+- Verification: `inOrder` (relaxed and strict), `eventually` for calls made from another task, a `Sendable`
+  `ArgumentCaptor`, and failure messages that list the calls a member received and the argument that didn't match.
+
+### Breaking changes
+- The `xcodeproj` Cuckoofile table, `MockManager.fail`, `enableDefaultImplementation(mutating:)` and the OCMock
+  bridge (`objcStub`, `objcVerify`) are removed.
+- A call with no stub records a failure and returns a default value or throws `CuckooError.unstubbedCall`, instead
+  of crashing the test process. Failures go only to the framework running the test.
+- Mocks and their stub classes are `final`; `DefaultValueRegistry` takes `Sendable` values.
+
+### Documentation
+- A DocC catalog with the API reference, getting started, the Cuckoofile, stubbing and verification, matching, a
+  cookbook and the migration guide.
+
+## 2.4.0 and earlier
+
 - Revert exact versions in CuckooGenerator dependencies.
 - Expose CuckooGenerator as executable product
 - Ignore LLM files.
