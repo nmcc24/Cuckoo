@@ -74,6 +74,8 @@ merge() {
         for part in "$parts"/CuckooGenerator-*; do
             [[ -d "$part" ]] || continue
             cp -R "$part" "$bundle/"
+            # Workflow artifacts don't keep file modes, so the parts can arrive without their executable bit.
+            chmod +x "$bundle/$(basename "$part")/bin/CuckooGenerator"
             variants+=("{ \"path\": \"$(basename "$part")/bin/CuckooGenerator\", \"supportedTriples\": [$(cat "$part/triples")] }")
             rm "$bundle/$(basename "$part")/triples"
         done
