@@ -1,33 +1,36 @@
-import XCTest
+import Testing
 import Cuckoo
 
-final class CallMatcherTest: XCTestCase {
+struct CallMatcherTest {
     private let call = [ConcreteStubCall(method: "A", parameters: Void()) as any StubCall]
     private var multipleCalls: [any StubCall] {
         return [call[0], call[0]]
     }
 
-    func testMatches() {
+    @Test
+    func matches() {
         let matcher = CallMatcher(name: "") { ($0.first?.method ?? "") == "A"}
         let nonMatchingCalls = [ConcreteStubCall(method: "B", parameters: Void()) as any StubCall]
 
-        XCTAssertTrue(matcher.matches(call))
-        XCTAssertFalse(matcher.matches(nonMatchingCalls))
+        #expect(matcher.matches(call))
+        #expect(!matcher.matches(nonMatchingCalls))
     }
 
-    func testOr() {
+    @Test
+    func or() {
         let matcher = never().or(times(1))
 
-        XCTAssertTrue(matcher.matches(call))
-        XCTAssertTrue(matcher.matches([]))
-        XCTAssertFalse(matcher.matches(multipleCalls))
+        #expect(matcher.matches(call))
+        #expect(matcher.matches([]))
+        #expect(!matcher.matches(multipleCalls))
     }
 
-    func testAnd() {
+    @Test
+    func and() {
         let matcher = atLeast(1).and(atMost(2))
 
-        XCTAssertTrue(matcher.matches(call))
-        XCTAssertTrue(matcher.matches(multipleCalls))
-        XCTAssertFalse(matcher.matches([]))
+        #expect(matcher.matches(call))
+        #expect(matcher.matches(multipleCalls))
+        #expect(!matcher.matches([]))
     }
 }

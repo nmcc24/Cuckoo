@@ -1,28 +1,24 @@
-import XCTest
+import Testing
 import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class ProtocolTest: XCTestCase {
+struct ProtocolTest {
 
-    private var mock: MockTestedProtocol!
+    private let mock = MockTestedProtocol()
 
-    override func setUp() {
-        super.setUp()
-
-        mock = MockTestedProtocol()
-    }
-
-    func testReadOnlyProperty() {
+    @Test
+    func readOnlyProperty() {
         stub(mock) { mock in
             when(mock.readOnlyProperty.get).thenReturn("a")
         }
 
-        XCTAssertEqual(mock.readOnlyProperty, "a")
+        #expect(mock.readOnlyProperty == "a")
         verify(mock).readOnlyProperty.get()
     }
 
-    func testReadWriteProperty() {
+    @Test
+    func readWriteProperty() {
         var called = false
         stub(mock) { mock in
             when(mock.readWriteProperty.get).thenReturn(1)
@@ -31,13 +27,14 @@ final class ProtocolTest: XCTestCase {
 
         mock.readWriteProperty = 0
 
-        XCTAssertEqual(mock.readWriteProperty, 1)
-        XCTAssertTrue(called)
+        #expect(mock.readWriteProperty == 1)
+        #expect(called)
         verify(mock).readWriteProperty.get()
         verify(mock).readWriteProperty.set(0)
     }
 
-    func testOptionalProperty() {
+    @Test
+    func optionalProperty() {
         var called = false
         stub(mock) { mock in
             when(mock.optionalProperty.get).thenReturn(nil)
@@ -46,18 +43,19 @@ final class ProtocolTest: XCTestCase {
 
         mock.optionalProperty = 0
 
-        XCTAssertNil(mock.optionalProperty)
-        XCTAssertTrue(called)
+        #expect(mock.optionalProperty == nil)
+        #expect(called)
         verify(mock).optionalProperty.get()
         verify(mock).optionalProperty.set(equal(to: 0))
     }
 
-    func testThrowingProperty() {
+    @Test
+    func throwingProperty() throws {
         stub(mock) { mock in
             when(mock.throwsProperty.get).thenReturn(5)
         }
 
-        XCTAssertEqual(try mock.throwsProperty, 5)
+        #expect(try mock.throwsProperty == 5)
         verify(mock).throwsProperty.get()
 
         clearInvocations(mock)
@@ -66,28 +64,30 @@ final class ProtocolTest: XCTestCase {
             when(mock.throwsProperty.get).thenThrow(TestError.unknown)
         }
 
-        XCTAssertThrowsError(try mock.throwsProperty)
+        #expect(throws: TestError.self) { try mock.throwsProperty }
 
         verify(mock).throwsProperty.get()
     }
 
-    func testAsyncProperty() async {
+    @Test
+    func asyncProperty() async {
         stub(mock) { mock in
             when(mock.asyncProperty.get).thenReturn(5)
         }
 
         let result = await mock.asyncProperty
-        XCTAssertEqual(result, 5)
+        #expect(result == 5)
         verify(mock).asyncProperty.get()
     }
 
-    func testAsyncThrowingProperty() async {
+    @Test
+    func asyncThrowingProperty() async {
         stub(mock) { mock in
             when(mock.asyncThrowsProperty.get).thenReturn(5)
         }
 
         let result = try! await mock.asyncThrowsProperty
-        XCTAssertEqual(result, 5)
+        #expect(result == 5)
         verify(mock).asyncThrowsProperty.get()
 
         clearInvocations(mock)
@@ -103,11 +103,12 @@ final class ProtocolTest: XCTestCase {
             threw = true
         }
 
-        XCTAssertTrue(threw)
+        #expect(threw)
         verify(mock).asyncThrowsProperty.get()
     }
 
-    func testNoReturn() {
+    @Test
+    func noReturn() {
         var called = false
         stub(mock) { mock in
             when(mock.noReturn()).then { _ in called = true }
@@ -115,20 +116,22 @@ final class ProtocolTest: XCTestCase {
 
         mock.noReturn()
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).noReturn()
     }
 
-    func testCountCharacters() {
+    @Test
+    func countCharacters() {
         stub(mock) { mock in
             when(mock.count(characters: "a")).thenReturn(1)
         }
 
-        XCTAssertEqual(mock.count(characters: "a"), 1)
+        #expect(mock.count(characters: "a") == 1)
         verify(mock).count(characters: "a")
     }
 
-    func testWithThrows() {
+    @Test
+    func withThrows() {
         stub(mock) { mock in
             when(mock.withThrows()).thenThrow(TestError.unknown)
         }
@@ -140,11 +143,12 @@ final class ProtocolTest: XCTestCase {
             catched = true
         }
 
-        XCTAssertTrue(catched)
+        #expect(catched)
         verify(mock).withThrows()
     }
 
-    func testWithNoReturnThrows() {
+    @Test
+    func withNoReturnThrows() {
         stub(mock) { mock in
             when(mock.withNoReturnThrows()).thenThrow(TestError.unknown)
         }
@@ -156,20 +160,22 @@ final class ProtocolTest: XCTestCase {
             catched = true
         }
 
-        XCTAssertTrue(catched)
+        #expect(catched)
         verify(mock).withNoReturnThrows()
     }
 
-    func testWithClosure() {
+    @Test
+    func withClosure() {
         stub(mock) { mock in
             when(mock.withClosure(anyClosure())).then { $0("a") }
         }
 
-        XCTAssertEqual(mock.withClosure { _ in 1 }, 1)
+        #expect(mock.withClosure { _ in 1 } == 1)
         verify(mock).withClosure(anyClosure())
     }
 
-    func testWithEscape() {
+    @Test
+    func withEscape() {
         var called = false
         stub(mock) { mock in
             when(mock.withEscape(anyString(), action: anyClosure())).then { text, closure in closure(text) }
@@ -177,11 +183,12 @@ final class ProtocolTest: XCTestCase {
 
         mock.withEscape("a") { called = $0 == "a" }
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).withEscape(anyString(), action: anyClosure())
     }
 
-    func testWithOptionalClosure() {
+    @Test
+    func withOptionalClosure() {
         var called = false
         stub(mock) { mock in
             when(mock.withOptionalClosure(anyString(), closure: anyClosure())).then { text, closure in closure?(text)  }
@@ -189,31 +196,34 @@ final class ProtocolTest: XCTestCase {
 
         mock.withOptionalClosure("a") { called = $0 == "a" }
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).withOptionalClosure(anyString(), closure: anyClosure())
     }
 
-    func testWithLabel() {
+    @Test
+    func withLabel() {
         var called = false
         stub(mock) { mock in
             when(mock.withLabelAndUnderscore(labelA: anyString(), anyString())).then { _ in called = true }
         }
 
         mock.withLabelAndUnderscore(labelA: "a", "b")
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).withLabelAndUnderscore(labelA: anyString(), anyString())
     }
 
-    func testWithImplicitlyUnwrappedOptional() {
+    @Test
+    func withImplicitlyUnwrappedOptional() {
         stub(mock) { mock in
             when(mock.withImplicitlyUnwrappedOptional(i: anyInt())).thenReturn("test")
         }
 
-        XCTAssertEqual(mock.withImplicitlyUnwrappedOptional(i: 5), "test")
+        #expect(mock.withImplicitlyUnwrappedOptional(i: 5) == "test")
         verify(mock).withImplicitlyUnwrappedOptional(i: equal(to: 5))
     }
 
-    func testEmptyLabels() {
+    @Test
+    func emptyLabels() {
         let mock = MockEmptyLabelProtocol<Bool>()
         stub(mock) { mock in
             when(mock.empty(anyString())).thenReturn(420)
@@ -221,9 +231,9 @@ final class ProtocolTest: XCTestCase {
             when(mock.empty(any())).thenReturn(true)
         }
 
-        XCTAssertEqual(mock.empty("hello there"), 420)
+        #expect(mock.empty("hello there") == 420)
         mock.empty("here") as Void
-        XCTAssertTrue(mock.empty(false))
+        #expect(mock.empty(false))
 
         // the calls are ambiguous if we do not specify the input and output types
         _ = verify(mock).empty(anyString()) as __DoNotUse<String, Int>
@@ -231,7 +241,8 @@ final class ProtocolTest: XCTestCase {
         _ = verify(mock).empty(any()) as __DoNotUse<Bool, Bool>
     }
 
-    func testCompositionalParameters() {
+    @Test
+    func compositionalParameters() {
         let mock = MockTestedProtocol()
         stub(mock) { mock in
             when(mock.compositionalParameters(param1: any(), param2: any())).thenDoNothing()

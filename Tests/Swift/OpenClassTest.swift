@@ -1,10 +1,11 @@
-import XCTest
+import Testing
 import Cuckoo
 import CuckooMocks // not @testable
 import CuckooTestSources // not @testable
 
-final class OpenClassTest: XCTestCase {
-    func testOpenClass() throws {
-        XCTAssertNotNil(MockOpenClass())
+struct OpenClassTest {
+    @Test
+    func openClass() throws {
+        _ = MockOpenClass()
     }
 }

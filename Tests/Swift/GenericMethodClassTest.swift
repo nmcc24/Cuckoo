@@ -1,22 +1,15 @@
-import XCTest
+import Testing
 import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class GenericMethodClassTest: XCTestCase {
-    private var kawaiiMock: MockGenericMethodClass<Int>!
-    private var angeryMock: MockGenericMethodClass<Int>!
-    private var original: GenericMethodClass<Int>!
+struct GenericMethodClassTest {
+    private let kawaiiMock: MockGenericMethodClass<Int> = MockGenericMethodClass()
+    private let angeryMock: MockGenericMethodClass<Int> = MockGenericMethodClass()
+    private let original: GenericMethodClass<Int> = GenericMethodClass()
 
-    override func setUp() {
-        super.setUp()
-
-        kawaiiMock = MockGenericMethodClass()
-        angeryMock = MockGenericMethodClass()
-        original = GenericMethodClass()
-    }
-
-    func testRethrowing() {
+    @Test
+    func rethrowing() {
         let matcher = anyThrowingClosure() as ParameterMatcher<() throws -> Void>
 
         stub(kawaiiMock) { mock in
@@ -39,9 +32,9 @@ final class GenericMethodClassTest: XCTestCase {
             when(mock.noticeMe(param: matcher)).thenThrow(TestError.unknown)
         }
 
-        XCTAssertThrowsError(try angeryMock.someRethrowing(param: { throw TestError.unknown }))
-        XCTAssertThrowsError(try angeryMock.moreRethrowing(param: { throw TestError.unknown }))
-        XCTAssertThrowsError(try angeryMock.noticeMe(param: { throw TestError.unknown })(1))
+        #expect(throws: TestError.self) { try angeryMock.someRethrowing(param: { throw TestError.unknown }) }
+        #expect(throws: TestError.self) { try angeryMock.moreRethrowing(param: { throw TestError.unknown }) }
+        #expect(throws: TestError.self) { try angeryMock.noticeMe(param: { throw TestError.unknown })(1) }
         verify(angeryMock).someRethrowing(param: matcher)
         verify(angeryMock).moreRethrowing(param: matcher)
         verify(angeryMock).noticeMe(param: matcher)

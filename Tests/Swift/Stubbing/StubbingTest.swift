@@ -1,141 +1,142 @@
-import XCTest
+import Foundation
+import Testing
 @testable import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class StubbingTest: XCTestCase {
-    func testMultipleReturns() {
+struct StubbingTest {
+    @Test
+    func multipleReturns() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.readOnlyProperty.get).thenReturn("a").thenReturn("b", "c")
         }
 
-        XCTAssertEqual(mock.readOnlyProperty, "a")
-        XCTAssertEqual(mock.readOnlyProperty, "b")
-        XCTAssertEqual(mock.readOnlyProperty, "c")
-        XCTAssertEqual(mock.readOnlyProperty, "c")
+        #expect(mock.readOnlyProperty == "a")
+        #expect(mock.readOnlyProperty == "b")
+        #expect(mock.readOnlyProperty == "c")
+        #expect(mock.readOnlyProperty == "c")
     }
 
-    func testReturningArray() {
+    @Test
+    func returningArray() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.readOnlyProperty.get).thenReturn(inOrder: ["a", "b", "c"])
         }
 
-        XCTAssertEqual(mock.readOnlyProperty, "a")
-        XCTAssertEqual(mock.readOnlyProperty, "b")
-        XCTAssertEqual(mock.readOnlyProperty, "c")
-        XCTAssertEqual(mock.readOnlyProperty, "c")
+        #expect(mock.readOnlyProperty == "a")
+        #expect(mock.readOnlyProperty == "b")
+        #expect(mock.readOnlyProperty == "c")
+        #expect(mock.readOnlyProperty == "c")
     }
 
-    func testOverrideStubWithMoreGeneralParameterMatcher() {
+    @Test
+    func overrideStubWithMoreGeneralParameterMatcher() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.count(characters: "a")).thenReturn(2)
             when(mock.count(characters: anyString())).thenReturn(1)
         }
 
-        XCTAssertEqual(mock.count(characters: "a"), 1)
+        #expect(mock.count(characters: "a") == 1)
     }
 
-    func testOverrideStubWithMoreSpecificParameterMatcher() {
+    @Test
+    func overrideStubWithMoreSpecificParameterMatcher() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.count(characters: anyString())).thenReturn(1)
             when(mock.count(characters: "a")).thenReturn(2)
         }
 
-        XCTAssertEqual(mock.count(characters: "a"), 2)
+        #expect(mock.count(characters: "a") == 2)
     }
 
-    func testUnstubbedSpy() {
+    @Test
+    func unstubbedSpy() {
         let mock = MockTestedClass().withEnabledSuperclassSpy()
 
-        XCTAssertEqual(mock.count(characters: "a"), 1)
+        #expect(mock.count(characters: "a") == 1)
     }
 
-    func testStubOfMultipleDifferentCalls() {
+    @Test
+    func stubOfMultipleDifferentCalls() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.readOnlyProperty.get).thenReturn("a")
             when(mock.count(characters: "a")).thenReturn(1)
         }
 
-        XCTAssertEqual(mock.readOnlyProperty, "a")
-        XCTAssertEqual(mock.count(characters: "a"), 1)
+        #expect(mock.readOnlyProperty == "a")
+        #expect(mock.count(characters: "a") == 1)
     }
 
-    func testSubClass() {
+    @Test
+    func subClass() {
         let mock = MockTestedSubclass()
-
-        XCTAssertNotNil(mock)
 
         stub(mock) { mock in
             when(mock.readOnlyProperty.get).thenReturn("a").thenReturn("b", "c")
         }
 
-        XCTAssertEqual(mock.readOnlyProperty, "a")
-        XCTAssertEqual(mock.readOnlyProperty, "b")
-        XCTAssertEqual(mock.readOnlyProperty, "c")
-        XCTAssertEqual(mock.readOnlyProperty, "c")
+        #expect(mock.readOnlyProperty == "a")
+        #expect(mock.readOnlyProperty == "b")
+        #expect(mock.readOnlyProperty == "c")
+        #expect(mock.readOnlyProperty == "c")
     }
 
-    func testSubClassMethod() {
+    @Test
+    func subClassMethod() {
         let mock = MockTestedSubclass()
-
-        XCTAssertNotNil(mock)
 
         stub(mock) { mock in
             when(mock.subclassMethod()).thenReturn(1)
         }
 
-        XCTAssertEqual(mock.subclassMethod(), 1)
+        #expect(mock.subclassMethod() == 1)
     }
 
-    func testSubclassMethodWithStringParameter() {
+    @Test
+    func subclassMethodWithStringParameter() {
         let mock = MockTestedSubclass()
-
-        XCTAssertNotNil(mock)
 
         stub(mock) { mock in
             when(mock.methodWithParameter(anyInt())).thenReturn("t1")
             when(mock.methodWithParameter(anyString())).thenReturn("t")
         }
 
-        XCTAssertEqual(mock.methodWithParameter("a"), "t")
+        #expect(mock.methodWithParameter("a") == "t")
     }
 
-    func testSubclassMethodWithIntParameter() {
+    @Test
+    func subclassMethodWithIntParameter() {
         let mock = MockTestedSubclass()
-
-        XCTAssertNotNil(mock)
 
         stub(mock) { mock in
             when(mock.methodWithParameter(anyInt())).thenReturn("t1")
             when(mock.methodWithParameter(anyString())).thenReturn("s1")
         }
 
-        XCTAssertEqual(mock.methodWithParameter(1), "t1")
+        #expect(mock.methodWithParameter(1) == "t1")
     }
 
-    func testSubclassProtocolExtensionMethod() {
+    @Test
+    func subclassProtocolExtensionMethod() {
         /// Test dynamic dispatching
         let mock = MockTestedSubclass()
-
-        XCTAssertNotNil(mock)
 
         stub(mock) { mock in
             when(mock.protocolMethod()).thenReturn("a1")
         }
 
-        XCTAssertEqual(mock.protocolMethod(), "a1")
+        #expect(mock.protocolMethod() == "a1")
     }
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    func testEffectfulProps() async {
+    @Test
+    func effectfulProps() async {
         let mock = MockTestedSubSubClass()
-
-        XCTAssertNotNil(mock)
 
         stub(mock) { stub in
             when(stub.asyncProperty.get).thenReturn(5)
@@ -144,13 +145,13 @@ final class StubbingTest: XCTestCase {
         }
 
         let resultAsync = await mock.asyncProperty
-        XCTAssertEqual(resultAsync, 5)
+        #expect(resultAsync == 5)
 
         let resultThrows = try! mock.throwsProperty
-        XCTAssertEqual(resultThrows, 6)
+        #expect(resultThrows == 6)
 
         let resultAsyncThrows = try! await mock.asyncThrowsProperty
-        XCTAssertEqual(resultAsyncThrows, 7)
+        #expect(resultAsyncThrows == 7)
 
         verify(mock, times(1)).asyncProperty.get()
         verify(mock, times(1)).throwsProperty.get()
@@ -169,7 +170,7 @@ final class StubbingTest: XCTestCase {
         } catch TestError.fromThrows {
             caughtFromThrows = true
         } catch {}
-        XCTAssert(caughtFromThrows)
+        #expect(caughtFromThrows)
 
         var caughtFromAsyncThrows = false
         do {
@@ -177,15 +178,14 @@ final class StubbingTest: XCTestCase {
         } catch TestError.fromAsyncThrows {
             caughtFromAsyncThrows = true
         } catch {}
-        XCTAssert(caughtFromAsyncThrows)
+        #expect(caughtFromAsyncThrows)
     }
     
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    func testAsyncMethods() async {
+    @Test
+    func asyncMethods() async {
         let mock = MockTestedSubSubClass()
 
-        XCTAssertNotNil(mock)
-        
         var callNoReturnAsync = false
         var callNoReturnAsyncThrows = false
         
@@ -209,29 +209,29 @@ final class StubbingTest: XCTestCase {
         }
         
         let resultAsync = await mock.withAsync()
-        XCTAssertEqual(resultAsync, 10)
+        #expect(resultAsync == 10)
         let resultAsyncThrows = try! await mock.withAsyncThrows()
-        XCTAssertEqual(resultAsyncThrows, 11)
+        #expect(resultAsyncThrows == 11)
         await mock.withNoReturnAsync()
-        XCTAssertTrue(callNoReturnAsync)
+        #expect(callNoReturnAsync)
         try! await mock.withNoReturnAsyncThrows()
-        XCTAssertTrue(callNoReturnAsyncThrows)
-        XCTAssertEqual(mock.withAsyncClosure { p async in
+        #expect(callNoReturnAsyncThrows)
+        #expect(mock.withAsyncClosure { p async in
             return nil
-        }, "async closure")
-        XCTAssertEqual(mock.withAsyncSendableClosure { p async in
+        } == "async closure")
+        #expect(mock.withAsyncSendableClosure { p async in
             return nil
-        }, "async sendable closure")
+        } == "async sendable closure")
         let resultAsyncClosure = await mock.withAsyncClosureAsync(closure: { _ in nil })
-        XCTAssertEqual(resultAsyncClosure, "closure async")
+        #expect(resultAsyncClosure == "closure async")
         let resultAsyncSendableClosure = await mock.withAsyncSendableClosureAsync(closure: { _ in nil })
-        XCTAssertEqual(resultAsyncSendableClosure, "sendable closure async")
-        XCTAssertEqual(mock.withAsyncEscapingClosure(closure: { _ in nil }), "escaping async")
-        XCTAssertEqual(mock.withAsyncEscapingSendableClosure(closure: { _ in nil }), "escaping sendable async")
+        #expect(resultAsyncSendableClosure == "sendable closure async")
+        #expect(mock.withAsyncEscapingClosure(closure: { _ in nil }) == "escaping async")
+        #expect(mock.withAsyncEscapingSendableClosure(closure: { _ in nil }) == "escaping sendable async")
         let resultAsyncClosureAsync = await mock.withAsyncOptionalClosureAsync(closure: { _ in nil })
-        XCTAssertEqual(resultAsyncClosureAsync, "optional async closure async")
+        #expect(resultAsyncClosureAsync == "optional async closure async")
         let resultAsyncSendableClosureAsync = await mock.withAsyncSendableOptionalClosureAsync(closure: { _ in nil })
-        XCTAssertEqual(resultAsyncSendableClosureAsync, "optional async sendable closure async")
+        #expect(resultAsyncSendableClosureAsync == "optional async sendable closure async")
         
         verify(mock, times(1)).withAsync()
         verify(mock, times(1)).withNoReturnAsync()
@@ -245,10 +245,9 @@ final class StubbingTest: XCTestCase {
         verify(mock, times(1)).withAsyncSendableOptionalClosureAsync(closure: anyClosure())
     }
 
-    func testSubclassWithGrandparentsInheritanceAcceptanceTest() {
+    @Test
+    func subclassWithGrandparentsInheritanceAcceptanceTest() throws {
         let mock = MockTestedSubSubClass()
-
-        XCTAssertNotNil(mock)
 
         var setReadWriteProperty: Int = -1
         var setOptionalProperty = -1
@@ -316,68 +315,68 @@ final class StubbingTest: XCTestCase {
 
         //
         // Test stubbing
-        XCTAssertEqual(mock.subSubMethod(), "not nil")
+        #expect(mock.subSubMethod() == "not nil")
 
         // sub-class
-        XCTAssertEqual(mock.withImplicitlyUnwrappedOptional(i: 0), "implicit unwrapped return")
-        XCTAssertEqual(try! mock.withThrows(), 10)
-        XCTAssertEqual(mock.withNamedTuple(tuple: (a: "A", b: "B")), 11)
-        XCTAssertEqual(mock.subclassMethod(), 12)
-        XCTAssertEqual(mock.withOptionalClosureAndReturn("a", closure: Optional.none), 2)
-        XCTAssertEqual(mock.withOptionalClosureAndReturn("a", closure: { _ in }), 3)
-        XCTAssertEqual(mock.withClosureAndParam("a", closure: { _ in 0 }), 3)
-        XCTAssertEqual(mock.withMultClosures(closure: { _ in 0 }, closureB: { _ in 1 }, closureC: { _ in 2 }), 4)
-        XCTAssertEqual(mock.withThrowingClosure { p throws in
+        #expect(mock.withImplicitlyUnwrappedOptional(i: 0) == "implicit unwrapped return")
+        #expect(try! mock.withThrows() == 10)
+        #expect(mock.withNamedTuple(tuple: (a: "A", b: "B")) == 11)
+        #expect(mock.subclassMethod() == 12)
+        #expect(mock.withOptionalClosureAndReturn("a", closure: Optional.none) == 2)
+        #expect(mock.withOptionalClosureAndReturn("a", closure: { _ in }) == 3)
+        #expect(mock.withClosureAndParam("a", closure: { _ in 0 }) == 3)
+        #expect(mock.withMultClosures(closure: { _ in 0 }, closureB: { _ in 1 }, closureC: { _ in 2 }) == 4)
+        #expect(mock.withThrowingClosure { p throws in
             return nil
-        }, "throwing closure")
-        XCTAssertEqual(try! mock.withThrowingClosureThrows(closure: { _ in nil }), "closure throwing")
-        XCTAssertEqual(mock.withThrowingEscapingClosure(closure: { _ in nil }), "escaping closure")
-        XCTAssertEqual(try! mock.withThrowingOptionalClosureThrows(closure: { _ in nil }), "optional closure throwing")
-        XCTAssertEqual(mock.methodWithParameter("a"), "parameter string")
-        XCTAssertEqual(mock.methodWithParameter(1), "parameter int")
+        } == "throwing closure")
+        #expect(try! mock.withThrowingClosureThrows(closure: { _ in nil }) == "closure throwing")
+        #expect(mock.withThrowingEscapingClosure(closure: { _ in nil }) == "escaping closure")
+        #expect(try! mock.withThrowingOptionalClosureThrows(closure: { _ in nil }) == "optional closure throwing")
+        #expect(mock.methodWithParameter("a") == "parameter string")
+        #expect(mock.methodWithParameter(1) == "parameter int")
 
         // class
-        XCTAssertEqual(mock.privateSetProperty, 5)
-        XCTAssertEqual(mock.readOnlyProperty, "b")
-        XCTAssertEqual({
+        #expect(mock.privateSetProperty == 5)
+        #expect(mock.readOnlyProperty == "b")
+        #expect({
             mock.readWriteProperty = 100
             return setReadWriteProperty
-        }(), 100)
-        XCTAssertEqual(mock.readWriteProperty, 7)
-        XCTAssertEqual({
+        }() == 100)
+        #expect(mock.readWriteProperty == 7)
+        #expect({
             mock.optionalProperty = 200
             return setOptionalProperty
-        }(), 200)
-        XCTAssertEqual(mock.optionalProperty, 8)
-        XCTAssertTrue({
+        }() == 200)
+        #expect(mock.optionalProperty == 8)
+        #expect({
             mock.noReturn()
             return callNoReturn
         }())
-        XCTAssertEqual(mock.count(characters: "a"), 9)
-        XCTAssertTrue({
+        #expect(mock.count(characters: "a") == 9)
+        #expect({
             try! mock.withNoReturnThrows()
             return callNoReturnThrows
         }())
-        XCTAssertEqual(mock.withClosure { _ in
+        #expect(mock.withClosure { _ in
             41
-        }, 14)
-        XCTAssertEqual(mock.withAutoClosure(action: 42), 16)
-        XCTAssertTrue({
+        } == 14)
+        #expect(mock.withAutoClosure(action: 42) == 16)
+        #expect({
             mock.withEscape("a") { _ in }
             return callWithEscape
         }())
-        XCTAssertTrue({
+        #expect({
             mock.withOptionalClosure("a") { _ in }
             return callWithOptionalClosure
         }())
-        XCTAssertTrue({
+        #expect({
             mock.withLabelAndUnderscore(labelA: "labelA", "any")
             return callWithLabelAndUnderscore
         }())
-        XCTAssertEqual(mock.callingCountCharactersMethodWithHello(), 15)
+        #expect(mock.callingCountCharactersMethodWithHello() == 15)
 
         // Protocol
-        XCTAssertEqual(mock.protocolMethod(), "protocol method")
+        #expect(mock.protocolMethod() == "protocol method")
 
         //
         // Test Verification
@@ -420,23 +419,23 @@ final class StubbingTest: XCTestCase {
         verify(mock, times(1)).protocolMethod()
     }
 
-    func testSubProtocolMethod() {
+    @Test
+    func subProtocolMethod() async {
         let mock = MockTestedSubProtocol()
 
-        XCTAssertNotNil(mock)
-
-        let invocationExpectation = expectation(description: "function is called")
-        stub(mock) { mock in
-            when(mock.noReturnSub()).then {
-                invocationExpectation.fulfill()
+        await confirmation("function is called") { called in
+            stub(mock) { mock in
+                when(mock.noReturnSub()).then {
+                    called()
+                }
             }
-        }
 
-        mock.noReturnSub()
-        wait(for: [invocationExpectation], timeout: 0.1)
+            mock.noReturnSub()
+        }
     }
     
-    func testThreadSafety() {
+    @Test
+    func threadSafety() {
         let mock = MockConcurrentCounter()
         stub(mock) { mock in
             when(mock.count(characters: any())).thenReturn(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)

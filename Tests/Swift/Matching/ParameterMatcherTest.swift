@@ -1,36 +1,40 @@
-import XCTest
+import Testing
 import Cuckoo
 
-final class ParameterMatcherTest: XCTestCase {
-    func testMatches() {
+struct ParameterMatcherTest {
+    @Test
+    func matches() {
         let matcher = ParameterMatcher { $0 == 5 }
         
-        XCTAssertTrue(matcher.matches(5))
-        XCTAssertFalse(matcher.matches(4))
+        #expect(matcher.matches(5))
+        #expect(!matcher.matches(4))
     }
     
-    func testOr() {
+    @Test
+    func or() {
         let matcher = ParameterMatcher { $0 == 5 }.or(ParameterMatcher { $0 == 4 })
         
-        XCTAssertTrue(matcher.matches(5))
-        XCTAssertTrue(matcher.matches(4))
-        XCTAssertFalse(matcher.matches(3))
+        #expect(matcher.matches(5))
+        #expect(matcher.matches(4))
+        #expect(!matcher.matches(3))
     }
     
-    func testAnd() {
+    @Test
+    func and() {
         let matcher = ParameterMatcher { $0 > 3 }.and(ParameterMatcher { $0 < 5 })
         
-        XCTAssertTrue(matcher.matches(4))
-        XCTAssertFalse(matcher.matches(3))
+        #expect(matcher.matches(4))
+        #expect(!matcher.matches(3))
     }
 
+    @Test
     func testNot() {
         let matcher = not(ParameterMatcher { $0 > 3 })
 
-        XCTAssertTrue(matcher.matches(3))
-        XCTAssertTrue(matcher.matches(2))
-        XCTAssertTrue(matcher.matches(-1))
-        XCTAssertFalse(matcher.matches(4))
-        XCTAssertFalse(matcher.matches(10))
+        #expect(matcher.matches(3))
+        #expect(matcher.matches(2))
+        #expect(matcher.matches(-1))
+        #expect(!matcher.matches(4))
+        #expect(!matcher.matches(10))
     }
 }

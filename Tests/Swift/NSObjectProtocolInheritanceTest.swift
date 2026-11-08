@@ -1,21 +1,17 @@
 #if canImport(ObjectiveC)
 // Inheriting `NSObjectProtocol` only changes a mock where Objective-C interop exists.
-import XCTest
+import Foundation
+import Testing
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class NSObjectProtocolTest: XCTestCase {
+struct NSObjectProtocolTest {
 
-    private var mockProtocolNotInheritingFromNSObjectProtocol: MockProtocolNotInheritingFromNSObjectProtocol!
+    private let mockProtocolNotInheritingFromNSObjectProtocol = MockProtocolNotInheritingFromNSObjectProtocol()
 
-    override func setUp() {
-        super.setUp()
-
-        mockProtocolNotInheritingFromNSObjectProtocol = MockProtocolNotInheritingFromNSObjectProtocol()
-    }
-
-    func testProtocolNotInheritingFromNSObjectProtocol() {
-        XCTAssert(!(mockProtocolNotInheritingFromNSObjectProtocol is NSObject))
+    @Test
+    func protocolNotInheritingFromNSObjectProtocol() {
+        #expect(!(mockProtocolNotInheritingFromNSObjectProtocol is NSObject))
     }
 }
 #endif

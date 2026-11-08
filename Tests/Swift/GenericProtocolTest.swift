@@ -1,4 +1,4 @@
-import XCTest
+import Testing
 import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
@@ -144,12 +144,13 @@ private struct MixedPrimaryAssociatedTypeProtocolConformerStruct<Input: Equatabl
     }
 }
 
-final class GenericProtocolTest: XCTestCase {
+struct GenericProtocolTest {
     private func createMock<V>(value: V, classy: MockTestedClass = MockTestedClass()) -> MockGenericProtocol<MockTestedClass, V> {
         return MockGenericProtocol(theC: classy, theV: value)
     }
 
-    func testReadOnlyProperty() {
+    @Test
+    func readOnlyProperty() {
         let mock = createMock(value: 10)
         stub(mock) { mock in
             when(mock.readOnlyPropertyC.get).thenReturn(MockTestedClass())
@@ -160,7 +161,8 @@ final class GenericProtocolTest: XCTestCase {
         verify(mock).readOnlyPropertyC.get()
     }
 
-    func testReadWriteProperty() {
+    @Test
+    func readWriteProperty() {
         let mock = createMock(value: 10)
         stub(mock) { mock in
             when(mock.readWritePropertyV.get).then { 11 }
@@ -168,12 +170,13 @@ final class GenericProtocolTest: XCTestCase {
         }
 
         mock.readWritePropertyV = 42
-        XCTAssertEqual(mock.readWritePropertyV, 11)
+        #expect(mock.readWritePropertyV == 11)
         verify(mock).readWritePropertyV.get()
         verify(mock).readWritePropertyV.set(42)
     }
 
-    func testOptionalProperty() {
+    @Test
+    func optionalProperty() {
         let mock = createMock(value: false)
         var called = false
         stub(mock) { mock in
@@ -185,15 +188,16 @@ final class GenericProtocolTest: XCTestCase {
         mock.optionalProperty = nil
         mock.optionalProperty = false
 
-        XCTAssertTrue(mock.optionalProperty == true)
-        XCTAssertTrue(called)
+        #expect(mock.optionalProperty == true)
+        #expect(called)
         verify(mock).optionalProperty.get()
         verify(mock).optionalProperty.set(equal(to: false))
         verify(mock, times(2)).optionalProperty.set(any())
         verify(mock).optionalProperty.set(isNil())
     }
 
-    func testCallSomeC() {
+    @Test
+    func callSomeC() {
         let mock = createMock(value: 1337)
         let classy = MockTestedClass()
         let expected = 42
@@ -203,11 +207,12 @@ final class GenericProtocolTest: XCTestCase {
 
         let actual = mock.callSomeC(theC: classy)
 
-        XCTAssertEqual(actual, expected)
+        #expect(actual == expected)
         verify(mock).callSomeC(theC: classy)
     }
 
-    func testCallSomeV() {
+    @Test
+    func callSomeV() {
         let mock = createMock(value: 1)
         let expected = 99
         stub(mock) { mock in
@@ -216,11 +221,12 @@ final class GenericProtocolTest: XCTestCase {
 
         let actual = mock.callSomeV(theV: 1)
 
-        XCTAssertEqual(actual, expected)
+        #expect(actual == expected)
         verify(mock).callSomeV(theV: equal(to: 1))
     }
 
-    func testCompute() {
+    @Test
+    func compute() {
         let mock = createMock(value: 5)
         let classy = MockTestedClass()
         let expected = MockTestedClass()
@@ -230,11 +236,12 @@ final class GenericProtocolTest: XCTestCase {
 
         let actual = mock.compute(classy: classy, value: 5)
 
-        XCTAssertTrue(actual === expected)
+        #expect(actual === expected)
         verify(mock).compute(classy: classy, value: equal(to: 5))
     }
 
-    func testClosureParameter() {
+    @Test
+    func closureParameter() {
         let mock = createMock(value: 10)
         var closureInvoked = false
         stub(mock) { mock in
@@ -247,11 +254,12 @@ final class GenericProtocolTest: XCTestCase {
             closureInvoked = true
         }
 
-        XCTAssertTrue(closureInvoked)
+        #expect(closureInvoked)
         verify(mock).closureParameter(closure: any())
     }
 
-    func testGenericParameter() {
+    @Test
+    func genericParameter() {
         let mock = createMock(value: 10)
         var captured: Any?
         let expected = "wow"
@@ -263,11 +271,12 @@ final class GenericProtocolTest: XCTestCase {
 
         mock.genericParameter(value: expected)
 
-        XCTAssertEqual(captured as? String, expected)
+        #expect((captured as? String) == expected)
         verify(mock).genericParameter(value: equal(to: expected))
     }
 
-    func testGenericAndAssociatedTypeParameters() {
+    @Test
+    func genericAndAssociatedTypeParameters() {
         let expected = 2112
         let mock = createMock(value: expected)
         let classy = MockTestedClass()
@@ -279,11 +288,12 @@ final class GenericProtocolTest: XCTestCase {
 
         let closure = mock.genericAndAassociatedTypeParameters(value: "value", theC: classy, theV: expected)
 
-        XCTAssertEqual(closure(classy), expected)
+        #expect(closure(classy) == expected)
         verify(mock).genericAndAassociatedTypeParameters(value: equal(to: "value"), theC: classy, theV: equal(to: expected))
     }
 
-    func testNoReturn() {
+    @Test
+    func noReturn() {
         let mock = createMock(value: "Hello. Sniffing through tests? If you're having trouble with Cuckoo, shoot us a message!")
         var called = false
         stub(mock) { mock in
@@ -292,20 +302,21 @@ final class GenericProtocolTest: XCTestCase {
 
         mock.noReturn()
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).noReturn()
     }
 
-    func testModification() {
+    @Test
+    func modification() {
         let mock = createMock(value: ["EXTERMINATE!": "EXTERMINATE!!", "EXTERMINATE!!!": "EXTERMINATE!!!!"])
         let original = GenericProtocolConformerClass(theC: MockTestedClass(), theV: ["Sir, may I help you?": "Nope, just lookin' 👀"])
         mock.enableDefaultImplementation(original)
         
         original.readWritePropertyV["Are you sure?"] = "Yeah, I'm just waiting for my wife."
-        XCTAssertEqual(mock.readWritePropertyV, ["Sir, may I help you?": "Nope, just lookin' 👀", "Are you sure?": "Yeah, I'm just waiting for my wife."])
+        #expect(mock.readWritePropertyV == ["Sir, may I help you?": "Nope, just lookin' 👀", "Are you sure?": "Yeah, I'm just waiting for my wife."])
 
         original.readWritePropertyV["Alright, have a nice weekend!"] = "Thanks, you too."
-        XCTAssertEqual(mock.readWritePropertyV, ["Sir, may I help you?": "Nope, just lookin' 👀",
+        #expect(mock.readWritePropertyV == ["Sir, may I help you?": "Nope, just lookin' 👀",
                                                  "Are you sure?": "Yeah, I'm just waiting for my wife.",
                                                  "Alright, have a nice weekend!": "Thanks, you too."])
 
@@ -314,39 +325,42 @@ final class GenericProtocolTest: XCTestCase {
 
     // A struct default implementation is copied when it's enabled: later changes to the original don't reach the
     // mock, but changes made through the mock stay in its copy. To share state with the test, pass a class.
-    func testStructKeepsChangesMadeThroughTheMock() {
+    @Test
+    func structKeepsChangesMadeThroughTheMock() {
         let mock = createMock(value: ["EXTERMINATE!": "EXTERMINATE!!", "EXTERMINATE!!!": "EXTERMINATE!!!!"])
         let original = GenericProtocolConformerStruct(theC: MockTestedClass(), theV: ["Sir, may I help you?": "Nope, just lookin' 👀"])
         mock.enableDefaultImplementation(original)
 
         mock.readWritePropertyV["Are you sure?"] = "Yeah, I'm just waiting for my wife."
-        XCTAssertEqual(mock.readWritePropertyV, ["Sir, may I help you?": "Nope, just lookin' 👀", "Are you sure?": "Yeah, I'm just waiting for my wife."])
-        XCTAssertEqual(original.readWritePropertyV, ["Sir, may I help you?": "Nope, just lookin' 👀"])
+        #expect(mock.readWritePropertyV == ["Sir, may I help you?": "Nope, just lookin' 👀", "Are you sure?": "Yeah, I'm just waiting for my wife."])
+        #expect(original.readWritePropertyV == ["Sir, may I help you?": "Nope, just lookin' 👀"])
 
         verify(mock, times(2)).readWritePropertyV.get()
         verify(mock).readWritePropertyV.set(any())
     }
 
     // using: `enableDefaultImplementation(_:)` reflects the original's state at the time of enabling default implementation with the struct
-    func testStructNonModification() {
+    @Test
+    func structNonModification() {
         let mock = createMock(value: ["EXTERMINATE!": "EXTERMINATE!!", "EXTERMINATE!!!": "EXTERMINATE!!!!"])
         var original = GenericProtocolConformerStruct(theC: MockTestedClass(), theV: ["Sir, may I help you?": "Nope, just lookin' 👀"])
         mock.enableDefaultImplementation(original)
 
         original.readWritePropertyV["Are you sure?"] = "Yeah, I'm just waiting for my wife."
-        XCTAssertEqual(mock.readWritePropertyV, ["Sir, may I help you?": "Nope, just lookin' 👀"])
-        XCTAssertEqual(original.readWritePropertyV, ["Sir, may I help you?": "Nope, just lookin' 👀", "Are you sure?": "Yeah, I'm just waiting for my wife."])
+        #expect(mock.readWritePropertyV == ["Sir, may I help you?": "Nope, just lookin' 👀"])
+        #expect(original.readWritePropertyV == ["Sir, may I help you?": "Nope, just lookin' 👀", "Are you sure?": "Yeah, I'm just waiting for my wife."])
 
         original.readWritePropertyV["Alright, have a nice weekend!"] = "Thanks, you too."
-        XCTAssertEqual(mock.readWritePropertyV, ["Sir, may I help you?": "Nope, just lookin' 👀"])
-        XCTAssertEqual(original.readWritePropertyV, ["Sir, may I help you?": "Nope, just lookin' 👀",
+        #expect(mock.readWritePropertyV == ["Sir, may I help you?": "Nope, just lookin' 👀"])
+        #expect(original.readWritePropertyV == ["Sir, may I help you?": "Nope, just lookin' 👀",
                                                  "Are you sure?": "Yeah, I'm just waiting for my wife.",
                                                  "Alright, have a nice weekend!": "Thanks, you too."])
 
         verify(mock, times(2)).readWritePropertyV.get()
     }
 
-    func testComputeAsync() async {
+    @Test
+    func computeAsync() async {
         let expectedReturn = (MockTestedClass(), 10)
         let mock = createMock(value: expectedReturn.1, classy: expectedReturn.0)
         stub(mock) { mock in
@@ -355,12 +369,13 @@ final class GenericProtocolTest: XCTestCase {
 
         let actualReturn = await mock.computeAsync(classy: expectedReturn.0, value: expectedReturn.1)
         
-        XCTAssertTrue(expectedReturn.0 === actualReturn.0)
-        XCTAssertEqual(expectedReturn.1, actualReturn.1)
+        #expect(expectedReturn.0 === actualReturn.0)
+        #expect(expectedReturn.1 == actualReturn.1)
         verify(mock).computeAsync(classy: expectedReturn.0, value: expectedReturn.1)
     }
 
-    func testNoReturnAsync() async {
+    @Test
+    func noReturnAsync() async {
         let mock = createMock(value: 10)
         stub(mock) { mock in
             when(mock.noReturnAsync()).thenDoNothing()
@@ -379,18 +394,20 @@ final class GenericProtocolTest: XCTestCase {
         MockMixedPrimaryAssociatedTypeProtocol()
     }
 
-    func testDefaultOutputProperty() {
+    @Test
+    func defaultOutputProperty() {
         let mock = createMock()
         let expected = 77
         stub(mock) { mock in
             when(mock.defaultOutput.get).thenReturn(expected)
         }
 
-        XCTAssertEqual(mock.defaultOutput, expected)
+        #expect(mock.defaultOutput == expected)
         verify(mock).defaultOutput.get()
     }
 
-    func testConvertToOutputStubbing() async throws {
+    @Test
+    func convertToOutputStubbing() async throws {
         let mock = createMock()
         let value = 5
         let input = "input"
@@ -404,11 +421,12 @@ final class GenericProtocolTest: XCTestCase {
 
         let actual = try await mock.convertToOutput(value: value, input: input, convert: closure)
 
-        XCTAssertEqual(actual, expected)
+        #expect(actual == expected)
         verify(mock).convertToOutput(value: equal(to: value), input: equal(to: input), convert: any(ConvertClosure.self))
     }
 
-    func testConvertToOutputDefaultImplementation() async throws {
+    @Test
+    func convertToOutputDefaultImplementation() async throws {
         let defaultImpl = MixedPrimaryAssociatedTypeProtocolConformerClass<String, Int>(defaultOutput: 7)
         let mock = createMock()
         mock.enableDefaultImplementation(defaultImpl)
@@ -420,20 +438,21 @@ final class GenericProtocolTest: XCTestCase {
         }
         let expected = value + input.count
 
-        XCTAssertEqual(mock.defaultOutput, defaultImpl.defaultOutput)
+        #expect(mock.defaultOutput == defaultImpl.defaultOutput)
         let result = try await mock.convertToOutput(value: value, input: input, convert: closure)
 
-        XCTAssertEqual(result, expected)
+        #expect(result == expected)
         verify(mock).defaultOutput.get()
         verify(mock).convertToOutput(value: equal(to: value), input: equal(to: input), convert: any(ConvertClosure.self))
     }
 
-    func testStructDefaultImplementation() async throws {
+    @Test
+    func structDefaultImplementation() async throws {
         let defaultImpl = MixedPrimaryAssociatedTypeProtocolConformerStruct<String, Int>(defaultOutput: 5)
         let mock = createMock()
         mock.enableDefaultImplementation(defaultImpl)
 
-        XCTAssertEqual(mock.defaultOutput, 5)
+        #expect(mock.defaultOutput == 5)
         
         let value = 3
         let input = "abc"
@@ -441,7 +460,7 @@ final class GenericProtocolTest: XCTestCase {
         let fallback: @MainActor @Sendable (Int, String) async throws -> sending Int? = { _, _ in nil }
         let result = try await mock.convertToOutput(value: value, input: input, convert: fallback)
 
-        XCTAssertEqual(result, 5)
+        #expect(result == 5)
         verify(mock).defaultOutput.get()
         verify(mock).convertToOutput(value: equal(to: value), input: equal(to: input), convert: any(ConvertClosure.self))
     }

@@ -1,10 +1,11 @@
-import XCTest
+import Testing
 @testable import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class StubFunctionTest: XCTestCase {
-    func testThen() {
+struct StubFunctionTest {
+    @Test
+    func then() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.count(characters: "a")).then {
@@ -12,24 +13,26 @@ final class StubFunctionTest: XCTestCase {
             }
         }
 
-        XCTAssertEqual(mock.count(characters: "a"), 2)
+        #expect(mock.count(characters: "a") == 2)
     }
 
-    func testThenReturn() {
+    @Test
+    func thenReturn() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.count(characters: "a")).thenReturn(2)
         }
 
-        XCTAssertEqual(mock.count(characters: "a"), 2)
+        #expect(mock.count(characters: "a") == 2)
     }
 
-    func testThenCallRealImplementation() {
+    @Test
+    func thenCallRealImplementation() {
         let mock = MockTestedClass().withEnabledSuperclassSpy()
         stub(mock) { mock in
             when(mock.count(characters: "a")).thenCallRealImplementation()
         }
 
-        XCTAssertEqual(mock.count(characters: "a"), 1)
+        #expect(mock.count(characters: "a") == 1)
     }
 }

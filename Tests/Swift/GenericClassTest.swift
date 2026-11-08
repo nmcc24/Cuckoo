@@ -1,4 +1,5 @@
-import XCTest
+import Foundation
+import Testing
 import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
@@ -7,54 +8,52 @@ extension GenericClass: Mocked {
     typealias MockType = MockGenericClass<T, U, V>
 }
 
-final class GenericClassTest: XCTestCase {
-    private var mock: MockGenericClass<Int, String, Bool>!
-    private var original: GenericClass<Int, String, Bool>!
+struct GenericClassTest {
+    private let mock: MockGenericClass<Int, String, Bool> = MockGenericClass(theT: 10, theU: "Hello, generics!", theV: false)
+    private let original: GenericClass<Int, String, Bool> = GenericClass(theT: 42, theU: "Hello world!", theV: false)
 
-    override func setUp() {
-        super.setUp()
-
-        mock = MockGenericClass(theT: 10, theU: "Hello, generics!", theV: false)
-        original = GenericClass(theT: 42, theU: "Hello world!", theV: false)
-    }
-
-    func testReadWritePropertyWithMockCreator() {
+    @Test
+    func readWritePropertyWithMockCreator() {
         let mock = createMock(for: GenericClass<Int, String, Bool>.self) { builder, stub in
             when(stub.readWritePropertyU.get).thenReturn("a")
 
             return MockGenericClass(theT: 0, theU: "", theV: true)
         }
 
-        XCTAssertEqual(mock.readWritePropertyU, "a")
+        #expect(mock.readWritePropertyU == "a")
         verify(mock).readWritePropertyU.get()
     }
 
-    func testReadWriteProperty() {
+    @Test
+    func readWriteProperty() {
         stub(mock) { mock in
             when(mock.readWritePropertyV.get).thenReturn(true)
         }
 
-        XCTAssertEqual(mock.readWritePropertyV, true)
+        #expect(mock.readWritePropertyV == true)
         verify(mock).readWritePropertyV.get()
     }
 
-    func testConstantProperty() {
+    @Test
+    func constantProperty() {
         mock.enableDefaultImplementation(original)
-        XCTAssertEqual(mock.constant, 10.0)
+        #expect(mock.constant == 10.0)
     }
 
-    func testModification() {
+    @Test
+    func modification() {
         mock.enableDefaultImplementation(original)
         let numbers = [127, 0, 0, 1]
         for number in numbers {
             original.readWritePropertyT = number
-            XCTAssertEqual(mock.readWritePropertyT, number)
+            #expect(mock.readWritePropertyT == number)
         }
 
         verify(mock, times(numbers.count)).readWritePropertyT.get()
     }
 
-    func testReadWriteProperties() {
+    @Test
+    func readWriteProperties() {
         var calledT = false
         var calledU = false
         var calledV = false
@@ -70,25 +69,26 @@ final class GenericClassTest: XCTestCase {
         }
 
         mock.readWritePropertyT = 0
-        XCTAssertEqual(mock.readWritePropertyT, 1)
-        XCTAssertTrue(calledT)
+        #expect(mock.readWritePropertyT == 1)
+        #expect(calledT)
         verify(mock).readWritePropertyT.get()
         verify(mock).readWritePropertyT.set(0)
 
         mock.readWritePropertyU = "NO MOCKING FOR YOU"
-        XCTAssertEqual(mock.readWritePropertyU, "Hello, mocker!")
-        XCTAssertTrue(calledU)
+        #expect(mock.readWritePropertyU == "Hello, mocker!")
+        #expect(calledU)
         verify(mock).readWritePropertyU.get()
         verify(mock).readWritePropertyU.set("NO MOCKING FOR YOU")
 
         mock.readWritePropertyV = true
-        XCTAssertEqual(mock.readWritePropertyV, false)
-        XCTAssertTrue(calledV)
+        #expect(mock.readWritePropertyV == false)
+        #expect(calledV)
         verify(mock).readWritePropertyV.get()
         verify(mock).readWritePropertyV.set(true)
     }
 
-    func testOptionalProperty() {
+    @Test
+    func optionalProperty() {
         var called = false
         stub(mock) { mock in
             when(mock.optionalProperty.get).thenReturn(nil)
@@ -97,13 +97,14 @@ final class GenericClassTest: XCTestCase {
 
         mock.optionalProperty = "tukabel"
 
-        XCTAssertNil(mock.optionalProperty)
-        XCTAssertTrue(called)
+        #expect(mock.optionalProperty == nil)
+        #expect(called)
         verify(mock).optionalProperty.get()
         verify(mock).optionalProperty.set(equal(to: "tukabel"))
     }
 
-    func testNoReturn() {
+    @Test
+    func noReturn() {
         var called = false
         stub(mock) { mock in
             when(mock.noReturn()).then { _ in called = true }
@@ -111,11 +112,12 @@ final class GenericClassTest: XCTestCase {
 
         mock.noReturn()
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).noReturn()
     }
 
-    func testUnequal() {
+    @Test
+    func unequal() {
         stub(mock) { mock in
             when(mock.unequal(one: false, two: false)).thenReturn(false)
             when(mock.unequal(one: false, two: true)).thenReturn(true)
@@ -123,24 +125,26 @@ final class GenericClassTest: XCTestCase {
             when(mock.unequal(one: true, two: true)).thenReturn(false)
         }
 
-        XCTAssertFalse(mock.unequal(one: false, two: false))
-        XCTAssertTrue(mock.unequal(one: false, two: true))
-        XCTAssertTrue(mock.unequal(one: true, two: false))
-        XCTAssertFalse(mock.unequal(one: true, two: true))
+        #expect(!mock.unequal(one: false, two: false))
+        #expect(mock.unequal(one: false, two: true))
+        #expect(mock.unequal(one: true, two: false))
+        #expect(!mock.unequal(one: true, two: true))
     }
 
-    func testGetThird() {
+    @Test
+    func getThird() {
         stub(mock) { mock in
             when(mock.getThird(foo: anyInt(), bar: "gimme true", baz: any())).thenReturn(false)
             when(mock.getThird(foo: anyInt(), bar: "gimme false", baz: any())).thenReturn(true)
         }
 
-        XCTAssertFalse(mock.getThird(foo: 10, bar: "gimme true", baz: true))
+        #expect(!mock.getThird(foo: 10, bar: "gimme true", baz: true))
         verify(mock).getThird(foo: 10, bar: "gimme true", baz: true)
-        XCTAssertTrue(mock.getThird(foo: 1099, bar: "gimme false", baz: false))
+        #expect(mock.getThird(foo: 1099, bar: "gimme false", baz: false))
         verify(mock).getThird(foo: 1099, bar: "gimme false", baz: false)
     }
 
+    @Test
     func testPrint() {
         stub(mock) { mock in
             when(mock.print(theT: anyInt())).thenDoNothing()
@@ -150,28 +154,31 @@ final class GenericClassTest: XCTestCase {
         verify(mock).print(theT: 555)
     }
 
-    func testEncode() {
+    @Test
+    func encode() throws {
         mock.enableDefaultImplementation(original)
         stub(mock) { mock in
             when(mock.encode(theU: anyString())).thenCallRealImplementation()
         }
 
-        let encoder = JSONEncoder()
         let world = "Hello, world!"
-        XCTAssertEqual(mock.encode(theU: world), try! encoder.encode(["root": world]))
+        let expected = try JSONEncoder().encode(["root": world])
+        #expect(mock.encode(theU: world) == expected)
         verify(mock).encode(theU: world)
     }
 
-    func testWithClosure() {
+    @Test
+    func withClosure() {
         stub(mock) { mock in
             when(mock.withClosure(anyClosure())).then { $0(666) }
         }
 
-        XCTAssertEqual(mock.withClosure { number in number * 2 + 5 }, 1337)
+        #expect(mock.withClosure { number in number * 2 + 5 } == 1337)
         verify(mock).withClosure(anyClosure())
     }
 
-    func testWithGenericClosure() {
+    @Test
+    func withGenericClosure() {
         stub(mock) { mock in
             when(mock.genericClosure(gg: "gg", closure: anyClosure())).thenDoNothing()
         }
@@ -180,7 +187,8 @@ final class GenericClassTest: XCTestCase {
         verify(mock).genericClosure(gg: "gg", closure: anyClosure())
     }
 
-    func testCompositeGenericParameter() {
+    @Test
+    func compositeGenericParameter() {
         stub(mock) { mock in
             when(mock.genericMethodParameterComposite(g: any())).thenDoNothing()
         }

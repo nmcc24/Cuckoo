@@ -1,9 +1,10 @@
-import XCTest
+import Testing
 import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class VerificationTest: XCTestCase {
+struct VerificationTest {
+    @Test
     func testVerify() {
         let mock = MockTestedClass()
         stub(mock) { mock in
@@ -15,7 +16,8 @@ final class VerificationTest: XCTestCase {
         verify(mock).noReturn()
     }
 
-    func testVerifyWithCallMatcher() {
+    @Test
+    func verifyWithCallMatcher() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.noReturn()).thenDoNothing()
@@ -27,7 +29,8 @@ final class VerificationTest: XCTestCase {
         verify(mock, times(2)).noReturn()
     }
 
-    func testVerifyWithMultipleDifferentCalls() {
+    @Test
+    func verifyWithMultipleDifferentCalls() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.noReturn()).thenDoNothing()
@@ -41,7 +44,8 @@ final class VerificationTest: XCTestCase {
         verify(mock).count(characters: anyString())
     }
 
-    func testVerifyWithGenericReturn() {
+    @Test
+    func verifyWithGenericReturn() {
         let mock = MockGenericMethodClass<String>()
         stub(mock) { mock in
             when(mock.genericReturn(any())).thenReturn("")

@@ -1,10 +1,11 @@
-import XCTest
+import Testing
 import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class ArgumentCaptorTest: XCTestCase {
-    func testMultipleCalls() {
+struct ArgumentCaptorTest {
+    @Test
+    func multipleCalls() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.readWriteProperty.set(anyInt())).thenDoNothing()
@@ -16,22 +17,24 @@ final class ArgumentCaptorTest: XCTestCase {
         
         verify(mock, times(3)).readWriteProperty.set(captor.capture())
         
-        XCTAssertEqual(captor.value, 30)
-        XCTAssertEqual(captor.allValues, [10, 20, 30])
+        #expect(captor.value == 30)
+        #expect(captor.allValues == [10, 20, 30])
     }
 
-    func testNoCall() {
+    @Test
+    func noCall() {
         let mock = MockTestedClass()
         let captor = ArgumentCaptor<Int>()
         
         verify(mock, never()).readWriteProperty.set(captor.capture())
         
-        XCTAssertNil(captor.value)
-        XCTAssertTrue(captor.allValues.isEmpty)
+        #expect(captor.value == nil)
+        #expect(captor.allValues.isEmpty)
     }
 
-    func testIsSendableWhenItsValuesAre() {
+    @Test
+    func isSendableWhenItsValuesAre() {
         let captor: any Sendable = ArgumentCaptor<Int>()
-        XCTAssertTrue(captor is ArgumentCaptor<Int>)
+        #expect(captor is ArgumentCaptor<Int>)
     }
 }
