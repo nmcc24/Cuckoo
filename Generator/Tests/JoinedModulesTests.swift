@@ -2,7 +2,8 @@ import Foundation
 import Testing
 @testable import CuckooGenerator
 
-/// Modules with the same output file, as every module has under the single-file build plugin, are joined into it:
+/// Modules with the same output file, as every module has under the runtime suite's single-file test plugin, are
+/// joined into it:
 /// all their mocks, with the imports of all of them once, at the top.
 @Suite
 struct JoinedModulesTests {

@@ -2,7 +2,7 @@ import Foundation
 import PackagePlugin
 
 @main
-struct CuckooPluginModular: BuildToolPlugin {
+struct CuckooPlugin: BuildToolPlugin {
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
         let sourceModules: [SourceModule] = target.dependencies
             .flatMap { dependency in
@@ -50,7 +50,7 @@ struct CuckooPluginModular: BuildToolPlugin {
 #if canImport(XcodeProjectPlugin)
 import XcodeProjectPlugin
 
-extension CuckooPluginModular: XcodeBuildToolPlugin {
+extension CuckooPlugin: XcodeBuildToolPlugin {
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
         let sourceModules: [SourceModule] = target.dependencies
             .flatMap { dependency in
