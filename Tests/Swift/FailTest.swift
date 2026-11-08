@@ -1,21 +1,23 @@
 import Testing
-import XCTest
 @testable import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class FailTest: XCTestCase {
-    func testMissingInvocation() {
+/// Failures sent to a configuration's failure handler.
+struct FailTest {
+    @Test
+    func missingInvocation() {
         let error = TestUtils.catchCuckooFail {
             let mock = MockTestedClass()
 
             verify(mock).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted 1 times but not invoked.\nThe mock received no calls.")
+        #expect(error == "Wanted 1 times but not invoked.\nThe mock received no calls.")
     }
 
-    func testNoInvocation2Wanted() {
+    @Test
+    func noInvocation2Wanted() {
         let error = TestUtils.catchCuckooFail {
             let mock = MockTestedClass()
             stub(mock) { mock in
@@ -27,10 +29,11 @@ final class FailTest: XCTestCase {
             verify(mock, times(2)).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
+        #expect(error == "Wanted 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
     }
 
-    func testInvocationNeverWanted() {
+    @Test
+    func invocationNeverWanted() {
         let error = TestUtils.catchCuckooFail {
             let mock = MockTestedClass()
             stub(mock) { mock in
@@ -42,10 +45,11 @@ final class FailTest: XCTestCase {
             verify(mock, never()).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted never but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
+        #expect(error == "Wanted never but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
     }
 
-    func testInvocationAtLeast2Wanted() {
+    @Test
+    func invocationAtLeast2Wanted() {
         let error = TestUtils.catchCuckooFail {
             let mock = MockTestedClass()
             stub(mock) { mock in
@@ -57,10 +61,11 @@ final class FailTest: XCTestCase {
             verify(mock, atLeast(2)).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted at least 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
+        #expect(error == "Wanted at least 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
     }
 
-    func test2InvocationAtMost1Wanted() {
+    @Test
+    func invocationAtMost1Wanted() {
         let error = TestUtils.catchCuckooFail {
             let mock = MockTestedClass()
             stub(mock) { mock in
@@ -73,10 +78,11 @@ final class FailTest: XCTestCase {
             verify(mock, atMost(1)).noReturn()
         }
         
-        XCTAssertEqual(error, "Wanted at most 1 times but invoked 2 times.\nCalls to noReturn():\n  1. noReturn() matches\n  2. noReturn() matches")
+        #expect(error == "Wanted at most 1 times but invoked 2 times.\nCalls to noReturn():\n  1. noReturn() matches\n  2. noReturn() matches")
     }
 
-    func testCallMatcherOr() {
+    @Test
+    func callMatcherOr() {
         let error = TestUtils.catchCuckooFail {
             let mock = MockTestedClass()
             stub(mock) { mock in
@@ -86,10 +92,11 @@ final class FailTest: XCTestCase {
             verify(mock, times(1).or(times(2))).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted either 1 times or 2 times but not invoked.\nThe mock received no calls.")
+        #expect(error == "Wanted either 1 times or 2 times but not invoked.\nThe mock received no calls.")
     }
 
-    func testCallMatcherAnd() {
+    @Test
+    func callMatcherAnd() {
         let error = TestUtils.catchCuckooFail {
             let mock = MockTestedClass()
             stub(mock) { mock in
@@ -99,10 +106,11 @@ final class FailTest: XCTestCase {
             verify(mock, atLeast(1).and(atMost(2))).noReturn()
         }
 
-        XCTAssertEqual(error, "Wanted both at least 1 times and at most 2 times but not invoked.\nThe mock received no calls.")
+        #expect(error == "Wanted both at least 1 times and at most 2 times but not invoked.\nThe mock received no calls.")
     }
 
-    func testVerifyNoMoreInteractionsFail() {
+    @Test
+    func verifyNoMoreInteractionsFail() {
         let error = TestUtils.catchCuckooFail {
             let mock = MockTestedClass().withEnabledSuperclassSpy()
 
@@ -116,7 +124,7 @@ final class FailTest: XCTestCase {
             verifyNoMoreInteractions(mock)
         }
 
-        XCTAssertEqual(error, ["No more interactions wanted but some found:",
+        #expect(error == ["No more interactions wanted but some found:",
                                "1. withOptionalClosure(\"a\", nil)",
                                "2. noReturn()",
                                "3. count(\"b\")",

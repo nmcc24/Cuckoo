@@ -1,4 +1,4 @@
-import XCTest
+import Testing
 import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
@@ -7,61 +7,60 @@ extension TestedClass: Mocked {
     typealias MockType = MockTestedClass
 }
 
-final class ClassTest: XCTestCase {
+struct ClassTest {
 
-    private var mock: MockTestedClass!
+    private let mock = MockTestedClass()
 
-    override func setUp() {
-        super.setUp()
-
-        mock = MockTestedClass()
-    }
-
-    func testReadOnlyPropertyWithMockCreator() {
+    @Test
+    func readOnlyPropertyWithMockCreator() {
         let mock = createMock(for: TestedClass.self) { builder, stub in
             when(stub.readOnlyProperty.get).thenReturn("a")
 
             return MockTestedClass()
         }
 
-        XCTAssertEqual(mock.readOnlyProperty, "a")
+        #expect(mock.readOnlyProperty == "a")
         verify(mock).readOnlyProperty.get()
     }
 
-    func testReadOnlyProperty() {
+    @Test
+    func readOnlyProperty() {
         let mock = MockTestedClass()
 
         stub(mock) { mock in
             when(mock.readOnlyProperty.get).thenReturn("a")
         }
 
-        XCTAssertEqual(mock.readOnlyProperty, "a")
+        #expect(mock.readOnlyProperty == "a")
         verify(mock).readOnlyProperty.get()
     }
 
-    func testReadOnlyOptionalProperty() {
+    @Test
+    func readOnlyOptionalProperty() {
         let mock = MockTestedClass()
 
         stub(mock) { mock in
             when(mock.readOnlyOptionalProperty.get).thenReturn("a")
         }
 
-        XCTAssertEqual(mock.readOnlyOptionalProperty, "a")
+        #expect(mock.readOnlyOptionalProperty == "a")
         verify(mock).readOnlyOptionalProperty.get()
     }
 
-    func testOptionalReadOnlyPropertyIsNil() {
+    @Test
+    func optionalReadOnlyPropertyIsNil() {
         let mock = MockTestedClass()
 
         stub(mock) { mock in
             when(mock.readOnlyOptionalProperty.get).thenReturn(nil)
         }
 
-        XCTAssertNil(mock.readOnlyOptionalProperty)
+        #expect(mock.readOnlyOptionalProperty == nil)
         verify(mock).readOnlyOptionalProperty.get()
     }
 
-    func testReadWriteProperty() {
+    @Test
+    func readWriteProperty() {
         var called = false
         stub(mock) { mock in
             when(mock.readWriteProperty.get).thenReturn(1)
@@ -70,13 +69,14 @@ final class ClassTest: XCTestCase {
 
         mock.readWriteProperty = 0
 
-        XCTAssertEqual(mock.readWriteProperty, 1)
-        XCTAssertTrue(called)
+        #expect(mock.readWriteProperty == 1)
+        #expect(called)
         verify(mock).readWriteProperty.get()
         verify(mock).readWriteProperty.set(0)
     }
 
-    func testOptionalProperty() {
+    @Test
+    func optionalProperty() {
         var called = false
         stub(mock) { mock in
             when(mock.optionalProperty.get).thenReturn(nil)
@@ -85,13 +85,14 @@ final class ClassTest: XCTestCase {
 
         mock.optionalProperty = 0
 
-        XCTAssertNil(mock.optionalProperty)
-        XCTAssertTrue(called)
+        #expect(mock.optionalProperty == nil)
+        #expect(called)
         verify(mock).optionalProperty.get()
         verify(mock).optionalProperty.set(equal(to: 0))
     }
 
-    func testNoReturn() {
+    @Test
+    func noReturn() {
         var called = false
         stub(mock) { mock in
             when(mock.noReturn()).then { _ in called = true }
@@ -99,20 +100,22 @@ final class ClassTest: XCTestCase {
 
         mock.noReturn()
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).noReturn()
     }
 
-    func testCountCharacters() {
+    @Test
+    func countCharacters() {
         stub(mock) { mock in
             when(mock.count(characters: "a")).thenReturn(1)
         }
 
-        XCTAssertEqual(mock.count(characters: "a"), 1)
+        #expect(mock.count(characters: "a") == 1)
         verify(mock).count(characters: "a")
     }
 
-    func testWithThrows() {
+    @Test
+    func withThrows() {
         stub(mock) { mock in
             when(mock.withThrows()).thenThrow(TestError.unknown)
         }
@@ -124,11 +127,12 @@ final class ClassTest: XCTestCase {
             catched = true
         }
 
-        XCTAssertTrue(catched)
+        #expect(catched)
         verify(mock).withThrows()
     }
 
-    func testWithNoReturnThrows() {
+    @Test
+    func withNoReturnThrows() {
         stub(mock) { mock in
             when(mock.withNoReturnThrows()).thenThrow(TestError.unknown)
         }
@@ -140,11 +144,12 @@ final class ClassTest: XCTestCase {
             catched = true
         }
 
-        XCTAssertTrue(catched)
+        #expect(catched)
         verify(mock).withNoReturnThrows()
     }
 
-    func testWithClosure() {
+    @Test
+    func withClosure() {
         func anyNestedClosure<IN1, IN2, OUT>() -> ParameterMatcher<((IN1) -> IN2) -> OUT> {
             return ParameterMatcher()
         }
@@ -159,13 +164,13 @@ final class ClassTest: XCTestCase {
             when(mock.withNestedClosure2(anyNestedClosure())).then { $0({ Int($0) ?? 1 })({ Int($0) ?? 1 }) }
         }
 
-        XCTAssertEqual(mock.withClosure { _ in 1 }, 1)
-        XCTAssertEqual(mock.withAutoClosure(action: 1), 1)
-        XCTAssertEqual(mock.withClosureReturningVoid {_ in { return 1 } }, 1)
-        XCTAssertEqual(mock.withClosureReturningInt { _ in { _ in return 1 } }, 1)
-        XCTAssertEqual(mock.withOptionalClosureAlone { _ in { _ in return 1 } }, 1)
-        XCTAssertEqual(mock.withNestedClosure1 { _ in { _ in return 1 } }, 1)
-        XCTAssertEqual(mock.withNestedClosure2 { _ in { _ in return 1 } }, 1)
+        #expect(mock.withClosure { _ in 1 } == 1)
+        #expect(mock.withAutoClosure(action: 1) == 1)
+        #expect(mock.withClosureReturningVoid {_ in { return 1 } } == 1)
+        #expect(mock.withClosureReturningInt { _ in { _ in return 1 } } == 1)
+        #expect(mock.withOptionalClosureAlone { _ in { _ in return 1 } } == 1)
+        #expect(mock.withNestedClosure1 { _ in { _ in return 1 } } == 1)
+        #expect(mock.withNestedClosure2 { _ in { _ in return 1 } } == 1)
 
         verify(mock).withClosure(anyClosure())
         verify(mock).withAutoClosure(action: anyClosure())
@@ -176,7 +181,8 @@ final class ClassTest: XCTestCase {
         verify(mock).withNestedClosure2(anyNestedClosure())
     }
 
-    func testWithEscape() {
+    @Test
+    func withEscape() {
         var called = false
         stub(mock) { mock in
             when(mock.withEscape(anyString(), action: anyClosure())).then { text, closure in closure(text) }
@@ -184,11 +190,12 @@ final class ClassTest: XCTestCase {
 
         mock.withEscape("a") { called = $0 == "a" }
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).withEscape(anyString(), action: anyClosure())
     }
 
-    func testWithOptionalClosure() {
+    @Test
+    func withOptionalClosure() {
         var called = false
         stub(mock) { mock in
             when(mock.withOptionalClosure(anyString(), closure: anyClosure())).then { text, closure in closure?(text)  }
@@ -196,39 +203,43 @@ final class ClassTest: XCTestCase {
 
         mock.withOptionalClosure("a") { called = $0 == "a" }
 
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).withOptionalClosure(anyString(), closure: anyClosure())
     }
 
-    func testWithLabel() {
+    @Test
+    func withLabel() {
         var called = false
         stub(mock) { mock in
             when(mock.withLabelAndUnderscore(labelA: anyString(), anyString())).then { _ in called = true }
         }
 
         mock.withLabelAndUnderscore(labelA: "a", "b")
-        XCTAssertTrue(called)
+        #expect(called)
         verify(mock).withLabelAndUnderscore(labelA: anyString(), anyString())
     }
 
-    func testCallingCountCharactersMethodWithHello() {
+    @Test
+    func callingCountCharactersMethodWithHello() {
         stub(mock) { mock in
             when(mock.callingCountCharactersMethodWithHello()).thenCallRealImplementation()
             when(mock.count(characters: any())).thenReturn(0)
         }
 
-        XCTAssertEqual(mock.callingCountCharactersMethodWithHello(), 0)
+        #expect(mock.callingCountCharactersMethodWithHello() == 0)
         verify(mock).callingCountCharactersMethodWithHello()
         verify(mock).count(characters: "Hello")
     }
 
-    func testDefaultImplCall() {
+    @Test
+    func defaultImplCall() {
         mock.enableDefaultImplementation(TestedClassStub())
 
-        XCTAssertEqual(mock.callingCountCharactersMethodWithHello(), 0)
+        #expect(mock.callingCountCharactersMethodWithHello() == 0)
         verify(mock).callingCountCharactersMethodWithHello()
     }
 
+    @Test
     func testInout() {
         let mock = MockInoutMethodClass()
         stub(mock) { mock in
@@ -241,7 +252,8 @@ final class ClassTest: XCTestCase {
         mock.inoutko(param: &integer)
     }
 
-    func testOptionals() {
+    @Test
+    func optionals() {
         let mock = MockOptionalParamsClass()
 
         stub(mock) { mock in
@@ -279,7 +291,8 @@ final class ClassTest: XCTestCase {
         verify(mock).functionImplicit(param: any())
     }
 
-    func testClosureN() {
+    @Test
+    func closureN() {
         let mock = MockClosureNClass()
         stub(mock) { mock in
             when(mock.f0(closure: anyClosure())).then { closure in
@@ -327,7 +340,8 @@ final class ClassTest: XCTestCase {
         verify(mock).f7(closure: anyClosure())
     }
 
-    func testClosureNThrowing() {
+    @Test
+    func closureNThrowing() {
         let mock = MockClosureNThrowingClass()
         stub(mock) { mock in
             when(mock.f0(closure: anyThrowingClosure())).then { closure in
@@ -375,7 +389,8 @@ final class ClassTest: XCTestCase {
         verify(mock).f7(closure: anyThrowingClosure())
     }
 
-    func testClosureNThrowingThrows() {
+    @Test
+    func closureNThrowingThrows() {
         let mock = MockClosureNThrowingThrowsClass()
         stub(mock) { mock in
             when(mock.f0(closure: anyThrowingClosure())).then { closure in
@@ -408,14 +423,14 @@ final class ClassTest: XCTestCase {
 
         }
 
-        XCTAssertThrowsError(try mock.f0(closure: { throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f1(closure: { _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f2(closure: { _, _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f3(closure: { _, _, _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f4(closure: { _, _, _, _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f5(closure: { _, _, _, _, _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f6(closure: { _, _, _, _, _, _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f7(closure: { _, _, _, _, _, _, _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f0(closure: { throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f1(closure: { _ in throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f2(closure: { _, _ in throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f3(closure: { _, _, _ in throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f4(closure: { _, _, _, _ in throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f5(closure: { _, _, _, _, _ in throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f6(closure: { _, _, _, _, _, _ in throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f7(closure: { _, _, _, _, _, _, _ in throw TestError.unknown }) }
 
         verify(mock).f0(closure: anyThrowingClosure())
         verify(mock).f1(closure: anyThrowingClosure())
@@ -427,7 +442,8 @@ final class ClassTest: XCTestCase {
         verify(mock).f7(closure: anyThrowingClosure())
     }
 
-    func testClosureNRehrowing() {
+    @Test
+    func closureNRehrowing() {
         let mock = MockClosureNRethrowingClass()
         stub(mock) { mock in
             when(mock.f0(closure: anyThrowingClosure())).then { closure in
@@ -467,10 +483,10 @@ final class ClassTest: XCTestCase {
         mock.f7(closure: { $6 })
 
         // testing the cases where stub calls closure with `try`
-        XCTAssertThrowsError(try mock.f0(closure: { throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f2(closure: { _, _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f4(closure: { _, _, _, _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
-        XCTAssertThrowsError(try mock.f6(closure: { _, _, _, _, _, _ in throw TestError.unknown }), "Expected thrown TestError.", TestError.errorCheck())
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f0(closure: { throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f2(closure: { _, _ in throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f4(closure: { _, _, _, _ in throw TestError.unknown }) }
+        #expect(throws: TestError.self, "Expected thrown TestError.") { try mock.f6(closure: { _, _, _, _, _, _ in throw TestError.unknown }) }
 
         verify(mock, times(2)).f0(closure: anyThrowingClosure())
         verify(mock).f1(closure: anyThrowingClosure())
@@ -482,28 +498,30 @@ final class ClassTest: XCTestCase {
         verify(mock).f7(closure: anyThrowingClosure())
     }
 
-    func testTypeGuesser() {
+    @Test
+    func typeGuesser() {
         let original = TypeIsRightClass()
         let mock = MockTypeIsRightClass()
         mock.enableDefaultImplementation(original)
 
-        XCTAssertEqual(String(describing: type(of: mock.stringo)), String(describing: type(of: original.stringo)))
-        XCTAssertEqual(String(describing: type(of: mock.stringyStringo)), String(describing: type(of: original.stringyStringo)))
-        XCTAssertEqual(String(describing: type(of: mock.optionallyStringo)), String(describing: type(of: original.optionallyStringo)))
-        XCTAssertEqual(String(describing: type(of: mock.floatyNoPointy)), String(describing: type(of: original.floatyNoPointy)))
-        XCTAssertEqual(String(describing: type(of: mock.doublySo)), String(describing: type(of: original.doublySo)))
-        XCTAssertEqual(String(describing: type(of: mock.negative)), String(describing: type(of: original.negative)))
-        XCTAssertEqual(String(describing: type(of: mock.zero)), String(describing: type(of: original.zero)))
-        XCTAssertEqual(String(describing: type(of: mock.genericClass)), String(describing: type(of: original.genericClass)))
-        XCTAssertEqual(String(describing: type(of: mock.genericClassAs)), String(describing: type(of: original.genericClassAs)))
-        XCTAssertEqual(String(describing: type(of: mock.array)), String(describing: type(of: original.array)))
-        XCTAssertEqual(String(describing: type(of: mock.boolNo)), String(describing: type(of: original.boolNo)))
-        XCTAssertEqual(String(describing: type(of: mock.boolYes)), String(describing: type(of: original.boolYes)))
-        XCTAssertEqual(String(describing: type(of: mock.boolMaybeYes)), String(describing: type(of: original.boolMaybeYes)))
-        XCTAssertEqual(String(describing: type(of: mock.largeInty)), String(describing: type(of: original.largeInty)))
+        #expect(String(describing: type(of: mock.stringo)) == String(describing: type(of: original.stringo)))
+        #expect(String(describing: type(of: mock.stringyStringo)) == String(describing: type(of: original.stringyStringo)))
+        #expect(String(describing: type(of: mock.optionallyStringo)) == String(describing: type(of: original.optionallyStringo)))
+        #expect(String(describing: type(of: mock.floatyNoPointy)) == String(describing: type(of: original.floatyNoPointy)))
+        #expect(String(describing: type(of: mock.doublySo)) == String(describing: type(of: original.doublySo)))
+        #expect(String(describing: type(of: mock.negative)) == String(describing: type(of: original.negative)))
+        #expect(String(describing: type(of: mock.zero)) == String(describing: type(of: original.zero)))
+        #expect(String(describing: type(of: mock.genericClass)) == String(describing: type(of: original.genericClass)))
+        #expect(String(describing: type(of: mock.genericClassAs)) == String(describing: type(of: original.genericClassAs)))
+        #expect(String(describing: type(of: mock.array)) == String(describing: type(of: original.array)))
+        #expect(String(describing: type(of: mock.boolNo)) == String(describing: type(of: original.boolNo)))
+        #expect(String(describing: type(of: mock.boolYes)) == String(describing: type(of: original.boolYes)))
+        #expect(String(describing: type(of: mock.boolMaybeYes)) == String(describing: type(of: original.boolMaybeYes)))
+        #expect(String(describing: type(of: mock.largeInty)) == String(describing: type(of: original.largeInty)))
     }
 
-    func testConvenienceMatcherAmbiguity() {
+    @Test
+    func convenienceMatcherAmbiguity() {
         let mock = MockConvenienceMatchersAmbiguer()
         stub(mock) { stub in
             when(stub.a(a: [1])).thenReturn(false)
@@ -516,16 +534,16 @@ final class ClassTest: XCTestCase {
             when(stub.a(a: Set([true, true, false]))).thenReturn(false)
         }
 
-        XCTAssertFalse(mock.a(a: [1]))
-        XCTAssertFalse(mock.a(a: ["gg"]))
-        XCTAssertFalse(mock.a(a: [false]))
+        #expect(!mock.a(a: [1]))
+        #expect(!mock.a(a: ["gg"]))
+        #expect(!mock.a(a: [false]))
 
-        XCTAssertTrue(mock.a(a: [1: true]))
-        XCTAssertTrue(mock.a(a: [1: true, 2: false]))
-        XCTAssertTrue(mock.a(a: [2: false, 1: true]))
+        #expect(mock.a(a: [1: true]))
+        #expect(mock.a(a: [1: true, 2: false]))
+        #expect(mock.a(a: [2: false, 1: true]))
 
-        XCTAssertFalse(mock.a(a: Set([true, true, false])))
-        XCTAssertFalse(mock.a(a: Set([false, true, true])))
+        #expect(!mock.a(a: Set([true, true, false])))
+        #expect(!mock.a(a: Set([false, true, true])))
 
         verify(mock).a(a: [1])
         verify(mock).a(a: ["gg"])

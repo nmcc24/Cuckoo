@@ -1,10 +1,12 @@
-import XCTest
+import Foundation
+import Testing
 @testable import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class StubThrowingFunctionTest: XCTestCase {
-    func testThen() {
+struct StubThrowingFunctionTest {
+    @Test
+    func then() throws {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.withThrows()).then {
@@ -12,28 +14,31 @@ final class StubThrowingFunctionTest: XCTestCase {
             }
         }
 
-        XCTAssertEqual(try! mock.withThrows(), 2)
+        #expect(try! mock.withThrows() == 2)
     }
 
-    func testThenReturn() {
+    @Test
+    func thenReturn() throws {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.withThrows()).thenReturn(2)
         }
         
-        XCTAssertEqual(try! mock.withThrows(), 2)
+        #expect(try! mock.withThrows() == 2)
     }
 
-    func testThenCallRealImplementation() {
+    @Test
+    func thenCallRealImplementation() throws {
         let mock = MockTestedClass().withEnabledSuperclassSpy()
         stub(mock) { mock in
             when(mock.withThrows()).thenCallRealImplementation()
         }
         
-        XCTAssertEqual(try! mock.withThrows(), 0)
+        #expect(try! mock.withThrows() == 0)
     }
 
-    func testThenThrow() {
+    @Test
+    func thenThrow() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.withThrows()).thenThrow(TestError.unknown)
@@ -46,13 +51,12 @@ final class StubThrowingFunctionTest: XCTestCase {
             catched = true
         }
 
-        XCTAssertTrue(catched)
+        #expect(catched)
     }
 
-    func testOverrideThenThrowInSubClass() {
+    @Test
+    func overrideThenThrowInSubClass() {
         let mock = MockTestedSubclass()
-
-        XCTAssertNotNil(mock)
 
         stub(mock) { mock in
             when(mock.withThrows()).thenThrow(TestError.unknown)
@@ -65,10 +69,11 @@ final class StubThrowingFunctionTest: XCTestCase {
             catched = true
         }
 
-        XCTAssertTrue(catched)
+        #expect(catched)
     }
     
-    func testTypedThrowsThenTypedError() {
+    @Test
+    func typedThrowsThenTypedError() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.withTypedThrows())

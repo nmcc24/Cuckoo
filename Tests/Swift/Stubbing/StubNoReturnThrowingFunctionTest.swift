@@ -1,10 +1,11 @@
-import XCTest
+import Testing
 @testable import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class StubNoReturnThrowingFunctionTest: XCTestCase {
-    func testThen() {
+struct StubNoReturnThrowingFunctionTest {
+    @Test
+    func then() {
         let mock = MockTestedClass()
         var called = false
         stub(mock) { mock in
@@ -15,10 +16,11 @@ final class StubNoReturnThrowingFunctionTest: XCTestCase {
 
         try! mock.withNoReturnThrows()
 
-        XCTAssertTrue(called)
+        #expect(called)
     }
 
-    func testThenCallRealImplementation() {
+    @Test
+    func thenCallRealImplementation() {
         let mock = MockTestedClass().withEnabledSuperclassSpy()
         stub(mock) { mock in
             when(mock.withNoReturnThrows()).thenCallRealImplementation()
@@ -27,7 +29,8 @@ final class StubNoReturnThrowingFunctionTest: XCTestCase {
         try! mock.withNoReturnThrows()
     }
 
-    func testThenDoNothing() {
+    @Test
+    func thenDoNothing() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.withNoReturnThrows()).thenDoNothing()
@@ -36,7 +39,8 @@ final class StubNoReturnThrowingFunctionTest: XCTestCase {
         try! mock.withNoReturnThrows()
     }
 
-    func testThenThrow() {
+    @Test
+    func thenThrow() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.withNoReturnThrows()).thenThrow(TestError.unknown)
@@ -49,7 +53,7 @@ final class StubNoReturnThrowingFunctionTest: XCTestCase {
             catched = true
         }
 
-        XCTAssertTrue(catched)
+        #expect(catched)
     }
 
     private enum TestError: Error {

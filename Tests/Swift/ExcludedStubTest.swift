@@ -1,21 +1,24 @@
-import XCTest
+import Foundation
+import Testing
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
 // `Cuckoofile.toml` excludes `ExcludedTestClass`, so no mock is generated for it, while `IncludedTestClass` gets one.
-final class ExcludedStubTest: XCTestCase {
-    func testClassAvailability() {
-        XCTAssertNotNil(ExcludedTestClass())
+struct ExcludedStubTest {
+    @Test
+    func classAvailability() {
+        _ = ExcludedTestClass()
 
-        XCTAssertNotNil(NSClassFromString("CuckooTestSources.ExcludedTestClass"))
-        XCTAssertNil(NSClassFromString("CuckooMocks.MockExcludedTestClass"))
-        XCTAssertNotNil(IncludedTestClass())
-        XCTAssertNotNil(MockIncludedTestClass())
+        #expect(NSClassFromString("CuckooTestSources.ExcludedTestClass") != nil)
+        #expect(NSClassFromString("CuckooMocks.MockExcludedTestClass") == nil)
+        _ = IncludedTestClass()
+        _ = MockIncludedTestClass()
     }
 
-    func testProtocolAvailability() {
-        XCTAssertNotNil(MockIncludedProtocol())
+    @Test
+    func protocolAvailability() {
+        _ = MockIncludedProtocol()
 
-        XCTAssertNil(NSClassFromString("CuckooMocks.MockExcludedProtocol"))
+        #expect(NSClassFromString("CuckooMocks.MockExcludedProtocol") == nil)
     }
 }

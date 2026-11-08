@@ -1,7 +1,7 @@
-import XCTest
+import Testing
 import Cuckoo
 
-final class CallMatcherFunctionsTest: XCTestCase {
+struct CallMatcherFunctionsTest {
     private let tests: [(message: String, matcher: CallMatcher, argument: Int, expected: Bool)] = [
         ("times(2) - true", times(2), 2, true),
         ("times(2) - false", times(2), 3, false),
@@ -18,12 +18,13 @@ final class CallMatcherFunctionsTest: XCTestCase {
         ("atMost(2) - 3", atMost(2), 3, false)
     ]
     
-    func testParameterizedTests() {
+    @Test
+    func parameterizedTests() {
         let call: any StubCall = ConcreteStubCall(method: "A", parameters: Void())
         tests.forEach { test in
             let calls = (0..<test.argument).map { _ in call }
             
-            XCTAssertEqual(test.matcher.matches(calls), test.expected, test.message)
+            #expect(test.matcher.matches(calls) == test.expected, Comment(rawValue: test.message))
         }
     }
 }

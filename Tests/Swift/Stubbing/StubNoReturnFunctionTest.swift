@@ -1,10 +1,11 @@
-import XCTest
+import Testing
 @testable import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-final class StubNoReturnFunctionTest: XCTestCase {
-    func testThen() {
+struct StubNoReturnFunctionTest {
+    @Test
+    func then() {
         let mock = MockTestedClass()
         var called = false
         stub(mock) { mock in
@@ -15,10 +16,11 @@ final class StubNoReturnFunctionTest: XCTestCase {
 
         mock.noReturn()
 
-        XCTAssertTrue(called)
+        #expect(called)
     }
 
-    func testThenCallRealImplementation() {
+    @Test
+    func thenCallRealImplementation() {
         let mock = MockTestedClass().withEnabledSuperclassSpy()
         stub(mock) { mock in
             when(mock.noReturn()).thenCallRealImplementation()
@@ -27,7 +29,8 @@ final class StubNoReturnFunctionTest: XCTestCase {
         mock.noReturn()
     }
 
-    func testThenDoNothing() {
+    @Test
+    func thenDoNothing() {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.noReturn()).thenDoNothing()
