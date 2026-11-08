@@ -145,6 +145,9 @@ private func commandsPerModule(
                 "DERIVED_SOURCES_DIR": derivedSourcesDir.path(percentEncoded: false),
                 "CUCKOO_OVERRIDE_OUTPUT": outputURL.path(percentEncoded: false),
                 "CUCKOO_MODULE_NAME": sourceModule.name,
+                // A generator built from source with code coverage (an Xcode scheme gathering it) writes its profile
+                // here: the sandbox lets it write only in the plugin's work directory.
+                "LLVM_PROFILE_FILE": derivedSourcesDir.appending(component: "CuckooGenerator-%m.profraw").path(percentEncoded: false),
                 // The generated file imports the sources' types from it by name; see `sources` in Source/Cuckoo.docc/Cuckoofile.md.
                 "CUCKOO_SOURCE_MODULE": sourceModule.swiftModule?.name,
                 "CUCKOO_SOURCE_MODULE_DIRECTORY": sourceModule.swiftModule?.directory.path(percentEncoded: false),
