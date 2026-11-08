@@ -10,10 +10,10 @@ struct SourcesListTests {
     func pluginListedFilesAreMocked() {
         let mock = MockGreeter()
         stub(mock) { stub in
-            when(stub.greet(equal(to: "Nuno"))).thenReturn("Hello, Nuno")
+            when(stub.greet(equal(to: "Ada"))).thenReturn("Hello, Ada")
         }
 
-        #expect(mock.greet("Nuno") == "Hello, Nuno")
-        verify(mock).greet(equal(to: "Nuno"))
+        #expect(mock.greet("Ada") == "Hello, Ada")
+        verify(mock).greet(equal(to: "Ada"))
     }
 }

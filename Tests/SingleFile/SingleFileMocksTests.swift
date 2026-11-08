@@ -19,8 +19,8 @@ struct SingleFileMocksTests {
             when(stub.readOnlyProperty.get).thenReturn("value")
         }
 
-        #expect(greeter.greet("Nuno") == "Hello")
+        #expect(greeter.greet("Ada") == "Hello")
         #expect(tested.readOnlyProperty == "value")
-        verify(greeter).greet(equal(to: "Nuno"))
+        verify(greeter).greet(equal(to: "Ada"))
     }
 }
