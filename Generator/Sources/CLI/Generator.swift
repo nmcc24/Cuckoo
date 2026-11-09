@@ -102,24 +102,24 @@ final class Generator {
             typesByModule[swiftModule, default: []] += file.types
         }
 
-        let files: [FileRepresentation] = await inputFiles.concurrentCompactMap { file in
+        let files: [FileRepresentation] = try await inputFiles.concurrentMap { file in
+            log(.verbose, message: "Processing file: \(file.path)")
+            let crawler: Crawler
             do {
-                log(.verbose, message: "Processing file: \(file.path)")
-                let crawler = try Crawler.crawl(
+                crawler = try Crawler.crawl(
                     url: file.path.url,
                     globalActors: declaredNames.globalActors,
                     noncopyableTypes: declaredNames.noncopyableTypes,
                     defaultIsolation: module.options.defaultIsolation
                 )
-                for diagnostic in crawler.diagnostics {
-                    printToStandardError("\(diagnostic)\n")
-                }
-                log(.verbose, message: "Successfully processed file: \(file.path)")
-                return FileRepresentation(file: file, imports: crawler.imports, tokens: crawler.tokens)
             } catch {
-                log(.error, message: "Failed to crawl file at '\(file.path)':", error)
-                return nil
+                throw GeneratorError.unreadableSource(file.path.rawValue, error: error)
             }
+            for diagnostic in crawler.diagnostics {
+                printToStandardError("\(diagnostic)\n")
+            }
+            log(.verbose, message: "Successfully processed file: \(file.path)")
+            return FileRepresentation(file: file, imports: crawler.imports, tokens: crawler.tokens)
         }
         let flatMappedFiles = files.map { $0.flatMappingMemberContainers() }
         let inheritedFiles = if module.options.enableInheritance {
@@ -265,11 +265,14 @@ final class Generator {
 
     enum GeneratorError: Error, CustomStringConvertible {
         case invalidRegex(String, error: any Error)
+        case unreadableSource(String, error: any Error)
 
         var description: String {
             switch self {
             case .invalidRegex(let regex, let error):
                 return "Invalid regular expression \"\(regex)\" because \(error)."
+            case .unreadableSource(let path, let error):
+                return "Failed to read the source file at '\(path)': \(error)"
             }
         }
     }
