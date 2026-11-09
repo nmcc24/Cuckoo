@@ -10,7 +10,6 @@ enum Logger {
     enum LogLevel: Comparable, Sendable {
         case verbose
         case info
-        case error
     }
 
     /// The lowest level that's printed. `GenerateCommand` binds it for the whole run, and the tasks that generate

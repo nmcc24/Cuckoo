@@ -53,19 +53,30 @@ struct GenerateCommand: AsyncParsableCommand {
     private func generate() async throws {
 
         let projectDir = ProcessInfo.processInfo.environment["PROJECT_DIR"]
-        let configurationFile = [
-            configurationPath.map { Path($0) }?.relative(to: projectDir)?.rawValue,
-            projectDir.map { "\($0)/Cuckoofile.toml" },
-            "\(FileManager.default.currentDirectoryPath)/Cuckoofile.toml",
-        ]
-        .lazy
-        .compactMap { pathString -> (path: Path, contents: String)? in
-            guard let pathString else { return nil }
-            let path = Path(pathString, expandingTilde: true)
-            guard let contents = try? String(contentsOfFile: path.rawValue, encoding: .utf8) else { return nil }
-            return (path: path, contents: contents)
+        let configurationFile: (path: Path, contents: String)?
+        if let configurationPath {
+            // A relative path resolves against the project directory when there is one, else the current directory.
+            let path = Path(configurationPath, expandingTilde: true)
+                .relative(to: projectDir ?? FileManager.default.currentDirectoryPath)
+            do {
+                configurationFile = (path, try String(contentsOfFile: path.rawValue, encoding: .utf8))
+            } catch {
+                throw GenerateError.unreadableConfiguration(path: path.rawValue, error)
+            }
+        } else {
+            configurationFile = [
+                projectDir.map { "\($0)/Cuckoofile.toml" },
+                "\(FileManager.default.currentDirectoryPath)/Cuckoofile.toml",
+            ]
+            .lazy
+            .compactMap { pathString -> (path: Path, contents: String)? in
+                guard let pathString else { return nil }
+                let path = Path(pathString, expandingTilde: true)
+                guard let contents = try? String(contentsOfFile: path.rawValue, encoding: .utf8) else { return nil }
+                return (path: path, contents: contents)
+            }
+            .first
         }
-        .first
 
         guard let configurationFile else { throw GenerateError.missingConfiguration }
 
@@ -122,12 +133,13 @@ struct GenerateCommand: AsyncParsableCommand {
             }
         }
 
-        await directoryOutputs.concurrentForEach { output in
+        // A failure doesn't stop the other outputs, but it fails the run, so a build doesn't go on with stale mocks.
+        let directoryFailures = await directoryOutputs.concurrentMap { output -> [String] in
             let module = output.module
             do {
                 try output.path.createDirectory(withIntermediateDirectories: true)
                 let generatedFiles = try await Generator.generate(for: module, singleFileOutput: false, verbose: verbose)
-                await generatedFiles.concurrentForEach { generatedFile in
+                return await generatedFiles.concurrentCompactMap { generatedFile -> String? in
                     let originalFileName = generatedFile.path.fileNameWithoutExtension
                     let fileNameWithoutExtension = module.filenameFormat
                         .map { $0.replacing("{}", with: originalFileName) }
@@ -135,16 +147,17 @@ struct GenerateCommand: AsyncParsableCommand {
                     let outputFile = TextFile(path: output.path + "\(fileNameWithoutExtension).swift")
                     do {
                         try outputFile.write(generatedFile.contents)
+                        return nil
                     } catch {
-                        log(.error, message: "Failed to write to file '\(outputFile)':", error)
+                        return "Failed to write to file '\(outputFile)': \(error)"
                     }
                 }
             } catch {
-                log(.error, message: "Failed to generate mocks for module \(module.name):", error)
+                return ["Failed to generate mocks for module \(module.name): \(error)"]
             }
         }
 
-        await fileOutputs.concurrentForEach { output in
+        let fileFailures = await fileOutputs.concurrentCompactMap { output -> String? in
             let names = output.modules.map(\.name).joined(separator: ", ")
             do {
                 try output.path.parent.createDirectory(withIntermediateDirectories: true)
@@ -159,11 +172,20 @@ struct GenerateCommand: AsyncParsableCommand {
                 do {
                     try outputFile.write(contents)
                 } catch {
-                    log(.error, message: "Failed to write to file '\(outputFile)':", error)
+                    return "Failed to write to file '\(outputFile)': \(error)"
                 }
+                return nil
             } catch {
-                log(.error, message: "Failed to generate mocks for module \(names):", error)
+                return "Failed to generate mocks for module \(names): \(error)"
             }
+        }
+
+        let failures = directoryFailures.flatMap(\.self) + fileFailures
+        guard failures.isEmpty else {
+            for failure in failures {
+                printToStandardError("error: \(failure)\n")
+            }
+            throw ExitCode.failure
         }
     }
 
@@ -194,6 +216,7 @@ struct GenerateCommand: AsyncParsableCommand {
     private enum GenerateError: Error, CustomStringConvertible {
         case missingConfiguration
         case unreadableSourcesList(path: String, any Error)
+        case unreadableConfiguration(path: String, any Error)
 
         var description: String {
             switch self {
@@ -204,6 +227,8 @@ struct GenerateCommand: AsyncParsableCommand {
                 """
             case .unreadableSourcesList(let path, let error):
                 return "Failed to read the sources list at '\(path)': \(error)"
+            case .unreadableConfiguration(let path, let error):
+                return "Failed to read the Cuckoofile at '\(path)': \(error)"
             }
         }
     }
