@@ -53,6 +53,72 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
         )
     }
 
+    func fetch() throws(Network.Failure) -> String {
+        return try cuckoo_manager.callThrows(
+            "fetch() throws(Network.Failure) -> String",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (Network.Failure).self,
+            invoke: { (implementation: (()) throws -> String, arguments) throws(Network.Failure) in
+                do {
+                    return try implementation(arguments)
+                } catch {
+                    throw Cuckoo.MockManager.typedError(error, as: (Network.Failure).self, member: "fetch() throws(Network.Failure) -> String")
+                }
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.fetch()
+        )
+    }
+
+    func decode() throws(Wrapped<Int>) {
+        return try cuckoo_manager.callThrows(
+            "decode() throws(Wrapped<Int>)",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (Wrapped<Int>).self,
+            invoke: { (implementation: (()) throws -> Void, arguments) throws(Wrapped<Int>) in
+                do {
+                    return try implementation(arguments)
+                } catch {
+                    throw Cuckoo.MockManager.typedError(error, as: (Wrapped<Int>).self, member: "decode() throws(Wrapped<Int>)")
+                }
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.decode()
+        )
+    }
+
+    func retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int {
+        return cuckoo_manager.call(
+            "retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((@escaping () throws(NetErr) -> Int)) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.retry(p0)
+        )
+    }
+
+    func log(_ p0: (String...) -> Void) {
+        return withoutActuallyEscaping(p0, do: { (p0: @escaping (String...) -> Void) in
+            return cuckoo_manager.call(
+                "log(_ p0: (String...) -> Void)",
+                parameters: (p0),
+                escapingParameters: (({ _ in
+                                        fatalError("This is a stub! It's not supposed to be called!")
+                                    } as (String...) -> Void)),
+                invoke: { (implementation: ((@escaping (String...) -> Void)) -> Void, arguments) in
+                                implementation(arguments)
+                            },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.log(p0)
+            )
+        })
+    }
+
     nonisolated struct __StubbingProxy_TypedAPI: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
 
@@ -72,6 +138,42 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
                 method: "callAsync() async throws(NetErr) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func fetch() -> Cuckoo.ProtocolStubThrowingFunction<(), String, Network.Failure, (()) throws -> String, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+                method: "fetch() throws(Network.Failure) -> String",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func decode() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(), Wrapped<Int>, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+                method: "decode() throws(Wrapped<Int>)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func retry<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(() throws(NetErr) -> Int), Int, ((@escaping () throws(NetErr) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == () throws(NetErr) -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(() throws(NetErr) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+                method: "retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func log<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<((String...) -> Void), ((@escaping (String...) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String...) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((String...) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+                method: "log(_ p0: (String...) -> Void)",
                 parameterMatchers: matchers
             ))
         }
@@ -109,6 +211,54 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 sourceLocation: sourceLocation
             )
         }
+
+        @discardableResult
+        func fetch() -> Cuckoo.__DoNotUse<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "fetch() throws(Network.Failure) -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        @discardableResult
+        func decode() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "decode() throws(Wrapped<Int>)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        @discardableResult
+        func retry<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() throws(NetErr) -> Int), Int> where M1.MatchedType == () throws(NetErr) -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(() throws(NetErr) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        @discardableResult
+        func log<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((String...) -> Void), Void> where M1.MatchedType == (String...) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((String...) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "log(_ p0: (String...) -> Void)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
     }
 }
 
@@ -119,5 +269,21 @@ nonisolated final class TypedAPIStub: TypedAPI {
 
     func callAsync() async throws(NetErr) -> Int {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+
+    func fetch() throws(Network.Failure) -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+
+    func decode() throws(Wrapped<Int>) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    func retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+
+    func log(_ p0: (String...) -> Void) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
