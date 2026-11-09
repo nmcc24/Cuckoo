@@ -101,11 +101,13 @@ jobs:
         run: scripts/build-docs.sh
 
   # The release workflow's prebuilt generator, built and tested here so a change that breaks the release build
-  # shows up in its PR rather than on release day. Linux only: the macOS bundle is built at release time.
+  # shows up in its PR rather than on release day. Linux only: the macOS bundle is built at release time, and a
+  # `dry_run` of the Release workflow builds and tests it without publishing.
   bundle_linux:
     name: Prebuilt generator bundle on Linux (Swift 6.3)
     runs-on: ubuntu-latest
-    container: swift:6.3
+    # The release builds the Linux parts on Ubuntu 22.04, for the oldest glibc they need.
+    container: swift:6.3-jammy
     steps:
       - name: Checkout
         uses: actions/checkout@v7

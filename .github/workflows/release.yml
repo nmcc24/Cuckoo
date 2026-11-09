@@ -5,12 +5,19 @@ name: Release
 # It builds the generator's `artifactbundle` for macOS (universal) and Linux (x86_64 and arm64), tests it the way a
 # user gets it, then tags one commit off master that points the plugins at the bundle, and publishes the release
 # with the bundle attached. Master keeps building the generator from source; only the tag carries the binary.
+#
+# The Linux parts are built on Ubuntu 22.04 (`-jammy`), so the binary needs glibc 2.35 at most and runs on 22.04 or
+# later, and on other distributions with that glibc or newer. A dry run stops after the smoke tests.
 on:
   workflow_dispatch:
     inputs:
       version:
         description: Version to release, such as 3.0.0 or 3.0.0-beta.1 (a pre-release when it has a suffix)
         required: true
+      dry_run:
+        description: Build and smoke-test the bundle only, without tagging or publishing anything
+        type: boolean
+        default: false
 
 concurrency:
   group: release
@@ -48,8 +55,8 @@ jobs:
       matrix:
         include:
           - { name: macOS, runner: macos-26 }
-          - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3" }
-          - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3" }
+          - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3-jammy" }
+          - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3-jammy" }
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
     steps:
@@ -72,8 +79,8 @@ jobs:
       matrix:
         include:
           - { name: macOS, runner: macos-26 }
-          - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3" }
-          - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3" }
+          - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3-jammy" }
+          - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3-jammy" }
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
     steps:
@@ -103,6 +110,7 @@ jobs:
   release:
     name: Tag and publish
     needs: bundle
+    if: ${{ !inputs.dry_run }}
     runs-on: macos-26
     permissions:
       contents: write
@@ -115,10 +123,18 @@ jobs:
           name: bundle
           path: bundle
       - name: Release commit and tag
-        # The tagged commit is master plus this one change; it isn't pushed to any branch.
+        # The tagged commit is master plus this one change; it isn't pushed to any branch. A re-run after a later
+        # step failed finds the tag already pushed, and keeps it if it names this bundle.
         run: |
           url="https://github.com/$GITHUB_REPOSITORY/releases/download/$VERSION/CuckooGenerator.artifactbundle.zip"
           checksum="$(swift package compute-checksum bundle/CuckooGenerator.artifactbundle.zip)"
+          if git fetch --quiet origin "refs/tags/$VERSION:refs/tags/$VERSION" 2>/dev/null; then
+            if git show "$VERSION:Package.swift" | grep -qF "$checksum"; then
+              echo "The tag $VERSION already names this bundle."
+              exit 0
+            fi
+            echo "::error::The tag $VERSION exists and names another bundle."; exit 1
+          fi
           scripts/set-prebuilt-generator.sh remote "$url" "$checksum"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -129,10 +145,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "The release $VERSION is already published."
+            exit 0
+          fi
+          # The notes are the version's section of the changelog, from its heading to the next one.
+          awk -v heading="## $VERSION" '$0 == heading { found = 1; next } found && /^## / { exit } found' \
+            CHANGELOG.md > notes.md
+          [[ -s notes.md ]] || { echo "::error::CHANGELOG.md has no section '## $VERSION'."; exit 1; }
           prerelease=()
           [[ "$VERSION" == *-* ]] && prerelease=(--prerelease)
           gh release create "$VERSION" bundle/CuckooGenerator.artifactbundle.zip \
-            --verify-tag --title "$VERSION" --generate-notes "${prerelease[@]}"
+            --verify-tag --title "$VERSION" --notes-file notes.md "${prerelease[@]}"
 
   verify:
     name: Resolve the release by its tag (${{ matrix.name }})
@@ -143,6 +167,7 @@ jobs:
         include:
           - { name: macOS, runner: macos-26 }
           - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3" }
+          - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3" }
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
     steps:
