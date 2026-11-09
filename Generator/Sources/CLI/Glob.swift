@@ -96,23 +96,27 @@ final class Glob: Collection {
             return [pattern]
         }
 
-        var results = [String]()
         var parts = pattern.split(separator: "**", omittingEmptySubsequences: false).map(String.init)
         let firstPart = parts.removeFirst()
-        var lastPart = parts.joined(separator: "**")
+        let lastPart = parts.joined(separator: "**")
 
-        let fileManager = FileManager.default
+        // A wildcard before the globstar, as in `Modules/*/Sources/**/*.swift`, picks several roots to recurse into.
+        guard !firstPart.contains(where: { "*?[{".contains($0) }) else {
+            return matchingDirectories(of: firstPart).flatMap { root in
+                expandGlobstar(pattern: root + "**" + lastPart)
+            }
+        }
 
+        var results = [String]()
         var directories: [String]
-
         do {
-            directories = try fileManager.subpathsOfDirectory(atPath: firstPart).compactMap { subpath in
+            directories = try FileManager.default.subpathsOfDirectory(atPath: firstPart).compactMap { subpath in
                 let fullPath = (Path(firstPart) + subpath).rawValue
                 return Path(fullPath).isDirectory ? fullPath : nil
             }
         } catch {
             directories = []
-            print("Error parsing file system item: \(error)")
+            printToStandardError("warning: Can't list the directory '\(firstPart)': \(error)\n")
         }
 
         if behavior.includesFilesFromRootOfGlobstar {
@@ -125,15 +129,24 @@ final class Glob: Collection {
             }
         }
 
-        if lastPart.isEmpty {
-            lastPart = "*"
-        }
+        let remainingPattern = lastPart.isEmpty ? "*" : lastPart
         for directory in directories {
-            let partiallyResolvedPattern = (Path(directory) + lastPart).rawValue
+            let partiallyResolvedPattern = (Path(directory) + remainingPattern).rawValue
             results.append(contentsOf: expandGlobstar(pattern: partiallyResolvedPattern))
         }
 
         return results
+    }
+
+    /// The directories a pattern without a globstar matches, each with a trailing slash.
+    private func matchingDirectories(of pattern: String) -> [String] {
+        var gt = glob_t()
+        defer { globfree(&gt) }
+        guard executeGlob(pattern: pattern, gt: &gt) else { return [] }
+        return (0..<Int(gt.gl_pathc)).compactMap { index in
+            // GLOB_MARK ends each directory with a slash.
+            gt.gl_pathv[index].flatMap { String(validatingCString: $0) }.flatMap { $0.hasSuffix("/") ? $0 : nil }
+        }
     }
 
     private func isDirectory(path: String) -> Bool {
