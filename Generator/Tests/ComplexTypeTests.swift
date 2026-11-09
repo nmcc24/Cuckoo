@@ -1,3 +1,5 @@
+import SwiftParser
+import SwiftSyntax
 import Testing
 @testable import CuckooGenerator
 
@@ -20,6 +22,13 @@ struct ComplexTypeTests {
         let replaced = complexType("(Output, [Wrapper.Output], Self.Output)").replaceType(named: "Output", with: "G.Output")
         #expect(replaced?.description == "(G.Output, [Wrapper.Output], G.Output)")
         #expect(complexType("[Input]").replaceType(named: "Output", with: "G.Output") == nil)
+    }
+
+    /// A closure type keeps its typed throws and its variadic parameters.
+    @Test(arguments: ["() throws(NetErr) -> Int", "() async throws(Network.Failure) -> Void", "(String...) -> Void", "(Int, String...) throws -> Bool"])
+    func closureTypeRoundTrips(_ type: String) {
+        var parser = Parser(type)
+        #expect(ComplexType(syntax: TypeSyntax.parse(from: &parser)).description == type)
     }
 
     private func complexType(_ source: String) -> ComplexType {

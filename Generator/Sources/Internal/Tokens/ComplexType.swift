@@ -30,7 +30,8 @@ enum ComplexType: Sendable {
                     parameters: functionType.parameters.map {
                         Closure.Parameter(
                             label: $0.secondName?.trimmedDescription,
-                            type: ComplexType(syntax: $0.type)
+                            // A variadic parameter keeps its `...`, which isn't part of its type's syntax.
+                            type: $0.ellipsis == nil ? ComplexType(syntax: $0.type) : .type("\($0.type.trimmedDescription)...")
                         )
                     },
                     effects: Closure.Effects(effectSpecifiers: functionType.effectSpecifiers),
@@ -79,21 +80,17 @@ enum ComplexType: Sendable {
             let type: ComplexType
         }
 
-        struct Effects: OptionSet, Equatable, Sendable {
-            let rawValue: Int
+        struct Effects: Equatable, Sendable {
+            var isAsync = false
+            /// The throws clause as written, such as `throws` or `throws(ParseError)`, or nil.
+            var throwsClause: String?
 
-            static let `async` = Effects(rawValue: 1 << 0)
-            static let `throws` = Effects(rawValue: 1 << 1)
-
-            static let none: Effects = []
+            static let none = Effects()
 
             var description: String {
-                [
-                    contains(.async) ? "async" : nil,
-                    contains(.throws) ? "throws" : nil,
-                ]
-                .compactMap { $0 }
-                .joined(separator: " ")
+                [isAsync ? "async" : nil, throwsClause]
+                    .compactMap { $0 }
+                    .joined(separator: " ")
             }
         }
     }
@@ -352,18 +349,10 @@ extension String {
 
 extension ComplexType.Closure.Effects {
     init(effectSpecifiers: TypeEffectSpecifiersSyntax?) {
-        guard let effectSpecifiers else {
-            self = .none
-            return
-        }
-        var effects: Self = []
-        if effectSpecifiers.asyncSpecifier?.isPresent == true {
-            effects.insert(.async)
-        }
-        if effectSpecifiers.throwsClause != nil {
-            effects.insert(.throws)
-        }
-        self = effects
+        self.init(
+            isAsync: effectSpecifiers?.asyncSpecifier?.isPresent == true,
+            throwsClause: effectSpecifiers?.throwsClause?.trimmedDescription
+        )
     }
 }
 
