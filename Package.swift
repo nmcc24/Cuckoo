@@ -26,7 +26,7 @@ enum GeneratorBinary {
     case local(path: String)
 }
 
-let prebuiltGenerator: GeneratorBinary? = nil
+let prebuiltGenerator: GeneratorBinary? = .remote(url: "https://github.com/nmcc24/Cuckoo/releases/download/3.0.0-alpha.1/CuckooGenerator.artifactbundle.zip", checksum: "01fb66e0766507eb62628b3843d6b4aff18f780cfebd3eed730852baead3d8de")
 
 /// The plugins find the generator by its executable's name, `CuckooGenerator`, which the bundle's executable has too.
 let generator: Target.Dependency = prebuiltGenerator == nil ? "CuckooGenerator" : "CuckooGeneratorBinary"
