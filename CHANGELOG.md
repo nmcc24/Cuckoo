@@ -1,15 +1,16 @@
 # Changelog
 
-## 3.0.0-beta.1
+## 3.0.0-alpha.1
 
 Cuckoo 3 is built for Swift 6: mocks keep the isolation and `Sendable`-ness of the types they mock, and the
-generator runs as a prebuilt binary from one build plugin. This is a beta of a major release; existing suites need
-the changes in the [migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md).
+generator runs as a prebuilt binary from one build plugin. This alpha is a first pre-release, for trying the package
+integration; a beta follows with fixes from a code audit. Existing suites need the changes in the
+[migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md).
 
 To try it:
 
 ```swift
-.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.1"),
+.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-alpha.1"),
 ```
 
 ### Requirements
