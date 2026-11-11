@@ -1,16 +1,16 @@
 # Changelog
 
-## 3.0.0-alpha.1
+## 3.0.0-beta.1
 
 Cuckoo 3 is built for Swift 6: mocks keep the isolation and `Sendable`-ness of the types they mock, and the
-generator runs as a prebuilt binary from one build plugin. This alpha is a first pre-release, for trying the package
-integration; a beta follows with fixes from a code audit. Existing suites need the changes in the
+generator runs as a prebuilt binary from one build plugin. This beta adds fixes from a code audit to
+3.0.0-alpha.1. Existing suites need the changes in the
 [migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md).
 
 To try it:
 
 ```swift
-.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-alpha.1"),
+.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.1"),
 ```
 
 ### Requirements
@@ -57,6 +57,19 @@ To try it:
 ### Documentation
 - A DocC catalog with the API reference, getting started, the Cuckoofile, stubbing and verification, matching, a
   cookbook and the migration guide.
+
+### Fixed since 3.0.0-alpha.1
+- The generator exits with an error when a mock can't be generated or written, or a source file can't be read,
+  instead of reporting success. A relative `--configuration` path resolves against the project directory, and a
+  missing configuration is an error.
+- Typed throws keep any error type, such as `throws(Network.Failure)` or `throws(Wrapped<Int>)`, also in closure
+  types, and variadic closure parameters keep their `...`.
+- A `sources` glob with a wildcard before `**`, such as `Modules/*/Sources/**/*.swift`, finds files in every
+  matching directory.
+
+## 3.0.0-alpha.1
+
+The first pre-release, for trying the package integration. Everything in it is described under 3.0.0-beta.1.
 
 ## 2.4.0 and earlier
 
