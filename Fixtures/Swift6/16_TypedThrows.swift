@@ -6,9 +6,12 @@ struct Wrapped<Value>: Error {}
 protocol TypedAPI {
     func call() throws(NetErr) -> Int
     func callAsync() async throws(NetErr) -> Int
-    // Error types that aren't a plain name, and a closure parameter with its own typed throws.
+    // Error types that aren't a plain name, and a closure parameter with its own typed throws. The mock keeps the
+    // closure's type in its argument tuple, and Apple platforms only have runtime support for typed-throws function
+    // types from macOS 15, iOS 18, tvOS 18 and watchOS 11, so the requirement needs that availability to be mocked.
     func fetch() throws(Network.Failure) -> String
     func decode() throws(Wrapped<Int>)
+    @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
     func retry(_ operation: @escaping () throws(NetErr) -> Int) -> Int
     func log(_ write: (String...) -> Void)
 }

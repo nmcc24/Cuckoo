@@ -63,7 +63,9 @@ To try it:
   instead of reporting success. A relative `--configuration` path resolves against the project directory, and a
   missing configuration is an error.
 - Typed throws keep any error type, such as `throws(Network.Failure)` or `throws(Wrapped<Int>)`, also in closure
-  types, and variadic closure parameters keep their `...`.
+  types, and variadic closure parameters keep their `...`. On Apple platforms, a closure parameter with typed throws
+  can only be mocked from macOS 15, iOS 18, tvOS 18 or watchOS 11, which the requirement's `@available` must say:
+  the mock keeps the closure's type at runtime, and older runtimes don't support typed-throws function types.
 - A `sources` glob with a wildcard before `**`, such as `Modules/*/Sources/**/*.swift`, finds files in every
   matching directory.
 - Xcode no longer lists Cuckoo's own `CuckooTests` scheme in projects that depend on it.
