@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- `containsAllOf` with `Hashable` elements matches a sequence that holds an element more often than it was passed,
+  as the `Equatable` overload does. `containsAllValuesOf` is fixed with it.
+- `hasLength(inRange:)` takes any range and matches the counts it contains: `1..<3` no longer matches 3.
+  `hasLength(inRange:inclusive:)` is deprecated.
+- A failed `verify` leaves its calls unverified, so `verifyNoMoreInteractions` still reports them.
+- Calling `enableDefaultImplementation(_:)` again after the mock's first call replaces the default implementation
+  instead of crashing.
+- `enableSuperclassSpy()` on a protocol mock records a failure instead of making every unstubbed call crash.
+- The zero-argument optional `@Sendable` `anyClosure()` matchers no longer match `nil`.
+- A generated `Stub` returning a tuple gives optional and collection elements their empty values, and tuples of
+  any size work. A mock's unstubbed call still needs a stub or a registered value for a tuple.
+- Under Swift Testing, an unstubbed call's failure points at the test instead of into Cuckoo's sources.
+- Failure messages say "1 time", and "after the mock's first call" where they said "after stubbing".
+
 ## 3.0.0-beta.1
 
 Cuckoo 3 is built for Swift 6: mocks keep the isolation and `Sendable`-ness of the types they mock, and the
