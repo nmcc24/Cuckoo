@@ -64,7 +64,7 @@ Arrays, sets and dictionaries match equal collections. The collection matchers c
 - `containsAllKeysOf(_:)`, `containsAllValuesOf(_:)` and their `Any` and `No` versions look at a dictionary's
   keys or values.
 - `hasLength(exactly:)`, `hasLength(atLeast:inclusive:)`, `hasLength(atMost:inclusive:)` and
-  `hasLength(inRange:inclusive:)` match by count.
+  `hasLength(inRange:)` match by count. `hasLength(inRange:)` takes any range of counts, such as `1..<3` or `2...`.
 
 ```swift
 verify(mailer).send(to: containsAllOf(values: "ann@example.com", "bob@example.com"))

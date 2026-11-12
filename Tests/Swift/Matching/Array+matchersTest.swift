@@ -209,4 +209,18 @@ struct ArrayMatcherTest {
         #expect(!hasLength(atMost: 2, inclusive: false).matches([1, 2, 3, 4]))
         #expect(!hasLength(atMost: 0, inclusive: false).matches([]))
     }
+
+    @Test
+    func hasLengthInRange() {
+        #expect(!hasLength(inRange: 1..<3).matches([Int]()))
+        #expect(hasLength(inRange: 1..<3).matches([1]))
+        #expect(hasLength(inRange: 1..<3).matches([1, 2]))
+        #expect(!hasLength(inRange: 1..<3).matches([1, 2, 3]))
+
+        #expect(hasLength(inRange: 1...3).matches([1, 2, 3]))
+        #expect(!hasLength(inRange: 1...3).matches([1, 2, 3, 4]))
+        #expect(hasLength(inRange: 2...).matches([1, 2, 3, 4]))
+        #expect(!hasLength(inRange: 2...).matches([1]))
+        #expect(hasLength(inRange: ..<2).matches([Int]()))
+    }
 }
