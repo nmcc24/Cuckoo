@@ -16,6 +16,18 @@ struct NestedDeclarationTests {
     }
 
     @Test
+    func typesNestedInAnActorKeepTheirEnclosingType() async throws {
+        let output = try await generateMocks(source: """
+            actor Store {
+                class Cache {
+                    func clear() {}
+                }
+            }
+            """)
+        #expect(output.contains("extension Store {\n    final class MockCache: Cache,"))
+    }
+
+    @Test
     func aTypeInAPublicExtensionIsPublic() async throws {
         let output = try await generateMocks(source: """
             public class Outer {}
