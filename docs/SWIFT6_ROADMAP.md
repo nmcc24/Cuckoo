@@ -1,6 +1,6 @@
 # Cuckoo for Swift 6: analysis and roadmap
 
-Status: draft, 2026-10-22. Branch `nmcc24/swift6-roadmap` on `nmcc24/Cuckoo` (fork of `Brightify/Cuckoo` at `7cef639`, v2.4.0).
+Status: Phases 0–5 done; Phase 6 (release) in progress, updated 2026-11-12. Started 2026-10-22 on `nmcc24/Cuckoo`, a fork of `Brightify/Cuckoo` at `7cef639` (v2.4.0).
 
 Goal: make Cuckoo (or a successor) fully Swift 6 compliant on Swift 6.2–6.4, able to mock `@MainActor`, global-actor and `Actor` protocols, and broaden what can be mocked. The Swift 6 language mode is the target; the Swift 5 mode compiles but isn't tested.
 
@@ -503,7 +503,7 @@ Done 2026-11-08. Items 5 and 6 were dropped.
    - The plugins pass a target's files as `--source` arguments instead of a list file written when SwiftPM plans the build, so deleting `.build/plugins/outputs` no longer fails the next build with "missing inputs". A listing over 256 KiB (macOS limits a command line to 1 MiB) or an empty one still uses `--sources-list`. Xcode's Clean and a deleted plugin folder under DerivedData recovered already. The command's display name now names the target, since SwiftPM names a command by its display name and arguments, and two test targets depending on one module would otherwise share one command.
    - A generator built from source for a scheme that gathers coverage is instrumented, and printed "LLVM Profile Error: Failed to write file default.profraw" on every run, since the sandbox blocks the write. The plugins set `LLVM_PROFILE_FILE` into their work directory.
 ### Phase 6: Release and upstreaming (S) 🔄
-- 3.0.0-beta tags on the fork. 3.0.0-beta.1 first: `version`, `Version.swift` and the changelog are bumped in a PR, then nmcc24 runs the `Release` workflow on master, first as a `dry_run` (the macOS universal build has never run in CI), then for real; it publishes a pre-release and smoke-tests the published tag on macOS and Linux. The audit before it (2026-11-08) found four release-workflow defects and four generator bugs, fixed first; its other findings wait for beta.2.
+- 3.0.0-beta tags on the fork. 3.0.0-beta.1 first: `version`, `Version.swift` and the changelog are bumped in a PR, then nmcc24 runs the `Release` workflow on master, first as a `dry_run` (the macOS universal build has never run in CI), then for real; it publishes a pre-release and smoke-tests the published tag on macOS and Linux. The audit before it (2026-11-08) found four release-workflow defects and four generator bugs, fixed first. 3.0.0-alpha.1 and 3.0.0-beta.1 were released and checked on 2026-11-12. The audit's other findings go into beta.2: runtime fixes, generator fixes, test and cleanup items, then the API changes, one PR each.
 - Offer Brightify the independent fixes (#601, the swift-syntax range, the Linux Glob fix, `keepDocumentation`) as separate small PRs.
 - Propose the 3.0 branch upstream, or publish under a new name (D1).
 
