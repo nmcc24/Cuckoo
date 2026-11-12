@@ -79,6 +79,10 @@ struct StubThrowingFunctionTest {
             when(mock.withTypedThrows())
                 .thenThrow(NSError(domain: "StubThrowingFunctionTest", code: 0))
         }
+
+        #expect(throws: NSError(domain: "StubThrowingFunctionTest", code: 0)) {
+            try mock.withTypedThrows()
+        }
     }
 
     private enum TestError: Error {
