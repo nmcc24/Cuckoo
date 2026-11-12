@@ -28,3 +28,10 @@ func generateMocks(source: String, moduleKeys: String = "", options: String = ""
         .map(\.contents)
         .joined(separator: "\n")
 }
+
+extension String {
+    /// The text's lines, an empty one included where it starts, ends or has two line breaks in a row.
+    var lines: [String] {
+        split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+    }
+}

@@ -31,7 +31,7 @@ struct SnapshotTests {
     @Test(arguments: swift6Fixtures)
     func swift6Fixture(_ fileName: String) async throws {
         let contents = try await generate(sources: ["Fixtures/Swift6/\(fileName)"])
-        try assertSnapshot(contents, named: "Swift6/\((fileName as NSString).deletingPathExtension)")
+        try assertSnapshot(contents, named: "Swift6/\(fileName.dropLast(".swift".count))")
     }
 
     /// Mirrors the `CuckooTestSources` module in `Cuckoofile.toml`, which generates the mocks used by the runtime test suite.
@@ -57,7 +57,7 @@ struct SnapshotTests {
 
         let stripped = try await generate(sources: sources, keepDocumentation: false)
         // The templates emit `/// MARK:` comments of their own.
-        let docLines = stripped.components(separatedBy: "\n").filter { $0.contains("///") && !$0.contains("/// MARK:") }
+        let docLines = stripped.lines.filter { $0.contains("///") && !$0.contains("/// MARK:") }
         #expect(docLines.isEmpty)
     }
 
@@ -85,7 +85,7 @@ struct SnapshotTests {
         #expect(!internalFile.contains("public import"))
 
         let joined = try await generateFiles(sources: sources, testableImports: ["Sources"], singleFileOutput: true)
-        let importLines = Set(joined.joined().components(separatedBy: "\n").filter { $0.hasPrefix("import ") || $0.contains(" import ") })
+        let importLines = Set(joined.joined().lines.filter { $0.hasPrefix("import ") || $0.contains(" import ") })
         #expect(importLines == [
             "public import Cuckoo", "public import Foundation", "import Dispatch", "@testable public import Sources",
         ])
@@ -161,8 +161,8 @@ struct SnapshotTests {
         }
 
         guard let expected, expected != actual else { return }
-        let expectedLines = expected.components(separatedBy: "\n")
-        let actualLines = actual.components(separatedBy: "\n")
+        let expectedLines = expected.lines
+        let actualLines = actual.lines
         let line = zip(expectedLines, actualLines).enumerated().first { $1.0 != $1.1 }?.offset ?? min(expectedLines.count, actualLines.count)
         let expectedLine = line < expectedLines.count ? expectedLines[line] : "<end of file>"
         let actualLine = line < actualLines.count ? actualLines[line] : "<end of file>"

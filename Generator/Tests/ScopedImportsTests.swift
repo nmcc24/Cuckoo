@@ -145,7 +145,7 @@ struct ScopedImportsTests {
                 """
         )
         #expect(output.count == 2)
-        let lines = output[0].components(separatedBy: "\n")
+        let lines = output[0].lines
         let importLines = lines.prefix { $0.contains("import ") || $0.hasPrefix("#if") || $0 == "#endif" }
         #expect(Array(importLines.prefix(4)) == [
             "import Foundation",
@@ -153,14 +153,14 @@ struct ScopedImportsTests {
             "@testable public import App",
             "@testable public import Core",
         ])
-        let allImports = output.joined(separator: "\n").components(separatedBy: "\n").filter { $0.contains("import ") }
+        let allImports = output.joined(separator: "\n").lines.filter { $0.contains("import ") }
         #expect(Set(allImports).count == allImports.count)
         #expect(allImports.count == importLines.filter { $0.contains("import ") }.count)
         #expect(!output[1].contains("import "))
     }
 
     private func scopedImports(in output: String) -> [String] {
-        output.components(separatedBy: "\n").filter { line in
+        output.lines.filter { line in
             line.hasPrefix("#if") || ["struct", "class", "enum", "protocol", "typealias"].contains { line.contains("import \($0) ") }
         }
     }
