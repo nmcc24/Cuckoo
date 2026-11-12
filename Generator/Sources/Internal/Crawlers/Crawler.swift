@@ -763,7 +763,7 @@ extension Crawler {
             GenericParameter(
                 name: genericParameter.name.filteredDescription,
                 inheritedTypes: inheritedTypes(from: genericParameter.inheritedType?.trimmed),
-                isPack: genericParameter.isPack
+                kind: genericParameter.kind
             )
         } ?? []
     }
@@ -962,3 +962,11 @@ extension GenericParameterSyntax {
         specifier?.tokenKind == .keyword(.each)
     }
 }
+
+    var kind: GenericParameter.Kind {
+        switch specifier?.tokenKind {
+        case .keyword(.each): .pack
+        case .keyword(.let): .value
+        default: .type
+        }
+    }
