@@ -183,13 +183,15 @@ jobs:
           echo "IOS_SIMULATOR_ID=$SIMULATOR_ID" >> "$GITHUB_ENV"
           # Boot it now, so its system finishes starting up while the package builds.
           xcrun simctl boot "$SIMULATOR_ID"
-      # The shared CuckooTests scheme builds only the runtime side for the simulator; the generator is
-      # built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
+      # The CuckooTests scheme (scripts/install-scheme.sh) builds only the runtime side for the simulator; the
+      # generator is built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
       # Swift, so what can break there is compile-time (APIs, availability, imports).
       # Xcode 26.6 also builds the generator's dependencies for the destination, so they all have to build
       # for tvOS and watchOS too. They build the arm64 slice only: the runners are Apple Silicon, and Xcode
       # 27.2's linker warns on x86_64 objects that prelink an @objc protocol with a Swift protocol inheriting
       # an Objective-C one (roadmap item 11).
+      - name: Install the CuckooTests scheme
+        run: scripts/install-scheme.sh
       - name: Test the package on iOS
         run: |
           set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
