@@ -242,14 +242,18 @@ struct ClassTest {
     @Test
     func testInout() {
         let mock = MockInoutMethodClass()
+        var received: Int?
         stub(mock) { mock in
             when(mock.inoutko(param: anyInt())).then { param in
-                print(param)
+                received = param
             }
         }
 
         var integer = 12
         mock.inoutko(param: &integer)
+
+        #expect(received == 12)
+        verify(mock).inoutko(param: 12)
     }
 
     @Test

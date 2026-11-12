@@ -32,9 +32,13 @@ struct ArgumentCaptorTest {
         #expect(captor.allValues.isEmpty)
     }
 
+    /// Handing the captor to another task compiles only because it's `Sendable`.
     @Test
-    func isSendableWhenItsValuesAre() {
-        let captor: any Sendable = ArgumentCaptor<Int>()
-        #expect(captor is ArgumentCaptor<Int>)
+    func isSendableWhenItsValuesAre() async {
+        let captor = ArgumentCaptor<Int>()
+        await Task.detached {
+            _ = captor.capture().matches(1)
+        }.value
+        #expect(captor.allValues == [1])
     }
 }
