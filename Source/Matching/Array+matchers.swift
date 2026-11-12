@@ -108,7 +108,7 @@ public func containsAllOf<T, S: Sequence>(
  * - parameter elements: Elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
- * - NOTE: When passing an Array, this matcher expects items as many times as they are present in the passed elements.
+ * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN,
@@ -131,7 +131,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
  * Matcher for sequences of `Equatable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
  * - returns: ParameterMatcher object.
- * - NOTE: When passing an Array, this matcher expects items as many times as they are present in the passed elements.
+ * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<T: Equatable, S: Sequence>(
     values elements: T...
@@ -142,7 +142,7 @@ public func containsAllOf<T: Equatable, S: Sequence>(
  * Matcher for sequences of `Equatable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
  * - returns: ParameterMatcher object.
- * - NOTE: When passing an Array, this matcher expects items as many times as they are present in the passed elements.
+ * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN
@@ -154,7 +154,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
  * Matcher for sequences of `Hashable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
  * - returns: ParameterMatcher object.
- * - NOTE: When passing an Array, this matcher expects items as many times as they are present in the passed elements.
+ * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<T: Hashable>(values elements: T...) -> ParameterMatcher<[T]> {
     containsAllOf(elements)
@@ -163,7 +163,7 @@ public func containsAllOf<T: Hashable>(values elements: T...) -> ParameterMatche
  * Matcher for sequences of `Hashable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
  * - returns: ParameterMatcher object.
- * - NOTE: When passing an Array, this matcher expects items as many times as they are present in the passed elements.
+ * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN
@@ -177,7 +177,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
         }
 
         return elementsDictionary.allSatisfy { key, element in
-            sequenceDictionary[key].map { $0 == element } ?? false
+            sequenceDictionary[key].map { $0 >= element } ?? false
         }
     }
 }

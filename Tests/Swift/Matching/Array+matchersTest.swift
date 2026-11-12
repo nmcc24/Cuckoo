@@ -121,6 +121,17 @@ struct ArrayMatcherTest {
         #expect(containsAllOf([1, 3, 2, 2, 1]).matches([1, 3, 2, 2, 1]))
     }
 
+    /// The matched sequence may hold an element more often than the matcher asks for it, as with the `Equatable`
+    /// overload.
+    @Test
+    func containsAllOfAllowsExtraCopies() {
+        #expect(containsAllOf(values: 1, 2).matches([1, 1, 2]))
+        #expect(containsAllOf([1, 2]).matches([2, 1, 2, 1]))
+        #expect(containsAllOf(values: TestStructs.H(g: 1)).matches([1, 1].map(TestStructs.H.init)))
+        #expect(containsAllOf(values: TestStructs.E(g: 1)).matches([1, 1].map(TestStructs.E.init)))
+        #expect(!containsAllOf(values: 1, 1, 2).matches([1, 2]))
+    }
+
     // MARK: - Contains NONE of the elements.
     @Test
     func testContainsNoneOf() {
