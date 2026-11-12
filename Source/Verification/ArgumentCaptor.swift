@@ -2,6 +2,9 @@
 ///
 /// It's safe to use from several tasks at once, and `Sendable` when its values are: a stub's matchers run on
 /// whichever thread makes the call.
+///
+/// Inside ``eventually(timeout:pollingInterval:_:)`` every retry of the block captures the arguments again, so
+/// ``allValues`` repeats them. Read ``value`` there, or create the captor inside the block.
 public final class ArgumentCaptor<T> {
     private let values = Locked<[T]>([])
 
