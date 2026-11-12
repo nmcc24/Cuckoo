@@ -66,6 +66,7 @@ To try it:
   types, and variadic closure parameters keep their `...`.
 - A `sources` glob with a wildcard before `**`, such as `Modules/*/Sources/**/*.swift`, finds files in every
   matching directory.
+- Xcode no longer lists Cuckoo's own `CuckooTests` scheme in projects that depend on it.
 
 ## 3.0.0-alpha.1
 
