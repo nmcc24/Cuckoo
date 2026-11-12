@@ -29,6 +29,24 @@ struct DefaultValueRegistryTest {
     }
 
     @Test
+    func tupleElementsUseTheirDefaults() {
+        let value = DefaultValueRegistry.defaultValue(for: (Int, String?, [Marker], Bool, Int, Int, Int).self)
+        #expect(value.0 == 0)
+        #expect(value.1 == nil)
+        #expect(value.2 == [])
+        #expect(value.3 == false)
+    }
+
+    @Test
+    func genericTypesGetEmptyValues() {
+        func defaultValue<T>(of _: T.Type) -> T {
+            DefaultValueRegistry.defaultValue(for: T.self)
+        }
+        #expect(defaultValue(of: Marker?.self) == nil)
+        #expect(defaultValue(of: [Marker].self) == [])
+    }
+
+    @Test
     func registerValue() {
         let value = Marker(value: 10)
         DefaultValueRegistry.register(value: value, forType: Marker.self)

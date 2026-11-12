@@ -71,8 +71,8 @@ A call that no stub matches records a failure that lists the member's stubs and 
 Then it answers, so the test can go on: a member that throws `any Error` throws ``CuckooError/unstubbedCall(method:)``,
 and any other member returns a default value from ``CuckooConfiguration/defaultValues`` or
 ``DefaultValueRegistry``. Optionals and the standard collections default to empty, numbers, strings and `Bool`
-to zero, `""` and `false`, and tuples to their elements' defaults. Register a value for any other type, or a call returning it crashes with a
-message naming it:
+to zero, `""` and `false`. Register a value for any other type, tuples included, or a call returning it crashes
+with a message naming it:
 
 ```swift
 @Test(.cuckoo(defaultValues: {
