@@ -37,6 +37,18 @@ struct GenerateCommandTests {
         }
     }
 
+    @Test
+    func directoryOutputNamesTellSameNamedSourcesApart() {
+        let names = GenerateCommand.outputNames(for: [
+            "/p/Sources/A/User.swift",
+            "/p/Sources/B/User.swift",
+            "/p/Sources/A/Models/Item.swift",
+            "/p/Sources/B/Models/Item.swift",
+            "/p/Sources/Greeter.swift",
+        ].map { Path($0) })
+        #expect(names == ["A_User", "B_User", "A_Models_Item", "B_Models_Item", "Greeter"])
+    }
+
     private func withPackage(output: String, _ body: (URL) async throws -> Void) async throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooCommand-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }

@@ -94,7 +94,9 @@ The generated file always imports `Cuckoo`.
 
 - term `output`: Where to write the module's mocks. A path with a file extension is one file; modules with the
   same `output` are joined into it. An existing directory, or a path with no extension, gets one file per source
-  file. The build plugin replaces `output` with a file in the build directory.
+  file, named after it; source files that share a name get their parent directories in front, such as `A_User`
+  and `B_User` for `A/User.swift` and `B/User.swift`. The build plugin replaces `output` with a file in the build
+  directory.
 - term `filenameFormat`: For a directory `output`, the name of each file, with `{}` where the source file's name
   goes, such as `"{}Mocks"`. It must contain `{}`.
 
