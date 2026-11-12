@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Changed
+- `equal(to:)` on an `Equatable` class compares with `==`. The identity overloads of `equal(to:)` for classes are
+  deprecated: use `sameInstance(as:)` to match the same instance.
+- `DefaultValueRegistry.register(_:for:)` registers a default value, matching `DefaultValues.register(_:for:)`.
+  `register(value:forType:)` is deprecated.
+- `ClassConcreteStub` and `MockBuilder` are `final`.
+
 ### Fixed
 - `containsAllOf` with `Hashable` elements matches a sequence that holds an element more often than it was passed,
   as the `Equatable` overload does. `containsAllValuesOf` is fixed with it.
