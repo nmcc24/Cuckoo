@@ -71,7 +71,13 @@ imports = ["Foundation"]
 sources = ["$f"]
 output = "$WORK/gen/$n.mock.swift"$OPTIONS
 EOF
-  "$GEN" --configuration "$WORK/Cuckoofile.toml" > "$WORK/logs/$n.gen.log" 2>&1
+  # A failed generation would otherwise compile the previous run's mock.
+  rm -f "$WORK/gen/$n.mock.swift"
+  if ! "$GEN" --configuration "$WORK/Cuckoofile.toml" > "$WORK/logs/$n.gen.log" 2>&1; then
+    printf "%-5s %-36s %s\n" "FAIL" "$n" "generator failed: $(grep -m1 "error:" "$WORK/logs/$n.gen.log" | cut -c1-90)"
+    status=1
+    continue
+  fi
   "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" \
     "$f" "$WORK/gen/$n.mock.swift" > "$WORK/logs/$n.tc.log" 2>&1
   errors="$(grep -c "error:" "$WORK/logs/$n.tc.log")"
