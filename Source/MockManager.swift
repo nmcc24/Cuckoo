@@ -218,7 +218,7 @@ public final class MockManager: Sendable {
         let calls = matching.map(\.call)
         guard callMatcher.matches(calls) else {
             // The calls stay unverified, so `verifyNoMoreInteractions` still reports them.
-            let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(calls.count) times")."
+            let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(timesDescription(calls.count))")."
             reportFailure(message + "\n" + describeCalls(of: method, callsToMember: callsToMember, among: recordedCalls), at: sourceLocation)
             return __DoNotUse()
         }
@@ -253,7 +253,7 @@ public final class MockManager: Sendable {
         let candidates = matching.filter { $0.sequence > cursor }
         guard let accepted = callMatcher.acceptedPrefix(of: candidates, callOf: \.call) else {
             order.involve(self)
-            let message = "Wanted \(callMatcher.name) in order but invoked \(candidates.count) times after the previous verification (\(matching.count) times in all)."
+            let message = "Wanted \(callMatcher.name) in order but invoked \(timesDescription(candidates.count)) after the previous verification (\(timesDescription(matching.count)) in all)."
             reportFailure(message + "\n" + order.describeCalls(), at: sourceLocation)
             return
         }

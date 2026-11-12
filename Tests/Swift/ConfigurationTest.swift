@@ -26,6 +26,7 @@ struct UnstubbedCallTests {
         } matching: { issue in
             // The call happens inside the mock, so the issue points at the test rather than into Cuckoo.
             issue.comments.map(\.rawValue).first?.hasPrefix("No stub for method `count(characters") == true
+                && issue.sourceLocation?.fileName == "ConfigurationTest.swift"
         }
     }
 
@@ -130,6 +131,6 @@ struct CuckooTraitTests {
             verify(mock, times(2)).count(characters: "a")
         }
         #expect(log.all.count == 2)
-        #expect(log.all.last == "Wanted 2 times but invoked 1 times.\nCalls to count(characters:):\n  1. count(\"a\") matches")
+        #expect(log.all.last == "Wanted 2 times but invoked 1 time.\nCalls to count(characters:):\n  1. count(\"a\") matches")
     }
 }

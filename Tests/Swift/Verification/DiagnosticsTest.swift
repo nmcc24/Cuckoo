@@ -20,7 +20,7 @@ struct DiagnosticsTests {
         }
         #expect(messages == [
             """
-            Wanted 2 times but invoked 1 times.
+            Wanted 2 times but invoked 1 time.
             Calls to withLabelAndUnderscore(labelA:_:):
               1. withLabelAndUnderscore("a", "b"): argument 2 doesn't match
               2. withLabelAndUnderscore("x", "c"): `labelA:` doesn't match
@@ -42,7 +42,7 @@ struct DiagnosticsTests {
         }
         #expect(messages == [
             """
-            Wanted 1 times but not invoked.
+            Wanted 1 time but not invoked.
             noReturn() wasn't called. The mock received:
               1. count("b")
             """,

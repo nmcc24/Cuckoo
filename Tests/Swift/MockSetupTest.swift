@@ -22,7 +22,7 @@ struct MockSetupTest {
 
         let messages = failures.withLock { $0 }
         #expect(messages.count == 2)
-        #expect(messages.first?.hasPrefix("Wanted 2 times but invoked 1 times.") == true)
+        #expect(messages.first?.hasPrefix("Wanted 2 times but invoked 1 time.") == true)
         #expect(messages.last?.hasPrefix("No more interactions wanted but some found:") == true)
     }
 

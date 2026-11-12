@@ -38,3 +38,8 @@ public struct __SendingArgument<T>: @unchecked Sendable {
         self.value = value
     }
 }
+
+/// `count` as a number of calls in a failure message: "1 time", "2 times".
+func timesDescription(_ count: Int) -> String {
+    count == 1 ? "1 time" : "\(count) times"
+}

@@ -46,7 +46,7 @@ struct InOrderTests {
             }
         }
         #expect(messages.count == 1)
-        #expect(messages.first?.hasPrefix("Wanted 1 times in order but invoked 0 times after the previous verification (1 times in all).") == true)
+        #expect(messages.first?.hasPrefix("Wanted 1 time in order but invoked 0 times after the previous verification (1 time in all).") == true)
         #expect(messages.first?.contains("→ count(characters: \"a\")") == false)
     }
 

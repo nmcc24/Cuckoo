@@ -10,7 +10,7 @@ final class XCTestFailureTest: XCTestCase {
     func testFailedVerificationFailsTheTest() {
         let options = XCTExpectedFailure.Options()
         options.issueMatcher = { issue in
-            issue.compactDescription.contains("Wanted 1 times but not invoked.")
+            issue.compactDescription.contains("Wanted 1 time but not invoked.")
         }
 
         XCTExpectFailure("verify reports through XCTFail", options: options) {
