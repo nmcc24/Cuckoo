@@ -268,11 +268,15 @@ public final class MockManager: Sendable {
         state.withLock { $0.calls.map { SequencedCall(sequence: $0.sequence, call: $0.call) } }
     }
 
-    /// Makes unstubbed calls run the superclass's real implementation. Allowed only before stubbing.
+    /// Makes unstubbed calls run the superclass's real implementation. Allowed only before the mock's first call.
     public func enableSuperclassSpy() {
+        guard hasParent else {
+            fail("A protocol mock has no superclass to spy on. Use enableDefaultImplementation(_:) to forward its calls to a real implementation.")
+            return
+        }
         let error: String? = state.withLock { state in
             guard state.calls.isEmpty else {
-                return "Enabling superclass spy is not allowed after stubbing! Please do that right after creating the mock."
+                return "Enabling superclass spy is not allowed after the mock's first call. Enable it right after creating the mock."
             }
             guard !state.isDefaultImplementationEnabled else {
                 return "Enabling superclass spy is not allowed with the default stub implementation enabled."
@@ -285,15 +289,20 @@ public final class MockManager: Sendable {
         }
     }
 
-    /// Makes unstubbed calls forward to the default implementation. Allowed only before stubbing.
+    /// Makes unstubbed calls forward to the default implementation. Allowed only before the mock's first call, except
+    /// to replace the default implementation, which a generated mock does before calling this.
     public func enableDefaultStubImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
         guard !isStatic else {
             fail("Static members have no default implementation. Stub them instead.", at: (file, fileID, filePath, line, column))
             return
         }
         let error: String? = state.withLock { state in
+            // Already enabled: the mock has just replaced its default implementation, which is allowed at any time.
+            guard !state.isDefaultImplementationEnabled else {
+                return nil
+            }
             guard state.calls.isEmpty else {
-                return "Enabling default stub implementation is not allowed after stubbing! Please do that right after creating the mock."
+                return "Enabling default stub implementation is not allowed after the mock's first call. Enable it right after creating the mock."
             }
             guard !state.isSuperclassSpyEnabled else {
                 return "Enabling default stub implementation is not allowed with superclass spy enabled."
