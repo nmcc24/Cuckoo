@@ -139,8 +139,8 @@ struct GenerateCommand: AsyncParsableCommand {
             do {
                 try output.path.createDirectory(withIntermediateDirectories: true)
                 let generatedFiles = try await Generator.generate(for: module, singleFileOutput: false, verbose: verbose)
-                return await generatedFiles.concurrentCompactMap { generatedFile -> String? in
-                    let originalFileName = generatedFile.path.fileNameWithoutExtension
+                let names = Self.outputNames(for: generatedFiles.map(\.path))
+                return await zip(generatedFiles, names).map { $0 }.concurrentCompactMap { generatedFile, originalFileName -> String? in
                     let fileNameWithoutExtension = module.filenameFormat
                         .map { $0.replacing("{}", with: originalFileName) }
                         ?? originalFileName
@@ -187,6 +187,26 @@ struct GenerateCommand: AsyncParsableCommand {
             }
             throw ExitCode.failure
         }
+    }
+
+    /// The name of each source file's mocks in a directory output: the file's name, or, for files that share one,
+    /// enough of their parent directories, joined by `_`, to tell them apart (`A/User.swift` and `B/User.swift`
+    /// give `A_User` and `B_User`).
+    static func outputNames(for sources: [Path]) -> [String] {
+        let groups = Dictionary(grouping: sources.indices) { sources[$0].fileNameWithoutExtension }
+        var names = sources.map(\.fileNameWithoutExtension)
+        for indices in groups.values where indices.count > 1 {
+            let directories = indices.map { sources[$0].parent.components.map(\.fileName).filter { $0 != "/" } }
+            let longest = directories.map(\.count).max() ?? 0
+            // The fewest parent directories that make the group's names unique; all of them when even that doesn't.
+            let depth = (1...max(longest, 1)).first { depth in
+                Set(directories.map { $0.suffix(depth) }).count == indices.count
+            } ?? longest
+            for (index, directory) in zip(indices, directories) {
+                names[index] = (directory.suffix(depth) + [names[index]]).joined(separator: "_")
+            }
+        }
+        return names
     }
 
     /// The files in a `--sources-list` file, one per line: a path, or a Swift module, a tab and a path. A relative
