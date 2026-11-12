@@ -7,6 +7,34 @@ import Testing
 @Suite
 struct GeneratorOptionsTests {
     @Test
+    func protocolsOnlySkipsClasses() async throws {
+        let source = "protocol Service {}\nclass Store {}"
+        let output = try await generate(source: source, options: "protocolsOnly = true")
+        #expect(output.contains("class MockService"))
+        #expect(!output.contains("MockStore"))
+        #expect(try await generate(source: source).contains("class MockStore"))
+    }
+
+    @Test
+    func inheritanceCanBeTurnedOff() async throws {
+        let source = """
+            protocol Base {
+                func base()
+            }
+            protocol Derived: Base {
+                func derived()
+            }
+            """
+        // Each mock spells a member in its mock, stubbing proxy, verification proxy and stub: MockDerived repeats
+        // Base's members only with inheritance on.
+        let inherited = try await generate(source: source)
+        let flat = try await generate(source: source, options: "enableInheritance = false")
+        #expect(occurrences(of: "func base()", in: flat) > 0)
+        #expect(occurrences(of: "func base()", in: inherited) == 2 * occurrences(of: "func base()", in: flat))
+        #expect(occurrences(of: "func derived()", in: inherited) == occurrences(of: "func derived()", in: flat))
+    }
+
+    @Test
     func regexKeepsTypesMatchingAnyPattern() async throws {
         let output = try await generate(
             source: """
