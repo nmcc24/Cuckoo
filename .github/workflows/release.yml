@@ -123,8 +123,10 @@ jobs:
           name: bundle
           path: bundle
       - name: Release commit and tag
-        # The tagged commit is master plus this one change; it isn't pushed to any branch. A re-run after a later
-        # step failed finds the tag already pushed, and keeps it if it names this bundle.
+        # The tagged commit is master plus the bundle's URL and checksum, without the shared CuckooTests scheme,
+        # which Xcode would list in every consumer's scheme picker and which only builds in this repository. It
+        # isn't pushed to any branch. A re-run after a later step failed finds the tag already pushed, and keeps it
+        # if it names this bundle.
         run: |
           url="https://github.com/$GITHUB_REPOSITORY/releases/download/$VERSION/CuckooGenerator.artifactbundle.zip"
           checksum="$(swift package compute-checksum bundle/CuckooGenerator.artifactbundle.zip)"
@@ -136,6 +138,7 @@ jobs:
             echo "::error::The tag $VERSION exists and names another bundle."; exit 1
           fi
           scripts/set-prebuilt-generator.sh remote "$url" "$checksum"
+          git rm -q .swiftpm/xcode/xcshareddata/xcschemes/CuckooTests.xcscheme
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -qam "Release $VERSION with the prebuilt generator" -m "Checksum: $checksum"
