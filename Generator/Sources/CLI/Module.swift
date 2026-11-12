@@ -294,6 +294,7 @@ extension Module.Options: CustomDebugStringConvertible {
             "omit headers: \(omitHeaders)",
             "mock prefix: \(mockNaming.prefix)",
             "mock suffix: \(mockNaming.suffix)",
+            "default isolation: \(defaultIsolation?.sourceDescription ?? "none")",
         ]
         .compactMap { $0 }
         .joined(separator: "\n")
