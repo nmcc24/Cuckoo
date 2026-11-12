@@ -421,7 +421,7 @@ extension Crawler {
         let type: ComplexType
         if let explicitType = declaredType {
             type = ComplexType(syntax: explicitType)
-        } else if let initializer = binding.initializer?.value.filteredDescription, let guessedType = TypeGuesser.guessType(from: initializer) {
+        } else if let initializer = binding.initializer?.value, let guessedType = TypeGuesser.guessType(from: initializer) {
             type = .type(guessedType)
         } else {
             warn(binding, "Can't infer the type of property '\(identifier)', so it isn't mocked. Add a type annotation to mock it.")
