@@ -82,7 +82,7 @@ struct GeneratorOptionsTests {
                 """,
             moduleKeys: #"testableImports = ["App"]"#
         )
-        let imports = output.components(separatedBy: "\n").filter { $0.hasSuffix("import Foundation") || $0.hasSuffix("import App") || $0.hasSuffix("import Dispatch") || $0.hasSuffix("import Cuckoo") }
+        let imports = output.lines.filter { $0.hasSuffix("import Foundation") || $0.hasSuffix("import App") || $0.hasSuffix("import Dispatch") || $0.hasSuffix("import Cuckoo") }
         #expect(imports == [
             "public import Cuckoo",
             "@_spi(Tools) import Foundation",
@@ -139,7 +139,7 @@ struct GeneratorOptionsTests {
     }
 
     private func occurrences(of text: String, in output: String) -> Int {
-        output.components(separatedBy: text).count - 1
+        output.ranges(of: text).count
     }
 
     private func generate(source: String, moduleKeys: String = "", options: String = "") async throws -> String {
