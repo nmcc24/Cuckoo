@@ -65,7 +65,7 @@ jobs:
       - name: Build
         run: scripts/build-artifactbundle.sh build parts
       - name: Upload
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: part-${{ runner.os }}-${{ runner.arch }}
           path: parts
@@ -90,7 +90,7 @@ jobs:
         if: runner.os == 'Linux'
         run: apt-get update -qq && apt-get install -y -qq zip
       - name: Download the parts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           pattern: part-*
           path: parts
@@ -101,7 +101,7 @@ jobs:
         run: scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
       - name: Upload the bundle
         if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: bundle
           path: bundle/CuckooGenerator.artifactbundle.zip
@@ -118,7 +118,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Download the bundle
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: bundle
           path: bundle
