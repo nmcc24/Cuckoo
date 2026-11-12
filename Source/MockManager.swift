@@ -18,9 +18,16 @@ public final class MockManager: Sendable {
         var calls: [RecordedCall] = []
         var unverifiedCallIDs: Set<Int> = []
         var nextCallID = 0
-        // TODO Add either enum or OptionSet for these behavior modifiers and add proper validation
-        var isSuperclassSpyEnabled = false
-        var isDefaultImplementationEnabled = false
+        var fallback = Fallback.none
+    }
+
+    /// What answers a call that no stub matches. A mock has one at most.
+    private enum Fallback {
+        case none
+        /// `enableSuperclassSpy()`: the superclass's real implementation.
+        case superclass
+        /// `enableDefaultImplementation(_:)`: the default implementation.
+        case defaultImplementation
     }
 
     /// What a call resolves to once it has been recorded.
@@ -57,12 +64,12 @@ public final class MockManager: Sendable {
         as _: (OUT, ERROR, IMPL).Type
     ) -> Resolution<OUT, ERROR, IMPL> {
         let call = ConcreteStubCall(method: method, parameters: escapingParameters)
-        let (stubs, isSuperclassSpyEnabled, isDefaultImplementationEnabled) = state.withLock { state in
+        let (stubs, fallback) = state.withLock { state in
             let id = state.nextCallID
             state.nextCallID += 1
             state.calls.append(RecordedCall(id: id, sequence: CallSequence.next(), call: call))
             state.unverifiedCallIDs.insert(id)
-            return (state.stubs, state.isSuperclassSpyEnabled, state.isDefaultImplementationEnabled)
+            return (state.stubs, state.fallback)
         }
 
         // Newest stub first. A stub has no action yet while another thread is still between `when` and
@@ -91,9 +98,9 @@ public final class MockManager: Sendable {
             return .stubbed(action)
         }
 
-        if isSuperclassSpyEnabled {
+        if fallback == .superclass {
             return .superclass
-        } else if isDefaultImplementationEnabled {
+        } else if fallback == .defaultImplementation {
             return .defaultImplementation
         } else if sawUnfinishedStub {
             fail("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
@@ -275,14 +282,18 @@ public final class MockManager: Sendable {
             return
         }
         let error: String? = state.withLock { state in
-            guard state.calls.isEmpty else {
-                return "Enabling superclass spy is not allowed after the mock's first call. Enable it right after creating the mock."
-            }
-            guard !state.isDefaultImplementationEnabled else {
+            switch state.fallback {
+            case .superclass:
+                return nil
+            case .defaultImplementation:
                 return "Enabling superclass spy is not allowed with the default stub implementation enabled."
+            case .none:
+                guard state.calls.isEmpty else {
+                    return "Enabling superclass spy is not allowed after the mock's first call. Enable it right after creating the mock."
+                }
+                state.fallback = .superclass
+                return nil
             }
-            state.isSuperclassSpyEnabled = true
-            return nil
         }
         if let error {
             failAndCrash(error)
@@ -297,18 +308,19 @@ public final class MockManager: Sendable {
             return
         }
         let error: String? = state.withLock { state in
-            // Already enabled: the mock has just replaced its default implementation, which is allowed at any time.
-            guard !state.isDefaultImplementationEnabled else {
+            switch state.fallback {
+            case .defaultImplementation:
+                // The mock has just replaced its default implementation, which is allowed at any time.
+                return nil
+            case .superclass:
+                return "Enabling default stub implementation is not allowed with superclass spy enabled."
+            case .none:
+                guard state.calls.isEmpty else {
+                    return "Enabling default stub implementation is not allowed after the mock's first call. Enable it right after creating the mock."
+                }
+                state.fallback = .defaultImplementation
                 return nil
             }
-            guard state.calls.isEmpty else {
-                return "Enabling default stub implementation is not allowed after the mock's first call. Enable it right after creating the mock."
-            }
-            guard !state.isSuperclassSpyEnabled else {
-                return "Enabling default stub implementation is not allowed with superclass spy enabled."
-            }
-            state.isDefaultImplementationEnabled = true
-            return nil
         }
         if let error {
             failAndCrash(error)
