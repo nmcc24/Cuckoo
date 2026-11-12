@@ -16,6 +16,15 @@
   any size work. A mock's unstubbed call still needs a stub or a registered value for a tuple.
 - Under Swift Testing, an unstubbed call's failure points at the test instead of into Cuckoo's sources.
 - Failure messages say "1 time", and "after the mock's first call" where they said "after stubbing".
+- A directory `output` keeps same-named sources apart (`A_User.swift` and `B_User.swift`) instead of writing one
+  over the other.
+- An unannotated property's type is read from its initializer's syntax: `Style.default`, `UUID().uuidString` and
+  `0xbeef` no longer get a wrong type, and properties whose type isn't named get the "add a type annotation"
+  warning.
+- Value generics (`<let N: Int>`) keep their `let`, types nested in an actor are mocked inside it, and a type in a
+  `public extension` is public in its mock.
+- A `sources` pattern that matches no file is a warning.
+- With the build plugin, an entry that sets `sources` is regenerated when any of the project's source files changes.
 
 ## 3.0.0-beta.1
 
