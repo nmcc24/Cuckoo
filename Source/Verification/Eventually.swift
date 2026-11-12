@@ -38,10 +38,10 @@ public nonisolated(nonsending) func eventually(
 }
 
 /// Runs `block` with a failure handler that keeps its failures instead of reporting them.
-private func collectingFailures(of block: () -> Void) -> [(message: String, sourceLocation: SourceLocation)] {
-    let failures = Locked<[(message: String, sourceLocation: SourceLocation)]>([])
+private func collectingFailures(of block: () -> Void) -> [(message: String, sourceLocation: SourceLocation?)] {
+    let failures = Locked<[(message: String, sourceLocation: SourceLocation?)]>([])
     var configuration = CuckooConfiguration.current
-    configuration.failureHandler = { message, sourceLocation in
+    configuration.failureCollector = { message, sourceLocation in
         failures.withLock { $0.append((message, sourceLocation)) }
     }
     CuckooConfiguration.$current.withValue(configuration) {

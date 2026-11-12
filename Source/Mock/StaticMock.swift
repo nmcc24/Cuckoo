@@ -37,7 +37,7 @@ public final class StaticStubs: Sendable {
         guard let registry = current else {
             reportFailure(
                 "Static members of \(type) were used outside a static stubs scope. Add the `.cuckoo()` trait to the Swift Testing test or suite, or wrap the code in `withStaticStubs { }`.",
-                at: (#file, #fileID, #filePath, #line, #column)
+                at: nil
             )
             // A manager of its own, so the call fails as unstubbed instead of reaching another test's stubs.
             return MockManager(hasParent: hasParent, isStatic: true)
