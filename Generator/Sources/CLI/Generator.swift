@@ -65,18 +65,31 @@ final class Generator {
         return contents.joinedByBlankLines()
     }
 
-    private static func prepare(_ module: Module) async throws -> PreparedModule {
-        let sources = module.sources ?? []
-
-        func expand(_ source: Path) -> [Path] {
-            module.options.glob && !module.sourcesAreFromPlugin ? Glob(pattern: source.description).paths.map { Path($0) } : [source]
+    /// Each of the module's sources with the files it stands for, a glob's matches or the file itself, and a warning
+    /// for each source that stands for none: usually a typo or a moved directory, which would otherwise just leave
+    /// mocks out. The files a build plugin passes aren't checked.
+    static func expandSources(of module: Module) -> (sources: [(source: Path, files: [Path])], warnings: [String]) {
+        let isGlob = module.options.glob && !module.sourcesAreFromPlugin
+        let expanded = (module.sources ?? []).map { source in
+            (source: source, files: isGlob ? Glob(pattern: source.description).paths.map { Path($0) } : [source].filter(\.exists))
         }
-        let sortedInputPathValues = Set(sources.flatMap(expand).map { $0.standardRawValue }).sorted()
+        let warnings = module.sourcesAreFromPlugin ? [] : expanded.filter(\.files.isEmpty).map { source, _ in
+            "The source '\(source)' of module \(module.name) \(isGlob ? "matches no files" : "doesn't exist")."
+        }
+        return (expanded, warnings)
+    }
+
+    private static func prepare(_ module: Module) async throws -> PreparedModule {
+        let (expandedSources, warnings) = expandSources(of: module)
+        for warning in warnings {
+            printToStandardError("warning: cuckoo: \(warning)\n")
+        }
+        let sortedInputPathValues = Set(expandedSources.flatMap(\.files).map { $0.standardRawValue }).sorted()
         // The Swift module of each input file, where it's known: from the table form of `sources`, where a file
         // that two modules' globs match stays with the first, or for the files in its directory, from the plugin.
         let swiftModules = Dictionary(
-            sources.flatMap { source in
-                expand(source).compactMap { path in
+            expandedSources.flatMap { source, files in
+                files.compactMap { path in
                     (module.swiftModules[source] ?? module.sourceModule.flatMap { $0.contains(path) ? $0.name : nil })
                         .map { (path.standardRawValue, $0) }
                 }

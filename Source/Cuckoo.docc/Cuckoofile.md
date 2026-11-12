@@ -30,7 +30,7 @@ To mock files from several modules in one entry, name it after the test target a
 ### Sources
 
 - term `sources`: The files to read, relative to the Cuckoofile. `*` matches within a folder, `**` matches any
-  number of folders, and `{A,B}` matches either name:
+  number of folders, and `{A,B}` matches either name. A pattern that matches no file is a warning:
 
   ```toml
   [modules.App]
