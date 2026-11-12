@@ -21,6 +21,13 @@ struct SnapshotTests {
         return files.filter { $0.hasSuffix(".swift") }.sorted()
     }()
 
+    /// The fixtures are listed at run time, so a moved directory would leave the parameterized test with no cases,
+    /// which passes.
+    @Test
+    func swift6FixturesAreFound() {
+        #expect(Self.swift6Fixtures.count >= 30)
+    }
+
     @Test(arguments: swift6Fixtures)
     func swift6Fixture(_ fileName: String) async throws {
         let contents = try await generate(sources: ["Fixtures/Swift6/\(fileName)"])
