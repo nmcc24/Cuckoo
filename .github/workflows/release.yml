@@ -37,14 +37,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: The version matches the sources, and its tag is free
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
           [[ "$GITHUB_REF" == refs/heads/master ]] || { echo "::error::Release from master, not $GITHUB_REF."; exit 1; }
           [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "::error::Not a version: $VERSION"; exit 1; }
           [[ "$(cat version)" == "$VERSION" ]] || { echo "::error::The version file holds $(cat version)."; exit 1; }
           grep -qxF "let version = \"$VERSION\"" Generator/Sources/CLI/Version.swift \
             || { echo "::error::Generator/Sources/CLI/Version.swift doesn't hold $VERSION."; exit 1; }
+          # A dry run never tags, so it may rebuild a released version, which master's sources hold until the next bump.
           if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" >/dev/null; then
-            echo "::error::The tag $VERSION already exists."; exit 1
+            if [[ "$DRY_RUN" == true ]]; then
+              echo "::notice::The tag $VERSION exists; a dry run doesn't tag, so it goes on."
+            else
+              echo "::error::The tag $VERSION already exists."; exit 1
+            fi
           fi
 
   build:
