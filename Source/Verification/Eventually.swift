@@ -12,7 +12,8 @@
 /// ```
 ///
 /// It checks that something becomes true. `verify(mock, never())` in the block passes on the first run, before
-/// the code under test has had a chance to call the mock.
+/// the code under test has had a chance to call the mock. An ``ArgumentCaptor`` in the block captures again on
+/// every run.
 public nonisolated(nonsending) func eventually(
     timeout: Duration = .seconds(1),
     pollingInterval: Duration = .milliseconds(10),
