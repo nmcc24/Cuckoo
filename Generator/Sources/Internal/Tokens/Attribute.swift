@@ -1,7 +1,5 @@
 enum Attribute: Hashable, CustomStringConvertible {
     case available(arguments: [String])
-    case objc
-    case objcMembers
     /// `@_spi(group)`.
     case spi(group: String)
 
@@ -9,10 +7,6 @@ enum Attribute: Hashable, CustomStringConvertible {
         switch self {
         case .available(let arguments):
             "@available(\(arguments.joined(separator: ", ")))"
-        case .objc:
-            "@objc"
-        case .objcMembers:
-            "@objcMembers"
         case .spi(let group):
             "@_spi(\(group))"
         }

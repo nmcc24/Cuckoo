@@ -29,11 +29,6 @@ final class Crawler: SyntaxVisitor {
         defaultIsolation: Isolation? = nil
     ) -> Crawler {
         let syntaxTree = Parser.parse(source: source)
-        #if DEBUG
-        // Comment out the line above and uncomment the one below to test specific strings.
-        // The `testString` is at the bottom of this file.
-//        let syntaxTree = Parser.parse(source: testString)
-        #endif
         let context = Context(
             url: url,
             locationConverter: SourceLocationConverter(fileName: url.path, tree: syntaxTree),
@@ -762,11 +757,6 @@ extension Crawler {
             case "_spi":
                 guard let group = attribute.arguments?.trimmedDescription, !group.isEmpty else { return nil }
                 return .spi(group: group)
-            // These will need some more work, not sure if worth the effort.
-//            case "objc":
-//                return .objc
-//            case "objcMembers":
-//                return .objcMembers
             default:
                 log(.verbose, message: "Ignoring unsupported attribute '\(attribute.attributeName.trimmedDescription)'")
                 return nil
@@ -838,94 +828,6 @@ extension Crawler {
         }
     }
 }
-
-#if DEBUG
-extension Crawler {
-    private static let testString =
-"""
-public struct Prefs {}
-
-public extension Prefs {
-enum Key: String {
-case blabla
-}
-}
-
-// DUDE
-@objcMembers
-class Multi {
-//    @available(iOS 42.0, *)
-//    var gg: Bool = false
-
-//    @available(*, renamed: "sameInstance(as:)")
-//    let g: Bool
-//    @available(*, renamed: "sameInstance(as:)")
-//    private(set) var geg: Stool
-
-    typealias MyInt = Int
-    typealias MyIntGen<Generics> = Int<Generics>
-
-    var didSet: Int = 3 {
-        didSet {}
-    }
-
-    let constant = 3
-
-    var gg: Dictionary<Int, String>
-    var ggwp: Array<String>
-
-    func gg(_ value: Any?, forKey: Prefs.Key) -> Jedna.Dva {}
-
-    func generico<G: APIManager.GraphQLSomething>(plek: inout Enum.Gaga) {}
-
-    func compositionalParameters(param1: any Equatable & Numeric, param2: OnlyLabelProtocol & Codable)
-
-    @objc
-    var hammo: Tpikulka!
-
-    var heya: @escaping @convention(block) (_ jenda: Bool, _ dav: Krekr) async throws -> Void
-    var heya: (@escaping @convention(block) (_ jenda: Bool, _ dav: Krekr) async throws -> Void)?
-
-    /// Hola mi amor
-    /// mamma mia
-    var greg: Cruel {
-        get {
-            greg
-        }
-        set {
-            greg = newValue
-        }
-    }
-
-    #if DEBUG
-    var pravda: Cool {
-        thing
-    }
-    #elseif RELEASE
-    var pravda: Cool {
-        some
-    }
-    #endif
-
-    /**
-        This is everything you need to know.
-    */
-    func gaga<G: T>(plek: inout Gaga) {
-
-    }
-}
-
-protocol Brek<Crack: Codable> {
-    associatedtype plak: Encodable
-
-    var asyncThrowsProperty: Int { get async throws }
-    var mutableProperty: Int { get set }
-
-    func drak()
-}
-"""
-}
-#endif
 
 extension Crawler {
     /// The names a file declares that change how other files are mocked.

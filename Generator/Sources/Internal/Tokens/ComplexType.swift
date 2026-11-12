@@ -4,8 +4,6 @@ import SwiftParser
 enum ComplexType: Sendable {
     indirect case attributed(attributes: [String], baseType: ComplexType)
     indirect case optional(wrappedType: ComplexType, isImplicit: Bool)
-    indirect case array(elementType: ComplexType)
-    indirect case dictionary(keyType: ComplexType, valueType: ComplexType)
     case closure(Closure)
     case type(String)
 
@@ -107,10 +105,6 @@ extension ComplexType: Equatable {
             lhsAttributes == rhsAttributes && lhsBaseType == rhsBaseType
         case (.optional(let lhsWrappedType, _), .optional(let rhsWrappedType, _)):
             lhsWrappedType == rhsWrappedType
-        case (.array(let lhsElementType), .array(let rhsElementType)):
-            lhsElementType == rhsElementType
-        case (.dictionary(let lhsKeyType, let lhsValueType), .dictionary(let rhsKeyType, let rhsValueType)):
-            lhsKeyType == rhsKeyType && lhsValueType == rhsValueType
         case (.closure(let lhsClosure), .closure(let rhsClosure)):
             lhsClosure == rhsClosure
         case (.type(let lhsIdentifier), .type(let rhsIdentifier)):
@@ -144,7 +138,7 @@ extension ComplexType {
             true
         case .attributed(_, let baseType):
             baseType.isOptional
-        case .array, .dictionary, .closure, .type:
+        case .closure, .type:
             false
         }
     }
@@ -185,10 +179,6 @@ extension ComplexType {
             )
         case .optional(let wrappedType, let isImplicit):
             return .optional(wrappedType: wrappedType.genericArgumentSafe, isImplicit: isImplicit)
-        case .array(let elementType):
-            return .array(elementType: elementType.genericArgumentSafe)
-        case .dictionary(let keyType, let valueType):
-            return .dictionary(keyType: keyType.genericArgumentSafe, valueType: valueType.genericArgumentSafe)
         case .closure:
             return self
         case .type(let name):
@@ -218,7 +208,7 @@ extension ComplexType {
             wrappedType.findClosure()
         case .closure(let closure):
             closure
-        case .type, .array, .dictionary:
+        case .type:
             nil
         }
     }
@@ -231,17 +221,6 @@ extension ComplexType {
         case .optional(let wrappedType, let isImplicit):
             return wrappedType.replaceType(named: typeName, with: replacement)
                 .map { ComplexType.optional(wrappedType: $0, isImplicit: isImplicit) }
-        case .array(let elementType):
-            return elementType.replaceType(named: typeName, with: replacement)
-                .map { ComplexType.array(elementType: $0) }
-        case .dictionary(let keyType, let valueType):
-            let newKey = keyType.replaceType(named: typeName, with: replacement)
-            let newValue = valueType.replaceType(named: typeName, with: replacement)
-            if newKey == nil && newValue == nil { return nil }
-            return .dictionary(
-                keyType: newKey ?? keyType,
-                valueType: newValue ?? valueType
-            )
         case .closure(let closure):
             var changed = false
             let newParams: [ComplexType.Closure.Parameter] = closure.parameters.map { param in
@@ -279,10 +258,6 @@ extension ComplexType {
             baseType.containsType(named: typeName)
         case .optional(let wrappedType, _):
             wrappedType.containsType(named: typeName)
-        case .array(let elementType):
-            elementType.containsType(named: typeName)
-        case .dictionary(let keyType, let valueType):
-            keyType.containsType(named: typeName) || valueType.containsType(named: typeName)
         case .closure(let closure):
             (closure.parameters.map(\.type) + [closure.returnType]).contains(where: { $0.containsType(named: typeName)})
         case .type(let name):
@@ -368,10 +343,6 @@ extension ComplexType: CustomStringConvertible {
             } else {
                 return "\(wrappedType.description)\(suffix)"
             }
-        case .array(let elementType):
-            return "[\(elementType)]"
-        case .dictionary(let keyType, let valueType):
-            return "[\(keyType): \(valueType)]"
         case .closure(let closure):
             return closure.description
         case .type(let type):
@@ -387,10 +358,6 @@ extension ComplexType: CustomDebugStringConvertible {
             ".attributed(\(attributes.map(\.quoted)) \(baseType.debugDescription)"
         case .optional(let wrappedType, let isImplicit):
             ".optional(\(wrappedType.debugDescription), isImplicit: \(isImplicit)"
-        case .array(let elementType):
-            ".array(\(elementType.debugDescription))"
-        case .dictionary(let keyType, let valueType):
-            ".dictionary(\(keyType.debugDescription), \(valueType.debugDescription))"
         case .closure(let closure):
             ".closure(\(closure.description.quoted))"
         case .type(let type):
