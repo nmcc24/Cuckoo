@@ -3,8 +3,9 @@ public func equal<T: Equatable>(to value: T) -> ParameterMatcher<T> {
     equal(to: value, equalWhen: ==)
 }
 
-/// Returns an identity matcher.
-@available(*, renamed: "sameInstance(as:)")
+/// Returns an identity matcher. Disfavored, so an `Equatable` class compares with `==`.
+@available(*, deprecated, renamed: "sameInstance(as:)", message: "equal(to:) compares an Equatable class with ==; use sameInstance(as:) to compare identity.")
+@_disfavoredOverload
 public func equal<T: AnyObject>(to value: T) -> ParameterMatcher<T> {
     equal(to: value, equalWhen: ===)
 }
@@ -59,8 +60,9 @@ public func equal<T: Equatable>(to value: T?) -> ParameterMatcher<T?> {
     equal(to: value) { $0 == $1 }
 }
 
-/// Returns an identity matcher.
-@available(*, renamed: "sameInstance(as:)")
+/// Returns an identity matcher. Disfavored, so an `Equatable` class compares with `==`.
+@available(*, deprecated, renamed: "sameInstance(as:)", message: "equal(to:) compares an Equatable class with ==; use sameInstance(as:) to compare identity.")
+@_disfavoredOverload
 public func equal<T: AnyObject>(to value: T?) -> ParameterMatcher<T?> {
     equal(to: value, equalWhen: ===)
 }
