@@ -83,7 +83,7 @@ with a message naming it:
 func showsTheGuest() { … }
 ```
 
-``DefaultValueRegistry/register(value:forType:)`` registers a value for every test instead, which tests running in
+``DefaultValueRegistry/register(_:for:)`` registers a value for every test instead, which tests running in
 parallel all see. Prefer the trait.
 
 ### Default implementations and spies

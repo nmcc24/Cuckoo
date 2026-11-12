@@ -15,7 +15,7 @@ struct DefaultValueRegistryTest {
 
     @Test
     func reset() {
-        DefaultValueRegistry.register(value: [Marker(value: 1)], forType: [Marker].self)
+        DefaultValueRegistry.register([Marker(value: 1)], for: [Marker].self)
         DefaultValueRegistry.reset()
         #expect(DefaultValueRegistry.defaultValue(for: [Marker].self) == [])
     }
@@ -49,63 +49,63 @@ struct DefaultValueRegistryTest {
     @Test
     func registerValue() {
         let value = Marker(value: 10)
-        DefaultValueRegistry.register(value: value, forType: Marker.self)
+        DefaultValueRegistry.register(value, for: Marker.self)
         #expect(DefaultValueRegistry.defaultValue(for: Marker.self) == value)
     }
 
     @Test
     func registerSet() {
         let value: Set = [Marker(value: 1)]
-        DefaultValueRegistry.register(value: value, forType: Set<Marker>.self)
+        DefaultValueRegistry.register(value, for: Set<Marker>.self)
         #expect(DefaultValueRegistry.defaultValue(for: Set<Marker>.self) == value)
     }
 
     @Test
     func registerArray() {
         let value = [Marker(value: 1)]
-        DefaultValueRegistry.register(value: value, forType: Array<Marker>.self)
+        DefaultValueRegistry.register(value, for: Array<Marker>.self)
         #expect(DefaultValueRegistry.defaultValue(for: Array<Marker>.self) == value)
     }
 
     @Test
     func registerDictionary() {
         let value = ["A": Marker(value: 1)]
-        DefaultValueRegistry.register(value: value, forType: Dictionary<String, Marker>.self)
+        DefaultValueRegistry.register(value, for: Dictionary<String, Marker>.self)
         #expect(DefaultValueRegistry.defaultValue(for: Dictionary<String, Marker>.self) == value)
     }
 
     @Test
     func registerOptional() {
         let value = Marker(value: 1) as Marker?
-        DefaultValueRegistry.register(value: value, forType: Optional<Marker>.self)
+        DefaultValueRegistry.register(value, for: Optional<Marker>.self)
         #expect(DefaultValueRegistry.defaultValue(for: Optional<Marker>.self) == value)
     }
 
     @Test
     func registerTuple2() {
         let value = (Marker(value: 1), Marker(value: 2))
-        DefaultValueRegistry.register(value: value, forType: (Marker, Marker).self)
+        DefaultValueRegistry.register(value, for: (Marker, Marker).self)
         #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker).self) == value)
     }
 
     @Test
     func registerTuple3() {
         let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3))
-        DefaultValueRegistry.register(value: value, forType: (Marker, Marker, Marker).self)
+        DefaultValueRegistry.register(value, for: (Marker, Marker, Marker).self)
         #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker).self) == value)
     }
 
     @Test
     func registerTuple4() {
         let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4))
-        DefaultValueRegistry.register(value: value, forType: (Marker, Marker, Marker, Marker).self)
+        DefaultValueRegistry.register(value, for: (Marker, Marker, Marker, Marker).self)
         #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker).self) == value)
     }
 
     @Test
     func registerTuple5() {
         let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4), Marker(value: 5))
-        DefaultValueRegistry.register(value: value, forType: (Marker, Marker, Marker, Marker, Marker).self)
+        DefaultValueRegistry.register(value, for: (Marker, Marker, Marker, Marker, Marker).self)
         #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker, Marker).self) == value)
     }
 
@@ -113,7 +113,7 @@ struct DefaultValueRegistryTest {
     func registerTuple6() {
         let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4), Marker(value: 5),
                      Marker(value: 6))
-        DefaultValueRegistry.register(value: value, forType: (Marker, Marker, Marker, Marker, Marker, Marker).self)
+        DefaultValueRegistry.register(value, for: (Marker, Marker, Marker, Marker, Marker, Marker).self)
         #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker, Marker, Marker).self) == value)
     }
 }
