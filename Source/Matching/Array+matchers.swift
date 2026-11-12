@@ -309,14 +309,28 @@ public func hasLength<C: Collection>(
 }
 
 /**
- * Matcher for collections of elements that checks if the collection is at between N and M elements long with the option to include the bounds as well (default).
- * - parameter requiredLengthRange: Required length range of the matching collection.
+ * Matcher for collections of elements that checks if the collection's length is in a range, such as `1..<3`, `1...3` or `2...`.
+ * - parameter requiredLengthRange: The lengths that match, with the range's own bounds: `1..<3` matches 1 and 2.
+ * - returns: ParameterMatcher object.
+ */
+public func hasLength<C: Collection>(inRange requiredLengthRange: some RangeExpression<Int>) -> ParameterMatcher<C> {
+    ParameterMatcher { collection in
+        requiredLengthRange.contains(collection.count)
+    }
+}
+
+/**
+ * Matcher for collections of elements that checks if the collection is between N and M elements long, both bounds
+ * included or both excluded.
+ * - parameter requiredLengthRange: Required length range of the matching collection. Its upper bound counts as a
+ *   bound, despite the half-open range: `1..<3` with `inclusive: true` matches 3.
  * - parameter inclusive: Whether the length range bounds should be included.
  * - returns: ParameterMatcher object.
  */
+@available(*, deprecated, message: "Use hasLength(inRange:) with the range you mean, such as 1...3 or 2..<4.")
 public func hasLength<C: Collection>(
     inRange requiredLengthRange: CountableRange<Int>,
-    inclusive: Bool = true
+    inclusive: Bool
 ) -> ParameterMatcher<C> {
     hasLength(atLeast: requiredLengthRange.lowerBound, inclusive: inclusive)
         .and(hasLength(atMost: requiredLengthRange.upperBound, inclusive: inclusive))
