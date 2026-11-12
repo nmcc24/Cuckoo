@@ -8,6 +8,8 @@ struct NamespaceDeclaration: Token, HasAccessibility, HasName, HasMembers, HasEn
     var name: String
     var members: [any Token]
     var enclosingCompilationConditions: [String]
+    /// An `extension`, whose access level is the default for what it declares.
+    var isExtension = false
 
     func replacing(members: [any Token]) -> NamespaceDeclaration {
         NamespaceDeclaration(
@@ -16,7 +18,8 @@ struct NamespaceDeclaration: Token, HasAccessibility, HasName, HasMembers, HasEn
             accessibility: accessibility,
             name: name,
             members: members,
-            enclosingCompilationConditions: enclosingCompilationConditions
+            enclosingCompilationConditions: enclosingCompilationConditions,
+            isExtension: isExtension
         )
     }
 }

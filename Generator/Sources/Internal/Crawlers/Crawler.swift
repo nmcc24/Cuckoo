@@ -134,7 +134,7 @@ final class Crawler: SyntaxVisitor {
         var token = ClassDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
             name: node.name.filteredDescription,
             genericParameters: genericParameters(from: node.genericParameterClause?.parameters),
             genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements),
@@ -165,7 +165,7 @@ final class Crawler: SyntaxVisitor {
         var token = ProtocolDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
             name: node.name.filteredDescription,
             associatedTypes: associatedTypes(from: node.memberBlock.members),
             primaryAssociatedTypes: genericParameters(from: node.primaryAssociatedTypeClause?.primaryAssociatedTypes),
@@ -195,7 +195,7 @@ final class Crawler: SyntaxVisitor {
         var token = NamespaceDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
             name: node.name.filteredDescription,
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions
@@ -216,10 +216,11 @@ final class Crawler: SyntaxVisitor {
         var token = NamespaceDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
             name: node.extendedType.filteredDescription,
             members: [],
-            enclosingCompilationConditions: enclosingCompilationConditions
+            enclosingCompilationConditions: enclosingCompilationConditions,
+            isExtension: true
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -237,7 +238,7 @@ final class Crawler: SyntaxVisitor {
         var token = NamespaceDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
+            accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
             name: node.name.filteredDescription,
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions
@@ -403,7 +404,7 @@ extension Crawler {
                     documentation: documentation(from: variableGroup.leadingTrivia),
                     attributes: attributes,
                     accessibility: accessibility,
-                    setterAccessibility: $0.isReadOnly ? nil : setterAccessibility ?? (container as? any HasAccessibility)?.accessibility ?? .internal,
+                    setterAccessibility: $0.isReadOnly ? nil : setterAccessibility ?? .internal,
                     name: $0.identifier,
                     type: $0.type,
                     effects: $0.effects,
@@ -467,7 +468,7 @@ extension Crawler {
 
 extension Crawler {
     private func parse(_ initializer: InitializerDeclSyntax) -> Initializer? {
-        let accessibility = initializer.modifiers.lazy.compactMap { Accessibility(tokenKind: $0.name.tokenKind) }.first ?? (container as? any HasAccessibility)?.accessibility ?? .internal
+        let accessibility = initializer.modifiers.lazy.compactMap { Accessibility(tokenKind: $0.name.tokenKind) }.first ?? .internal
 
         guard accessibility.isAccessible else { return nil }
 
@@ -502,7 +503,7 @@ extension Crawler {
         // An unavailable member can't be overridden or called.
         guard !attributes.contains(where: \.isUnavailableEverywhere) else { return nil }
 
-        var accessibility = (container as? any HasAccessibility)?.accessibility ?? .internal
+        var accessibility = Accessibility.internal
         var setterAccessibility: Accessibility?
         for modifier in node.modifiers {
             guard let parsedAccessibility = Accessibility(tokenKind: modifier.name.tokenKind) else { continue }
@@ -557,7 +558,7 @@ extension Crawler {
 
         guard case .identifier(let identifier) = method.name.tokenKind else { return nil }
 
-        let accessibility = method.modifiers.lazy.compactMap { Accessibility(tokenKind: $0.name.tokenKind) }.first ?? (container as? any HasAccessibility)?.accessibility ?? .internal
+        let accessibility = method.modifiers.lazy.compactMap { Accessibility(tokenKind: $0.name.tokenKind) }.first ?? .internal
 
         guard accessibility.isAccessible else { return nil }
 
@@ -752,6 +753,13 @@ extension Crawler {
             log(.verbose, message: "Ignoring unsupported attribute '\(attribute.attributeName.trimmedDescription)'")
             return nil
         }
+    }
+
+    /// The access level of a type declared with no access modifier: an extension's carries over to what it declares,
+    /// a type's doesn't.
+    private var nestedTypeDefaultAccessibility: Accessibility {
+        guard let namespace = container?.value as? NamespaceDeclaration, namespace.isExtension else { return .internal }
+        return namespace.accessibility
     }
 
     private func accessibility(from modifierList: DeclModifierListSyntax?) -> Accessibility? {
@@ -961,7 +969,6 @@ extension GenericParameterSyntax {
     var isPack: Bool {
         specifier?.tokenKind == .keyword(.each)
     }
-}
 
     var kind: GenericParameter.Kind {
         switch specifier?.tokenKind {
@@ -970,3 +977,4 @@ extension GenericParameterSyntax {
         default: .type
         }
     }
+}
