@@ -43,7 +43,10 @@ struct CuckooPlugin: BuildToolPlugin {
             executableFactory: context.tool(named:),
             targetName: target.name,
             projectDir: context.package.directoryURL,
-            derivedSourcesDir: context.pluginWorkDirectoryURL
+            derivedSourcesDir: context.pluginWorkDirectoryURL,
+            projectSources: context.package.targets
+                .compactMap { $0 as? SourceModuleTarget }
+                .flatMap { $0.sourceFiles.filter { $0.type == .source }.map(\.url) }
         )
     }
 }
@@ -94,7 +97,8 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
             executableFactory: context.tool(named:),
             targetName: target.displayName,
             projectDir: context.xcodeProject.directoryURL,
-            derivedSourcesDir: context.pluginWorkDirectoryURL
+            derivedSourcesDir: context.pluginWorkDirectoryURL,
+            projectSources: context.xcodeProject.targets.flatMap { $0.inputFiles.filter { $0.type == .source }.map(\.url) }
         )
     }
 }
@@ -123,10 +127,12 @@ private func commandsPerModule(
     executableFactory: (String) throws -> PluginContext.Tool,
     targetName: String,
     projectDir: URL,
-    derivedSourcesDir: URL
+    derivedSourcesDir: URL,
+    projectSources: [URL]
 ) throws -> [Command] {
     let configurationURL = projectDir.appending(path: "Cuckoofile.toml")
     let executable = try executableFactory("CuckooGenerator").url
+    let configuration = (try? String(contentsOf: configurationURL, encoding: .utf8)) ?? ""
 
     return try sourceModules.map { sourceModule in
         let outputURL = derivedSourcesDir.appending(component: "GeneratedMocks_\(sourceModule.name).swift")
@@ -152,10 +158,42 @@ private func commandsPerModule(
                 "CUCKOO_SOURCE_MODULE": sourceModule.swiftModule?.name,
                 "CUCKOO_SOURCE_MODULE_DIRECTORY": sourceModule.swiftModule?.directory.path(percentEncoded: false),
             ].compactMapValues { $0 },
-            inputFiles: [configurationURL] + listing.inputFiles + sourceModule.sources,
+            // An entry that lists its own `sources` may read any of the project's files, so the command depends on all
+            // of them; otherwise editing one wouldn't regenerate the mocks.
+            inputFiles: [configurationURL] + listing.inputFiles + sourceModule.sources
+                + (cuckoofileEntry(named: sourceModule.name, listsSourcesIn: configuration) ? projectSources : []),
             outputFiles: [outputURL]
         )
     }
+}
+
+/// Whether the Cuckoofile entry `name` lists its own `sources`, in a `[modules.name]` table, a
+/// `[modules.name.sources]` table, a dotted `modules.name.sources` key or an inline table. It reads the lines rather
+/// than the TOML, since a plugin can't depend on a parser; a wrong yes only costs a generator run.
+func cuckoofileEntry(named name: String, listsSourcesIn configuration: String) -> Bool {
+    /// A key or table name without spaces or quotes, so `[ modules."App" ]` reads as `modules.App`.
+    func normalized(_ text: Substring) -> String {
+        String(text.filter { $0 != " " && $0 != "\t" && $0 != "\"" && $0 != "'" })
+    }
+    let entry = "modules.\(name)"
+    var table = ""
+    for line in configuration.split(whereSeparator: \.isNewline) {
+        let line = line.drop { $0 == " " || $0 == "\t" }
+        if line.first == "[" {
+            table = normalized(line.prefix { $0 != "#" }.filter { $0 != "[" && $0 != "]" }[...])
+            if table == "\(entry).sources" {
+                return true
+            }
+        } else if let equals = line.firstIndex(of: "=") {
+            let key = normalized(line[..<equals])
+            let fullKey = table.isEmpty ? key : "\(table).\(key)"
+            // An inline table, `App = { sources = [...] }`, counts if it mentions `sources` at all.
+            if fullKey == "\(entry).sources" || (fullKey == entry && line[equals...].contains("sources")) {
+                return true
+            }
+        }
+    }
+    return false
 }
 
 /// A file for the generator's source listing, and the Swift module it belongs to where that's certain.
