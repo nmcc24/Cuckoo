@@ -24,6 +24,7 @@ struct UnstubbedCallTests {
         withKnownIssue {
             #expect(mock.count(characters: "a") == 0)
         } matching: { issue in
+            // The call happens inside the mock, so the issue points at the test rather than into Cuckoo.
             issue.comments.map(\.rawValue).first?.hasPrefix("No stub for method `count(characters") == true
         }
     }

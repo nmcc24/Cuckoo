@@ -287,7 +287,7 @@ public final class MockManager: Sendable {
     /// Makes unstubbed calls forward to the default implementation. Allowed only before stubbing.
     public func enableDefaultStubImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
         guard !isStatic else {
-            fail("Static members have no default implementation. Stub them instead.", file: file, fileID: fileID, filePath: filePath, line: line, column: column)
+            fail("Static members have no default implementation. Stub them instead.", at: (file, fileID, filePath, line, column))
             return
         }
         let error: String? = state.withLock { state in
@@ -308,7 +308,7 @@ public final class MockManager: Sendable {
     /// An actor mock's `enableDefaultImplementation`. An actor mock never forwards to a default implementation:
     /// that would be another actor, and handing it a non-Sendable argument is a data race.
     public func refuseActorDefaultImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
-        fail("Actor mocks have no default implementation. Stub their members instead.", file: file, fileID: fileID, filePath: filePath, line: line, column: column)
+        fail("Actor mocks have no default implementation. Stub their members instead.", at: (file, fileID, filePath, line, column))
     }
 
     func reset() {
@@ -342,12 +342,13 @@ public final class MockManager: Sendable {
         }
     }
 
-    private func fail(_ message: String, file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
-        reportFailure(message, at: (file, fileID, filePath, line, column))
+    /// Reports a failure at `sourceLocation`, or, for a mock's call, which has no location in the test, at the test.
+    private func fail(_ message: String, at sourceLocation: SourceLocation? = nil) {
+        reportFailure(message, at: sourceLocation)
     }
 
-    private func failAndCrash(_ message: String, file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> Never  {
-        reportFailure(message, at: (file, fileID, filePath, line, column))
+    private func failAndCrash(_ message: String, at sourceLocation: SourceLocation? = nil) -> Never {
+        reportFailure(message, at: sourceLocation)
 
         #if _runtime(_ObjC)
         NSException(name: .internalInconsistencyException, reason: message, userInfo: nil).raise()
