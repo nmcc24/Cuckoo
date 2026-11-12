@@ -9,7 +9,7 @@
   `hasLength(inRange:inclusive:)` is deprecated.
 - A failed `verify` leaves its calls unverified, so `verifyNoMoreInteractions` still reports them.
 - Calling `enableDefaultImplementation(_:)` again after the mock's first call replaces the default implementation
-  instead of crashing.
+  instead of crashing, and calling `enableSuperclassSpy()` again is allowed too.
 - `enableSuperclassSpy()` on a protocol mock records a failure instead of making every unstubbed call crash.
 - The zero-argument optional `@Sendable` `anyClosure()` matchers no longer match `nil`.
 - A generated `Stub` returning a tuple gives optional and collection elements their empty values, and tuples of
@@ -25,6 +25,7 @@
   `public extension` is public in its mock.
 - A `sources` pattern that matches no file is a warning.
 - With the build plugin, an entry that sets `sources` is regenerated when any of the project's source files changes.
+- A release dry run works when the version is already tagged.
 
 ## 3.0.0-beta.1
 
