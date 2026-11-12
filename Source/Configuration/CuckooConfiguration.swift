@@ -19,6 +19,9 @@ public struct CuckooConfiguration: Sendable {
     public var defaultValues: DefaultValues
     /// Receives each failure instead of the test framework, `nil` by default.
     public var failureHandler: FailureHandler?
+    /// Takes each failure before ``failureHandler``, with its location if it has one: `eventually` holds failures
+    /// back with it and reports them later.
+    var failureCollector: (@Sendable (_ message: String, _ sourceLocation: SourceLocation?) -> Void)?
 
     /// Creates a configuration with `defaultValues` and `failureHandler`.
     public init(defaultValues: DefaultValues = DefaultValues(), failureHandler: FailureHandler? = nil) {
@@ -61,28 +64,42 @@ public enum CuckooError: Error, Sendable, Equatable {
 
 /// Reports a failure to the current configuration's handler, or else to the framework running the current test
 /// only. Swift Testing flags an `XCTFail` inside its tests, and XCTest doesn't see Swift Testing issues.
-func reportFailure(_ message: String, at sourceLocation: SourceLocation) {
-    if let handler = CuckooConfiguration.current.failureHandler {
-        handler(message, sourceLocation)
+///
+/// A failure with no `sourceLocation`, such as an unstubbed call, which happens inside the mock, is reported at the
+/// Swift Testing test. Elsewhere it has no better place than this function.
+func reportFailure(_ message: String, at sourceLocation: SourceLocation?) {
+    let configuration = CuckooConfiguration.current
+    if let collector = configuration.failureCollector {
+        collector(message, sourceLocation)
+        return
+    }
+    if let handler = configuration.failureHandler {
+        handler(message, sourceLocation ?? (#file, #fileID, #filePath, #line, #column))
         return
     }
     #if canImport(Testing)
-    if Test.current != nil {
+    if let test = Test.current {
         Issue.record(
             Comment(rawValue: message),
-            sourceLocation: Testing.SourceLocation(
-                fileID: sourceLocation.fileID,
-                filePath: sourceLocation.filePath,
-                line: sourceLocation.line,
-                column: sourceLocation.column
-            )
+            sourceLocation: sourceLocation.map { sourceLocation in
+                Testing.SourceLocation(
+                    fileID: sourceLocation.fileID,
+                    filePath: sourceLocation.filePath,
+                    line: sourceLocation.line,
+                    column: sourceLocation.column
+                )
+            } ?? test.sourceLocation
         )
         return
     }
     #endif
     #if canImport(XCTest)
-    XCTFail(message, file: sourceLocation.file, line: UInt(sourceLocation.line))
+    if let sourceLocation {
+        XCTFail(message, file: sourceLocation.file, line: UInt(sourceLocation.line))
+    } else {
+        XCTFail(message)
+    }
     #else
-    print("Cuckoo failure:", message, sourceLocation)
+    print("Cuckoo failure:", message, sourceLocation ?? (#file, #fileID, #filePath, #line, #column))
     #endif
 }
