@@ -61,7 +61,7 @@ behaviour on top.
 - `MockManager.fail` is gone. To receive failures yourself, set a ``CuckooConfiguration`` with a
   `failureHandler`, for one test with `.cuckoo(failureHandler:)` or for any scope with
   `CuckooConfiguration.$current.withValue(_:operation:)`.
-- ``DefaultValueRegistry/register(value:forType:)`` takes `Sendable` values. It still applies to every test; for
+- ``DefaultValueRegistry/register(_:for:)`` takes `Sendable` values. It still applies to every test; for
   values only some tests need, register them in `DefaultValues` through `.cuckoo(defaultValues:)`, which tests
   running in parallel don't share.
 - `enableDefaultImplementation(mutating:)` is removed: it kept a pointer to your variable after the call returned.

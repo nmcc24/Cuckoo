@@ -23,10 +23,16 @@ public enum DefaultValueRegistry {
     private static let registeredTypes = Locked(defaultRegisteredTypes)
     
     /// Registers `value` as the default for `type`, replacing any earlier one, for every test.
-    public static func register<T: Sendable>(value: T, forType type: T.Type) {
+    public static func register<T: Sendable>(_ value: T, for type: T.Type = T.self) {
         // Boxed explicitly, so a registered `nil` is stored rather than removing the entry.
         let boxed: any Sendable = value
         registeredTypes.withLock { $0[ObjectIdentifier(type)] = boxed }
+    }
+
+    /// Registers `value` as the default for `type`, replacing any earlier one, for every test.
+    @available(*, deprecated, renamed: "register(_:for:)")
+    public static func register<T: Sendable>(value: T, forType type: T.Type) {
+        register(value, for: type)
     }
     
     /// The registered default for a set type, or an empty set.
