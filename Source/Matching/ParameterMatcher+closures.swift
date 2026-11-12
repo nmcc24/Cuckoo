@@ -209,7 +209,7 @@ public func anyThrowingClosure<IN1, IN2, IN3, IN4, IN5, IN6, IN7, OUT>() -> Para
 
 // MARK: - Optional sendable closures.
 /// Returns a matcher matching any @Sendable optional closure.
-public func anyClosure<OUT>() -> ParameterMatcher<(@Sendable () -> OUT)?> { ParameterMatcher() }
+public func anyClosure<OUT>() -> ParameterMatcher<(@Sendable () -> OUT)?> { notNil() }
 /// Returns a matcher matching any @Sendable optional closure.
 public func anyClosure<IN1, OUT>() -> ParameterMatcher<(@Sendable ((IN1)) -> OUT)?> { notNil() }
 /// Returns a matcher matching any @Sendable optional closure.
@@ -228,7 +228,7 @@ public func anyClosure<IN1, IN2, IN3, IN4, IN5, IN6, IN7, OUT>() -> ParameterMat
 
 // MARK: - Optional sendable async closures.
 /// Returns a matcher matching any @Sendable optional closure.
-public func anyClosure<OUT>() -> ParameterMatcher<(@Sendable () async -> OUT)?> { ParameterMatcher() }
+public func anyClosure<OUT>() -> ParameterMatcher<(@Sendable () async -> OUT)?> { notNil() }
 /// Returns a matcher matching any @Sendable optional closure.
 public func anyClosure<IN1, OUT>() -> ParameterMatcher<(@Sendable ((IN1)) async -> OUT)?> { notNil() }
 /// Returns a matcher matching any @Sendable optional closure.
