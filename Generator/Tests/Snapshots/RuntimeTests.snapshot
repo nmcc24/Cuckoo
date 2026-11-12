@@ -967,6 +967,54 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
         }
     }
 
+    override var tuple7: (Int, Int, Int, Int, Int, Int, Int) {
+        get {
+            return cuckoo_manager.getter(
+                "tuple7",
+                invoke: { (implementation: (()) -> (Int, Int, Int, Int, Int, Int, Int)) in
+                    implementation(())
+                },
+                superclassCall: super.tuple7,
+                defaultCall: __defaultImplStub.value.tuple7
+            )
+        }
+        set {
+            cuckoo_manager.setter(
+                "tuple7",
+                value: newValue,
+                invoke: { (implementation: ((Int, Int, Int, Int, Int, Int, Int)) -> Void, value) in
+                    implementation(value)
+                },
+                superclassCall: super.tuple7 = newValue,
+                defaultCall: __defaultImplStub.value.tuple7 = newValue
+            )
+        }
+    }
+
+    override var tupleWithOptionalAndArray: (Int, String?, [Int]) {
+        get {
+            return cuckoo_manager.getter(
+                "tupleWithOptionalAndArray",
+                invoke: { (implementation: (()) -> (Int, String?, [Int])) in
+                    implementation(())
+                },
+                superclassCall: super.tupleWithOptionalAndArray,
+                defaultCall: __defaultImplStub.value.tupleWithOptionalAndArray
+            )
+        }
+        set {
+            cuckoo_manager.setter(
+                "tupleWithOptionalAndArray",
+                value: newValue,
+                invoke: { (implementation: ((Int, String?, [Int])) -> Void, value) in
+                    implementation(value)
+                },
+                superclassCall: super.tupleWithOptionalAndArray = newValue,
+                defaultCall: __defaultImplStub.value.tupleWithOptionalAndArray = newValue
+            )
+        }
+    }
+
     override func intFunction() -> Int {
         return cuckoo_manager.call(
             "intFunction() -> Int",
@@ -1079,6 +1127,14 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
             return .init(manager: cuckoo_manager, name: "tuple6")
         }
 
+        var tuple7: Cuckoo.ClassToBeStubbedProperty<MockClassForStubTesting, (Int, Int, Int, Int, Int, Int, Int), (()) -> (Int, Int, Int, Int, Int, Int, Int), ((Int, Int, Int, Int, Int, Int, Int)) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckoo_manager, name: "tuple7")
+        }
+
+        var tupleWithOptionalAndArray: Cuckoo.ClassToBeStubbedProperty<MockClassForStubTesting, (Int, String?, [Int]), (()) -> (Int, String?, [Int]), ((Int, String?, [Int])) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckoo_manager, name: "tupleWithOptionalAndArray")
+        }
+
         func intFunction() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockClassForStubTesting.self,
@@ -1169,6 +1225,14 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
 
         var tuple6: Cuckoo.VerifyProperty<(UInt, String, Int, Int, Int, Int)> {
             return .init(manager: cuckoo_manager, name: "tuple6", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+
+        var tuple7: Cuckoo.VerifyProperty<(Int, Int, Int, Int, Int, Int, Int)> {
+            return .init(manager: cuckoo_manager, name: "tuple7", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+
+        var tupleWithOptionalAndArray: Cuckoo.VerifyProperty<(Int, String?, [Int])> {
+            return .init(manager: cuckoo_manager, name: "tupleWithOptionalAndArray", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
         @discardableResult
@@ -1304,6 +1368,22 @@ final class ClassForStubTestingStub: ClassForStubTesting {
     override var tuple6: (UInt, String, Int, Int, Int, Int) {
         get {
             return DefaultValueRegistry.defaultValue(for: ((UInt, String, Int, Int, Int, Int)).self)
+        }
+        set {
+        }
+    }
+
+    override var tuple7: (Int, Int, Int, Int, Int, Int, Int) {
+        get {
+            return DefaultValueRegistry.defaultValue(for: ((Int, Int, Int, Int, Int, Int, Int)).self)
+        }
+        set {
+        }
+    }
+
+    override var tupleWithOptionalAndArray: (Int, String?, [Int]) {
+        get {
+            return DefaultValueRegistry.defaultValue(for: ((Int, String?, [Int])).self)
         }
         set {
         }
