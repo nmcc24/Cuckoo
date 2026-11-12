@@ -20,6 +20,10 @@ class ClassForStubTesting {
 
     var tuple6: (UInt, String, Int, Int, Int, Int) = (1, "A", 1, 1, 1, 1)
 
+    var tuple7: (Int, Int, Int, Int, Int, Int, Int) = (1, 1, 1, 1, 1, 1, 1)
+
+    var tupleWithOptionalAndArray: (Int, String?, [Int]) = (1, "A", [1])
+
     func intFunction() -> Int {
         return intProperty
     }

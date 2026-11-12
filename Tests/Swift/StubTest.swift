@@ -67,6 +67,22 @@ struct StubTest {
     }
 
     @Test
+    func tuple7() {
+        stub.tuple7 = (2, 2, 2, 2, 2, 2, 2)
+        let value = stub.tuple7
+        #expect([value.0, value.1, value.2, value.3, value.4, value.5, value.6] == [0, 0, 0, 0, 0, 0, 0])
+    }
+
+    @Test
+    func tupleWithOptionalAndArray() {
+        stub.tupleWithOptionalAndArray = (2, "B", [2])
+        let value = stub.tupleWithOptionalAndArray
+        #expect(value.0 == 0)
+        #expect(value.1 == nil)
+        #expect(value.2 == [])
+    }
+
+    @Test
     func intFunction() {
         stub.intProperty = 1
         #expect(stub.intFunction() == 0)

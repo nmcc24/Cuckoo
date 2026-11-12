@@ -49,10 +49,11 @@ public enum DefaultValueRegistry {
         return defaultValueOrNil(for: type) ?? nil
     }
     
-    /// The registered default for `type`. Crashes when none is registered, with a message naming the type.
+    /// The registered default for `type`, else an empty value for optionals and the standard collections, even when
+    /// `T` is a generic parameter. Crashes when there is none, with a message naming the type.
     public static func defaultValue<T>(for type: T.Type) -> T {
-        if let registeredDefault = defaultValueOrNil(for: type) {
-            return registeredDefault
+        if let value = unstubbedValue(for: type) {
+            return value
         }
         fatalError("Type \(T.self) does not have default return value registered.")
     }
@@ -88,51 +89,12 @@ public enum DefaultValueRegistry {
         return nil
     }
     
-    // Overloads for tuples.
-    
-    /// The default for a tuple type: each element's default.
-    public static func defaultValue<P1, P2>(for type: (P1, P2).Type) -> (P1, P2) {
+    /// The registered default for a tuple type, else each element's default.
+    public static func defaultValue<P1, P2, each P>(for type: (P1, P2, repeat each P).Type) -> (P1, P2, repeat each P) {
         if let registeredDefault = defaultValueOrNil(for: type) {
             return registeredDefault
-        } else {
-            return (defaultValue(for: P1.self), defaultValue(for: P2.self))
         }
-    }
-    
-    /// The default for a tuple type: each element's default.
-    public static func defaultValue<P1, P2, P3>(for type: (P1, P2, P3).Type) -> (P1, P2, P3) {
-        if let registeredDefault = defaultValueOrNil(for: type) {
-            return registeredDefault
-        } else {
-            return (defaultValue(for: P1.self), defaultValue(for: P2.self), defaultValue(for: P3.self))
-        }
-    }
-    
-    /// The default for a tuple type: each element's default.
-    public static func defaultValue<P1, P2, P3, P4>(for type: (P1, P2, P3, P4).Type) -> (P1, P2, P3, P4) {
-        if let registeredDefault = defaultValueOrNil(for: type) {
-            return registeredDefault
-        } else {
-            return (defaultValue(for: P1.self), defaultValue(for: P2.self), defaultValue(for: P3.self), defaultValue(for: P4.self))
-        }
-    }
-    
-    /// The default for a tuple type: each element's default.
-    public static func defaultValue<P1, P2, P3, P4, P5>(for type: (P1, P2, P3, P4, P5).Type) -> (P1, P2, P3, P4, P5) {
-        if let registeredDefault = defaultValueOrNil(for: type) {
-            return registeredDefault
-        } else {
-            return (defaultValue(for: P1.self), defaultValue(for: P2.self), defaultValue(for: P3.self), defaultValue(for: P4.self), defaultValue(for: P5.self))
-        }
-    }
-    
-    /// The default for a tuple type: each element's default.
-    public static func defaultValue<P1, P2, P3, P4, P5, P6>(for type: (P1, P2, P3, P4, P5, P6).Type) -> (P1, P2, P3, P4, P5, P6) {
-        if let registeredDefault = defaultValueOrNil(for: type) {
-            return registeredDefault
-        } else {
-            return (defaultValue(for: P1.self), defaultValue(for: P2.self), defaultValue(for: P3.self), defaultValue(for: P4.self), defaultValue(for: P5.self), defaultValue(for: P6.self))
-        }
+        return (defaultValue(for: P1.self), defaultValue(for: P2.self), repeat defaultValue(for: (each P).self))
     }
 }
 
