@@ -42,4 +42,4 @@ public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub {
 }
 
 /// A stub of a class mock's member, which can also call the real implementation.
-public class ClassConcreteStub<IN, OUT, ERROR: Error, IMPL>: ConcreteStub<IN, OUT, ERROR, IMPL> { }
+public final class ClassConcreteStub<IN, OUT, ERROR: Error, IMPL>: ConcreteStub<IN, OUT, ERROR, IMPL> { }
