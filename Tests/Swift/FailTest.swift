@@ -13,7 +13,7 @@ struct FailTest {
             verify(mock).noReturn()
         }
 
-        #expect(error == "Wanted 1 times but not invoked.\nThe mock received no calls.")
+        #expect(error == "Wanted 1 time but not invoked.\nThe mock received no calls.")
     }
 
     @Test
@@ -29,7 +29,7 @@ struct FailTest {
             verify(mock, times(2)).noReturn()
         }
 
-        #expect(error == "Wanted 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
+        #expect(error == "Wanted 2 times but invoked 1 time.\nCalls to noReturn():\n  1. noReturn() matches")
     }
 
     @Test
@@ -45,7 +45,7 @@ struct FailTest {
             verify(mock, never()).noReturn()
         }
 
-        #expect(error == "Wanted never but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
+        #expect(error == "Wanted never but invoked 1 time.\nCalls to noReturn():\n  1. noReturn() matches")
     }
 
     @Test
@@ -61,7 +61,7 @@ struct FailTest {
             verify(mock, atLeast(2)).noReturn()
         }
 
-        #expect(error == "Wanted at least 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches")
+        #expect(error == "Wanted at least 2 times but invoked 1 time.\nCalls to noReturn():\n  1. noReturn() matches")
     }
 
     @Test
@@ -78,7 +78,7 @@ struct FailTest {
             verify(mock, atMost(1)).noReturn()
         }
         
-        #expect(error == "Wanted at most 1 times but invoked 2 times.\nCalls to noReturn():\n  1. noReturn() matches\n  2. noReturn() matches")
+        #expect(error == "Wanted at most 1 time but invoked 2 times.\nCalls to noReturn():\n  1. noReturn() matches\n  2. noReturn() matches")
     }
 
     @Test
@@ -92,7 +92,7 @@ struct FailTest {
             verify(mock, times(1).or(times(2))).noReturn()
         }
 
-        #expect(error == "Wanted either 1 times or 2 times but not invoked.\nThe mock received no calls.")
+        #expect(error == "Wanted either 1 time or 2 times but not invoked.\nThe mock received no calls.")
     }
 
     @Test
@@ -106,7 +106,7 @@ struct FailTest {
             verify(mock, atLeast(1).and(atMost(2))).noReturn()
         }
 
-        #expect(error == "Wanted both at least 1 times and at most 2 times but not invoked.\nThe mock received no calls.")
+        #expect(error == "Wanted both at least 1 time and at most 2 times but not invoked.\nThe mock received no calls.")
     }
 
     @Test
@@ -143,7 +143,7 @@ struct FailSwiftTestingTests {
             verify(mock).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted 1 times but not invoked.\nThe mock received no calls."
+                "Wanted 1 time but not invoked.\nThe mock received no calls."
             ]
         }
     }
@@ -161,7 +161,7 @@ struct FailSwiftTestingTests {
             verify(mock, times(2)).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches"
+                "Wanted 2 times but invoked 1 time.\nCalls to noReturn():\n  1. noReturn() matches"
             ]
         }
     }
@@ -179,7 +179,7 @@ struct FailSwiftTestingTests {
             verify(mock, never()).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted never but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches"
+                "Wanted never but invoked 1 time.\nCalls to noReturn():\n  1. noReturn() matches"
             ]
         }
     }
@@ -197,7 +197,7 @@ struct FailSwiftTestingTests {
             verify(mock, atLeast(2)).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted at least 2 times but invoked 1 times.\nCalls to noReturn():\n  1. noReturn() matches"
+                "Wanted at least 2 times but invoked 1 time.\nCalls to noReturn():\n  1. noReturn() matches"
             ]
         }
     }
@@ -216,7 +216,7 @@ struct FailSwiftTestingTests {
             verify(mock, atMost(1)).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted at most 1 times but invoked 2 times.\nCalls to noReturn():\n  1. noReturn() matches\n  2. noReturn() matches"
+                "Wanted at most 1 time but invoked 2 times.\nCalls to noReturn():\n  1. noReturn() matches\n  2. noReturn() matches"
             ]
         }
     }
@@ -232,7 +232,7 @@ struct FailSwiftTestingTests {
             verify(mock, times(1).or(times(2))).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted either 1 times or 2 times but not invoked.\nThe mock received no calls."
+                "Wanted either 1 time or 2 times but not invoked.\nThe mock received no calls."
             ]
         }
     }
@@ -248,7 +248,7 @@ struct FailSwiftTestingTests {
             verify(mock, atLeast(1).and(atMost(2))).noReturn()
         } matching: { issue in
             issue.comments.map(\.rawValue) == [
-                "Wanted both at least 1 times and at most 2 times but not invoked.\nThe mock received no calls."
+                "Wanted both at least 1 time and at most 2 times but not invoked.\nThe mock received no calls."
             ]
         }
     }
