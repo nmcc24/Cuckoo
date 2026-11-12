@@ -9,11 +9,28 @@ struct ParameterMatcherFunctionsTest {
     }
 
     @Test
-    func equalToAnyObject() {
+    func sameInstanceComparesIdentity() {
         let x = X()
 
-        #expect(equal(to: x).matches(x))
-        #expect(!equal(to: x).matches(X()))
+        #expect(sameInstance(as: x).matches(x))
+        #expect(!sameInstance(as: x).matches(X()))
+        #expect((sameInstance(as: x) as ParameterMatcher<X?>).matches(x))
+        #expect(!(sameInstance(as: x) as ParameterMatcher<X?>).matches(nil))
+    }
+
+    /// An `Equatable` class used to make `equal(to:)` ambiguous between the `Equatable` and the identity overloads.
+    @Test
+    func equalToAnEquatableClassUsesEquality() {
+        final class Point: Equatable {
+            let x: Int
+            init(x: Int) { self.x = x }
+            static func == (lhs: Point, rhs: Point) -> Bool { lhs.x == rhs.x }
+        }
+
+        #expect(equal(to: Point(x: 1)).matches(Point(x: 1)))
+        #expect(!equal(to: Point(x: 1)).matches(Point(x: 2)))
+        let optional: Point? = Point(x: 1)
+        #expect(equal(to: optional).matches(Point(x: 1)))
     }
 
     @Test
@@ -163,13 +180,13 @@ struct ParameterMatcherFunctionsTest {
     }
 
     @Test
-    func optionalEqualToAnyObject() {
+    func optionalSameInstance() {
         let x: X? = X()
 
-        #expect(equal(to: nil as X?).matches(nil))
-        #expect(equal(to: x).matches(x))
-        #expect(!equal(to: x).matches(X()))
-        #expect(!equal(to: nil).matches(x))
+        #expect(sameInstance(as: nil as X?).matches(nil))
+        #expect(sameInstance(as: x).matches(x))
+        #expect(!sameInstance(as: x).matches(X()))
+        #expect(!sameInstance(as: nil as X?).matches(x))
     }
 
     @Test

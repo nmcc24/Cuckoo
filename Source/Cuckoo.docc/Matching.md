@@ -35,8 +35,7 @@ or a matcher of your own.
 
 - ``any(_:)->ParameterMatcher<T>`` matches every argument. Pass the type, `any(Int.self)`, where inference can't
   pick it. `anyInt()` and `anyString()` spell two common ones.
-- `equal(to:)` matches an equal value, or for a class instance the same instance. ``sameInstance(as:)->ParameterMatcher<T>``
-  always compares identity.
+- `equal(to:)` matches an equal value. ``sameInstance(as:)->ParameterMatcher<T>`` matches the same class instance.
 - ``isNil()`` and ``notNil()`` match optionals.
 - `anyClosure()` and `anyThrowingClosure()` match closure arguments, which can't be compared.
 - ``not(_:)`` inverts a matcher, and `or(_:)` and `and(_:)` on any ``Matchable`` combine two.
