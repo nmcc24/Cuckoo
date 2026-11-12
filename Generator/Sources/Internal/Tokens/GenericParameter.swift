@@ -1,11 +1,27 @@
 struct GenericParameter: Equatable {
+    /// What a generic parameter is, beyond a plain type parameter.
+    enum Kind: Equatable {
+        case type
+        /// A type parameter pack, `each T`.
+        case pack
+        /// A value generic, `let N: Int`.
+        case value
+    }
+
     let name: String
     let inheritedTypes: [String]
-    /// A type parameter pack, `each T`.
-    var isPack = false
+    var kind = Kind.type
+
+    var isPack: Bool {
+        kind == .pack
+    }
 
     var description: String {
-        let declaredName = isPack ? "each \(name)" : name
+        let declaredName = switch kind {
+        case .type: name
+        case .pack: "each \(name)"
+        case .value: "let \(name)"
+        }
         if inheritedTypes.isEmpty {
             return declaredName
         } else {
@@ -29,7 +45,7 @@ extension Array where Element == GenericParameter {
                 GenericParameter(
                     name: parameterName,
                     inheritedTypes: mergedInheritedTypes,
-                    isPack: contains { $0.name == parameterName && $0.isPack }
+                    kind: first { $0.name == parameterName }?.kind ?? .type
                 )
             )
         }
