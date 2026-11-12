@@ -11,7 +11,7 @@ struct VersionTests {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .appending(path: "version")
-        let expected = try String(contentsOf: versionFile, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
+        let expected = try String(contentsOf: versionFile, encoding: .utf8).trimmed
         #expect(version == expected)
     }
 }

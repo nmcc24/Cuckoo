@@ -42,7 +42,7 @@ struct JoinedModulesTests {
 
         #expect(output.contains("class MockScreen"))
         #expect(output.contains("class MockStore"))
-        let lines = output.components(separatedBy: "\n")
+        let lines = output.lines
         let importLines = lines.filter { $0.contains("import ") }
         // Every import comes once, before the first mock.
         #expect(Set(importLines).count == importLines.count)

@@ -299,8 +299,8 @@ struct CuckoofileTests {
                 contentsOf: Self.repositoryRoot.appending(path: "Source/Cuckoo.docc/\(article).md"),
                 encoding: .utf8
             )
-            return text.components(separatedBy: "```toml\n").dropFirst().map {
-                $0.components(separatedBy: "```").first ?? ""
+            return text.split(separator: "```toml\n", omittingEmptySubsequences: false).dropFirst().map {
+                String($0.split(separator: "```", omittingEmptySubsequences: false).first ?? "")
             }
         }
 
