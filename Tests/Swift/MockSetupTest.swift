@@ -3,8 +3,40 @@ import Testing
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-/// How a failed `verify` leaves its calls.
+/// Enabling the superclass spy or a default implementation, and how a failed `verify` leaves its calls.
 struct MockSetupTest {
+    @Test
+    func replacingTheDefaultImplementationAfterACallIsAllowed() {
+        let mock = MockTestedProtocol()
+        mock.enableDefaultImplementation(TestedProtocolStub())
+        _ = mock.count(characters: "a")
+
+        let failure = TestUtils.catchCuckooFail {
+            mock.enableDefaultImplementation(TestedProtocolStub())
+        }
+
+        #expect(failure == nil)
+        #expect(mock.count(characters: "b") == 0)
+    }
+
+    @Test
+    func superclassSpyOnAProtocolMockIsAFailureNotACrash() {
+        var mock: MockTestedProtocol?
+        let failure = TestUtils.catchCuckooFail {
+            mock = createMock(MockTestedProtocol.self) { builder, _ in
+                builder.enableSuperclassSpy()
+                return MockTestedProtocol()
+            }
+        }
+
+        #expect(failure?.hasPrefix("A protocol mock has no superclass to spy on.") == true)
+        // The spy wasn't enabled, so the call is unstubbed rather than a crash.
+        let unstubbed = TestUtils.catchCuckooFail {
+            _ = mock?.count(characters: "a")
+        }
+        #expect(unstubbed?.hasPrefix("No stub for method `count(characters") == true)
+    }
+
     @Test
     func aFailedVerifyLeavesItsCallsUnverified() {
         let mock = MockTestedProtocol()
