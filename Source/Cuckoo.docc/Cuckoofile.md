@@ -48,7 +48,8 @@ To mock files from several modules in one entry, name it after the test target a
   With the build plugin, leave `sources` out to mock the files of the test target's dependency that has the
   entry's name, or of every dependency if none has it. The plugin lists the target's own files, so this follows
   the target's membership, Xcode's synchronized folders included, and tells the generator which module the files
-  belong to, as the table form does.
+  belong to, as the table form does. An entry that sets `sources` is regenerated when any source file of the
+  package or Xcode project changes, since its patterns may match any of them.
 - term `exclude`: Names of types not to mock, such as `["AppDelegate", "LegacyService"]`.
 - term `regex`: Mock only the protocols and classes whose name matches one of these regular expressions:
   `regex = ["Service$", "^Repository"]`. A single pattern needs no array: `regex = "Service$"`.
