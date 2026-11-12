@@ -70,7 +70,6 @@ let package = Package(
         .target(
             name: "Cuckoo",
             path: "Source",
-            exclude: ["Info.plist"],
             swiftSettings: swiftSettings
         ),
         .executableTarget(
@@ -122,7 +121,7 @@ let package = Package(
             name: "CuckooTests",
             dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooMocks"],
             path: "Tests",
-            exclude: ["Swift/Source", "Swift/Mocks", "Plugin/Source", "SingleFile", "Info.plist"],
+            exclude: ["Swift/Source", "Swift/Mocks", "Plugin/Source", "SingleFile"],
             swiftSettings: swiftSettings
         ),
         // A test-only plugin generates every Cuckoofile module into one file, as the generator does for modules that
