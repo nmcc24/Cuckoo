@@ -232,6 +232,28 @@ final class Crawler: SyntaxVisitor {
         return .skipChildren
     }
 
+    // Actors are final, so they aren't mocked; this parses the types nested in them, which would otherwise be
+    // taken for top-level types.
+    override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
+        debug(node)
+        var token = NamespaceDeclaration(
+            parent: container,
+            attributes: attributes(from: node.attributes),
+            accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
+            name: node.name.filteredDescription,
+            members: [],
+            enclosingCompilationConditions: enclosingCompilationConditions
+        )
+
+        guard token.accessibility.isAccessible else { return .skipChildren }
+
+        let crawler = Crawler(container: Reference(token), context: context)
+        crawler.walk(members: node.memberBlock)
+        token.members = crawler.tokens
+        tokens.append(token)
+        return .skipChildren
+    }
+
     // Struct mocking is not supported, this is used to parse nested classes.
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
         debug(node)
