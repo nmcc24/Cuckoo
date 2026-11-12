@@ -18,10 +18,6 @@ extension ComplexType {
             .attributed(attributes: attributes, baseType: baseType.resolvingSelf(as: name))
         case .optional(let wrappedType, let isImplicit):
             .optional(wrappedType: wrappedType.resolvingSelf(as: name), isImplicit: isImplicit)
-        case .array(let elementType):
-            .array(elementType: elementType.resolvingSelf(as: name))
-        case .dictionary(let keyType, let valueType):
-            .dictionary(keyType: keyType.resolvingSelf(as: name), valueType: valueType.resolvingSelf(as: name))
         case .closure(let closure):
             .closure(
                 Closure(
