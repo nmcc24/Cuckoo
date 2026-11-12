@@ -95,6 +95,15 @@ struct ParameterMatcherFunctionsTest {
     }
 
     @Test
+    func anyOptionalSendableClosureRejectsNil() {
+        #expect(!(anyClosure() as ParameterMatcher<(@Sendable () -> Int)?>).matches(nil))
+        #expect((anyClosure() as ParameterMatcher<(@Sendable () -> Int)?>).matches { 0 })
+        #expect(!(anyClosure() as ParameterMatcher<(@Sendable () async -> Int)?>).matches(nil))
+        #expect((anyClosure() as ParameterMatcher<(@Sendable () async -> Int)?>).matches { 0 })
+        #expect(!(anyClosure() as ParameterMatcher<(@Sendable (Int) -> Int)?>).matches(nil))
+    }
+
+    @Test
     func testAnyThrowingClosure() {
         struct MockError: Error { }
         
