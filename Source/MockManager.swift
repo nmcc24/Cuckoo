@@ -215,14 +215,15 @@ public final class MockManager: Sendable {
             verifyInOrder(order, matching: matching, callMatcher: callMatcher, sourceLocation: sourceLocation)
             return __DoNotUse()
         }
+        let calls = matching.map(\.call)
+        guard callMatcher.matches(calls) else {
+            // The calls stay unverified, so `verifyNoMoreInteractions` still reports them.
+            let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(calls.count) times")."
+            reportFailure(message + "\n" + describeCalls(of: method, callsToMember: callsToMember, among: recordedCalls), at: sourceLocation)
+            return __DoNotUse()
+        }
         state.withLock { state in
             state.unverifiedCallIDs.subtract(matching.map(\.id))
-        }
-        
-        let calls = matching.map(\.call)
-        if callMatcher.matches(calls) == false {
-            let message = "Wanted \(callMatcher.name) but \(calls.count == 0 ? "not invoked" : "invoked \(calls.count) times")."
-            reportFailure(message + "\n" + describeCalls(of: method, callsToMember: callsToMember, among: recordedCalls), at: sourceLocation)
         }
         return __DoNotUse()
     }
