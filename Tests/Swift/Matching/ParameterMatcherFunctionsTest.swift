@@ -14,8 +14,8 @@ struct ParameterMatcherFunctionsTest {
 
         #expect(sameInstance(as: x).matches(x))
         #expect(!sameInstance(as: x).matches(X()))
-        #expect((sameInstance(as: x) as ParameterMatcher<X?>).matches(x))
-        #expect(!(sameInstance(as: x) as ParameterMatcher<X?>).matches(nil))
+        #expect((sameInstance(as: x) as SendableMatcher<X?>).matches(x))
+        #expect(!(sameInstance(as: x) as SendableMatcher<X?>).matches(nil))
     }
 
     /// An `Equatable` class used to make `equal(to:)` ambiguous between the `Equatable` and the identity overloads.
@@ -89,80 +89,80 @@ struct ParameterMatcherFunctionsTest {
 
     @Test
     func testAnyClosure() {
-        #expect((anyClosure() as ParameterMatcher<() -> Int>).matches { 0 })
-        #expect((anyClosure() as ParameterMatcher<(Int) -> Int>).matches { _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<(Int, Int) -> Int>).matches { _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<(Int, Int, Int) -> Int>).matches { _, _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<(Int, Int, Int, Int) -> Int>).matches { _, _, _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<(Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<(Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<(Int, Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<() -> Int>).matches { 0 })
+        #expect((anyClosure() as SendableMatcher<(Int) -> Int>).matches { _ in 0 })
+        #expect((anyClosure() as SendableMatcher<(Int, Int) -> Int>).matches { _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<(Int, Int, Int) -> Int>).matches { _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<(Int, Int, Int, Int) -> Int>).matches { _, _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<(Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _, _ in 0 })
     }
 
     @Test
     func anySendableClosure() {
-        #expect((anyClosure() as ParameterMatcher<@Sendable () -> Int>).matches { 0 })
-        #expect((anyClosure() as ParameterMatcher<@Sendable (Int) -> Int>).matches { _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<@Sendable (Int, Int) -> Int>).matches { _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<@Sendable (Int, Int, Int) -> Int>).matches { _, _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int) -> Int>).matches { _, _, _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _ in 0 })
-        #expect((anyClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<@Sendable () -> Int>).matches { 0 })
+        #expect((anyClosure() as SendableMatcher<@Sendable (Int) -> Int>).matches { _ in 0 })
+        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int) -> Int>).matches { _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int) -> Int>).matches { _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int) -> Int>).matches { _, _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _ in 0 })
+        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _, _ in 0 })
     }
 
     @Test
     func anyOptionalSendableClosureRejectsNil() {
-        #expect(!(anyClosure() as ParameterMatcher<(@Sendable () -> Int)?>).matches(nil))
-        #expect((anyClosure() as ParameterMatcher<(@Sendable () -> Int)?>).matches { 0 })
-        #expect(!(anyClosure() as ParameterMatcher<(@Sendable () async -> Int)?>).matches(nil))
-        #expect((anyClosure() as ParameterMatcher<(@Sendable () async -> Int)?>).matches { 0 })
-        #expect(!(anyClosure() as ParameterMatcher<(@Sendable (Int) -> Int)?>).matches(nil))
+        #expect(!(anyClosure() as SendableMatcher<(@Sendable () -> Int)?>).matches(nil))
+        #expect((anyClosure() as SendableMatcher<(@Sendable () -> Int)?>).matches { 0 })
+        #expect(!(anyClosure() as SendableMatcher<(@Sendable () async -> Int)?>).matches(nil))
+        #expect((anyClosure() as SendableMatcher<(@Sendable () async -> Int)?>).matches { 0 })
+        #expect(!(anyClosure() as SendableMatcher<(@Sendable (Int) -> Int)?>).matches(nil))
     }
 
     @Test
     func testAnyThrowingClosure() {
         struct MockError: Error { }
         
-        #expect((anyThrowingClosure() as ParameterMatcher<() throws -> Int>).matches { 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int) throws -> Int>).matches { _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int) throws -> Int>).matches { _, _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int) throws -> Int>).matches { _, _, _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<() throws -> Int>).matches { 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int) throws -> Int>).matches { _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int) throws -> Int>).matches { _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int) throws -> Int>).matches { _, _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _, _ in 0 })
 
-        #expect((anyThrowingClosure() as ParameterMatcher<() throws -> Int>).matches { throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int) throws -> Int>).matches { _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int) throws -> Int>).matches { _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int) throws -> Int>).matches { _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<(Int, Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<() throws -> Int>).matches { throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int) throws -> Int>).matches { _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int) throws -> Int>).matches { _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int) throws -> Int>).matches { _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _, _ in throw MockError() })
     }
 
     @Test
     func anySendableThrowingClosure() {
         struct MockError: Error { }
 
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable () throws -> Int>).matches { 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int) throws -> Int>).matches { _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int) throws -> Int>).matches { _, _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int, Int) throws -> Int>).matches { _, _, _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable () throws -> Int>).matches { 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int) throws -> Int>).matches { _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int) throws -> Int>).matches { _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int) throws -> Int>).matches { _, _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in 0 })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in 0 })
 
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable () throws -> Int>).matches { throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int) throws -> Int>).matches { _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int) throws -> Int>).matches { _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int, Int) throws -> Int>).matches { _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as ParameterMatcher<@Sendable (Int, Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable () throws -> Int>).matches { throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int) throws -> Int>).matches { _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int) throws -> Int>).matches { _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int) throws -> Int>).matches { _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in throw MockError() })
+        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _, _ in throw MockError() })
     }
 
     @Test

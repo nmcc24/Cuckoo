@@ -14,7 +14,7 @@ public struct VerifyProperty<T> {
     /// Checks the property's assignments whose new value matches `matcher` against the call matcher `verify`
     /// was given.
     @discardableResult
-    public func set<M: Matchable>(_ matcher: M) -> __DoNotUse<T, Void> where M.MatchedType == T {
+    public func set<M: _Matchable>(_ matcher: M) -> __DoNotUse<T, Void> where M.MatchedType == T {
         return manager.verify(setterName(name), callMatcher: callMatcher, parameterMatchers: [matcher.matcher], sourceLocation: sourceLocation)
     }
     
@@ -43,7 +43,7 @@ public struct VerifyOptionalProperty<T> {
     /// Checks the property's assignments whose new value matches `matcher` against the call matcher `verify`
     /// was given.
     @discardableResult
-    public func set<M: OptionalMatchable>(_ matcher: M) -> __DoNotUse<T?, Void> where M.OptionalMatchedType == T {
+    public func set<M: _OptionalMatchable>(_ matcher: M) -> __DoNotUse<T?, Void> where M.OptionalMatchedType == T {
         return manager.verify(setterName(name), callMatcher: callMatcher, parameterMatchers: [matcher.optionalMatcher], sourceLocation: sourceLocation)
     }
 
