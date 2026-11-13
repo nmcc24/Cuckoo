@@ -9,6 +9,11 @@ updates:
     groups:
       swift-packages:
         patterns: ["*"]
+    # A new swift-syntax major needs a CI leg pinning the previous one's first release (CLAUDE.md), so its upper
+    # bound is raised by hand, never by Dependabot.
+    ignore:
+      - dependency-name: swift-syntax
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
