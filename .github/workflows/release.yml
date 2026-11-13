@@ -33,6 +33,9 @@ jobs:
   check:
     name: Check the version
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -58,6 +61,23 @@ jobs:
           # a tag whose Package.swift points at a release that doesn't exist.
           scripts/release-notes.sh "$VERSION" >/dev/null \
             || { echo "::error::CHANGELOG.md has no section '## $VERSION'."; exit 1; }
+      - name: Master's CI passed on this commit
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The release ships this commit as it is, so it must have passed the same gate as every merge. A dry run may
+          # go on without it, to try a commit whose CI hasn't finished.
+          conclusion="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs?check_name=CI%20passed" \
+            --jq '.check_runs[0].conclusion // "missing"')" || conclusion=unavailable
+          if [[ "$conclusion" != success ]]; then
+            message="CI passed is '$conclusion' on $GITHUB_SHA, not success."
+            if [[ "$DRY_RUN" == true ]]; then
+              echo "::warning::$message A dry run goes on."
+            else
+              echo "::error::$message Wait for master's CI, or fix it, before releasing."; exit 1
+            fi
+          fi
 
   build:
     name: Build the generator (${{ matrix.name }})
@@ -123,7 +143,7 @@ jobs:
     name: Tag and publish
     needs: bundle
     if: ${{ !inputs.dry_run }}
-    runs-on: macos-26
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
@@ -139,7 +159,8 @@ jobs:
         # step failed finds the tag already pushed, and keeps it if it names this bundle.
         run: |
           url="https://github.com/$GITHUB_REPOSITORY/releases/download/$VERSION/CuckooGenerator.artifactbundle.zip"
-          checksum="$(swift package compute-checksum bundle/CuckooGenerator.artifactbundle.zip)"
+          # SwiftPM's checksum of a binary target is the SHA-256 of the zip, so this job needs no Swift toolchain.
+          checksum="$(sha256sum bundle/CuckooGenerator.artifactbundle.zip | cut -d' ' -f1)"
           if git fetch --quiet origin "refs/tags/$VERSION:refs/tags/$VERSION" 2>/dev/null; then
             if git show "$VERSION:Package.swift" | grep -qF "$checksum"; then
               echo "The tag $VERSION already names this bundle."
