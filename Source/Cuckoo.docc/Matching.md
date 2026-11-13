@@ -16,29 +16,28 @@ verify(greeter).greet(name: "Ann".or("Bob"))                 // either name
 
 ### Values
 
-A value stands for a matcher when its type conforms to ``Matchable``. Strings, characters, `Bool`, the integer and
-floating-point types, and arrays, sets and dictionaries of them conform, and their optionals do too: `"Ann"`
-matches a `String?` parameter that holds `"Ann"`, through ``OptionalMatchable``.
+Strings, characters, `Bool`, the integer and floating-point types, and arrays, sets and dictionaries of them stand
+for an equality matcher, and so do their optionals: `"Ann"` matches a `String?` parameter that holds `"Ann"`.
 
-Make your own `Equatable` type matchable with an empty conformance, and it matches equal values:
+For your own types, pass `equal(to:)`. It takes any `Equatable` value, so the type needs nothing else:
 
 ```swift
-extension User: Matchable {}
-
-verify(store).save(User(id: 1))
+verify(store).save(equal(to: User(id: 1)))
 ```
 
-For a type that isn't `Equatable`, or to compare it another way, use ``equal(to:equalWhen:)->ParameterMatcher<T>``
-or a matcher of your own.
+For a type that isn't `Equatable`, or to compare it another way, use `equal(to:equalWhen:)` or a matcher of your
+own. Cuckoo 2 had you conform your own types to `Matchable` instead. That's deprecated: the protocol is how
+generated mocks take their arguments, and Cuckoo 4 hides it from your code. A conformance of a type you don't own
+also needs `@retroactive`.
 
 ### Matcher functions
 
-- ``any(_:)->ParameterMatcher<T>`` matches every argument. Pass the type, `any(Int.self)`, where inference can't
-  pick it. `anyInt()` and `anyString()` spell two common ones.
-- `equal(to:)` matches an equal value. ``sameInstance(as:)->ParameterMatcher<T>`` matches the same class instance.
-- ``isNil()`` and ``notNil()`` match optionals.
+- `any()` matches every argument. Pass the type, `any(Int.self)`, where inference can't pick it. `anyInt()` and
+  `anyString()` spell two common ones.
+- `equal(to:)` matches an equal value. `sameInstance(as:)` matches the same class instance.
+- `isNil()` and `notNil()` match optionals.
 - `anyClosure()` and `anyThrowingClosure()` match closure arguments, which can't be compared.
-- ``not(_:)`` inverts a matcher, and `or(_:)` and `and(_:)` on any ``Matchable`` combine two.
+- `not(_:)` inverts a matcher, and `or(_:)` and `and(_:)` combine a matcher or value with another.
 
 ### Custom matchers
 
@@ -52,7 +51,37 @@ func even() -> ParameterMatcher<Int> {
 when(stub.page(number: even())).thenReturn(.left)
 ```
 
-A matcher is ``Matchable`` itself, so it combines with values and other matchers: `even().and(not(equal(to: 0)))`.
+It combines with values and other matchers: `even().and(not(equal(to: 0)))`.
+
+### Matchers for Sendable mocks
+
+The mock of a `Sendable` type, or of an actor, can be called from any task, so its stubs match arguments
+wherever a call comes from. They only take matchers that are safe there: a ``SendableMatcher``, whose closure is
+`@Sendable`. Each matcher function returns one when the values it keeps are `Sendable`, and a ``ParameterMatcher``
+otherwise, so the same code works with every mock:
+
+```swift
+when(cache.lookup(equal(to: "Ann"), limit: isNil())).thenReturn(1)    // SendableMatcher
+when(store.save(equal(to: session))).thenReturn(true)                   // ParameterMatcher: Session isn't Sendable
+```
+
+A `Sendable` mock rejects the second at compile time: its stub could compare `session` on another thread while
+your test changes it. A matcher that takes a closure, such as `containsAnyOf(_:where:)`, returns a
+``SendableMatcher`` for a `Sendable` mock and a ``ParameterMatcher`` otherwise, so its closure may capture
+non-`Sendable` state when the mock isn't `Sendable`. Write your own with a `@Sendable` closure:
+
+```swift
+func even() -> SendableMatcher<Int> {
+    SendableMatcher { $0.isMultiple(of: 2) }
+}
+```
+
+In a project that isolates code to the main actor by default, as new Xcode 26 projects do, a type's `Equatable`
+conformance is isolated to the main actor too, so `equal(to:)` returns a ``ParameterMatcher`` for it. That suits
+the mocks of main-actor and other non-`Sendable` types. For a `Sendable` mock, make the conformance
+`nonisolated`: `struct User: nonisolated Equatable`.
+
+Verification compares arguments right away, in your test, so `verify` takes either kind.
 
 ### Collections
 
