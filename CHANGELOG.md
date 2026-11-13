@@ -1,6 +1,15 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-beta.2
+
+The rest of the code audit's fixes: runtime and generator bugs, tighter tests, and a few API changes. The
+[migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md) covers moving from Cuckoo 2.
+
+To try it:
+
+```swift
+.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.2"),
+```
 
 ### Changed
 - `equal(to:)` on an `Equatable` class compares with `==`. The identity overloads of `equal(to:)` for classes are
