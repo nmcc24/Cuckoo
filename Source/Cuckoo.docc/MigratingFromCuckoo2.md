@@ -71,6 +71,15 @@ behaviour on top.
   What the closure writes now reaches the caller. Closures that let Swift infer the types are unaffected.
 - The stub function types that `when` returns, such as `ProtocolStubFunction`, have more generic parameters. Code
   that names them, rather than letting `when` infer them, needs updating.
+- Conforming your own types to `Matchable` is deprecated. Replace `extension User: Matchable { … }` with
+  `equal(to: user)` where you pass the value, which takes any `Equatable` type; for other types use
+  `equal(to:equalWhen:)` or a matcher of your own. See <doc:Matching>.
+- The stubs of a `Sendable` or actor mock take only ``SendableMatcher``s, since the mock can be called from any task.
+  A matcher that keeps a non-`Sendable` value doesn't compile there. In a project that isolates code to the main
+  actor by default, make the value's conformance `nonisolated Equatable` for such a mock.
+- `any()`, `anyInt()`, `anyString()`, `isNil()`, `notNil()`, `anyClosure()`, `hasLength` and `sameInstance(as:)`
+  return a ``SendableMatcher``. Code that names their type as `ParameterMatcher<…>` needs `SendableMatcher<…>`, or
+  `.matcher` for a `ParameterMatcher`.
 - The Objective-C bridge (`objcStub`, `objcVerify` and the OCMock dependency) is removed. Put a small Swift
   protocol in front of an Objective-C dependency and mock that, or use OCMock directly in those tests.
 
