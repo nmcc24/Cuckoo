@@ -30,6 +30,9 @@ let prebuiltGenerator: GeneratorBinary? = nil
 
 /// The plugins find the generator by its executable's name, `CuckooGenerator`, which the bundle's executable has too.
 let generator: Target.Dependency = prebuiltGenerator == nil ? "CuckooGenerator" : "CuckooGeneratorBinary"
+/// With a prebuilt generator, the package declares neither the generator's source target nor its dependencies, so
+/// swift-syntax doesn't constrain what a user's other packages, such as macro packages, resolve it to.
+let buildsGenerator = prebuiltGenerator == nil
 let generatorBinaryTargets: [Target] = switch prebuiltGenerator {
 case .remote(let url, let checksum): [.binaryTarget(name: "CuckooGeneratorBinary", url: url, checksum: checksum)]
 case .local(let path): [.binaryTarget(name: "CuckooGeneratorBinary", path: path)]
@@ -49,16 +52,17 @@ let package = Package(
             name: "Cuckoo",
             targets: ["Cuckoo"]
         ),
-        .executable(
-            name: "CuckooGenerator",
-            targets: ["CuckooGenerator"]
-        ),
         .plugin(
             name: "CuckooPlugin",
             targets: ["CuckooPlugin"]
         ),
-    ],
-    dependencies: [
+    ] + (buildsGenerator ? [
+        .executable(
+            name: "CuckooGenerator",
+            targets: ["CuckooGenerator"]
+        ),
+    ] : []),
+    dependencies: !buildsGenerator ? [] : [
         // Up to the next major release, so Cuckoo resolves alongside users' other packages. Packages still
         // at 0.x may break in a minor release, so they stop at the next minor one. The lockfiles pin exact revisions.
         .package(url: "https://github.com/swiftlang/swift-syntax", "602.0.0"..<"605.0.0"),
@@ -72,6 +76,7 @@ let package = Package(
             path: "Source",
             swiftSettings: swiftSettings
         ),
+    ] + (!buildsGenerator ? [] : [
         .executableTarget(
             name: "CuckooGenerator",
             dependencies: [
@@ -96,6 +101,7 @@ let package = Package(
             exclude: ["Snapshots"],
             swiftSettings: swiftSettings
         ),
+    ]) + [
         // The runtime test suite, laid out the way users consume Cuckoo: the code under test is a plain
         // module, and `CuckooPlugin` generates one mocks file per module it depends on, configured in
         // Cuckoofile.toml.

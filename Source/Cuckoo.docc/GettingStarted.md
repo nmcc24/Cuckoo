@@ -47,8 +47,9 @@ that module's name, plus one from the entry named after the test target itself. 
 a change in one module regenerates and recompiles only that module's mocks, and the steps run in parallel.
 
 A release's plugin runs a prebuilt generator, on macOS and on Linux (x86_64 and arm64), so your build doesn't compile
-swift-syntax and its version doesn't constrain your other packages. A dependency on a branch or a commit instead
-builds the generator from source with the plugin.
+swift-syntax: a release doesn't even declare the generator's dependencies, so its swift-syntax doesn't constrain the
+version your other packages, such as macro packages, resolve. A dependency on a branch or a commit instead builds
+the generator from source with the plugin, with swift-syntax `602.0.0..<605.0.0`.
 
 ### Write a Cuckoofile
 

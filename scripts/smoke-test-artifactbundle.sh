@@ -2,7 +2,8 @@
 # Tests a prebuilt generator `artifactbundle` the way a user gets it (roadmap Phase 5 item 2): a small package
 # depends on a copy of this one whose plugins run the bundle, generates mocks with CuckooPlugin and runs a
 # test that stubs and verifies one. It fails if the build compiled swift-syntax, which the bundle is there to
-# avoid. (SwiftPM may still check swift-syntax out to resolve versions; it doesn't build it.)
+# avoid, or if Cuckoo kept the package from resolving an older swift-syntax: the package also depends on one
+# below Cuckoo's own source build's range, as a macro package pinning an older release would.
 #
 #   scripts/smoke-test-artifactbundle.sh <CuckooGenerator.artifactbundle>
 #   scripts/smoke-test-artifactbundle.sh --tag <version>
@@ -43,7 +44,10 @@ import PackageDescription
 let package = Package(
     name: "Consumer",
     platforms: [.macOS("14.0")],
-    dependencies: [$dependency],
+    dependencies: [
+        $dependency,
+        .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"602.0.0"),
+    ],
     targets: [
         .target(name: "App"),
         .testTarget(
@@ -89,8 +93,14 @@ SWIFT
 cd "$consumer"
 # shellcheck disable=SC2086 # SWIFT_BUILD_FLAGS holds several flags.
 swift test ${SWIFT_BUILD_FLAGS:-}
-# SwiftPM on macOS also downloads swift-syntax's prebuilt macro support into .build/prebuilts, since swift-syntax
-# stays in the package graph; that's a download, not a build.
+# The release declares no swift-syntax dependency, so the package's own older range resolved.
+syntax_version="$(sed -nE '/"identity" : "swift-syntax"/,/"version"/s/.*"version" : "([0-9.]+)".*/\1/p' Package.resolved)"
+if [[ ! "$syntax_version" =~ ^60[01]\. ]]; then
+    echo "swift-syntax resolved to '$syntax_version', not below 602.0.0: Cuckoo still constrains it." >&2
+    exit 1
+fi
+# The package's swift-syntax dependency, which no target uses, isn't built either. SwiftPM on macOS downloads its
+# prebuilt macro support into .build/prebuilts; that's a download, not a build.
 if [[ -n "$(find .build -path .build/prebuilts -prune -o -name 'SwiftSyntax.swiftmodule' -print -quit)" ]]; then
     echo "The build compiled swift-syntax, so the plugins didn't use the prebuilt generator." >&2
     exit 1

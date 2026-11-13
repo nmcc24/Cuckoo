@@ -20,8 +20,9 @@ tests, then the behaviour changes, which show up as test failures.
 - SwiftPM only. The podspec and the `run` script, which downloaded or built the generator for build-phase
   scripts, are gone. Add the package and the build plugin as <doc:GettingStarted> shows. To run the
   generator from a script anyway, see "Running the generator yourself" in <doc:Cuckoofile>.
-- The plugin of a release runs a prebuilt generator, so your build no longer compiles swift-syntax. A dependency
-  on a branch or a commit still builds the generator from source, with swift-syntax `602.0.0..<605.0.0`.
+- The plugin of a release runs a prebuilt generator, so your build no longer compiles swift-syntax, and a release
+  doesn't depend on swift-syntax at all: your macro packages can use any version. A dependency on a branch or a
+  commit still builds the generator from source, with swift-syntax `602.0.0..<605.0.0`.
 
 ### The Cuckoofile
 

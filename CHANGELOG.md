@@ -11,6 +11,10 @@
   `inRange: 1..<3` matched without any warning, so code moved from Cuckoo 2 kept compiling but stopped matching 3.
 
 ### Fixed
+- A release still declared the generator's dependencies, so its swift-syntax range, `602.0.0..<605.0.0`, kept a
+  package whose macro packages pin an older swift-syntax from resolving Cuckoo, which the prebuilt generator was
+  meant to allow. A release now declares only the runtime, the plugin and the bundled generator. Its manifest no
+  longer has the `CuckooGenerator` product: build it from a branch to run the generator yourself.
 - A protocol that refines a `@MainActor`, global-actor, `Actor` or `Sendable` protocol, and states no isolation
   itself, got a `nonisolated` mock that didn't compile: the generator took the parent's members but not its
   isolation. The mock now takes the parent's isolation, actor-ness and `Sendable`-ness, through any number of
