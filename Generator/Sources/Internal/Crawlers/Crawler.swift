@@ -175,8 +175,9 @@ final class Crawler: SyntaxVisitor {
             isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
         )
         // An actor-constrained protocol is isolated to its conforming actor, never to the default.
-        if token.isolation == nil, !token.isActor {
-            token.isolation = context.defaultIsolation
+        if token.isolation == nil, !token.isActor, let defaultIsolation = context.defaultIsolation {
+            token.isolation = defaultIsolation
+            token.isIsolationDefault = true
         }
 
         guard token.accessibility.isAccessible else { return .skipChildren }

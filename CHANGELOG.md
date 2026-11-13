@@ -11,6 +11,10 @@
   `inRange: 1..<3` matched without any warning, so code moved from Cuckoo 2 kept compiling but stopped matching 3.
 
 ### Fixed
+- A protocol that refines a `@MainActor`, global-actor, `Actor` or `Sendable` protocol, and states no isolation
+  itself, got a `nonisolated` mock that didn't compile: the generator took the parent's members but not its
+  isolation. The mock now takes the parent's isolation, actor-ness and `Sendable`-ness, through any number of
+  levels, as Swift does for the protocol.
 - Variadic parameters, `func log(_ messages: String...)`, lost their `...` in the mock, which then didn't conform.
   The mock keeps them variadic and records the argument as an array, which matchers, captors and `then` closures
   receive. Such a member can't call its real or default implementation, which Swift can't pass an array to.

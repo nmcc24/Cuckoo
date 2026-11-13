@@ -78,3 +78,21 @@ actor RealLedgerStore: LedgerStore {
         ledger.entries.joined(separator: ", ")
     }
 }
+
+/// Protocols that state no isolation of their own and take their parents': Swift isolates their requirements as
+/// their parents', and so do the mocks.
+protocol MainActorDetailService: MainActorService {
+    func detail(id: Int) -> String
+}
+
+protocol DatabaseArchive: DatabaseStore {
+    func archive() -> Int
+}
+
+protocol LimitedCounterStore: CounterStore {
+    func reset() -> Int
+}
+
+protocol SendableCache: SendableService {
+    func store(_ value: Int, for key: String)
+}
