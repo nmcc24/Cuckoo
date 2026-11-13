@@ -1,8 +1,16 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-beta.3
 
-Matchers that `Sendable` mocks can keep, so their stubs are safe to call from any task.
+Matchers that `Sendable` mocks can keep, so their stubs are safe to call from any task, and the deprecation of
+your own `Matchable` conformances in favour of `equal(to:)`. The
+[migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md) covers moving from Cuckoo 2.
+
+To try it:
+
+```swift
+.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.3"),
+```
 
 ### Changed
 - `SendableMatcher` is a `ParameterMatcher` whose closure is `@Sendable`. The mock of a `Sendable` type or an actor
