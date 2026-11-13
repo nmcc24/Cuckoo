@@ -32,16 +32,17 @@ public struct ParameterPack: CustomStringConvertible {
 }
 
 /// Returns a matcher matching a parameter pack whose values equal `values`, in order and with the same types.
-public func equal<each Value: Equatable>(to values: repeat each Value) -> ParameterMatcher<ParameterPack> {
-    var expected: [(Any) -> Bool] = []
+public func equal<each Value: Equatable & Sendable>(to values: repeat each Value) -> ParameterMatcher<ParameterPack> {
+    var matchers: [@Sendable (Any) -> Bool] = []
     for value in repeat each values {
-        expected.append(isEqual(to: value))
+        matchers.append(isEqual(to: value))
     }
+    let expected = matchers
     return ParameterMatcher { pack in
         pack.count == expected.count && zip(expected, pack.values).allSatisfy { matches, value in matches(value) }
     }
 }
 
-private func isEqual<Value: Equatable>(to expected: Value) -> (Any) -> Bool {
+private func isEqual<Value: Equatable & Sendable>(to expected: Value) -> @Sendable (Any) -> Bool {
     { ($0 as? Value) == expected }
 }

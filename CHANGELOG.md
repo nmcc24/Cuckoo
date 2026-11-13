@@ -8,6 +8,11 @@
 - `DefaultValueRegistry.register(_:for:)` registers a default value, matching `DefaultValues.register(_:for:)`.
   `register(value:forType:)` is deprecated.
 - `ClassConcreteStub` and `MockBuilder` are `final`.
+- `ParameterMatcher` is `Sendable`, since a mock's matchers run in whatever task calls it. Its closure is
+  `@Sendable`, and `equal(to:)`, `equal(to:equalWhen:)`, the `where:` closures and the collection matchers take
+  `Sendable` values. `equal(to:)` and `equal(to:equalWhen:)` with a non-`Sendable` value, and the new
+  `ParameterMatcher(unchecked:)` for closures that capture one, are deprecated. `sameInstance(as:)` works with any
+  class, and `Matchable` refines `SendableMetatype`.
 
 ### Fixed
 - `containsAllOf` with `Hashable` elements matches a sequence that holds an element more often than it was passed,

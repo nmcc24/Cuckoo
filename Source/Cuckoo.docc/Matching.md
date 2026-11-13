@@ -28,7 +28,7 @@ extension User: Matchable {}
 verify(store).save(User(id: 1))
 ```
 
-For a type that isn't `Equatable`, or to compare it another way, use ``equal(to:equalWhen:)->ParameterMatcher<T>``
+For a type that isn't `Equatable`, or to compare it another way, use ``equal(to:equalWhen:)-1kl3b``
 or a matcher of your own.
 
 ### Matcher functions
@@ -53,6 +53,24 @@ when(stub.page(number: even())).thenReturn(.left)
 ```
 
 A matcher is ``Matchable`` itself, so it combines with values and other matchers: `even().and(not(equal(to: 0)))`.
+
+### Matchers are Sendable
+
+A mock may be called from any task, and its stubs' matchers run in that task, so a ``ParameterMatcher`` is
+`Sendable`. Its closure is `@Sendable`, and the matchers that keep a value need a `Sendable` one: `equal(to:)`, the
+`where:` closures and the collection matchers. The argument a matcher checks needn't be `Sendable`, and neither does
+the object ``sameInstance(as:)->ParameterMatcher<T>`` keeps, since it only compares identities.
+
+To match a value that isn't `Sendable`, make its type `Sendable`, match it by identity, or match the `Sendable`
+parts you care about:
+
+```swift
+when(stub.save(document: ParameterMatcher { $0.title == "Draft" })).thenReturn(true)
+```
+
+`equal(to:)` and ``equal(to:equalWhen:)-2d753`` still accept a value or a function that isn't `Sendable`, deprecated, so an
+existing suite compiles with a warning. A closure matcher that captures something that isn't `Sendable` doesn't
+compile; ``ParameterMatcher/init(unchecked:)``, also deprecated, takes it while you migrate.
 
 ### Collections
 

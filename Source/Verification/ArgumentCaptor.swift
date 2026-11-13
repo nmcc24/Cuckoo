@@ -24,8 +24,9 @@ public final class ArgumentCaptor<T> {
 
     /// A parameter matcher that matches any argument and captures it.
     public func capture() -> ParameterMatcher<T> {
-        ParameterMatcher { value in
-            self.values.withLock { $0.append(value) }
+        let values = self.values
+        return ParameterMatcher { value in
+            values.withLock { $0.append(value) }
             return true
         }
     }

@@ -9,17 +9,22 @@ internal func setterName(_ property: String) -> String {
 /// Matches an argument of type `IN` by mapping it to the type `matchable` matches. Generated proxies use it to
 /// match one parameter of a call's argument tuple.
 public func wrap<M: Matchable, IN>(matchable: M, mapping: @escaping (IN) -> M.MatchedType) -> ParameterMatcher<IN> {
-    return ParameterMatcher {
-        return matchable.matcher.matches(mapping($0))
-    }
+    let matcher = matchable.matcher
+    // The generated mocks' mappings pick an element of the arguments' tuple and capture nothing, but they can't be
+    // `@Sendable`: that would need each generic parameter's metatype to be `SendableMetatype`.
+    return ParameterMatcher(uncheckedSendable: {
+        matcher.matches(mapping($0))
+    })
 }
 
 /// Matches an argument of type `IN` by mapping it to the optional type `matchable` matches. Generated proxies use
 /// it to match one optional parameter of a call's argument tuple.
 public func wrap<M: OptionalMatchable, IN, O>(matchable: M, mapping: @escaping (IN) -> M.OptionalMatchedType?) -> ParameterMatcher<IN> where M.OptionalMatchedType == O {
-    return ParameterMatcher {
-        return matchable.optionalMatcher.matches(mapping($0))
-    }
+    let matcher = matchable.optionalMatcher
+    // See the other `wrap(matchable:mapping:)`.
+    return ParameterMatcher(uncheckedSendable: {
+        matcher.matches(mapping($0))
+    })
 }
 
 /// Where a check was written, so a failure is reported there: the `#file`, `#fileID`, `#filePath`, `#line` and

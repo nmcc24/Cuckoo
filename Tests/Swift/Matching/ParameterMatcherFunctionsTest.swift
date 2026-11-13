@@ -18,10 +18,24 @@ struct ParameterMatcherFunctionsTest {
         #expect(!(sameInstance(as: x) as ParameterMatcher<X?>).matches(nil))
     }
 
+    /// A matcher is `Sendable`, and `sameInstance(as:)` keeps a non-`Sendable` object, comparing identities only.
+    @Test
+    func matchersRunInAnotherTask() async {
+        let object: X? = X()
+        let identity = sameInstance(as: object)
+        let isNil: ParameterMatcher<X?> = isNil()
+        let matchesNil = await Task.detached { identity.matches(nil) || !isNil.matches(nil) }.value
+        #expect(!matchesNil)
+        #expect(identity.matches(object))
+
+        let even = ParameterMatcher<Int> { $0.isMultiple(of: 2) }
+        #expect(await Task.detached { even.matches(4) && !even.matches(3) }.value)
+    }
+
     /// An `Equatable` class used to make `equal(to:)` ambiguous between the `Equatable` and the identity overloads.
     @Test
     func equalToAnEquatableClassUsesEquality() {
-        final class Point: Equatable {
+        final class Point: Equatable, Sendable {
             let x: Int
             init(x: Int) { self.x = x }
             static func == (lhs: Point, rhs: Point) -> Bool { lhs.x == rhs.x }
@@ -36,7 +50,7 @@ struct ParameterMatcherFunctionsTest {
     @Test
     func equalToWithFunction() {
         let tuple = (1, 1)
-        let function = { (a: (Int, Int), b: (Int, Int)) -> Bool in
+        let function: @Sendable ((Int, Int), (Int, Int)) -> Bool = { a, b in
             return a.0 == b.0 && a.1 == b.1
         }
 
@@ -192,7 +206,7 @@ struct ParameterMatcherFunctionsTest {
     @Test
     func optionalEqualToWithFunction() {
         let tuple: (Int, Int)? = (1, 1)
-        let function = { (a: (Int, Int)?, b: (Int, Int)?) -> Bool in
+        let function: @Sendable ((Int, Int)?, (Int, Int)?) -> Bool = { a, b in
             guard let x = a, let y = b else {
                 return a == nil && b == nil
             }

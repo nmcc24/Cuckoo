@@ -470,8 +470,6 @@ extension MockTestedClass: Matchable{
     typealias MatchedType = MockTestedClass
     
     var matcher: ParameterMatcher<MockTestedClass> {
-        return ParameterMatcher<MockTestedClass> { other in
-            return self === other
-        }
+        return sameInstance(as: self)
     }
 }
