@@ -1,6 +1,6 @@
 # Cuckoo for Swift 6: analysis and roadmap
 
-Status: Phases 0–5 done; Phase 6 (release) in progress, updated 2026-11-12. Started 2026-10-22 on `nmcc24/Cuckoo`, a fork of `Brightify/Cuckoo` at `7cef639` (v2.4.0).
+Status: Phases 0–5 done; Phase 6 (release) in progress, updated 2026-11-13. Started 2026-10-22 on `nmcc24/Cuckoo`, a fork of `Brightify/Cuckoo` at `7cef639` (v2.4.0).
 
 Goal: make Cuckoo (or a successor) fully Swift 6 compliant on Swift 6.2–6.4, able to mock `@MainActor`, global-actor and `Actor` protocols, and broaden what can be mocked. The Swift 6 language mode is the target; the Swift 5 mode compiles but isn't tested.
 
@@ -504,8 +504,12 @@ Done 2026-11-08. Items 5 and 6 were dropped.
    - A generator built from source for a scheme that gathers coverage is instrumented, and printed "LLVM Profile Error: Failed to write file default.profraw" on every run, since the sandbox blocks the write. The plugins set `LLVM_PROFILE_FILE` into their work directory.
 ### Phase 6: Release and upstreaming (S) 🔄
 - 3.0.0-beta tags on the fork. 3.0.0-beta.1 first: `version`, `Version.swift` and the changelog are bumped in a PR, then nmcc24 runs the `Release` workflow on master, first as a `dry_run` (the macOS universal build has never run in CI), then for real; it publishes a pre-release and smoke-tests the published tag on macOS and Linux. The audit before it (2026-11-08) found four release-workflow defects and four generator bugs, fixed first. 3.0.0-alpha.1 and 3.0.0-beta.1 were released and checked on 2026-11-12. The audit's other findings go into beta.2: runtime fixes, generator fixes, test and cleanup items, then the API changes, one PR each.
+- 3.0.0-beta.3: matchers for `Sendable` mocks (decided 2026-11-13). `SendableMatcher` keeps a `@Sendable` closure; each matcher function returns one when its values are `Sendable` and a `ParameterMatcher` otherwise, and the stubbing proxies of `Sendable` and actor mocks take only the `Sendable` kind, wrapping each argument with a key path rather than a closure (no capture of a generic method's metatypes). Users' `Matchable` conformances are deprecated in favour of `equal(to:)`: the protocols are renamed `_Matchable`/`_OptionalMatchable`, with deprecated `Matchable`/`OptionalMatchable` aliases.
 - Offer Brightify the independent fixes (#601, the swift-syntax range, the Linux Glob fix, `keepDocumentation`) as separate small PRs.
 - Propose the 3.0 branch upstream, or publish under a new name (D1).
+
+### Later: Cuckoo 4.0
+- Hide `Matchable` from users (decided 2026-11-13). Rename `_Matchable`, `_OptionalMatchable` and their `Sendable` refinements back to `Matchable` and so on under `@_spi(CuckooGenerated)`, have the mocks `@_spi(CuckooGenerated) import Cuckoo`, and remove the deprecated aliases. The public API that takes the protocols today (property `set`, `or`/`and` on values) needs concrete overloads first, since public API can't mention an SPI type. A hard break, so only in a major release (M).
 
 ---
 
