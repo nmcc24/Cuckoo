@@ -83,6 +83,12 @@ extension Method {
         signature.parameters.contains(where: \.isNoncopyable)
     }
 
+    /// Whether a parameter is variadic. Inside the mock it's an array, which Swift can't pass on as separate
+    /// arguments, so the mock can't forward the call; see `Cuckoo.MockManager.crashOnVariadicArgumentForward`.
+    var hasVariadicParams: Bool {
+        signature.parameters.contains(where: \.isVariadic)
+    }
+
     /// Whether the `then` closure takes the parameter's own argument, borrowed. A `~Copyable` argument is recorded as
     /// a placeholder, but the mock passes the argument itself to the closure, which the manager calls before the
     /// member returns. A generic one stays the placeholder: the proxies leave its type out, so Swift couldn't infer it.

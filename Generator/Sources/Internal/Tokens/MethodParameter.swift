@@ -7,6 +7,13 @@ struct MethodParameter: Token {
     var type: ComplexType
     /// A `~Copyable` argument, which the mock records as a `Cuckoo.NoncopyableArgument`.
     var isNoncopyable = false
+    /// A variadic parameter's element type, as in `Int...`. `type` is then the array the function receives,
+    /// `[Int]`, which the mock records and its matchers take.
+    var variadicElement: ComplexType? = nil
+
+    var isVariadic: Bool {
+        variadicElement != nil
+    }
 
     var isInout: Bool {
         type.containsAttribute(named: "inout")
@@ -21,7 +28,11 @@ struct MethodParameter: Token {
     }
 
     var description: String {
-        "\(nameAndInnerName): \(type)"
+        if let variadicElement {
+            "\(nameAndInnerName): \(variadicElement)..."
+        } else {
+            "\(nameAndInnerName): \(type)"
+        }
     }
 
     var isSending: Bool {

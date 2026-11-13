@@ -177,6 +177,8 @@ enum MockMembersBuilder {
             "Cuckoo.MockManager.crashOnProtocolSuperclassCall()"
         } else if method.hasNoncopyableParams {
             "Cuckoo.MockManager.crashOnNoncopyableArgumentForward(\(literal))"
+        } else if method.hasVariadicParams {
+            "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(literal))"
         } else {
             "\(method.isAsync ? "await " : "")\(method.superclassCall)"
         }
@@ -186,6 +188,8 @@ enum MockMembersBuilder {
             "Cuckoo.MockManager.crashOnSelfDefaultImplementationCall(\(literal))"
         } else if method.hasNoncopyableParams && !method.isStatic {
             "Cuckoo.MockManager.crashOnNoncopyableArgumentForward(\(literal))"
+        } else if method.hasVariadicParams && !method.isStatic {
+            "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(literal))"
         } else {
             "\(method.isAsync && !method.isStatic ? "await " : "")\(method.defaultCall)"
         }

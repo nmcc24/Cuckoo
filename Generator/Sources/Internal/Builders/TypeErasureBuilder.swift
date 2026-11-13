@@ -131,7 +131,10 @@ enum TypeErasureBuilder {
         var declaration = subscriptDeclaration.spiAttributes(at: subscriptDeclaration.accessibility).map(\.description)
         declaration.append("\(context.access)subscript\(subscriptDeclaration.signature) {")
         declaration.append("    get \(effects){")
-        if isGeneric {
+        let variadicCrash = "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(getter.fullyQualifiedName)))"
+        if isGeneric && getter.hasVariadicParams {
+            declaration.append("        \(variadicCrash)")
+        } else if isGeneric {
             declaration.append("        return \(tryAwait)reference()[\(forwardingCall)]")
         } else {
             declaration.append("        return \(tryAwait)_subscript_getter_storage$$\(number)(\(getter.parameterNames))")
@@ -139,7 +142,9 @@ enum TypeErasureBuilder {
         declaration.append("    }")
         if !subscriptDeclaration.isReadOnly {
             declaration.append("    set {")
-            if isGeneric {
+            if isGeneric && getter.hasVariadicParams {
+                declaration.append("        \(variadicCrash) as Void")
+            } else if isGeneric {
                 declaration.append("        var reference = reference()")
                 declaration.append("        reference[\(forwardingCall)] = newValue")
             } else {
@@ -184,16 +189,32 @@ enum TypeErasureBuilder {
             let number = index + 1
             let tryAwait = (subscriptDeclaration.throwType != nil ? "try " : "") + (subscriptDeclaration.isAsync ? "await " : "")
             let keys = subscriptDeclaration.keyClosureParameters
-            var statements = ["_subscript_getter_storage$$\(number) = { \(tryAwait)box.value[\(keys)] }"]
-            if !subscriptDeclaration.isReadOnly {
-                statements.append("_subscript_setter_storage$$\(number) = { box.value[\(keys)] = $\(subscriptDeclaration.parameters.count) }")
+            var statements: [String]
+            if subscriptDeclaration.getter.hasVariadicParams {
+                // Swift can't pass the recorded array on as separate arguments.
+                let crash = "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(subscriptDeclaration.getter.fullyQualifiedName)))"
+                let ignored = Array(repeating: "_", count: subscriptDeclaration.parameters.count).joined(separator: ", ")
+                statements = ["_subscript_getter_storage$$\(number) = { \(ignored) in \(crash) }"]
+                if !subscriptDeclaration.isReadOnly {
+                    statements.append("_subscript_setter_storage$$\(number) = { \(ignored), _ in \(crash) as Void }")
+                }
+            } else {
+                statements = ["_subscript_getter_storage$$\(number) = { \(tryAwait)box.value[\(keys)] }"]
+                if !subscriptDeclaration.isReadOnly {
+                    statements.append("_subscript_setter_storage$$\(number) = { box.value[\(keys)] = $\(subscriptDeclaration.parameters.count) }")
+                }
             }
             body.append(contentsOf: conditional(subscriptDeclaration, statements))
         }
         for (index, method) in methods.enumerated() where !method.hasGenericParams {
             let parameters = method.parameterNames.isEmpty ? "" : "\(method.parameterNames) in "
             let tryAwait = (method.isThrowing ? "try " : "") + (method.isAsync ? "await " : "")
-            let statement = "_storage$\(index + 1)$\(method.name) = { \(parameters)\(tryAwait)box.value.\(escapeReservedKeywords(for: method.name))(\(method.call)) }"
+            // Swift can't pass a variadic parameter's recorded array on as separate arguments.
+            let statement = if method.hasVariadicParams {
+                "_storage$\(index + 1)$\(method.name) = { \(parameters)Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(method.fullyQualifiedName))) }"
+            } else {
+                "_storage$\(index + 1)$\(method.name) = { \(parameters)\(tryAwait)box.value.\(escapeReservedKeywords(for: method.name))(\(method.call)) }"
+            }
             body.append(contentsOf: conditional(method, [statement]))
         }
         var source = ["init<\(generic): \(container.name)\(metatype)>(_ defaultImpl: \(generic)) where \(requirements) {"]
@@ -214,7 +235,9 @@ enum TypeErasureBuilder {
         }
         var declaration = method.spiAttributes(at: method.accessibility).map(\.description)
         declaration.append("\(context.access)func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
-        if method.hasGenericParams && method.usesNonPrimaryAssociatedTypes {
+        if method.hasVariadicParams && method.hasGenericParams {
+            declaration.append("    Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(method.fullyQualifiedName)))")
+        } else if method.hasGenericParams && method.usesNonPrimaryAssociatedTypes {
             // A `sending` argument is passed in rather than captured: a captured value can't be sent on.
             let variants = method.localFunctionVariants
             let sendingDeclarations = method.sendingParameterDeclarations.map { ", \($0)" }.joined()
