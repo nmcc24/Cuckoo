@@ -23,7 +23,9 @@ initializers for a class. A mock whose initializer calls its own members needs t
 
 Mocks keep the isolation of the type they mock. The mock of a `@MainActor` protocol is `@MainActor`, the mock of
 an `actor` protocol is an actor, and the mock of a `Sendable` type is `Sendable`, so the compiler checks how the
-test shares it.
+test shares it. A protocol that states no isolation of its own takes its parents', as Swift does: the mock of a
+protocol refining a `@MainActor` protocol is `@MainActor` too. A parent declared in another module, which the
+generator doesn't read, can't pass its isolation on; state it on the protocol you mock.
 
 ### Stub members
 

@@ -68,7 +68,15 @@ extension Token {
             let parents = inheritedRepresentations.compactMap { $0 as? ProtocolDeclaration }.map { parent in
                 (declaration: parent, arguments: protocolToken.inheritedTypes.first { $0.withoutGenericArguments == parent.name }?.genericArguments ?? [])
             }
-            return protocolToken.replacing(members: mergedTokens).inheritingAssociatedTypes(from: parents)
+            let merged = protocolToken.replacing(members: mergedTokens).inheritingAssociatedTypes(from: parents)
+            // Every member, inherited ones included, belongs to this protocol now: its mock is the one they're
+            // generated into, and its isolation, which may come from a parent, is the one they take.
+            let reference = Reference<any Token>(merged.replacing(members: []))
+            return merged.replacing(members: merged.members.map { member in
+                var member = member
+                member.parent = reference
+                return member
+            })
         default:
             assertionFailure("This case should not be possible.")
             return token
