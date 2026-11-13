@@ -2,7 +2,7 @@ import Foundation
 
 /// Records a mock's calls and holds its stubs. Every generated mock owns one, as `cuckoo_manager`.
 ///
-/// Tests don't call it directly: ``stub(_:block:)-(M,_)``, ``verify(_:_:file:fileID:filePath:line:column:)->M.Verification``
+/// Tests don't call it directly: ``stub(_:block:)-(M,_)``, ``verify(_:_:fileID:filePath:line:column:)->M.Verification``
 /// and the reset functions go through it. Its methods are public for the generated mocks.
 public final class MockManager: Sendable {
     private struct RecordedCall {
@@ -314,9 +314,9 @@ public final class MockManager: Sendable {
 
     /// Makes unstubbed calls forward to the default implementation. Allowed only before the mock's first call, except
     /// to replace the default implementation, which a generated mock does before calling this.
-    public func enableDefaultStubImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
+    public func enableDefaultStubImplementation(fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
         guard !isStatic else {
-            fail("Static members have no default implementation. Stub them instead.", at: (file, fileID, filePath, line, column))
+            fail("Static members have no default implementation. Stub them instead.", at: (fileID, filePath, line, column))
             return
         }
         let error: String? = state.withLock { state in
@@ -341,8 +341,8 @@ public final class MockManager: Sendable {
     
     /// An actor mock's `enableDefaultImplementation`. An actor mock never forwards to a default implementation:
     /// that would be another actor, and handing it a non-Sendable argument is a data race.
-    public func refuseActorDefaultImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
-        fail("Actor mocks have no default implementation. Stub their members instead.", at: (file, fileID, filePath, line, column))
+    public func refuseActorDefaultImplementation(fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
+        fail("Actor mocks have no default implementation. Stub their members instead.", at: (fileID, filePath, line, column))
     }
 
     func reset() {

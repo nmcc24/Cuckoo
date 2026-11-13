@@ -14,9 +14,8 @@
 /// other, with no other call to those mocks in between.
 public func inOrder(
     strict: Bool = false,
-    file: StaticString = #file,
     fileID: String = #fileID,
-    filePath: String = #filePath,
+    filePath: StaticString = #filePath,
     line: Int = #line,
     column: Int = #column,
     _ block: () -> Void
@@ -26,7 +25,7 @@ public func inOrder(
         block()
     }
     if strict {
-        order.checkNothingInBetween(at: (file, fileID, filePath, line, column))
+        order.checkNothingInBetween(at: (fileID, filePath, line, column))
     }
 }
 

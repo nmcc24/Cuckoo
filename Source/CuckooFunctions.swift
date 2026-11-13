@@ -17,8 +17,8 @@ public func when<F: BaseStubFunctionTrait>(_ function: F) -> F {
 ///
 /// `callMatcher` says how many matching calls are expected, `times(1)` by default. A failed check reports where
 /// `verify` was called, and lists the member's actual calls.
-public func verify<M: Mock>(_ mock: M, _ callMatcher: CallMatcher = times(1), file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> M.Verification {
-    return mock.getVerificationProxy(callMatcher, sourceLocation: (file, fileID, filePath, line, column))
+public func verify<M: Mock>(_ mock: M, _ callMatcher: CallMatcher = times(1), fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) -> M.Verification {
+    return mock.getVerificationProxy(callMatcher, sourceLocation: (fileID, filePath, line, column))
 }
 
 /// Clears the stubs and the recorded calls of `mocks`.
@@ -43,9 +43,9 @@ public func clearInvocations<M: Mock>(_ mocks: M...) {
 }
 
 /// Fails if `mocks` received any call that no earlier `verify` checked.
-public func verifyNoMoreInteractions<M: Mock>(_ mocks: M..., file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
+public func verifyNoMoreInteractions<M: Mock>(_ mocks: M..., fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
     mocks.forEach { mock in
-        mock.cuckoo_manager.verifyNoMoreInteractions((file, fileID, filePath, line, column))
+        mock.cuckoo_manager.verifyNoMoreInteractions((fileID, filePath, line, column))
     }
 }
 
@@ -56,8 +56,8 @@ public func stub<M: StaticMock>(_ type: M.Type, block: (M.StaticStubbing) -> Voi
 
 /// Returns a proxy that checks the calls a mock type's static or class members received, in the current
 /// ``StaticStubs`` scope.
-public func verify<M: StaticMock>(_ type: M.Type, _ callMatcher: CallMatcher = times(1), file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> M.StaticVerification {
-    M.StaticVerification(manager: M.cuckoo_staticManager, callMatcher: callMatcher, sourceLocation: (file, fileID, filePath, line, column))
+public func verify<M: StaticMock>(_ type: M.Type, _ callMatcher: CallMatcher = times(1), fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) -> M.StaticVerification {
+    M.StaticVerification(manager: M.cuckoo_staticManager, callMatcher: callMatcher, sourceLocation: (fileID, filePath, line, column))
 }
 
 /// Clears the stubs and recorded calls of mock types' static members, in the current ``StaticStubs`` scope.
@@ -69,6 +69,6 @@ public func reset(_ types: any StaticMock.Type...) {
 
 /// Fails if a mock type's static members received any call that no earlier `verify` checked, in the current
 /// ``StaticStubs`` scope.
-public func verifyNoMoreInteractions<M: StaticMock>(_ type: M.Type, file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
-    M.cuckoo_staticManager.verifyNoMoreInteractions((file, fileID, filePath, line, column))
+public func verifyNoMoreInteractions<M: StaticMock>(_ type: M.Type, fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
+    M.cuckoo_staticManager.verifyNoMoreInteractions((fileID, filePath, line, column))
 }
