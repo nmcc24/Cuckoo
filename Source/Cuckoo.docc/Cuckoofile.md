@@ -125,11 +125,14 @@ The `[modules.<Name>.options]` table:
 ### Running the generator yourself
 
 The build plugin is the way to run the generator. To run it from the command line, as a pre-build script or
-to look at what it writes, build `CuckooGenerator` and pass the Cuckoofile:
+to look at what it writes, build `CuckooGenerator` from a clone of the repository and pass the Cuckoofile:
 
 ```sh
 swift run --package-path path/to/Cuckoo CuckooGenerator --configuration Cuckoofile.toml --verbose
 ```
+
+A release's own manifest doesn't declare the `CuckooGenerator` product, which its plugin doesn't need, so build it
+from a branch, such as `master`, or run the generator inside the release's `CuckooGenerator.artifactbundle.zip`.
 
 `--verbose` prints each module's settings as the generator reads them. Each module writes to its `output`, or to the
 top-level one.
