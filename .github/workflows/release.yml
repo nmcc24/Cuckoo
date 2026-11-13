@@ -53,6 +53,11 @@ jobs:
               echo "::error::The tag $VERSION already exists."; exit 1
             fi
           fi
+          # The release's notes are this version's changelog section. Checked here, before anything is built or
+          # tagged: the release job pushes the tag before it publishes, so a missing section found there would leave
+          # a tag whose Package.swift points at a release that doesn't exist.
+          scripts/release-notes.sh "$VERSION" >/dev/null \
+            || { echo "::error::CHANGELOG.md has no section '## $VERSION'."; exit 1; }
 
   build:
     name: Build the generator (${{ matrix.name }})
@@ -156,10 +161,8 @@ jobs:
             echo "The release $VERSION is already published."
             exit 0
           fi
-          # The notes are the version's section of the changelog, from its heading to the next one.
-          awk -v heading="## $VERSION" '$0 == heading { found = 1; next } found && /^## / { exit } found' \
-            CHANGELOG.md > notes.md
-          [[ -s notes.md ]] || { echo "::error::CHANGELOG.md has no section '## $VERSION'."; exit 1; }
+          # The notes are the version's section of the changelog, which the check job already found.
+          scripts/release-notes.sh "$VERSION" > notes.md
           prerelease=()
           [[ "$VERSION" == *-* ]] && prerelease=(--prerelease)
           gh release create "$VERSION" bundle/CuckooGenerator.artifactbundle.zip \
