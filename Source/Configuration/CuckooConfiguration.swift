@@ -9,7 +9,9 @@ import XCTest
 /// `.cuckoo(…)` trait, or for any scope with `CuckooConfiguration.$current.withValue(…)`.
 ///
 /// A call with no matching stub always records a failure, then answers so the test can go on: a member that
-/// throws `any Error` throws `CuckooError.unstubbedCall`, and any other member returns its type's default value.
+/// throws `any Error` throws `CuckooError.unstubbedCall`, and any other member returns its type's default value. A
+/// `rethrows` member returns the default value too: its caller may have passed closures that don't throw, and then
+/// has no `try` to catch an error with.
 /// It crashes only when neither is possible.
 public struct CuckooConfiguration: Sendable {
     /// Receives each failure instead of the test framework. `nil` reports to the framework running the test.

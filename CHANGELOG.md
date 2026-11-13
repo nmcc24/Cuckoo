@@ -11,6 +11,9 @@
   `inRange: 1..<3` matched without any warning, so code moved from Cuckoo 2 kept compiling but stopped matching 3.
 
 ### Fixed
+- An unstubbed `rethrows` member called with a closure that doesn't throw crashed the test process: it threw
+  `CuckooError.unstubbedCall` into a call that had no `try`. It now records the failure and returns a
+  default value, as any non-throwing member does.
 - XCTest failures from `verify`, `verifyNoMoreInteractions` and `inOrder` point at the failing line. They carried a
   module-relative path, the one `#file` gives in a Swift 6 module, so Xcode couldn't place them.
 

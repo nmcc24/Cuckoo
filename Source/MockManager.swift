@@ -145,7 +145,8 @@ public final class MockManager: Sendable {
         escapingParameters: IN,
         invoke: (IMPL, IN) throws(ERROR) -> OUT,
         superclassCall: () throws(ERROR) -> OUT,
-        defaultCall: () throws(ERROR) -> OUT
+        defaultCall: () throws(ERROR) -> OUT,
+        unstubbedThrows: Bool = true
     ) throws(ERROR) -> OUT {
         switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
         case .stubbed(.callImplementation(let implementation)):
@@ -159,7 +160,7 @@ public final class MockManager: Sendable {
         case .defaultImplementation:
             return try defaultCall()
         case .unstubbed:
-            if let error = unstubbedError(method, as: ERROR.self) {
+            if unstubbedThrows, let error = unstubbedError(method, as: ERROR.self) {
                 throw error
             }
             return unstubbedValue(method)
@@ -172,7 +173,8 @@ public final class MockManager: Sendable {
         escapingParameters: IN,
         invoke: nonisolated(nonsending) (IMPL, IN) async throws(ERROR) -> OUT,
         superclassCall: () async throws(ERROR) -> OUT,
-        defaultCall: () async throws(ERROR) -> OUT
+        defaultCall: () async throws(ERROR) -> OUT,
+        unstubbedThrows: Bool = true
     ) async throws(ERROR) -> OUT {
         switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
         case .stubbed(.callImplementation(let implementation)):
@@ -186,7 +188,7 @@ public final class MockManager: Sendable {
         case .defaultImplementation:
             return try await defaultCall()
         case .unstubbed:
-            if let error = unstubbedError(method, as: ERROR.self) {
+            if unstubbedThrows, let error = unstubbedError(method, as: ERROR.self) {
                 throw error
             }
             return unstubbedValue(method)
@@ -554,6 +556,9 @@ extension MockManager {
 extension MockManager {
     /// Records a call of a rethrowing `method` and answers it from a stub, the superclass or the default
     /// implementation.
+    ///
+    /// An unstubbed call returns a default value instead of throwing ``CuckooError/unstubbedCall(method:)``: the
+    /// caller may have passed closures that don't throw, and then has no `try` to catch the error with.
     public func callRethrows<IN, OUT, IMPL>(
         _ method: String,
         parameters: IN,
@@ -562,11 +567,13 @@ extension MockManager {
         superclassCall: @autoclosure () throws -> OUT,
         defaultCall: @autoclosure () throws -> OUT
     ) rethrows -> OUT {
-        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
+        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedThrows: false)
     }
 
     /// Records a call of an async rethrowing `method` and answers it from a stub, the superclass or the default
     /// implementation.
+    ///
+    /// An unstubbed call returns a default value instead of throwing, as the synchronous `callRethrows` does.
     public nonisolated(nonsending) func callRethrows<IN, OUT, IMPL>(
         _ method: String,
         parameters: IN,
@@ -575,6 +582,6 @@ extension MockManager {
         superclassCall: @autoclosure () async throws -> OUT,
         defaultCall: @autoclosure () async throws -> OUT
     ) async rethrows -> OUT {
-        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
+        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedThrows: false)
     }
 }

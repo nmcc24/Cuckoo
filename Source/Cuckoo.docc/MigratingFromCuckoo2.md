@@ -94,7 +94,8 @@ behaviour on top.
 ### Behaviour changes
 
 - A call with no matching stub records a failure, then answers so the test can go on: a member that throws
-  `any Error` throws ``CuckooError/unstubbedCall(method:)``, and any other returns a default value. Cuckoo 2
+  `any Error` throws ``CuckooError/unstubbedCall(method:)``, and any other, a `rethrows` one included, returns a
+  default value. Cuckoo 2
   crashed the test process. A test that relied on a mock answering with defaults, without stubs, now fails: stub
   those calls with `any()`, or make the mock answer quietly with
   `withEnabledDefaultImplementation(GreeterStub())`.
