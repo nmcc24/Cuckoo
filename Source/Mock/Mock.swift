@@ -12,14 +12,14 @@ public protocol HasSuperclass {
 
 /// A generated mock of a protocol or class.
 ///
-/// The generator writes the conformance; tests use a mock through ``stub(_:block:)-(M,_)``, ``verify(_:_:file:fileID:filePath:line:column:)->M.Verification``
+/// The generator writes the conformance; tests use a mock through ``stub(_:block:)-(M,_)``, ``verify(_:_:fileID:filePath:line:column:)->M.Verification``
 /// and ``Mock/enableDefaultImplementation(_:)``.
 public protocol Mock: HasMockManager, HasSuperclass {
     /// The mocked protocol or class.
     associatedtype MocksType
     /// The proxy ``stub(_:block:)-(M,_)`` hands to its block, with one stubbing member per mocked member.
     associatedtype Stubbing: StubbingProxy
-    /// The proxy ``verify(_:_:file:fileID:filePath:line:column:)->M.Verification`` returns, with one verifying member per mocked member.
+    /// The proxy ``verify(_:_:fileID:filePath:line:column:)->M.Verification`` returns, with one verifying member per mocked member.
     associatedtype Verification: VerificationProxy
 
     /// Returns the proxy for stubbing this mock's members.

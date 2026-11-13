@@ -64,6 +64,8 @@ behaviour on top.
 - ``DefaultValueRegistry/register(_:for:)`` takes `Sendable` values. It still applies to every test; for
   values only some tests need, register them in `DefaultValues` through `.cuckoo(defaultValues:)`, which tests
   running in parallel don't share.
+- A failure handler's ``SourceLocation`` has no `file`: read `filePath`, a `StaticString`, which is the full path
+  Xcode needs. The checks no longer take a `file:` argument.
 - `enableDefaultImplementation(mutating:)` is removed: it kept a pointer to your variable after the call returned.
   A `struct` default implementation is copied once and keeps the changes made through the mock; pass a class
   instance to share state with the test.
@@ -106,7 +108,7 @@ Once the suite compiles, these can replace workarounds:
 
 - Static and class members can be mocked: `stub(MockClock.self) { … }`, inside a `.cuckoo()` test or
   `withStaticStubs { }`.
-- ``inOrder(strict:file:fileID:filePath:line:column:_:)`` and ``eventually(timeout:pollingInterval:_:)`` verify
+- ``inOrder(strict:fileID:filePath:line:column:_:)`` and ``eventually(timeout:pollingInterval:_:)`` verify
   call order and calls made from another task.
 - Typed throws, `inout`, `~Copyable` arguments and parameter packs can be stubbed.
 

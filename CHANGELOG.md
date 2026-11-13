@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- `SourceLocation` loses `file`: it's `(fileID:filePath:line:column:)`, with `filePath` a `StaticString`, and
+  `verify`, `verifyNoMoreInteractions`, `inOrder` and the `MockManager` methods that took a `file:` argument no longer
+  do. A failure handler that read `sourceLocation.file` reads `filePath` instead.
+
+### Fixed
+- XCTest failures from `verify`, `verifyNoMoreInteractions` and `inOrder` point at the failing line. They carried a
+  module-relative path, the one `#file` gives in a Swift 6 module, so Xcode couldn't place them.
+
 ## 3.0.0-beta.3
 
 Matchers that `Sendable` mocks can keep, so their stubs are safe to call from any task, and the deprecation of

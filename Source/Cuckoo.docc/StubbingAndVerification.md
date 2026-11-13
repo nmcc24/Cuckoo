@@ -133,7 +133,7 @@ doesn't, and its static calls fail as unstubbed.
 
 ### Verify calls
 
-``verify(_:_:file:fileID:filePath:line:column:)->M.Verification`` checks that the mock received a call, once unless
+``verify(_:_:fileID:filePath:line:column:)->M.Verification`` checks that the mock received a call, once unless
 a call matcher says otherwise:
 
 ```swift
@@ -146,7 +146,7 @@ verifyNoMoreInteractions(greeter)
 ```
 
 A failed `verify` lists the calls the member received, each with the first argument that didn't match, or every
-call the mock received if the member had none. ``verifyNoMoreInteractions(_:file:fileID:filePath:line:column:)-(M...,_,_,_,_,_)``
+call the mock received if the member had none. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(M...,_,_,_,_)``
 fails if the mock received a call no `verify` checked.
 
 A generic member whose type comes only from its return value needs the type spelled out:
@@ -157,7 +157,7 @@ verify(cache).value(forKey: "a").with(returnType: Int?.self)
 
 ### Order and timing
 
-``inOrder(strict:file:fileID:filePath:line:column:_:)`` checks that calls happened in the order of the `verify`
+``inOrder(strict:fileID:filePath:line:column:_:)`` checks that calls happened in the order of the `verify`
 calls in its block, across mocks. With `strict: true`, no other call to those mocks may come in between:
 
 ```swift
