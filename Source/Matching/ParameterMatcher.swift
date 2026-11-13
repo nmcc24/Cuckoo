@@ -2,7 +2,7 @@
 ///
 /// Cuckoo's matcher functions, such as `any()` or `equal(to:)`, return one. Write your own with a
 /// closure: `ParameterMatcher<Int> { $0.isMultiple(of: 2) }`.
-public struct ParameterMatcher<T>: Matchable {
+public struct ParameterMatcher<T>: _Matchable {
     private let matchesFunction: (T) -> Bool
     
     /// Creates a matcher that accepts the arguments `matchesFunction` returns `true` for, every argument by default.
@@ -22,7 +22,7 @@ public struct ParameterMatcher<T>: Matchable {
 }
 
 /// `Optional`, as a protocol, so ``ParameterMatcher`` can match optional arguments. Only `Optional` conforms.
-public protocol CuckooOptionalType {
+public protocol CuckooOptionalType: SendableMetatype {
     /// The wrapped type.
     associatedtype Wrapped
 
@@ -37,7 +37,7 @@ extension Optional: CuckooOptionalType {
     }
 }
 
-extension ParameterMatcher: OptionalMatchable where T: CuckooOptionalType {
+extension ParameterMatcher: _OptionalMatchable where T: CuckooOptionalType {
     /// A matcher of optionals matches optional arguments of the same type.
     public typealias OptionalMatchedType = T.Wrapped
 

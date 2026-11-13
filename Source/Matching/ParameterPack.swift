@@ -32,6 +32,18 @@ public struct ParameterPack: CustomStringConvertible {
 }
 
 /// Returns a matcher matching a parameter pack whose values equal `values`, in order and with the same types.
+public func equal<each Value: Equatable & Sendable>(to values: repeat each Value) -> SendableMatcher<ParameterPack> {
+    var expected: [@Sendable (Any) -> Bool] = []
+    for value in repeat each values {
+        expected.append(isEqual(to: value))
+    }
+    return SendableMatcher { [expected] pack in
+        pack.count == expected.count && zip(expected, pack.values).allSatisfy { matches, value in matches(value) }
+    }
+}
+
+/// Returns a matcher matching a parameter pack whose values equal `values`, in order and with the same types, for
+/// values that aren't `Sendable` or whose `==` is isolated to an actor.
 public func equal<each Value: Equatable>(to values: repeat each Value) -> ParameterMatcher<ParameterPack> {
     var expected: [(Any) -> Bool] = []
     for value in repeat each values {
@@ -40,6 +52,10 @@ public func equal<each Value: Equatable>(to values: repeat each Value) -> Parame
     return ParameterMatcher { pack in
         pack.count == expected.count && zip(expected, pack.values).allSatisfy { matches, value in matches(value) }
     }
+}
+
+private func isEqual<Value: Equatable & Sendable>(to expected: Value) -> @Sendable (Any) -> Bool {
+    { ($0 as? Value) == expected }
 }
 
 private func isEqual<Value: Equatable>(to expected: Value) -> (Any) -> Bool {

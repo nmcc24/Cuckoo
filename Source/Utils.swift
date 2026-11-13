@@ -8,7 +8,7 @@ internal func setterName(_ property: String) -> String {
 
 /// Matches an argument of type `IN` by mapping it to the type `matchable` matches. Generated proxies use it to
 /// match one parameter of a call's argument tuple.
-public func wrap<M: Matchable, IN>(matchable: M, mapping: @escaping (IN) -> M.MatchedType) -> ParameterMatcher<IN> {
+public func wrap<M: _Matchable, IN>(matchable: M, mapping: @escaping (IN) -> M.MatchedType) -> ParameterMatcher<IN> {
     return ParameterMatcher {
         return matchable.matcher.matches(mapping($0))
     }
@@ -16,9 +16,33 @@ public func wrap<M: Matchable, IN>(matchable: M, mapping: @escaping (IN) -> M.Ma
 
 /// Matches an argument of type `IN` by mapping it to the optional type `matchable` matches. Generated proxies use
 /// it to match one optional parameter of a call's argument tuple.
-public func wrap<M: OptionalMatchable, IN, O>(matchable: M, mapping: @escaping (IN) -> M.OptionalMatchedType?) -> ParameterMatcher<IN> where M.OptionalMatchedType == O {
+public func wrap<M: _OptionalMatchable, IN, O>(matchable: M, mapping: @escaping (IN) -> M.OptionalMatchedType?) -> ParameterMatcher<IN> where M.OptionalMatchedType == O {
     return ParameterMatcher {
         return matchable.optionalMatcher.matches(mapping($0))
+    }
+}
+
+/// Matches an argument of type `IN` by reading, at `keyPath`, the value `matchable` matches. A `Sendable` mock's
+/// generated stubbing proxies use it to match one parameter of a call's argument tuple, such as `\.0`.
+public func wrap<M: _SendableMatchable, IN>(
+    matchable: M,
+    at keyPath: any KeyPath<IN, M.MatchedType> & Sendable
+) -> SendableMatcher<IN> {
+    let matcher = matchable.sendableMatcher
+    return SendableMatcher {
+        matcher.matches($0[keyPath: keyPath])
+    }
+}
+
+/// Matches an argument of type `IN` by reading, at `keyPath`, the optional value `matchable` matches. A `Sendable`
+/// mock's generated stubbing proxies use it to match one optional parameter of a call's argument tuple.
+public func wrap<M: _SendableOptionalMatchable, IN>(
+    matchable: M,
+    at keyPath: any KeyPath<IN, M.OptionalMatchedType?> & Sendable
+) -> SendableMatcher<IN> {
+    let matcher = matchable.sendableOptionalMatcher
+    return SendableMatcher {
+        matcher.matches($0[keyPath: keyPath])
     }
 }
 

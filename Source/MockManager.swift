@@ -207,6 +207,18 @@ public final class MockManager: Sendable {
         return stub
     }
 
+    /// Adds a stub of a `Sendable` class mock's `method` for calls whose arguments match `parameterMatchers`.
+    @_disfavoredOverload
+    public func createStub<MOCK: ClassMock, IN, OUT, ERROR, IMPL>(for mock: MOCK.Type, method: String, parameterMatchers: [SendableMatcher<IN>]) -> ClassConcreteStub<IN, OUT, ERROR, IMPL> {
+        createStub(for: mock, method: method, parameterMatchers: parameterMatchers.map(\.matcher))
+    }
+
+    /// Adds a stub of a `Sendable` protocol mock's `method` for calls whose arguments match `parameterMatchers`.
+    @_disfavoredOverload
+    public func createStub<MOCK: ProtocolMock, IN, OUT, ERROR, IMPL>(for mock: MOCK.Type, method: String, parameterMatchers: [SendableMatcher<IN>]) -> ConcreteStub<IN, OUT, ERROR, IMPL> {
+        createStub(for: mock, method: method, parameterMatchers: parameterMatchers.map(\.matcher))
+    }
+
     /// Checks the recorded calls of `method` whose arguments match `parameterMatchers` against `callMatcher`, and
     /// reports a failure at `sourceLocation` when they don't match.
     public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> __DoNotUse<IN, OUT> {
