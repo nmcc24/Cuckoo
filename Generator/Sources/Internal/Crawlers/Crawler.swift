@@ -164,7 +164,11 @@ final class Crawler: SyntaxVisitor {
             name: node.name.filteredDescription,
             associatedTypes: associatedTypes(from: node.memberBlock.members),
             primaryAssociatedTypes: genericParameters(from: node.primaryAssociatedTypeClause?.primaryAssociatedTypes),
-            genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements),
+            // An associated type's own `where` clause constrains the protocol as one on the protocol does.
+            genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements)
+                + node.memberBlock.members.flatMap { member in
+                    genericRequirements(from: member.decl.as(AssociatedTypeDeclSyntax.self)?.genericWhereClause?.requirements)
+                },
             inheritedTypes: inheritedTypes,
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions,

@@ -35,7 +35,7 @@ enum NopImplStubBuilder {
         }
 
         var headerLines = container.repeatedAttributes.map(\.description) + container.spiAttributes(at: container.accessibility).map(\.description)
-        headerLines.append("\(container.accessibility.spaced)\(keyword(of: container)) \(name)\(container.genericParametersString): \(inheritance(of: container)) {\n}")
+        headerLines.append("\(container.accessibility.spaced)\(keyword(of: container)) \(name)\(container.genericParametersString): \(inheritance(of: container))\(container.genericWhereClause) {\n}")
         let header = lines(headerLines)
         let declaration = try Fragment.declaration(header, of: name)
         if var classDeclaration = declaration.as(ClassDeclSyntax.self) {

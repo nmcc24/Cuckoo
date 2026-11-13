@@ -19,6 +19,7 @@ import Combine
 @testable public import struct CuckooTestSources.StubError
 @testable public import class CuckooTestSources.ClassWithTypedThrows
 @testable public import class CuckooTestSources.ClassWithUnavailablePlatformMembers
+@testable public import protocol CuckooTestSources.ConstrainedAssociatedTypes
 @testable public import class CuckooTestSources.ExcludedTestClass
 @testable public import class CuckooTestSources.IncludedTestClass
 @testable public import protocol CuckooTestSources.IncludedProtocol
@@ -2414,6 +2415,154 @@ final class ClassWithUnavailablePlatformMembersStub: ClassWithUnavailablePlatfor
 
     override func availableMethod() -> Bool {
         return DefaultValueRegistry.defaultValue(for: (Bool).self)
+    }
+}
+
+nonisolated final class MockConstrainedAssociatedTypes<Element: Equatable, Items: Collection>: ConstrainedAssociatedTypes, nonisolated Cuckoo.ProtocolMock where Items.Element == Int {
+    typealias MocksType = DefaultImplCaller
+    typealias Stubbing = __StubbingProxy_ConstrainedAssociatedTypes
+    typealias Verification = __VerificationProxy_ConstrainedAssociatedTypes
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class DefaultImplCaller: ConstrainedAssociatedTypes, Sendable {
+        private let reference: @Sendable () -> any ConstrainedAssociatedTypes
+
+        init<_CUCKOO$$GENERIC: ConstrainedAssociatedTypes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, _CUCKOO$$GENERIC.Items == Items, Element: SendableMetatype, Items: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = {
+                box.value
+            }
+
+            _storage$1$echo = { p0 in
+                box.value.echo(p0)
+            }
+            _storage$2$first = { p0 in
+                box.value.first(of: p0)
+            }
+        }
+
+        private let _storage$1$echo: @Sendable (Element) -> Element
+        func echo(_ p0: Element) -> Element {
+            return _storage$1$echo(p0)
+        }
+
+        private let _storage$2$first: @Sendable (Items) -> Int?
+        func first(of p0: Items) -> Int? {
+            return _storage$2$first(p0)
+        }
+    }
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ConstrainedAssociatedTypes & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, _CUCKOO$$GENERIC.Items == Items, Element: SendableMetatype, Items: SendableMetatype {
+        __defaultImplStub.value = DefaultImplCaller(stub)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func echo(_ p0: Element) -> Element {
+        return cuckoo_manager.call(
+            "echo(_ p0: Element) -> Element",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Element)) -> Element, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.echo(p0)
+        )
+    }
+
+    func first(of p0: Items) -> Int? {
+        return cuckoo_manager.call(
+            "first(of p0: Items) -> Int?",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Items)) -> Int?, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.first(of: p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ConstrainedAssociatedTypes: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func echo<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(Element), Element, ((Element)) -> Element, Cuckoo.StubSharing.Confined> where M1.MatchedType == Element {
+            let matchers: [Cuckoo.ParameterMatcher<(Element)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConstrainedAssociatedTypes.self,
+                method: "echo(_ p0: Element) -> Element",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func first<M1: Cuckoo._Matchable>(of p0: M1) -> Cuckoo.ProtocolStubFunction<(Items), Int?, ((Items)) -> Int?, Cuckoo.StubSharing.Confined> where M1.MatchedType == Items {
+            let matchers: [Cuckoo.ParameterMatcher<(Items)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConstrainedAssociatedTypes.self,
+                method: "first(of p0: Items) -> Int?",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ConstrainedAssociatedTypes: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func echo<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Element), Element> where M1.MatchedType == Element {
+            let matchers: [Cuckoo.ParameterMatcher<(Element)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "echo(_ p0: Element) -> Element",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        @discardableResult
+        func first<M1: Cuckoo._Matchable>(of p0: M1) -> Cuckoo.__DoNotUse<(Items), Int?> where M1.MatchedType == Items {
+            let matchers: [Cuckoo.ParameterMatcher<(Items)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "first(of p0: Items) -> Int?",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ConstrainedAssociatedTypesStub<Element: Equatable, Items: Collection>: ConstrainedAssociatedTypes where Items.Element == Int {
+    func echo(_ p0: Element) -> Element {
+        return DefaultValueRegistry.defaultValue(for: (Element).self)
+    }
+
+    func first(of p0: Items) -> Int? {
+        return DefaultValueRegistry.defaultValue(for: (Int?).self)
     }
 }
 

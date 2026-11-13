@@ -18,6 +18,9 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// Whether ``superclass`` is declared in the sources. The mock then takes on the class's isolation, as
     /// a subclass must, instead of being `nonisolated`.
     var isSuperclassDeclared = false
+    /// Requirements of the protocol's or its associated types' `where` clauses that neither constrain an associated
+    /// type nor fix one, such as `Items.Element == Int`: the mock and stub repeat them in their own `where` clause.
+    var whereRequirements: [String] = []
 
     /// The global actor the protocol is isolated to, if any.
     var globalActor: String? {
@@ -43,7 +46,8 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             enclosingCompilationConditions: enclosingCompilationConditions,
             isolation: isolation,
             superclass: superclass,
-            isSuperclassDeclared: isSuperclassDeclared
+            isSuperclassDeclared: isSuperclassDeclared,
+            whereRequirements: whereRequirements
         )
     }
 
@@ -64,17 +68,25 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     func inheritingAssociatedTypes(from parents: [(declaration: ProtocolDeclaration, arguments: [String])]) -> ProtocolDeclaration {
         var fixedTypes: [(name: String, type: String)] = []
         var constraints: [String: [String]] = [:]
+        var whereRequirements: [String] = []
         for (parent, arguments) in parents {
             fixedTypes += zip(parent.primaryAssociatedTypes, arguments).map { ($0.name, $1) }
         }
+        let associatedTypeNames = Set((associatedTypes + primaryAssociatedTypes + parents.flatMap(\.declaration.genericParameters)).map(\.name))
         for requirement in genericRequirements {
+            // Inside the mock, `Self.Items` is its generic parameter `Items`.
+            let requirement = requirement.replacing(#/\bSelf\./#, with: "")
             let separator = requirement.firstRange(of: "==") ?? requirement.firstRange(of: ":")
             guard let separator else { continue }
-            var name = requirement[..<separator.lowerBound].trimmedSpaces
-            if name.hasPrefix("Self.") {
-                name.removeFirst("Self.".count)
-            }
+            let name = requirement[..<separator.lowerBound].trimmedSpaces
             let type = requirement[separator.upperBound...].trimmedSpaces
+            guard associatedTypeNames.contains(name) else {
+                // A nested type, as in `Items.Element == Int`: the mock states it in its `where` clause.
+                if name != "Self" {
+                    whereRequirements.append(requirement)
+                }
+                continue
+            }
             if requirement[separator] == "==" {
                 fixedTypes.append((name, type))
             } else {
@@ -85,6 +97,7 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         let inheritedAssociatedTypes = parents.flatMap(\.declaration.genericParameters)
 
         var protocolDeclaration = self
+        protocolDeclaration.whereRequirements = (whereRequirements + parents.flatMap(\.declaration.whereRequirements)).uniquing()
         protocolDeclaration.associatedTypes = (associatedTypes + inheritedAssociatedTypes)
             .merged()
             .filter { !fixedNames.contains($0.name) }
