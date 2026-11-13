@@ -113,8 +113,8 @@ enum VerificationProxyBuilder {
             let index = subscriptDeclaration.newValueMatcherIndex
             type.append("")
             type.append("    @discardableResult")
-            type.append("    func set<\(subscriptDeclaration.newValueMatcherGeneric)>(_ \(subscriptDeclaration.newValueName): M\(index)) -> Cuckoo.__DoNotUse<(\(setterInput)), Void> where \(subscriptDeclaration.newValueMatcherConstraint) {")
-            type.append("        let matchers: [Cuckoo.ParameterMatcher<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers)[\(subscriptDeclaration.newValueMatcher)]")
+            type.append("    func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: false))>(_ \(subscriptDeclaration.newValueName): M\(index)) -> Cuckoo.__DoNotUse<(\(setterInput)), Void> where \(subscriptDeclaration.newValueMatcherConstraint) {")
+            type.append("        let matchers: [Cuckoo.ParameterMatcher<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers(sendable: false))[\(subscriptDeclaration.newValueMatcher(sendable: false))]")
             type.append(contentsOf: verify(setter).map { "    \($0)" })
             type.append("    }")
         }

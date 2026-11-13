@@ -157,7 +157,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             return .init(manager: cuckoo_manager, name: "items")
         }
 
-        func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), Item?, @MainActor @Sendable ((Int)) -> Item?, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
+        func item<M1: Cuckoo._Matchable>(at p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), Item?, @MainActor @Sendable ((Int)) -> Item?, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -196,7 +196,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         }
 
         @discardableResult
-        func item<M1: Cuckoo.Matchable>(at p0: M1) -> Cuckoo.__DoNotUse<(Int), Item?> where M1.MatchedType == Int {
+        func item<M1: Cuckoo._Matchable>(at p0: M1) -> Cuckoo.__DoNotUse<(Int), Item?> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -328,7 +328,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
             self.cuckoo_manager = manager
         }
 
-        func entry<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), Entry?, @StorageActor @Sendable ((Key)) -> Entry?, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Key {
+        func entry<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), Entry?, @StorageActor @Sendable ((Key)) -> Entry?, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -338,7 +338,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
             ))
         }
 
-        func record<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Entry, Key), @StorageActor @Sendable ((Entry, Key)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Entry, M2.MatchedType == Key {
+        func record<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Entry, Key), @StorageActor @Sendable ((Entry, Key)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Entry, M2.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -363,7 +363,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         }
 
         @discardableResult
-        func entry<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), Entry?> where M1.MatchedType == Key {
+        func entry<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), Entry?> where M1.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -376,7 +376,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         }
 
         @discardableResult
-        func record<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.__DoNotUse<(Entry, Key), Void> where M1.MatchedType == Entry, M2.MatchedType == Key {
+        func record<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.__DoNotUse<(Entry, Key), Void> where M1.MatchedType == Entry, M2.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {

@@ -151,11 +151,11 @@ extension Subscript {
     // them out of the setter's parameters, which are the keys and then the new value.
 
     /// The matchers of the keys, followed by ` + `, or nothing for a subscript without keys.
-    var keyMatchers: String {
+    func keyMatchers(sendable: Bool) -> String {
         let keys = parameters
         guard !keys.isEmpty else { return "" }
         let keyProjection = keys.count == 1 ? "$0.0" : "(\(keys.indices.map { "$0.\($0)" }.joined(separator: ", ")))"
-        return "self.matchers.map { matcher in Cuckoo.ParameterMatcher { matcher.matches(\(keyProjection)) } } + "
+        return "self.matchers.map { matcher in \(GeneratorHelper.matcherType(sendable: sendable)) { matcher.matches(\(keyProjection)) } } + "
     }
 
     /// The number in the new value's matcher's generic parameter, `M<n>`.
@@ -167,8 +167,8 @@ extension Subscript {
         newValue.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe
     }
 
-    var newValueMatcherGeneric: String {
-        "M\(newValueMatcherIndex): Cuckoo.\(matchedNewValueType.isOptional ? "OptionalMatchable" : "Matchable")"
+    func newValueMatcherGeneric(sendable: Bool) -> String {
+        "M\(newValueMatcherIndex): Cuckoo.\(GeneratorHelper.matcherProtocol(isOptional: matchedNewValueType.isOptional, sendable: sendable))"
     }
 
     var newValueMatcherConstraint: String {
@@ -176,8 +176,8 @@ extension Subscript {
         return "M\(newValueMatcherIndex).\(type.isOptional ? "OptionalMatchedType" : "MatchedType") == \(type.unoptionaled.description.replacing("!", with: "?"))"
     }
 
-    var newValueMatcher: String {
-        "Cuckoo.wrap(matchable: \(newValueName)) { \(parameters.isEmpty ? "$0" : "$0.\(parameters.count)") }"
+    func newValueMatcher(sendable: Bool) -> String {
+        GeneratorHelper.parameterMatcher(name: newValueName, index: parameters.count, count: parameters.count + 1, sendable: sendable)
     }
 }
 

@@ -1,0 +1,79 @@
+import Cuckoo
+import Foundation
+
+nonisolated final class MockTokenCache: TokenCache, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any TokenCache
+    typealias Stubbing = __StubbingProxy_TokenCache
+    typealias Verification = __VerificationProxy_TokenCache
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any TokenCache>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any TokenCache) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func store(_ p0: Token) {
+        return cuckoo_manager.call(
+            "store(_ p0: Token)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: @Sendable ((Token)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.store(p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_TokenCache: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func store<M1: Cuckoo._SendableMatchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Token), @Sendable ((Token)) -> Void, Cuckoo.StubSharing.Shared> where M1.MatchedType == Token {
+            let matchers: [Cuckoo.SendableMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckoo_manager.createStub(for: MockTokenCache.self,
+                method: "store(_ p0: Token)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_TokenCache: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func store<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Token), Void> where M1.MatchedType == Token {
+            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "store(_ p0: Token)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class TokenCacheStub: TokenCache {
+    func store(_ p0: Token) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}

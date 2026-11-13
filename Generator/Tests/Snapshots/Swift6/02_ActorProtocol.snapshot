@@ -65,7 +65,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
         }
 
         func increment() -> Cuckoo.ProtocolStubFunction<(), Int, @Sendable (isolated MockStore) -> Int, Cuckoo.StubSharing.Shared> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStore.self,
                 method: "increment() -> Int",
                 parameterMatchers: matchers
@@ -73,7 +73,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
         }
 
         func fetch() -> Cuckoo.ProtocolStubFunction<(), [String], @Sendable (isolated MockStore) async -> [String], Cuckoo.StubSharing.Shared> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStore.self,
                 method: "fetch() async -> [String]",
                 parameterMatchers: matchers

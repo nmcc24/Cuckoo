@@ -157,7 +157,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             ))
         }
 
-        func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(Int), String, any Swift.Error, nonisolated(nonsending) ((Int)) async throws -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+        func load<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(Int), String, any Swift.Error, nonisolated(nonsending) ((Int)) async throws -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -167,7 +167,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             ))
         }
 
-        subscript <M1: Cuckoo.Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
+        subscript <M1: Cuckoo._Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -214,7 +214,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
         }
 
         @discardableResult
-        func load<M1: Cuckoo.Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
+        func load<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -226,7 +226,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             )
         }
 
-        subscript <M1: Cuckoo.Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
+        subscript <M1: Cuckoo._Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -465,7 +465,7 @@ nonisolated final class MockSendableClock: SendableClock, nonisolated Cuckoo.Pro
         }
 
         func now() -> Cuckoo.ProtocolStubFunction<(), Int, @Sendable (()) -> Int, Cuckoo.StubSharing.Shared> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockSendableClock.self,
                 method: "static now() -> Int",
                 parameterMatchers: matchers
@@ -552,7 +552,7 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
         }
 
         func items() -> Cuckoo.ProtocolStubFunction<(), [String], @Sendable (isolated MockActorCatalog) -> [String], Cuckoo.StubSharing.Shared> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockActorCatalog.self,
                 method: "items() -> [String]",
                 parameterMatchers: matchers
@@ -591,7 +591,7 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
         }
 
         func identifier() -> Cuckoo.ProtocolStubFunction<(), String, @Sendable (()) -> String, Cuckoo.StubSharing.Shared> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockActorCatalog.self,
                 method: "static identifier() -> String",
                 parameterMatchers: matchers
@@ -684,7 +684,7 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
             self.cuckoo_manager = manager
         }
 
-        func use<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Product), ((Product)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Product {
+        func use<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Product), ((Product)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Product {
             let matchers: [Cuckoo.ParameterMatcher<(Product)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -707,7 +707,7 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
         }
 
         @discardableResult
-        func use<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Product), Void> where M1.MatchedType == Product {
+        func use<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Product), Void> where M1.MatchedType == Product {
             let matchers: [Cuckoo.ParameterMatcher<(Product)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
