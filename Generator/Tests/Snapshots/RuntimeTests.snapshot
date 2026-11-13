@@ -82,6 +82,7 @@ import Combine
 @testable public import class CuckooTestSources.ParameterPackClass
 @testable public import struct CuckooTestSources.DoublingWrapper
 @testable public import struct CuckooTestSources.Wrappers
+@testable public import protocol CuckooTestSources.RethrowingService
 @testable public import struct CuckooTestSources.AccessToken
 @testable public import protocol CuckooTestSources.Vault
 @testable public import protocol CuckooTestSources.Shape
@@ -22660,6 +22661,142 @@ final class MockParameterPackClass: ParameterPackClass, nonisolated Cuckoo.Class
 final class ParameterPackClassStub: ParameterPackClass {
     override func name() -> String {
         return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+}
+
+nonisolated final class MockRethrowingService: RethrowingService, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any RethrowingService
+    typealias Stubbing = __StubbingProxy_RethrowingService
+    typealias Verification = __VerificationProxy_RethrowingService
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any RethrowingService>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any RethrowingService) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func transform(_ p0: Int, using p1: (Int) throws -> Int) rethrows -> Int {
+        return try withoutActuallyEscaping(p1, do: { (p1: @escaping (Int) throws -> Int) -> Int in
+            return try cuckoo_manager.callRethrows(
+                "transform(_ p0: Int, using p1: (Int) throws -> Int) rethrows -> Int",
+                parameters: (p0, p1),
+                escapingParameters: (p0, ({ _ in
+                                        fatalError("This is a stub! It's not supposed to be called!")
+                                    } as (Int) throws -> Int)),
+                invoke: { (implementation: ((Int, (Int) throws -> Int)) throws -> Int, arguments) in
+                                try implementation(arguments)
+                            },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.transform(p0, using: p1)
+            )
+        })
+    }
+
+    func transformAsync(_ p0: Int, using p1: (Int) async throws -> Int) async rethrows -> Int {
+        nonisolated(nonsending) func __cuckoo_escaping_p1(_ p1: @escaping (Int) async throws -> Int) async throws -> Int {
+            return try await cuckoo_manager.callRethrows(
+                "transformAsync(_ p0: Int, using p1: (Int) async throws -> Int) async rethrows -> Int",
+                parameters: (p0, p1),
+                escapingParameters: (p0, ({ _ in
+                            fatalError("This is a stub! It's not supposed to be called!")
+                        } as (Int) async throws -> Int)),
+                invoke: { (implementation: nonisolated(nonsending) ((Int, (Int) async throws -> Int)) async throws -> Int, arguments) in
+                    try await implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: await __defaultImplStub.value.transformAsync(p0, using: p1)
+            )
+        }
+        return try await withoutActuallyEscaping(p1, do: __cuckoo_escaping_p1)
+    }
+
+    nonisolated struct __StubbingProxy_RethrowingService: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func transform<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, using p1: M2) -> Cuckoo.ProtocolStubThrowingFunction<(Int, (Int) throws -> Int), Int, any Swift.Error, ((Int, (Int) throws -> Int)) throws -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int, M2.MatchedType == (Int) throws -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, (Int) throws -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockRethrowingService.self,
+                method: "transform(_ p0: Int, using p1: (Int) throws -> Int) rethrows -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func transformAsync<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, using p1: M2) -> Cuckoo.ProtocolStubThrowingFunction<(Int, (Int) async throws -> Int), Int, any Swift.Error, nonisolated(nonsending) ((Int, (Int) async throws -> Int)) async throws -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int, M2.MatchedType == (Int) async throws -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, (Int) async throws -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockRethrowingService.self,
+                method: "transformAsync(_ p0: Int, using p1: (Int) async throws -> Int) async rethrows -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_RethrowingService: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func transform<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, using p1: M2) -> Cuckoo.__DoNotUse<(Int, (Int) throws -> Int), Int> where M1.MatchedType == Int, M2.MatchedType == (Int) throws -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, (Int) throws -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }]
+            return cuckoo_manager.verify(
+                "transform(_ p0: Int, using p1: (Int) throws -> Int) rethrows -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        @discardableResult
+        func transformAsync<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, using p1: M2) -> Cuckoo.__DoNotUse<(Int, (Int) async throws -> Int), Int> where M1.MatchedType == Int, M2.MatchedType == (Int) async throws -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, (Int) async throws -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }]
+            return cuckoo_manager.verify(
+                "transformAsync(_ p0: Int, using p1: (Int) async throws -> Int) async rethrows -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class RethrowingServiceStub: RethrowingService {
+    func transform(_ p0: Int, using p1: (Int) throws -> Int) rethrows -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+
+    func transformAsync(_ p0: Int, using p1: (Int) async throws -> Int) async rethrows -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
 }
 
