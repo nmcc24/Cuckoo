@@ -241,7 +241,7 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 - ``hasLength(exactly:)``
 - ``hasLength(atLeast:inclusive:)``
 - ``hasLength(atMost:inclusive:)``
-- ``hasLength(inRange:)``
+- ``hasLength(in:)``
 
 ### Special arguments
 

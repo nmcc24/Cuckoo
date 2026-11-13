@@ -6,6 +6,9 @@
 - `SourceLocation` loses `file`: it's `(fileID:filePath:line:column:)`, with `filePath` a `StaticString`, and
   `verify`, `verifyNoMoreInteractions`, `inOrder` and the `MockManager` methods that took a `file:` argument no longer
   do. A failure handler that read `sourceLocation.file` reads `filePath` instead.
+- `hasLength(in:)` matches the counts its range contains: `1..<3` matches 1 or 2. `hasLength(inRange:)` is
+  deprecated and, with a half-open range, includes its upper bound again, as in Cuckoo 2: beta.2 had changed what
+  `inRange: 1..<3` matched without any warning, so code moved from Cuckoo 2 kept compiling but stopped matching 3.
 
 ### Fixed
 - XCTest failures from `verify`, `verifyNoMoreInteractions` and `inOrder` point at the failing line. They carried a

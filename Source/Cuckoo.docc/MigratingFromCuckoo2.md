@@ -66,6 +66,9 @@ behaviour on top.
   running in parallel don't share.
 - A failure handler's ``SourceLocation`` has no `file`: read `filePath`, a `StaticString`, which is the full path
   Xcode needs. The checks no longer take a `file:` argument.
+- `hasLength(inRange:)` is deprecated in favour of ``hasLength(in:)``, whose range means what it says. With a
+  half-open range, `inRange:` kept including the upper bound, as `inclusive: true` did by default: `inRange: 1..<3`
+  matches 3, and so does `in: 1...3`, while `in: 1..<3` doesn't. Move each call to `in:` with the range you mean.
 - `enableDefaultImplementation(mutating:)` is removed: it kept a pointer to your variable after the call returned.
   A `struct` default implementation is copied once and keeps the changes made through the mock; pass a class
   instance to share state with the test.
@@ -73,7 +76,10 @@ behaviour on top.
   What the closure writes now reaches the caller. Closures that let Swift infer the types are unaffected.
 - The stub function types that `when` returns, such as `ProtocolStubFunction`, have more generic parameters. Code
   that names them, rather than letting `when` infer them, needs updating.
-- Conforming your own types to `Matchable` is deprecated. Replace `extension User: Matchable { … }` with
+- Deprecated, with a warning that names the replacement: `register(value:forType:)` for
+  ``DefaultValueRegistry/register(_:for:)``, and `equal(to:)` on a class that isn't `Equatable`, which compared
+  identities, for ``sameInstance(as:)->SendableMatcher<T>``. `equal(to:)` on an `Equatable` class now compares with `==`.
+- Conforming your own types to `Matchable` or `OptionalMatchable` is deprecated. Replace `extension User: Matchable { … }` with
   `equal(to: user)` where you pass the value, which takes any `Equatable` type; for other types use
   `equal(to:equalWhen:)` or a matcher of your own. See <doc:Matching>.
 - The stubs of a `Sendable` or actor mock take only ``SendableMatcher``s, since the mock can be called from any task.
@@ -94,6 +100,9 @@ behaviour on top.
   `withEnabledDefaultImplementation(GreeterStub())`.
 - Failures go to the framework running the test only: Swift Testing records an issue, XCTest an `XCTFail`.
   Cuckoo 2 reported each failure to both.
+- A failed `verify` leaves the calls it looked at unverified, so a later `verifyNoMoreInteractions` still reports
+  them.
+- `enableSuperclassSpy()` on a protocol mock, which has no superclass, records a failure.
 - Failure messages list the calls a member received, and the argument each stub or `verify` rejected.
 
 ### Swift 7 features
