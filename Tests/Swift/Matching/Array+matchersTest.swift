@@ -211,16 +211,34 @@ struct ArrayMatcherTest {
     }
 
     @Test
-    func hasLengthInRange() {
-        #expect(!hasLength(inRange: 1..<3).matches([Int]()))
+    func hasLengthIn() {
+        #expect(!hasLength(in: 1..<3).matches([Int]()))
+        #expect(hasLength(in: 1..<3).matches([1]))
+        #expect(hasLength(in: 1..<3).matches([1, 2]))
+        #expect(!hasLength(in: 1..<3).matches([1, 2, 3]))
+
+        #expect(hasLength(in: 1...3).matches([1, 2, 3]))
+        #expect(!hasLength(in: 1...3).matches([1, 2, 3, 4]))
+        #expect(hasLength(in: 2...).matches([1, 2, 3, 4]))
+        #expect(!hasLength(in: 2...).matches([1]))
+        #expect(hasLength(in: ..<2).matches([Int]()))
+    }
+
+    /// The deprecated `inRange:` keeps Cuckoo 2's meaning for a half-open range, so migrated tests keep passing: its
+    /// upper bound is included unless `inclusive` is `false`. Other ranges mean what they say, as with `in:`.
+    @available(*, deprecated)
+    @Test
+    func hasLengthInRangeKeepsCuckoo2Meaning() {
+        #expect(hasLength(inRange: 1..<3).matches([1, 2, 3]))
         #expect(hasLength(inRange: 1..<3).matches([1]))
-        #expect(hasLength(inRange: 1..<3).matches([1, 2]))
-        #expect(!hasLength(inRange: 1..<3).matches([1, 2, 3]))
+        #expect(!hasLength(inRange: 1..<3).matches([Int]()))
+        #expect(!hasLength(inRange: 1..<3).matches([1, 2, 3, 4]))
+        #expect(!hasLength(inRange: 1..<3, inclusive: false).matches([1, 2, 3]))
+        #expect(!hasLength(inRange: 1..<3, inclusive: false).matches([1]))
+        #expect(hasLength(inRange: 1..<3, inclusive: false).matches([1, 2]))
 
         #expect(hasLength(inRange: 1...3).matches([1, 2, 3]))
         #expect(!hasLength(inRange: 1...3).matches([1, 2, 3, 4]))
         #expect(hasLength(inRange: 2...).matches([1, 2, 3, 4]))
-        #expect(!hasLength(inRange: 2...).matches([1]))
-        #expect(hasLength(inRange: ..<2).matches([Int]()))
     }
 }
