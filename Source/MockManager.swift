@@ -430,6 +430,12 @@ extension MockManager {
         fatalError("Cuckoo can't call the real or default implementation of \(member), because it takes a ~Copyable argument. Stub it instead.")
     }
 
+    /// A variadic argument is an array inside the mock, and Swift can't pass an array on as separate arguments, so
+    /// the mock can't call the real or default implementation of a member that takes one.
+    public static func crashOnVariadicArgumentForward<OUT>(_ member: String) -> OUT {
+        fatalError("Cuckoo can't call the real or default implementation of \(member), because it takes a variadic argument. Stub it instead.")
+    }
+
     /// Narrows an error thrown by a `then` closure to a typed-throws member's error type. The closure's type
     /// throws untyped errors, because a typed-throws function type needs runtime support that iOS 17 and
     /// macOS 14 lack once it's a generic argument.

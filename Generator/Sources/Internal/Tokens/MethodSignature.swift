@@ -22,7 +22,8 @@ extension Method {
                     name: parameter.name,
                     innerName: "p\(index)",
                     type: parameter.type,
-                    isNoncopyable: parameter.isNoncopyable
+                    isNoncopyable: parameter.isNoncopyable,
+                    variadicElement: parameter.variadicElement
                 )
             }
             self.asyncType = asyncType

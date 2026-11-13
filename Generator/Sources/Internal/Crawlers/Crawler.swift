@@ -555,10 +555,13 @@ extension Crawler {
             genericParameters: genericParameters(from: node.genericParameterClause?.parameters),
             // A subscript's parameter has no argument label unless it states one.
             parameters: node.parameterClause.parameters.map { parameter in
-                MethodParameter(
+                let type = ComplexType(syntax: parameter.type)
+                let isVariadic = parameter.ellipsis?.isPresent == true
+                return MethodParameter(
                     name: parameter.secondName == nil ? "_" : parameter.firstName.filteredDescription,
                     innerName: nil,
-                    type: ComplexType(syntax: parameter.type)
+                    type: isVariadic ? .type("[\(type)]") : type,
+                    variadicElement: isVariadic ? type : nil
                 )
             },
             returnType: ComplexType(syntax: node.returnClause.type),
@@ -628,11 +631,15 @@ extension Crawler {
     /// - Parameter noncopyableGenerics: The member's generic parameters that may be `~Copyable`.
     private func parameters(from parameterList: FunctionParameterListSyntax, noncopyableGenerics: Set<String> = []) -> [MethodParameter] {
         parameterList.map { parameter in
-            MethodParameter(
+            // A variadic parameter, `Int...`, is an array inside the function: the mock records and matches that.
+            let type = ComplexType(syntax: parameter.type)
+            let isVariadic = parameter.ellipsis?.isPresent == true
+            return MethodParameter(
                 name: parameter.firstName.filteredDescription,
                 innerName: nil,
-                type: ComplexType(syntax: parameter.type),
-                isNoncopyable: isNoncopyable(parameter.type, generics: noncopyableGenerics)
+                type: isVariadic ? .type("[\(type)]") : type,
+                isNoncopyable: isNoncopyable(parameter.type, generics: noncopyableGenerics),
+                variadicElement: isVariadic ? type : nil
             )
         }
     }
