@@ -56,7 +56,7 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
             return .init(manager: cuckoo_manager, name: "lastEvent")
         }
 
-        func track<M1: Cuckoo.Matchable>(event p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), @MainActor @Sendable ((String)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == String {
+        func track<M1: Cuckoo._Matchable>(event p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), @MainActor @Sendable ((String)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -83,7 +83,7 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
         }
 
         @discardableResult
-        func track<M1: Cuckoo.Matchable>(event p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
+        func track<M1: Cuckoo._Matchable>(event p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]

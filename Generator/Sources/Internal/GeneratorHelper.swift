@@ -73,13 +73,14 @@ struct GeneratorHelper {
         }
     }
 
-    static func matchableGenericTypes(from method: Method, forVerification: Bool = false) -> String {
+    /// - Parameter sendable: whether the proxy is a `Sendable` mock's stubbing proxy, whose stubs can be matched from any
+    ///   task, so it takes `Sendable` matchers.
+    static func matchableGenericTypes(from method: Method, forVerification: Bool = false, sendable: Bool = false) -> String {
         let genericParameters = method.proxyGenerics(forVerification: forVerification).parameters
         guard !method.signature.parameters.isEmpty || !genericParameters.isEmpty else { return "" }
 
         let matchableGenericParameters = method.signature.parameters.enumerated().map { index, parameter -> String in
-            let type = parameter.matchedType.isOptional ? "OptionalMatchable" : "Matchable"
-            return "M\(index + 1): Cuckoo.\(type)"
+            return "M\(index + 1): Cuckoo.\(matcherProtocol(isOptional: parameter.matchedType.isOptional, sendable: sendable))"
         }
         let methodGenericParameters = genericParameters.map { $0.description }
         return "<\((matchableGenericParameters + methodGenericParameters).joined(separator: ", "))>"
@@ -104,19 +105,38 @@ struct GeneratorHelper {
             .joined(separator: ", ")
     }
 
-    static func parameterMatchers(for parameters: [MethodParameter]) -> String {
-        guard parameters.isEmpty == false else { return "let matchers: [Cuckoo.ParameterMatcher<Void>] = []" }
+    /// The protocol a proxy's matcher parameter conforms to.
+    static func matcherProtocol(isOptional: Bool, sendable: Bool) -> String {
+        "_\(sendable ? "Sendable" : "")\(isOptional ? "OptionalMatchable" : "Matchable")"
+    }
+
+    /// The matcher type a proxy keeps.
+    static func matcherType(sendable: Bool) -> String {
+        sendable ? "Cuckoo.SendableMatcher" : "Cuckoo.ParameterMatcher"
+    }
+
+    /// The matcher of the call's argument tuple for one parameter: a key path into the tuple for a `Sendable` mock's
+    /// stubbing proxy, which a `@Sendable` closure can't be over a non-`Sendable` generic type, otherwise a closure.
+    static func parameterMatcher(name: String, index: Int, count: Int, sendable: Bool) -> String {
+        if sendable {
+            return "Cuckoo.wrap(matchable: \(name), at: \\.\(count > 1 ? "\(index)" : "self"))"
+        }
+        return "Cuckoo.wrap(matchable: \(name)) { $0\(count > 1 ? ".\(index)" : "") }"
+    }
+
+    static func parameterMatchers(for parameters: [MethodParameter], sendable: Bool = false) -> String {
+        let type = matcherType(sendable: sendable)
+        guard parameters.isEmpty == false else { return "let matchers: [\(type)<Void>] = []" }
 
         let tupleType = parameters.map { $0.matchedType.genericArgumentSafe.description }.joined(separator: ", ")
         let matchers = parameters
             // Enumeration is done after filtering out parameters without usable names.
             .enumerated()
             .compactMap { index, parameter in
-                let name = escapeReservedKeywords(for: parameter.usableName)
-                return "Cuckoo.wrap(matchable: \(name)) { $0\(parameters.count > 1 ? ".\(index)" : "") }"
+                parameterMatcher(name: escapeReservedKeywords(for: parameter.usableName), index: index, count: parameters.count, sendable: sendable)
             }
             .joined(separator: ", ")
-        return "let matchers: [Cuckoo.ParameterMatcher<(\(genericSafeType(from: tupleType)))>] = [\(matchers)]"
+        return "let matchers: [\(type)<(\(genericSafeType(from: tupleType)))>] = [\(matchers)]"
     }
 
     static func genericSafeType(from type: String) -> String {
