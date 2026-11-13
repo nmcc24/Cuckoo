@@ -71,11 +71,6 @@ behaviour on top.
   What the closure writes now reaches the caller. Closures that let Swift infer the types are unaffected.
 - The stub function types that `when` returns, such as `ProtocolStubFunction`, have more generic parameters. Code
   that names them, rather than letting `when` infer them, needs updating.
-- Matchers are `Sendable`, since a mock's matchers run in whatever task calls it: a ``ParameterMatcher`` closure
-  is `@Sendable`, and `equal(to:)`, the `where:` closures and the collection matchers need `Sendable` values. Their
-  non-`Sendable` forms are deprecated, and a closure matcher that captures a non-`Sendable` value needs
-  ``ParameterMatcher/init(unchecked:)`` (deprecated too). A custom ``Matchable`` type that relies on the default
-  `matcher` must be `Sendable`. See <doc:Matching#Matchers-are-Sendable>.
 - The Objective-C bridge (`objcStub`, `objcVerify` and the OCMock dependency) is removed. Put a small Swift
   protocol in front of an Objective-C dependency and mock that, or use OCMock directly in those tests.
 

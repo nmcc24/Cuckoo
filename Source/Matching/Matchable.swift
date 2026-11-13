@@ -2,7 +2,7 @@
 ///
 /// Literals and common standard types conform, so `when(stub.greet("Ann"))` matches the argument `"Ann"`.
 /// Every `Equatable` type that adopts `Matchable` gets an `equal(to:)` matcher for free.
-public protocol Matchable: SendableMetatype {
+public protocol Matchable {
     /// The type of the arguments this value matches.
     associatedtype MatchedType
 
@@ -11,7 +11,7 @@ public protocol Matchable: SendableMetatype {
 }
 
 /// A value that can stand for an optional argument, so `"Ann"` matches a `String?` parameter too.
-public protocol OptionalMatchable: SendableMetatype {
+public protocol OptionalMatchable {
     /// The wrapped type of the optional arguments this value matches.
     associatedtype OptionalMatchedType
 
@@ -22,19 +22,15 @@ public protocol OptionalMatchable: SendableMetatype {
 public extension Matchable {
     /// Returns a matcher that accepts an argument either this value or `otherMatchable` accepts.
     func or<M>(_ otherMatchable: M) -> ParameterMatcher<MatchedType> where M: Matchable, M.MatchedType == MatchedType {
-        let matcher = self.matcher
-        let otherMatcher = otherMatchable.matcher
         return ParameterMatcher {
-            matcher.matches($0) || otherMatcher.matches($0)
+            return self.matcher.matches($0) || otherMatchable.matcher.matches($0)
         }
     }
     
     /// Returns a matcher that accepts an argument only when this value and `otherMatchable` both accept it.
     func and<M>(_ otherMatchable: M) -> ParameterMatcher<MatchedType> where M: Matchable, M.MatchedType == MatchedType {
-        let matcher = self.matcher
-        let otherMatcher = otherMatchable.matcher
         return ParameterMatcher {
-            matcher.matches($0) && otherMatcher.matches($0)
+            return self.matcher.matches($0) && otherMatchable.matcher.matches($0)
         }
     }
 }
@@ -45,13 +41,12 @@ extension Optional: Matchable where Wrapped: Matchable, Wrapped.MatchedType == W
 
     /// Matches `nil` against `nil`, and a wrapped value with the wrapped value's matcher.
     public var matcher: ParameterMatcher<Wrapped?> {
-        let matcher = self?.matcher
         return ParameterMatcher<Wrapped?> { other in
-            switch (matcher, other) {
+            switch (self, other) {
             case (.none, .none):
                 return true
-            case (.some(let matcher), .some(let rhs)):
-                return matcher.matches(rhs)
+            case (.some(let lhs), .some(let rhs)):
+                return lhs.matcher.matches(rhs)
             default:
                 return false
             }
@@ -65,13 +60,12 @@ extension Optional: OptionalMatchable where Wrapped: OptionalMatchable, Wrapped.
 
     /// Matches `nil` against `nil`, and a wrapped value with the wrapped value's optional matcher.
     public var optionalMatcher: ParameterMatcher<Wrapped?> {
-        let matcher = self?.optionalMatcher
         return ParameterMatcher<Wrapped?> { other in
-            switch (matcher, other) {
+            switch (self, other) {
             case (.none, .none):
                 return true
-            case (.some(let matcher), .some(let rhs)):
-                return matcher.matches(rhs)
+            case (.some(let lhs), .some(let rhs)):
+                return lhs.optionalMatcher.matches(rhs)
             default:
                 return false
             }
@@ -79,17 +73,17 @@ extension Optional: OptionalMatchable where Wrapped: OptionalMatchable, Wrapped.
     }
 }
 
-extension Matchable where Self: Equatable & Sendable {
+extension Matchable where Self: Equatable {
     /// Matches an argument equal to this value.
     public var matcher: ParameterMatcher<Self> {
         return equal(to: self)
     }
 }
 
-extension OptionalMatchable where OptionalMatchedType == Self, Self: Equatable & Sendable {
+extension OptionalMatchable where OptionalMatchedType == Self, Self: Equatable {
     /// Matches an optional argument that holds a value equal to this one.
     public var optionalMatcher: ParameterMatcher<OptionalMatchedType?> {
-        return ParameterMatcher { [self] other in
+        return ParameterMatcher { other in
             return Optional(self) == other
         }
     }

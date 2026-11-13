@@ -2,17 +2,13 @@ extension Dictionary: Matchable where Value: Matchable, Value == Value.MatchedTy
     public typealias MatchedType = [Key: Value]
 
     public var matcher: ParameterMatcher<[Key: Value]> {
-        // A conditional conformance can't require `Sendable` (or `SendableMetatype`) keys, so the comparison is kept
-        // unchecked: it only hashes and compares the keys, which a dictionary already requires to give the same answer
-        // whatever task asks.
-        let matchers = mapValues(\.matcher)
-        return ParameterMatcher<[Key: Value]>(uncheckedSendable: { other in
-            guard matchers.count == other.count else { return false }
-            return matchers.allSatisfy {
+        ParameterMatcher<[Key: Value]> { other in
+            guard self.count == other.count else { return false }
+            return self.allSatisfy {
                 guard let foundElement = other[$0.key] else { return false }
-                return $0.value.matches(foundElement)
+                return $0.value.matcher.matches(foundElement)
             }
-        })
+        }
     }
 }
 
@@ -23,7 +19,7 @@ extension Dictionary: Matchable where Value: Matchable, Value == Value.MatchedTy
  * - parameter inputDictionary: Dictionary that is used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAnyOf<K: Sendable, V: Equatable & Sendable>(_ inputDictionary: [K: V]) -> ParameterMatcher<[K: V]> {
+public func containsAnyOf<K, V: Equatable>(_ inputDictionary: [K: V]) -> ParameterMatcher<[K: V]> {
     containsAnyOf(inputDictionary, where: ==)
 }
 /**
@@ -32,9 +28,9 @@ public func containsAnyOf<K: Sendable, V: Equatable & Sendable>(_ inputDictionar
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
-public func containsAnyOf<K: Sendable, V: Sendable>(
+public func containsAnyOf<K, V>(
     _ inputDictionary: [K: V],
-    where equality: @escaping @Sendable (V, V) -> Bool
+    where equality: @escaping (V, V) -> Bool
 ) -> ParameterMatcher<[K: V]> {
     ParameterMatcher { dictionary in
         inputDictionary.contains { key, value in
@@ -49,7 +45,7 @@ public func containsAnyOf<K: Sendable, V: Sendable>(
  * - parameter inputDictionary: Dictionary that is used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAllOf<K: Sendable, V: Equatable & Sendable>(_ inputDictionary: [K: V]) -> ParameterMatcher<[K: V]> {
+public func containsAllOf<K, V: Equatable>(_ inputDictionary: [K: V]) -> ParameterMatcher<[K: V]> {
     containsAllOf(inputDictionary, where: ==)
 }
 /**
@@ -58,7 +54,7 @@ public func containsAllOf<K: Sendable, V: Equatable & Sendable>(_ inputDictionar
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
-public func containsAllOf<K: Sendable, V: Sendable>(_ inputDictionary: [K: V], where equality: @escaping @Sendable (V, V) -> Bool) -> ParameterMatcher<[K: V]> {
+public func containsAllOf<K, V>(_ inputDictionary: [K: V], where equality: @escaping (V, V) -> Bool) -> ParameterMatcher<[K: V]> {
     ParameterMatcher { dictionary in
         inputDictionary.allSatisfy { key, value in
             dictionary[key].map { equality($0, value) } ?? false
@@ -72,7 +68,7 @@ public func containsAllOf<K: Sendable, V: Sendable>(_ inputDictionary: [K: V], w
  * - parameter inputDictionary: Dictionary that is used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsNoneOf<K: Sendable, V: Equatable & Sendable>(_ inputDictionary: [K: V]) -> ParameterMatcher<[K: V]> {
+public func containsNoneOf<K, V: Equatable>(_ inputDictionary: [K: V]) -> ParameterMatcher<[K: V]> {
     containsNoneOf(inputDictionary, where: ==)
 }
 /**
@@ -81,9 +77,9 @@ public func containsNoneOf<K: Sendable, V: Equatable & Sendable>(_ inputDictiona
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
-public func containsNoneOf<K: Sendable, V: Sendable>(
+public func containsNoneOf<K, V>(
     _ inputDictionary: [K: V],
-    where equality: @escaping @Sendable (V, V) -> Bool
+    where equality: @escaping (V, V) -> Bool
 ) -> ParameterMatcher<[K: V]> {
     not(containsAnyOf(inputDictionary, where: equality))
 }
@@ -96,7 +92,7 @@ public func containsNoneOf<K: Sendable, V: Sendable>(
  * - parameter elements: Variadic keys that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAnyKeysOf<K: Hashable & Sendable, V: SendableMetatype>(values elements: K...) -> ParameterMatcher<[K: V]> {
+public func containsAnyKeysOf<K, V>(values elements: K...) -> ParameterMatcher<[K: V]> {
     containsAnyKeysOf(elements)
 }
 /**
@@ -104,10 +100,9 @@ public func containsAnyKeysOf<K: Hashable & Sendable, V: SendableMetatype>(value
  * - parameter elements: Keys that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAnyKeysOf<S: Sequence, V: SendableMetatype>(_ elements: S) -> ParameterMatcher<[S.Element: V]> where S.Element: Sendable {
-    let matcher: ParameterMatcher<[S.Element: V].Keys> = containsAnyOf(elements)
-    return ParameterMatcher { dictionary in
-        matcher.matches(dictionary.keys)
+public func containsAnyKeysOf<S: Sequence, V>(_ elements: S) -> ParameterMatcher<[S.Element: V]> {
+    ParameterMatcher { dictionary in
+        containsAnyOf(elements).matches(dictionary.keys)
     }
 }
 
@@ -117,7 +112,7 @@ public func containsAnyKeysOf<S: Sequence, V: SendableMetatype>(_ elements: S) -
  * - parameter elements: Variadic keys that are used for matching
  * - returns: ParameterMatcher object.
  */
-public func containsAllKeysOf<K: Hashable & Sendable, V: SendableMetatype>(values elements: K...) -> ParameterMatcher<[K: V]> {
+public func containsAllKeysOf<K, V>(values elements: K...) -> ParameterMatcher<[K: V]> {
     containsAllKeysOf(elements)
 }
 /**
@@ -125,10 +120,9 @@ public func containsAllKeysOf<K: Hashable & Sendable, V: SendableMetatype>(value
  * - parameter elements: Keys that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAllKeysOf<S: Sequence, V: SendableMetatype>(_ elements: S) -> ParameterMatcher<[S.Element: V]> where S.Element: Sendable {
-    let matcher: ParameterMatcher<[S.Element: V].Keys> = containsAllOf(elements)
-    return ParameterMatcher { dictionary in
-        matcher.matches(dictionary.keys)
+public func containsAllKeysOf<S: Sequence, V>(_ elements: S) -> ParameterMatcher<[S.Element: V]> {
+    ParameterMatcher { dictionary in
+        containsAllOf(elements).matches(dictionary.keys)
     }
 }
 
@@ -138,7 +132,7 @@ public func containsAllKeysOf<S: Sequence, V: SendableMetatype>(_ elements: S) -
  * - parameter elements: Variadic keys that are used for matching
  * - returns: ParameterMatcher object.
  */
-public func containsNoKeysOf<K: Hashable & Sendable, V: SendableMetatype>(values elements: K...) -> ParameterMatcher<[K: V]> {
+public func containsNoKeysOf<K, V>(values elements: K...) -> ParameterMatcher<[K: V]> {
     containsNoKeysOf(elements)
 }
 /**
@@ -146,7 +140,7 @@ public func containsNoKeysOf<K: Hashable & Sendable, V: SendableMetatype>(values
  * - parameter elements: Keys that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsNoKeysOf<S: Sequence, V: SendableMetatype>(_ elements: S) -> ParameterMatcher<[S.Element: V]> where S.Element: Sendable {
+public func containsNoKeysOf<S: Sequence, V>(_ elements: S) -> ParameterMatcher<[S.Element: V]> {
     not(containsAnyKeysOf(elements))
 }
 
@@ -159,9 +153,9 @@ public func containsNoKeysOf<S: Sequence, V: SendableMetatype>(_ elements: S) ->
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
-public func containsAnyValuesOf<K: Hashable & SendableMetatype, V: Sendable>(
+public func containsAnyValuesOf<K, V>(
     values elements: V...,
-    where equality: @escaping @Sendable (V, V) -> Bool
+    where equality: @escaping (V, V) -> Bool
 ) -> ParameterMatcher<[K: V]> {
     containsAnyValuesOf(elements, where: equality)
 }
@@ -171,13 +165,12 @@ public func containsAnyValuesOf<K: Hashable & SendableMetatype, V: Sendable>(
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
-public func containsAnyValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
+public func containsAnyValuesOf<K, S: Sequence>(
     _ elements: S,
-    where equality: @escaping @Sendable (S.Element, S.Element) -> Bool
-) -> ParameterMatcher<[K: S.Element]> where S.Element: Sendable {
-    let matcher: ParameterMatcher<[K: S.Element].Values> = containsAnyOf(elements, where: equality)
-    return ParameterMatcher { dictionary in
-        matcher.matches(dictionary.values)
+    where equality: @escaping (S.Element, S.Element) -> Bool
+) -> ParameterMatcher<[K: S.Element]> {
+    ParameterMatcher { dictionary in
+        containsAnyOf(elements, where: equality).matches(dictionary.values)
     }
 }
 
@@ -186,7 +179,7 @@ public func containsAnyValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
  * - parameter elements: Variadic keys that are used for matching
  * - returns: ParameterMatcher object.
  */
-public func containsAnyValuesOf<K: Hashable & SendableMetatype, V: Equatable & Sendable>(values elements: V...) -> ParameterMatcher<[K: V]> {
+public func containsAnyValuesOf<K, V: Equatable>(values elements: V...) -> ParameterMatcher<[K: V]> {
     return containsAnyValuesOf(elements)
 }
 /**
@@ -194,9 +187,9 @@ public func containsAnyValuesOf<K: Hashable & SendableMetatype, V: Equatable & S
  * - parameter elements: Keys that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAnyValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
+public func containsAnyValuesOf<K, S: Sequence>(
     _ elements: S
-) -> ParameterMatcher<[K: S.Element]> where S.Element: Equatable & Sendable {
+) -> ParameterMatcher<[K: S.Element]> where S.Element: Equatable {
     containsAnyValuesOf(elements, where: ==)
 }
 
@@ -206,7 +199,7 @@ public func containsAnyValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
  * - parameter elements: Variadic values that are used for matching
  * - returns: ParameterMatcher object.
  */
-public func containsAnyValuesOf<K: Hashable & SendableMetatype, V: Hashable & Sendable>(values elements: V...) -> ParameterMatcher<[K: V]> {
+public func containsAnyValuesOf<K, V: Hashable>(values elements: V...) -> ParameterMatcher<[K: V]> {
     containsAnyValuesOf(elements)
 }
 /**
@@ -214,12 +207,11 @@ public func containsAnyValuesOf<K: Hashable & SendableMetatype, V: Hashable & Se
  * - parameter elements: Values that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAnyValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
+public func containsAnyValuesOf<K, S: Sequence>(
     _ elements: S
-) -> ParameterMatcher<[K: S.Element]> where S.Element: Hashable & Sendable {
-    let matcher: ParameterMatcher<[K: S.Element].Values> = containsAnyOf(elements)
-    return ParameterMatcher { dictionary in
-        matcher.matches(dictionary.values)
+) -> ParameterMatcher<[K: S.Element]> where S.Element: Hashable {
+    ParameterMatcher { dictionary in
+        containsAnyOf(elements).matches(dictionary.values)
     }
 }
 
@@ -230,9 +222,9 @@ public func containsAnyValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
-public func containsAllValuesOf<K: Hashable & SendableMetatype, V: Sendable>(
+public func containsAllValuesOf<K, V>(
     values elements: V...,
-    where equality: @escaping @Sendable (V, V) -> Bool
+    where equality: @escaping (V, V) -> Bool
 ) -> ParameterMatcher<[K: V]> {
     containsAllValuesOf(elements, where: equality)
 }
@@ -242,13 +234,12 @@ public func containsAllValuesOf<K: Hashable & SendableMetatype, V: Sendable>(
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
-public func containsAllValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
+public func containsAllValuesOf<K, S: Sequence>(
     _ elements: S,
-    where equality: @escaping @Sendable (S.Element, S.Element) -> Bool
-) -> ParameterMatcher<[K: S.Element]> where S.Element: Sendable {
-    let matcher: ParameterMatcher<[K: S.Element].Values> = containsAllOf(elements, where: equality)
-    return ParameterMatcher { dictionary in
-        matcher.matches(dictionary.values)
+    where equality: @escaping (S.Element, S.Element) -> Bool
+) -> ParameterMatcher<[K: S.Element]> {
+    ParameterMatcher { dictionary in
+        containsAllOf(elements, where: equality).matches(dictionary.values)
     }
 }
 
@@ -257,7 +248,7 @@ public func containsAllValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
  * - parameter elements: Variadic values that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAllValuesOf<K: Hashable & SendableMetatype, V: Equatable & Sendable>(values elements: V...) -> ParameterMatcher<[K: V]> {
+public func containsAllValuesOf<K, V: Equatable>(values elements: V...) -> ParameterMatcher<[K: V]> {
     containsAllValuesOf(elements)
 }
 /**
@@ -265,9 +256,9 @@ public func containsAllValuesOf<K: Hashable & SendableMetatype, V: Equatable & S
  * - parameter elements: Values that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAllValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
+public func containsAllValuesOf<K, S: Sequence>(
     _ elements: S
-) -> ParameterMatcher<[K: S.Element]> where S.Element: Equatable & Sendable {
+) -> ParameterMatcher<[K: S.Element]> where S.Element: Equatable {
     containsAllValuesOf(elements, where: ==)
 }
 
@@ -276,7 +267,7 @@ public func containsAllValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
  * - parameter elements: Variadic values that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAllValuesOf<K: Hashable & SendableMetatype, V: Hashable & Sendable>(values elements: V...) -> ParameterMatcher<[K: V]> {
+public func containsAllValuesOf<K, V: Hashable>(values elements: V...) -> ParameterMatcher<[K: V]> {
     containsAllValuesOf(elements)
 }
 /**
@@ -284,12 +275,11 @@ public func containsAllValuesOf<K: Hashable & SendableMetatype, V: Hashable & Se
  * - parameter elements: Values that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsAllValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
+public func containsAllValuesOf<K, S: Sequence>(
     _ elements: S
-) -> ParameterMatcher<[K: S.Element]> where S.Element: Hashable & Sendable {
-    let matcher: ParameterMatcher<[K: S.Element].Values> = containsAllOf(elements)
-    return ParameterMatcher { dictionary in
-        matcher.matches(dictionary.values)
+) -> ParameterMatcher<[K: S.Element]> where S.Element: Hashable {
+    ParameterMatcher { dictionary in
+        containsAllOf(elements).matches(dictionary.values)
     }
 }
 
@@ -300,9 +290,9 @@ public func containsAllValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
-public func containsNoValuesOf<K: Hashable & SendableMetatype, V: Sendable>(
+public func containsNoValuesOf<K, V>(
     values elements: V...,
-    where equality: @escaping @Sendable (V, V) -> Bool
+    where equality: @escaping (V, V) -> Bool
 ) -> ParameterMatcher<[K: V]> {
     containsNoValuesOf(elements, where: equality)
 }
@@ -312,10 +302,10 @@ public func containsNoValuesOf<K: Hashable & SendableMetatype, V: Sendable>(
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
  * - returns: ParameterMatcher object.
  */
-public func containsNoValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
+public func containsNoValuesOf<K, S: Sequence>(
     _ elements: S,
-    where equality: @escaping @Sendable (S.Element, S.Element) -> Bool
-) -> ParameterMatcher<[K: S.Element]> where S.Element: Sendable {
+    where equality: @escaping (S.Element, S.Element) -> Bool
+) -> ParameterMatcher<[K: S.Element]> {
     not(containsAnyValuesOf(elements, where: equality))
 }
 
@@ -324,7 +314,7 @@ public func containsNoValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
  * - parameter elements: Variadic values that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsNoValuesOf<K: Hashable & SendableMetatype, V: Equatable & Sendable>(values elements: V...) -> ParameterMatcher<[K: V]> {
+public func containsNoValuesOf<K, V: Equatable>(values elements: V...) -> ParameterMatcher<[K: V]> {
     containsNoValuesOf(elements)
 }
 /**
@@ -332,9 +322,9 @@ public func containsNoValuesOf<K: Hashable & SendableMetatype, V: Equatable & Se
  * - parameter elements: Values that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsNoValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
+public func containsNoValuesOf<K, S: Sequence>(
     _ elements: S
-) -> ParameterMatcher<[K: S.Element]> where S.Element: Equatable & Sendable {
+) -> ParameterMatcher<[K: S.Element]> where S.Element: Equatable {
     containsNoValuesOf(elements, where: ==)
 }
 
@@ -343,7 +333,7 @@ public func containsNoValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
  * - parameter elements: Variadic values that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsNoValuesOf<K: Hashable & SendableMetatype, V: Hashable & Sendable>(values elements: V...) -> ParameterMatcher<[K: V]> {
+public func containsNoValuesOf<K, V: Hashable>(values elements: V...) -> ParameterMatcher<[K: V]> {
     containsNoValuesOf(elements)
 }
 /**
@@ -351,8 +341,8 @@ public func containsNoValuesOf<K: Hashable & SendableMetatype, V: Hashable & Sen
  * - parameter elements: Values that are used for matching.
  * - returns: ParameterMatcher object.
  */
-public func containsNoValuesOf<K: Hashable & SendableMetatype, S: Sequence>(
+public func containsNoValuesOf<K, S: Sequence>(
     _ elements: S
-) -> ParameterMatcher<[K: S.Element]> where S.Element: Hashable & Sendable {
+) -> ParameterMatcher<[K: S.Element]> where S.Element: Hashable {
     not(containsAnyValuesOf(elements))
 }
