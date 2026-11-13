@@ -110,6 +110,11 @@ A `~Copyable` argument can't be copied into the recorded call, so the mock recor
 placeholder instead. Match it with `any()`. A `then` closure receives the argument itself, borrowed, except for a
 generic `T: ~Copyable` or an `inout` argument, which get the placeholder.
 
+A variadic argument, `String...`, is recorded as the array the function receives. Match it with `equal(to:)` and
+an array, `equal(to: ["a", "b"])`, with `any()` or a collection matcher; a `then` closure and a captor receive the
+array too. Swift can't pass an array on as separate arguments, so the mock can't call the real or default
+implementation of a member that takes one: stub it instead.
+
 An `inout` argument is recorded and matched with the value the caller passed in. A `then` closure takes it as `inout`, and what the closure
 writes reaches the caller when the call returns.
 
