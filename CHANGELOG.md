@@ -11,6 +11,10 @@
   `inRange: 1..<3` matched without any warning, so code moved from Cuckoo 2 kept compiling but stopped matching 3.
 
 ### Fixed
+- A `where` clause on an associated type, as in `associatedtype Element where Element: Equatable`, was dropped, so
+  the mock didn't conform. Its requirements now constrain the mock as the protocol's own `where` clause does, and a
+  requirement on a nested type, such as `Items.Element == Int`, written on either, goes in the mock's and stub's
+  `where` clause instead of being dropped or written as an invalid typealias.
 - An unstubbed `rethrows` member called with a closure that doesn't throw crashed the test process: it threw
   `CuckooError.unstubbedCall` into a call that had no `try`. It now records the failure and returns a
   default value, as any non-throwing member does.
