@@ -61,10 +61,6 @@ A mock may be called from any task, and its stubs' matchers run in that task, so
 `where:` closures and the collection matchers. The argument a matcher checks needn't be `Sendable`, and neither does
 the object ``sameInstance(as:)->ParameterMatcher<T>`` keeps, since it only compares identities.
 
-A module built with MainActor default isolation, as a new Xcode 26 project is, makes its types' conformances
-MainActor-isolated, and `equal(to:)` can't compare with an isolated `==` from another task. Declare the conformance
-`nonisolated`, as in `struct User: nonisolated Equatable`.
-
 To match a value that isn't `Sendable`, make its type `Sendable`, match it by identity, or match the `Sendable`
 parts you care about:
 

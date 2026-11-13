@@ -5,7 +5,7 @@ public func equal<T: Equatable & Sendable>(to value: T) -> ParameterMatcher<T> {
 
 /// Returns an equality matcher for a value that isn't `Sendable`, which the matcher calls `==` on from the task that
 /// calls the mock.
-@available(*, deprecated, message: "A matcher may run on any task that calls the mock; match a Sendable value with a nonisolated Equatable conformance, or use sameInstance(as:) for a class instance.")
+@available(*, deprecated, message: "A matcher may run on any task that calls the mock; match a Sendable value, or use sameInstance(as:) for a class instance.")
 public func equal<T: Equatable & SendableMetatype>(to value: T) -> ParameterMatcher<T> {
     let value = UncheckedSendable(value)
     return ParameterMatcher { value.value == $0 }
@@ -44,7 +44,7 @@ public func equal<T: Sendable>(
 }
 
 /// Returns a matcher using the supplied function, for a value or function that isn't `Sendable`.
-@available(*, deprecated, message: "A matcher may run on any task that calls the mock; match a Sendable value with a nonisolated Equatable conformance, or use sameInstance(as:) for a class instance.")
+@available(*, deprecated, message: "A matcher may run on any task that calls the mock; match a Sendable value, or use sameInstance(as:) for a class instance.")
 @_disfavoredOverload
 public func equal<T>(
     to value: T,
@@ -83,7 +83,7 @@ public func equal<T: Equatable & Sendable>(to value: T?) -> ParameterMatcher<T?>
 
 /// Returns an equality matcher for a value that isn't `Sendable`, which the matcher calls `==` on from the task that
 /// calls the mock.
-@available(*, deprecated, message: "A matcher may run on any task that calls the mock; match a Sendable value with a nonisolated Equatable conformance, or use sameInstance(as:) for a class instance.")
+@available(*, deprecated, message: "A matcher may run on any task that calls the mock; match a Sendable value, or use sameInstance(as:) for a class instance.")
 public func equal<T: Equatable & SendableMetatype>(to value: T?) -> ParameterMatcher<T?> {
     let value = UncheckedSendable(value)
     return ParameterMatcher { value.value == $0 }
@@ -118,7 +118,7 @@ public func equal<T: Sendable>(to value: T?, equalWhen equalityFunction: @escapi
 }
 
 /// Returns a matcher using the supplied function, for a value or function that isn't `Sendable`.
-@available(*, deprecated, message: "A matcher may run on any task that calls the mock; match a Sendable value with a nonisolated Equatable conformance, or use sameInstance(as:) for a class instance.")
+@available(*, deprecated, message: "A matcher may run on any task that calls the mock; match a Sendable value, or use sameInstance(as:) for a class instance.")
 @_disfavoredOverload
 public func equal<T>(to value: T?, equalWhen equalityFunction: @escaping (T?, T?) -> Bool) -> ParameterMatcher<T?> {
     let captured = UncheckedSendable((value, equalityFunction))
