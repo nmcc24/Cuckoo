@@ -202,13 +202,13 @@ struct GenericProtocolTest {
         let classy = MockTestedClass()
         let expected = 42
         stub(mock) { mock in
-            when(mock.callSomeC(theC: classy)).thenReturn(expected)
+            when(mock.callSomeC(theC: sameInstance(as: classy))).thenReturn(expected)
         }
 
         let actual = mock.callSomeC(theC: classy)
 
         #expect(actual == expected)
-        verify(mock).callSomeC(theC: classy)
+        verify(mock).callSomeC(theC: sameInstance(as: classy))
     }
 
     @Test
@@ -231,13 +231,13 @@ struct GenericProtocolTest {
         let classy = MockTestedClass()
         let expected = MockTestedClass()
         stub(mock) { mock in
-            when(mock.compute(classy: classy, value: equal(to: 5))).thenReturn(expected)
+            when(mock.compute(classy: sameInstance(as: classy), value: equal(to: 5))).thenReturn(expected)
         }
 
         let actual = mock.compute(classy: classy, value: 5)
 
         #expect(actual === expected)
-        verify(mock).compute(classy: classy, value: equal(to: 5))
+        verify(mock).compute(classy: sameInstance(as: classy), value: equal(to: 5))
     }
 
     @Test
@@ -281,7 +281,7 @@ struct GenericProtocolTest {
         let mock = createMock(value: expected)
         let classy = MockTestedClass()
         stub(mock) { mock in
-            when(mock.genericAndAassociatedTypeParameters(value: equal(to: "value"), theC: classy, theV: equal(to: expected))).then { (_: String, _: MockTestedClass, theV: Int) -> (MockTestedClass?) -> Int in
+            when(mock.genericAndAassociatedTypeParameters(value: equal(to: "value"), theC: sameInstance(as: classy), theV: equal(to: expected))).then { (_: String, _: MockTestedClass, theV: Int) -> (MockTestedClass?) -> Int in
                 { _ in theV }
             }
         }
@@ -289,7 +289,7 @@ struct GenericProtocolTest {
         let closure = mock.genericAndAassociatedTypeParameters(value: "value", theC: classy, theV: expected)
 
         #expect(closure(classy) == expected)
-        verify(mock).genericAndAassociatedTypeParameters(value: equal(to: "value"), theC: classy, theV: equal(to: expected))
+        verify(mock).genericAndAassociatedTypeParameters(value: equal(to: "value"), theC: sameInstance(as: classy), theV: equal(to: expected))
     }
 
     @Test
@@ -371,7 +371,7 @@ struct GenericProtocolTest {
         
         #expect(expectedReturn.0 === actualReturn.0)
         #expect(expectedReturn.1 == actualReturn.1)
-        verify(mock).computeAsync(classy: expectedReturn.0, value: expectedReturn.1)
+        verify(mock).computeAsync(classy: sameInstance(as: expectedReturn.0), value: expectedReturn.1)
     }
 
     @Test
@@ -466,12 +466,3 @@ struct GenericProtocolTest {
     }
 }
 
-extension MockTestedClass: Matchable{
-    typealias MatchedType = MockTestedClass
-    
-    var matcher: ParameterMatcher<MockTestedClass> {
-        return ParameterMatcher<MockTestedClass> { other in
-            return self === other
-        }
-    }
-}

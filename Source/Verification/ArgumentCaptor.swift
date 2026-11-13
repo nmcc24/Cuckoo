@@ -32,4 +32,12 @@ public final class ArgumentCaptor<T> {
 }
 
 extension ArgumentCaptor: Sendable where T: Sendable {
+    /// A parameter matcher that matches any argument and captures it. It's `Sendable`, so a `Sendable` mock's
+    /// stubs can keep it.
+    public func capture() -> SendableMatcher<T> {
+        SendableMatcher { value in
+            self.values.withLock { $0.append(value) }
+            return true
+        }
+    }
 }
