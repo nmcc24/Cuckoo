@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+Matchers that `Sendable` mocks can keep, so their stubs are safe to call from any task.
+
+### Changed
+- `SendableMatcher` is a `ParameterMatcher` whose closure is `@Sendable`. The mock of a `Sendable` type or an actor
+  can be called from any task, so its stubs only take `SendableMatcher`s and the built-in values. A matcher that
+  keeps a non-`Sendable` value, or a `ParameterMatcher`, is a compile error there. Other mocks, and `verify`, take
+  either kind.
+- Each matcher function returns a `SendableMatcher` when the values it keeps are `Sendable`, and a
+  `ParameterMatcher` otherwise. The matchers that keep nothing (`any()`, `anyInt()`, `anyString()`, `isNil()`,
+  `notNil()`, `anyClosure()`, `hasLength`) always return a `SendableMatcher`, and so does `sameInstance(as:)`, for
+  any class. `or`, `and` and `not` keep the kind, and an `ArgumentCaptor` of `Sendable` values captures with one.
+- Conforming your own types to `Matchable` or `OptionalMatchable` is deprecated: pass `equal(to:)`, which takes any
+  `Equatable` value. The protocols are now `_Matchable` and `_OptionalMatchable`, the names the generated mocks
+  use, and Cuckoo 4 will hide them from your code.
+- A property stub's `set` takes `Sendable` matchers for a `Sendable` mock, like its other stubs.
+
 ## 3.0.0-beta.2
 
 The rest of the code audit's fixes: runtime and generator bugs, tighter tests, and a few API changes. The
