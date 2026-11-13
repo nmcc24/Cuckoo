@@ -8,6 +8,8 @@
 # Fixtures listed in Fixtures/Swift6/expected-failures.txt are expected to fail. SWIFT6_MATRIX_EXPECTED
 # names another list, e.g. Fixtures/Swift6/expected-failures-default-mainactor.txt for that mode.
 # Fixtures/Swift6/expected-failures-swift-X.Y.txt adds the fixtures that fail only on Swift X.Y, in every mode.
+# A fixture fails when swiftc reports an error or exits non-zero, or when the generated mock has a warning: the
+# zero-warnings rule covers generated mocks, in every mode this script runs.
 # Exit code: 0 if every fixture behaves as expected, 1 on a new failure or an
 # expected failure that now passes (remove it from the list), 2 if the build fails.
 set -uo pipefail
@@ -80,13 +82,21 @@ EOF
   fi
   "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" \
     "$f" "$WORK/gen/$n.mock.swift" > "$WORK/logs/$n.tc.log" 2>&1
+  exit_code=$?
   errors="$(grep -c "error:" "$WORK/logs/$n.tc.log")"
+  # Only the mock's warnings: a fixture may keep a warning on purpose, such as a call to a deprecated member.
+  mock_warnings="$(grep -F "$WORK/gen/$n.mock.swift:" "$WORK/logs/$n.tc.log" | grep -c ": warning:")"
+  first="$(grep -m1 "error:" "$WORK/logs/$n.tc.log" | sed -E 's/.*error: //' | cut -c1-90)"
+  if [[ "$errors" == "0" && "$exit_code" != "0" ]]; then
+    errors="?"; first="swiftc exited with $exit_code and printed no error"
+  elif [[ "$errors" == "0" && "$mock_warnings" != "0" ]]; then
+    errors="?"; first="$mock_warnings warning(s) in the mock: $(grep -F "$WORK/gen/$n.mock.swift:" "$WORK/logs/$n.tc.log" | grep -m1 ": warning:" | sed -E 's/.*warning: //' | cut -c1-60)"
+  fi
   if grep -qx "$n" <<< "$EXPECTED_FAILURES"; then
     if [[ "$errors" == "0" ]]; then result="XPASS"; status=1; else result="xfail"; fi
   else
     if [[ "$errors" == "0" ]]; then result="ok"; else result="FAIL"; status=1; fi
   fi
-  first="$(grep -m1 "error:" "$WORK/logs/$n.tc.log" | sed -E 's/.*error: //' | cut -c1-90)"
   printf "%-5s %-36s errors=%-3s %s\n" "$result" "$n" "$errors" "$first"
 done
 echo "Logs: $WORK/logs"
