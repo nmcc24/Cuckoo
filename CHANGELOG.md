@@ -20,6 +20,10 @@
   global actor instead of reading its calls. It takes a new last parameter, `isolation`, which defaults to the
   caller's, and mocks conform to the new `HasGlobalActor`, which names their actor.
 - `verify`'s result, `__DoNotUse`, is `Sendable`.
+- A throwing property's stubbing handles, `ProtocolToBeStubbedThrowingProperty` and
+  `ClassToBeStubbedThrowingProperty`, take the getter's error type: `<MOCK, T, ERROR, GET, SHARING>`. Generated
+  mocks spell it; only code that names these types itself changes.
+- A Cuckoofile module can list the global actors its types use from other modules, in `globalActors`.
 
 ### Added
 - Operator requirements are mocked. A protocol with `static func + (lhs: Self, rhs: Self) -> Self` had a mock that
@@ -38,6 +42,34 @@
 - A failure from a task outside a Swift Testing test, such as an unstubbed call in a `Task.detached`, went to
   XCTest, which ignores it there, so the test passed. A mock created in a Swift Testing test now reports it to
   Swift Testing.
+
+Mocks that didn't compile, or that differed from the mocked declaration:
+- A parameter written `sending @escaping` or `@isolated(any)`, a typed-throws getter (`get throws(E)`), typed throws
+  through a non-escaping closure, a closure parameter written through a typealias, `consuming` and `borrowing`
+  parameters, and a `-> ()` result.
+- A typed-throws getter's `thenThrow` stub was never found: the getter looked its stub up with its own error type.
+- A class mock dropped default argument values, so a call through the mock's type had to pass every argument.
+- A class member whose type is opaque (`some P`) can't be overridden; it's now left out with a comment in the mock,
+  instead of making the mock fail to compile. `some` nested in a protocol requirement's parameter is handled.
+- Keyword and backticked argument labels, a label named like the mock's own parameter names (`p0`), and generic
+  parameters named like the proxies' matcher generics (`M1`).
+- A class's `where` clause wasn't repeated on its mock.
+- A public class with internal members that use internal types got a public mock whose overrides made those
+  members public, which doesn't compile next to the class. Its mock is now internal.
+- A `nonisolated` member of a `@MainActor` or global-actor protocol got non-`Sendable` stubs, so it couldn't be
+  stubbed or called from another isolation.
+- `@_Concurrency.MainActor` wasn't recognised, and a type nested in an actor took the module's default isolation.
+- A protocol whose parent was reached through an enclosing scope or a composition typealias (`P = A & B`) lost
+  that parent's requirements; two nested protocols of the same name that a parent could mean are now an error
+  naming both, instead of a guess.
+- An unannotated property's type is inferred from array and dictionary literals of one kind and
+  `Array(repeating:count:)`, but no longer from a failable initializer such as `URL(string:)` or `Int("3")`, or a
+  generic type without its arguments, which gave a mock with the wrong type.
+
+### Warnings
+- A type marked with an attribute that isn't a known global actor gets a comment in its mock, and a warning when
+  the name ends in `Actor`. A parent protocol declared outside the sources gets a comment in the mock.
+
 
 ## 3.0.0-beta.4
 
