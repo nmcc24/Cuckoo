@@ -230,7 +230,6 @@ struct InOrderTests {
         #expect(passing.isEmpty)
     }
 
-    /// The failures `body` reports, without failing the test.
     @Test
     func verifyNoMoreInteractionsInsideTheBlockWaitsForTheVerifyCallsBeforeIt() {
         database.noReturn()
@@ -310,6 +309,7 @@ struct InOrderTests {
         #expect(reported.first?.contains("ran after its inOrder block ended") == true)
     }
 
+    /// The failures `body` reports, without failing the test.
     private func collectingMessages(_ body: () -> Void) -> [String] {
         let messages = Locked<[String]>([])
         var configuration = CuckooConfiguration.current

@@ -8,8 +8,9 @@
   for `strict` to reject. It now takes all its matching calls after the previous `verify` if its matcher accepts
   them all, else the first run of matching calls no other call to the block's verified mocks interrupts, as
   Mockito does. The block's `verify` calls are checked when it ends, and so is a `verifyNoMoreInteractions` inside
-  it, which sees the calls the `verify` calls before it took. A `verify` from a task that outlives the block records
-  a failure, and a captor in the block fills when it ends.
+  it, which sees the calls the `verify` calls before it took. A `verify` in a `Task` the block starts that runs after
+  it ends records a failure; a `Task.detached` or a dispatch queue isn't part of the block. A captor in the block
+  fills when it ends.
 - `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mocks of different types:
   `verifyNoMoreInteractions(database, cache)` compiles.
 - `MockManager.preconfiguredManager`, which only generated mocks used, is now `preconfiguredManager(for:)`.
