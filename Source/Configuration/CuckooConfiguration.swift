@@ -69,7 +69,12 @@ public enum CuckooError: Error, Sendable, Equatable {
 ///
 /// A failure with no `sourceLocation`, such as an unstubbed call, which happens inside the mock, is reported at the
 /// Swift Testing test. Elsewhere it has no better place than this function.
-func reportFailure(_ message: String, at sourceLocation: SourceLocation?) {
+///
+/// `inSwiftTesting` says the mock was created in a Swift Testing test. A task the test doesn't run in, such as a
+/// `Task.detached` or a dispatch queue, has no current test, so its failure would go to XCTest, which ignores it;
+/// such a failure is recorded as a Swift Testing issue instead, which Swift Testing attributes to a running test
+/// when it can.
+func reportFailure(_ message: String, at sourceLocation: SourceLocation?, inSwiftTesting: Bool = false) {
     let configuration = CuckooConfiguration.current
     if let collector = configuration.failureCollector {
         collector(message, sourceLocation)
@@ -81,17 +86,15 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?) {
     }
     #if canImport(Testing)
     if let test = Test.current {
-        Issue.record(
-            Comment(rawValue: message),
-            sourceLocation: sourceLocation.map { sourceLocation in
-                Testing.SourceLocation(
-                    fileID: sourceLocation.fileID,
-                    filePath: "\(sourceLocation.filePath)",
-                    line: sourceLocation.line,
-                    column: sourceLocation.column
-                )
-            } ?? test.sourceLocation
-        )
+        Issue.record(Comment(rawValue: message), sourceLocation: sourceLocation.map(testingSourceLocation) ?? test.sourceLocation)
+        return
+    }
+    if inSwiftTesting {
+        if let sourceLocation {
+            Issue.record(Comment(rawValue: message), sourceLocation: testingSourceLocation(sourceLocation))
+        } else {
+            Issue.record(Comment(rawValue: message))
+        }
         return
     }
     #endif
@@ -103,5 +106,25 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?) {
     }
     #else
     print("Cuckoo failure:", message, sourceLocation ?? (#fileID, #filePath, #line, #column))
+    #endif
+}
+
+#if canImport(Testing)
+private func testingSourceLocation(_ sourceLocation: SourceLocation) -> Testing.SourceLocation {
+    Testing.SourceLocation(
+        fileID: sourceLocation.fileID,
+        filePath: "\(sourceLocation.filePath)",
+        line: sourceLocation.line,
+        column: sourceLocation.column
+    )
+}
+#endif
+
+/// Whether the current task runs a Swift Testing test.
+func isRunningSwiftTestingTest() -> Bool {
+    #if canImport(Testing)
+    Test.current != nil
+    #else
+    false
     #endif
 }

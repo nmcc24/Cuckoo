@@ -134,3 +134,22 @@ struct CuckooTraitTests {
         #expect(log.all.last == "Wanted 2 times but invoked 1 time.\nCalls to count(characters:):\n  1. count(\"a\") matches")
     }
 }
+
+struct FailuresOutsideTheTestTaskTests {
+    /// A detached task has no current test, so a failure there would go to XCTest, which ignores it under Swift
+    /// Testing. The mock remembers that it was created in a Swift Testing test, and reports to Swift Testing.
+    @Test
+    func mockRemembersItWasCreatedInASwiftTestingTest() async {
+        let mock = MockTestedProtocol()
+        #expect(mock.cuckoo_manager.createdInSwiftTesting)
+
+        let detachedHasNoTest = await Task.detached { !isRunningSwiftTestingTest() }.value
+        #expect(detachedHasNoTest)
+    }
+
+    @Test
+    func mockCreatedOutsideATestDoesNotClaimSwiftTesting() async {
+        let createdInSwiftTesting = await Task.detached { MockTestedProtocol().cuckoo_manager.createdInSwiftTesting }.value
+        #expect(!createdInSwiftTesting)
+    }
+}
