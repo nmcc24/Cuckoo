@@ -8,6 +8,9 @@
 # Fixtures listed in Fixtures/Swift6/expected-failures.txt are expected to fail. SWIFT6_MATRIX_EXPECTED
 # names another list, e.g. Fixtures/Swift6/expected-failures-default-mainactor.txt for that mode.
 # Fixtures/Swift6/expected-failures-swift-X.Y.txt adds the fixtures that fail only on Swift X.Y, in every mode.
+# A line may name the error the fixture must fail with, `name: text`; it then counts as a new failure when no
+# error contains that text, so an expected failure can't hide a different one.
+# A fixture with `#if DEBUG` branches is also compiled with `-D DEBUG`.
 # A fixture fails when swiftc reports an error or exits non-zero, or when the generated mock has a warning: the
 # zero-warnings rule covers generated mocks, in every mode this script runs.
 # Exit code: 0 if every fixture behaves as expected, 1 on a new failure or an
@@ -83,6 +86,11 @@ EOF
   "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" \
     "$f" "$WORK/gen/$n.mock.swift" > "$WORK/logs/$n.tc.log" 2>&1
   exit_code=$?
+  # A fixture with `#if DEBUG` branches compiles a second time with DEBUG defined, so both branches of the mock do.
+  if grep -qE '^[[:space:]]*#(if|elseif).*DEBUG' "$f"; then
+    "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" -D DEBUG \
+      "$f" "$WORK/gen/$n.mock.swift" >> "$WORK/logs/$n.tc.log" 2>&1 || exit_code=$?
+  fi
   errors="$(grep -c "error:" "$WORK/logs/$n.tc.log")"
   # Only the mock's warnings: a fixture may keep a warning on purpose, such as a call to a deprecated member.
   mock_warnings="$(grep -F "$WORK/gen/$n.mock.swift:" "$WORK/logs/$n.tc.log" | grep -c ": warning:")"
@@ -92,8 +100,17 @@ EOF
   elif [[ "$errors" == "0" && "$mock_warnings" != "0" ]]; then
     errors="?"; first="$mock_warnings warning(s) in the mock: $(grep -F "$WORK/gen/$n.mock.swift:" "$WORK/logs/$n.tc.log" | grep -m1 ": warning:" | sed -E 's/.*warning: //' | cut -c1-60)"
   fi
-  if grep -qx "$n" <<< "$EXPECTED_FAILURES"; then
-    if [[ "$errors" == "0" ]]; then result="XPASS"; status=1; else result="xfail"; fi
+  expected_line="$(grep -E "^$n(:|$)" <<< "$EXPECTED_FAILURES" | head -1)"
+  if [[ -n "$expected_line" ]]; then
+    expected_message=""
+    [[ "$expected_line" == *:* ]] && expected_message="$(sed -E 's/^[^:]*:[[:space:]]*//' <<< "$expected_line")"
+    if [[ "$errors" == "0" ]]; then
+      result="XPASS"; status=1
+    elif [[ -n "$expected_message" ]] && ! grep "error:" "$WORK/logs/$n.tc.log" | grep -qF -- "$expected_message"; then
+      result="FAIL"; status=1; first="not the expected error ($expected_message): $first"
+    else
+      result="xfail"
+    fi
   else
     if [[ "$errors" == "0" ]]; then result="ok"; else result="FAIL"; status=1; fi
   fi
