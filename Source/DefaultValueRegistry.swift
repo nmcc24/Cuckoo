@@ -28,7 +28,7 @@ public enum DefaultValueRegistry {
     }
 
     /// Registers `factory` to make the default for `type`, replacing any earlier one, for every test. Each unstubbed
-    /// call gets a new value, so `type` needn't be `Sendable`: a class, or a tuple such as `(Int, String)`.
+    /// call gets a new value, so `type` needn't be `Sendable`: a class, or a tuple that holds one.
     public static func register<T>(for type: T.Type = T.self, factory: @escaping @Sendable () -> T) {
         registeredTypes.withLock { $0[ObjectIdentifier(type)] = DefaultValueFactory(factory) }
     }

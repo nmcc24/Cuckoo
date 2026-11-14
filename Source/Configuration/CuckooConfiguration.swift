@@ -65,17 +65,34 @@ public enum CuckooError: Error, Sendable, Equatable {
     case unstubbedCall(method: String)
 }
 
+/// The Swift Testing test a mock was created in, so a failure from a task the test doesn't run in can still go to
+/// Swift Testing, at that test.
+struct CreatingTest: Sendable {
+    #if canImport(Testing)
+    let sourceLocation: Testing.SourceLocation
+    #endif
+
+    /// The test the current task runs, if it's a Swift Testing test.
+    static var current: CreatingTest? {
+        #if canImport(Testing)
+        Test.current.map { CreatingTest(sourceLocation: $0.sourceLocation) }
+        #else
+        nil
+        #endif
+    }
+}
+
 /// Reports a failure to the current configuration's handler, or else to the framework running the current test
 /// only. Swift Testing flags an `XCTFail` inside its tests, and XCTest doesn't see Swift Testing issues.
 ///
 /// A failure with no `sourceLocation`, such as an unstubbed call, which happens inside the mock, is reported at the
 /// Swift Testing test. Elsewhere it has no better place than this function.
 ///
-/// `inSwiftTesting` says the mock was created in a Swift Testing test. A task the test doesn't run in, such as a
+/// `creatingTest` is the Swift Testing test the mock was created in. A task the test doesn't run in, such as a
 /// `Task.detached` or a dispatch queue, has no current test, so its failure would go to XCTest, which ignores it;
-/// such a failure is recorded as a Swift Testing issue instead, which Swift Testing attributes to a running test
-/// when it can.
-func reportFailure(_ message: String, at sourceLocation: SourceLocation?, inSwiftTesting: Bool = false) {
+/// such a failure is recorded as a Swift Testing issue instead. Swift Testing can't tell which test it belongs to,
+/// so it fails the run under no test, at the failure's location or else at the test that created the mock.
+func reportFailure(_ message: String, at sourceLocation: SourceLocation?, creatingTest: CreatingTest? = nil) {
     let configuration = CuckooConfiguration.current
     if let collector = configuration.failureCollector {
         collector(message, sourceLocation)
@@ -86,16 +103,8 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?, inSwif
         return
     }
     #if canImport(Testing)
-    if let test = Test.current {
-        Issue.record(Comment(rawValue: message), sourceLocation: sourceLocation.map(testingSourceLocation) ?? test.sourceLocation)
-        return
-    }
-    if inSwiftTesting {
-        if let sourceLocation {
-            Issue.record(Comment(rawValue: message), sourceLocation: testingSourceLocation(sourceLocation))
-        } else {
-            Issue.record(Comment(rawValue: message))
-        }
+    if let location = swiftTestingIssueLocation(for: sourceLocation, creatingTest: creatingTest) {
+        Issue.record(Comment(rawValue: message), sourceLocation: location)
         return
     }
     #endif
@@ -111,6 +120,15 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?, inSwif
 }
 
 #if canImport(Testing)
+/// Where a failure goes in Swift Testing, or `nil` when Swift Testing isn't involved and it goes to XCTest: the
+/// failure's own location, else the current test, else the test that created the mock.
+func swiftTestingIssueLocation(for sourceLocation: SourceLocation?, creatingTest: CreatingTest?) -> Testing.SourceLocation? {
+    guard let test = Test.current.map({ CreatingTest(sourceLocation: $0.sourceLocation) }) ?? creatingTest else {
+        return nil
+    }
+    return sourceLocation.map(testingSourceLocation) ?? test.sourceLocation
+}
+
 private func testingSourceLocation(_ sourceLocation: SourceLocation) -> Testing.SourceLocation {
     Testing.SourceLocation(
         fileID: sourceLocation.fileID,
@@ -120,12 +138,3 @@ private func testingSourceLocation(_ sourceLocation: SourceLocation) -> Testing.
     )
 }
 #endif
-
-/// Whether the current task runs a Swift Testing test.
-func isRunningSwiftTestingTest() -> Bool {
-    #if canImport(Testing)
-    Test.current != nil
-    #else
-    false
-    #endif
-}

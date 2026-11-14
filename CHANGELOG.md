@@ -7,14 +7,17 @@
   accepted, so `times(1)` passed on two calls in a row and `atLeast(2)` took two of three calls, leaving the third
   for `strict` to reject. It now takes all its matching calls after the previous `verify` if its matcher accepts
   them all, else the first run of matching calls no other call to the block's verified mocks interrupts, as
-  Mockito does. The block's `verify` calls are checked when it ends.
+  Mockito does. The block's `verify` calls are checked when it ends, and so is a `verifyNoMoreInteractions` inside
+  it, which sees the calls the `verify` calls before it took. A `verify` from a task that outlives the block records
+  a failure, and a captor in the block fills when it ends.
 - `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mocks of different types:
   `verifyNoMoreInteractions(database, cache)` compiles.
 - `MockManager.preconfiguredManager`, which only generated mocks used, is now `preconfiguredManager(for:)`.
 - `verify` on the mock of a `@MainActor` type, or of another global actor's, needs that actor: the verification
   proxy takes the mock's isolation. A test off the actor could read a recorded argument while the actor still
   changed it, which Swift 6's checking didn't catch. `verifyNoMoreInteractions` records a failure off a mock's
-  global actor instead of reading its calls.
+  global actor instead of reading its calls. It takes a new last parameter, `isolation`, which defaults to the
+  caller's, and mocks conform to the new `HasGlobalActor`, which names their actor.
 - `verify`'s result, `__DoNotUse`, is `Sendable`.
 
 ### Added

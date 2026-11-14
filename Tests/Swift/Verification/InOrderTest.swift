@@ -231,6 +231,85 @@ struct InOrderTests {
     }
 
     /// The failures `body` reports, without failing the test.
+    @Test
+    func verifyNoMoreInteractionsInsideTheBlockWaitsForTheVerifyCallsBeforeIt() {
+        database.noReturn()
+        cache.noReturn()
+
+        let messages = collectingMessages {
+            inOrder {
+                verify(database).noReturn()
+                verify(cache).noReturn()
+                verifyNoMoreInteractions(database, cache)
+            }
+        }
+        #expect(messages.isEmpty)
+    }
+
+    @Test
+    func verifyNoMoreInteractionsInsideTheBlockSeesOnlyTheVerifyCallsBeforeIt() {
+        database.noReturn()
+        cache.noReturn()
+
+        let messages = collectingMessages {
+            inOrder {
+                verify(database).noReturn()
+                verifyNoMoreInteractions(cache)
+                verify(cache).noReturn()
+            }
+        }
+        #expect(messages.count == 1)
+        #expect(messages.first?.hasPrefix("No more interactions wanted but some found:") == true)
+    }
+
+    @Test
+    func failureMarksTheCallsAnEarlierVerifyTook() {
+        _ = database.count(characters: "a")
+        _ = database.count(characters: "b")
+
+        let messages = collectingMessages {
+            inOrder {
+                verify(database, atLeast(1)).count(characters: any())
+                verify(database).count(characters: "b")
+            }
+        }
+        #expect(messages.count == 1)
+        #expect(messages.first?.contains("✓ count(\"b\")") == true)
+    }
+
+    @Test
+    func verifyFromATaskThatOutlivesTheBlockFails() async {
+        let service = MockSendableService()
+        stub(service) { stub in
+            when(stub.value(for: any())).thenReturn(0)
+        }
+        _ = service.value(for: "a")
+        let (blockEnded, ended) = AsyncStream<Void>.makeStream()
+
+        let messages = Locked<[String]>([])
+        var configuration = CuckooConfiguration.current
+        configuration.failureHandler = { message, _ in
+            messages.withLock { $0.append(message) }
+        }
+        await CuckooConfiguration.$current.withValue(configuration) {
+            var late: Task<Void, Never>?
+            inOrder {
+                late = Task {
+                    for await _ in blockEnded {
+                        break
+                    }
+                    verify(service).value(for: "a")
+                }
+            }
+            ended.yield()
+            await late?.value
+        }
+
+        let reported = messages.withLock { $0 }
+        #expect(reported.count == 1)
+        #expect(reported.first?.contains("ran after its inOrder block ended") == true)
+    }
+
     private func collectingMessages(_ body: () -> Void) -> [String] {
         let messages = Locked<[String]>([])
         var configuration = CuckooConfiguration.current
