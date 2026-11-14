@@ -160,6 +160,24 @@ In XCTest, or anywhere else without the trait, wrap the code in ``withStaticStub
 version. Tasks started inside the scope see its stubs; a `Task.detached`, a dispatch queue or a notification
 doesn't, and its static calls fail as unstubbed.
 
+Operators are static members too. A Swift member can't be named `+`, so the proxies name each operator `operator`
+followed by a word for each of its characters: `+` is `operatorPlus`, `==` is `operatorEqualEqual` and `<~>` is
+`operatorLessTildeGreater`. A prefix or postfix operator starts with its fixity, as in `prefixOperatorMinus` and
+`postfixOperatorPlusPlus`. The words are `Slash`, `Equal`, `Minus`, `Plus`, `Bang`, `Star`, `Percent`, `Less`,
+`Greater`, `Amp`, `Pipe`, `Caret`, `Tilde`, `Question` and `Dot`; any other character is its Unicode scalar, such
+as `operatorU2295` for `⊕`. Their arguments have no labels:
+
+```swift
+stub(MockVector.self) { stub in
+    when(stub.operatorPlus(any(), any())).thenReturn(sum)
+}
+#expect(MockVector() + MockVector() === sum)
+verify(MockVector.self).operatorPlus(any(), any())
+```
+
+A class's own operators are final, so its mock keeps the real ones. Operators the mocked protocol inherits from
+another module, such as `Equatable`'s `==`, aren't mocked, like any member the generator doesn't read.
+
 ### Verify calls
 
 ``verify(_:_:fileID:filePath:line:column:)->M.Verification`` checks that the mock received a call, once unless
