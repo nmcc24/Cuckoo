@@ -82,11 +82,17 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
                 return []
             }
         }
-        // Without an entry this target generates, it would compile no mocks and say nothing.
+        // Without an entry this target generates, or with one that lists no files, it would compile no mocks and
+        // say nothing. The line reader can misread a Cuckoofile, so finding no entries at all isn't an error: the
+        // generator, which parses the TOML, reports what's wrong with it.
         let entries = cuckoofileModuleNames(in: configuration)
         let generated = Set(sourceModules.map(\.name) + [target.displayName])
-        if entries.isDisjoint(with: generated) {
-            throw XcodeTestTargetWithoutEntryError(testTarget: target.displayName, entries: entries.sorted())
+        if !entries.isEmpty, entries.isDisjoint(with: generated) {
+            throw XcodeTestTargetWithoutEntryError(testTarget: target.displayName, entries: entries.sorted(), listsNoSources: false)
+        }
+        if sourceModules.isEmpty, entries.contains(target.displayName),
+           !cuckoofileEntry(named: target.displayName, listsSourcesIn: configuration) {
+            throw XcodeTestTargetWithoutEntryError(testTarget: target.displayName, entries: entries.sorted(), listsNoSources: true)
         }
 
         // For test targets, also emit a build command keyed by the test target's own name.
@@ -115,13 +121,17 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
 struct XcodeTestTargetWithoutEntryError: Error, CustomStringConvertible {
     let testTarget: String
     let entries: [String]
+    /// The test target's entry exists but lists no `sources`.
+    let listsNoSources: Bool
 
     var description: String {
         let key = testTarget.allSatisfy { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "-" } ? testTarget : "\"\(testTarget)\""
-        let found = entries.isEmpty ? "none" : entries.joined(separator: ", ")
-        return "The Cuckoofile has no entry for the Xcode test target '\(testTarget)' (it has: \(found)). In an Xcode "
-            + "project, name the entry after the test target and list the files to mock: [modules.\(key)] with "
-            + "sources = [\"App/**/*.swift\"]. Xcode doesn't tell the plugin which of the project's targets a test depends on."
+        let problem = listsNoSources
+            ? "The Cuckoofile entry [modules.\(key)] lists no sources, so it mocks nothing."
+            : "The Cuckoofile has no entry for the Xcode test target '\(testTarget)' (it has: \(entries.joined(separator: ", ")))."
+        return problem + " In an Xcode project, name the entry after the test target and list the files to mock: "
+            + "[modules.\(key)] with sources = [\"App/**/*.swift\"]. Xcode doesn't tell the plugin which of the "
+            + "project's targets a test depends on."
     }
 }
 #endif
@@ -259,7 +269,9 @@ func cuckoofileKeyLines(_ configuration: String) -> [(key: [String], value: Subs
             }
             continue
         }
-        for delimiter in [String(repeating: "\"", count: 3), "'''"] where line.ranges(of: delimiter).count == 1 {
+        // Only a delimiter in the line's TOML counts, not one in a comment.
+        let code = withoutComment(line)
+        for delimiter in [String(repeating: "\"", count: 3), "'''"] where code.ranges(of: delimiter).count == 1 {
             multilineDelimiter = delimiter
         }
         let line = line.drop { $0 == " " || $0 == "\t" }
@@ -271,6 +283,22 @@ func cuckoofileKeyLines(_ configuration: String) -> [(key: [String], value: Subs
         }
     }
     return lines
+}
+
+/// A line up to its `#` comment, if it has one outside quotes.
+private func withoutComment(_ line: Substring) -> Substring {
+    var quote: Character?
+    for index in line.indices {
+        let character = line[index]
+        if let open = quote {
+            if character == open { quote = nil }
+        } else if character == "\"" || character == "'" {
+            quote = character
+        } else if character == "#" {
+            return line[..<index]
+        }
+    }
+    return line
 }
 
 /// The segments of a TOML key that runs until `terminator` outside quotes: `modules."My App".options` is

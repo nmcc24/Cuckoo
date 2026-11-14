@@ -79,8 +79,8 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 Build plugin:
 - In an Xcode project, Getting Started's Cuckoofile generated no mocks, without a word: Xcode doesn't tell the
   plugin which of the project's own targets a test target depends on. An Xcode project's entry is named after the
-  test target and lists its `sources`, as in Cuckoo 2, and a test target with no entry of its own now fails with a
-  message saying so. Getting Started and the Cuckoofile article say so.
+  test target and lists its `sources`, as in Cuckoo 2, and a test target with no entry of its own, or one whose entry
+  lists no `sources`, now fails with a message saying what to write. Getting Started and the Cuckoofile article say so.
 - A Cuckoofile key in quotes, such as `[modules."My App"]`, lost its spaces and dots, so it named no target.
 - A test target's dependency on an executable target got no mocks.
 - A missing Cuckoofile gave an unclear failure; the plugin now says where it looked and what to add.
