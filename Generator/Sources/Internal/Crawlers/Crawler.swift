@@ -492,11 +492,14 @@ final class Crawler: SyntaxVisitor {
     /// Whether an extension's type, `Worker`, `Outer.Worker` or `App.Outer.Worker`, is one of the module's actors,
     /// which are known by qualified name. A leading module name is left out only when it names no type.
     static func namesAnActor(_ name: String, actors: Set<String>, types: Set<String>) -> Bool {
-        var components = name.split(separator: ".").map(String.init)
-        if components.count > 1, !types.contains(components[0]) {
-            components.removeFirst()
+        func normalized(_ name: String) -> String {
+            var components = name.split(separator: ".").map(String.init)
+            if components.count > 1, !types.contains(components[0]) {
+                components.removeFirst()
+            }
+            return components.joined(separator: ".")
         }
-        return actors.contains(components.joined(separator: "."))
+        return actors.contains { normalized($0) == normalized(name) }
     }
 
     /// The first of the module's non-public types a non-public member names in its signature, if any.
@@ -617,8 +620,10 @@ final class Crawler: SyntaxVisitor {
         if attributed.baseType.is(FunctionTypeSyntax.self) {
             return true
         }
-        // A closure written through a typealias, `sending Handler`.
-        guard let identifier = attributed.baseType.as(IdentifierTypeSyntax.self), identifier.genericArgumentClause == nil,
+        // A closure written through a typealias, `sending Handler`. Through a typealias an `inout` closure is mocked
+        // already, as a variable the caller owns.
+        guard !attributed.specifiers.contains(where: { $0.trimmedDescription == "inout" }),
+              let identifier = attributed.baseType.as(IdentifierTypeSyntax.self), identifier.genericArgumentClause == nil,
               let functionType = closureTypealias(named: identifier.name.text, from: Syntax(type)) else { return false }
         return !functionType.contains("@escaping")
     }
@@ -1363,8 +1368,9 @@ extension Crawler {
 
         override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
             // A protocol's typealias has the protocol's access, which it can't state itself.
-            let isProtocolMember = node.parent?.parent?.parent?.parent?.is(ProtocolDeclSyntax.self) == true
-            if !isProtocolMember {
+            if let enclosingProtocol = node.parent?.parent?.parent?.parent?.as(ProtocolDeclSyntax.self) {
+                collectAccess(enclosingProtocol.modifiers, name: node.name)
+            } else {
                 collectAccess(node.modifiers, name: node.name)
             }
             var type = node.initializer.value

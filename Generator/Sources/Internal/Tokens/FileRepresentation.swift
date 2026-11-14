@@ -78,7 +78,7 @@ extension Token {
     /// Swift would: in the type's enclosing scopes from the innermost outwards, through typealiases. A name written
     /// qualified, `Outer.Service`, matches that declaration. Nil means it's declared outside the sources, as
     /// Swift's own `Error` is, even when a protocol nested elsewhere has the same name.
-    private static func findToken(forClassOrProtocol name: String, from scope: String, names: TypeNames) -> (any Token)? {
+    private static func findToken(forClassOrProtocol name: String, from scope: String, names: TypeNames, depth: Int = 0) -> (any Token)? {
         var enclosingScopes = names.canonical(scope).split(separator: ".").map(String.init)
         while true {
             enclosingScopes.removeLast()
@@ -88,7 +88,7 @@ extension Token {
             // A class's scope also holds what its superclasses declare: `class Child: Base` sees `Base.Delegate`.
             if !enclosingScopes.isEmpty,
                let enclosingClass = names.declaration(named: enclosingScopes.joined(separator: ".")) as? ClassDeclaration,
-               let match = member(named: name, ofSuperclassesOf: enclosingClass, names: names, depth: 0) {
+               let match = member(named: name, ofSuperclassesOf: enclosingClass, names: names, depth: depth) {
                 return match
             }
             if enclosingScopes.isEmpty { break }
@@ -101,7 +101,8 @@ extension Token {
     private static func member(named name: String, ofSuperclassesOf subclass: ClassDeclaration, names: TypeNames, depth: Int) -> (any Token)? {
         guard depth < 16 else { return nil }
         for superclassName in subclass.inheritedTypes {
-            guard let superclass = findToken(forClassOrProtocol: superclassName.withoutGenericArguments, from: subclass.fullyQualifiedName, names: names) as? ClassDeclaration else { continue }
+            // The depth carries through, so a class that inherits from itself, which Swift rejects, ends the search.
+            guard let superclass = findToken(forClassOrProtocol: superclassName.withoutGenericArguments, from: subclass.fullyQualifiedName, names: names, depth: depth + 1) as? ClassDeclaration else { continue }
             if let match = names.declaration(named: superclass.fullyQualifiedName + "." + name)
                 ?? member(named: name, ofSuperclassesOf: superclass, names: names, depth: depth + 1) {
                 return match

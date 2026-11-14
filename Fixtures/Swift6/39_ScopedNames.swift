@@ -151,3 +151,29 @@ nonisolated func useQualifiedActorExtension(_ cache: WorkerScope.Worker.Cache, _
     cache.clear()
     loader.load()
 }
+
+// An `inout` closure through a typealias is mocked, as a variable the caller owns; an internal protocol's
+// typealias makes a public class's mock internal; and an actor declared in a module-qualified extension is
+// recognised when it's extended the same way.
+typealias SwapHandler = () -> Void
+class SwapRunner {
+    init() {}
+    func swap(_ handler: inout SwapHandler) {}
+}
+
+protocol Configurable {
+    typealias Model = Int
+}
+open class ConfiguredClient: Configurable {
+    public init() {}
+    func load(_ model: Model) {}
+}
+
+enum QualifiedHost {}
+extension Fix.QualifiedHost {
+    actor Worker {}
+}
+extension Fix.QualifiedHost.Worker {
+    protocol Job { func run() }
+}
+nonisolated func runJob(_ job: any Fix.QualifiedHost.Worker.Job) { job.run() }
