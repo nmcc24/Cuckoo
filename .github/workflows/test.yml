@@ -221,6 +221,17 @@ jobs:
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
             -destination "generic/platform=watchOS Simulator" ARCHS=arm64 \
             | xcbeautify --renderer github-actions
+      # The plugin's Xcode entry point, which the package's own schemes never run: an Xcode project whose two test
+      # targets use the plugin, each with a Cuckoofile entry that lists its sources.
+      - name: Test an Xcode project that uses the plugin
+        run: |
+          set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme XApp \
+            -skipPackagePluginValidation -destination "platform=macOS" \
+            | xcbeautify --renderer github-actions
+          # One framework and its tests alone: a test target given another target's mocks fails to build.
+          set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme ShopOnly \
+            -skipPackagePluginValidation -destination "platform=macOS" \
+            | xcbeautify --renderer github-actions
 
   # The single check that master's ruleset requires. It depends on every other job, so
   # adding or removing matrix entries never leaves the ruleset requiring a stale check name.
