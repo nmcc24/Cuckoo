@@ -92,4 +92,26 @@ struct AttributeAndInheritanceTests {
         #expect(output[composed.lowerBound...].contains("func a()"))
         #expect(output[composed.lowerBound...].contains("func b()"))
     }
+
+    /// A public class whose non-public members name a non-public type gets an internal mock, which says why. A name
+    /// that's also a public type's, such as a nested internal `Config` next to a public one, doesn't count.
+    @Test
+    func internalMockSaysWhy() async throws {
+        let output = try await generateMocks(source: """
+            struct Hidden {}
+            public struct Config { public init() {} }
+            struct Settings { struct Config {} }
+            public class Client {
+                public init() {}
+                func configure(_ config: Config) {}
+            }
+            public class Store {
+                public init() {}
+                func keep(_ hidden: Hidden) {}
+            }
+            """)
+        #expect(output.contains("public final class MockClient: Client,"))
+        #expect(output.contains("\nfinal class MockStore: Store,"))
+        #expect(output.contains("// This mock is internal: Store's non-public members name the non-public type 'Hidden',"))
+    }
 }

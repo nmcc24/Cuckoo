@@ -174,6 +174,14 @@ extension ComplexType {
         }
     }
 
+    /// The type without parameter-only specifiers such as `sending`, for a closure parameter that the mock rebinds
+    /// as `@escaping`: an attribute can't come before a specifier.
+    var withoutParameterSpecifiers: ComplexType {
+        guard case .attributed(let attributes, let baseType) = self else { return self }
+        let remaining = attributes.filter { !Self.parameterOnlySpecifiers.contains($0) }
+        return remaining.isEmpty ? baseType : .attributed(attributes: remaining, baseType: baseType)
+    }
+
     /// Specifiers that are only valid directly on a parameter or result type,
     /// never inside a generic argument, tuple or metatype expression.
     static let parameterOnlySpecifiers: Set<String> = ["sending", "borrowing", "consuming", "inout", "isolated", "__owned", "__shared"]

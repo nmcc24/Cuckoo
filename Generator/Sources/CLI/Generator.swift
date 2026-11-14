@@ -124,10 +124,12 @@ final class Generator {
                     globalActors: declaredNames.globalActors.union(module.globalActors),
                     noncopyableTypes: declaredNames.noncopyableTypes,
                     closureTypealiases: declaredNames.closureTypealiases,
-                    nonPublicTypes: declaredNames.nonPublicTypes,
+                    nonPublicTypes: declaredNames.nonPublicTypes.subtracting(declaredNames.publicTypes),
                     genericTypes: declaredNames.genericTypes,
                     protocolsAndClasses: declaredNames.protocolsAndClasses,
                     compositionTypealiases: declaredNames.compositionTypealiases,
+                    actors: declaredNames.actors,
+                    privateNames: declaredNames.privateNames,
                     defaultIsolation: module.options.defaultIsolation
                 )
             } catch {

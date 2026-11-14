@@ -20,6 +20,9 @@
   global actor instead of reading its calls. It takes a new last parameter, `isolation`, which defaults to the
   caller's, and mocks conform to the new `HasGlobalActor`, which names their actor.
 - `verify`'s result, `__DoNotUse`, is `Sendable`.
+- A `nonisolated` member of a `@MainActor` or other global-actor type gets `Sendable` stubs, since it can be called
+  from any task at once: `thenReturn` and `equal(to:)` take only `Sendable` values there. For a value that isn't,
+  return a new one from `then { Token() }`.
 - A throwing property's stubbing handles, `ProtocolToBeStubbedThrowingProperty` and
   `ClassToBeStubbedThrowingProperty`, take the getter's error type: `<MOCK, T, ERROR, GET, SHARING>`. Generated
   mocks spell it; only code that names these types itself changes.
@@ -48,17 +51,20 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   through a non-escaping closure, a closure parameter written through a typealias, `consuming` and `borrowing`
   parameters, and a `-> ()` result.
 - A typed-throws getter's `thenThrow` stub was never found: the getter looked its stub up with its own error type.
-- A class mock dropped default argument values, so a call through the mock's type had to pass every argument.
+- A class mock dropped the default argument values of its methods and subscripts, so a call through the mock's type
+  had to pass every argument. A default that names a `private` or `fileprivate` declaration, which the mock can't
+  see, is still left out.
 - A class member whose type is opaque (`some P`) can't be overridden; it's now left out with a comment in the mock,
   instead of making the mock fail to compile. `some` nested in a protocol requirement's parameter is handled.
 - Keyword and backticked argument labels, a label named like the mock's own parameter names (`p0`), and generic
   parameters named like the proxies' matcher generics (`M1`).
 - A class's `where` clause wasn't repeated on its mock.
 - A public class with internal members that use internal types got a public mock whose overrides made those
-  members public, which doesn't compile next to the class. Its mock is now internal.
+  members public, which doesn't compile next to the class. Its mock is now internal, and says why.
 - A `nonisolated` member of a `@MainActor` or global-actor protocol got non-`Sendable` stubs, so it couldn't be
   stubbed or called from another isolation.
-- `@_Concurrency.MainActor` wasn't recognised, and a type nested in an actor took the module's default isolation.
+- `@_Concurrency.MainActor` wasn't recognised, and a type nested in an actor, or in an extension of one, took the
+  module's default isolation.
 - A protocol whose parent was reached through an enclosing scope or a composition typealias (`P = A & B`) lost
   that parent's requirements; two nested protocols of the same name that a parent could mean are now an error
   naming both, instead of a guess.

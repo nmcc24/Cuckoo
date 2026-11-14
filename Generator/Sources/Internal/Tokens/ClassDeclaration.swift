@@ -15,6 +15,8 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var unmockedMembers: [String] = []
     /// Attributes the generator couldn't classify, which the mock names in a comment; see `Crawler.unknownAttributes`.
     var unknownAttributes: [String] = []
+    /// The non-public type whose use by a non-public member made a public class's mock internal, if any.
+    var internalMockReason: String?
 
     func replacing(members: [any Token]) -> ClassDeclaration {
         ClassDeclaration(
@@ -29,7 +31,8 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             enclosingCompilationConditions: enclosingCompilationConditions,
             isolation: isolation,
             unmockedMembers: unmockedMembers,
-            unknownAttributes: unknownAttributes
+            unknownAttributes: unknownAttributes,
+            internalMockReason: internalMockReason
         )
     }
 }
