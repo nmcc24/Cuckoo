@@ -3,8 +3,9 @@ import Testing
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-/// The failures `verify` and `verifyNoMoreInteractions` report. Each scenario runs twice: through a configuration's
-/// failure handler, and as the Swift Testing issue a test without one records.
+/// The failures `verify` and `verifyNoMoreInteractions` report, through a configuration's failure handler. Every
+/// scenario reports through the same function, so one scenario checks the Swift Testing issue a test without a
+/// handler records.
 struct FailTest {
     struct Scenario: Sendable, CustomTestStringConvertible {
         let testDescription: String
@@ -77,8 +78,9 @@ struct FailTest {
         #expect(TestUtils.catchCuckooFail(inClosure: scenario.run) == scenario.message)
     }
 
-    @Test(arguments: scenarios)
-    func isASwiftTestingIssue(_ scenario: Scenario) {
+    @Test
+    func isASwiftTestingIssue() {
+        let scenario = Self.scenarios[1]
         withKnownIssue {
             scenario.run()
         } matching: { issue in
