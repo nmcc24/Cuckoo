@@ -1,0 +1,57 @@
+# The Xcode project CI builds to cover the plugin's Xcode entry point: two frameworks, each with a test target whose
+# Cuckoofile entry lists its sources, one of them named with a space. XApp.xcodeproj is generated from this file
+# with XcodeGen (`xcodegen` in this folder); regenerate it after changing this file.
+name: XApp
+options:
+  deploymentTarget: {macOS: "14.0"}
+packages:
+  Cuckoo:
+    path: ../..
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CODE_SIGNING_ALLOWED: "NO"
+    GENERATE_INFOPLIST_FILE: "YES"
+targets:
+  Shop:
+    type: framework
+    platform: macOS
+    sources: [Shop]
+    settings: {base: {PRODUCT_BUNDLE_IDENTIFIER: org.cuckoo.fixture.shop, ENABLE_TESTABILITY: "YES"}}
+  Core:
+    type: framework
+    platform: macOS
+    sources: [Core]
+    settings: {base: {PRODUCT_BUNDLE_IDENTIFIER: org.cuckoo.fixture.core, ENABLE_TESTABILITY: "YES"}}
+  CoreTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [CoreTests]
+    settings: {base: {PRODUCT_BUNDLE_IDENTIFIER: org.cuckoo.fixture.coretests}}
+    dependencies:
+      - target: Core
+      - package: Cuckoo
+        product: Cuckoo
+    buildToolPlugins:
+      - plugin: CuckooPlugin
+        package: Cuckoo
+  Shop Tests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [ShopTests]
+    settings: {base: {PRODUCT_BUNDLE_IDENTIFIER: org.cuckoo.fixture.shoptests}}
+    dependencies:
+      - target: Shop
+      - package: Cuckoo
+        product: Cuckoo
+    buildToolPlugins:
+      - plugin: CuckooPlugin
+        package: Cuckoo
+schemes:
+  XApp:
+    build: {targets: {Shop: all, Shop Tests: [test], Core: all, CoreTests: [test]}}
+    test: {targets: [Shop Tests, CoreTests]}
+  # Builds one framework and its tests alone, so a test target that got another's mocks fails to build.
+  ShopOnly:
+    build: {targets: {Shop: all, Shop Tests: [test]}}
+    test: {targets: [Shop Tests]}
