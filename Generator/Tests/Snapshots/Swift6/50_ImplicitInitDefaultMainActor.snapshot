@@ -1,0 +1,77 @@
+import Cuckoo
+import Foundation
+
+final class MockImplicitInitService: ImplicitInitService, nonisolated Cuckoo.ClassMock {
+    typealias MocksType = ImplicitInitService
+    typealias Stubbing = __StubbingProxy_ImplicitInitService
+    typealias Verification = __VerificationProxy_ImplicitInitService
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockImplicitInitService.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<ImplicitInitService>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ImplicitInitService) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    override func run() {
+        return cuckoo_manager.call(
+            "run()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.run(),
+            defaultCall: __defaultImplStub.value.run()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ImplicitInitService: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func run() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockImplicitInitService.self,
+                method: "run()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ImplicitInitService: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func run() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "run()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class ImplicitInitServiceStub: ImplicitInitService {
+    override func run() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}

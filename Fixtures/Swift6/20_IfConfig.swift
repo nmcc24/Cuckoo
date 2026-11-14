@@ -26,6 +26,7 @@ protocol PlatformedStore {
 }
 
 class PlatformedService {
+    init() {}
     #if DEBUG
     var verbose = false
     func debugDump() -> String { "" }
@@ -46,11 +47,13 @@ protocol Publishing {
 
 #if DEBUG
 class DebugTools {
+    init() {}
     func check() {}
 
     // Nested types are mocked at file scope, so they carry their enclosing type's condition as well.
     #if os(Linux)
     class LinuxProbe {
+        init() {}
         func probe() {}
     }
     #endif
