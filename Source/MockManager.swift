@@ -238,8 +238,20 @@ public final class MockManager: Sendable {
         let matchingCalls = callsToMember.filter { $0.mismatch == nil }
         let matching = matchingCalls.map(\.recorded)
         if let order = InOrder.current {
-            let accepted = verifyInOrder(order, matching: matching, callMatcher: callMatcher, sourceLocation: sourceLocation)
-            matchingCalls.filter { accepted.contains($0.recorded.id) }.forEach { $0.captures.commit() }
+            // Checked when the `inOrder` block ends; the calls it takes are verified and captured then.
+            order.add(InOrderStep(
+                manager: self,
+                matching: matchingCalls.map { SequencedCall(sequence: $0.recorded.sequence, call: $0.recorded.call) },
+                callMatcher: callMatcher,
+                sourceLocation: sourceLocation,
+                take: { sequences in
+                    let taken = matchingCalls.filter { sequences.contains($0.recorded.sequence) }
+                    self.state.withLock { state in
+                        state.unverifiedCallIDs.subtract(taken.map(\.recorded.id))
+                    }
+                    taken.forEach { $0.captures.commit() }
+                }
+            ))
             return __DoNotUse()
         }
         let calls = matching.map(\.call)
@@ -274,24 +286,6 @@ public final class MockManager: Sendable {
             }
             return call + ": \(member.argument(at: mismatch)) doesn't match"
         })
-    }
-
-    /// A `verify` inside `inOrder`: it only looks at the calls after the ones the previous `verify` matched. Returns
-    /// the IDs of the calls it took, none if it failed.
-    private func verifyInOrder(_ order: InOrder, matching: [RecordedCall], callMatcher: CallMatcher, sourceLocation: SourceLocation) -> Set<Int> {
-        let cursor = order.cursor
-        let candidates = matching.filter { $0.sequence > cursor }
-        guard let accepted = callMatcher.acceptedPrefix(of: candidates, callOf: \.call) else {
-            order.involve(self)
-            let message = "Wanted \(callMatcher.name) in order but invoked \(timesDescription(candidates.count)) after the previous verification (\(timesDescription(matching.count)) in all)."
-            reportFailure(message + "\n" + order.describeCalls(), at: sourceLocation)
-            return []
-        }
-        state.withLock { state in
-            state.unverifiedCallIDs.subtract(accepted.map(\.id))
-        }
-        order.advance(past: accepted.map { SequencedCall(sequence: $0.sequence, call: $0.call) }, of: self)
-        return Set(accepted.map(\.id))
     }
 
     /// Every recorded call with its place among the calls to every mock.

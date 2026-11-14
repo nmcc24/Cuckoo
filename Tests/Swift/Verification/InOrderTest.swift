@@ -108,7 +108,7 @@ struct InOrderTests {
     }
 
     @Test
-    func timesTakesThatManyCallsFromTheCursor() {
+    func timesTakesExactlyThatManyCallsInARow() {
         database.noReturn()
         database.noReturn()
         cache.noReturn()
@@ -147,6 +147,7 @@ struct InOrderTests {
     @Test
     func countsAsVerificationForVerifyNoMoreInteractions() {
         database.noReturn()
+        _ = database.count(characters: "a")
         database.noReturn()
 
         let messages = collectingMessages {
@@ -155,7 +156,78 @@ struct InOrderTests {
             }
             verifyNoMoreInteractions(database)
         }
-        #expect(messages == ["No more interactions wanted but some found:\n1. noReturn()"])
+        #expect(messages == ["No more interactions wanted but some found:\n1. count(\"a\")\n2. noReturn()"])
+    }
+
+    @Test
+    func timesOneFailsOnTwoCallsInARow() {
+        database.noReturn()
+        database.noReturn()
+        cache.noReturn()
+
+        let messages = collectingMessages {
+            inOrder {
+                verify(database, times(1)).noReturn()
+                verify(cache).noReturn()
+            }
+        }
+        #expect(messages.count == 1)
+        #expect(messages.first?.hasPrefix("Wanted 1 time in order but invoked 2 times after the previous verification (2 times in all).") == true)
+    }
+
+    @Test
+    func timesTakesARunAndLeavesLaterCallsForALaterVerify() {
+        database.noReturn()
+        database.noReturn()
+        cache.noReturn()
+        database.noReturn()
+
+        let messages = collectingMessages {
+            inOrder(strict: true) {
+                verify(database, times(2)).noReturn()
+                verify(cache).noReturn()
+                verify(database, times(1)).noReturn()
+            }
+        }
+        #expect(messages.isEmpty)
+    }
+
+    @Test
+    func atLeastTakesEveryMatchingCall() {
+        _ = cache.count(characters: "a")
+        _ = cache.count(characters: "b")
+        _ = cache.count(characters: "c")
+        database.noReturn()
+
+        let messages = collectingMessages {
+            inOrder(strict: true) {
+                verify(cache, atLeast(2)).count(characters: any())
+                verify(database).noReturn()
+            }
+        }
+        #expect(messages.isEmpty)
+    }
+
+    @Test
+    func callsToAnotherVerifiedMockEndARun() {
+        database.noReturn()
+        cache.noReturn()
+        database.noReturn()
+
+        let failing = collectingMessages {
+            inOrder {
+                verify(database, times(1)).noReturn()
+            }
+        }
+        #expect(failing.count == 1)
+
+        let passing = collectingMessages {
+            inOrder {
+                verify(database, times(1)).noReturn()
+                verify(cache).noReturn()
+            }
+        }
+        #expect(passing.isEmpty)
     }
 
     /// The failures `body` reports, without failing the test.

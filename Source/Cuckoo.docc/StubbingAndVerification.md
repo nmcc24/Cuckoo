@@ -170,6 +170,11 @@ inOrder {
 }
 ```
 
+A count means the same as outside `inOrder`: `times(1)` fails on two calls in a row. Each `verify` takes the calls
+after the ones the previous `verify` took: all of its matching calls there if its count accepts them, else the first
+run of matching calls that no other call to the verified mocks interrupts. So `times(2)` passes on two calls in a
+row even when the same call comes again later, for a later `verify` to take.
+
 ``eventually(timeout:pollingInterval:_:)`` retries its block until its `verify` calls pass, for code that calls a
 mock from a task it starts:
 
