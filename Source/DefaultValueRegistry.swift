@@ -2,31 +2,35 @@
 /// `.cuckoo(defaultValues:)` trait) for values that only some tests need: those don't leak into tests running in
 /// parallel.
 public enum DefaultValueRegistry {
-    private static let defaultRegisteredTypes: [ObjectIdentifier: any Sendable] = [
-        ObjectIdentifier(Void.self): Void(),
-        ObjectIdentifier(Int.self): Int(),
-        ObjectIdentifier(Int8.self): Int8(),
-        ObjectIdentifier(Int16.self): Int16(),
-        ObjectIdentifier(Int32.self): Int32(),
-        ObjectIdentifier(Int64.self): Int64(),
-        ObjectIdentifier(UInt.self): UInt(),
-        ObjectIdentifier(UInt8.self): UInt8(),
-        ObjectIdentifier(UInt16.self): UInt16(),
-        ObjectIdentifier(UInt32.self): UInt32(),
-        ObjectIdentifier(UInt64.self): UInt64(),
-        ObjectIdentifier(String.self): String(),
-        ObjectIdentifier(Bool.self): Bool(),
-        ObjectIdentifier(Double.self): Double(),
-        ObjectIdentifier(Float.self): Float()
+    private static let defaultRegisteredTypes: [ObjectIdentifier: DefaultValueFactory] = [
+        ObjectIdentifier(Void.self): DefaultValueFactory(Void()),
+        ObjectIdentifier(Int.self): DefaultValueFactory(Int()),
+        ObjectIdentifier(Int8.self): DefaultValueFactory(Int8()),
+        ObjectIdentifier(Int16.self): DefaultValueFactory(Int16()),
+        ObjectIdentifier(Int32.self): DefaultValueFactory(Int32()),
+        ObjectIdentifier(Int64.self): DefaultValueFactory(Int64()),
+        ObjectIdentifier(UInt.self): DefaultValueFactory(UInt()),
+        ObjectIdentifier(UInt8.self): DefaultValueFactory(UInt8()),
+        ObjectIdentifier(UInt16.self): DefaultValueFactory(UInt16()),
+        ObjectIdentifier(UInt32.self): DefaultValueFactory(UInt32()),
+        ObjectIdentifier(UInt64.self): DefaultValueFactory(UInt64()),
+        ObjectIdentifier(String.self): DefaultValueFactory(String()),
+        ObjectIdentifier(Bool.self): DefaultValueFactory(Bool()),
+        ObjectIdentifier(Double.self): DefaultValueFactory(Double()),
+        ObjectIdentifier(Float.self): DefaultValueFactory(Float())
     ]
     
     private static let registeredTypes = Locked(defaultRegisteredTypes)
     
     /// Registers `value` as the default for `type`, replacing any earlier one, for every test.
     public static func register<T: Sendable>(_ value: T, for type: T.Type = T.self) {
-        // Boxed explicitly, so a registered `nil` is stored rather than removing the entry.
-        let boxed: any Sendable = value
-        registeredTypes.withLock { $0[ObjectIdentifier(type)] = boxed }
+        registeredTypes.withLock { $0[ObjectIdentifier(type)] = DefaultValueFactory(value) }
+    }
+
+    /// Registers `factory` to make the default for `type`, replacing any earlier one, for every test. Each unstubbed
+    /// call gets a new value, so `type` needn't be `Sendable`: a class, or a tuple such as `(Int, String)`.
+    public static func register<T>(for type: T.Type = T.self, factory: @escaping @Sendable () -> T) {
+        registeredTypes.withLock { $0[ObjectIdentifier(type)] = DefaultValueFactory(factory) }
     }
 
     /// Registers `value` as the default for `type`, replacing any earlier one, for every test.
@@ -74,10 +78,7 @@ public enum DefaultValueRegistry {
         if let value = CuckooConfiguration.current.defaultValues.value(for: type) {
             return value
         }
-        guard let value = registeredTypes.withLock({ $0[ObjectIdentifier(type)] }) else {
-            return nil
-        }
-        return value as? T
+        return registeredTypes.withLock({ $0[ObjectIdentifier(type)] })?.make(type)
     }
 
     /// The default value for an unstubbed call returning `T`: a registered value, else an empty value for
@@ -101,6 +102,26 @@ public enum DefaultValueRegistry {
             return registeredDefault
         }
         return (defaultValue(for: P1.self), defaultValue(for: P2.self), repeat defaultValue(for: (each P).self))
+    }
+}
+
+/// Makes a registered default value. A `Sendable` value is shared; a factory makes a new value each time.
+struct DefaultValueFactory: Sendable {
+    private let make: @Sendable () -> Any
+
+    init<T: Sendable>(_ value: T) {
+        // Boxed explicitly, so a registered `nil` is returned as a value rather than as no value.
+        let boxed: any Sendable = value
+        make = { boxed }
+    }
+
+    init<T>(_ factory: @escaping @Sendable () -> T) {
+        make = { factory() as Any }
+    }
+
+    /// A new value, or `nil` if it isn't a `T`.
+    func make<T>(_: T.Type) -> T? {
+        make() as? T
     }
 }
 

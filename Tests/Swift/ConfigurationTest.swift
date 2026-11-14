@@ -44,6 +44,24 @@ struct UnstubbedCallTests {
     }
 
     @Test
+    func factoriesGiveTuplesAndNonSendableClassesADefault() {
+        let log = FailureLog()
+        let mock = MockDefaultValueSource()
+        var configuration = CuckooConfiguration(failureHandler: log.handler)
+        configuration.defaultValues.register(for: (Int, String).self) { (7, "seven") }
+        configuration.defaultValues.register(for: Canvas.self) { Canvas() }
+
+        CuckooConfiguration.$current.withValue(configuration) {
+            #expect(mock.pair() == (7, "seven"))
+            let first = mock.canvas()
+            first.strokes.append("line")
+            // Each call gets a new value, so one test's changes don't leak into the next call.
+            #expect(mock.canvas().strokes.isEmpty)
+        }
+        #expect(log.all.count == 3)
+    }
+
+    @Test
     func throwingMembersThrowUnstubbedCall() {
         let log = FailureLog()
         let mock = MockTestedProtocol()

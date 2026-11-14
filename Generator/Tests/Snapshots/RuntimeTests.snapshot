@@ -20,6 +20,8 @@ import Combine
 @testable public import class CuckooTestSources.ClassWithTypedThrows
 @testable public import class CuckooTestSources.ClassWithUnavailablePlatformMembers
 @testable public import protocol CuckooTestSources.ConstrainedAssociatedTypes
+@testable public import class CuckooTestSources.Canvas
+@testable public import protocol CuckooTestSources.DefaultValueSource
 @testable public import class CuckooTestSources.ExcludedTestClass
 @testable public import class CuckooTestSources.IncludedTestClass
 @testable public import protocol CuckooTestSources.IncludedProtocol
@@ -2569,6 +2571,117 @@ nonisolated final class ConstrainedAssociatedTypesStub<Element: Equatable, Items
 
     func first(of p0: Items) -> Int? {
         return DefaultValueRegistry.defaultValue(for: (Int?).self)
+    }
+}
+
+nonisolated final class MockDefaultValueSource: DefaultValueSource, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any DefaultValueSource
+    typealias Stubbing = __StubbingProxy_DefaultValueSource
+    typealias Verification = __VerificationProxy_DefaultValueSource
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockDefaultValueSource.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any DefaultValueSource>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any DefaultValueSource) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func pair() -> (Int, String) {
+        return cuckoo_manager.call(
+            "pair() -> (Int, String)",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> (Int, String), arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.pair()
+        )
+    }
+
+    func canvas() -> Canvas {
+        return cuckoo_manager.call(
+            "canvas() -> Canvas",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Canvas, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.canvas()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_DefaultValueSource: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func pair() -> Cuckoo.ProtocolStubFunction<(), (Int, String), (()) -> (Int, String), Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockDefaultValueSource.self,
+                method: "pair() -> (Int, String)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func canvas() -> Cuckoo.ProtocolStubFunction<(), Canvas, (()) -> Canvas, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockDefaultValueSource.self,
+                method: "canvas() -> Canvas",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_DefaultValueSource: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func pair() -> Cuckoo.__DoNotUse<(), (Int, String)> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "pair() -> (Int, String)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        @discardableResult
+        func canvas() -> Cuckoo.__DoNotUse<(), Canvas> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "canvas() -> Canvas",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class DefaultValueSourceStub: DefaultValueSource {
+    func pair() -> (Int, String) {
+        return DefaultValueRegistry.defaultValue(for: ((Int, String)).self)
+    }
+
+    func canvas() -> Canvas {
+        return DefaultValueRegistry.defaultValue(for: (Canvas).self)
     }
 }
 

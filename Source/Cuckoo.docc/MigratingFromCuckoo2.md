@@ -62,9 +62,10 @@ behaviour on top.
 - `MockManager.fail` is gone. To receive failures yourself, set a ``CuckooConfiguration`` with a
   `failureHandler`, for one test with `.cuckoo(failureHandler:)` or for any scope with
   `CuckooConfiguration.$current.withValue(_:operation:)`.
-- ``DefaultValueRegistry/register(_:for:)`` takes `Sendable` values. It still applies to every test; for
-  values only some tests need, register them in `DefaultValues` through `.cuckoo(defaultValues:)`, which tests
-  running in parallel don't share.
+- ``DefaultValueRegistry/register(_:for:)`` takes `Sendable` values; register a non-`Sendable` type's default with
+  ``DefaultValueRegistry/register(for:factory:)``, which makes a new value for each call. The registry still
+  applies to every test; for values only some tests need, register them in `DefaultValues` through
+  `.cuckoo(defaultValues:)`, which tests running in parallel don't share.
 - A failure handler's ``SourceLocation`` has no `file`: read `filePath`, a `StaticString`, which is the full path
   Xcode needs. The checks no longer take a `file:` argument.
 - `hasLength(inRange:)` is deprecated in favour of ``hasLength(in:)``, whose range means what it says. With a

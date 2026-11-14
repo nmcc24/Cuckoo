@@ -85,6 +85,9 @@ with a message naming it:
 func showsTheGuest() { … }
 ```
 
+A type that isn't `Sendable`, such as a class, registers a factory instead, which makes a new value for each
+call: `values.register(for: Canvas.self) { Canvas() }`.
+
 ``DefaultValueRegistry/register(_:for:)`` registers a value for every test instead, which tests running in
 parallel all see. Prefer the trait.
 
