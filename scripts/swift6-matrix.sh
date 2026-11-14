@@ -9,7 +9,7 @@
 # names another list, e.g. Fixtures/Swift6/expected-failures-default-mainactor.txt for that mode.
 # Fixtures/Swift6/expected-failures-swift-X.Y.txt adds the fixtures that fail only on Swift X.Y, in every mode.
 # A line may name the error the fixture must fail with, `name: text`; it then counts as a new failure when no
-# error contains that text, so an expected failure can't hide a different one.
+# error located in the fixture or its mock contains that text, so an expected failure can't hide a different one.
 # A fixture with `#if DEBUG` branches is also compiled with `-D DEBUG`.
 # A fixture fails when swiftc reports an error or exits non-zero, or when the generated mock has a warning: the
 # zero-warnings rule covers generated mocks, in every mode this script runs.
@@ -106,7 +106,7 @@ EOF
     [[ "$expected_line" == *:* ]] && expected_message="$(sed -E 's/^[^:]*:[[:space:]]*//' <<< "$expected_line")"
     if [[ "$errors" == "0" ]]; then
       result="XPASS"; status=1
-    elif [[ -n "$expected_message" ]] && ! grep "error:" "$WORK/logs/$n.tc.log" | grep -qF -- "$expected_message"; then
+    elif [[ -n "$expected_message" ]] && ! grep -E "^($f|$WORK/gen/$n.mock.swift):[0-9]+:[0-9]+: error: " "$WORK/logs/$n.tc.log" | grep -qF -- "$expected_message"; then
       result="FAIL"; status=1; first="not the expected error ($expected_message): $first"
     else
       result="xfail"
