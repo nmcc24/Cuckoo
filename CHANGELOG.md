@@ -56,6 +56,9 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   see, is still left out.
 - A class member whose type is opaque (`some P`) can't be overridden; it's now left out with a comment in the mock,
   instead of making the mock fail to compile. `some` nested in a protocol requirement's parameter is handled.
+- A non-escaping closure parameter written with `sending`, `borrowing` or `inout` made the generator fail for the
+  whole module. A class mock now leaves such a method out with a comment; a protocol requirement of that shape
+  still gets a mock that doesn't compile (fixture 40 tracks it).
 - Keyword and backticked argument labels, a label named like the mock's own parameter names (`p0`), and generic
   parameters named like the proxies' matcher generics (`M1`).
 - A class's `where` clause wasn't repeated on its mock.
