@@ -55,22 +55,45 @@ struct AttributeAndInheritanceTests {
         #expect(try await !generateMocks(source: source).contains(isolatedStub))
     }
 
-    /// A parent named the same as protocols in two scopes, neither of them the inheriting type's, is an error that
-    /// names both, rather than a guess.
+    /// A parent only protocols nested in unrelated scopes are named like is one from outside the sources, as it is
+    /// to Swift: `Error` is Swift's, not `Net.Error`, and two nested `CustomStringConvertible`s don't make
+    /// `Other`'s parent ambiguous.
     @Test
-    func ambiguousParentIsAnError() async throws {
-        let error = await #expect(throws: AmbiguousInheritanceError.self) {
-            try await generateMocks(source: """
-                enum FeatureOne {
-                    protocol Service { func one() }
-                }
-                enum FeatureTwo {
-                    protocol Service { func two() }
-                }
-                protocol Child: Service { func child() }
-                """)
-        }
-        #expect(error?.candidates.sorted() == ["FeatureOne.Service", "FeatureTwo.Service"])
+    func nestedProtocolsDontStandInForOutsideParents() async throws {
+        let output = try await generateMocks(source: """
+            enum Net { protocol Error { func netOnly() } }
+            protocol Plain: Error { func work() }
+            enum A { protocol CustomStringConvertible { func a() } }
+            enum B { protocol CustomStringConvertible { func b() } }
+            protocol Other: CustomStringConvertible { func other() }
+            """)
+        let plain = try #require(output.range(of: "class MockPlain"))
+        #expect(!output[plain.lowerBound...].prefix(2000).contains("netOnly"))
+        let other = try #require(output.range(of: "class MockOther"))
+        let otherMock = output[other.lowerBound...].prefix(3000)
+        #expect(!otherMock.contains("func a()") && !otherMock.contains("func b()"))
+        #expect(output.contains("// Other inherits 'CustomStringConvertible', declared outside the mocked sources"))
+    }
+
+    /// A parent named through a typealias, or from an extension that names its type with the module or through a
+    /// typealias, is found as Swift finds it.
+    @Test
+    func parentsResolveThroughTypealiasesAndQualifiedExtensions() async throws {
+        let output = try await generateMocks(source: """
+            enum Feature { protocol Service { func service() } }
+            typealias Service = Feature.Service
+            protocol ThroughAlias: Service { func own() }
+            enum Outer { protocol Base { func base() } }
+            typealias O = Outer
+            extension App.Outer { protocol Qualified: Base { func qualified() } }
+            extension O { protocol Aliased: Base { func aliased() } }
+            """)
+        let alias = try #require(output.range(of: "class MockThroughAlias"))
+        #expect(output[alias.lowerBound...].prefix(3000).contains("func service()"))
+        let qualified = try #require(output.range(of: "class MockQualified"))
+        #expect(output[qualified.lowerBound...].prefix(3000).contains("func base()"))
+        let aliased = try #require(output.range(of: "class MockAliased"))
+        #expect(output[aliased.lowerBound...].prefix(3000).contains("func base()"))
     }
 
     /// A parent reached through an enclosing scope, or through a composition typealias, gives its requirements.

@@ -65,9 +65,10 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   stubbed or called from another isolation.
 - `@_Concurrency.MainActor` wasn't recognised, and a type nested in an actor, or in an extension of one, took the
   module's default isolation.
-- A protocol whose parent was reached through an enclosing scope or a composition typealias (`P = A & B`) lost
-  that parent's requirements; two nested protocols of the same name that a parent could mean are now an error
-  naming both, instead of a guess.
+- A protocol whose parent was reached through an enclosing scope, a typealias, a composition typealias
+  (`P = A & B`) or an extension written with the module's name lost that parent's requirements. A parent that only
+  a protocol nested in an unrelated scope is named like, such as Swift's `Error` next to a `Net.Error`, took that
+  protocol's requirements: it's now a parent from outside the sources, as it is to Swift.
 - An unannotated property's type is inferred from array and dictionary literals of one kind and
   `Array(repeating:count:)`, but no longer from a failable initializer such as `URL(string:)` or `Int("3")`, or a
   generic type without its arguments, which gave a mock with the wrong type.

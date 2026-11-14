@@ -436,7 +436,7 @@ final class Crawler: SyntaxVisitor {
     }
 
     /// Parents without requirements a mock would have to implement, which it can inherit without knowing them.
-    private static let parentsWithoutRequirements: Set<String> = [
+    static let parentsWithoutRequirements: Set<String> = [
         "Sendable", "SendableMetatype", "AnyObject", "Actor", "AnyActor", "Error", "Copyable", "Escapable",
         "NSObjectProtocol", "~Copyable", "~Escapable",
     ]
@@ -1172,11 +1172,14 @@ extension Crawler {
         var compositionTypealiases: [String: [String]] = [:]
         /// The actors, so an extension of one is known to be an actor's.
         var actors: Set<String> = []
+        /// The typealiases of other named types, `typealias Service = Feature.Service`, by qualified name.
+        var typealiases: [String: String] = [:]
         /// The names declared `private` or `fileprivate`: members, top-level declarations and types.
         var privateNames: Set<String> = []
 
         mutating func formUnion(_ other: DeclaredNames) {
             actors.formUnion(other.actors)
+            typealiases.merge(other.typealiases) { first, _ in first }
             privateNames.formUnion(other.privateNames)
             globalActors.formUnion(other.globalActors)
             noncopyableTypes.formUnion(other.noncopyableTypes)
@@ -1277,6 +1280,9 @@ extension Crawler {
             // A nested one is also found through its enclosing declaration; see `closureTypealias(named:from:)`.
             if let function = Crawler.functionType(of: node) {
                 names.closureTypealiases[Self.qualifiedName(of: node)] = function
+            }
+            if node.genericParameterClause == nil, type.is(IdentifierTypeSyntax.self) || type.is(MemberTypeSyntax.self) {
+                names.typealiases[Self.qualifiedName(of: node)] = type.trimmedDescription
             }
             if node.genericParameterClause == nil, let composition = type.as(CompositionTypeSyntax.self) {
                 names.compositionTypealiases[node.name.text] = composition.elements.map { $0.type.trimmedDescription }

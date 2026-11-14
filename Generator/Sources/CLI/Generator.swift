@@ -143,7 +143,10 @@ final class Generator {
         }
         let flatMappedFiles = files.map { $0.flatMappingMemberContainers() }
         let inheritedFiles = if module.options.enableInheritance {
-            bindingSuperclasses(try mergingInheritance(flatMappedFiles))
+            bindingSuperclasses(mergingInheritance(flatMappedFiles, names: TypeNames(
+                typealiases: declaredNames.typealiases,
+                types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes)
+            )))
         } else {
             flatMappedFiles
         }
@@ -201,8 +204,8 @@ final class Generator {
         return Set(["Cuckoo"] + module.testableImports + files.flatMap { $0.imports.filter(\.isPublic).map(\.description) })
     }
 
-    private static func mergingInheritance(_ filesRepresentation: [FileRepresentation]) throws -> [FileRepresentation] {
-        try filesRepresentation.map { try $0.mergingInheritance(with: filesRepresentation) }
+    private static func mergingInheritance(_ filesRepresentation: [FileRepresentation], names: TypeNames) -> [FileRepresentation] {
+        filesRepresentation.map { $0.mergingInheritance(with: filesRepresentation, names: names) }
     }
 
     /// Binds every protocol that requires a superclass to it: a class declared in the sources that the protocol
