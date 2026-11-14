@@ -8,7 +8,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockConverter.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class DefaultImplCaller: Converter, Sendable {
         private let reference: @Sendable () -> any Converter<Input>
@@ -493,7 +493,7 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockProducer.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class DefaultImplCaller: Producer, Sendable {
         private let reference: @Sendable () -> any Producer

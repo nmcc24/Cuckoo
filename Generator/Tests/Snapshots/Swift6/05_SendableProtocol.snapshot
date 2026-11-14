@@ -8,7 +8,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockNetworking.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Networking>()
 
@@ -126,7 +126,7 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyValueStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class DefaultImplCaller: KeyValueStore, Sendable {
         private let reference: @Sendable () -> any KeyValueStore

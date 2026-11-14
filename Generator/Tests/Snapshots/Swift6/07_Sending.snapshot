@@ -8,7 +8,7 @@ final class MockNonSendableBox: NonSendableBox, nonisolated Cuckoo.ClassMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockNonSendableBox.self) ?? Cuckoo.MockManager(hasParent: true)
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<NonSendableBox>()
 
@@ -87,7 +87,7 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockTransfer.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Transfer>()
 
@@ -203,7 +203,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockConverter.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class DefaultImplCaller: Converter, Sendable {
         private let reference: @Sendable () -> any Converter<Input>

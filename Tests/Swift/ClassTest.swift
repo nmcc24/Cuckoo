@@ -24,6 +24,21 @@ struct ClassTest {
     }
 
     @Test
+    func mockCreatorKeepsOtherMocksSeparate() throws {
+        var other: MockTestedProtocol?
+        let mock = createMock(for: TestedClass.self) { builder, stub in
+            other = MockTestedProtocol()
+            when(stub.readOnlyProperty.get).thenReturn("a")
+            return MockTestedClass()
+        }
+        let otherMock = try #require(other)
+
+        #expect(mock.cuckoo_manager !== otherMock.cuckoo_manager)
+        #expect(mock.readOnlyProperty == "a")
+        verifyNoMoreInteractions(otherMock)
+    }
+
+    @Test
     func readOnlyProperty() {
         let mock = MockTestedClass()
 
