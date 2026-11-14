@@ -72,9 +72,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # The release ships this commit as it is, so it must have passed the same gate as every merge. A dry run may
-          # go on without it, to try a commit whose CI hasn't finished.
-          conclusion="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs?check_name=CI%20passed" \
-            --jq '.check_runs[0].conclusion // "missing"')" || conclusion=unavailable
+          # go on without it, to try a commit whose CI hasn't finished. A re-run of the CI adds another `CI passed`
+          # check run; the latest one counts.
+          conclusion="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs?check_name=CI%20passed&filter=latest" \
+            --jq '.check_runs | sort_by(.started_at) | last | .conclusion // "missing"')" || conclusion=unavailable
           if [[ "$conclusion" != success ]]; then
             message="CI passed is '$conclusion' on $GITHUB_SHA, not success."
             if [[ "$DRY_RUN" == true ]]; then
