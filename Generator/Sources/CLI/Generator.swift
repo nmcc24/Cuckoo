@@ -129,7 +129,8 @@ final class Generator {
                     protocolsAndClasses: declaredNames.protocolsAndClasses,
                     compositionTypealiases: declaredNames.compositionTypealiases,
                     actors: declaredNames.actors,
-                    privateNames: declaredNames.privateNames.subtracting(declaredNames.nonPrivateNames),
+                    privateNames: declaredNames.privateNames,
+                    nominalTypes: declaredNames.nominalTypes,
                     defaultIsolation: module.options.defaultIsolation
                 )
             } catch {
@@ -205,7 +206,8 @@ final class Generator {
     }
 
     private static func mergingInheritance(_ filesRepresentation: [FileRepresentation], names: TypeNames) -> [FileRepresentation] {
-        filesRepresentation.map { $0.mergingInheritance(with: filesRepresentation, names: names) }
+        let indexed = names.indexing(filesRepresentation)
+        return filesRepresentation.map { $0.mergingInheritance(with: filesRepresentation, names: indexed) }
     }
 
     /// Binds every protocol that requires a superclass to it: a class declared in the sources that the protocol

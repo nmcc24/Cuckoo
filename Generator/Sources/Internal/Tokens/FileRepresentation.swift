@@ -29,6 +29,31 @@ extension FileRepresentation {
 struct TypeNames: Sendable {
     var typealiases: [String: String] = [:]
     var types: Set<String> = []
+    /// The sources' classes and protocols by canonical qualified name, the first of a name; see `indexing(_:)`.
+    private var declarations: [String: any Token & HasName] = [:]
+
+    init(typealiases: [String: String] = [:], types: Set<String> = []) {
+        self.typealiases = typealiases
+        self.types = types
+    }
+
+    /// These names, with the classes and protocols of `files` indexed for ``declaration(named:)``.
+    func indexing(_ files: [FileRepresentation]) -> TypeNames {
+        var indexed = self
+        for token in files.flatMap(\.tokens) where token.isClass || token.isProtocol {
+            guard let named = token as? any Token & HasName else { continue }
+            let name = canonical(named.fullyQualifiedName)
+            if indexed.declarations[name] == nil {
+                indexed.declarations[name] = named
+            }
+        }
+        return indexed
+    }
+
+    /// The class or protocol declared with the qualified name, as Swift reads it.
+    func declaration(named qualifiedName: String) -> (any Token & HasName)? {
+        declarations[canonical(qualifiedName)]
+    }
 
     /// `name` as Swift reads it: a typealias of a type replaced by the type, and a leading component that names
     /// no declared type, a module's name as in `extension App.Outer`, left out.
@@ -53,40 +78,34 @@ extension Token {
     /// Swift would: in the type's enclosing scopes from the innermost outwards, through typealiases. A name written
     /// qualified, `Outer.Service`, matches that declaration. Nil means it's declared outside the sources, as
     /// Swift's own `Error` is, even when a protocol nested elsewhere has the same name.
-    private static func findToken(forClassOrProtocol name: String, from scope: String, in files: [FileRepresentation], names: TypeNames, depth: Int = 0) -> (any Token)? {
-        let candidates = files
-            .flatMap(\.tokens)
-            .filter { $0.isClass || $0.isProtocol }
-            .compactMap { $0 as? any Token & HasName }
-        func declaration(named qualifiedName: String) -> (any Token & HasName)? {
-            let canonicalName = names.canonical(qualifiedName)
-            return candidates.first { names.canonical($0.fullyQualifiedName) == canonicalName }
-        }
+    private static func findToken(forClassOrProtocol name: String, from scope: String, names: TypeNames) -> (any Token)? {
         var enclosingScopes = names.canonical(scope).split(separator: ".").map(String.init)
         while true {
             enclosingScopes.removeLast()
-            if let match = declaration(named: (enclosingScopes + [name]).joined(separator: ".")) {
+            if let match = names.declaration(named: (enclosingScopes + [name]).joined(separator: ".")) {
                 return match
             }
             // A class's scope also holds what its superclasses declare: `class Child: Base` sees `Base.Delegate`.
-            if !enclosingScopes.isEmpty, depth < 8,
-               let enclosingClass = declaration(named: enclosingScopes.joined(separator: ".")) as? ClassDeclaration {
-                for superclassName in enclosingClass.inheritedTypes {
-                    let superclass = findToken(
-                        forClassOrProtocol: superclassName.withoutGenericArguments,
-                        from: enclosingClass.fullyQualifiedName,
-                        in: files,
-                        names: names,
-                        depth: depth + 1
-                    )
-                    if let superclass = superclass as? ClassDeclaration,
-                       let match = declaration(named: superclass.fullyQualifiedName + "." + name)
-                        ?? findToken(forClassOrProtocol: name, from: superclass.fullyQualifiedName + "." + name, in: files, names: names, depth: depth + 1) {
-                        return match
-                    }
-                }
+            if !enclosingScopes.isEmpty,
+               let enclosingClass = names.declaration(named: enclosingScopes.joined(separator: ".")) as? ClassDeclaration,
+               let match = member(named: name, ofSuperclassesOf: enclosingClass, names: names, depth: 0) {
+                return match
             }
             if enclosingScopes.isEmpty { break }
+        }
+        return nil
+    }
+
+    /// The class or protocol `name` declared in one of `subclass`'s superclasses, nearest first: their members
+    /// only, not the scopes they're declared in, which Swift doesn't search from the subclass.
+    private static func member(named name: String, ofSuperclassesOf subclass: ClassDeclaration, names: TypeNames, depth: Int) -> (any Token)? {
+        guard depth < 16 else { return nil }
+        for superclassName in subclass.inheritedTypes {
+            guard let superclass = findToken(forClassOrProtocol: superclassName.withoutGenericArguments, from: subclass.fullyQualifiedName, names: names) as? ClassDeclaration else { continue }
+            if let match = names.declaration(named: superclass.fullyQualifiedName + "." + name)
+                ?? member(named: name, ofSuperclassesOf: superclass, names: names, depth: depth + 1) {
+                return match
+            }
         }
         return nil
     }
@@ -97,7 +116,7 @@ extension Token {
         // A protocol bound to a class doesn't take the class's members: the mock subclasses the class instead.
         // A protocol's parent can be written with its primary associated types, as `Parent<String>`.
         let inheritedRepresentations = token.inheritedTypes
-            .compactMap { Self.findToken(forClassOrProtocol: token.isProtocol ? $0.withoutGenericArguments : $0, from: token.fullyQualifiedName, in: files, names: names) }
+            .compactMap { Self.findToken(forClassOrProtocol: token.isProtocol ? $0.withoutGenericArguments : $0, from: token.fullyQualifiedName, names: names) }
             .filter { !(token.isProtocol && $0.isClass) }
             .map { $0.mergingInheritance(with: files, names: names) }
 
@@ -127,7 +146,7 @@ extension Token {
             merged.parentsOutsideSources = protocolToken.inheritedTypes.filter { parent in
                 let name = parent.withoutGenericArguments
                 return !Crawler.parentsWithoutRequirements.contains(String(name.split(separator: ".").last ?? ""))
-                    && Self.findToken(forClassOrProtocol: name, from: protocolToken.fullyQualifiedName, in: files, names: names) == nil
+                    && Self.findToken(forClassOrProtocol: name, from: protocolToken.fullyQualifiedName, names: names) == nil
             }
             // Every member, inherited ones included, belongs to this protocol now: its mock is the one they're
             // generated into, and its isolation, which may come from a parent, is the one they take.

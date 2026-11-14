@@ -1,0 +1,86 @@
+import Cuckoo
+import Foundation
+
+nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any ClosureSpecifierService
+    typealias Stubbing = __StubbingProxy_ClosureSpecifierService
+    typealias Verification = __VerificationProxy_ClosureSpecifierService
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockClosureSpecifierService.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any ClosureSpecifierService>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ClosureSpecifierService) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func run(_ p0: sending () -> Void) {
+        let __p0 = Cuckoo.__SendingArgument(p0)
+        return withoutActuallyEscaping(p0, do: { (p0: @escaping () -> Void) in
+            return cuckoo_manager.call(
+                "run(_ p0: sending () -> Void)",
+                parameters: (p0),
+                escapingParameters: (({ () in
+                                        fatalError("This is a stub! It's not supposed to be called!")
+                                    } as () -> Void)),
+                invoke: { (implementation: ((@escaping () -> Void)) -> Void, arguments) in
+                                implementation(arguments)
+                            },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.run(__p0.value)
+            )
+        })
+    }
+
+    nonisolated struct __StubbingProxy_ClosureSpecifierService: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockClosureSpecifierService.self,
+                method: "run(_ p0: sending () -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ClosureSpecifierService: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where M1.MatchedType == () -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "run(_ p0: sending () -> Void)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ClosureSpecifierServiceStub: ClosureSpecifierService {
+    func run(_ p0: sending () -> Void) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}

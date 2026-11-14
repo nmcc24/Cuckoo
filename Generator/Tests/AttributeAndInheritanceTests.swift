@@ -135,8 +135,8 @@ struct AttributeAndInheritanceTests {
             }
             """)
         #expect(output.contains("\nfinal class MockClient: Client,"))
-        #expect(output.contains("// This mock is internal: Client's non-public members name the non-public type 'Config',"))
+        #expect(output.contains("// This mock is internal: Client's non-public members name 'Config', which the module declares"))
         #expect(output.contains("\nfinal class MockStore: Store,"))
-        #expect(output.contains("// This mock is internal: Store's non-public members name the non-public type 'Hidden',"))
+        #expect(output.contains("// This mock is internal: Store's non-public members name 'Hidden', which the module declares"))
     }
 }

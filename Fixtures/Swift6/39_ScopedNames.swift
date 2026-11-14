@@ -75,9 +75,9 @@ nonisolated func useNestedInActorExtension(_ cache: ScopedStore.Cache, _ loader:
 
 // When a name's scope can't be settled, the earlier behaviour applies: a type name both public and internal in
 // the module keeps the mock internal, a closure typealias declared in another extension, a superclass or a parent
-// protocol is found when it's the module's only one of that name, and a default naming something only some
-// other type declares private is kept. A parent declared in a superclass's scope is found through the subclass,
-// and an actor extended through its qualified name keeps its nested types nonisolated.
+// protocol is found when it's the module's only one of that name, and a default naming something any type
+// declares private is left out, which compiles either way. A parent declared in a superclass's scope is found
+// through the subclass, and an actor extended through its qualified name keeps its nested types nonisolated.
 public struct Player {
     public struct State {}
     public init() {}
@@ -122,7 +122,7 @@ class SettingsStore {
     init() {}
     func save(settings: Settings = .shared) {}
 }
-func useDefault(_ store: MockSettingsStore) { store.save() }
+func passArgument(_ store: MockSettingsStore) { store.save(settings: .shared) }
 
 class Base {
     init() {}

@@ -22,6 +22,7 @@ final class Crawler: SyntaxVisitor {
         compositionTypealiases: [String: [String]] = [:],
         actors: Set<String> = [],
         privateNames: Set<String> = [],
+        nominalTypes: Set<String> = [],
         defaultIsolation: Isolation? = nil
     ) throws -> Crawler {
         let file = try String(contentsOf: url, encoding: .utf8)
@@ -37,6 +38,7 @@ final class Crawler: SyntaxVisitor {
             compositionTypealiases: compositionTypealiases,
             actors: actors,
             privateNames: privateNames,
+            nominalTypes: nominalTypes,
             defaultIsolation: defaultIsolation
         )
     }
@@ -53,6 +55,7 @@ final class Crawler: SyntaxVisitor {
         compositionTypealiases: [String: [String]] = [:],
         actors: Set<String> = [],
         privateNames: Set<String> = [],
+        nominalTypes: Set<String> = [],
         defaultIsolation: Isolation? = nil
     ) -> Crawler {
         let syntaxTree = Parser.parse(source: source)
@@ -69,7 +72,8 @@ final class Crawler: SyntaxVisitor {
             protocolsAndClasses: protocolsAndClasses,
             compositionTypealiases: compositionTypealiases,
             actors: actors.union(local.actors),
-            privateNames: privateNames.union(local.privateNames.subtracting(local.nonPrivateNames)),
+            privateNames: privateNames.union(local.privateNames),
+            nominalTypes: nominalTypes.union(local.nominalTypes),
             defaultIsolation: defaultIsolation
         )
         let crawler = Self(container: nil, context: context)
@@ -97,6 +101,8 @@ final class Crawler: SyntaxVisitor {
         let actors: Set<String>
         /// The names the module declares `private` or `fileprivate`, which a mock in another file can't use.
         let privateNames: Set<String>
+        /// The names of the module's structs, classes, enums, actors and protocols.
+        let nominalTypes: Set<String>
         /// The module's `defaultIsolation` option: the isolation of the protocols and classes that state none.
         let defaultIsolation: Isolation?
         var diagnostics: [Diagnostic] = []
@@ -113,6 +119,7 @@ final class Crawler: SyntaxVisitor {
             compositionTypealiases: [String: [String]] = [:],
             actors: Set<String> = [],
             privateNames: Set<String> = [],
+            nominalTypes: Set<String> = [],
             defaultIsolation: Isolation?
         ) {
             self.url = url
@@ -126,6 +133,7 @@ final class Crawler: SyntaxVisitor {
             self.compositionTypealiases = compositionTypealiases
             self.actors = actors
             self.privateNames = privateNames
+            self.nominalTypes = nominalTypes
             self.defaultIsolation = defaultIsolation
         }
     }
@@ -380,7 +388,7 @@ final class Crawler: SyntaxVisitor {
             unmockedMembers.append("'\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)' returns the opaque type '\(returnType.trimmedDescription)', which an override can't repeat.")
             return .skipChildren
         }
-        if container.isClass, let parameter = node.signature.parameterClause.parameters.first(where: { Self.isUnmockableClosure($0.type) }) {
+        if container.isClass, let parameter = node.signature.parameterClause.parameters.first(where: { isUnmockableClosure($0.type) }) {
             unmockedMembers.append("'\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)' takes '\(parameter.type.trimmedDescription)', a non-escaping closure with a specifier, which a mock can't record yet.")
             return .skipChildren
         }
@@ -473,7 +481,7 @@ final class Crawler: SyntaxVisitor {
         var ancestor = container?.value
         while let current = ancestor {
             if let namespace = current as? NamespaceDeclaration,
-               namespace.isActor || (namespace.isExtension && Self.namesAnActor(namespace.name, actors: context.actors)) {
+               namespace.isActor || (namespace.isExtension && Self.namesAnActor(namespace.name, actors: context.actors, types: context.nominalTypes)) {
                 return nil
             }
             ancestor = current.parent?.value
@@ -482,10 +490,13 @@ final class Crawler: SyntaxVisitor {
     }
 
     /// Whether an extension's type, `Worker`, `Outer.Worker` or `App.Outer.Worker`, is one of the module's actors,
-    /// which are known by qualified name.
-    static func namesAnActor(_ name: String, actors: Set<String>) -> Bool {
-        let components = name.split(separator: ".").map(String.init)
-        return components.indices.contains { actors.contains(components[$0...].joined(separator: ".")) }
+    /// which are known by qualified name. A leading module name is left out only when it names no type.
+    static func namesAnActor(_ name: String, actors: Set<String>, types: Set<String>) -> Bool {
+        var components = name.split(separator: ".").map(String.init)
+        if components.count > 1, !types.contains(components[0]) {
+            components.removeFirst()
+        }
+        return actors.contains(components.joined(separator: "."))
     }
 
     /// The first of the module's non-public types a non-public member names in its signature, if any.
@@ -539,6 +550,8 @@ final class Crawler: SyntaxVisitor {
             if let topLevel = context.closureTypealiases[name] {
                 return topLevel
             }
+            // Only when nothing else in the module has the name, which a type of its own would then be.
+            guard !context.nominalTypes.contains(name) else { return nil }
             let nested = Set(context.closureTypealiases.filter { $0.key.hasSuffix("." + name) }.values)
             return nested.count == 1 ? nested.first : nil
         }
@@ -571,6 +584,10 @@ final class Crawler: SyntaxVisitor {
                     if let associated = member.decl.as(AssociatedTypeDeclSyntax.self), associated.name.text == name {
                         return .shadowed
                     }
+                    if let nested = member.decl.asProtocol((any NamedDeclSyntax).self), nested.name.text == name,
+                       member.decl.asProtocol((any DeclGroupSyntax).self) != nil {
+                        return .shadowed
+                    }
                     if let alias = member.decl.as(TypeAliasDeclSyntax.self), alias.name.text == name {
                         return .found(Self.functionType(of: alias))
                     }
@@ -593,11 +610,17 @@ final class Crawler: SyntaxVisitor {
 
     /// A non-escaping closure written with `sending`, `borrowing` or `inout`, which the mock's recording can't
     /// make escaping yet (roadmap).
-    static func isUnmockableClosure(_ type: TypeSyntax) -> Bool {
+    private func isUnmockableClosure(_ type: TypeSyntax) -> Bool {
         guard let attributed = type.as(AttributedTypeSyntax.self),
               attributed.specifiers.contains(where: { ["sending", "borrowing", "inout"].contains($0.trimmedDescription.split(separator: " ").first.map(String.init) ?? "") }),
               !attributed.attributes.contains(where: { $0.trimmedDescription == "@escaping" }) else { return false }
-        return attributed.baseType.is(FunctionTypeSyntax.self)
+        if attributed.baseType.is(FunctionTypeSyntax.self) {
+            return true
+        }
+        // A closure written through a typealias, `sending Handler`.
+        guard let identifier = attributed.baseType.as(IdentifierTypeSyntax.self), identifier.genericArgumentClause == nil,
+              let functionType = closureTypealias(named: identifier.name.text, from: Syntax(type)) else { return false }
+        return !functionType.contains("@escaping")
     }
 
     /// Whether `type` contains an opaque `some` type anywhere, as in `some View` or `[some View]`.
@@ -950,14 +973,22 @@ extension Crawler {
 
     /// A default argument the mock can repeat: not one that names a `private` or `fileprivate` declaration, which
     /// the mock, in another file, can't see. Without its default, a call through the mock's own type passes the
-    /// argument, as it did before Cuckoo kept defaults. Only names the module declares as nothing but private
-    /// count, and only references, not argument labels: the default is kept unless it's certainly hidden.
+    /// argument, as it did before Cuckoo kept defaults. A name the module declares private anywhere counts, whatever
+    /// else shares it, since leaving a default out is always safe; argument labels don't.
     private func mockableDefaultValue(_ clause: InitializerClauseSyntax) -> String? {
         guard !context.privateNames.isEmpty else { return clause.value.trimmedDescription }
         final class References: SyntaxVisitor {
             var names: [String] = []
             override func visit(_ node: DeclReferenceExprSyntax) -> SyntaxVisitorContinueKind {
                 names.append(node.baseName.text)
+                return .visitChildren
+            }
+            override func visit(_ node: IdentifierTypeSyntax) -> SyntaxVisitorContinueKind {
+                names.append(node.name.text)
+                return .visitChildren
+            }
+            override func visit(_ node: MemberTypeSyntax) -> SyntaxVisitorContinueKind {
+                names.append(node.name.text)
                 return .visitChildren
             }
         }
@@ -1210,8 +1241,8 @@ extension Crawler {
         var closureTypealiases: [String: String] = [:]
         /// The types declared without `public` or `open`, which a public declaration can't name.
         var nonPublicTypes: Set<String> = []
-        /// The types declared `public` or `open`. A name that's also in `nonPublicTypes` may be either, so a member
-        /// naming it doesn't make a mock internal.
+        /// The types declared `public` or `open`, for resolving type names; a name that's also in `nonPublicTypes`
+        /// still makes a mock internal, which compiles either way.
         var publicTypes: Set<String> = []
         /// The generic structs, classes and enums, which a call can't name as a type without its generic arguments.
         var genericTypes: Set<String> = []
@@ -1225,14 +1256,14 @@ extension Crawler {
         var typealiases: [String: String] = [:]
         /// The names declared `private` or `fileprivate`: members, top-level declarations and types.
         var privateNames: Set<String> = []
-        /// The names declared without `private` or `fileprivate`. A name that's also in `privateNames` may be either.
-        var nonPrivateNames: Set<String> = []
+        /// The structs, classes, enums, actors and protocols, by name.
+        var nominalTypes: Set<String> = []
 
         mutating func formUnion(_ other: DeclaredNames) {
             actors.formUnion(other.actors)
             typealiases.merge(other.typealiases) { first, _ in first }
             privateNames.formUnion(other.privateNames)
-            nonPrivateNames.formUnion(other.nonPrivateNames)
+            nominalTypes.formUnion(other.nominalTypes)
             globalActors.formUnion(other.globalActors)
             noncopyableTypes.formUnion(other.noncopyableTypes)
             nonPublicTypes.formUnion(other.nonPublicTypes)
@@ -1265,6 +1296,7 @@ extension Crawler {
         }
 
         override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
+            names.nominalTypes.insert(node.name.text)
             collectAccess(node.modifiers, name: node.name)
             names.protocolsAndClasses.insert(node.name.text)
             // Its typealiases count, as `typealias Callback = …` does for the protocols that refine it.
@@ -1308,8 +1340,6 @@ extension Crawler {
             let isPrivate = modifiers.contains { $0.name.tokenKind == .keyword(.private) || $0.name.tokenKind == .keyword(.fileprivate) }
             if isPrivate {
                 self.names.privateNames.formUnion(names.map(\.text))
-            } else {
-                self.names.nonPrivateNames.formUnion(names.map(\.text))
             }
         }
 
@@ -1324,6 +1354,7 @@ extension Crawler {
         }
 
         override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
+            names.nominalTypes.insert(node.name.text)
             names.actors.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             collectAccess(node.modifiers, name: node.name)
@@ -1331,7 +1362,11 @@ extension Crawler {
         }
 
         override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
-            collectAccess(node.modifiers, name: node.name)
+            // A protocol's typealias has the protocol's access, which it can't state itself.
+            let isProtocolMember = node.parent?.parent?.parent?.parent?.is(ProtocolDeclSyntax.self) == true
+            if !isProtocolMember {
+                collectAccess(node.modifiers, name: node.name)
+            }
             var type = node.initializer.value
             if let attributed = type.as(AttributedTypeSyntax.self), attributed.specifiers.isEmpty {
                 type = attributed.baseType
@@ -1350,6 +1385,7 @@ extension Crawler {
         }
 
         override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
+            names.nominalTypes.insert(node.name.text)
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             collectAccess(node.modifiers, name: node.name)
             names.protocolsAndClasses.insert(node.name.text)
@@ -1360,6 +1396,7 @@ extension Crawler {
         }
 
         override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
+            names.nominalTypes.insert(node.name.text)
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             collectAccess(node.modifiers, name: node.name)
             if node.genericParameterClause != nil {
@@ -1369,6 +1406,7 @@ extension Crawler {
         }
 
         override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
+            names.nominalTypes.insert(node.name.text)
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             collectAccess(node.modifiers, name: node.name)
             if node.genericParameterClause != nil {
