@@ -28,22 +28,22 @@ public func reset(_ mocks: any HasMockManager...) {
     }
 }
 
-/// Clears the stubs of `mocks`, keeping their recorded calls.
-public func clearStubs<M: Mock>(_ mocks: M...) {
+/// Clears the stubs of `mocks`, keeping their recorded calls. The mocks may be of different types.
+public func clearStubs(_ mocks: any Mock...) {
     mocks.forEach { mock in
         mock.cuckoo_manager.clearStubs()
     }
 }
 
-/// Clears the recorded calls of `mocks`, keeping their stubs.
-public func clearInvocations<M: Mock>(_ mocks: M...) {
+/// Clears the recorded calls of `mocks`, keeping their stubs. The mocks may be of different types.
+public func clearInvocations(_ mocks: any Mock...) {
     mocks.forEach { mock in
         mock.cuckoo_manager.clearInvocations()
     }
 }
 
-/// Fails if `mocks` received any call that no earlier `verify` checked.
-public func verifyNoMoreInteractions<M: Mock>(_ mocks: M..., fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
+/// Fails if `mocks`, which may be of different types, received any call that no earlier `verify` checked.
+public func verifyNoMoreInteractions(_ mocks: any Mock..., fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
     mocks.forEach { mock in
         mock.cuckoo_manager.verifyNoMoreInteractions((fileID, filePath, line, column))
     }

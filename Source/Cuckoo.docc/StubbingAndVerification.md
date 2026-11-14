@@ -148,7 +148,7 @@ verifyNoMoreInteractions(greeter)
 ```
 
 A failed `verify` lists the calls the member received, each with the first argument that didn't match, or every
-call the mock received if the member had none. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(M...,_,_,_,_)``
+call the mock received if the member had none. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(Mock...,_,_,_,_)``
 fails if the mock received a call no `verify` checked.
 
 A generic member whose type comes only from its return value needs the type spelled out:

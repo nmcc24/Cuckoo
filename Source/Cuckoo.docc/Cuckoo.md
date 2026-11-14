@@ -64,7 +64,7 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 
 - ``verify(_:_:fileID:filePath:line:column:)->M.Verification``
 - ``verify(_:_:fileID:filePath:line:column:)->M.StaticVerification``
-- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(M...,_,_,_,_)``
+- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(Mock...,_,_,_,_)``
 - ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(M.Type,_,_,_,_)``
 - ``inOrder(strict:fileID:filePath:line:column:_:)``
 - ``eventually(timeout:pollingInterval:_:)``
