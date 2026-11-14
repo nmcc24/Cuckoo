@@ -164,15 +164,20 @@ final class Crawler: SyntaxVisitor {
             name: node.name.filteredDescription,
             associatedTypes: associatedTypes(from: node.memberBlock.members),
             primaryAssociatedTypes: genericParameters(from: node.primaryAssociatedTypeClause?.primaryAssociatedTypes),
-            genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements),
+            // An associated type's own `where` clause constrains the protocol as one on the protocol does.
+            genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements)
+                + node.memberBlock.members.flatMap { member in
+                    genericRequirements(from: member.decl.as(AssociatedTypeDeclSyntax.self)?.genericWhereClause?.requirements)
+                },
             inheritedTypes: inheritedTypes,
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions,
             isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
         )
         // An actor-constrained protocol is isolated to its conforming actor, never to the default.
-        if token.isolation == nil, !token.isActor {
-            token.isolation = context.defaultIsolation
+        if token.isolation == nil, !token.isActor, let defaultIsolation = context.defaultIsolation {
+            token.isolation = defaultIsolation
+            token.isIsolationDefault = true
         }
 
         guard token.accessibility.isAccessible else { return .skipChildren }

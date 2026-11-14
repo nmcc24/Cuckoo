@@ -89,6 +89,9 @@ extension Token {
     /// Whether a mocked type states `Sendable` itself. A conformance inherited from elsewhere isn't seen,
     /// so such a mock's stubs fall back to ``StubIsolation/Sharing/confined``, which still compiles.
     var isDeclaredSendable: Bool {
+        if (self as? ProtocolDeclaration)?.inheritsSendable == true {
+            return true
+        }
         let inheritedTypes = (self as? ProtocolDeclaration)?.inheritedTypes ?? (self as? ClassDeclaration)?.inheritedTypes ?? []
         return inheritedTypes.contains { $0 == "Sendable" || $0 == "Swift.Sendable" }
     }

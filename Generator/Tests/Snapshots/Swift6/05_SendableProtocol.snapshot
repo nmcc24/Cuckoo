@@ -17,12 +17,12 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    func get(url p0: String, completion p1: @escaping @Sendable (Result<String, Error>) -> Void) {
+    func get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void) {
         return cuckoo_manager.call(
-            "get(url p0: String, completion p1: @escaping @Sendable (Result<String, Error>) -> Void)",
+            "get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: @Sendable ((String, @Sendable (Result<String, Error>) -> Void)) -> Void, arguments) in
+            invoke: { (implementation: @Sendable ((String, @Sendable (Result<String, any Error>) -> Void)) -> Void, arguments) in
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -51,10 +51,10 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             self.cuckoo_manager = manager
         }
 
-        func get<M1: Cuckoo._SendableMatchable, M2: Cuckoo._SendableMatchable>(url p0: M1, completion p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, @Sendable (Result<String, Error>) -> Void), @Sendable ((String, @Sendable (Result<String, Error>) -> Void)) -> Void, Cuckoo.StubSharing.Shared> where M1.MatchedType == String, M2.MatchedType == @Sendable (Result<String, Error>) -> Void {
-            let matchers: [Cuckoo.SendableMatcher<(String, @Sendable (Result<String, Error>) -> Void)>] = [Cuckoo.wrap(matchable: p0, at: \.0), Cuckoo.wrap(matchable: p1, at: \.1)]
+        func get<M1: Cuckoo._SendableMatchable, M2: Cuckoo._SendableMatchable>(url p0: M1, completion p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, @Sendable (Result<String, any Error>) -> Void), @Sendable ((String, @Sendable (Result<String, any Error>) -> Void)) -> Void, Cuckoo.StubSharing.Shared> where M1.MatchedType == String, M2.MatchedType == @Sendable (Result<String, any Error>) -> Void {
+            let matchers: [Cuckoo.SendableMatcher<(String, @Sendable (Result<String, any Error>) -> Void)>] = [Cuckoo.wrap(matchable: p0, at: \.0), Cuckoo.wrap(matchable: p1, at: \.1)]
             return .init(stub: cuckoo_manager.createStub(for: MockNetworking.self,
-                method: "get(url p0: String, completion p1: @escaping @Sendable (Result<String, Error>) -> Void)",
+                method: "get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void)",
                 parameterMatchers: matchers
             ))
         }
@@ -80,14 +80,14 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
         }
 
         @discardableResult
-        func get<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(url p0: M1, completion p1: M2) -> Cuckoo.__DoNotUse<(String, @Sendable (Result<String, Error>) -> Void), Void> where M1.MatchedType == String, M2.MatchedType == @Sendable (Result<String, Error>) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<(String, @Sendable (Result<String, Error>) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+        func get<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(url p0: M1, completion p1: M2) -> Cuckoo.__DoNotUse<(String, @Sendable (Result<String, any Error>) -> Void), Void> where M1.MatchedType == String, M2.MatchedType == @Sendable (Result<String, any Error>) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(String, @Sendable (Result<String, any Error>) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
             return cuckoo_manager.verify(
-                "get(url p0: String, completion p1: @escaping @Sendable (Result<String, Error>) -> Void)",
+                "get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -110,7 +110,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
 }
 
 nonisolated final class NetworkingStub: Networking {
-    func get(url p0: String, completion p1: @escaping @Sendable (Result<String, Error>) -> Void) {
+    func get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 

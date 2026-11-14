@@ -1,5 +1,48 @@
 # Changelog
 
+## 3.0.0-beta.4
+
+Fixes from a full review of beta.3: mocks of protocols that inherit an actor's isolation, variadic parameters and
+associated-type `where` clauses now compile, and a release no longer declares swift-syntax, so projects whose
+macros pin an older one can resolve Cuckoo. The [migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md)
+covers moving from Cuckoo 2.
+
+To try it:
+
+```swift
+.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.4"),
+```
+
+### Changed
+- `SourceLocation` loses `file`: it's `(fileID:filePath:line:column:)`, with `filePath` a `StaticString`, and
+  `verify`, `verifyNoMoreInteractions`, `inOrder` and the `MockManager` methods that took a `file:` argument no longer
+  do. A failure handler that read `sourceLocation.file` reads `filePath` instead.
+- `hasLength(in:)` matches the counts its range contains: `1..<3` matches 1 or 2. `hasLength(inRange:)` is
+  deprecated and, with a half-open range, includes its upper bound again, as in Cuckoo 2: beta.2 had changed what
+  `inRange: 1..<3` matched without any warning, so code moved from Cuckoo 2 kept compiling but stopped matching 3.
+
+### Fixed
+- A release still declared the generator's dependencies, so its swift-syntax range, `602.0.0..<605.0.0`, kept a
+  package whose macro packages pin an older swift-syntax from resolving Cuckoo, which the prebuilt generator was
+  meant to allow. A release now declares only the runtime, the plugin and the bundled generator. Its manifest no
+  longer has the `CuckooGenerator` product: build it from a branch to run the generator yourself.
+- A protocol that refines a `@MainActor`, global-actor, `Actor` or `Sendable` protocol, and states no isolation
+  itself, got a `nonisolated` mock that didn't compile: the generator took the parent's members but not its
+  isolation. The mock now takes the parent's isolation, actor-ness and `Sendable`-ness, through any number of
+  levels, as Swift does for the protocol.
+- Variadic parameters, `func log(_ messages: String...)`, lost their `...` in the mock, which then didn't conform.
+  The mock keeps them variadic and records the argument as an array, which matchers, captors and `then` closures
+  receive. Such a member can't call its real or default implementation, which Swift can't pass an array to.
+- A `where` clause on an associated type, as in `associatedtype Element where Element: Equatable`, was dropped, so
+  the mock didn't conform. Its requirements now constrain the mock as the protocol's own `where` clause does, and a
+  requirement on a nested type, such as `Items.Element == Int`, written on either, goes in the mock's and stub's
+  `where` clause instead of being dropped or written as an invalid typealias.
+- An unstubbed `rethrows` member called with a closure that doesn't throw crashed the test process: it threw
+  `CuckooError.unstubbedCall` into a call that had no `try`. It now records the failure and returns a
+  default value, as any non-throwing member does.
+- XCTest failures from `verify`, `verifyNoMoreInteractions` and `inOrder` point at the failing line. They carried a
+  module-relative path, the one `#file` gives in a Swift 6 module, so Xcode couldn't place them.
+
 ## 3.0.0-beta.3
 
 Matchers that `Sendable` mocks can keep, so their stubs are safe to call from any task, and the deprecation of

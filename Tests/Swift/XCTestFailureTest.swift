@@ -19,5 +19,22 @@ final class XCTestFailureTest: XCTestCase {
             verify(mock).noReturn()
         }
     }
+
+    /// The failure points at the `verify` line, with the full path Xcode needs to show it there: a module-relative
+    /// `#fileID`-style path, which `#file` gives in a Swift 6 module, leaves it unplaced.
+    func testFailureIsReportedAtTheVerifyLine() {
+        let expectedFile = URL(filePath: "\(#filePath)")
+        let expectedLine = #line + 9
+        let options = XCTExpectedFailure.Options()
+        options.issueMatcher = { issue in
+            issue.sourceCodeContext.location?.fileURL == expectedFile
+                && issue.sourceCodeContext.location?.lineNumber == expectedLine
+        }
+
+        XCTExpectFailure("verify reports at its own line", options: options) {
+            let mock = MockTestedClass()
+            verify(mock).noReturn()
+        }
+    }
 }
 #endif

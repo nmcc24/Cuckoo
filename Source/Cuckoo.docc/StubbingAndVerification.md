@@ -23,7 +23,9 @@ initializers for a class. A mock whose initializer calls its own members needs t
 
 Mocks keep the isolation of the type they mock. The mock of a `@MainActor` protocol is `@MainActor`, the mock of
 an `actor` protocol is an actor, and the mock of a `Sendable` type is `Sendable`, so the compiler checks how the
-test shares it.
+test shares it. A protocol that states no isolation of its own takes its parents', as Swift does: the mock of a
+protocol refining a `@MainActor` protocol is `@MainActor` too. A parent declared in another module, which the
+generator doesn't read, can't pass its isolation on; state it on the protocol you mock.
 
 ### Stub members
 
@@ -69,7 +71,7 @@ closures run on the main actor and can use its state directly.
 
 A call that no stub matches records a failure that lists the member's stubs and the argument each one rejected.
 Then it answers, so the test can go on: a member that throws `any Error` throws ``CuckooError/unstubbedCall(method:)``,
-and any other member returns a default value from ``CuckooConfiguration/defaultValues`` or
+and any other member, a `rethrows` one included, returns a default value from ``CuckooConfiguration/defaultValues`` or
 ``DefaultValueRegistry``. Optionals and the standard collections default to empty, numbers, strings and `Bool`
 to zero, `""` and `false`. Register a value for any other type, tuples included, or a call returning it crashes
 with a message naming it:
@@ -133,7 +135,7 @@ doesn't, and its static calls fail as unstubbed.
 
 ### Verify calls
 
-``verify(_:_:file:fileID:filePath:line:column:)->M.Verification`` checks that the mock received a call, once unless
+``verify(_:_:fileID:filePath:line:column:)->M.Verification`` checks that the mock received a call, once unless
 a call matcher says otherwise:
 
 ```swift
@@ -146,7 +148,7 @@ verifyNoMoreInteractions(greeter)
 ```
 
 A failed `verify` lists the calls the member received, each with the first argument that didn't match, or every
-call the mock received if the member had none. ``verifyNoMoreInteractions(_:file:fileID:filePath:line:column:)-(M...,_,_,_,_,_)``
+call the mock received if the member had none. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(M...,_,_,_,_)``
 fails if the mock received a call no `verify` checked.
 
 A generic member whose type comes only from its return value needs the type spelled out:
@@ -157,7 +159,7 @@ verify(cache).value(forKey: "a").with(returnType: Int?.self)
 
 ### Order and timing
 
-``inOrder(strict:file:fileID:filePath:line:column:_:)`` checks that calls happened in the order of the `verify`
+``inOrder(strict:fileID:filePath:line:column:_:)`` checks that calls happened in the order of the `verify`
 calls in its block, across mocks. With `strict: true`, no other call to those mocks may come in between:
 
 ```swift

@@ -20,8 +20,9 @@ tests, then the behaviour changes, which show up as test failures.
 - SwiftPM only. The podspec and the `run` script, which downloaded or built the generator for build-phase
   scripts, are gone. Add the package and the build plugin as <doc:GettingStarted> shows. To run the
   generator from a script anyway, see "Running the generator yourself" in <doc:Cuckoofile>.
-- The plugin of a release runs a prebuilt generator, so your build no longer compiles swift-syntax. A dependency
-  on a branch or a commit still builds the generator from source, with swift-syntax `602.0.0..<605.0.0`.
+- The plugin of a release runs a prebuilt generator, so your build no longer compiles swift-syntax, and a release
+  doesn't depend on swift-syntax at all: your macro packages can use any version. A dependency on a branch or a
+  commit still builds the generator from source, with swift-syntax `602.0.0..<605.0.0`.
 
 ### The Cuckoofile
 
@@ -64,6 +65,11 @@ behaviour on top.
 - ``DefaultValueRegistry/register(_:for:)`` takes `Sendable` values. It still applies to every test; for
   values only some tests need, register them in `DefaultValues` through `.cuckoo(defaultValues:)`, which tests
   running in parallel don't share.
+- A failure handler's ``SourceLocation`` has no `file`: read `filePath`, a `StaticString`, which is the full path
+  Xcode needs. The checks no longer take a `file:` argument.
+- `hasLength(inRange:)` is deprecated in favour of ``hasLength(in:)``, whose range means what it says. With a
+  half-open range, `inRange:` kept including the upper bound, as `inclusive: true` did by default: `inRange: 1..<3`
+  matches 3, and so does `in: 1...3`, while `in: 1..<3` doesn't. Move each call to `in:` with the range you mean.
 - `enableDefaultImplementation(mutating:)` is removed: it kept a pointer to your variable after the call returned.
   A `struct` default implementation is copied once and keeps the changes made through the mock; pass a class
   instance to share state with the test.
@@ -71,7 +77,10 @@ behaviour on top.
   What the closure writes now reaches the caller. Closures that let Swift infer the types are unaffected.
 - The stub function types that `when` returns, such as `ProtocolStubFunction`, have more generic parameters. Code
   that names them, rather than letting `when` infer them, needs updating.
-- Conforming your own types to `Matchable` is deprecated. Replace `extension User: Matchable { … }` with
+- Deprecated, with a warning that names the replacement: `register(value:forType:)` for
+  ``DefaultValueRegistry/register(_:for:)``, and `equal(to:)` on a class that isn't `Equatable`, which compared
+  identities, for ``sameInstance(as:)->SendableMatcher<T>``. `equal(to:)` on an `Equatable` class now compares with `==`.
+- Conforming your own types to `Matchable` or `OptionalMatchable` is deprecated. Replace `extension User: Matchable { … }` with
   `equal(to: user)` where you pass the value, which takes any `Equatable` type; for other types use
   `equal(to:equalWhen:)` or a matcher of your own. See <doc:Matching>.
 - The stubs of a `Sendable` or actor mock take only ``SendableMatcher``s, since the mock can be called from any task.
@@ -86,12 +95,16 @@ behaviour on top.
 ### Behaviour changes
 
 - A call with no matching stub records a failure, then answers so the test can go on: a member that throws
-  `any Error` throws ``CuckooError/unstubbedCall(method:)``, and any other returns a default value. Cuckoo 2
+  `any Error` throws ``CuckooError/unstubbedCall(method:)``, and any other, a `rethrows` one included, returns a
+  default value. Cuckoo 2
   crashed the test process. A test that relied on a mock answering with defaults, without stubs, now fails: stub
   those calls with `any()`, or make the mock answer quietly with
   `withEnabledDefaultImplementation(GreeterStub())`.
 - Failures go to the framework running the test only: Swift Testing records an issue, XCTest an `XCTFail`.
   Cuckoo 2 reported each failure to both.
+- A failed `verify` leaves the calls it looked at unverified, so a later `verifyNoMoreInteractions` still reports
+  them.
+- `enableSuperclassSpy()` on a protocol mock, which has no superclass, records a failure.
 - Failure messages list the calls a member received, and the argument each stub or `verify` rejected.
 
 ### Swift 7 features
@@ -106,7 +119,7 @@ Once the suite compiles, these can replace workarounds:
 
 - Static and class members can be mocked: `stub(MockClock.self) { … }`, inside a `.cuckoo()` test or
   `withStaticStubs { }`.
-- ``inOrder(strict:file:fileID:filePath:line:column:_:)`` and ``eventually(timeout:pollingInterval:_:)`` verify
+- ``inOrder(strict:fileID:filePath:line:column:_:)`` and ``eventually(timeout:pollingInterval:_:)`` verify
   call order and calls made from another task.
 - Typed throws, `inout`, `~Copyable` arguments and parameter packs can be stubbed.
 

@@ -10,6 +10,12 @@ extension HasGenerics {
         return "<\(parameters)>"
     }
 
+    /// The `where` clause a protocol's mock and stub repeat, with a leading space, or an empty string.
+    var genericWhereClause: String {
+        guard let requirements = asProtocol?.whereRequirements, !requirements.isEmpty else { return "" }
+        return " where " + requirements.joined(separator: ", ")
+    }
+
     var genericArgumentsString: String {
         guard !genericParameters.isEmpty else { return "" }
         let arguments = genericParameters.map { $0.name }.joined(separator: ", ")

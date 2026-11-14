@@ -62,11 +62,11 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 
 ### Verification
 
-- ``verify(_:_:file:fileID:filePath:line:column:)->M.Verification``
-- ``verify(_:_:file:fileID:filePath:line:column:)->M.StaticVerification``
-- ``verifyNoMoreInteractions(_:file:fileID:filePath:line:column:)-(M...,_,_,_,_,_)``
-- ``verifyNoMoreInteractions(_:file:fileID:filePath:line:column:)-(M.Type,_,_,_,_,_)``
-- ``inOrder(strict:file:fileID:filePath:line:column:_:)``
+- ``verify(_:_:fileID:filePath:line:column:)->M.Verification``
+- ``verify(_:_:fileID:filePath:line:column:)->M.StaticVerification``
+- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(M...,_,_,_,_)``
+- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(M.Type,_,_,_,_)``
+- ``inOrder(strict:fileID:filePath:line:column:_:)``
 - ``eventually(timeout:pollingInterval:_:)``
 - ``ArgumentCaptor``
 - ``reset(_:)-(HasMockManager...)``
@@ -241,7 +241,7 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 - ``hasLength(exactly:)``
 - ``hasLength(atLeast:inclusive:)``
 - ``hasLength(atMost:inclusive:)``
-- ``hasLength(inRange:)``
+- ``hasLength(in:)``
 
 ### Special arguments
 

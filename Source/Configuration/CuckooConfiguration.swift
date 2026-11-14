@@ -9,7 +9,9 @@ import XCTest
 /// `.cuckoo(…)` trait, or for any scope with `CuckooConfiguration.$current.withValue(…)`.
 ///
 /// A call with no matching stub always records a failure, then answers so the test can go on: a member that
-/// throws `any Error` throws `CuckooError.unstubbedCall`, and any other member returns its type's default value.
+/// throws `any Error` throws `CuckooError.unstubbedCall`, and any other member returns its type's default value. A
+/// `rethrows` member returns the default value too: its caller may have passed closures that don't throw, and then
+/// has no `try` to catch an error with.
 /// It crashes only when neither is possible.
 public struct CuckooConfiguration: Sendable {
     /// Receives each failure instead of the test framework. `nil` reports to the framework running the test.
@@ -74,7 +76,7 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?) {
         return
     }
     if let handler = configuration.failureHandler {
-        handler(message, sourceLocation ?? (#file, #fileID, #filePath, #line, #column))
+        handler(message, sourceLocation ?? (#fileID, #filePath, #line, #column))
         return
     }
     #if canImport(Testing)
@@ -84,7 +86,7 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?) {
             sourceLocation: sourceLocation.map { sourceLocation in
                 Testing.SourceLocation(
                     fileID: sourceLocation.fileID,
-                    filePath: sourceLocation.filePath,
+                    filePath: "\(sourceLocation.filePath)",
                     line: sourceLocation.line,
                     column: sourceLocation.column
                 )
@@ -95,11 +97,11 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?) {
     #endif
     #if canImport(XCTest)
     if let sourceLocation {
-        XCTFail(message, file: sourceLocation.file, line: UInt(sourceLocation.line))
+        XCTFail(message, file: sourceLocation.filePath, line: UInt(sourceLocation.line))
     } else {
         XCTFail(message)
     }
     #else
-    print("Cuckoo failure:", message, sourceLocation ?? (#file, #fileID, #filePath, #line, #column))
+    print("Cuckoo failure:", message, sourceLocation ?? (#fileID, #filePath, #line, #column))
     #endif
 }

@@ -8,6 +8,9 @@ name: Release
 #
 # The Linux parts are built on Ubuntu 22.04 (`-jammy`), so the binary needs glibc 2.35 at most and runs on 22.04 or
 # later, and on other distributions with that glibc or newer. A dry run stops after the smoke tests.
+#
+# The verify jobs run after the release is public, and releases are immutable: its tag and zip can't be replaced.
+# If one fails, say so in the release's notes, fix master, and release the next version (the next beta, or a patch).
 on:
   workflow_dispatch:
     inputs:

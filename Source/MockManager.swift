@@ -2,7 +2,7 @@ import Foundation
 
 /// Records a mock's calls and holds its stubs. Every generated mock owns one, as `cuckoo_manager`.
 ///
-/// Tests don't call it directly: ``stub(_:block:)-(M,_)``, ``verify(_:_:file:fileID:filePath:line:column:)->M.Verification``
+/// Tests don't call it directly: ``stub(_:block:)-(M,_)``, ``verify(_:_:fileID:filePath:line:column:)->M.Verification``
 /// and the reset functions go through it. Its methods are public for the generated mocks.
 public final class MockManager: Sendable {
     private struct RecordedCall {
@@ -145,7 +145,8 @@ public final class MockManager: Sendable {
         escapingParameters: IN,
         invoke: (IMPL, IN) throws(ERROR) -> OUT,
         superclassCall: () throws(ERROR) -> OUT,
-        defaultCall: () throws(ERROR) -> OUT
+        defaultCall: () throws(ERROR) -> OUT,
+        unstubbedThrows: Bool = true
     ) throws(ERROR) -> OUT {
         switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
         case .stubbed(.callImplementation(let implementation)):
@@ -159,7 +160,7 @@ public final class MockManager: Sendable {
         case .defaultImplementation:
             return try defaultCall()
         case .unstubbed:
-            if let error = unstubbedError(method, as: ERROR.self) {
+            if unstubbedThrows, let error = unstubbedError(method, as: ERROR.self) {
                 throw error
             }
             return unstubbedValue(method)
@@ -172,7 +173,8 @@ public final class MockManager: Sendable {
         escapingParameters: IN,
         invoke: nonisolated(nonsending) (IMPL, IN) async throws(ERROR) -> OUT,
         superclassCall: () async throws(ERROR) -> OUT,
-        defaultCall: () async throws(ERROR) -> OUT
+        defaultCall: () async throws(ERROR) -> OUT,
+        unstubbedThrows: Bool = true
     ) async throws(ERROR) -> OUT {
         switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
         case .stubbed(.callImplementation(let implementation)):
@@ -186,7 +188,7 @@ public final class MockManager: Sendable {
         case .defaultImplementation:
             return try await defaultCall()
         case .unstubbed:
-            if let error = unstubbedError(method, as: ERROR.self) {
+            if unstubbedThrows, let error = unstubbedError(method, as: ERROR.self) {
                 throw error
             }
             return unstubbedValue(method)
@@ -314,9 +316,9 @@ public final class MockManager: Sendable {
 
     /// Makes unstubbed calls forward to the default implementation. Allowed only before the mock's first call, except
     /// to replace the default implementation, which a generated mock does before calling this.
-    public func enableDefaultStubImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
+    public func enableDefaultStubImplementation(fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
         guard !isStatic else {
-            fail("Static members have no default implementation. Stub them instead.", at: (file, fileID, filePath, line, column))
+            fail("Static members have no default implementation. Stub them instead.", at: (fileID, filePath, line, column))
             return
         }
         let error: String? = state.withLock { state in
@@ -341,8 +343,8 @@ public final class MockManager: Sendable {
     
     /// An actor mock's `enableDefaultImplementation`. An actor mock never forwards to a default implementation:
     /// that would be another actor, and handing it a non-Sendable argument is a data race.
-    public func refuseActorDefaultImplementation(file: StaticString = #file, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) {
-        fail("Actor mocks have no default implementation. Stub their members instead.", at: (file, fileID, filePath, line, column))
+    public func refuseActorDefaultImplementation(fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
+        fail("Actor mocks have no default implementation. Stub their members instead.", at: (fileID, filePath, line, column))
     }
 
     func reset() {
@@ -560,6 +562,9 @@ extension MockManager {
 extension MockManager {
     /// Records a call of a rethrowing `method` and answers it from a stub, the superclass or the default
     /// implementation.
+    ///
+    /// An unstubbed call returns a default value instead of throwing ``CuckooError/unstubbedCall(method:)``: the
+    /// caller may have passed closures that don't throw, and then has no `try` to catch the error with.
     public func callRethrows<IN, OUT, IMPL>(
         _ method: String,
         parameters: IN,
@@ -568,11 +573,13 @@ extension MockManager {
         superclassCall: @autoclosure () throws -> OUT,
         defaultCall: @autoclosure () throws -> OUT
     ) rethrows -> OUT {
-        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
+        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedThrows: false)
     }
 
     /// Records a call of an async rethrowing `method` and answers it from a stub, the superclass or the default
     /// implementation.
+    ///
+    /// An unstubbed call returns a default value instead of throwing, as the synchronous `callRethrows` does.
     public nonisolated(nonsending) func callRethrows<IN, OUT, IMPL>(
         _ method: String,
         parameters: IN,
@@ -581,6 +588,6 @@ extension MockManager {
         superclassCall: @autoclosure () async throws -> OUT,
         defaultCall: @autoclosure () async throws -> OUT
     ) async rethrows -> OUT {
-        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall)
+        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedThrows: false)
     }
 }
