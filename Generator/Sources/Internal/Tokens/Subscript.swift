@@ -58,7 +58,7 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
         let whereClause = whereConstraints.isEmpty ? "" : " where \(whereConstraints.joined(separator: ", "))"
         // The accessors' signature gives the parameters their inner names.
         let keys = Method.Signature(genericParameters: [], parameters: parameters, whereConstraints: []).parameters
-        return "\(generics)(\(keys.map(\.description).joined(separator: ", "))) -> \(returnType)\(whereClause)"
+        return "\(generics)(\(keys.map(\.declarationDescription).joined(separator: ", "))) -> \(returnType)\(whereClause)"
     }
 
     private func accessor(kind: String, parameters: [MethodParameter], returnType: ComplexType, asyncType: AsyncType?, throwType: ThrowType?) -> Method {

@@ -157,7 +157,11 @@ struct GeneratorHelper {
     /// The non-escaping closure parameters, with their positions, which the mock makes escaping with
     /// `withoutActuallyEscaping` to record them.
     private static func nonEscapingClosureParameters(of method: Method) -> [(offset: Int, element: MethodParameter)] {
-        method.signature.parameters.enumerated().filter { !$0.element.type.containsAttribute(named: "@escaping") && $0.element.type.findClosure() != nil }
+        // An `inout` closure is a variable the caller owns, already escaping.
+        method.signature.parameters.enumerated().filter {
+            !$0.element.type.containsAttribute(named: "@escaping") && !$0.element.type.containsAttribute(named: "inout")
+                && $0.element.type.findClosure() != nil
+        }
     }
 
     /// Whether the mock's body is wrapped in local functions rather than closures; see `openNestedClosure`.
@@ -183,7 +187,7 @@ struct GeneratorHelper {
                 .joined(separator: " ")
             return parameters.enumerated().map { level, element in
                 let parameter = element.1
-                return "\(indentation(level))\(execution)func \(localFunctionName(for: parameter))(_ \(parameter.usableName): @escaping \(parameter.type)) \(effects)\(returnSignature) {"
+                return "\(indentation(level))\(execution)func \(localFunctionName(for: parameter))(_ \(parameter.usableName): @escaping \(parameter.type.withoutParameterSpecifiers)) \(effects)\(returnSignature) {"
             }
         } else {
             let tries = method.isThrowing ? "try " : ""
@@ -191,7 +195,7 @@ struct GeneratorHelper {
             let typedThrows = method.signature.throwType.flatMap { $0.isTyped ? " \($0.description)" : nil } ?? ""
             return parameters.enumerated().map { level, element in
                 let parameter = element.1
-                return "\(indentation(level))return \(tries)withoutActuallyEscaping(\(parameter.usableName), do: { (\(parameter.usableName): @escaping \(parameter.type))\(typedThrows)\(returnSignature) in"
+                return "\(indentation(level))return \(tries)withoutActuallyEscaping(\(parameter.usableName), do: { (\(parameter.usableName): @escaping \(parameter.type.withoutParameterSpecifiers))\(typedThrows)\(returnSignature) in"
             }
         }
     }

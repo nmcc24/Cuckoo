@@ -57,6 +57,11 @@ enum MockBuilder {
             lines.append("    // conform, add the missing members to them in an extension in the test target.")
             lines.append("")
         }
+        if let type = container.asClass?.internalMockReason {
+            lines.append("    // This mock is internal: \(container.name)'s non-public members name the non-public type '\(type)',")
+            lines.append("    // which a public override can't. Import the mocks' module with `@testable` to use it.")
+            lines.append("")
+        }
         if let unmockedMembers = container.asClass?.unmockedMembers, !unmockedMembers.isEmpty {
             lines.append("    // Not mocked, so calls run the class's own implementation:")
             lines.append(contentsOf: unmockedMembers.map { "    // - \($0)" })
