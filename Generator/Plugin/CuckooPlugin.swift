@@ -16,7 +16,7 @@ struct CuckooPlugin: BuildToolPlugin {
                 }
             }
             .compactMap { $0 as? SourceModuleTarget }
-            .filter { $0.kind == ModuleKind.generic && $0.moduleName != "Cuckoo" }
+            .filter { isMockable($0.kind) && $0.moduleName != "Cuckoo" }
             .map { module in
                 SourceModule(
                     name: module.moduleName,
@@ -43,6 +43,7 @@ struct CuckooPlugin: BuildToolPlugin {
             executableFactory: context.tool(named:),
             targetName: target.name,
             projectDir: context.package.directoryURL,
+            configuration: try readCuckoofile(in: context.package.directoryURL),
             derivedSourcesDir: context.pluginWorkDirectoryURL,
             projectSources: context.package.targets
                 .compactMap { $0 as? SourceModuleTarget }
@@ -56,30 +57,37 @@ import XcodeProjectPlugin
 
 extension CuckooPlugin: XcodeBuildToolPlugin {
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
-        let sourceModules: [SourceModule] = target.dependencies
-            .flatMap { dependency in
-                switch dependency {
-                case .product(let product):
-                    return product.targets
-                        .compactMap { $0 as? SwiftSourceModuleTarget }
-                        .filter { $0.kind == ModuleKind.generic && $0.moduleName != "Cuckoo" }
-                        .map { module in
-                            SourceModule(
-                                name: module.moduleName,
-                                sources: module.sourceFiles.filter { $0.type == .source }.map(\.url),
-                                swiftModule: (module.moduleName, module.directoryURL)
-                            )
-                        }
-                case .target(let target):
-                    guard target.displayName != "Cuckoo" else { return [] }
-                    return [SourceModule(
-                        name: target.displayName,
-                        sources: target.inputFiles.filter { $0.type == .source }.map(\.url)
-                    )]
-                @unknown default:
-                    return []
-                }
+        let projectDir = context.xcodeProject.directoryURL
+        let configuration = try readCuckoofile(in: projectDir)
+
+        // Xcode reports a test target's dependencies on packages' products, but not on targets of its own
+        // project. An entry for those is named after the test target and lists its `sources`, as in Cuckoo 2.
+        let sourceModules: [SourceModule] = target.dependencies.flatMap { dependency -> [SourceModule] in
+            switch dependency {
+            case .product(let product):
+                return product.targets
+                    .compactMap { $0 as? SwiftSourceModuleTarget }
+                    .filter { isMockable($0.kind) && $0.moduleName != "Cuckoo" }
+                    .map { module in
+                        SourceModule(
+                            name: module.moduleName,
+                            sources: module.sourceFiles.filter { $0.type == .source }.map(\.url),
+                            swiftModule: (module.moduleName, module.directoryURL)
+                        )
+                    }
+            case .target(let target):
+                guard target.displayName != "Cuckoo" else { return [] }
+                return [SourceModule(name: target.displayName, sources: target.inputFiles.filter { $0.type == .source }.map(\.url))]
+            @unknown default:
+                return []
             }
+        }
+        // Without an entry this target generates, it would compile no mocks and say nothing.
+        let entries = cuckoofileModuleNames(in: configuration)
+        let generated = Set(sourceModules.map(\.name) + [target.displayName])
+        if entries.isDisjoint(with: generated) {
+            throw XcodeTestTargetWithoutEntryError(testTarget: target.displayName, entries: entries.sorted())
+        }
 
         // For test targets, also emit a build command keyed by the test target's own name.
         // This allows Cuckoofile.toml to have a [modules.TestTargetName] entry that mocks
@@ -96,10 +104,24 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
             sourceModules: allSourceModules,
             executableFactory: context.tool(named:),
             targetName: target.displayName,
-            projectDir: context.xcodeProject.directoryURL,
+            projectDir: projectDir,
+            configuration: configuration,
             derivedSourcesDir: context.pluginWorkDirectoryURL,
             projectSources: context.xcodeProject.targets.flatMap { $0.inputFiles.filter { $0.type == .source }.map(\.url) }
         )
+    }
+}
+/// An Xcode test target uses the plugin, but the Cuckoofile has no entry it generates.
+struct XcodeTestTargetWithoutEntryError: Error, CustomStringConvertible {
+    let testTarget: String
+    let entries: [String]
+
+    var description: String {
+        let key = testTarget.allSatisfy { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "-" } ? testTarget : "\"\(testTarget)\""
+        let found = entries.isEmpty ? "none" : entries.joined(separator: ", ")
+        return "The Cuckoofile has no entry for the Xcode test target '\(testTarget)' (it has: \(found)). In an Xcode "
+            + "project, name the entry after the test target and list the files to mock: [modules.\(key)] with "
+            + "sources = [\"App/**/*.swift\"]. Xcode doesn't tell the plugin which of the project's targets a test depends on."
     }
 }
 #endif
@@ -127,13 +149,16 @@ private func commandsPerModule(
     executableFactory: (String) throws -> PluginContext.Tool,
     targetName: String,
     projectDir: URL,
+    configuration: String,
     derivedSourcesDir: URL,
     projectSources: [URL]
 ) throws -> [Command] {
     let configurationURL = projectDir.appending(path: "Cuckoofile.toml")
     let executable = try executableFactory("CuckooGenerator").url
-    let configuration = (try? String(contentsOf: configurationURL, encoding: .utf8)) ?? ""
 
+    // Two products may share a target: its module is generated once.
+    var seen: Set<String> = []
+    let sourceModules = sourceModules.filter { seen.insert($0.name).inserted }
     return try sourceModules.map { sourceModule in
         let outputURL = derivedSourcesDir.appending(component: "GeneratedMocks_\(sourceModule.name).swift")
         // The Cuckoofile module mocks these files unless it lists its own `sources`.
@@ -167,31 +192,132 @@ private func commandsPerModule(
     }
 }
 
-/// Whether the Cuckoofile entry `name` lists its own `sources`, in a `[modules.name]` table, a
-/// `[modules.name.sources]` table, a dotted `modules.name.sources` key or an inline table. It reads the lines rather
-/// than the TOML, since a plugin can't depend on a parser; a wrong yes only costs a generator run.
-func cuckoofileEntry(named name: String, listsSourcesIn configuration: String) -> Bool {
-    /// A key or table name without spaces or quotes, so `[ modules."App" ]` reads as `modules.App`.
-    func normalized(_ text: Substring) -> String {
-        String(text.filter { $0 != " " && $0 != "\t" && $0 != "\"" && $0 != "'" })
+/// Library and executable targets can be mocked: a test target may depend on, and `@testable import`, either.
+private func isMockable(_ kind: ModuleKind) -> Bool {
+    kind == .generic || kind == .executable
+}
+
+struct MissingCuckoofileError: Error, CustomStringConvertible {
+    let directory: URL
+
+    private var path: String {
+        let path = directory.path(percentEncoded: false)
+        return path.count > 1 && path.hasSuffix("/") ? String(path.dropLast()) : path
     }
-    let entry = "modules.\(name)"
-    var table = ""
+
+    var description: String {
+        "Cuckoo's build plugin needs a Cuckoofile.toml in \(path), the folder of the "
+            + "package or Xcode project whose target uses the plugin. Add one with a [modules.<Name>] entry for each "
+            + "module to mock; see Cuckoo's Getting Started article."
+    }
+}
+
+/// The Cuckoofile next to the package or Xcode project, which the generator reads too. A missing one is an error
+/// here, where it can say what to add, instead of a failed generator run.
+private func readCuckoofile(in directory: URL) throws -> String {
+    let url = directory.appending(path: "Cuckoofile.toml")
+    guard FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) else {
+        throw MissingCuckoofileError(directory: directory)
+    }
+    return try String(contentsOf: url, encoding: .utf8)
+}
+
+/// The names of the Cuckoofile's entries: `App` for `[modules.App]`, `[modules.App.options]`, a dotted
+/// `modules.App.sources = …` key, or an `App = { … }` key in a `[modules]` table. Like
+/// ``cuckoofileEntry(named:listsSourcesIn:)``, it reads the lines rather than the TOML.
+func cuckoofileModuleNames(in configuration: String) -> Set<String> {
+    var names: Set<String> = []
+    for line in cuckoofileKeyLines(configuration) where line.key.count >= 2 && line.key[0] == "modules" {
+        names.insert(line.key[1])
+    }
+    return names
+}
+
+/// Whether the Cuckoofile entry `name` lists its own `sources`, in a `[modules.name]` table, a
+/// `[modules.name.sources]` table, a dotted `modules.name.sources` or `sources.Module` key or an inline table. It
+/// reads the lines rather than the TOML, since a plugin can't depend on a parser; a wrong yes only costs a
+/// generator run.
+func cuckoofileEntry(named name: String, listsSourcesIn configuration: String) -> Bool {
+    let sources = ["modules", name, "sources"]
+    return cuckoofileKeyLines(configuration).contains { line in
+        // An inline table, `App = { sources = [...] }`, counts if it mentions `sources` at all.
+        line.key.starts(with: sources) || (line.key == ["modules", name] && line.value.contains("sources"))
+    }
+}
+
+/// Each table header and key of a Cuckoofile, as the full key it defines (a key inside a table is prefixed with
+/// the table's name), and the text after a key's `=`.
+func cuckoofileKeyLines(_ configuration: String) -> [(key: [String], value: Substring)] {
+    var lines: [(key: [String], value: Substring)] = []
+    var table: [String] = []
+    var multilineDelimiter: String?
     for line in configuration.split(whereSeparator: \.isNewline) {
+        // Lines inside a multi-line string are its text, not keys.
+        if let delimiter = multilineDelimiter {
+            if line.contains(delimiter) {
+                multilineDelimiter = nil
+            }
+            continue
+        }
+        for delimiter in [String(repeating: "\"", count: 3), "'''"] where line.ranges(of: delimiter).count == 1 {
+            multilineDelimiter = delimiter
+        }
         let line = line.drop { $0 == " " || $0 == "\t" }
         if line.first == "[" {
-            table = normalized(line.prefix { $0 != "#" }.filter { $0 != "[" && $0 != "]" }[...])
-            if table == "\(entry).sources" {
-                return true
-            }
-        } else if let equals = line.firstIndex(of: "=") {
-            let key = normalized(line[..<equals])
-            let fullKey = table.isEmpty ? key : "\(table).\(key)"
-            // An inline table, `App = { sources = [...] }`, counts if it mentions `sources` at all.
-            if fullKey == "\(entry).sources" || (fullKey == entry && line[equals...].contains("sources")) {
-                return true
-            }
+            table = tomlKeySegments(line.drop { $0 == "[" }, endingAt: "]")
+            lines.append((table, ""))
+        } else if line.first != "#", let (key, value) = tomlKeyAndValue(line) {
+            lines.append((table + key, value))
         }
     }
-    return false
+    return lines
+}
+
+/// The segments of a TOML key that runs until `terminator` outside quotes: `modules."My App".options` is
+/// `["modules", "My App", "options"]`. Dots outside quotes separate segments, whitespace outside quotes is
+/// dropped, and a quoted segment keeps its contents.
+func tomlKeySegments(_ text: Substring, endingAt terminator: Character) -> [String] {
+    var segments: [String] = []
+    var current = ""
+    var quote: Character?
+    for character in text {
+        if let open = quote {
+            if character == open {
+                quote = nil
+            } else {
+                current.append(character)
+            }
+            continue
+        }
+        switch character {
+        case terminator:
+            return segments + [current]
+        case "\"", "'":
+            quote = character
+        case ".":
+            segments.append(current)
+            current = ""
+        case " ", "\t":
+            continue
+        default:
+            current.append(character)
+        }
+    }
+    return segments + [current]
+}
+
+/// A `key = value` line's key segments and the text after its `=`, or nil when the line has no `=` outside quotes.
+private func tomlKeyAndValue(_ line: Substring) -> (key: [String], value: Substring)? {
+    var quote: Character?
+    for index in line.indices {
+        let character = line[index]
+        if let open = quote {
+            if character == open { quote = nil }
+        } else if character == "\"" || character == "'" {
+            quote = character
+        } else if character == "=" {
+            return (tomlKeySegments(line[..<index], endingAt: "="), line[line.index(after: index)...])
+        }
+    }
+    return nil
 }

@@ -151,8 +151,8 @@ final class Module: Sendable {
                 let reading = target.map { " (it read the files of target \($0))" } ?? ""
                 return """
                 The `xcodeproj` option was removed in Cuckoo 3. List module \(name)'s files with `sources` instead, \
-                e.g. `sources = ["\(folder)/**/*.swift"]`\(reading). With a build plugin, leave `sources` out to mock \
-                the files of the target the plugin generates for.
+                e.g. `sources = ["\(folder)/**/*.swift"]`\(reading). In an Xcode project, name the entry after the test \
+                target; in a package, the build plugin can instead mock the files of a dependency named like the entry.
                 """
             case .invalidMockNaming(let name, let reason):
                 return "Invalid mock naming in module \(name): \(reason)"

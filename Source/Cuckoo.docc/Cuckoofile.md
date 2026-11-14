@@ -27,6 +27,11 @@ target, from the entry with that dependency's name, plus one from the entry name
 dependency without an entry gets an empty file, and an entry named after neither isn't generated for that target.
 To mock files from several modules in one entry, name it after the test target and list its `sources`.
 
+A dependency is a library or executable target the test target depends on directly, or a target of a package
+product it depends on. Xcode tells the plugin about a test target's package products, but not about the targets of
+its own project. So in an Xcode project, name the entry after the test target and list its `sources`, as in
+Cuckoo 2; a test target that uses the plugin with no entry of its own fails with a message saying so.
+
 ### Sources
 
 - term `sources`: The files to read, relative to the Cuckoofile. `*` matches within a folder, `**` matches any
@@ -45,11 +50,11 @@ To mock files from several modules in one entry, name it after the test target a
   sources = { App = ["Sources/App/**/*.swift"], Core = ["Sources/Core/**/*.swift"] }
   ```
 
-  With the build plugin, leave `sources` out to mock the files of the test target's dependency that has the
-  entry's name, or of every dependency if none has it. The plugin lists the target's own files, so this follows
-  the target's membership, Xcode's synchronized folders included, and tells the generator which module the files
-  belong to, as the table form does. An entry that sets `sources` is regenerated when any source file of the
-  package or Xcode project changes, since its patterns may match any of them.
+  In a package, the build plugin lets you leave `sources` out to mock the files of the test target's dependency
+  that has the entry's name, or of every dependency if none has it. The plugin lists the target's own files, so
+  this follows the target's membership, and tells the generator which module the files belong to, as the table
+  form does. An Xcode project's entries list their `sources`. An entry that sets `sources` is regenerated when any
+  source file of the package or Xcode project changes, since its patterns may match any of them.
 - term `exclude`: Names of types not to mock, such as `["AppDelegate", "LegacyService"]`.
 - term `regex`: Mock only the protocols and classes whose name matches one of these regular expressions:
   `regex = ["Service$", "^Repository"]`. A single pattern needs no array: `regex = "Service$"`.
@@ -80,8 +85,8 @@ sources = ["MyApp/**/*.swift", "Shared/**/*.swift"]
 ```
 
 Globs select files by folder, not by target membership. If a folder also holds files the target doesn't compile,
-narrow the glob or list those types in `exclude`. With the build plugin, leave `sources` out instead, to mock the
-files of the target.
+narrow the glob or list those types in `exclude`. In a package, the build plugin can leave `sources` out instead,
+to mock the files of the target.
 
 ### Imports
 

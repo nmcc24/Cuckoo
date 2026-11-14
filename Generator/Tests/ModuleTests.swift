@@ -31,7 +31,7 @@ struct ModuleTests {
         #expect(message.contains("List module MyApp's files with `sources` instead"))
         #expect(message.contains(#"sources = ["App/**/*.swift"]"#))
         #expect(message.contains("(it read the files of target App)"))
-        #expect(message.contains("With a build plugin, leave `sources` out"))
+        #expect(message.contains("In an Xcode project, name the entry after the test target"))
     }
 
     @Test

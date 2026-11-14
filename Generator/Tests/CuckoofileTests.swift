@@ -305,7 +305,7 @@ struct CuckoofileTests {
         }
 
         let gettingStarted = try examples(in: "GettingStarted")
-        try #require(gettingStarted.count == 1)
+        try #require(gettingStarted.count == 2)
         let pluginListed = try #require(try Cuckoofile.modules(
             from: gettingStarted[0],
             configurationPath: Self.configurationPath,
@@ -321,6 +321,17 @@ struct CuckoofileTests {
         // The plugin lists every dependency's files; the module takes those of the target with its name.
         #expect(pluginListed.sources == [Path("/project/Sources/App/A.swift")])
         #expect(pluginListed.sourcesAreFromPlugin)
+
+        // The Xcode example lists its own `sources`.
+        let xcode = try #require(try Cuckoofile.modules(
+            from: gettingStarted[1],
+            configurationPath: Self.configurationPath,
+            overriddenOutput: "/derived/Mocks.swift",
+            requestedModuleName: nil
+        ).first)
+        #expect(xcode.name == "AppTests")
+        #expect(xcode.testableImports == ["App"])
+        #expect(!xcode.sourcesAreFromPlugin)
 
         let cuckoofile = try examples(in: "Cuckoofile")
         try #require(cuckoofile.count == 5)

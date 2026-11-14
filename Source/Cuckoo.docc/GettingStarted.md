@@ -69,6 +69,15 @@ testableImports = ["App"]
 With no `sources`, the entry mocks every file of the test target's dependency named `App`. See <doc:Cuckoofile>
 for every key.
 
+In an Xcode project, Xcode doesn't tell the plugin which of the project's targets a test target depends on, so name
+the entry after the test target and list the files to mock:
+
+```toml
+[modules.AppTests]
+testableImports = ["App"]
+sources = ["App/**/*.swift"]
+```
+
 ### Write a test
 
 Each mocked type `Greeter` gets a mock `MockGreeter`, with the same initializers, and a stub `GreeterStub` that
