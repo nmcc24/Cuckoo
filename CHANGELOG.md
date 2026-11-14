@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Inside `inOrder`, a call matcher counts as it does outside it. A `verify` took the fewest calls its matcher
+  accepted, so `times(1)` passed on two calls in a row and `atLeast(2)` took two of three calls, leaving the third
+  for `strict` to reject. It now takes all its matching calls after the previous `verify` if its matcher accepts
+  them all, else the first run of matching calls no other call to the block's verified mocks interrupts, as
+  Mockito does. The block's `verify` calls are checked when it ends.
+- `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mocks of different types:
+  `verifyNoMoreInteractions(database, cache)` compiles.
+- `MockManager.preconfiguredManager`, which only generated mocks used, is now `preconfiguredManager(for:)`.
+
+### Added
+- `DefaultValueRegistry.register(for:factory:)` and `DefaultValues.register(for:factory:)` give a type that isn't
+  `Sendable`, such as a class, or a tuple a default value for unstubbed calls; the factory makes a new value for
+  each call.
+
+### Fixed
+- `createMock` handed its manager to every mock created in its closure, so a mock passed to the new one shared its
+  stubs and calls. Only the requested mock type takes it now.
+- An `ArgumentCaptor` captured every argument its matcher saw: from calls another matcher of the same `verify`
+  rejected, from a `verify` that failed, and, in a stub, from calls an older stub answered. It now captures only
+  from the calls a passing `verify` or the answering stub takes.
+- A failure from a task outside a Swift Testing test, such as an unstubbed call in a `Task.detached`, went to
+  XCTest, which ignores it there, so the test passed. A mock created in a Swift Testing test now reports it to
+  Swift Testing.
+
 ## 3.0.0-beta.4
 
 Fixes from a full review of beta.3: mocks of protocols that inherit an actor's isolation, variadic parameters and
