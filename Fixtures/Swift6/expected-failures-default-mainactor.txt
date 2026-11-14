@@ -5,11 +5,9 @@
 # A subclass of a class that uses its implicit init doesn't compile in this mode, with or without
 # Cuckoo: `class Base {}; final class Sub: Base {}` fails with "main actor-isolated initializer
 # 'init()' has different actor isolation from nonisolated overridden declaration" (Swift 6.2-6.4).
-# These fixtures mock such classes:
-07_Sending
-19_Unavailable
-20_IfConfig
-21_NonEscapingSendableClosure
+# Fixture 50 shows it; the other fixtures that mock a class declare `init() {}` to avoid it. When 50
+# passes, Swift has fixed it.
+50_ImplicitInitDefaultMainActor: has different actor isolation from nonisolated overridden declaration
 
 # Must fail: a Sendable mock rejects a matcher that keeps a non-Sendable value.
-32_SharedMockRejectsNonSendable
+32_SharedMockRejectsNonSendable: type 'Token' does not conform to the 'Sendable' protocol

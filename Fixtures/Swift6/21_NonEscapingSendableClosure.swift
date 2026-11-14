@@ -5,6 +5,7 @@ protocol Transformer {
 }
 
 class TransformingService {
+    init() {}
     func transform(_ body: @Sendable (String) async -> String?) -> String? { nil }
     func transformAsync(_ body: @Sendable (String) -> String?) async -> String? { nil }
 }
