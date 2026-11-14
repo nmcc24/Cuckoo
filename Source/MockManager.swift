@@ -81,7 +81,9 @@ public final class MockManager: Sendable {
             .filter { $0.method == method }
             .compactMap { $0 as? ConcreteStub<IN, OUT, ERROR, IMPL> }
         for stub in candidates {
-            if let mismatch = stub.firstMismatch(in: parameters) {
+            // A captor in the stub's matchers captures only if this stub answers the call.
+            let (mismatch, captures) = PendingCaptures.collecting { stub.firstMismatch(in: parameters) }
+            if let mismatch {
                 mismatches.append(mismatch)
                 continue
             }
@@ -89,6 +91,7 @@ public final class MockManager: Sendable {
                 sawUnfinishedStub = true
                 continue
             }
+            captures.commit()
             if case .callRealImplementation = action {
                 guard hasParent else {
                     failAndCrash("No real implementation found for method `\(method)`. This is probably caused by stubbed object being a mock of a protocol.")
@@ -226,26 +229,31 @@ public final class MockManager: Sendable {
     public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> __DoNotUse<IN, OUT> {
         let recordedCalls = state.withLock { $0.calls }
         // Each call to this member with the first argument its matcher rejected, or `nil` if the call matches. Like
-        // stub matching, it stops at that argument.
-        let callsToMember = recordedCalls.compactMap { recorded -> (recorded: RecordedCall, mismatch: Int?)? in
+        // stub matching, it stops at that argument. A captor's captures wait until the `verify` passes.
+        let callsToMember = recordedCalls.compactMap { recorded -> (recorded: RecordedCall, mismatch: Int?, captures: PendingCaptures)? in
             guard recorded.call.method == method, let call = recorded.call as? ConcreteStubCall<IN> else { return nil }
-            return (recorded, parameterMatchers.firstIndex { !$0.matches(call.parameters) })
+            let (mismatch, captures) = PendingCaptures.collecting { parameterMatchers.firstIndex { !$0.matches(call.parameters) } }
+            return (recorded, mismatch, captures)
         }
-        let matching = callsToMember.filter { $0.mismatch == nil }.map(\.recorded)
+        let matchingCalls = callsToMember.filter { $0.mismatch == nil }
+        let matching = matchingCalls.map(\.recorded)
         if let order = InOrder.current {
-            verifyInOrder(order, matching: matching, callMatcher: callMatcher, sourceLocation: sourceLocation)
+            let accepted = verifyInOrder(order, matching: matching, callMatcher: callMatcher, sourceLocation: sourceLocation)
+            matchingCalls.filter { accepted.contains($0.recorded.id) }.forEach { $0.captures.commit() }
             return __DoNotUse()
         }
         let calls = matching.map(\.call)
         guard callMatcher.matches(calls) else {
             // The calls stay unverified, so `verifyNoMoreInteractions` still reports them.
             let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(timesDescription(calls.count))")."
-            reportFailure(message + "\n" + describeCalls(of: method, callsToMember: callsToMember, among: recordedCalls), at: sourceLocation)
+            let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, among: recordedCalls)
+            reportFailure(message + "\n" + described, at: sourceLocation)
             return __DoNotUse()
         }
         state.withLock { state in
             state.unverifiedCallIDs.subtract(matching.map(\.id))
         }
+        matchingCalls.forEach { $0.captures.commit() }
         return __DoNotUse()
     }
 
@@ -268,20 +276,22 @@ public final class MockManager: Sendable {
         })
     }
 
-    /// A `verify` inside `inOrder`: it only looks at the calls after the ones the previous `verify` matched.
-    private func verifyInOrder(_ order: InOrder, matching: [RecordedCall], callMatcher: CallMatcher, sourceLocation: SourceLocation) {
+    /// A `verify` inside `inOrder`: it only looks at the calls after the ones the previous `verify` matched. Returns
+    /// the IDs of the calls it took, none if it failed.
+    private func verifyInOrder(_ order: InOrder, matching: [RecordedCall], callMatcher: CallMatcher, sourceLocation: SourceLocation) -> Set<Int> {
         let cursor = order.cursor
         let candidates = matching.filter { $0.sequence > cursor }
         guard let accepted = callMatcher.acceptedPrefix(of: candidates, callOf: \.call) else {
             order.involve(self)
             let message = "Wanted \(callMatcher.name) in order but invoked \(timesDescription(candidates.count)) after the previous verification (\(timesDescription(matching.count)) in all)."
             reportFailure(message + "\n" + order.describeCalls(), at: sourceLocation)
-            return
+            return []
         }
         state.withLock { state in
             state.unverifiedCallIDs.subtract(accepted.map(\.id))
         }
         order.advance(past: accepted.map { SequencedCall(sequence: $0.sequence, call: $0.call) }, of: self)
+        return Set(accepted.map(\.id))
     }
 
     /// Every recorded call with its place among the calls to every mock.
