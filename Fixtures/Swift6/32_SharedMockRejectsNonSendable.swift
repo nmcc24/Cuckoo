@@ -2,7 +2,7 @@ import Cuckoo
 
 // Must not compile: a Sendable mock's stubs can be matched from any task, so they reject a matcher that keeps a
 // non-Sendable value. Listed in the expected failures.
-final class Token: Equatable {
+nonisolated final class Token: Equatable {
     static func == (lhs: Token, rhs: Token) -> Bool { lhs === rhs }
 }
 
