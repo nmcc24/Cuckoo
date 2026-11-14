@@ -65,11 +65,14 @@ struct StubIsolation {
 
         isolatedParameter = if let actorMockName, member == nil { "isolated \(actorMockName)" } else { nil }
 
+        // A global-actor type is `Sendable`, so a `nonisolated` member of one can be called from any task at once:
+        // its stubs must be shared, as a `Sendable` type's are.
+        let isContainerGlobalActor = if case .globalActor? = container { true } else { false }
         globalActor = if case .globalActor(let name) = effective { name } else { nil }
         if let name = globalActor {
             closureAttributes = "@\(name) @Sendable "
             sharing = .isolated
-        } else if isContainerSendable || actorMockName != nil {
+        } else if isContainerSendable || actorMockName != nil || isContainerGlobalActor {
             closureAttributes = "@Sendable "
             sharing = .shared
         } else {

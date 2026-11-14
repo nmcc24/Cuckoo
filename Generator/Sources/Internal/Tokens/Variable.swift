@@ -2,6 +2,13 @@ struct Variable: Token, HasAccessibility, HasAttributes {
     struct Effects {
         var isThrowing = false
         var isAsync = false
+        /// The getter's `throws(E)` error type, or nil for an untyped `throws`.
+        var typedError: String?
+
+        /// The getter's effects as written in a declaration, such as `async throws(E) `, with a trailing space.
+        var getterDeclaration: String {
+            (isAsync ? "async " : "") + (isThrowing ? (typedError.map { "throws(\($0)) " } ?? "throws ") : "")
+        }
     }
 
     var parent: Reference<any Token>?
@@ -69,7 +76,12 @@ struct Variable: Token, HasAccessibility, HasAttributes {
     var stubGenericArguments: String {
         let storedType = isReadOnly ? type : type.unoptionaled
         let types = implementationTypes
-        var arguments = [storedType.description, types.getter]
+        var arguments = [storedType.description]
+        if effects.isThrowing {
+            // A throwing getter's stub holds its error type, so `thenThrow` takes a typed-throws getter's own type.
+            arguments.append(effects.typedError.map { "\($0)" } ?? "any Error")
+        }
+        arguments.append(types.getter)
         if !isReadOnly && !effects.isThrowing {
             arguments.append(types.setter)
         }

@@ -121,8 +121,13 @@ final class Generator {
             do {
                 crawler = try Crawler.crawl(
                     url: file.path.url,
-                    globalActors: declaredNames.globalActors,
+                    globalActors: declaredNames.globalActors.union(module.globalActors),
                     noncopyableTypes: declaredNames.noncopyableTypes,
+                    closureTypealiases: declaredNames.closureTypealiases,
+                    nonPublicTypes: declaredNames.nonPublicTypes,
+                    genericTypes: declaredNames.genericTypes,
+                    protocolsAndClasses: declaredNames.protocolsAndClasses,
+                    compositionTypealiases: declaredNames.compositionTypealiases,
                     defaultIsolation: module.options.defaultIsolation
                 )
             } catch {
@@ -136,7 +141,7 @@ final class Generator {
         }
         let flatMappedFiles = files.map { $0.flatMappingMemberContainers() }
         let inheritedFiles = if module.options.enableInheritance {
-            bindingSuperclasses(mergingInheritance(flatMappedFiles))
+            bindingSuperclasses(try mergingInheritance(flatMappedFiles))
         } else {
             flatMappedFiles
         }
@@ -194,8 +199,8 @@ final class Generator {
         return Set(["Cuckoo"] + module.testableImports + files.flatMap { $0.imports.filter(\.isPublic).map(\.description) })
     }
 
-    private static func mergingInheritance(_ filesRepresentation: [FileRepresentation]) -> [FileRepresentation] {
-        filesRepresentation.compactMap { $0.mergingInheritance(with: filesRepresentation) }
+    private static func mergingInheritance(_ filesRepresentation: [FileRepresentation]) throws -> [FileRepresentation] {
+        try filesRepresentation.map { try $0.mergingInheritance(with: filesRepresentation) }
     }
 
     /// Binds every protocol that requires a superclass to it: a class declared in the sources that the protocol

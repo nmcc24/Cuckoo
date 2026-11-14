@@ -79,8 +79,9 @@ struct GeneratorHelper {
         let genericParameters = method.proxyGenerics(forVerification: forVerification).parameters
         guard !method.signature.parameters.isEmpty || !genericParameters.isEmpty else { return "" }
 
+        let prefix = matcherPrefix(for: method)
         let matchableGenericParameters = method.signature.parameters.enumerated().map { index, parameter -> String in
-            return "M\(index + 1): Cuckoo.\(matcherProtocol(isOptional: parameter.matchedType.isOptional, sendable: sendable))"
+            return "\(prefix)\(index + 1): Cuckoo.\(matcherProtocol(isOptional: parameter.matchedType.isOptional, sendable: sendable))"
         }
         let methodGenericParameters = genericParameters.map { $0.description }
         return "<\((matchableGenericParameters + methodGenericParameters).joined(separator: ", "))>"
@@ -89,20 +90,30 @@ struct GeneratorHelper {
     static func matchableGenericsWhereClause(from method: Method, forVerification: Bool = false) -> String {
         guard method.signature.parameters.isEmpty == false else { return "" }
 
+        let prefix = matcherPrefix(for: method)
         let matchableWhereConstraints = method.signature.parameters.enumerated().map { index, parameter -> String in
             let type = parameter.matchedType.isOptional ? "OptionalMatchedType" : "MatchedType"
-            return "M\(index + 1).\(type) == \(genericSafeType(from: parameter.matchedType.genericArgumentSafe.unoptionaled.description))"
+            return "\(prefix)\(index + 1).\(type) == \(genericSafeType(from: parameter.matchedType.genericArgumentSafe.unoptionaled.description))"
         }
         let methodWhereConstraints = method.proxyGenerics(forVerification: forVerification).whereConstraints
         return " where \((matchableWhereConstraints + methodWhereConstraints).joined(separator: ", "))"
     }
 
-    static func matchableParameterSignature(with parameters: [MethodParameter]) -> String {
+    static func matchableParameterSignature(with parameters: [MethodParameter], of method: Method) -> String {
         guard !parameters.isEmpty else { return "" }
 
+        let prefix = matcherPrefix(for: method)
         return parameters.enumerated()
-            .map { "\($1.nameAndInnerName): M\($0 + 1)" }
+            .map { "\($1.nameAndInnerName): \(prefix)\($0 + 1)" }
             .joined(separator: ", ")
+    }
+
+    /// The name of a proxy member's matcher generics, `M1`, `M2` and so on, or `__M1`... when the member or its type
+    /// already has a generic parameter named that way, which the proxy member would otherwise redeclare.
+    static func matcherPrefix(for method: Method) -> String {
+        let containerGenerics = (method.parent?.value as? any HasGenerics)?.genericParameters.map(\.name) ?? []
+        let names = method.signature.genericParameters.map(\.name) + containerGenerics
+        return names.contains { $0.wholeMatch(of: #/M[0-9]+/#) != nil } ? "__M" : "M"
     }
 
     /// The protocol a proxy's matcher parameter conforms to.
@@ -176,9 +187,11 @@ struct GeneratorHelper {
             }
         } else {
             let tries = method.isThrowing ? "try " : ""
+            // A typed error has to be spelled on the closure: inferred, it would be `any Error`.
+            let typedThrows = method.signature.throwType.flatMap { $0.isTyped ? " \($0.description)" : nil } ?? ""
             return parameters.enumerated().map { level, element in
                 let parameter = element.1
-                return "\(indentation(level))return \(tries)withoutActuallyEscaping(\(parameter.usableName), do: { (\(parameter.usableName): @escaping \(parameter.type))\(returnSignature) in"
+                return "\(indentation(level))return \(tries)withoutActuallyEscaping(\(parameter.usableName), do: { (\(parameter.usableName): @escaping \(parameter.type))\(typedThrows)\(returnSignature) in"
             }
         }
     }

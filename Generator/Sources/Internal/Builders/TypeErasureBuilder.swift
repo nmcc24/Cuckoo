@@ -256,6 +256,14 @@ enum TypeErasureBuilder {
             declaration.append("    return \(tryAwait)openExistential(reference()\(sendingNames))")
         } else if method.hasGenericParams {
             declaration.append("    return \(tryAwait)reference().\(method.name)(\(method.call))")
+        } else if let throwType = method.signature.throwType, throwType.isTyped {
+            // The stored closure throws untyped errors: a typed-throws function type needs runtime support that iOS 17
+            // lacks once it's a stored property's type. The method narrows it back, as the mock's members do.
+            declaration.append("    do {")
+            declaration.append("        return \(tryAwait)\(storage)(\(method.parameterNames))")
+            declaration.append("    } catch {")
+            declaration.append("        throw Cuckoo.MockManager.typedError(error, as: (\(throwType.type)).self, member: \(Fragment.literal(method.fullyQualifiedName)))")
+            declaration.append("    }")
         } else {
             declaration.append("    return \(tryAwait)\(storage)(\(method.parameterNames))")
         }
@@ -266,7 +274,7 @@ enum TypeErasureBuilder {
 
     private static func staticSource(of property: Variable, _ context: Context) -> String {
         let crash = "Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\(Fragment.literal(property.name)))"
-        let effects = (property.effects.isAsync ? "async " : "") + (property.effects.isThrowing ? "throws " : "")
+        let effects = property.effects.getterDeclaration
         var source = property.spiAttributes(at: property.accessibility).map(\.description)
         source.append("\(context.access)static var \(property.name): \(property.type.description) {")
         source.append("    get \(effects){ \(crash) }")

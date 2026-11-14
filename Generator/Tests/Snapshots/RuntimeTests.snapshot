@@ -26,6 +26,10 @@ import Combine
 @testable public import class CuckooTestSources.IncludedTestClass
 @testable public import protocol CuckooTestSources.IncludedProtocol
 @testable public import protocol CuckooTestSources.ExcludedProtocol
+@testable public import enum CuckooTestSources.ShapeFailure
+@testable public import protocol CuckooTestSources.TypedThrowingStore
+@testable public import protocol CuckooTestSources.MainActorIdentified
+@testable public import class CuckooTestSources.DefaultArgumentCounter
 @testable public import class CuckooTestSources.GenericClass
 @testable public import enum CuckooTestSources.Namespace
 @testable public import class CuckooTestSources.wViewyContwollew
@@ -2799,6 +2803,279 @@ nonisolated final class MockIncludedProtocol: IncludedProtocol, nonisolated Cuck
 }
 
 nonisolated final class IncludedProtocolStub: IncludedProtocol {
+}
+
+nonisolated final class MockTypedThrowingStore: TypedThrowingStore, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any TypedThrowingStore
+    typealias Stubbing = __StubbingProxy_TypedThrowingStore
+    typealias Verification = __VerificationProxy_TypedThrowingStore
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockTypedThrowingStore.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any TypedThrowingStore>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any TypedThrowingStore) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    var value: Int {
+        get throws(ShapeFailure) {
+            return try cuckoo_manager.callThrows(
+                "value#get",
+                parameters: Void(),
+                escapingParameters: Void(),
+                errorType: (ShapeFailure).self,
+                invoke: { (implementation: (()) throws -> Int, _) throws(ShapeFailure) in
+                    do {
+                        return try implementation(())
+                    } catch {
+                        throw Cuckoo.MockManager.typedError(error, as: (ShapeFailure).self, member: "value")
+                    }
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: try __defaultImplStub.value.value
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_TypedThrowingStore: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        var value: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTypedThrowingStore, Int, ShapeFailure, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckoo_manager, name: "value")
+        }
+    }
+
+    nonisolated struct __VerificationProxy_TypedThrowingStore: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        var value: Cuckoo.VerifyReadOnlyProperty<Int> {
+            return .init(manager: cuckoo_manager, name: "value", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+    }
+}
+
+nonisolated final class TypedThrowingStoreStub: TypedThrowingStore {
+    var value: Int {
+        get throws(ShapeFailure) {
+            return DefaultValueRegistry.defaultValue(for: (Int).self)
+        }
+    }
+}
+
+final class MockMainActorIdentified: MainActorIdentified, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any MainActorIdentified
+    typealias Stubbing = __StubbingProxy_MainActorIdentified
+    typealias Verification = __VerificationProxy_MainActorIdentified
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorIdentified.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorIdentified>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any MainActorIdentified) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    nonisolated
+    func identifier() -> String {
+        return cuckoo_manager.call(
+            "identifier() -> String",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: @Sendable (()) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.identifier()
+        )
+    }
+
+    func start() {
+        return cuckoo_manager.call(
+            "start()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: @MainActor @Sendable (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.start()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_MainActorIdentified: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, @Sendable (()) -> String, Cuckoo.StubSharing.Shared> {
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockMainActorIdentified.self,
+                method: "identifier() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func start() -> Cuckoo.ProtocolStubNoReturnFunction<(), @MainActor @Sendable (()) -> Void, Cuckoo.StubSharing.Isolated> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockMainActorIdentified.self,
+                method: "start()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_MainActorIdentified: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func identifier() -> Cuckoo.__DoNotUse<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "identifier() -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        @MainActor
+        @discardableResult
+        func start() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "start()",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class MainActorIdentifiedStub: MainActorIdentified {
+    nonisolated
+    func identifier() -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+
+    func start() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+final class MockDefaultArgumentCounter: DefaultArgumentCounter, nonisolated Cuckoo.ClassMock {
+    typealias MocksType = DefaultArgumentCounter
+    typealias Stubbing = __StubbingProxy_DefaultArgumentCounter
+    typealias Verification = __VerificationProxy_DefaultArgumentCounter
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockDefaultArgumentCounter.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultArgumentCounter>()
+
+    nonisolated func enableDefaultImplementation(_ stub: DefaultArgumentCounter) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    override func count(level p0: Int = 1, times p1: Int = 2) -> Int {
+        return cuckoo_manager.call(
+            "count(level p0: Int, times p1: Int) -> Int",
+            parameters: (p0, p1),
+            escapingParameters: (p0, p1),
+            invoke: { (implementation: ((Int, Int)) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.count(level: p0, times: p1),
+            defaultCall: __defaultImplStub.value.count(level: p0, times: p1)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_DefaultArgumentCounter: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func count<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(level p0: M1, times p1: M2) -> Cuckoo.ClassStubFunction<(Int, Int), Int, ((Int, Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int, M2.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockDefaultArgumentCounter.self,
+                method: "count(level p0: Int, times p1: Int) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_DefaultArgumentCounter: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func count<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(level p0: M1, times p1: M2) -> Cuckoo.__DoNotUse<(Int, Int), Int> where M1.MatchedType == Int, M2.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }]
+            return cuckoo_manager.verify(
+                "count(level p0: Int, times p1: Int) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+final class DefaultArgumentCounterStub: DefaultArgumentCounter {
+    override func count(level p0: Int, times p1: Int) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
 }
 
 final class MockGenericClass<T: CustomStringConvertible, U: Codable & CustomStringConvertible, V: Hashable & Equatable>: GenericClass<T, U, V>, nonisolated Cuckoo.ClassMock {
@@ -7845,11 +8122,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureProperty",
-                    invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureProperty,
@@ -7860,7 +8137,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureProperty",
                     value: newValue,
-                    invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureProperty = newValue,
@@ -7869,11 +8146,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameProperty,
@@ -7884,7 +8161,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameProperty = newValue,
@@ -7893,11 +8170,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty,
@@ -7908,7 +8185,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty = newValue,
@@ -7917,11 +8194,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty,
@@ -7932,7 +8209,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty = newValue,
@@ -7941,11 +8218,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty,
@@ -7956,7 +8233,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty = newValue,
@@ -8619,23 +8896,23 @@ extension Multi.Nested {
                 return .init(manager: cuckoo_manager, name: "optionalProperty")
             }
 
-            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureProperty")
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
             }
 
@@ -8645,11 +8922,11 @@ extension Multi.Nested {
             }
 
             @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedExtensionTestedClass, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedExtensionTestedClass, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
             }
 
-            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedExtensionTestedClass, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedExtensionTestedClass, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "throwsProperty")
             }
 
@@ -9046,23 +9323,23 @@ extension Multi.Nested {
                 return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
@@ -9585,41 +9862,41 @@ extension Multi.Nested {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
@@ -10041,11 +10318,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureProperty",
-                    invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureProperty,
@@ -10056,7 +10333,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureProperty",
                     value: newValue,
-                    invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureProperty = newValue,
@@ -10065,11 +10342,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameProperty,
@@ -10080,7 +10357,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameProperty = newValue,
@@ -10089,11 +10366,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty,
@@ -10104,7 +10381,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty = newValue,
@@ -10113,11 +10390,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty,
@@ -10128,7 +10405,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty = newValue,
@@ -10137,11 +10414,11 @@ extension Multi.Nested {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty,
@@ -10152,7 +10429,7 @@ extension Multi.Nested {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty = newValue,
@@ -10815,23 +11092,23 @@ extension Multi.Nested {
                 return .init(manager: cuckoo_manager, name: "optionalProperty")
             }
 
-            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureProperty")
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
             }
 
@@ -10841,11 +11118,11 @@ extension Multi.Nested {
             }
 
             @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockMultiNestedTestedSubclass, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockMultiNestedTestedSubclass, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
             }
 
-            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockMultiNestedTestedSubclass, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockMultiNestedTestedSubclass, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "throwsProperty")
             }
 
@@ -11242,23 +11519,23 @@ extension Multi.Nested {
                 return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
@@ -11780,41 +12057,41 @@ extension Multi.Nested {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
@@ -12236,11 +12513,11 @@ extension Multi.Layered.Nested {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureProperty",
-                    invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureProperty,
@@ -12251,7 +12528,7 @@ extension Multi.Layered.Nested {
                 cuckoo_manager.setter(
                     "closureProperty",
                     value: newValue,
-                    invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureProperty = newValue,
@@ -12260,11 +12537,11 @@ extension Multi.Layered.Nested {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameProperty,
@@ -12275,7 +12552,7 @@ extension Multi.Layered.Nested {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameProperty = newValue,
@@ -12284,11 +12561,11 @@ extension Multi.Layered.Nested {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty,
@@ -12299,7 +12576,7 @@ extension Multi.Layered.Nested {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty = newValue,
@@ -12308,11 +12585,11 @@ extension Multi.Layered.Nested {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty,
@@ -12323,7 +12600,7 @@ extension Multi.Layered.Nested {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty = newValue,
@@ -12332,11 +12609,11 @@ extension Multi.Layered.Nested {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty,
@@ -12347,7 +12624,7 @@ extension Multi.Layered.Nested {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty = newValue,
@@ -13010,23 +13287,23 @@ extension Multi.Layered.Nested {
                 return .init(manager: cuckoo_manager, name: "optionalProperty")
             }
 
-            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureProperty")
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockMultiLayeredNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
             }
 
@@ -13036,11 +13313,11 @@ extension Multi.Layered.Nested {
             }
 
             @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockMultiLayeredNestedTestedSubclass, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockMultiLayeredNestedTestedSubclass, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
             }
 
-            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockMultiLayeredNestedTestedSubclass, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockMultiLayeredNestedTestedSubclass, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "throwsProperty")
             }
 
@@ -13437,23 +13714,23 @@ extension Multi.Layered.Nested {
                 return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
@@ -13975,41 +14252,41 @@ extension Multi.Layered.Nested {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
@@ -15644,11 +15921,11 @@ extension Nested {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureProperty",
-                    invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureProperty,
@@ -15659,7 +15936,7 @@ extension Nested {
                 cuckoo_manager.setter(
                     "closureProperty",
                     value: newValue,
-                    invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureProperty = newValue,
@@ -15668,11 +15945,11 @@ extension Nested {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameProperty,
@@ -15683,7 +15960,7 @@ extension Nested {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameProperty = newValue,
@@ -15692,11 +15969,11 @@ extension Nested {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty,
@@ -15707,7 +15984,7 @@ extension Nested {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty = newValue,
@@ -15716,11 +15993,11 @@ extension Nested {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty,
@@ -15731,7 +16008,7 @@ extension Nested {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty = newValue,
@@ -15740,11 +16017,11 @@ extension Nested {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty,
@@ -15755,7 +16032,7 @@ extension Nested {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty = newValue,
@@ -16418,23 +16695,23 @@ extension Nested {
                 return .init(manager: cuckoo_manager, name: "optionalProperty")
             }
 
-            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureProperty")
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
             }
 
@@ -16444,11 +16721,11 @@ extension Nested {
             }
 
             @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedTestedSubclass, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedTestedSubclass, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
             }
 
-            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedTestedSubclass, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedTestedSubclass, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "throwsProperty")
             }
 
@@ -16845,23 +17122,23 @@ extension Nested {
                 return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
@@ -17383,41 +17660,41 @@ extension Nested {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
@@ -18606,11 +18883,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureProperty",
-                    invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureProperty,
@@ -18621,7 +18898,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureProperty",
                     value: newValue,
-                    invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureProperty = newValue,
@@ -18630,11 +18907,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameProperty,
@@ -18645,7 +18922,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameProperty = newValue,
@@ -18654,11 +18931,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty,
@@ -18669,7 +18946,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty = newValue,
@@ -18678,11 +18955,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty,
@@ -18693,7 +18970,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty = newValue,
@@ -18702,11 +18979,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty,
@@ -18717,7 +18994,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty = newValue,
@@ -19380,23 +19657,23 @@ extension NestedStruct {
                 return .init(manager: cuckoo_manager, name: "optionalProperty")
             }
 
-            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureProperty")
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
             }
 
@@ -19406,11 +19683,11 @@ extension NestedStruct {
             }
 
             @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedTestedSubclass, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedTestedSubclass, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
             }
 
-            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedTestedSubclass, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedTestedSubclass, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "throwsProperty")
             }
 
@@ -19807,23 +20084,23 @@ extension NestedStruct {
                 return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
@@ -20345,41 +20622,41 @@ extension NestedStruct {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
@@ -20717,11 +20994,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureProperty",
-                    invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureProperty,
@@ -20732,7 +21009,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureProperty",
                     value: newValue,
-                    invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureProperty = newValue,
@@ -20741,11 +21018,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameProperty,
@@ -20756,7 +21033,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameProperty = newValue,
@@ -20765,11 +21042,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty,
@@ -20780,7 +21057,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureWithArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithArgumentNameMultilineProperty = newValue,
@@ -20789,11 +21066,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty,
@@ -20804,7 +21081,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameProperty = newValue,
@@ -20813,11 +21090,11 @@ extension NestedStruct {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
                 return cuckoo_manager.getter(
                     "closureWithComplexArgumentNameMultilineProperty",
-                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                    invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                         implementation(())
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty,
@@ -20828,7 +21105,7 @@ extension NestedStruct {
                 cuckoo_manager.setter(
                     "closureWithComplexArgumentNameMultilineProperty",
                     value: newValue,
-                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                    invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                         implementation(value)
                     },
                     superclassCall: super.closureWithComplexArgumentNameMultilineProperty = newValue,
@@ -21491,23 +21768,23 @@ extension NestedStruct {
                 return .init(manager: cuckoo_manager, name: "optionalProperty")
             }
 
-            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureProperty")
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockNestedExtensionTestedClass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
             }
 
@@ -21517,11 +21794,11 @@ extension NestedStruct {
             }
 
             @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedExtensionTestedClass, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+            var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedExtensionTestedClass, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
             }
 
-            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedExtensionTestedClass, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockNestedExtensionTestedClass, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(manager: cuckoo_manager, name: "throwsProperty")
             }
 
@@ -21918,23 +22195,23 @@ extension NestedStruct {
                 return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+            var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+            var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+            var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+            var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
-            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+            var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
                 return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
             }
 
@@ -22456,41 +22733,41 @@ extension NestedStruct {
             }
         }
 
-        override var closureProperty: ((String) -> Int) -> () {
+        override var closureProperty: ((String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+        override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+        override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+        override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
             }
             set {
             }
         }
 
-        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+        override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
             get {
-                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+                return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
             }
             set {
             }
@@ -26086,6 +26363,10 @@ nonisolated final class MockSwiftUIViewModelProtocol: SwiftUIViewModelProtocol, 
     typealias Stubbing = __StubbingProxy_SwiftUIViewModelProtocol
     typealias Verification = __VerificationProxy_SwiftUIViewModelProtocol
 
+    // SwiftUIViewModelProtocol inherits 'ObservableObject', declared outside the mocked sources, so this mock and
+    // SwiftUIViewModelProtocolStub only implement requirements that have default implementations. If they don't
+    // conform, add the missing members to them in an extension in the test target.
+
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockSwiftUIViewModelProtocol.self) ?? Cuckoo.MockManager(hasParent: false)
@@ -26346,11 +26627,11 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureProperty: ((String) -> Int) -> () {
+    override var closureProperty: ((String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureProperty",
-                invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureProperty,
@@ -26361,7 +26642,7 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureProperty",
                 value: newValue,
-                invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureProperty = newValue,
@@ -26370,11 +26651,11 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithArgumentNameProperty,
@@ -26385,7 +26666,7 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureWithArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithArgumentNameProperty = newValue,
@@ -26394,11 +26675,11 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithArgumentNameMultilineProperty,
@@ -26409,7 +26690,7 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureWithArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithArgumentNameMultilineProperty = newValue,
@@ -26418,11 +26699,11 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithComplexArgumentNameProperty,
@@ -26433,7 +26714,7 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithComplexArgumentNameProperty = newValue,
@@ -26442,11 +26723,11 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithComplexArgumentNameMultilineProperty,
@@ -26457,7 +26738,7 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithComplexArgumentNameMultilineProperty = newValue,
@@ -27120,23 +27401,23 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
             return .init(manager: cuckoo_manager, name: "optionalProperty")
         }
 
-        var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureProperty")
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedClass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
         }
 
@@ -27146,11 +27427,11 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
         }
 
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedClass, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+        var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedClass, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
         }
 
-        var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedClass, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+        var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedClass, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "throwsProperty")
         }
 
@@ -27547,23 +27828,23 @@ final class MockTestedClass: TestedClass, nonisolated Cuckoo.ClassMock {
             return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
@@ -28086,41 +28367,41 @@ final class TestedClassStub: TestedClass {
         }
     }
 
-    override var closureProperty: ((String) -> Int) -> () {
+    override var closureProperty: ((String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }
@@ -29997,23 +30278,23 @@ public final class InternalFieldsInPublicClassStub: InternalFieldsInPublicClass 
     }
 }
 
-public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClassWithInternalFieldsUsingPublicType, nonisolated Cuckoo.ClassMock {
-    public typealias MocksType = PublicClassWithInternalFieldsUsingPublicType
-    public typealias Stubbing = __StubbingProxy_PublicClassWithInternalFieldsUsingPublicType
-    public typealias Verification = __VerificationProxy_PublicClassWithInternalFieldsUsingPublicType
+final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClassWithInternalFieldsUsingPublicType, nonisolated Cuckoo.ClassMock {
+    typealias MocksType = PublicClassWithInternalFieldsUsingPublicType
+    typealias Stubbing = __StubbingProxy_PublicClassWithInternalFieldsUsingPublicType
+    typealias Verification = __VerificationProxy_PublicClassWithInternalFieldsUsingPublicType
 
     // Original typealiases
 
-    public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPublicClassWithInternalFieldsUsingPublicType.self) ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPublicClassWithInternalFieldsUsingPublicType.self) ?? Cuckoo.MockManager(hasParent: true)
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<PublicClassWithInternalFieldsUsingPublicType>()
 
-    public nonisolated func enableDefaultImplementation(_ stub: PublicClassWithInternalFieldsUsingPublicType) {
+    nonisolated func enableDefaultImplementation(_ stub: PublicClassWithInternalFieldsUsingPublicType) {
         __defaultImplStub.value = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    public override var internalField: InternalType {
+    override var internalField: InternalType {
         get {
             return cuckoo_manager.getter(
                 "internalField",
@@ -30037,7 +30318,7 @@ public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClass
         }
     }
 
-    public override var internalField2: InternalType {
+    override var internalField2: InternalType {
         get {
             return cuckoo_manager.getter(
                 "internalField2",
@@ -30061,7 +30342,7 @@ public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClass
         }
     }
 
-    public override var internalField3: PublicType {
+    override var internalField3: PublicType {
         get {
             return cuckoo_manager.getter(
                 "internalField3",
@@ -30085,7 +30366,7 @@ public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClass
         }
     }
 
-    public override var internalField4: PublicType {
+    override var internalField4: PublicType {
         get {
             return cuckoo_manager.getter(
                 "internalField4",
@@ -30109,7 +30390,7 @@ public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClass
         }
     }
 
-    public override func internalFunc(internalType p0: InternalType) {
+    override func internalFunc(internalType p0: InternalType) {
         return cuckoo_manager.call(
             "internalFunc(internalType p0: InternalType)",
             parameters: (p0),
@@ -30122,7 +30403,7 @@ public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClass
         )
     }
 
-    public override func internalFunc(publicType p0: PublicType) {
+    override func internalFunc(publicType p0: PublicType) {
         return cuckoo_manager.call(
             "internalFunc(publicType p0: PublicType)",
             parameters: (p0),
@@ -30135,10 +30416,10 @@ public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClass
         )
     }
 
-    public nonisolated struct __StubbingProxy_PublicClassWithInternalFieldsUsingPublicType: Cuckoo.StubbingProxy {
+    nonisolated struct __StubbingProxy_PublicClassWithInternalFieldsUsingPublicType: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
 
-        public init(manager: Cuckoo.MockManager) {
+        init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
 
@@ -30179,12 +30460,12 @@ public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClass
         }
     }
 
-    public nonisolated struct __VerificationProxy_PublicClassWithInternalFieldsUsingPublicType: Cuckoo.VerificationProxy {
+    nonisolated struct __VerificationProxy_PublicClassWithInternalFieldsUsingPublicType: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
         private let callMatcher: Cuckoo.CallMatcher
         private let sourceLocation: Cuckoo.SourceLocation
 
-        public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
             self.callMatcher = callMatcher
             self.sourceLocation = sourceLocation
@@ -30234,8 +30515,8 @@ public final class MockPublicClassWithInternalFieldsUsingPublicType: PublicClass
     }
 }
 
-public final class PublicClassWithInternalFieldsUsingPublicTypeStub: PublicClassWithInternalFieldsUsingPublicType {
-    public override var internalField: InternalType {
+final class PublicClassWithInternalFieldsUsingPublicTypeStub: PublicClassWithInternalFieldsUsingPublicType {
+    override var internalField: InternalType {
         get {
             return DefaultValueRegistry.defaultValue(for: (InternalType).self)
         }
@@ -30243,7 +30524,7 @@ public final class PublicClassWithInternalFieldsUsingPublicTypeStub: PublicClass
         }
     }
 
-    public override var internalField2: InternalType {
+    override var internalField2: InternalType {
         get {
             return DefaultValueRegistry.defaultValue(for: (InternalType).self)
         }
@@ -30251,7 +30532,7 @@ public final class PublicClassWithInternalFieldsUsingPublicTypeStub: PublicClass
         }
     }
 
-    public override var internalField3: PublicType {
+    override var internalField3: PublicType {
         get {
             return DefaultValueRegistry.defaultValue(for: (PublicType).self)
         }
@@ -30259,7 +30540,7 @@ public final class PublicClassWithInternalFieldsUsingPublicTypeStub: PublicClass
         }
     }
 
-    public override var internalField4: PublicType {
+    override var internalField4: PublicType {
         get {
             return DefaultValueRegistry.defaultValue(for: (PublicType).self)
         }
@@ -30267,11 +30548,11 @@ public final class PublicClassWithInternalFieldsUsingPublicTypeStub: PublicClass
         }
     }
 
-    public override func internalFunc(internalType p0: InternalType) {
+    override func internalFunc(internalType p0: InternalType) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 
-    public override func internalFunc(publicType p0: PublicType) {
+    override func internalFunc(publicType p0: PublicType) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
@@ -33234,11 +33515,11 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
         }
     }
 
-    var closureProperty: ((String) -> Int) -> () {
+    var closureProperty: ((String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureProperty",
-                invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33249,7 +33530,7 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             cuckoo_manager.setter(
                 "closureProperty",
                 value: newValue,
-                invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33258,11 +33539,11 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
         }
     }
 
-    var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33273,7 +33554,7 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             cuckoo_manager.setter(
                 "closureWithArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33282,11 +33563,11 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
         }
     }
 
-    var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33297,7 +33578,7 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             cuckoo_manager.setter(
                 "closureWithArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33306,11 +33587,11 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
         }
     }
 
-    var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33321,7 +33602,7 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33330,11 +33611,11 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
         }
     }
 
-    var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33345,7 +33626,7 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -33722,27 +34003,27 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             return .init(manager: cuckoo_manager, name: "optionalProperty")
         }
 
-        var closureProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureProperty")
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedProtocol, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
         }
 
-        var throwsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedProtocol, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+        var throwsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedProtocol, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "throwsProperty")
         }
 
@@ -33752,7 +34033,7 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
         }
 
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        var asyncThrowsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedProtocol, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+        var asyncThrowsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedProtocol, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
         }
 
@@ -34003,23 +34284,23 @@ nonisolated final class MockTestedProtocol: TestedProtocol, nonisolated Cuckoo.P
             return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
@@ -34351,41 +34632,41 @@ nonisolated final class TestedProtocolStub: TestedProtocol {
         }
     }
 
-    var closureProperty: ((String) -> Int) -> () {
+    var closureProperty: ((String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }
     }
 
-    var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }
@@ -35526,11 +35807,11 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
         }
     }
 
-    var closureProperty: ((String) -> Int) -> () {
+    var closureProperty: ((String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureProperty",
-                invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -35541,7 +35822,7 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
             cuckoo_manager.setter(
                 "closureProperty",
                 value: newValue,
-                invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -35550,11 +35831,11 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
         }
     }
 
-    var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -35565,7 +35846,7 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
             cuckoo_manager.setter(
                 "closureWithArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -35574,11 +35855,11 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
         }
     }
 
-    var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -35589,7 +35870,7 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
             cuckoo_manager.setter(
                 "closureWithArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -35598,11 +35879,11 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
         }
     }
 
-    var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -35613,7 +35894,7 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -35622,11 +35903,11 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
         }
     }
 
-    var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -35637,7 +35918,7 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -36027,27 +36308,27 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
             return .init(manager: cuckoo_manager, name: "optionalProperty")
         }
 
-        var closureProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureProperty")
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ProtocolToBeStubbedProperty<MockTestedSubProtocol, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
         }
 
-        var throwsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedSubProtocol, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+        var throwsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedSubProtocol, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "throwsProperty")
         }
 
@@ -36057,7 +36338,7 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
         }
 
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        var asyncThrowsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedSubProtocol, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+        var asyncThrowsProperty: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockTestedSubProtocol, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
         }
 
@@ -36316,23 +36597,23 @@ nonisolated final class MockTestedSubProtocol: TestedSubProtocol, nonisolated Cu
             return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
@@ -36675,41 +36956,41 @@ nonisolated final class TestedSubProtocolStub: TestedSubProtocol {
         }
     }
 
-    var closureProperty: ((String) -> Int) -> () {
+    var closureProperty: ((String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }
     }
 
-    var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }
@@ -36974,11 +37255,11 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureProperty: ((String) -> Int) -> () {
+    override var closureProperty: ((String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureProperty",
-                invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureProperty,
@@ -36989,7 +37270,7 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureProperty",
                 value: newValue,
-                invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureProperty = newValue,
@@ -36998,11 +37279,11 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithArgumentNameProperty,
@@ -37013,7 +37294,7 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureWithArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithArgumentNameProperty = newValue,
@@ -37022,11 +37303,11 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithArgumentNameMultilineProperty,
@@ -37037,7 +37318,7 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureWithArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithArgumentNameMultilineProperty = newValue,
@@ -37046,11 +37327,11 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithComplexArgumentNameProperty,
@@ -37061,7 +37342,7 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithComplexArgumentNameProperty = newValue,
@@ -37070,11 +37351,11 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
         }
     }
 
-    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithComplexArgumentNameMultilineProperty,
@@ -37085,7 +37366,7 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithComplexArgumentNameMultilineProperty = newValue,
@@ -38024,23 +38305,23 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
             return .init(manager: cuckoo_manager, name: "optionalProperty")
         }
 
-        var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureProperty")
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubclass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
         }
 
@@ -38050,11 +38331,11 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
         }
 
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedSubclass, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+        var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedSubclass, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
         }
 
-        var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedSubclass, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+        var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedSubclass, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "throwsProperty")
         }
 
@@ -38644,23 +38925,23 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
             return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
@@ -39432,41 +39713,41 @@ final class TestedSubclassStub: TestedSubclass {
         }
     }
 
-    override var closureProperty: ((String) -> Int) -> () {
+    override var closureProperty: ((String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }
@@ -39881,11 +40162,11 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
         }
     }
 
-    override var closureProperty: ((String) -> Int) -> () {
+    override var closureProperty: ((String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureProperty",
-                invoke: { (implementation: (()) -> ((String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> ((String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureProperty,
@@ -39896,7 +40177,7 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
             cuckoo_manager.setter(
                 "closureProperty",
                 value: newValue,
-                invoke: { (implementation: (((String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: (((String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureProperty = newValue,
@@ -39905,11 +40186,11 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
         }
     }
 
-    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithArgumentNameProperty,
@@ -39920,7 +40201,7 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
             cuckoo_manager.setter(
                 "closureWithArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithArgumentNameProperty = newValue,
@@ -39929,11 +40210,11 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
         }
     }
 
-    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i: (_ j: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithArgumentNameMultilineProperty,
@@ -39944,7 +40225,7 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
             cuckoo_manager.setter(
                 "closureWithArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i: (_ j: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithArgumentNameMultilineProperty = newValue,
@@ -39953,11 +40234,11 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
         }
     }
 
-    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithComplexArgumentNameProperty,
@@ -39968,7 +40249,7 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithComplexArgumentNameProperty = newValue,
@@ -39977,11 +40258,11 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
         }
     }
 
-    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
             return cuckoo_manager.getter(
                 "closureWithComplexArgumentNameMultilineProperty",
-                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) in
+                invoke: { (implementation: (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) in
                     implementation(())
                 },
                 superclassCall: super.closureWithComplexArgumentNameMultilineProperty,
@@ -39992,7 +40273,7 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
             cuckoo_manager.setter(
                 "closureWithComplexArgumentNameMultilineProperty",
                 value: newValue,
-                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, value) in
+                invoke: { (implementation: ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.closureWithComplexArgumentNameMultilineProperty = newValue,
@@ -40944,23 +41225,23 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
             return .init(manager: cuckoo_manager, name: "optionalProperty")
         }
 
-        var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, ((String) -> Int) -> (), (()) -> ((String) -> Int) -> (), (((String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, ((String) -> Int) -> Void, (()) -> ((String) -> Int) -> Void, (((String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureProperty")
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, (_ i: (_ j: String) -> Int) -> (), (()) -> (_ i: (_ j: String) -> Int) -> (), ((_ i: (_ j: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, (_ i: (_ j: String) -> Int) -> Void, (()) -> (_ i: (_ j: String) -> Int) -> Void, ((_ i: (_ j: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty")
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, (_ i: (_ j: Int) -> String) -> (), (()) -> (_ i: (_ j: Int) -> String) -> (), ((_ i: (_ j: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, (_ i: (_ j: Int) -> String) -> Void, (()) -> (_ i: (_ j: Int) -> String) -> Void, ((_ i: (_ j: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty")
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> (), ((_ i_iI0: (_ j_jJ0: String) -> Int) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void, ((_ i_iI0: (_ j_jJ0: String) -> Int) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty")
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> (), ((_ i_iI0: (_ j_jJ0: Int) -> String) -> ()) -> Void, Cuckoo.StubSharing.Confined> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.ClassToBeStubbedProperty<MockTestedSubSubClass, (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, (()) -> (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void, ((_ i_iI0: (_ j_jJ0: Int) -> String) -> Void) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty")
         }
 
@@ -40970,11 +41251,11 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
         }
 
         @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-        var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedSubSubClass, Int, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
+        var asyncThrowsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedSubSubClass, Int, any Error, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "asyncThrowsProperty")
         }
 
-        var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedSubSubClass, Int, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+        var throwsProperty: Cuckoo.ClassToBeStubbedThrowingProperty<MockTestedSubSubClass, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "throwsProperty")
         }
 
@@ -41572,23 +41853,23 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
             return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> ()> {
+        var closureProperty: Cuckoo.VerifyProperty<((String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> ()> {
+        var closureWithArgumentNameProperty: Cuckoo.VerifyProperty<(_ i: (_ j: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> ()> {
+        var closureWithArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i: (_ j: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> ()> {
+        var closureWithComplexArgumentNameProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: String) -> Int) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> ()> {
+        var closureWithComplexArgumentNameMultilineProperty: Cuckoo.VerifyProperty<(_ i_iI0: (_ j_jJ0: Int) -> String) -> Void> {
             return .init(manager: cuckoo_manager, name: "closureWithComplexArgumentNameMultilineProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
@@ -42371,41 +42652,41 @@ final class TestedSubSubClassStub: TestedSubSubClass {
         }
     }
 
-    override var closureProperty: ((String) -> Int) -> () {
+    override var closureProperty: ((String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (((String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> () {
+    override var closureWithArgumentNameProperty: (_ i: (_ j: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> () {
+    override var closureWithArgumentNameMultilineProperty: (_ i: (_ j: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> () {
+    override var closureWithComplexArgumentNameProperty: (_ i_iI0: (_ j_jJ0: String) -> Int) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( String) -> Int) -> Void).self)
         }
         set {
         }
     }
 
-    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> () {
+    override var closureWithComplexArgumentNameMultilineProperty: (_ i_iI0: (_ j_jJ0: Int) -> String) -> Void {
         get {
-            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> ()).self)
+            return DefaultValueRegistry.defaultValue(for: (( ( Int) -> String) -> Void).self)
         }
         set {
         }

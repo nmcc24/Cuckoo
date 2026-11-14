@@ -68,7 +68,7 @@ enum VerificationProxyBuilder {
         let input = GeneratorHelper.genericSafeType(from: method.proxyStubTypes.input)
         let output = GeneratorHelper.genericSafeType(from: method.verificationReturnType)
         let generics = GeneratorHelper.matchableGenericTypes(from: method, forVerification: true)
-        let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters)
+        let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method, forVerification: true)
         var source = method.repeatedAttributes.map(\.description)
         source.append(contentsOf: isolation(method.stubIsolation))
@@ -90,7 +90,7 @@ enum VerificationProxyBuilder {
         let attributes = subscriptDeclaration.repeatedAttributes.map(\.description)
 
         let generics = GeneratorHelper.matchableGenericTypes(from: getter)
-        let parameters = GeneratorHelper.matchableParameterSignature(with: keys)
+        let parameters = GeneratorHelper.matchableParameterSignature(with: keys, of: getter)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: getter)
         // The accessor only builds the keys' matchers; `get()` and `set(_:)` read the recorded arguments.
         let actor = isolation(getter.stubIsolation).map { "    \($0)" }
@@ -119,7 +119,7 @@ enum VerificationProxyBuilder {
             type.append("")
             type.append(contentsOf: actor)
             type.append("    @discardableResult")
-            type.append("    func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: false))>(_ \(subscriptDeclaration.newValueName): M\(index)) -> Cuckoo.__DoNotUse<(\(setterInput)), Void> where \(subscriptDeclaration.newValueMatcherConstraint) {")
+            type.append("    func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: false))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix(for: subscriptDeclaration.getter))\(index)) -> Cuckoo.__DoNotUse<(\(setterInput)), Void> where \(subscriptDeclaration.newValueMatcherConstraint) {")
             type.append("        let matchers: [Cuckoo.ParameterMatcher<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers(sendable: false))[\(subscriptDeclaration.newValueMatcher(sendable: false))]")
             type.append(contentsOf: verify(setter).map { "    \($0)" })
             type.append("    }")

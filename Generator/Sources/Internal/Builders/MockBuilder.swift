@@ -43,6 +43,25 @@ enum MockBuilder {
             lines.append("    \(access)typealias StaticVerification = __StaticVerificationProxy_\(container.name)")
         }
         lines.append("")
+        let unknownAttributes = container.asClass?.unknownAttributes ?? container.asProtocol?.unknownAttributes ?? []
+        if !unknownAttributes.isEmpty {
+            let names = unknownAttributes.map { "@\($0)" }.joined(separator: ", ")
+            lines.append("    // \(container.name) is marked \(names), which Cuckoo doesn't recognise, so this mock ignores it. If one of")
+            lines.append("    // them is a global actor declared in another module, add it to the module's `globalActors` in the Cuckoofile.")
+            lines.append("")
+        }
+        if let outside = container.asProtocol?.parentsOutsideSources, !outside.isEmpty {
+            let names = outside.map { "'\($0)'" }.joined(separator: ", ")
+            lines.append("    // \(container.name) inherits \(names), declared outside the mocked sources, so this mock and")
+            lines.append("    // \(container.name)Stub only implement requirements that have default implementations. If they don't")
+            lines.append("    // conform, add the missing members to them in an extension in the test target.")
+            lines.append("")
+        }
+        if let unmockedMembers = container.asClass?.unmockedMembers, !unmockedMembers.isEmpty {
+            lines.append("    // Not mocked, so calls run the class's own implementation:")
+            lines.append(contentsOf: unmockedMembers.map { "    // - \($0)" })
+            lines.append("")
+        }
         lines.append("    // Original typealiases")
         lines.append(contentsOf: container.members.compactMap { ($0 as? Typealias).map { "    \(access)\($0.description)" } })
         lines.append("")

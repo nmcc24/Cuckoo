@@ -15,10 +15,11 @@ enum ComplexType: Sendable {
         } else if let optionalType = normalizedSyntax.as(OptionalTypeSyntax.self) {
             self = .optional(wrappedType: ComplexType(syntax: optionalType.wrappedType), isImplicit: false)
         } else if let attributedType = normalizedSyntax.as(AttributedTypeSyntax.self) {
+            // Swift requires specifiers such as `sending` or `inout` before attributes such as `@escaping`.
             self = .attributed(
                 attributes: [
-                    attributedType.attributes.map { $0.trimmedDescription },
                     attributedType.specifiers.map { $0.trimmedDescription },
+                    attributedType.attributes.map { $0.trimmedDescription },
                 ].flatMap { $0 },
                 baseType: ComplexType(syntax: attributedType.baseType)
             )
@@ -36,6 +37,9 @@ enum ComplexType: Sendable {
                     returnType: ComplexType(syntax: functionType.returnClause.type)
                 )
             )
+        } else if let tupleType = normalizedSyntax.as(TupleTypeSyntax.self), tupleType.elements.isEmpty {
+            // `()` is `Void`, which the generator recognises by that name, as in `-> ()`.
+            self = .type("Void")
         } else {
             self = .type(normalizedSyntax.description)
         }
@@ -155,9 +159,16 @@ extension ComplexType {
         }
     }
 
+    /// Attributes that are part of a function type's identity, so they stay wherever the type is spelled: converting
+    /// an `@isolated(any)` function to a plain one warns, and becomes an error in a future language mode.
+    static let typeIdentityAttributes: Set<String> = ["@isolated(any)"]
+
     func withoutAttributes(except whitelist: [String] = []) -> ComplexType {
         if case .attributed(let attributes, let baseType) = self {
-            return .attributed(attributes: attributes.filter { whitelist.contains($0) }, baseType: baseType)
+            return .attributed(
+                attributes: attributes.filter { whitelist.contains($0) || Self.typeIdentityAttributes.contains($0) },
+                baseType: baseType
+            )
         } else {
             return self
         }
@@ -182,8 +193,9 @@ extension ComplexType {
         case .closure:
             return self
         case .type(let name):
-            if name.hasPrefix("some ") {
-                return .type("any " + name.dropFirst("some ".count))
+            // Anywhere in the type, as in `[some P]` or `(some P)?`, which a generic argument doesn't allow either.
+            if name.contains("some ") {
+                return .type(OpaqueTypeRewriter.existential(of: name))
             }
             if name.hasPrefix("repeat ") {
                 return .type("Cuckoo.ParameterPack")
@@ -313,6 +325,23 @@ private final class TypeReferenceRewriter: SyntaxRewriter {
                 trailingTrivia: node.trailingTrivia
             )
         )
+    }
+}
+
+/// Rewrites every opaque `some P` in a type to the existential `any P`.
+private final class OpaqueTypeRewriter: SyntaxRewriter {
+    static func existential(of type: String) -> String {
+        var parser = Parser(type)
+        return OpaqueTypeRewriter(viewMode: .sourceAccurate).rewrite(TypeSyntax.parse(from: &parser)).description
+    }
+
+    override func visit(_ node: SomeOrAnyTypeSyntax) -> TypeSyntax {
+        let visited = super.visit(node)
+        guard var someOrAny = visited.as(SomeOrAnyTypeSyntax.self), someOrAny.someOrAnySpecifier.tokenKind == .keyword(.some) else {
+            return visited
+        }
+        someOrAny.someOrAnySpecifier = .keyword(.any, leadingTrivia: someOrAny.someOrAnySpecifier.leadingTrivia, trailingTrivia: someOrAny.someOrAnySpecifier.trailingTrivia)
+        return TypeSyntax(someOrAny)
     }
 }
 

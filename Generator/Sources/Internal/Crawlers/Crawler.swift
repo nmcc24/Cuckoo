@@ -15,10 +15,26 @@ final class Crawler: SyntaxVisitor {
         url: URL,
         globalActors: Set<String> = [],
         noncopyableTypes: Set<String> = [],
+        closureTypealiases: [String: String] = [:],
+        nonPublicTypes: Set<String> = [],
+        genericTypes: Set<String> = [],
+        protocolsAndClasses: Set<String>? = nil,
+        compositionTypealiases: [String: [String]] = [:],
         defaultIsolation: Isolation? = nil
     ) throws -> Crawler {
         let file = try String(contentsOf: url, encoding: .utf8)
-        return crawl(source: file, url: url, globalActors: globalActors, noncopyableTypes: noncopyableTypes, defaultIsolation: defaultIsolation)
+        return crawl(
+            source: file,
+            url: url,
+            globalActors: globalActors,
+            noncopyableTypes: noncopyableTypes,
+            closureTypealiases: closureTypealiases,
+            nonPublicTypes: nonPublicTypes,
+            genericTypes: genericTypes,
+            protocolsAndClasses: protocolsAndClasses,
+            compositionTypealiases: compositionTypealiases,
+            defaultIsolation: defaultIsolation
+        )
     }
 
     static func crawl(
@@ -26,6 +42,11 @@ final class Crawler: SyntaxVisitor {
         url: URL,
         globalActors: Set<String> = [],
         noncopyableTypes: Set<String> = [],
+        closureTypealiases: [String: String] = [:],
+        nonPublicTypes: Set<String> = [],
+        genericTypes: Set<String> = [],
+        protocolsAndClasses: Set<String>? = nil,
+        compositionTypealiases: [String: [String]] = [:],
         defaultIsolation: Isolation? = nil
     ) -> Crawler {
         let syntaxTree = Parser.parse(source: source)
@@ -34,6 +55,11 @@ final class Crawler: SyntaxVisitor {
             locationConverter: SourceLocationConverter(fileName: url.path, tree: syntaxTree),
             globalActors: globalActors.union(["MainActor"]),
             noncopyableTypes: noncopyableTypes,
+            closureTypealiases: closureTypealiases,
+            nonPublicTypes: nonPublicTypes,
+            genericTypes: genericTypes,
+            protocolsAndClasses: protocolsAndClasses,
+            compositionTypealiases: compositionTypealiases,
             defaultIsolation: defaultIsolation
         )
         let crawler = Self(container: nil, context: context)
@@ -47,6 +73,16 @@ final class Crawler: SyntaxVisitor {
         let locationConverter: SourceLocationConverter
         let globalActors: Set<String>
         let noncopyableTypes: Set<String>
+        /// The module's non-generic typealiases of function types, by name, to the function type.
+        let closureTypealiases: [String: String]
+        /// The module's types declared without `public` or `open`.
+        let nonPublicTypes: Set<String>
+        /// The module's generic structs, classes and enums.
+        let genericTypes: Set<String>
+        /// The module's protocols and classes, or nil when unknown, as in a crawl of one file for a test.
+        let protocolsAndClasses: Set<String>?
+        /// The module's typealiases of protocol compositions.
+        let compositionTypealiases: [String: [String]]
         /// The module's `defaultIsolation` option: the isolation of the protocols and classes that state none.
         let defaultIsolation: Isolation?
         var diagnostics: [Diagnostic] = []
@@ -56,12 +92,22 @@ final class Crawler: SyntaxVisitor {
             locationConverter: SourceLocationConverter,
             globalActors: Set<String>,
             noncopyableTypes: Set<String>,
+            closureTypealiases: [String: String] = [:],
+            nonPublicTypes: Set<String> = [],
+            genericTypes: Set<String> = [],
+            protocolsAndClasses: Set<String>? = nil,
+            compositionTypealiases: [String: [String]] = [:],
             defaultIsolation: Isolation?
         ) {
             self.url = url
             self.locationConverter = locationConverter
             self.globalActors = globalActors
             self.noncopyableTypes = noncopyableTypes
+            self.closureTypealiases = closureTypealiases
+            self.nonPublicTypes = nonPublicTypes
+            self.genericTypes = genericTypes
+            self.protocolsAndClasses = protocolsAndClasses
+            self.compositionTypealiases = compositionTypealiases
             self.defaultIsolation = defaultIsolation
         }
     }
@@ -85,6 +131,8 @@ final class Crawler: SyntaxVisitor {
 
     var imports: [Import] = []
     var tokens: [any Token] = []
+    /// Members of a class that its mock can't override, each with the reason, which the mock states in a comment.
+    var unmockedMembers: [String] = []
     /// The conditions of the `#if` clauses the crawler is currently inside.
     private var compilationConditions: [String] = []
 
@@ -136,7 +184,7 @@ final class Crawler: SyntaxVisitor {
             inheritedTypes: inheritedTypes(from: node.inheritanceClause?.inheritedTypes),
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions,
-            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers) ?? context.defaultIsolation
+            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers) ?? defaultIsolationOfNestedType
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -144,6 +192,13 @@ final class Crawler: SyntaxVisitor {
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
+        token.unmockedMembers = crawler.unmockedMembers
+        token.unknownAttributes = unknownAttributes(node.attributes, declaration: token.name)
+        // A public mock's overrides must be public (with a `@testable` import too), and a public override can't name
+        // a non-public type. A public class with such members gets an internal mock, as `@testable` users need anyway.
+        if token.accessibility >= .public, token.members.contains(where: { memberUsesNonPublicType($0) }) {
+            token.accessibility = .internal
+        }
         tokens.append(token)
         return .skipChildren
     }
@@ -151,7 +206,7 @@ final class Crawler: SyntaxVisitor {
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
         debug(node)
         // `where Self: Base` binds conforming types as `: Base` does.
-        let inheritedTypes = inheritedTypes(from: node.inheritanceClause?.inheritedTypes)
+        let inheritedTypes = expandingCompositions(inheritedTypes(from: node.inheritanceClause?.inheritedTypes))
             + (node.genericWhereClause?.requirements ?? []).flatMap { requirement -> [String] in
                 guard let conformance = requirement.requirement.as(ConformanceRequirementSyntax.self),
                       conformance.leftType.trimmedDescription == "Self" else { return [] }
@@ -174,8 +229,10 @@ final class Crawler: SyntaxVisitor {
             enclosingCompilationConditions: enclosingCompilationConditions,
             isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
         )
+        token.unknownAttributes = unknownAttributes(node.attributes, declaration: token.name)
+        token.parentsOutsideSources = parentsOutsideSources(of: token)
         // An actor-constrained protocol is isolated to its conforming actor, never to the default.
-        if token.isolation == nil, !token.isActor, let defaultIsolation = context.defaultIsolation {
+        if token.isolation == nil, !token.isActor, let defaultIsolation = defaultIsolationOfNestedType {
             token.isolation = defaultIsolation
             token.isIsolationDefault = true
         }
@@ -242,7 +299,8 @@ final class Crawler: SyntaxVisitor {
             accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
             name: node.name.filteredDescription,
             members: [],
-            enclosingCompilationConditions: enclosingCompilationConditions
+            enclosingCompilationConditions: enclosingCompilationConditions,
+            isActor: true
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
@@ -278,6 +336,11 @@ final class Crawler: SyntaxVisitor {
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
         guard let container, container.isMockable else { return .skipChildren }
 
+        // An override has to repeat the property's type, which an opaque `some` type can't be.
+        if container.isClass, let opaqueBinding = node.bindings.first(where: { $0.typeAnnotation.map { Self.containsOpaqueType($0.type) } ?? false }) {
+            unmockedMembers.append("'\(opaqueBinding.pattern.trimmedDescription)' has the opaque type '\(opaqueBinding.typeAnnotation?.type.trimmedDescription ?? "")', which an override can't repeat.")
+            return .skipChildren
+        }
         tokens.append(contentsOf: parse(node))
         return .skipChildren
     }
@@ -293,6 +356,11 @@ final class Crawler: SyntaxVisitor {
 
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
         guard let container, container.isMockable else { return .skipChildren }
+
+        if container.isClass, let returnType = node.signature.returnClause?.type, Self.containsOpaqueType(returnType) {
+            unmockedMembers.append("'\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)' returns the opaque type '\(returnType.trimmedDescription)', which an override can't repeat.")
+            return .skipChildren
+        }
 
         if let method = parse(node) {
             tokens.append(method)
@@ -341,6 +409,87 @@ final class Crawler: SyntaxVisitor {
         for member in members.members {
             walk(member)
         }
+    }
+
+    /// Parents without requirements a mock would have to implement, which it can inherit without knowing them.
+    private static let parentsWithoutRequirements: Set<String> = [
+        "Sendable", "SendableMetatype", "AnyObject", "Actor", "AnyActor", "Error", "Copyable", "Escapable",
+        "NSObjectProtocol", "~Copyable", "~Escapable",
+    ]
+
+    /// A typealias of a protocol composition, `AB` for `A & B`, stands for its protocols.
+    private func expandingCompositions(_ types: [String]) -> [String] {
+        types.flatMap { context.compositionTypealiases[$0] ?? [$0] }
+    }
+
+    /// The mock implements the requirements of the protocols in the sources, so one inheriting a protocol declared
+    /// elsewhere, such as `Equatable`, may not conform. Its mock says so in a comment, where a "doesn't conform" error
+    /// points; a build warning would be wrong whenever a default implementation covers the requirements.
+    private func parentsOutsideSources(of token: ProtocolDeclaration) -> [String] {
+        guard let known = context.protocolsAndClasses else { return [] }
+        return token.inheritedTypes.filter { parent in
+            let name = String(parent.withoutGenericArguments.split(separator: ".").last ?? "")
+            return !known.contains(name) && !Self.parentsWithoutRequirements.contains(name)
+        }
+    }
+
+    /// The module's default isolation for a type declared here: none inside an actor, whose nested types Swift
+    /// leaves nonisolated.
+    private var defaultIsolationOfNestedType: Isolation? {
+        var ancestor = container?.value
+        while let current = ancestor {
+            if (current as? NamespaceDeclaration)?.isActor == true {
+                return nil
+            }
+            ancestor = current.parent?.value
+        }
+        return context.defaultIsolation
+    }
+
+    /// Whether a non-public member names one of the module's non-public types in its signature.
+    private func memberUsesNonPublicType(_ member: any Token) -> Bool {
+        guard !context.nonPublicTypes.isEmpty,
+              let accessible = member as? any HasAccessibility, accessible.accessibility < .public else { return false }
+        let signature: String
+        switch member {
+        case let variable as Variable:
+            signature = variable.type.description
+        case let method as Method:
+            signature = method.signature.parameters.map(\.type.description).joined(separator: ",") + "," + (method.returnType?.description ?? "")
+        case let subscriptDeclaration as Subscript:
+            signature = subscriptDeclaration.parameters.map(\.type.description).joined(separator: ",") + "," + subscriptDeclaration.returnType.description
+        default:
+            return false
+        }
+        let identifiers = signature.split(whereSeparator: { !($0.isLetter || $0.isNumber || $0 == "_") })
+        return identifiers.contains { context.nonPublicTypes.contains(String($0)) }
+    }
+
+    /// A parameter's type, with a typealias of a function type replaced by the function type: a non-escaping closure
+    /// written through a typealias, `(_ handler: Handler)`, needs the same handling as one written out.
+    private func parameterType(_ type: TypeSyntax) -> ComplexType {
+        if let identifier = type.as(IdentifierTypeSyntax.self), identifier.genericArgumentClause == nil,
+           let functionType = context.closureTypealiases[identifier.name.text] {
+            var parser = Parser(functionType)
+            return ComplexType(syntax: TypeSyntax.parse(from: &parser))
+        }
+        return ComplexType(syntax: type)
+    }
+
+    /// Whether `type` contains an opaque `some` type anywhere, as in `some View` or `[some View]`.
+    static func containsOpaqueType(_ type: TypeSyntax) -> Bool {
+        final class Finder: SyntaxVisitor {
+            var found = false
+            override func visit(_ node: SomeOrAnyTypeSyntax) -> SyntaxVisitorContinueKind {
+                if node.someOrAnySpecifier.tokenKind == .keyword(.some) {
+                    found = true
+                }
+                return found ? .skipChildren : .visitChildren
+            }
+        }
+        let finder = Finder(viewMode: .sourceAccurate)
+        finder.walk(type)
+        return finder.found
     }
 
     private func warn(_ node: some SyntaxProtocol, _ message: String) {
@@ -444,7 +593,7 @@ extension Crawler {
         let type: ComplexType
         if let explicitType = declaredType {
             type = ComplexType(syntax: explicitType)
-        } else if let initializer = binding.initializer?.value, let guessedType = TypeGuesser.guessType(from: initializer) {
+        } else if let initializer = binding.initializer?.value, let guessedType = TypeGuesser.guessType(from: initializer, genericTypes: context.genericTypes) {
             type = .type(guessedType)
         } else {
             warn(binding, "Can't infer the type of property '\(identifier)', so it isn't mocked. Add a type annotation to mock it.")
@@ -462,7 +611,8 @@ extension Crawler {
             let getAccessor = accessors.first { $0.accessorSpecifier.tokenKind == .keyword(.get) }
             effects = Variable.Effects(
                 isThrowing: getAccessor?.effectSpecifiers?.throwsClause != nil,
-                isAsync: getAccessor?.effectSpecifiers?.asyncSpecifier?.isPresent == true
+                isAsync: getAccessor?.effectSpecifiers?.asyncSpecifier?.isPresent == true,
+                typedError: getAccessor?.effectSpecifiers?.throwsClause?.type?.trimmedDescription
             )
         case .getter:
             isReadOnly = true
@@ -556,7 +706,7 @@ extension Crawler {
             genericParameters: genericParameters(from: node.genericParameterClause?.parameters),
             // A subscript's parameter has no argument label unless it states one.
             parameters: node.parameterClause.parameters.map { parameter in
-                let type = ComplexType(syntax: parameter.type)
+                let type = parameterType(parameter.type)
                 let isVariadic = parameter.ellipsis?.isPresent == true
                 return MethodParameter(
                     name: parameter.secondName == nil ? "_" : parameter.firstName.filteredDescription,
@@ -660,14 +810,15 @@ extension Crawler {
     private func parameters(from parameterList: FunctionParameterListSyntax, noncopyableGenerics: Set<String> = []) -> [MethodParameter] {
         parameterList.map { parameter in
             // A variadic parameter, `Int...`, is an array inside the function: the mock records and matches that.
-            let type = ComplexType(syntax: parameter.type)
+            let type = parameterType(parameter.type)
             let isVariadic = parameter.ellipsis?.isPresent == true
             return MethodParameter(
                 name: parameter.firstName.filteredDescription,
                 innerName: nil,
                 type: isVariadic ? .type("[\(type)]") : type,
                 isNoncopyable: isNoncopyable(parameter.type, generics: noncopyableGenerics),
-                variadicElement: isVariadic ? type : nil
+                variadicElement: isVariadic ? type : nil,
+                defaultValue: parameter.defaultValue?.value.trimmedDescription
             )
         }
     }
@@ -755,16 +906,52 @@ extension Crawler {
     /// A global actor attribute, or the `nonisolated` modifier.
     private func isolation(attributes: AttributeListSyntax, modifiers: DeclModifierListSyntax) -> Isolation? {
         for case .attribute(let attribute) in attributes {
-            if let name = attribute.attributeName.as(IdentifierTypeSyntax.self)?.name.text,
+            // `@MainActor` or a qualified `@_Concurrency.MainActor`, matched by its last component.
+            if let name = Self.attributeTypeName(attribute),
                attribute.arguments == nil,
                context.globalActors.contains(name) {
-                return .globalActor(name)
+                return .globalActor(attribute.attributeName.trimmedDescription)
             }
         }
         if modifiers.contains(where: { $0.name.tokenKind == .keyword(.nonisolated) && $0.detail == nil }) {
             return .nonisolated
         }
         return nil
+    }
+
+    /// An attribute's type name, the last component of a qualified one: `MainActor` for `@_Concurrency.MainActor`.
+    private static func attributeTypeName(_ attribute: AttributeSyntax) -> String? {
+        if let identifier = attribute.attributeName.as(IdentifierTypeSyntax.self) {
+            identifier.name.text
+        } else if let member = attribute.attributeName.as(MemberTypeSyntax.self) {
+            member.name.text
+        } else {
+            nil
+        }
+    }
+
+    /// Attributes a mocked type may carry that are known not to be global actors: Swift's own and common macros.
+    private static let knownTypeAttributes: Set<String> = [
+        "Observable", "Model", "Suite", "Test", "MainActor", "Sendable", "GlobalActor", "ObservationIgnored",
+        "ObservationTracked", "Entry", "Previewable", "Testable", "UIApplicationMain", "NSApplicationMain",
+    ]
+
+    /// The capitalised attributes without arguments on a protocol or class that the generator can't classify: a
+    /// global actor declared in another module, which the mock would need, looks like a macro or a property wrapper.
+    /// A name ending in `Actor` almost certainly is one, so it warns, pointing at the `globalActors` option; any other
+    /// gets a comment in the mock, where a resulting isolation error would point.
+    private func unknownAttributes(_ attributes: AttributeListSyntax, declaration: String) -> [String] {
+        var unknown: [String] = []
+        for case .attribute(let attribute) in attributes where attribute.arguments == nil {
+            guard let name = Self.attributeTypeName(attribute), name.first?.isUppercase == true,
+                  !context.globalActors.contains(name), !Self.knownTypeAttributes.contains(name) else { continue }
+            let written = attribute.attributeName.trimmedDescription
+            if name.hasSuffix("Actor") {
+                warn(attribute, "'\(declaration)' is marked @\(written), which isn't a global actor declared in the mocked sources, so its mock isn't isolated to it. If @\(written) is a global actor from another module, add it to the module's `globalActors` in the Cuckoofile.")
+            }
+            unknown.append(written)
+        }
+        return unknown
     }
 
     /// `nonisolated(nonsending)` or `@concurrent`.
@@ -876,10 +1063,25 @@ extension Crawler {
         var globalActors: Set<String> = []
         /// The `~Copyable` structs and enums, whose arguments mocks record as placeholders.
         var noncopyableTypes: Set<String> = []
+        /// The non-generic typealiases of function types, by name, to the function type they stand for.
+        var closureTypealiases: [String: String] = [:]
+        /// The types declared without `public` or `open`, which a public declaration can't name.
+        var nonPublicTypes: Set<String> = []
+        /// The generic structs, classes and enums, which a call can't name as a type without its generic arguments.
+        var genericTypes: Set<String> = []
+        /// The protocols and classes, by name: a protocol's parent outside them isn't implemented by its mock.
+        var protocolsAndClasses: Set<String> = []
+        /// The typealiases of protocol compositions, `typealias AB = A & B`, by name, to the composed types.
+        var compositionTypealiases: [String: [String]] = [:]
 
         mutating func formUnion(_ other: DeclaredNames) {
             globalActors.formUnion(other.globalActors)
             noncopyableTypes.formUnion(other.noncopyableTypes)
+            nonPublicTypes.formUnion(other.nonPublicTypes)
+            genericTypes.formUnion(other.genericTypes)
+            protocolsAndClasses.formUnion(other.protocolsAndClasses)
+            compositionTypealiases.merge(other.compositionTypealiases) { first, _ in first }
+            closureTypealiases.merge(other.closureTypealiases) { first, _ in first }
         }
     }
 
@@ -892,6 +1094,19 @@ extension Crawler {
 
     private final class DeclaredNameCollector: SyntaxVisitor {
         var names = DeclaredNames()
+
+        private func collectAccess(_ modifiers: DeclModifierListSyntax, name: TokenSyntax) {
+            let isPublic = modifiers.contains { $0.name.tokenKind == .keyword(.public) || $0.name.tokenKind == .keyword(.open) }
+            if !isPublic {
+                names.nonPublicTypes.insert(name.text)
+            }
+        }
+
+        override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
+            collectAccess(node.modifiers, name: node.name)
+            names.protocolsAndClasses.insert(node.name.text)
+            return .skipChildren
+        }
 
         private func collect(_ attributes: AttributeListSyntax, inheritance: InheritanceClauseSyntax?, name: TokenSyntax) {
             let isGlobalActor = attributes.contains { element in
@@ -907,21 +1122,50 @@ extension Crawler {
 
         override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
+            collectAccess(node.modifiers, name: node.name)
             return .visitChildren
+        }
+
+        override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
+            collectAccess(node.modifiers, name: node.name)
+            var type = node.initializer.value
+            if let attributed = type.as(AttributedTypeSyntax.self), attributed.specifiers.isEmpty {
+                type = attributed.baseType
+            }
+            if node.genericParameterClause == nil, type.is(FunctionTypeSyntax.self) {
+                names.closureTypealiases[node.name.text] = node.initializer.value.trimmedDescription
+            }
+            if node.genericParameterClause == nil, let composition = type.as(CompositionTypeSyntax.self) {
+                names.compositionTypealiases[node.name.text] = composition.elements.map { $0.type.trimmedDescription }
+            }
+            return .skipChildren
         }
 
         override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
+            collectAccess(node.modifiers, name: node.name)
+            names.protocolsAndClasses.insert(node.name.text)
+            if node.genericParameterClause != nil {
+                names.genericTypes.insert(node.name.text)
+            }
             return .visitChildren
         }
 
         override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
+            collectAccess(node.modifiers, name: node.name)
+            if node.genericParameterClause != nil {
+                names.genericTypes.insert(node.name.text)
+            }
             return .visitChildren
         }
 
         override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
+            collectAccess(node.modifiers, name: node.name)
+            if node.genericParameterClause != nil {
+                names.genericTypes.insert(node.name.text)
+            }
             return .visitChildren
         }
     }

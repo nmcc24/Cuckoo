@@ -66,7 +66,7 @@ enum NopImplStubBuilder {
     }
 
     private static func source(of property: Variable) -> String {
-        let effects = (property.effects.isAsync ? "async " : "") + (property.effects.isThrowing ? "throws " : "")
+        let effects = property.effects.getterDeclaration
         let type = GeneratorHelper.removeClosureArgumentNames(for: GeneratorHelper.genericSafeType(from: property.type.description))
         let modifiers = modifiers(of: property, isStatic: property.isStatic)
         var source = attributes(of: property, at: property.accessibility, isolation: property.isolation)

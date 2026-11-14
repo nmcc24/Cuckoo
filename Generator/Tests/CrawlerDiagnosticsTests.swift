@@ -16,7 +16,7 @@ struct CrawlerDiagnosticsTests {
                 var name: String = ""
                 var retries = Retries(3)
                 var connection = makeConnection()
-                var pending = [1, 2]
+                var pending = [makeConnection()]
             }
             """, url: url)
 

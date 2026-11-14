@@ -11,6 +11,10 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var enclosingCompilationConditions: [String]
     /// The global actor the type is isolated to, if any.
     var isolation: Isolation?
+    /// Members the mock can't override, each with the reason, stated in a comment in the mock.
+    var unmockedMembers: [String] = []
+    /// Attributes the generator couldn't classify, which the mock names in a comment; see `Crawler.unknownAttributes`.
+    var unknownAttributes: [String] = []
 
     func replacing(members: [any Token]) -> ClassDeclaration {
         ClassDeclaration(
@@ -23,7 +27,9 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             inheritedTypes: inheritedTypes,
             members: members,
             enclosingCompilationConditions: enclosingCompilationConditions,
-            isolation: isolation
+            isolation: isolation,
+            unmockedMembers: unmockedMembers,
+            unknownAttributes: unknownAttributes
         )
     }
 }
