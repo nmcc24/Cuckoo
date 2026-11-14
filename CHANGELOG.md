@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-beta.4
+
+Fixes from a full review of beta.3: mocks of protocols that inherit an actor's isolation, variadic parameters and
+associated-type `where` clauses now compile, and a release no longer declares swift-syntax, so projects whose
+macros pin an older one can resolve Cuckoo. The [migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md)
+covers moving from Cuckoo 2.
+
+To try it:
+
+```swift
+.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.4"),
+```
 
 ### Changed
 - `SourceLocation` loses `file`: it's `(fileID:filePath:line:column:)`, with `filePath` a `StaticString`, and

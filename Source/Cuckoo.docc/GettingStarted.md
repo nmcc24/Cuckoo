@@ -34,7 +34,7 @@ targets: [
 ```
 
 > Note: The 3.0 betas are published on the fork, `https://github.com/nmcc24/Cuckoo.git`. A version requirement
-> such as `from: "3.0.0"` never picks a pre-release, so name the beta exactly: `exact: "3.0.0-beta.3"`.
+> such as `from: "3.0.0"` never picks a pre-release, so name the beta exactly: `exact: "3.0.0-beta.4"`.
 
 In an Xcode project, add the package with File > Add Package Dependencies, link the `Cuckoo` library to the test
 target, and add the plugin under the test target's Build Phases > Run Build Tool Plug-ins. Xcode asks you to trust
