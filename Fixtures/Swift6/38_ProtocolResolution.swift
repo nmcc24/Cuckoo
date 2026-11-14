@@ -40,3 +40,35 @@ protocol Composed: PartAB { func composed() }
 protocol Identified: Identifiable {
     func describe() -> String
 }
+
+// A parent is found as Swift finds it: through a typealias, and from an extension written with the module's name
+// (the fixture matrix compiles fixtures as module Fix) or through a typealias of the type. A name that only a
+// protocol nested elsewhere has means one from outside the sources, such as Swift's `Error`, not the nested one.
+enum Aliased {
+    protocol Service { func aliased() }
+}
+typealias AliasedService = Aliased.Service
+protocol ThroughAlias: AliasedService { func own() }
+
+enum Outermost {
+    protocol Service { func outer() }
+}
+typealias OutermostAlias = Outermost
+extension Fix.Outermost {
+    protocol ModuleQualified: Service { func qualified() }
+}
+extension OutermostAlias {
+    protocol AliasExtended: Service { func extended() }
+}
+
+enum Net {
+    protocol Error { func netOnly() }
+}
+protocol Failing: Error { func fail() }
+
+enum DescribedA { protocol CustomStringConvertible { func a() } }
+enum DescribedB { protocol CustomStringConvertible { func b() } }
+protocol Described: CustomStringConvertible { func other() }
+extension Described {
+    nonisolated var description: String { "described" }
+}

@@ -112,7 +112,10 @@ The `[modules.<Name>.options]` table:
 - term `keepDocumentation`: Whether mocks keep the mocked declarations' doc comments, `true` by default. Other
   comments are always left out.
 - term `enableInheritance`: Whether a mock also overrides the members its type inherits from the other protocols
-  and classes in `sources`, `true` by default.
+  and classes in `sources`, `true` by default. A parent is found as Swift finds it: in the type's own scope and
+  the enclosing ones, written qualified or through a typealias in `sources`. A parent found nowhere in `sources`,
+  such as Swift's `Error`, or one named through a typealias declared in another module, is declared outside
+  them: the mock implements only the requirements that have default implementations, and says so in a comment.
 - term `protocolsOnly`: Mock protocols only, not classes. `false` by default.
 - term `omitHeaders`: Leave out the comment at the top of each source file's mocks, which names the file. `false`
   by default.
