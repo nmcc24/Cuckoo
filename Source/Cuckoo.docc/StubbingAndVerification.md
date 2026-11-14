@@ -19,7 +19,17 @@ protocol Greeter {
 
 A mock has the initializers of the type it mocks: `MockGreeter()` for a protocol, and the class's own
 initializers for a class. A mock whose initializer calls its own members needs those stubbed before it exists;
-``createMock(_:configuration:)`` and ``createMock(for:configuration:)`` stub it first.
+``createMock(_:configuration:)`` and ``createMock(for:configuration:)`` stub it first, and its ``MockBuilder``
+enables a spy or default implementation before the initializer runs:
+
+```swift
+let store = createMock(MockSettingsStore.self) { builder, stub in
+    when(stub.load()).thenReturn(Settings.default) // SettingsStore's init calls load().
+    return MockSettingsStore(path: "settings.json")
+}
+```
+
+Only mocks of the requested type pick up those stubs; other mocks created in the closure are separate.
 
 Mocks keep the isolation of the type they mock. The mock of a `@MainActor` protocol is `@MainActor`, the mock of
 an `actor` protocol is an actor, and the mock of a `Sendable` type is `Sendable`, so the compiler checks how the
@@ -35,8 +45,8 @@ that proxy to ``when(_:)``, with matchers for its arguments, and say what the ca
 ```swift
 let greeter = MockGreeter()
 stub(greeter) { stub in
-    when(stub.greet(name: "Ann")).thenReturn("Hello, Ann")
     when(stub.greet(name: any())).then { name in "Hi, \(name)" }
+    when(stub.greet(name: "Ann")).thenReturn("Hello, Ann")
     when(stub.load(id: 0)).thenThrow(LoadError.missing)
     when(stub.name.get).thenReturn("Greeter")
     when(stub.name.set(any())).thenDoNothing()
@@ -108,11 +118,16 @@ your own variable don't reach it. Pass a class instance to share state with the 
 implementation: forwarding a call's arguments to another actor would race. Stub their members instead.
 
 The mock of a class can call the class itself. ``ClassMock/enableSuperclassSpy()``, or `withEnabledSuperclassSpy()`
-when creating it, makes every unstubbed member call the superclass, so the mock acts as a spy.
+when creating it, makes every unstubbed member call the superclass, so the mock acts as a spy. Enable it before the
+mock's first call, or the test stops: a mock that has already answered calls can't change how it answers. A class
+whose initializer calls its own members has made calls by then, so enable the spy with ``createMock(_:configuration:)``'s
+``MockBuilder/enableSuperclassSpy()``, which applies before the initializer runs.
 
 Each generated mock `MockGreeter` comes with `GreeterStub`, a type with no stubbing or verification whose members
 return default values and do nothing else. `MockGreeter().withEnabledDefaultImplementation(GreeterStub())` makes
-every unstubbed call of a mock answer quietly.
+every unstubbed call of a mock answer quietly, except members a mock can't forward to another implementation:
+those with a variadic or `~Copyable` parameter, or that take or return `Self`. Calling one unstubbed stops the
+test, so stub those.
 
 ### Static members
 
