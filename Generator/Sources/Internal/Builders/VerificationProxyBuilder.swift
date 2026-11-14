@@ -73,7 +73,7 @@ enum VerificationProxyBuilder {
         var source = method.repeatedAttributes.map(\.description)
         source.append(contentsOf: isolation(method.stubIsolation))
         source.append("@discardableResult")
-        source.append("func \(escapeReservedKeywords(for: method.name))\(generics)(\(parameters)) -> Cuckoo.__DoNotUse<(\(input)), \(output)>\(whereClause) {")
+        source.append("func \(method.proxyName)\(generics)(\(parameters)) -> Cuckoo.__DoNotUse<(\(input)), \(output)>\(whereClause) {")
         source.append("    \(GeneratorHelper.parameterMatchers(for: method.signature.parameters))")
         source.append(contentsOf: verify(method))
         source.append("}")

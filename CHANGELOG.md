@@ -18,6 +18,9 @@
 - `verify`'s result, `__DoNotUse`, is `Sendable`.
 
 ### Added
+- Operator requirements are mocked. A protocol with `static func + (lhs: Self, rhs: Self) -> Self` had a mock that
+  didn't conform. The proxies name an operator `operator` and a word for each character, such as
+  `stub.operatorPlus(any(), any())` and `stub.prefixOperatorMinus(any())`.
 - `DefaultValueRegistry.register(for:factory:)` and `DefaultValues.register(for:factory:)` give a type that isn't
   `Sendable`, such as a class, or a tuple a default value for unstubbed calls; the factory makes a new value for
   each call.

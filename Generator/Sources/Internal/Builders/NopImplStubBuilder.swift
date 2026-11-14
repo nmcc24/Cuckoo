@@ -95,7 +95,7 @@ enum NopImplStubBuilder {
         if let execution = method.executionAttribute, !execution.isEmpty {
             source.append(execution)
         }
-        source.append("\(method.accessibility.spaced)\(modifiers)func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
+        source.append("\(method.accessibility.spaced)\(modifiers)\(method.declaration)\(method.signature.description) {")
         source.append("    return DefaultValueRegistry.defaultValue(for: (\(type)).self)")
         source.append("}")
         return lines(source)

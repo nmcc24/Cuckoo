@@ -279,7 +279,7 @@ enum TypeErasureBuilder {
 
     private static func staticSource(of method: Method, _ context: Context) -> String {
         var source = method.spiAttributes(at: method.accessibility).map(\.description)
-        source.append("\(context.access)static func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
+        source.append("\(context.access)static \(method.declaration)\(method.signature.description) {")
         source.append("    Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\(Fragment.literal(method.fullyQualifiedName)))")
         source.append("}")
         return lines(source)

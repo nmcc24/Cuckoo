@@ -581,7 +581,27 @@ extension Crawler {
     private func parse(_ method: FunctionDeclSyntax) -> Method? {
         guard let isStatic = staticness(of: method.modifiers) else { return nil }
 
-        guard case .identifier(let identifier) = method.name.tokenKind else { return nil }
+        let identifier: String
+        let operatorFixity: Method.OperatorFixity?
+        switch method.name.tokenKind {
+        case .identifier(let name):
+            identifier = name
+            operatorFixity = nil
+        case .binaryOperator(let name), .prefixOperator(let name), .postfixOperator(let name):
+            // A class's own operators are `static`, so final: the mock can't override them, and keeps the real ones.
+            guard container?.isClass != true else { return nil }
+            identifier = name
+            let modifiers = method.modifiers.map(\.name.tokenKind)
+            operatorFixity = if modifiers.contains(.keyword(.prefix)) {
+                .prefix
+            } else if modifiers.contains(.keyword(.postfix)) {
+                .postfix
+            } else {
+                .infix
+            }
+        default:
+            return nil
+        }
 
         let accessibility = method.modifiers.lazy.compactMap { Accessibility(tokenKind: $0.name.tokenKind) }.first ?? .internal
 
@@ -596,13 +616,19 @@ extension Crawler {
         let hasPack = method.genericParameterClause?.parameters.contains { $0.isPack } == true
         guard !(hasPack && container?.isClass == true) else { return nil }
 
-        let parameters = self.parameters(
+        var parameters = self.parameters(
             from: method.signature.parameterClause.parameters,
             noncopyableGenerics: noncopyableGenericNames(
                 in: method.genericParameterClause?.parameters,
                 where: method.genericWhereClause?.requirements
             )
         )
+        if operatorFixity != nil {
+            // An operator's parameters have no argument labels.
+            for index in parameters.indices {
+                parameters[index].name = "_"
+            }
+        }
         let returnType = method.signature.returnClause.flatMap { ComplexType(syntax: $0.type) }
 
         return Method(
@@ -623,7 +649,8 @@ extension Crawler {
             compilationConditions: compilationConditions,
             isolation: isolation(attributes: method.attributes, modifiers: method.modifiers),
             executionAttribute: executionAttribute(attributes: method.attributes, modifiers: method.modifiers),
-            isStatic: isStatic
+            isStatic: isStatic,
+            operatorFixity: operatorFixity
         )
     }
 }

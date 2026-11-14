@@ -24,6 +24,12 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
     /// What a subscript's accessor forwards to instead of a method call: `super[...]` and the default implementation's.
     var superclassCallOverride: String?
     var defaultCallOverride: String?
+    /// An operator's fixity; `nil` for a named method. ``name`` is then the operator itself, such as `+`.
+    var operatorFixity: OperatorFixity?
+
+    enum OperatorFixity {
+        case infix, prefix, postfix
+    }
 
     var fullSignature: String {
         [
@@ -38,13 +44,65 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
 extension Method: Inheritable {
     func isEqual(to other: any Inheritable) -> Bool {
         guard let other = other as? Method else { return false }
-        return name == other.name && isStatic == other.isStatic && signature.isApiEqual(to: other.signature)
+        return name == other.name && isStatic == other.isStatic && operatorFixity == other.operatorFixity
+            && signature.isApiEqual(to: other.signature)
     }
 }
 
 extension Method {
+    /// How the mock and the stub declare the method: `func name`, or `prefix func -` for a prefix operator.
+    var declaration: String {
+        switch operatorFixity {
+        case nil: "func \(escapeReservedKeywords(for: name))"
+        case .infix: "func \(name) "
+        case .prefix: "prefix func \(name) "
+        case .postfix: "postfix func \(name) "
+        }
+    }
+
+    /// The name of the proxies' member, which can't be an operator: `operator` and a word for each of the
+    /// operator's characters, such as `operatorPlus` for `+`, after the fixity of a prefix or postfix operator.
+    var proxyName: String {
+        guard let operatorFixity else {
+            return escapeReservedKeywords(for: name)
+        }
+        let prefix = switch operatorFixity {
+        case .infix: "operator"
+        case .prefix: "prefixOperator"
+        case .postfix: "postfixOperator"
+        }
+        return prefix + name.unicodeScalars.map(Self.word(for:)).joined()
+    }
+
+    private static func word(for scalar: Unicode.Scalar) -> String {
+        switch scalar {
+        case "/": "Slash"
+        case "=": "Equal"
+        case "-": "Minus"
+        case "+": "Plus"
+        case "!": "Bang"
+        case "*": "Star"
+        case "%": "Percent"
+        case "<": "Less"
+        case ">": "Greater"
+        case "&": "Amp"
+        case "|": "Pipe"
+        case "^": "Caret"
+        case "~": "Tilde"
+        case "?": "Question"
+        case ".": "Dot"
+        default: "U" + String(scalar.value, radix: 16, uppercase: true)
+        }
+    }
+
     var fullyQualifiedName: String {
-        recordedName ?? "\(isStatic ? "static " : "")\(name)\(signature.description.trimmed)"
+        // A prefix and a postfix operator can share a name and a signature.
+        let fixity = switch operatorFixity {
+        case .prefix: "prefix "
+        case .postfix: "postfix "
+        case .infix, nil: ""
+        }
+        return recordedName ?? "\(isStatic ? "static " : "")\(fixity)\(name)\(signature.description.trimmed)"
     }
     
     var isAsync: Bool {

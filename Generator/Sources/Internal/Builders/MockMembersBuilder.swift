@@ -134,7 +134,7 @@ enum MockMembersBuilder {
         if let execution = method.executionAttribute, !execution.isEmpty {
             source.append(execution)
         }
-        source.append("\(method.accessibility.spaced)\(modifiers(of: method, isStatic: method.isStatic))func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
+        source.append("\(method.accessibility.spaced)\(modifiers(of: method, isStatic: method.isStatic))\(method.declaration)\(method.signature.description) {")
         source.append(contentsOf: body(of: method, context).map { "    \($0)" })
         source.append("}")
         return lines(source)

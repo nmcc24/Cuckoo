@@ -73,7 +73,7 @@ enum StubbingProxyBuilder {
         let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method)
         var source = method.repeatedAttributes.map(\.description)
-        source.append("func \(escapeReservedKeywords(for: method.name))\(generics)(\(parameters)) -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
+        source.append("func \(method.proxyName)\(generics)(\(parameters)) -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
         source.append("    \(GeneratorHelper.parameterMatchers(for: method.signature.parameters, sendable: sendable))")
         source.append(contentsOf: createStub(for: method, mockName: mockName))
         source.append("}")
