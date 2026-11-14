@@ -44,16 +44,19 @@ public final class MockManager: Sendable {
     private let hasParent: Bool
     /// A mock type's manager for its static members, which have no default implementation to forward to.
     private let isStatic: Bool
+    /// Whether the mock was created in a Swift Testing test, so a failure from a task outside the test, which
+    /// doesn't know the test, still goes to Swift Testing rather than XCTest.
+    let createdInSwiftTesting: Bool
 
     /// Creates the manager of a mock. `hasParent` says whether the mock can call a real implementation.
-    public init(hasParent: Bool) {
-        self.hasParent = hasParent
-        self.isStatic = false
+    public convenience init(hasParent: Bool) {
+        self.init(hasParent: hasParent, isStatic: false)
     }
 
     init(hasParent: Bool, isStatic: Bool) {
         self.hasParent = hasParent
         self.isStatic = isStatic
+        self.createdInSwiftTesting = isRunningSwiftTestingTest()
     }
 
     /// Records the call and decides how to answer it. Crashes if the call can't be answered.
@@ -259,7 +262,7 @@ public final class MockManager: Sendable {
             // The calls stay unverified, so `verifyNoMoreInteractions` still reports them.
             let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(timesDescription(calls.count))")."
             let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, among: recordedCalls)
-            reportFailure(message + "\n" + described, at: sourceLocation)
+            reportFailure(message + "\n" + described, at: sourceLocation, inSwiftTesting: createdInSwiftTesting)
             return __DoNotUse()
         }
         state.withLock { state in
@@ -378,17 +381,17 @@ public final class MockManager: Sendable {
             let unverifiedCalls = unverified.map(\.readableDescription)
                 .enumerated().map { "\($0 + 1). " + $1 }.joined(separator: "\n")
             let message = "No more interactions wanted but some found:\n"
-            reportFailure(message + unverifiedCalls, at: sourceLocation)
+            reportFailure(message + unverifiedCalls, at: sourceLocation, inSwiftTesting: createdInSwiftTesting)
         }
     }
 
     /// Reports a failure at `sourceLocation`, or, for a mock's call, which has no location in the test, at the test.
     private func fail(_ message: String, at sourceLocation: SourceLocation? = nil) {
-        reportFailure(message, at: sourceLocation)
+        reportFailure(message, at: sourceLocation, inSwiftTesting: createdInSwiftTesting)
     }
 
     private func failAndCrash(_ message: String, at sourceLocation: SourceLocation? = nil) -> Never {
-        reportFailure(message, at: sourceLocation)
+        reportFailure(message, at: sourceLocation, inSwiftTesting: createdInSwiftTesting)
 
         #if _runtime(_ObjC)
         NSException(name: .internalInconsistencyException, reason: message, userInfo: nil).raise()
