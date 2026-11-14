@@ -9,8 +9,9 @@ name: Release
 # The Linux parts are built on Ubuntu 22.04 (`-jammy`), so the binary needs glibc 2.35 at most and runs on 22.04 or
 # later, and on other distributions with that glibc or newer. A dry run stops after the smoke tests.
 #
-# The verify jobs run after the release is public, and releases are immutable: its tag and zip can't be replaced.
-# If one fails, say so in the release's notes, fix master, and release the next version (the next beta, or a patch).
+# The verify jobs run after the release is public, and releases are immutable (the immutable job checks it): its tag
+# and zip can't be replaced. If one fails, say so in the release's notes, fix master, and release the next version
+# (the next beta, or a patch). A run that fails before publishing can be re-run, or run again from the start.
 on:
   workflow_dispatch:
     inputs:
@@ -44,9 +45,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: The version matches the sources, and its tag is free
+      - name: The version matches the sources, and it isn't released yet
         env:
           DRY_RUN: ${{ inputs.dry_run }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           [[ "$GITHUB_REF" == refs/heads/master ]] || { echo "::error::Release from master, not $GITHUB_REF."; exit 1; }
           [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "::error::Not a version: $VERSION"; exit 1; }
@@ -54,11 +56,14 @@ jobs:
           grep -qxF "let version = \"$VERSION\"" Generator/Sources/CLI/Version.swift \
             || { echo "::error::Generator/Sources/CLI/Version.swift doesn't hold $VERSION."; exit 1; }
           # A dry run never tags, so it may rebuild a released version, which master's sources hold until the next bump.
+          # A tag with no published release was left by a run that failed before publishing: the release job moves it.
           if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" >/dev/null; then
             if [[ "$DRY_RUN" == true ]]; then
               echo "::notice::The tag $VERSION exists; a dry run doesn't tag, so it goes on."
+            elif [[ "$(gh release view "$VERSION" --json isDraft --jq .isDraft 2>/dev/null)" == false ]]; then
+              echo "::error::$VERSION is already released."; exit 1
             else
-              echo "::error::The tag $VERSION already exists."; exit 1
+              echo "::notice::The tag $VERSION exists without a published release; this run moves it to its own commit."
             fi
           fi
           # The release's notes are this version's changelog section. Checked here, before anything is built or
@@ -164,25 +169,35 @@ jobs:
           name: bundle
           path: bundle
       - name: Release commit and tag
-        # The tagged commit is master plus this one change; it isn't pushed to any branch. A re-run after a later
-        # step failed finds the tag already pushed, and keeps it if it names this bundle.
+        # The tagged commit is master plus this one change; it isn't pushed to any branch. The tag goes up before the
+        # release exists, so a run can fail in between. Re-running the failed jobs finds the tag naming this bundle
+        # and keeps it; a new run, with a new bundle, moves the tag, which no published release holds yet (the check
+        # job made sure). Once the release is published, immutability locks the tag.
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           url="https://github.com/$GITHUB_REPOSITORY/releases/download/$VERSION/CuckooGenerator.artifactbundle.zip"
           # SwiftPM's checksum of a binary target is the SHA-256 of the zip, so this job needs no Swift toolchain.
           checksum="$(sha256sum bundle/CuckooGenerator.artifactbundle.zip | cut -d' ' -f1)"
+          push=(git push origin "refs/tags/$VERSION")
           if git fetch --quiet origin "refs/tags/$VERSION:refs/tags/$VERSION" 2>/dev/null; then
             if git show "$VERSION:Package.swift" | grep -qF "$checksum"; then
               echo "The tag $VERSION already names this bundle."
               exit 0
             fi
-            echo "::error::The tag $VERSION exists and names another bundle."; exit 1
+            if [[ "$(gh release view "$VERSION" --json isDraft --jq .isDraft 2>/dev/null)" == false ]]; then
+              echo "::error::$VERSION was released with another bundle while this run was building."; exit 1
+            fi
+            echo "::notice::Moving the tag $VERSION, which a failed run left, to this run's bundle."
+            git tag -d "$VERSION" >/dev/null
+            push=(git push --force origin "refs/tags/$VERSION")
           fi
           scripts/set-prebuilt-generator.sh remote "$url" "$checksum"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -qam "Release $VERSION with the prebuilt generator" -m "Checksum: $checksum"
           git tag -a "$VERSION" -m "Cuckoo $VERSION"
-          git push origin "refs/tags/$VERSION"
+          "${push[@]}"
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -197,6 +212,21 @@ jobs:
           [[ "$VERSION" == *-* ]] && prerelease=(--prerelease)
           gh release create "$VERSION" bundle/CuckooGenerator.artifactbundle.zip \
             --verify-tag --title "$VERSION" --notes-file notes.md "${prerelease[@]}"
+
+  immutable:
+    name: The release is immutable
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check the published release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Immutability is a repository setting. Without it, the release's tag and zip could be replaced, and a
+          # package that resolved the old checksum would fail to build.
+          immutable="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$VERSION" --jq .immutable)"
+          [[ "$immutable" == true ]] || { echo "::error::The release $VERSION isn't immutable ($immutable). Turn on immutable releases in the repository's settings."; exit 1; }
 
   verify:
     name: Resolve the release by its tag (${{ matrix.name }})
