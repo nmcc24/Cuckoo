@@ -58,8 +58,8 @@ enum MockBuilder {
             lines.append("")
         }
         if let type = container.asClass?.internalMockReason {
-            lines.append("    // This mock is internal: \(container.name)'s non-public members name the non-public type '\(type)',")
-            lines.append("    // which a public override can't. Import the mocks' module with `@testable` to use it.")
+            lines.append("    // This mock is internal: \(container.name)'s non-public members name '\(type)', which the module declares")
+            lines.append("    // non-public, and a public override can't. Import the mocks' module with `@testable` to use it.")
             lines.append("")
         }
         if let unmockedMembers = container.asClass?.unmockedMembers, !unmockedMembers.isEmpty {

@@ -1335,8 +1335,8 @@ final class MockDownloader: Downloader, nonisolated Cuckoo.ClassMock {
     typealias Stubbing = __StubbingProxy_Downloader
     typealias Verification = __VerificationProxy_Downloader
 
-    // This mock is internal: Downloader's non-public members name the non-public type 'State',
-    // which a public override can't. Import the mocks' module with `@testable` to use it.
+    // This mock is internal: Downloader's non-public members name 'State', which the module declares
+    // non-public, and a public override can't. Import the mocks' module with `@testable` to use it.
 
     // Original typealiases
 
@@ -1802,7 +1802,7 @@ final class MockSettingsStore: SettingsStore, nonisolated Cuckoo.ClassMock {
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    override func save(settings p0: Settings = .shared) {
+    override func save(settings p0: Settings) {
         return cuckoo_manager.call(
             "save(settings p0: Settings)",
             parameters: (p0),
