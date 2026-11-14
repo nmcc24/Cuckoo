@@ -1,4 +1,5 @@
-/// A ``ParameterMatcher`` that's `Sendable`: its closure is `@Sendable`, so it can match calls from any task.
+/// A matcher that's `Sendable`: like a ``ParameterMatcher``, but its closure is `@Sendable`, so it can match calls
+/// from any task.
 ///
 /// A `Sendable` mock can be called from any task, so its stubs only take `Sendable` matchers. Cuckoo's matcher
 /// functions return one whenever the values they keep are `Sendable`, so you rarely name this type. Write your
