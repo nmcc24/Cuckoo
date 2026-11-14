@@ -65,8 +65,9 @@ struct GenerateCommand: AsyncParsableCommand {
             }
         } else {
             configurationFile = [
-                projectDir.map { "\($0)/Cuckoofile.toml" },
-                "\(FileManager.default.currentDirectoryPath)/Cuckoofile.toml",
+                projectDir.map { URL(filePath: $0, directoryHint: .isDirectory).appending(path: "Cuckoofile.toml").path(percentEncoded: false) },
+                URL(filePath: FileManager.default.currentDirectoryPath, directoryHint: .isDirectory)
+                    .appending(path: "Cuckoofile.toml").path(percentEncoded: false),
             ]
             .lazy
             .compactMap { pathString -> (path: Path, contents: String)? in
@@ -242,8 +243,8 @@ struct GenerateCommand: AsyncParsableCommand {
             switch self {
             case .missingConfiguration:
                 return """
-                Failed to find Cuckoofile configuration.
-                Expected in project folder through $PROJECT_DIR or in the same directory where the Cuckoonator was called.
+                No Cuckoofile.toml found. The generator looks in $PROJECT_DIR, which the build plugin sets to the package's or \
+                Xcode project's folder, and then in the current directory. Pass --configuration to name another file.
                 """
             case .unreadableSourcesList(let path, let error):
                 return "Failed to read the sources list at '\(path)': \(error)"
