@@ -164,19 +164,41 @@ struct CuckooTraitTests {
 
 struct FailuresOutsideTheTestTaskTests {
     /// A detached task has no current test, so a failure there would go to XCTest, which ignores it under Swift
-    /// Testing. The mock remembers that it was created in a Swift Testing test, and reports to Swift Testing.
+    /// Testing. The mock remembers the Swift Testing test it was created in, and the failure goes to Swift Testing
+    /// at that test, where Swift Testing records it as an issue of no test.
     @Test
-    func mockRemembersItWasCreatedInASwiftTestingTest() async {
+    func failureFromADetachedTaskGoesToSwiftTestingAtTheCreatingTest() async throws {
         let mock = MockTestedProtocol()
-        #expect(mock.cuckoo_manager.createdInSwiftTesting)
+        let creatingTest = mock.cuckoo_manager.creatingTest
 
-        let detachedHasNoTest = await Task.detached { !isRunningSwiftTestingTest() }.value
-        #expect(detachedHasNoTest)
+        let location = await Task.detached {
+            swiftTestingIssueLocation(for: nil, creatingTest: creatingTest)
+        }.value
+
+        let testLocation = try #require(Test.current?.sourceLocation)
+        #expect(location == testLocation)
     }
 
     @Test
-    func mockCreatedOutsideATestDoesNotClaimSwiftTesting() async {
-        let createdInSwiftTesting = await Task.detached { MockTestedProtocol().cuckoo_manager.createdInSwiftTesting }.value
-        #expect(!createdInSwiftTesting)
+    func failureWithALocationKeepsIt() async throws {
+        let mock = MockTestedProtocol()
+        let creatingTest = mock.cuckoo_manager.creatingTest
+
+        let location = await Task.detached {
+            swiftTestingIssueLocation(for: ("Module/File.swift", "/path/File.swift", 12, 3), creatingTest: creatingTest)
+        }.value
+
+        #expect(location?.fileID == "Module/File.swift")
+        #expect(location?.line == 12)
+    }
+
+    @Test
+    func failureOfAMockCreatedOutsideATestGoesToXCTest() async {
+        let location = await Task.detached {
+            let creatingTest = MockTestedProtocol().cuckoo_manager.creatingTest
+            return swiftTestingIssueLocation(for: nil, creatingTest: creatingTest)
+        }.value
+
+        #expect(location == nil)
     }
 }

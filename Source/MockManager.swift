@@ -44,9 +44,9 @@ public final class MockManager: Sendable {
     private let hasParent: Bool
     /// A mock type's manager for its static members, which have no default implementation to forward to.
     private let isStatic: Bool
-    /// Whether the mock was created in a Swift Testing test, so a failure from a task outside the test, which
-    /// doesn't know the test, still goes to Swift Testing rather than XCTest.
-    let createdInSwiftTesting: Bool
+    /// The Swift Testing test the mock was created in, so a failure from a task outside the test, which doesn't
+    /// know the test, still goes to Swift Testing rather than XCTest.
+    let creatingTest: CreatingTest?
 
     /// Creates the manager of a mock. `hasParent` says whether the mock can call a real implementation.
     public convenience init(hasParent: Bool) {
@@ -56,7 +56,7 @@ public final class MockManager: Sendable {
     init(hasParent: Bool, isStatic: Bool) {
         self.hasParent = hasParent
         self.isStatic = isStatic
-        self.createdInSwiftTesting = isRunningSwiftTestingTest()
+        self.creatingTest = CreatingTest.current
     }
 
     /// Records the call and decides how to answer it. Crashes if the call can't be answered.
@@ -262,7 +262,7 @@ public final class MockManager: Sendable {
             // The calls stay unverified, so `verifyNoMoreInteractions` still reports them.
             let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(timesDescription(calls.count))")."
             let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, among: recordedCalls)
-            reportFailure(message + "\n" + described, at: sourceLocation, inSwiftTesting: createdInSwiftTesting)
+            reportFailure(message + "\n" + described, at: sourceLocation, creatingTest: creatingTest)
             return __DoNotUse()
         }
         state.withLock { state in
@@ -382,10 +382,21 @@ public final class MockManager: Sendable {
                 "verifyNoMoreInteractions(\(mockType)) must run on \(type(of: globalActor)), where the mock records its calls: "
                     + "mark the test or the calling function with that actor.",
                 at: sourceLocation,
-                inSwiftTesting: createdInSwiftTesting
+                creatingTest: creatingTest
             )
             return
         }
+        if let order = InOrder.current {
+            // Inside `inOrder`, the block's earlier `verify` calls take their calls when it ends, so this waits too.
+            order.addDeferred(at: sourceLocation, creatingTest: creatingTest) {
+                self.reportUnverifiedCalls(sourceLocation)
+            }
+            return
+        }
+        reportUnverifiedCalls(sourceLocation)
+    }
+
+    private func reportUnverifiedCalls(_ sourceLocation: SourceLocation) {
         let unverified = state.withLock { state in
             state.calls.filter { state.unverifiedCallIDs.contains($0.id) }.map(\.call)
         }
@@ -393,7 +404,7 @@ public final class MockManager: Sendable {
             let unverifiedCalls = unverified.map(\.readableDescription)
                 .enumerated().map { "\($0 + 1). " + $1 }.joined(separator: "\n")
             let message = "No more interactions wanted but some found:\n"
-            reportFailure(message + unverifiedCalls, at: sourceLocation, inSwiftTesting: createdInSwiftTesting)
+            reportFailure(message + unverifiedCalls, at: sourceLocation, creatingTest: creatingTest)
         }
     }
 
@@ -408,11 +419,11 @@ public final class MockManager: Sendable {
 
     /// Reports a failure at `sourceLocation`, or, for a mock's call, which has no location in the test, at the test.
     private func fail(_ message: String, at sourceLocation: SourceLocation? = nil) {
-        reportFailure(message, at: sourceLocation, inSwiftTesting: createdInSwiftTesting)
+        reportFailure(message, at: sourceLocation, creatingTest: creatingTest)
     }
 
     private func failAndCrash(_ message: String, at sourceLocation: SourceLocation? = nil) -> Never {
-        reportFailure(message, at: sourceLocation, inSwiftTesting: createdInSwiftTesting)
+        reportFailure(message, at: sourceLocation, creatingTest: creatingTest)
 
         #if _runtime(_ObjC)
         NSException(name: .internalInconsistencyException, reason: message, userInfo: nil).raise()

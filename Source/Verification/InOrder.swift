@@ -68,36 +68,90 @@ struct InOrderStep {
 final class InOrder: Sendable {
     @TaskLocal static var current: InOrder?
 
+    /// A check from the block, run in order when it ends.
+    private enum Check {
+        case verify(InOrderStep)
+        /// A `verifyNoMoreInteractions`, which runs after the `verify` calls before it took their calls.
+        case deferred(@Sendable () -> Void)
+    }
+
     private struct State {
-        var steps: [InOrderStep] = []
+        var checks: [Check] = []
         /// The managers of the mocks verified in the block, in the order of their first `verify`.
         var managers: [MockManager] = []
         var verifiedSequences: Set<Int> = []
+        /// Whether the block has ended and its checks have run. A check added later, from a task the block started,
+        /// would never run.
+        var isChecked = false
     }
 
     private let state = Locked(State())
 
     /// Adds a `verify` from the block, to check when it ends.
     func add(_ step: InOrderStep) {
-        state.withLock { state in
-            state.steps.append(step)
+        let isChecked = state.withLock { state in
+            guard !state.isChecked else {
+                return true
+            }
+            state.checks.append(.verify(step))
             if !state.managers.contains(where: { $0 === step.manager }) {
                 state.managers.append(step.manager)
             }
+            return false
+        }
+        if isChecked {
+            Self.reportLate("verify(\(step.callMatcher.name))", at: step.sourceLocation, creatingTest: step.manager.creatingTest)
         }
     }
 
-    /// Checks the block's `verify` calls in order, reporting each one that fails.
+    /// Adds a check that must wait for the block's earlier `verify` calls, such as `verifyNoMoreInteractions`.
+    func addDeferred(at sourceLocation: SourceLocation, creatingTest: CreatingTest?, _ check: @escaping @Sendable () -> Void) {
+        let isChecked = state.withLock { state in
+            guard !state.isChecked else {
+                return true
+            }
+            state.checks.append(.deferred(check))
+            return false
+        }
+        if isChecked {
+            Self.reportLate("verifyNoMoreInteractions", at: sourceLocation, creatingTest: creatingTest)
+        }
+    }
+
+    private static func reportLate(_ check: String, at sourceLocation: SourceLocation, creatingTest: CreatingTest?) {
+        reportFailure(
+            "\(check) ran after its inOrder block ended, so it wasn't checked. Wait for the task that runs it inside the block.",
+            at: sourceLocation,
+            creatingTest: creatingTest
+        )
+    }
+
+    /// Checks the block's `verify` calls in order, reporting each one that fails, and runs its deferred checks
+    /// where they were made.
     func checkSteps() {
-        let (steps, managers) = state.withLock { ($0.steps, $0.managers) }
+        let (checks, managers) = state.withLock { state in
+            state.isChecked = true
+            return (state.checks, state.managers)
+        }
         // The sequence number of the last call the previous passing `verify` took.
         var cursor = 0
-        for step in steps {
+        for check in checks {
+            guard case .verify(let step) = check else {
+                if case .deferred(let run) = check {
+                    run()
+                }
+                continue
+            }
             let candidates = step.matching.filter { $0.sequence > cursor }
             guard let taken = taken(by: step, from: candidates, after: cursor, managers: managers) else {
                 let involved = Array(managers.prefix { $0 !== step.manager }) + [step.manager]
+                let verified = state.withLock { $0.verifiedSequences }
                 let message = "Wanted \(step.callMatcher.name) in order but invoked \(timesDescription(candidates.count)) after the previous verification (\(timesDescription(step.matching.count)) in all)."
-                reportFailure(message + "\n" + Self.describeCalls(of: involved, after: cursor), at: step.sourceLocation)
+                reportFailure(
+                    message + "\n" + Self.describeCalls(of: involved, after: cursor, verified: verified),
+                    at: step.sourceLocation,
+                    creatingTest: step.manager.creatingTest
+                )
                 continue
             }
             let sequences = Set(taken.map(\.sequence))
@@ -130,15 +184,18 @@ final class InOrder: Sendable {
     }
 
     /// The calls to `managers`' mocks, in the order they were made, one per line. `→` marks the calls after
-    /// `cursor`, where the failed `verify` looked.
-    private static func describeCalls(of managers: [MockManager], after cursor: Int) -> String {
+    /// `cursor`, where the failed `verify` looked, and `✓` the calls an earlier `verify` in the block took.
+    private static func describeCalls(of managers: [MockManager], after cursor: Int, verified: Set<Int>) -> String {
         let calls = managers.flatMap { $0.sequencedCalls() }.sorted { $0.sequence < $1.sequence }
         guard !calls.isEmpty else {
             return "No calls were made to the mocks verified in order."
         }
-        return "Calls to the mocks verified in order:\n" + calls.map { call in
-            (call.sequence > cursor ? "→ " : "  ") + call.call.readableDescription
-        }.joined(separator: "\n")
+        let lines = calls.map { call in
+            let mark = verified.contains(call.sequence) ? "✓ " : (call.sequence > cursor ? "→ " : "  ")
+            return mark + call.call.readableDescription
+        }
+        return "Calls to the mocks verified in order (→ after the previous verification, ✓ taken by an earlier one):\n"
+            + lines.joined(separator: "\n")
     }
 
     /// Reports the calls to the verified mocks that came between the first and the last verified call but weren't
@@ -156,6 +213,10 @@ final class InOrder: Sendable {
             return
         }
         let calls = unverified.map { "  " + $0.call.readableDescription }.joined(separator: "\n")
-        reportFailure("Wanted the verified calls in strict order, but these calls came in between:\n" + calls, at: sourceLocation)
+        reportFailure(
+            "Wanted the verified calls in strict order, but these calls came in between:\n" + calls,
+            at: sourceLocation,
+            creatingTest: managers.lazy.compactMap(\.creatingTest).first
+        )
     }
 }
