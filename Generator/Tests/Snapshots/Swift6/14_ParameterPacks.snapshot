@@ -217,6 +217,9 @@ final class MockMainActorCombiner: MainActorCombiner, nonisolated Cuckoo.Protoco
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorCombiner.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorCombiner>()
 
@@ -267,6 +270,7 @@ final class MockMainActorCombiner: MainActorCombiner, nonisolated Cuckoo.Protoco
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         @discardableResult
         func combine<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Cuckoo.ParameterPack), Any> where M1.MatchedType == Cuckoo.ParameterPack {
             let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.ParameterPack)>] = [Cuckoo.wrap(matchable: p0) {

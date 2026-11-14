@@ -49,7 +49,9 @@ the mock of an `actor` protocol is an actor. Errors this brings to light are rac
 
 - Passing the mock of a non-`Sendable` type to another task or actor no longer compiles. Make the protocol
   `Sendable`, or keep the mock in one isolation domain, as the real type would have to be.
-- A `@MainActor` mock is created, stubbed and verified on the main actor. Mark the test `@MainActor`.
+- A `@MainActor` mock is created, stubbed and verified on the main actor. Mark the test `@MainActor`. Its
+  verification proxy is `@MainActor` too, as is a mock of another global actor's, so `verify` on it from a test
+  that isn't on that actor no longer compiles, and `verifyNoMoreInteractions` records a failure there.
 - `thenReturn` on the mock of a `Sendable` type takes `Sendable` values, and its `then` closures are `@Sendable`.
   A `@MainActor` mock's closures are `@MainActor`, so they can use main-actor state directly.
 - An actor mock's `then` closures receive the mock itself, `isolated`, before the call's arguments:

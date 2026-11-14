@@ -9,6 +9,9 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockInventory.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     @MainActor final class DefaultImplCaller: Inventory {
         private let reference: () -> any Inventory
@@ -187,14 +190,17 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         var count: Cuckoo.VerifyReadOnlyProperty<Int> {
             return .init(manager: cuckoo_manager, name: "count", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         var items: Cuckoo.VerifyProperty<[Item]> {
             return .init(manager: cuckoo_manager, name: "items", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         @discardableResult
         func item<M1: Cuckoo._Matchable>(at p0: M1) -> Cuckoo.__DoNotUse<(Int), Item?> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -208,6 +214,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             )
         }
 
+        @MainActor
         @discardableResult
         func reload() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -253,6 +260,9 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockLedger.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        StorageActor.shared
+    }
 
     @StorageActor final class DefaultImplCaller: Ledger {
         private let reference: () -> any Ledger<Entry>
@@ -362,6 +372,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
             self.sourceLocation = sourceLocation
         }
 
+        @StorageActor
         @discardableResult
         func entry<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), Entry?> where M1.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
@@ -375,6 +386,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
             )
         }
 
+        @StorageActor
         @discardableResult
         func record<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, for p1: M2) -> Cuckoo.__DoNotUse<(Entry, Key), Void> where M1.MatchedType == Entry, M2.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) {

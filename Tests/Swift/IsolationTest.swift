@@ -189,4 +189,77 @@ struct IsolationTests {
         verify(mock).value(for: "four")
         verify(mock).load()
     }
+
+    @Test @MainActor
+    func verifyNoMoreInteractionsChecksAMainActorMockOnTheMainActor() {
+        let mock = MockMainActorService()
+        stub(mock) { stub in
+            when(stub.load(id: any())).thenReturn("")
+        }
+        _ = mock.load(id: 1)
+
+        let message = TestUtils.catchCuckooFail {
+            verifyNoMoreInteractions(mock)
+        }
+
+        #expect(message?.hasPrefix("No more interactions wanted") == true)
+    }
+
+    @Test
+    func verifyNoMoreInteractionsRefusesToReadAMainActorMockElsewhere() async {
+        let mock = await MainActor.run {
+            let mock = MockMainActorService()
+            stub(mock) { stub in
+                when(stub.load(id: any())).thenReturn("")
+            }
+            _ = mock.load(id: 1)
+            return mock
+        }
+
+        // A nonisolated test runs on the concurrent pool, off the main actor.
+        let message = TestUtils.catchCuckooFail {
+            verifyNoMoreInteractions(mock)
+        }
+
+        #expect(message?.contains("must run on MainActor") == true)
+    }
+
+    @Test
+    func verifyNoMoreInteractionsRefusesToReadACustomGlobalActorMockElsewhere() async {
+        let mock = await Self.databaseStoreWithACall()
+
+        let message = await MainActor.run {
+            TestUtils.catchCuckooFail {
+                verifyNoMoreInteractions(mock)
+            }
+        }
+
+        #expect(message?.contains("must run on TestDatabaseActor") == true)
+    }
+
+    @Test @TestDatabaseActor
+    func verifyNoMoreInteractionsChecksACustomGlobalActorMockOnItsActor() {
+        let mock = MockDatabaseStore()
+        stub(mock) { stub in
+            when(stub.save(any())).thenDoNothing()
+        }
+        mock.save("a")
+        verify(mock).save("a")
+
+        let message = TestUtils.catchCuckooFail {
+            verifyNoMoreInteractions(mock)
+        }
+
+        #expect(message == nil)
+    }
+
+    @TestDatabaseActor
+    private static func databaseStoreWithACall() -> MockDatabaseStore {
+        let mock = MockDatabaseStore()
+        stub(mock) { stub in
+            when(stub.save(any())).thenDoNothing()
+        }
+        mock.save("a")
+        return mock
+    }
 }

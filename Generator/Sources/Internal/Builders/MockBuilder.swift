@@ -47,6 +47,11 @@ enum MockBuilder {
         lines.append(contentsOf: container.members.compactMap { ($0 as? Typealias).map { "    \(access)\($0.description)" } })
         lines.append("")
         lines.append("    \(access)nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
+        if case .globalActor(let name)? = container.declaredIsolation, !isActor {
+            // Checks that read the recorded calls of several mocks at once, such as `verifyNoMoreInteractions`,
+            // can't take one mock's isolation, so they ask for it at run time.
+            lines.append("    \(access)nonisolated static var cuckoo_globalActor: (any Actor)? { \(name).shared }")
+        }
         lines.append("")
         lines.append(contentsOf: try defaultImplementation(of: container, isActor: isActor, usesTypeErasure: usesTypeErasure, globalActor: globalActor))
         lines.append("")

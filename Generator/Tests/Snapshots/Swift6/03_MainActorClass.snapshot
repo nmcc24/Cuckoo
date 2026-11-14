@@ -9,6 +9,9 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockViewModel.self) ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<ViewModel>()
 
@@ -108,10 +111,12 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         var state: Cuckoo.VerifyProperty<String> {
             return .init(manager: cuckoo_manager, name: "state", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         @discardableResult
         func reload() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -123,6 +128,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             )
         }
 
+        @MainActor
         @discardableResult
         func select<M1: Cuckoo._Matchable>(index p0: M1) -> Cuckoo.__DoNotUse<(Int), Bool> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {

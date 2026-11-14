@@ -292,6 +292,9 @@ final class MockMainActorRegistry: MainActorRegistry, nonisolated Cuckoo.Protoco
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorRegistry.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorRegistry>()
 
@@ -377,10 +380,12 @@ final class MockMainActorRegistry: MainActorRegistry, nonisolated Cuckoo.Protoco
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         var shared: Cuckoo.VerifyReadOnlyProperty<Int> {
             return .init(manager: cuckoo_manager, name: "shared", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         @discardableResult
         func current() -> Cuckoo.__DoNotUse<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []

@@ -539,6 +539,9 @@ final class MockMainActorView: MainActorView, nonisolated Cuckoo.ClassMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorView.self) ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<MainActorView>()
 
@@ -587,6 +590,7 @@ final class MockMainActorView: MainActorView, nonisolated Cuckoo.ClassMock {
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         @discardableResult
         func layout() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -614,6 +618,9 @@ final class MockMainActorViewModel: MainActorView, MainActorViewModel, nonisolat
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorViewModel.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorViewModel>()
 

@@ -430,6 +430,9 @@ final class MockMainActorAccumulator: MainActorAccumulator, nonisolated Cuckoo.P
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorAccumulator.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorAccumulator>()
 
@@ -484,6 +487,7 @@ final class MockMainActorAccumulator: MainActorAccumulator, nonisolated Cuckoo.P
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         @discardableResult
         func add<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {

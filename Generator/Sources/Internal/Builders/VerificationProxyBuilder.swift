@@ -56,6 +56,7 @@ enum VerificationProxyBuilder {
 
     private static func source(of property: Variable) -> String {
         var source = property.repeatedAttributes.map(\.description)
+        source.append(contentsOf: isolation(property.stubIsolation))
         let type = GeneratorHelper.genericSafeType(from: (property.isReadOnly ? property.type : property.type.unoptionaled).description)
         source.append("var \(property.name): Cuckoo.\(property.verifyType)<\(type)> {")
         source.append("    return .init(manager: cuckoo_manager, name: \(Fragment.literal(property.name)), callMatcher: callMatcher, sourceLocation: sourceLocation)")
@@ -70,6 +71,7 @@ enum VerificationProxyBuilder {
         let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method, forVerification: true)
         var source = method.repeatedAttributes.map(\.description)
+        source.append(contentsOf: isolation(method.stubIsolation))
         source.append("@discardableResult")
         source.append("func \(escapeReservedKeywords(for: method.name))\(generics)(\(parameters)) -> Cuckoo.__DoNotUse<(\(input)), \(output)>\(whereClause) {")
         source.append("    \(GeneratorHelper.parameterMatchers(for: method.signature.parameters))")
@@ -90,6 +92,8 @@ enum VerificationProxyBuilder {
         let generics = GeneratorHelper.matchableGenericTypes(from: getter)
         let parameters = GeneratorHelper.matchableParameterSignature(with: keys)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: getter)
+        // The accessor only builds the keys' matchers; `get()` and `set(_:)` read the recorded arguments.
+        let actor = isolation(getter.stubIsolation).map { "    \($0)" }
         var accessor = attributes
         accessor.append("subscript\(generics)(\(parameters)) -> __Subscript\(number)\(subscriptDeclaration.genericArgumentsClause)\(whereClause) {")
         accessor.append("    \(GeneratorHelper.parameterMatchers(for: keys))")
@@ -103,6 +107,7 @@ enum VerificationProxyBuilder {
         type.append("    fileprivate let sourceLocation: Cuckoo.SourceLocation")
         type.append("    fileprivate let matchers: [Cuckoo.ParameterMatcher<(\(getterInput))>]")
         type.append("")
+        type.append(contentsOf: actor)
         type.append("    @discardableResult")
         type.append("    func get() -> Cuckoo.__DoNotUse<(\(getterInput)), \(GeneratorHelper.genericSafeType(from: getterTypes.output))> {")
         type.append(contentsOf: verify(getter).map { "    \($0)" })
@@ -112,6 +117,7 @@ enum VerificationProxyBuilder {
             let setterInput = GeneratorHelper.genericSafeType(from: setter.proxyStubTypes.input)
             let index = subscriptDeclaration.newValueMatcherIndex
             type.append("")
+            type.append(contentsOf: actor)
             type.append("    @discardableResult")
             type.append("    func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: false))>(_ \(subscriptDeclaration.newValueName): M\(index)) -> Cuckoo.__DoNotUse<(\(setterInput)), Void> where \(subscriptDeclaration.newValueMatcherConstraint) {")
             type.append("        let matchers: [Cuckoo.ParameterMatcher<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers(sendable: false))[\(subscriptDeclaration.newValueMatcher(sendable: false))]")
@@ -120,6 +126,12 @@ enum VerificationProxyBuilder {
         }
         type.append("}")
         return (lines(accessor), lines(type))
+    }
+
+    /// The member's global actor, as an attribute, when it has one: its verifying member then runs only on that actor,
+    /// where the arguments it reads were recorded, so a test can't read them while the mock still uses them.
+    private static func isolation(_ stubIsolation: StubIsolation) -> [String] {
+        stubIsolation.globalActor.map { ["@\($0)"] } ?? []
     }
 
     /// The lines that verify the member's calls against the matchers in `matchers`.

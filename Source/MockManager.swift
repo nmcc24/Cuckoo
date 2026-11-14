@@ -373,7 +373,19 @@ public final class MockManager: Sendable {
         }
     }
     
-    func verifyNoMoreInteractions(_ sourceLocation: SourceLocation) {
+    /// - Parameters:
+    ///   - globalActor: The actor the mock records its calls on, if any.
+    ///   - caller: The caller's isolation. Off `globalActor`, the calls aren't read: a failure says why.
+    func verifyNoMoreInteractions(_ sourceLocation: SourceLocation, mockType: Any.Type, globalActor: (any Actor)?, caller: (any Actor)?) {
+        if let globalActor, !Self.isRunning(on: globalActor, caller: caller) {
+            reportFailure(
+                "verifyNoMoreInteractions(\(mockType)) must run on \(type(of: globalActor)), where the mock records its calls: "
+                    + "mark the test or the calling function with that actor.",
+                at: sourceLocation,
+                inSwiftTesting: createdInSwiftTesting
+            )
+            return
+        }
         let unverified = state.withLock { state in
             state.calls.filter { state.unverifiedCallIDs.contains($0.id) }.map(\.call)
         }
@@ -383,6 +395,15 @@ public final class MockManager: Sendable {
             let message = "No more interactions wanted but some found:\n"
             reportFailure(message + unverifiedCalls, at: sourceLocation, inSwiftTesting: createdInSwiftTesting)
         }
+    }
+
+    /// Whether code isolated to `caller` runs on `globalActor`. Nonisolated code on the main thread runs on the main
+    /// actor's executor too, as a synchronous XCTest method does.
+    private static func isRunning(on globalActor: any Actor, caller: (any Actor)?) -> Bool {
+        if let caller, caller === globalActor {
+            return true
+        }
+        return globalActor === MainActor.shared && Thread.isMainThread
     }
 
     /// Reports a failure at `sourceLocation`, or, for a mock's call, which has no location in the test, at the test.
