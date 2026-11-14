@@ -37,7 +37,7 @@ public struct CuckooConfiguration: Sendable {
 
 /// Default values for unstubbed calls, keyed by type.
 public struct DefaultValues: Sendable {
-    private var values: [ObjectIdentifier: any Sendable] = [:]
+    private var values: [ObjectIdentifier: DefaultValueFactory] = [:]
 
     /// Creates an empty set of default values.
     public init() {
@@ -45,16 +45,17 @@ public struct DefaultValues: Sendable {
 
     /// Registers `value` as the default for `type` in this set.
     public mutating func register<T: Sendable>(_ value: T, for type: T.Type = T.self) {
-        // Boxed explicitly, so a registered `nil` is stored rather than removing the entry.
-        let boxed: any Sendable = value
-        values[ObjectIdentifier(type)] = boxed
+        values[ObjectIdentifier(type)] = DefaultValueFactory(value)
+    }
+
+    /// Registers `factory` to make the default for `type` in this set. Each unstubbed call gets a new value, so
+    /// `type` needn't be `Sendable`: a class, or a tuple such as `(Int, String)`.
+    public mutating func register<T>(for type: T.Type = T.self, factory: @escaping @Sendable () -> T) {
+        values[ObjectIdentifier(type)] = DefaultValueFactory(factory)
     }
 
     func value<T>(for type: T.Type) -> T? {
-        guard let value = values[ObjectIdentifier(type)] else {
-            return nil
-        }
-        return value as? T
+        values[ObjectIdentifier(type)]?.make(type)
     }
 }
 
