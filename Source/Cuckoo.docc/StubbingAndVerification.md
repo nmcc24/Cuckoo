@@ -222,8 +222,9 @@ row even when the same call comes again later, for a later `verify` to take.
 
 The block's `verify` calls are checked when it ends, so an ``ArgumentCaptor`` used in one fills only after the
 block: read it after `inOrder` returns. A `verifyNoMoreInteractions` inside the block waits too, and sees the calls
-the `verify` calls before it took. Keep every `verify` inside the block itself: one in a task the block starts that
-runs after the block ends records a failure, since it can no longer be checked.
+the `verify` calls before it took. Keep every `verify` inside the block itself: one in a `Task` the block starts that
+runs after the block ends records a failure, since it can no longer be checked. A `Task.detached` or a dispatch
+queue isn't part of the block: a `verify` there is checked on its own, outside the order.
 
 ``eventually(timeout:pollingInterval:_:)`` retries its block until its `verify` calls pass, for code that calls a
 mock from a task it starts:
