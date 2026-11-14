@@ -10,7 +10,7 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockLogger.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Logger>()
 
@@ -427,7 +427,7 @@ actor MockLoggerActor: LoggerActor, Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockLoggerActor.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated func enableDefaultImplementation(_ stub: MocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
@@ -501,7 +501,7 @@ final class MockMainActorLogger: MainActorLogger, nonisolated Cuckoo.ProtocolMoc
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorLogger.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorLogger>()
 
@@ -580,7 +580,7 @@ nonisolated final class MockStore<Item>: Store, nonisolated Cuckoo.ProtocolMock 
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class DefaultImplCaller: Store, Sendable {
         private let reference: @Sendable () -> any Store
@@ -802,7 +802,7 @@ final class MockPrinter: Printer, nonisolated Cuckoo.ClassMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPrinter.self) ?? Cuckoo.MockManager(hasParent: true)
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<Printer>()
 

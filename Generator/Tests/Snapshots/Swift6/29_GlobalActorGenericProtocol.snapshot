@@ -8,7 +8,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockInventory.self) ?? Cuckoo.MockManager(hasParent: false)
 
     @MainActor final class DefaultImplCaller: Inventory {
         private let reference: () -> any Inventory
@@ -252,7 +252,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockLedger.self) ?? Cuckoo.MockManager(hasParent: false)
 
     @StorageActor final class DefaultImplCaller: Ledger {
         private let reference: () -> any Ledger<Entry>
