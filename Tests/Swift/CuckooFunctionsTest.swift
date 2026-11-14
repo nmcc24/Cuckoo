@@ -61,4 +61,32 @@ struct CuckooFunctionsTest {
 
         verifyNoMoreInteractions(mock)
     }
+
+    @Test
+    func clearingAndCheckingMocksOfDifferentTypes() {
+        let classMock = MockTestedClass()
+        let protocolMock = MockTestedProtocol()
+        stub(classMock) { stub in
+            when(stub.noReturn()).thenDoNothing()
+        }
+        stub(protocolMock) { stub in
+            when(stub.noReturn()).thenDoNothing()
+        }
+        classMock.noReturn()
+        protocolMock.noReturn()
+
+        let unverified = TestUtils.catchCuckooFail {
+            verifyNoMoreInteractions(classMock, protocolMock)
+        }
+        #expect(unverified != nil)
+
+        clearInvocations(classMock, protocolMock)
+        verifyNoMoreInteractions(classMock, protocolMock)
+
+        clearStubs(classMock, protocolMock)
+        let unstubbed = TestUtils.catchCuckooFail {
+            protocolMock.noReturn()
+        }
+        #expect(unstubbed != nil)
+    }
 }
