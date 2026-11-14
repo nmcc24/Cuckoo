@@ -116,27 +116,36 @@ private let fortyTwo: DefaultValues = {
 struct CuckooTraitTests {
     @Test
     func suiteDefaultValuesApplyToItsTests() {
+        let log = FailureLog()
         let mock = MockTestedProtocol()
 
-        withKnownIssue {
+        withTraitConfiguration(failureHandler: log.handler) {
             #expect(mock.count(characters: "a") == 42)
             #expect(mock.readOnlyProperty == "forty-two")
             // The registry still answers types the trait doesn't cover.
             #expect(mock.optionalProperty == nil)
-        } matching: { issue in
-            issue.comments.map(\.rawValue).first?.hasPrefix("No stub for method") == true
         }
+        #expect(log.all.count == 3)
+        #expect(log.all.allSatisfy { $0.hasPrefix("No stub for method") })
     }
 
     @Test(.cuckoo(defaultValues: DefaultValues()))
     func testTraitOverridesTheSuite() {
+        let log = FailureLog()
         let mock = MockTestedProtocol()
 
-        withKnownIssue {
+        withTraitConfiguration(failureHandler: log.handler) {
             #expect(mock.count(characters: "a") == 0)
-        } matching: { issue in
-            issue.comments.map(\.rawValue).first?.hasPrefix("No stub for method") == true
         }
+        #expect(log.all.count == 1)
+    }
+
+    /// Runs `body` with the configuration the traits set, plus `failureHandler`, so the unstubbed calls these tests
+    /// make on purpose don't fail them.
+    private func withTraitConfiguration(failureHandler: @escaping CuckooConfiguration.FailureHandler, _ body: () -> Void) {
+        var configuration = CuckooConfiguration.current
+        configuration.failureHandler = failureHandler
+        CuckooConfiguration.$current.withValue(configuration, operation: body)
     }
 
     @Test
