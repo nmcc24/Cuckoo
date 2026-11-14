@@ -26,8 +26,8 @@ Guidance for Claude Code sessions working on this repository: the `nmcc24/Cuckoo
   - a PR is required;
   - the `CI passed` check must pass, with the branch up to date with `master`;
   - rebase merging only;
-  - signed commits required;
   - no force-pushes or deletion.
+- **Commits are signed on PR branches, not on `master`** (decided by nmcc24, 2026-11-14). Sign every commit pushed to a PR branch. GitHub's "Rebase and merge" re-creates each commit on `master` without its signature, so `master`'s copies show as unverified, and the ruleset doesn't require signatures. That's accepted, to keep a linear history of individual commits: merge commits would keep the signatures but add a merge commit per PR, and squash merging would lose the individual commits.
 - `master` started from upstream `Brightify/Cuckoo` 2.4.0 (`7cef639`). Bring in later upstream changes through a PR that merges upstream `master`; never reset `master` again.
 - After a PR merges, restart the working branch from the new `master` and carry over any unmerged local commits. Never stack new work on merged history.
 - Never open PRs or push to `Brightify/Cuckoo` without asking.
