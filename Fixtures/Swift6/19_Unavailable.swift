@@ -17,6 +17,7 @@ protocol Legacy {
 }
 
 class LegacyService {
+    init() {}
     @available(*, unavailable)
     func gone() {}
     @available(*, unavailable, message: "use kept()")

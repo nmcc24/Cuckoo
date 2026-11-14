@@ -1,4 +1,7 @@
-class NonSendableBox { var v = 0 }
+class NonSendableBox {
+    var v = 0
+    init() {}
+}
 protocol Transfer {
     func take(_ box: sending NonSendableBox)
     func make() -> sending NonSendableBox
