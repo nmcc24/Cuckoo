@@ -83,11 +83,12 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
             }
         }
         // Without an entry this target generates, or with one that lists no files, it would compile no mocks and
-        // say nothing. The line reader can misread a Cuckoofile, so finding no entries at all isn't an error: the
-        // generator, which parses the TOML, reports what's wrong with it.
+        // say nothing. The line reader can misread an unusual Cuckoofile, so one that mentions `modules` but where
+        // it finds no entry at all isn't an error here; an empty one, or one without `modules`, is.
         let entries = cuckoofileModuleNames(in: configuration)
         let generated = Set(sourceModules.map(\.name) + [target.displayName])
-        if !entries.isEmpty, entries.isDisjoint(with: generated) {
+        let readerMayHaveMissedEntries = entries.isEmpty && configuration.contains("modules")
+        if !readerMayHaveMissedEntries, entries.isDisjoint(with: generated) {
             throw XcodeTestTargetWithoutEntryError(testTarget: target.displayName, entries: entries.sorted(), listsNoSources: false)
         }
         if sourceModules.isEmpty, entries.contains(target.displayName),
@@ -128,7 +129,7 @@ struct XcodeTestTargetWithoutEntryError: Error, CustomStringConvertible {
         let key = testTarget.allSatisfy { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "-" } ? testTarget : "\"\(testTarget)\""
         let problem = listsNoSources
             ? "The Cuckoofile entry [modules.\(key)] lists no sources, so it mocks nothing."
-            : "The Cuckoofile has no entry for the Xcode test target '\(testTarget)' (it has: \(entries.joined(separator: ", ")))."
+            : "The Cuckoofile has no entry for the Xcode test target '\(testTarget)' (it has: \(entries.isEmpty ? "none" : entries.joined(separator: ", ")))."
         return problem + " In an Xcode project, name the entry after the test target and list the files to mock: "
             + "[modules.\(key)] with sources = [\"App/**/*.swift\"]. Xcode doesn't tell the plugin which of the "
             + "project's targets a test depends on."
@@ -288,10 +289,18 @@ func cuckoofileKeyLines(_ configuration: String) -> [(key: [String], value: Subs
 /// A line up to its `#` comment, if it has one outside quotes.
 private func withoutComment(_ line: Substring) -> Substring {
     var quote: Character?
+    var isEscaped = false
     for index in line.indices {
         let character = line[index]
         if let open = quote {
-            if character == open { quote = nil }
+            // A basic string, in double quotes, escapes with a backslash; a literal one, in single quotes, doesn't.
+            if isEscaped {
+                isEscaped = false
+            } else if open == "\"", character == "\\" {
+                isEscaped = true
+            } else if character == open {
+                quote = nil
+            }
         } else if character == "\"" || character == "'" {
             quote = character
         } else if character == "#" {
