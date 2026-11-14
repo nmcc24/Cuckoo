@@ -126,6 +126,7 @@ struct SnapshotTests {
                 sources: sourcesByModule.map { .byModule($0) } ?? .paths(sources),
                 exclude: exclude,
                 regex: nil,
+                globalActors: nil,
                 output: "unused.swift",
                 filenameFormat: nil,
                 options: Module.DTO.Options(

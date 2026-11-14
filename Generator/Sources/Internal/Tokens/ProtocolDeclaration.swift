@@ -28,6 +28,10 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var inheritsActor = false
     /// Whether a parent protocol states `Sendable`, which makes this one `Sendable` too.
     var inheritsSendable = false
+    /// Attributes the generator couldn't classify, which the mock names in a comment; see `Crawler.unknownAttributes`.
+    var unknownAttributes: [String] = []
+    /// Parent protocols declared outside the mocked sources, whose requirements the mock doesn't implement.
+    var parentsOutsideSources: [String] = []
 
     /// The global actor the protocol is isolated to, if any.
     var globalActor: String? {
@@ -57,7 +61,9 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             whereRequirements: whereRequirements,
             isIsolationDefault: isIsolationDefault,
             inheritsActor: inheritsActor,
-            inheritsSendable: inheritsSendable
+            inheritsSendable: inheritsSendable,
+            unknownAttributes: unknownAttributes,
+            parentsOutsideSources: parentsOutsideSources
         )
     }
 

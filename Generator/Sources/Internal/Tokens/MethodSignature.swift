@@ -23,7 +23,8 @@ extension Method {
                     innerName: "p\(index)",
                     type: parameter.type,
                     isNoncopyable: parameter.isNoncopyable,
-                    variadicElement: parameter.variadicElement
+                    variadicElement: parameter.variadicElement,
+                    defaultValue: parameter.defaultValue
                 )
             }
             self.asyncType = asyncType
@@ -33,6 +34,15 @@ extension Method {
         }
 
         var description: String {
+            description(parameters: parameters.map(\.description))
+        }
+
+        /// The signature as an override declares it, with the parameters' default values.
+        var declarationDescription: String {
+            description(parameters: parameters.map(\.declarationDescription))
+        }
+
+        private func description(parameters: [String]) -> String {
             let genericParametersString = genericParameters.map { $0.description }.joined(separator: ", ")
             let returnString: String? = if let returnType, !returnType.isVoid {
                 "-> \(returnType.description)"
@@ -42,7 +52,7 @@ extension Method {
             let whereString = whereConstraints.isEmpty ? nil : "where \(whereConstraints.joined(separator: ", "))"
             return [
                 genericParametersString.isEmpty ? nil : "<\(genericParametersString)>",
-                "(\(parameters.map { $0.description }.joined(separator: ", ")))",
+                "(\(parameters.joined(separator: ", ")))",
                 asyncType?.description,
                 throwType?.description,
                 returnString,

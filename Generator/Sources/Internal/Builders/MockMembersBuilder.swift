@@ -76,7 +76,7 @@ enum MockMembersBuilder {
         let name = property.name
         let literal = Fragment.literal(name)
         let tryAwait = (property.effects.isThrowing ? "try " : "") + (property.effects.isAsync ? "await " : "")
-        let effects = (property.effects.isAsync ? "async " : "") + (property.effects.isThrowing ? "throws " : "")
+        let effects = property.effects.getterDeclaration
         let types = property.implementationTypes
         let isolated = property.stubIsolation.isolatedParameter != nil
         let manager = manager(isStatic: property.isStatic)
@@ -98,9 +98,22 @@ enum MockMembersBuilder {
         source.append(contentsOf: attributes(of: property, at: property.accessibility, isolation: property.isolation))
         source.append("\(property.accessibility.spaced)\(modifiers(of: property, isStatic: property.isStatic))var \(escapeReservedKeywords(for: name)): \(property.type.description) {")
         source.append("    get \(effects){")
-        source.append("        return \(tryAwait)\(manager).getter\(property.effects.isThrowing ? "Throws" : "")(")
-        source.append("            \(literal),")
-        source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.getter))) in \(tryAwait)implementation(\(isolated ? "self" : "()")) },")
+        if let typedError = property.effects.typedError {
+            // A typed-throws getter is recorded as the getter `getterThrows` records, but throws its own error type,
+            // as a typed-throws method does: an unstubbed read then answers with a default value.
+            let getterLiteral = Fragment.literal(name + "#get")
+            let implementationCall = "\(property.effects.isAsync ? "await " : "")implementation(\(isolated ? "self" : "()"))"
+            source.append("        return \(tryAwait)\(manager).callThrows(")
+            source.append("            \(getterLiteral),")
+            source.append("            parameters: Void(),")
+            source.append("            escapingParameters: Void(),")
+            source.append("            errorType: (\(typedError)).self,")
+            source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.getter)), _) \(property.effects.isAsync ? "async " : "")throws(\(typedError)) in do { return try \(implementationCall) } catch { throw Cuckoo.MockManager.typedError(error, as: (\(typedError)).self, member: \(literal)) } },")
+        } else {
+            source.append("        return \(tryAwait)\(manager).getter\(property.effects.isThrowing ? "Throws" : "")(")
+            source.append("            \(literal),")
+            source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.getter))) in \(tryAwait)implementation(\(isolated ? "self" : "()")) },")
+        }
         source.append("            superclassCall: \(context.isClass ? "\(tryAwait)super.\(name)" : crashOnSuperclass),")
         source.append("            defaultCall: \(defaultCall("\(tryAwait)__defaultImplStub.value.\(name)"))")
         source.append("        )")
@@ -134,7 +147,7 @@ enum MockMembersBuilder {
         if let execution = method.executionAttribute, !execution.isEmpty {
             source.append(execution)
         }
-        source.append("\(method.accessibility.spaced)\(modifiers(of: method, isStatic: method.isStatic))\(method.declaration)\(method.signature.description) {")
+        source.append("\(method.accessibility.spaced)\(modifiers(of: method, isStatic: method.isStatic))\(method.declaration)\(context.isClass ? method.signature.declarationDescription : method.signature.description) {")
         source.append(contentsOf: body(of: method, context).map { "    \($0)" })
         source.append("}")
         return lines(source)

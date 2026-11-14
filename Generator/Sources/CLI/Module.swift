@@ -13,6 +13,8 @@ final class Module: Sendable {
     let exclude: [String]
     /// Patterns a type's name must match one of to be mocked. Empty mocks every type.
     let regexes: [String]
+    /// Global actors declared outside the mocked sources, so attributes naming them isolate the mocks.
+    let globalActors: [String]
     let output: String
     let filenameFormat: String?
     let options: Options
@@ -67,6 +69,7 @@ final class Module: Sendable {
         }
         self.exclude = dto.exclude?.map(\.trimmed) ?? []
         self.regexes = dto.regex?.values ?? []
+        self.globalActors = dto.globalActors?.map(\.trimmed) ?? []
         self.output = (overriddenOutput ?? dto.output ?? output)!
         self.filenameFormat = dto.filenameFormat
         self.options = Options(
@@ -189,6 +192,7 @@ extension Module {
         let sources: Sources?
         let exclude: [String]?
         let regex: Patterns?
+        let globalActors: [String]?
         let output: String?
         let filenameFormat: String?
         let options: Options?

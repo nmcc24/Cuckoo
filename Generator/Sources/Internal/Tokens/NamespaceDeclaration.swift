@@ -10,6 +10,8 @@ struct NamespaceDeclaration: Token, HasAccessibility, HasName, HasMembers, HasEn
     var enclosingCompilationConditions: [String]
     /// An `extension`, whose access level is the default for what it declares.
     var isExtension = false
+    /// An `actor`: the module's default isolation doesn't apply to the types nested in it.
+    var isActor = false
 
     func replacing(members: [any Token]) -> NamespaceDeclaration {
         NamespaceDeclaration(
@@ -19,7 +21,8 @@ struct NamespaceDeclaration: Token, HasAccessibility, HasName, HasMembers, HasEn
             name: name,
             members: members,
             enclosingCompilationConditions: enclosingCompilationConditions,
-            isExtension: isExtension
+            isExtension: isExtension,
+            isActor: isActor
         )
     }
 }

@@ -15,10 +15,10 @@ struct FileRepresentation: Sendable {
 }
 
 extension FileRepresentation {
-    func mergingInheritance(with files: [FileRepresentation]) -> FileRepresentation {
-        let mergedTokens = tokens.reduce([] as [any Token]) { list, token in
-            let mergeToken = token.mergingInheritance(with: files)
-            return list + [mergeToken]
+    func mergingInheritance(with files: [FileRepresentation]) throws -> FileRepresentation {
+        var mergedTokens: [any Token] = []
+        for token in tokens {
+            mergedTokens.append(try token.mergingInheritance(with: files))
         }
         return replacing(tokens: mergedTokens)
     }
@@ -28,25 +28,53 @@ extension FileRepresentation {
     }
 }
 
+/// A parent type's name matches more than one declaration in the sources, and Swift's lookup from the inheriting
+/// type doesn't settle which.
+struct AmbiguousInheritanceError: Error, CustomStringConvertible {
+    let declaration: String
+    let parent: String
+    let candidates: [String]
+
+    var description: String {
+        "'\(declaration)' inherits '\(parent)', which matches \(candidates.map { "'\($0)'" }.joined(separator: " and ")) in the "
+            + "mocked sources. Write the parent's qualified name, such as '\(candidates[0])', so Cuckoo can tell which."
+    }
+}
+
 extension Token {
-    // TODO: This would be much better as a dictionary instead of going through all the files for every inheritance type.
-    private static func findToken(forClassOrProtocol name: String, in files: [FileRepresentation]) -> (any Token)? {
-        files.lazy
-            .flatMap { $0.tokens }
+    /// The class or protocol `name` refers to from inside `scope` (the inheriting type's qualified name), found as
+    /// Swift would: in the type's enclosing scopes from the innermost outwards, then anywhere if only one declaration
+    /// has the name. A name written qualified, `Outer.Service`, matches that declaration.
+    private static func findToken(forClassOrProtocol name: String, from scope: String, in files: [FileRepresentation]) throws -> (any Token)? {
+        let candidates = files
+            .flatMap(\.tokens)
             .filter { $0.isClass || $0.isProtocol }
-            .compactMap { $0 as? any HasName }
-            .first { $0.name == name }
+            .compactMap { $0 as? any Token & HasName }
+        var enclosingScopes = scope.split(separator: ".").map(String.init)
+        while true {
+            enclosingScopes.removeLast()
+            let qualifiedName = (enclosingScopes + [name]).joined(separator: ".")
+            if let match = candidates.first(where: { $0.fullyQualifiedName == qualifiedName }) {
+                return match
+            }
+            if enclosingScopes.isEmpty { break }
+        }
+        let matching = candidates.filter { $0.fullyQualifiedName.hasSuffix("." + name) }
+        guard matching.count <= 1 else {
+            throw AmbiguousInheritanceError(declaration: scope, parent: name, candidates: matching.map(\.fullyQualifiedName).sorted())
+        }
+        return matching.first
     }
 
-    fileprivate func mergingInheritance(with files: [FileRepresentation]) -> any Token {
-        guard let token = self as? any Token & HasMembers & HasInheritance else { return self }
+    fileprivate func mergingInheritance(with files: [FileRepresentation]) throws -> any Token {
+        guard let token = self as? any Token & HasMembers & HasInheritance & HasName else { return self }
 
         // A protocol bound to a class doesn't take the class's members: the mock subclasses the class instead.
         // A protocol's parent can be written with its primary associated types, as `Parent<String>`.
-        let inheritedRepresentations = token.inheritedTypes
-            .compactMap { Self.findToken(forClassOrProtocol: token.isProtocol ? $0.withoutGenericArguments : $0, in: files) }
+        let inheritedRepresentations = try token.inheritedTypes
+            .compactMap { try Self.findToken(forClassOrProtocol: token.isProtocol ? $0.withoutGenericArguments : $0, from: token.fullyQualifiedName, in: files) }
             .filter { !(token.isProtocol && $0.isClass) }
-            .compactMap { $0.mergingInheritance(with: files) }
+            .map { try $0.mergingInheritance(with: files) }
 
         let mergedTokens = inheritedRepresentations
             .compactMap { $0 as? any HasMembers }

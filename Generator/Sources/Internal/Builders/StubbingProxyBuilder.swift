@@ -70,7 +70,7 @@ enum StubbingProxyBuilder {
 
         let sendable = method.stubIsolation.sharing == .shared
         let generics = GeneratorHelper.matchableGenericTypes(from: method, sendable: sendable)
-        let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters)
+        let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method)
         var source = method.repeatedAttributes.map(\.description)
         source.append("func \(method.proxyName)\(generics)(\(parameters)) -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
@@ -91,7 +91,7 @@ enum StubbingProxyBuilder {
 
         let sendable = getter.stubIsolation.sharing == .shared
         let generics = GeneratorHelper.matchableGenericTypes(from: getter, sendable: sendable)
-        let parameters = GeneratorHelper.matchableParameterSignature(with: keys)
+        let parameters = GeneratorHelper.matchableParameterSignature(with: keys, of: getter)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: getter)
         var accessor = attributes
         accessor.append("subscript\(generics)(\(parameters)) -> __Subscript\(number)\(subscriptDeclaration.genericArgumentsClause)\(whereClause) {")
@@ -125,7 +125,7 @@ enum StubbingProxyBuilder {
             ]
             let index = subscriptDeclaration.newValueMatcherIndex
             type.append("")
-            type.append("    func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: sendable))>(_ \(subscriptDeclaration.newValueName): M\(index)) -> \(setter.stubFunction)<\(setterArguments.joined(separator: ", "))> where \(subscriptDeclaration.newValueMatcherConstraint) {")
+            type.append("    func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: sendable))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix(for: subscriptDeclaration.getter))\(index)) -> \(setter.stubFunction)<\(setterArguments.joined(separator: ", "))> where \(subscriptDeclaration.newValueMatcherConstraint) {")
             type.append("        let matchers: [\(GeneratorHelper.matcherType(sendable: sendable))<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers(sendable: sendable))[\(subscriptDeclaration.newValueMatcher(sendable: sendable))]")
             type.append(contentsOf: createStub(for: setter, mockName: mockName).map { "    \($0)" })
             type.append("    }")

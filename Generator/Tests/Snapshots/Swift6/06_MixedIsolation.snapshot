@@ -26,7 +26,7 @@ final class MockCoordinator: Coordinator, nonisolated Cuckoo.ProtocolMock {
             "identifier() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
+            invoke: { (implementation: @Sendable (()) -> String, arguments) in
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -54,8 +54,8 @@ final class MockCoordinator: Coordinator, nonisolated Cuckoo.ProtocolMock {
             self.cuckoo_manager = manager
         }
 
-        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, @Sendable (()) -> String, Cuckoo.StubSharing.Shared> {
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockCoordinator.self,
                 method: "identifier() -> String",
                 parameterMatchers: matchers

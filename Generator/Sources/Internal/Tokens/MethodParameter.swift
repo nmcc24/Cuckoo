@@ -10,6 +10,9 @@ struct MethodParameter: Token {
     /// A variadic parameter's element type, as in `Int...`. `type` is then the array the function receives,
     /// `[Int]`, which the mock records and its matchers take.
     var variadicElement: ComplexType? = nil
+    /// The default value, as written: a class mock's override repeats it, or a call through the mock's type would
+    /// have to pass the argument.
+    var defaultValue: String? = nil
 
     var isVariadic: Bool {
         variadicElement != nil
@@ -19,12 +22,20 @@ struct MethodParameter: Token {
         type.containsAttribute(named: "inout")
     }
 
+    /// The label and the parameter name, or the label alone when they're the same: a label that's literally `p0`,
+    /// the name the mock gives the first parameter, would otherwise read `p0 p0`, which warns.
     var nameAndInnerName: String {
-        [name, innerName].compactMap { $0 }.joined(separator: " ")
+        guard let innerName, innerName != name else { return name }
+        return "\(name) \(innerName)"
     }
 
     var usableName: String {
         innerName ?? name
+    }
+
+    /// The parameter as an override declares it, with its default value.
+    var declarationDescription: String {
+        description + (defaultValue.map { " = \($0)" } ?? "")
     }
 
     var description: String {
@@ -35,8 +46,22 @@ struct MethodParameter: Token {
         }
     }
 
+    /// A label as a call writes it: a keyword label is escaped in a declaration, `` `in` ``, but not in a call,
+    /// where escaping it warns, except `inout`, `var` and `let`, which a call still has to escape.
+    static func argumentLabel(_ label: String) -> String {
+        guard label.hasPrefix("`"), label.hasSuffix("`"), label.count > 2 else { return label }
+        let bare = String(label.dropFirst().dropLast())
+        return ["inout", "var", "let"].contains(bare) ? label : bare
+    }
+
     var isSending: Bool {
         type.containsAttribute(named: "sending")
+    }
+
+    /// A copyable `consuming`, `borrowing` or `__owned` parameter, which Swift doesn't copy implicitly: the mock
+    /// uses it several times (recorded, forwarded), so each use is an explicit `copy`.
+    var needsExplicitCopy: Bool {
+        !isNoncopyable && ["consuming", "borrowing", "__owned"].contains { type.containsAttribute(named: $0) }
     }
 
     /// A parameter pack, `repeat each T`.
@@ -55,11 +80,11 @@ struct MethodParameter: Token {
     }
 
     private func call(value name: String) -> String {
-        let value = isPack ? "repeat each \(name)" : "\(isInout ? "&" : "")\(name)\(type.containsAttribute(named: "@autoclosure") ? "()" : "")"
+        let value = isPack ? "repeat each \(name)" : "\(isInout ? "&" : "")\(needsExplicitCopy ? "copy " : "")\(name)\(type.containsAttribute(named: "@autoclosure") ? "()" : "")"
         if self.name == "_" {
             return value
         } else {
-            return "\(self.name): \(value)"
+            return "\(Self.argumentLabel(self.name)): \(value)"
         }
     }
     
@@ -77,7 +102,8 @@ struct MethodParameter: Token {
             return "Cuckoo.NoncopyableArgument(type: \"\(type.withoutAttributes().genericArgumentSafe.description.trimmed)\")"
         }
         let genericSafeType = matchedType.genericArgumentSafe
-        return genericSafeType == matchedType ? name : "\(name) as \(genericSafeType)"
+        let value = needsExplicitCopy ? "(copy \(name))" : name
+        return genericSafeType == matchedType ? value : "\(value) as \(genericSafeType)"
     }
 
     /// The type stubs and matchers take for the parameter: the recorded value's type.

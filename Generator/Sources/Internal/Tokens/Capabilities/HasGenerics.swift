@@ -10,9 +10,11 @@ extension HasGenerics {
         return "<\(parameters)>"
     }
 
-    /// The `where` clause a protocol's mock and stub repeat, with a leading space, or an empty string.
+    /// The `where` clause a mock (and a protocol's stub) repeats, with a leading space, or an empty string.
     var genericWhereClause: String {
-        guard let requirements = asProtocol?.whereRequirements, !requirements.isEmpty else { return "" }
+        // A class mock repeats the class's own `where` clause, which constrains the generic parameters it subclasses with.
+        let requirements = asProtocol?.whereRequirements ?? asClass?.genericRequirements ?? []
+        guard !requirements.isEmpty else { return "" }
         return " where " + requirements.joined(separator: ", ")
     }
 

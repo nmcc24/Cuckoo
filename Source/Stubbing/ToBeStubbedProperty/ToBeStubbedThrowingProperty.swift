@@ -7,13 +7,14 @@ public protocol ToBeStubbedThrowingProperty {
     var get: GetterType { get }
 }
 
-/// The stubbing handle of a protocol mock's throwing read-only property: `when(stub.name.get)`.
-public struct ProtocolToBeStubbedThrowingProperty<MOCK: ProtocolMock, T, GET, SHARING>: ToBeStubbedThrowingProperty {
+/// The stubbing handle of a protocol mock's throwing read-only property: `when(stub.name.get)`. `ERROR` is the
+/// getter's error type: `any Error`, or the type a typed-throws getter, `get throws(E)`, names.
+public struct ProtocolToBeStubbedThrowingProperty<MOCK: ProtocolMock, T, ERROR: Error, GET, SHARING>: ToBeStubbedThrowingProperty {
     private let manager: MockManager
     private let name: String
 
     /// The getter's stubbing handle: `when(stub.name.get).thenReturn(…)`.
-    public var get: ProtocolStubThrowingFunction<Void, T, any Error, GET, SHARING> {
+    public var get: ProtocolStubThrowingFunction<Void, T, ERROR, GET, SHARING> {
         ProtocolStubThrowingFunction(
             stub: manager.createStub(
                 for: MOCK.self,
@@ -30,13 +31,14 @@ public struct ProtocolToBeStubbedThrowingProperty<MOCK: ProtocolMock, T, GET, SH
     }
 }
 
-/// The stubbing handle of a class mock's throwing read-only property: `when(stub.name.get)`.
-public struct ClassToBeStubbedThrowingProperty<MOCK: ClassMock, T, GET, SHARING>: ToBeStubbedThrowingProperty {
+/// The stubbing handle of a class mock's throwing read-only property: `when(stub.name.get)`. `ERROR` is the
+/// getter's error type: `any Error`, or the type a typed-throws getter, `get throws(E)`, names.
+public struct ClassToBeStubbedThrowingProperty<MOCK: ClassMock, T, ERROR: Error, GET, SHARING>: ToBeStubbedThrowingProperty {
     private let manager: MockManager
     private let name: String
 
     /// The getter's stubbing handle: `when(stub.name.get).thenReturn(…)`.
-    public var get: ClassStubThrowingFunction<Void, T, any Error, GET, SHARING> {
+    public var get: ClassStubThrowingFunction<Void, T, ERROR, GET, SHARING> {
         ClassStubThrowingFunction(
             stub: manager.createStub(
                 for: MOCK.self,

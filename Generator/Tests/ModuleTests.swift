@@ -12,6 +12,7 @@ struct ModuleTests {
             sources: nil,
             exclude: nil,
             regex: nil,
+            globalActors: nil,
             output: "Mocks.swift",
             filenameFormat: nil,
             options: nil,

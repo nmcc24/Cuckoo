@@ -52,7 +52,7 @@ final class MockMainParent: MainParent, nonisolated Cuckoo.ProtocolMock {
             "identifier() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
+            invoke: { (implementation: @Sendable (()) -> String, arguments) in
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -79,8 +79,8 @@ final class MockMainParent: MainParent, nonisolated Cuckoo.ProtocolMock {
             ))
         }
 
-        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, @Sendable (()) -> String, Cuckoo.StubSharing.Shared> {
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMainParent.self,
                 method: "identifier() -> String",
                 parameterMatchers: matchers
@@ -210,7 +210,7 @@ final class MockMainChild: MainChild, nonisolated Cuckoo.ProtocolMock {
             "identifier() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
+            invoke: { (implementation: @Sendable (()) -> String, arguments) in
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -247,8 +247,8 @@ final class MockMainChild: MainChild, nonisolated Cuckoo.ProtocolMock {
             ))
         }
 
-        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, @Sendable (()) -> String, Cuckoo.StubSharing.Shared> {
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMainChild.self,
                 method: "identifier() -> String",
                 parameterMatchers: matchers
@@ -409,7 +409,7 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
             "identifier() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
+            invoke: { (implementation: @Sendable (()) -> String, arguments) in
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -454,8 +454,8 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
             ))
         }
 
-        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+        func identifier() -> Cuckoo.ProtocolStubFunction<(), String, @Sendable (()) -> String, Cuckoo.StubSharing.Shared> {
+            let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockMainGrandchild.self,
                 method: "identifier() -> String",
                 parameterMatchers: matchers
