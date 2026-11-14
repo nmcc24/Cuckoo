@@ -1,10 +1,14 @@
-/// Captures the arguments a matcher sees. Use it in verification rather than in stubbing.
+/// Captures the arguments of the calls a `verify` or a stub takes.
+///
+/// A captor captures an argument only when every matcher of that call accepted it and the `verify` passed, or the
+/// stub answered the call: a call another matcher rejected, or that a failed `verify` looked at, isn't captured.
 ///
 /// It's safe to use from several tasks at once, and `Sendable` when its values are: a stub's matchers run on
 /// whichever thread makes the call.
 ///
-/// Inside ``eventually(timeout:pollingInterval:_:)`` every retry of the block captures the arguments again, so
-/// ``allValues`` repeats them. Read ``value`` there, or create the captor inside the block.
+/// Inside ``eventually(timeout:pollingInterval:_:)``, a `verify` that passes on a run that fails elsewhere in the
+/// block captures again on the next run, so ``allValues`` can repeat arguments. Read ``value`` there, or create
+/// the captor inside the block.
 public final class ArgumentCaptor<T> {
     private let values = Locked<[T]>([])
 
@@ -25,8 +29,19 @@ public final class ArgumentCaptor<T> {
     /// A parameter matcher that matches any argument and captures it.
     public func capture() -> ParameterMatcher<T> {
         ParameterMatcher { value in
-            self.values.withLock { $0.append(value) }
+            self.record(value)
             return true
+        }
+    }
+
+    /// Captures `value` once the matching in progress takes the call, or at once outside a stub or `verify`.
+    fileprivate func record(_ value: T) {
+        guard let pending = PendingCaptures.current else {
+            values.withLock { $0.append(value) }
+            return
+        }
+        pending.add {
+            self.values.withLock { $0.append(value) }
         }
     }
 }
@@ -36,7 +51,7 @@ extension ArgumentCaptor: Sendable where T: Sendable {
     /// stubs can keep it.
     public func capture() -> SendableMatcher<T> {
         SendableMatcher { value in
-            self.values.withLock { $0.append(value) }
+            self.record(value)
             return true
         }
     }

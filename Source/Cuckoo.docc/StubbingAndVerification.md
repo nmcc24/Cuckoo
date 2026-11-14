@@ -194,7 +194,8 @@ verify(greeter, times(2)).greet(name: names.capture())
 #expect(names.value == "Bob")
 ```
 
-Capture in `verify` rather than in a stub, where the captor also sees calls the stub is only tried against.
+A captor captures only the calls a passing `verify` matched, or, in a stub, the calls that stub answered: a call
+another matcher rejected isn't captured.
 
 ### Reset a mock
 
