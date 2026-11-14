@@ -202,9 +202,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view "$VERSION" >/dev/null 2>&1; then
+          draft="$(gh release view "$VERSION" --json isDraft --jq .isDraft 2>/dev/null || true)"
+          if [[ "$draft" == false ]]; then
             echo "The release $VERSION is already published."
             exit 0
+          elif [[ "$draft" == true ]]; then
+            # A run interrupted while publishing left a draft, which isn't immutable yet: replace it, keeping the tag.
+            echo "::notice::Replacing the draft release $VERSION a previous run left."
+            gh release delete "$VERSION" --yes
           fi
           # The notes are the version's section of the changelog, which the check job already found.
           scripts/release-notes.sh "$VERSION" > notes.md
