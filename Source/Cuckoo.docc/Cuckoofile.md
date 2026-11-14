@@ -53,6 +53,9 @@ To mock files from several modules in one entry, name it after the test target a
 - term `exclude`: Names of types not to mock, such as `["AppDelegate", "LegacyService"]`.
 - term `regex`: Mock only the protocols and classes whose name matches one of these regular expressions:
   `regex = ["Service$", "^Repository"]`. A single pattern needs no array: `regex = "Service$"`.
+- term `globalActors`: Global actors declared in other modules, such as `["DatabaseActor"]`. The generator
+  knows `MainActor` and the global actors declared in `sources`; a type marked with another one, `@DatabaseActor`,
+  gets a mock that isn't isolated to it, with a warning, unless it's listed here.
 
 Cuckoo 2's `xcodeproj` table, which read a target's files from the project, is gone. A Cuckoofile that still has
 one fails with a message that says which `sources` to write instead. Replace it with globs that cover the
