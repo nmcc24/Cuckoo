@@ -29,7 +29,7 @@ extension Array: _SendableMatchable where Element: _SendableMatchable, Element =
  * Matcher for sequences of elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsAnyOf<T, S: Sequence>(
     values elements: T...,
@@ -42,7 +42,7 @@ public func containsAnyOf<T, S: Sequence>(
  * Matcher for sequences of elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 @_disfavoredOverload
 public func containsAnyOf<T: Sendable, S: Sequence & SendableMetatype>(
@@ -56,7 +56,7 @@ public func containsAnyOf<T: Sendable, S: Sequence & SendableMetatype>(
  * Matcher for sequences of elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsAnyOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN,
@@ -70,7 +70,7 @@ public func containsAnyOf<IN: Sequence, OUT: Sequence>(
  * Matcher for sequences of elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 @_disfavoredOverload
 public func containsAnyOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
@@ -84,7 +84,7 @@ public func containsAnyOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsAnyOf<T: Equatable, S: Sequence>(
     values elements: T...
@@ -95,7 +95,7 @@ public func containsAnyOf<T: Equatable, S: Sequence>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 public func containsAnyOf<T: Equatable & Sendable, S: Sequence & SendableMetatype>(
     values elements: T...
@@ -106,7 +106,7 @@ public func containsAnyOf<T: Equatable & Sendable, S: Sequence & SendableMetatyp
 /**
  * Matcher for sequences of `Equatable` elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsAnyOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN
@@ -118,7 +118,7 @@ public func containsAnyOf<IN: Sequence, OUT: Sequence>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 public func containsAnyOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
     _ elements: IN
@@ -130,7 +130,7 @@ public func containsAnyOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
 /**
  * Matcher for sequences of `Hashable` elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsAnyOf<T: Hashable, S: Sequence>(
     values elements: T...
@@ -141,7 +141,7 @@ public func containsAnyOf<T: Hashable, S: Sequence>(
 /**
  * Matcher for sequences of `Hashable` elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 public func containsAnyOf<T: Hashable & Sendable, S: Sequence & SendableMetatype>(
     values elements: T...
@@ -152,7 +152,7 @@ public func containsAnyOf<T: Hashable & Sendable, S: Sequence & SendableMetatype
 /**
  * Matcher for sequences of `Hashable` elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsAnyOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN
@@ -164,7 +164,7 @@ public func containsAnyOf<IN: Sequence, OUT: Sequence>(
 /**
  * Matcher for sequences of `Hashable` elements that checks if at least one of the passed elements matches the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 public func containsAnyOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
     _ elements: IN
@@ -180,7 +180,7 @@ public func containsAnyOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
  * Matcher for sequences of elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<T, S: Sequence>(
@@ -194,7 +194,7 @@ public func containsAllOf<T, S: Sequence>(
  * Matcher for sequences of elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 @_disfavoredOverload
@@ -209,7 +209,7 @@ public func containsAllOf<T: Sendable, S: Sequence & SendableMetatype>(
  * Matcher for sequences of elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence>(
@@ -224,7 +224,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
  * Matcher for sequences of elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 @_disfavoredOverload
@@ -239,7 +239,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<T: Equatable, S: Sequence>(
@@ -251,7 +251,7 @@ public func containsAllOf<T: Equatable, S: Sequence>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<T: Equatable & Sendable, S: Sequence & SendableMetatype>(
@@ -263,7 +263,7 @@ public func containsAllOf<T: Equatable & Sendable, S: Sequence & SendableMetatyp
 /**
  * Matcher for sequences of `Equatable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence>(
@@ -276,7 +276,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
@@ -289,7 +289,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
 /**
  * Matcher for sequences of `Hashable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<T: Hashable>(values elements: T...) -> ParameterMatcher<[T]> {
@@ -299,7 +299,7 @@ public func containsAllOf<T: Hashable>(values elements: T...) -> ParameterMatche
 /**
  * Matcher for sequences of `Hashable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<T: Hashable & Sendable>(values elements: T...) -> SendableMatcher<[T]> {
@@ -309,7 +309,7 @@ public func containsAllOf<T: Hashable & Sendable>(values elements: T...) -> Send
 /**
  * Matcher for sequences of `Hashable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence>(
@@ -322,7 +322,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
 /**
  * Matcher for sequences of `Hashable` elements that checks if all of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  * - NOTE: An element passed more than once must be in the matched sequence at least as many times.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
@@ -335,7 +335,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
 /**
  * Matcher for `Set`s of `Hashable` elements that checks if all of the passed elements match the passed `Set`.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN
@@ -347,7 +347,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence>(
 /**
  * Matcher for `Set`s of `Hashable` elements that checks if all of the passed elements match the passed `Set`.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 public func containsAllOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
     _ elements: IN
@@ -363,7 +363,7 @@ public func containsAllOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
  * Matcher for sequences of elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsNoneOf<T, S: Sequence>(
     values elements: T...,
@@ -376,7 +376,7 @@ public func containsNoneOf<T, S: Sequence>(
  * Matcher for sequences of elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 @_disfavoredOverload
 public func containsNoneOf<T: Sendable, S: Sequence & SendableMetatype>(
@@ -390,7 +390,7 @@ public func containsNoneOf<T: Sendable, S: Sequence & SendableMetatype>(
  * Matcher for sequences of elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsNoneOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN,
@@ -404,7 +404,7 @@ public func containsNoneOf<IN: Sequence, OUT: Sequence>(
  * Matcher for sequences of elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
  * - parameter equality: Closure for determining equality of elements that don't conform to `Equatable`.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 @_disfavoredOverload
 public func containsNoneOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
@@ -418,7 +418,7 @@ public func containsNoneOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsNoneOf<T: Equatable, S: Sequence>(
     values elements: T...
@@ -429,7 +429,7 @@ public func containsNoneOf<T: Equatable, S: Sequence>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 public func containsNoneOf<T: Equatable & Sendable, S: Sequence & SendableMetatype>(
     values elements: T...
@@ -440,7 +440,7 @@ public func containsNoneOf<T: Equatable & Sendable, S: Sequence & SendableMetaty
 /**
  * Matcher for sequences of `Equatable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsNoneOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN
@@ -452,7 +452,7 @@ public func containsNoneOf<IN: Sequence, OUT: Sequence>(
 /**
  * Matcher for sequences of `Equatable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 public func containsNoneOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
     _ elements: IN
@@ -464,7 +464,7 @@ public func containsNoneOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
 /**
  * Matcher for sequences of `Hashable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsNoneOf<T: Hashable, S: Sequence>(
     values elements: T...
@@ -475,7 +475,7 @@ public func containsNoneOf<T: Hashable, S: Sequence>(
 /**
  * Matcher for sequences of `Hashable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Variadic elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 public func containsNoneOf<T: Hashable & Sendable, S: Sequence & SendableMetatype>(
     values elements: T...
@@ -486,7 +486,7 @@ public func containsNoneOf<T: Hashable & Sendable, S: Sequence & SendableMetatyp
 /**
  * Matcher for sequences of `Hashable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `ParameterMatcher`. When the elements are `Sendable`, an overload returns a `SendableMatcher` instead.
  */
 public func containsNoneOf<IN: Sequence, OUT: Sequence>(
     _ elements: IN
@@ -498,7 +498,7 @@ public func containsNoneOf<IN: Sequence, OUT: Sequence>(
 /**
  * Matcher for sequences of `Hashable` elements that checks if none of the passed elements match the passed sequence.
  * - parameter elements: Elements that are used for matching.
- * - returns: A matcher: a `SendableMatcher` when the elements are `Sendable`, otherwise a `ParameterMatcher`.
+ * - returns: A `SendableMatcher`, which a `Sendable` mock's stubs accept.
  */
 public func containsNoneOf<IN: Sequence, OUT: Sequence & SendableMetatype>(
     _ elements: IN
