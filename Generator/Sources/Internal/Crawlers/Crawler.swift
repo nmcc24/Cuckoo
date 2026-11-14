@@ -69,7 +69,7 @@ final class Crawler: SyntaxVisitor {
             protocolsAndClasses: protocolsAndClasses,
             compositionTypealiases: compositionTypealiases,
             actors: actors.union(local.actors),
-            privateNames: privateNames.union(local.privateNames),
+            privateNames: privateNames.union(local.privateNames.subtracting(local.nonPrivateNames)),
             defaultIsolation: defaultIsolation
         )
         let crawler = Self(container: nil, context: context)
@@ -380,6 +380,10 @@ final class Crawler: SyntaxVisitor {
             unmockedMembers.append("'\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)' returns the opaque type '\(returnType.trimmedDescription)', which an override can't repeat.")
             return .skipChildren
         }
+        if container.isClass, let parameter = node.signature.parameterClause.parameters.first(where: { Self.isUnmockableClosure($0.type) }) {
+            unmockedMembers.append("'\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)' takes '\(parameter.type.trimmedDescription)', a non-escaping closure with a specifier, which a mock can't record yet.")
+            return .skipChildren
+        }
 
         if let method = parse(node) {
             tokens.append(method)
@@ -469,12 +473,19 @@ final class Crawler: SyntaxVisitor {
         var ancestor = container?.value
         while let current = ancestor {
             if let namespace = current as? NamespaceDeclaration,
-               namespace.isActor || (namespace.isExtension && context.actors.contains(namespace.name)) {
+               namespace.isActor || (namespace.isExtension && Self.namesAnActor(namespace.name, actors: context.actors)) {
                 return nil
             }
             ancestor = current.parent?.value
         }
         return context.defaultIsolation
+    }
+
+    /// Whether an extension's type, `Worker`, `Outer.Worker` or `App.Outer.Worker`, is one of the module's actors,
+    /// which are known by qualified name.
+    static func namesAnActor(_ name: String, actors: Set<String>) -> Bool {
+        let components = name.split(separator: ".").map(String.init)
+        return components.indices.contains { actors.contains(components[$0...].joined(separator: ".")) }
     }
 
     /// The first of the module's non-public types a non-public member names in its signature, if any.
@@ -515,36 +526,59 @@ final class Crawler: SyntaxVisitor {
 
     /// The function type `name` stands for where `node` uses it, found as Swift finds it: a generic parameter,
     /// an associated type or a typealias of an enclosing declaration comes first, then the module's top-level
-    /// typealiases. Nil when `name` isn't a typealias of a function type there.
+    /// typealiases. A typealias Swift finds elsewhere, in another extension of the type, a superclass or a parent
+    /// protocol, is taken when it's the module's only one of that name. Nil when `name` isn't a typealias of a
+    /// function type there.
     private func closureTypealias(named name: String, from node: Syntax) -> String? {
+        switch closureTypealiasInScope(named: name, from: node) {
+        case .shadowed:
+            return nil
+        case .found(let functionType):
+            return functionType
+        case .notFound:
+            if let topLevel = context.closureTypealiases[name] {
+                return topLevel
+            }
+            let nested = Set(context.closureTypealiases.filter { $0.key.hasSuffix("." + name) }.values)
+            return nested.count == 1 ? nested.first : nil
+        }
+    }
+
+    private enum ScopedTypealias {
+        case shadowed
+        case found(String?)
+        case notFound
+    }
+
+    private func closureTypealiasInScope(named name: String, from node: Syntax) -> ScopedTypealias {
         func declares(_ clause: GenericParameterClauseSyntax?) -> Bool {
             clause?.parameters.contains { $0.name.text == name } == true
         }
         var ancestor = node.parent
         while let current = ancestor {
-            if let function = current.as(FunctionDeclSyntax.self), declares(function.genericParameterClause) { return nil }
-            if let initializer = current.as(InitializerDeclSyntax.self), declares(initializer.genericParameterClause) { return nil }
-            if let subscriptDeclaration = current.as(SubscriptDeclSyntax.self), declares(subscriptDeclaration.genericParameterClause) { return nil }
+            if let function = current.as(FunctionDeclSyntax.self), declares(function.genericParameterClause) { return .shadowed }
+            if let initializer = current.as(InitializerDeclSyntax.self), declares(initializer.genericParameterClause) { return .shadowed }
+            if let subscriptDeclaration = current.as(SubscriptDeclSyntax.self), declares(subscriptDeclaration.genericParameterClause) { return .shadowed }
             if let group = current.asProtocol((any DeclGroupSyntax).self) {
                 if let generic = current.asProtocol((any WithGenericParametersSyntax).self), declares(generic.genericParameterClause) {
-                    return nil
+                    return .shadowed
                 }
                 if let protocolDeclaration = current.as(ProtocolDeclSyntax.self),
                    protocolDeclaration.primaryAssociatedTypeClause?.primaryAssociatedTypes.contains(where: { $0.name.text == name }) == true {
-                    return nil
+                    return .shadowed
                 }
                 for member in group.memberBlock.members {
                     if let associated = member.decl.as(AssociatedTypeDeclSyntax.self), associated.name.text == name {
-                        return nil
+                        return .shadowed
                     }
                     if let alias = member.decl.as(TypeAliasDeclSyntax.self), alias.name.text == name {
-                        return Self.functionType(of: alias)
+                        return .found(Self.functionType(of: alias))
                     }
                 }
             }
             ancestor = current.parent
         }
-        return context.closureTypealiases[name]
+        return .notFound
     }
 
     /// The function type a non-generic typealias stands for, or nil when it's another type.
@@ -555,6 +589,15 @@ final class Crawler: SyntaxVisitor {
         }
         guard alias.genericParameterClause == nil, type.is(FunctionTypeSyntax.self) else { return nil }
         return alias.initializer.value.trimmedDescription
+    }
+
+    /// A non-escaping closure written with `sending`, `borrowing` or `inout`, which the mock's recording can't
+    /// make escaping yet (roadmap).
+    static func isUnmockableClosure(_ type: TypeSyntax) -> Bool {
+        guard let attributed = type.as(AttributedTypeSyntax.self),
+              attributed.specifiers.contains(where: { ["sending", "borrowing", "inout"].contains($0.trimmedDescription.split(separator: " ").first.map(String.init) ?? "") }),
+              !attributed.attributes.contains(where: { $0.trimmedDescription == "@escaping" }) else { return false }
+        return attributed.baseType.is(FunctionTypeSyntax.self)
     }
 
     /// Whether `type` contains an opaque `some` type anywhere, as in `some View` or `[some View]`.
@@ -907,14 +950,20 @@ extension Crawler {
 
     /// A default argument the mock can repeat: not one that names a `private` or `fileprivate` declaration, which
     /// the mock, in another file, can't see. Without its default, a call through the mock's own type passes the
-    /// argument, as it did before Cuckoo kept defaults.
+    /// argument, as it did before Cuckoo kept defaults. Only names the module declares as nothing but private
+    /// count, and only references, not argument labels: the default is kept unless it's certainly hidden.
     private func mockableDefaultValue(_ clause: InitializerClauseSyntax) -> String? {
         guard !context.privateNames.isEmpty else { return clause.value.trimmedDescription }
-        let names = clause.value.tokens(viewMode: .sourceAccurate).compactMap { token -> String? in
-            if case .identifier(let text) = token.tokenKind { return text }
-            return nil
+        final class References: SyntaxVisitor {
+            var names: [String] = []
+            override func visit(_ node: DeclReferenceExprSyntax) -> SyntaxVisitorContinueKind {
+                names.append(node.baseName.text)
+                return .visitChildren
+            }
         }
-        return names.contains(where: context.privateNames.contains) ? nil : clause.value.trimmedDescription
+        let references = References(viewMode: .sourceAccurate)
+        references.walk(clause.value)
+        return references.names.contains(where: context.privateNames.contains) ? nil : clause.value.trimmedDescription
     }
 
     /// Whether a parameter's type is one of the module's `~Copyable` types or a generic parameter that may be
@@ -1176,11 +1225,14 @@ extension Crawler {
         var typealiases: [String: String] = [:]
         /// The names declared `private` or `fileprivate`: members, top-level declarations and types.
         var privateNames: Set<String> = []
+        /// The names declared without `private` or `fileprivate`. A name that's also in `privateNames` may be either.
+        var nonPrivateNames: Set<String> = []
 
         mutating func formUnion(_ other: DeclaredNames) {
             actors.formUnion(other.actors)
             typealiases.merge(other.typealiases) { first, _ in first }
             privateNames.formUnion(other.privateNames)
+            nonPrivateNames.formUnion(other.nonPrivateNames)
             globalActors.formUnion(other.globalActors)
             noncopyableTypes.formUnion(other.noncopyableTypes)
             nonPublicTypes.formUnion(other.nonPublicTypes)
@@ -1215,7 +1267,8 @@ extension Crawler {
         override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
             collectAccess(node.modifiers, name: node.name)
             names.protocolsAndClasses.insert(node.name.text)
-            return .skipChildren
+            // Its typealiases count, as `typealias Callback = …` does for the protocols that refine it.
+            return .visitChildren
         }
 
         private func collect(_ attributes: AttributeListSyntax, inheritance: InheritanceClauseSyntax?, name: TokenSyntax) {
@@ -1232,7 +1285,12 @@ extension Crawler {
 
         /// `Outer.Inner.Name` for a declaration nested in `Outer.Inner`, `Name` at the top level.
         static func qualifiedName(of node: TypeAliasDeclSyntax) -> String {
-            var components = [node.name.text]
+            qualifiedName(of: node.name.text, at: Syntax(node))
+        }
+
+        /// `Outer.Inner.name` for a declaration `name` at `node`, nested in `Outer.Inner`.
+        static func qualifiedName(of name: String, at node: Syntax) -> String {
+            var components = [name]
             var ancestor = node.parent
             while let current = ancestor {
                 if let named = current.asProtocol((any NamedDeclSyntax).self), current.is(MemberBlockSyntax.self) == false,
@@ -1250,6 +1308,8 @@ extension Crawler {
             let isPrivate = modifiers.contains { $0.name.tokenKind == .keyword(.private) || $0.name.tokenKind == .keyword(.fileprivate) }
             if isPrivate {
                 self.names.privateNames.formUnion(names.map(\.text))
+            } else {
+                self.names.nonPrivateNames.formUnion(names.map(\.text))
             }
         }
 
@@ -1264,7 +1324,7 @@ extension Crawler {
         }
 
         override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
-            names.actors.insert(node.name.text)
+            names.actors.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             collectAccess(node.modifiers, name: node.name)
             return .visitChildren
@@ -1276,8 +1336,7 @@ extension Crawler {
             if let attributed = type.as(AttributedTypeSyntax.self), attributed.specifiers.isEmpty {
                 type = attributed.baseType
             }
-            // A nested typealias is found through its enclosing declaration; see `closureTypealias(named:from:)`.
-            // A nested one is also found through its enclosing declaration; see `closureTypealias(named:from:)`.
+            // Keyed by qualified name; a use finds it by scope, see `closureTypealias(named:from:)`.
             if let function = Crawler.functionType(of: node) {
                 names.closureTypealiases[Self.qualifiedName(of: node)] = function
             }

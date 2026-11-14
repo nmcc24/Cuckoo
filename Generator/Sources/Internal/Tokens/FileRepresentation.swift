@@ -53,17 +53,38 @@ extension Token {
     /// Swift would: in the type's enclosing scopes from the innermost outwards, through typealiases. A name written
     /// qualified, `Outer.Service`, matches that declaration. Nil means it's declared outside the sources, as
     /// Swift's own `Error` is, even when a protocol nested elsewhere has the same name.
-    private static func findToken(forClassOrProtocol name: String, from scope: String, in files: [FileRepresentation], names: TypeNames) -> (any Token)? {
+    private static func findToken(forClassOrProtocol name: String, from scope: String, in files: [FileRepresentation], names: TypeNames, depth: Int = 0) -> (any Token)? {
         let candidates = files
             .flatMap(\.tokens)
             .filter { $0.isClass || $0.isProtocol }
             .compactMap { $0 as? any Token & HasName }
+        func declaration(named qualifiedName: String) -> (any Token & HasName)? {
+            let canonicalName = names.canonical(qualifiedName)
+            return candidates.first { names.canonical($0.fullyQualifiedName) == canonicalName }
+        }
         var enclosingScopes = names.canonical(scope).split(separator: ".").map(String.init)
         while true {
             enclosingScopes.removeLast()
-            let qualifiedName = names.canonical((enclosingScopes + [name]).joined(separator: "."))
-            if let match = candidates.first(where: { names.canonical($0.fullyQualifiedName) == qualifiedName }) {
+            if let match = declaration(named: (enclosingScopes + [name]).joined(separator: ".")) {
                 return match
+            }
+            // A class's scope also holds what its superclasses declare: `class Child: Base` sees `Base.Delegate`.
+            if !enclosingScopes.isEmpty, depth < 8,
+               let enclosingClass = declaration(named: enclosingScopes.joined(separator: ".")) as? ClassDeclaration {
+                for superclassName in enclosingClass.inheritedTypes {
+                    let superclass = findToken(
+                        forClassOrProtocol: superclassName.withoutGenericArguments,
+                        from: enclosingClass.fullyQualifiedName,
+                        in: files,
+                        names: names,
+                        depth: depth + 1
+                    )
+                    if let superclass = superclass as? ClassDeclaration,
+                       let match = declaration(named: superclass.fullyQualifiedName + "." + name)
+                        ?? findToken(forClassOrProtocol: name, from: superclass.fullyQualifiedName + "." + name, in: files, names: names, depth: depth + 1) {
+                        return match
+                    }
+                }
             }
             if enclosingScopes.isEmpty { break }
         }

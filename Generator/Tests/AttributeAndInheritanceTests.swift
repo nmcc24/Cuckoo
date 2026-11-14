@@ -117,7 +117,8 @@ struct AttributeAndInheritanceTests {
     }
 
     /// A public class whose non-public members name a non-public type gets an internal mock, which says why. A name
-    /// that's also a public type's, such as a nested internal `Config` next to a public one, doesn't count.
+    /// that's also a public type's, such as a nested internal `Config` next to a public one, may be either, so it
+    /// counts too: an internal mock compiles in both cases.
     @Test
     func internalMockSaysWhy() async throws {
         let output = try await generateMocks(source: """
@@ -133,7 +134,8 @@ struct AttributeAndInheritanceTests {
                 func keep(_ hidden: Hidden) {}
             }
             """)
-        #expect(output.contains("public final class MockClient: Client,"))
+        #expect(output.contains("\nfinal class MockClient: Client,"))
+        #expect(output.contains("// This mock is internal: Client's non-public members name the non-public type 'Config',"))
         #expect(output.contains("\nfinal class MockStore: Store,"))
         #expect(output.contains("// This mock is internal: Store's non-public members name the non-public type 'Hidden',"))
     }
