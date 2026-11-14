@@ -32,10 +32,12 @@ permissions:
 env:
   VERSION: ${{ inputs.version }}
 
+# Each job's timeout is about three times its usual run, so a hung job fails rather than running for six hours.
 jobs:
   check:
     name: Check the version
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       checks: read
@@ -93,6 +95,7 @@ jobs:
           - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3-jammy" }
           - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3-jammy" }
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
     container: ${{ matrix.container }}
     steps:
       - name: Checkout
@@ -117,6 +120,7 @@ jobs:
           - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3-jammy" }
           - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3-jammy" }
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
     container: ${{ matrix.container }}
     steps:
       - name: Checkout
@@ -147,6 +151,7 @@ jobs:
     needs: bundle
     if: ${{ !inputs.dry_run }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write
     steps:
@@ -203,6 +208,7 @@ jobs:
           - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3" }
           - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3" }
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
     container: ${{ matrix.container }}
     steps:
       - name: Checkout
