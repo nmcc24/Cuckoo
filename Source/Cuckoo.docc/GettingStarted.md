@@ -51,6 +51,10 @@ swift-syntax: a release doesn't even declare the generator's dependencies, so it
 version your other packages, such as macro packages, resolve. A dependency on a branch or a commit instead builds
 the generator from source with the plugin, with swift-syntax `602.0.0..<605.0.0`.
 
+On Linux the prebuilt generator needs glibc 2.35 or newer: Ubuntu 22.04, Debian 12, RHEL 10 or later. On an older
+distribution, such as Amazon Linux 2023, it fails to start with "version `GLIBC_2.35' not found"; depend on a
+commit instead, which builds the generator from source.
+
 ### Write a Cuckoofile
 
 The plugin reads `Cuckoofile.toml` at the root of the package or project. The smallest one names the module whose
