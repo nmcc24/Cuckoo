@@ -438,6 +438,9 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorTable.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorTable>()
 
@@ -538,6 +541,7 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
             fileprivate let sourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int)>]
 
+            @MainActor
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(Int), String> {
                 return cuckoo_manager.verify(
@@ -548,6 +552,7 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
                 )
             }
 
+            @MainActor
             @discardableResult
             func set<M2: Cuckoo._Matchable>(_ p1: M2) -> Cuckoo.__DoNotUse<(Int, String), Void> where M2.MatchedType == String {
                 let matchers: [Cuckoo.ParameterMatcher<(Int, String)>] = self.matchers.map { matcher in

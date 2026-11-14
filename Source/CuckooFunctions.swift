@@ -43,9 +43,24 @@ public func clearInvocations(_ mocks: any Mock...) {
 }
 
 /// Fails if `mocks`, which may be of different types, received any call that no earlier `verify` checked.
-public func verifyNoMoreInteractions(_ mocks: any Mock..., fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
+///
+/// A mock of a global-actor type, such as a `@MainActor` protocol, is checked only on that actor, where its
+/// calls' arguments live: called elsewhere, it records a failure instead of reading them. Leave `isolation` out.
+public func verifyNoMoreInteractions(
+    _ mocks: any Mock...,
+    fileID: String = #fileID,
+    filePath: StaticString = #filePath,
+    line: Int = #line,
+    column: Int = #column,
+    isolation: isolated (any Actor)? = #isolation
+) {
     mocks.forEach { mock in
-        mock.cuckoo_manager.verifyNoMoreInteractions((fileID, filePath, line, column))
+        mock.cuckoo_manager.verifyNoMoreInteractions(
+            (fileID, filePath, line, column),
+            mockType: type(of: mock),
+            globalActor: type(of: mock).cuckoo_globalActor,
+            caller: isolation
+        )
     }
 }
 
@@ -68,7 +83,19 @@ public func reset(_ types: any StaticMock.Type...) {
 }
 
 /// Fails if a mock type's static members received any call that no earlier `verify` checked, in the current
-/// ``StaticStubs`` scope.
-public func verifyNoMoreInteractions<M: StaticMock>(_ type: M.Type, fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
-    M.cuckoo_staticManager.verifyNoMoreInteractions((fileID, filePath, line, column))
+/// ``StaticStubs`` scope. Like the instance form, a global-actor mock type is checked only on its actor.
+public func verifyNoMoreInteractions<M: StaticMock>(
+    _ type: M.Type,
+    fileID: String = #fileID,
+    filePath: StaticString = #filePath,
+    line: Int = #line,
+    column: Int = #column,
+    isolation: isolated (any Actor)? = #isolation
+) {
+    M.cuckoo_staticManager.verifyNoMoreInteractions(
+        (fileID, filePath, line, column),
+        mockType: type,
+        globalActor: M.cuckoo_globalActor,
+        caller: isolation
+    )
 }

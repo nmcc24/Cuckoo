@@ -10,11 +10,23 @@ public protocol HasSuperclass {
     static var cuckoo_hasSuperclass: Bool { get }
 }
 
+/// A type that says which global actor its mock runs on, if any.
+public protocol HasGlobalActor {
+    /// The global actor the mocked type is isolated to, such as `MainActor.shared`, or `nil`. A mock of a
+    /// global-actor type records its calls' arguments on that actor, so checks that read them, such as
+    /// ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)``, must run there too.
+    static var cuckoo_globalActor: (any Actor)? { get }
+}
+
+public extension HasGlobalActor {
+    static var cuckoo_globalActor: (any Actor)? { nil }
+}
+
 /// A generated mock of a protocol or class.
 ///
 /// The generator writes the conformance; tests use a mock through ``stub(_:block:)-(M,_)``, ``verify(_:_:fileID:filePath:line:column:)->M.Verification``
 /// and ``Mock/enableDefaultImplementation(_:)``.
-public protocol Mock: HasMockManager, HasSuperclass {
+public protocol Mock: HasMockManager, HasSuperclass, HasGlobalActor {
     /// The mocked protocol or class.
     associatedtype MocksType
     /// The proxy ``stub(_:block:)-(M,_)`` hands to its block, with one stubbing member per mocked member.

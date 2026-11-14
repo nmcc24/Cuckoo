@@ -6112,6 +6112,9 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorService.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorService>()
 
@@ -6212,10 +6215,12 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         var title: Cuckoo.VerifyProperty<String> {
             return .init(manager: cuckoo_manager, name: "title", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         @discardableResult
         func load<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -6229,6 +6234,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             )
         }
 
+        @MainActor
         @discardableResult
         func refresh() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -6268,6 +6274,9 @@ final class MockMainActorViewModel: MainActorViewModel, nonisolated Cuckoo.Class
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorViewModel.self) ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<MainActorViewModel>()
 
@@ -6367,10 +6376,12 @@ final class MockMainActorViewModel: MainActorViewModel, nonisolated Cuckoo.Class
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         var state: Cuckoo.VerifyProperty<String> {
             return .init(manager: cuckoo_manager, name: "state", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         @discardableResult
         func select<M1: Cuckoo._Matchable>(index p0: M1) -> Cuckoo.__DoNotUse<(Int), Bool> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -6384,6 +6395,7 @@ final class MockMainActorViewModel: MainActorViewModel, nonisolated Cuckoo.Class
             )
         }
 
+        @MainActor
         @discardableResult
         func reload() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -6423,6 +6435,9 @@ final class MockDatabaseStore: DatabaseStore, nonisolated Cuckoo.ProtocolMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockDatabaseStore.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        TestDatabaseActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any DatabaseStore>()
 
@@ -6494,6 +6509,7 @@ final class MockDatabaseStore: DatabaseStore, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
+        @TestDatabaseActor
         @discardableResult
         func save<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
@@ -6507,6 +6523,7 @@ final class MockDatabaseStore: DatabaseStore, nonisolated Cuckoo.ProtocolMock {
             )
         }
 
+        @TestDatabaseActor
         @discardableResult
         func all() -> Cuckoo.__DoNotUse<(), [String]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -7007,6 +7024,9 @@ final class MockMainActorDetailService: MainActorDetailService, nonisolated Cuck
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorDetailService.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorDetailService>()
 
@@ -7130,10 +7150,12 @@ final class MockMainActorDetailService: MainActorDetailService, nonisolated Cuck
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         var title: Cuckoo.VerifyProperty<String> {
             return .init(manager: cuckoo_manager, name: "title", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         @discardableResult
         func detail<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -7147,6 +7169,7 @@ final class MockMainActorDetailService: MainActorDetailService, nonisolated Cuck
             )
         }
 
+        @MainActor
         @discardableResult
         func load<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(Int), String> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -7160,6 +7183,7 @@ final class MockMainActorDetailService: MainActorDetailService, nonisolated Cuck
             )
         }
 
+        @MainActor
         @discardableResult
         func refresh() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -7203,6 +7227,9 @@ final class MockDatabaseArchive: DatabaseArchive, nonisolated Cuckoo.ProtocolMoc
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockDatabaseArchive.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        TestDatabaseActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any DatabaseArchive>()
 
@@ -7295,6 +7322,7 @@ final class MockDatabaseArchive: DatabaseArchive, nonisolated Cuckoo.ProtocolMoc
             self.sourceLocation = sourceLocation
         }
 
+        @TestDatabaseActor
         @discardableResult
         func archive() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -7306,6 +7334,7 @@ final class MockDatabaseArchive: DatabaseArchive, nonisolated Cuckoo.ProtocolMoc
             )
         }
 
+        @TestDatabaseActor
         @discardableResult
         func save<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
@@ -7319,6 +7348,7 @@ final class MockDatabaseArchive: DatabaseArchive, nonisolated Cuckoo.ProtocolMoc
             )
         }
 
+        @TestDatabaseActor
         @discardableResult
         func all() -> Cuckoo.__DoNotUse<(), [String]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []

@@ -11,6 +11,11 @@
 - `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mocks of different types:
   `verifyNoMoreInteractions(database, cache)` compiles.
 - `MockManager.preconfiguredManager`, which only generated mocks used, is now `preconfiguredManager(for:)`.
+- `verify` on the mock of a `@MainActor` type, or of another global actor's, needs that actor: the verification
+  proxy takes the mock's isolation. A test off the actor could read a recorded argument while the actor still
+  changed it, which Swift 6's checking didn't catch. `verifyNoMoreInteractions` records a failure off a mock's
+  global actor instead of reading its calls.
+- `verify`'s result, `__DoNotUse`, is `Sendable`.
 
 ### Added
 - `DefaultValueRegistry.register(for:factory:)` and `DefaultValues.register(for:factory:)` give a type that isn't

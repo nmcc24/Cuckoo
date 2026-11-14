@@ -1,5 +1,5 @@
 /// Marker struct for use as a return type in verification.
-public struct __DoNotUse<IN, OUT> { }
+public struct __DoNotUse<IN, OUT>: Sendable { }
 
 public extension __DoNotUse {
 

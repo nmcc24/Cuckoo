@@ -9,6 +9,9 @@ final class MockCoordinator: Coordinator, nonisolated Cuckoo.ProtocolMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockCoordinator.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Coordinator>()
 
@@ -90,6 +93,7 @@ final class MockCoordinator: Coordinator, nonisolated Cuckoo.ProtocolMock {
             )
         }
 
+        @MainActor
         @discardableResult
         func start() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []

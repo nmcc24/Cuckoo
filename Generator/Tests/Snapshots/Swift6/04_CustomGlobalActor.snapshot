@@ -9,6 +9,9 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockRepository.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        DatabaseActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Repository>()
 
@@ -80,6 +83,7 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
+        @DatabaseActor
         @discardableResult
         func save<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
@@ -93,6 +97,7 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
             )
         }
 
+        @DatabaseActor
         @discardableResult
         func all() -> Cuckoo.__DoNotUse<(), [String]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []

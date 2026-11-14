@@ -9,6 +9,9 @@ final class MockMainParent: MainParent, nonisolated Cuckoo.ProtocolMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainParent.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainParent>()
 
@@ -96,10 +99,12 @@ final class MockMainParent: MainParent, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         var title: Cuckoo.VerifyReadOnlyProperty<String> {
             return .init(manager: cuckoo_manager, name: "title", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         @discardableResult
         func load() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -149,6 +154,9 @@ final class MockMainChild: MainChild, nonisolated Cuckoo.ProtocolMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainChild.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainChild>()
 
@@ -259,10 +267,12 @@ final class MockMainChild: MainChild, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         var title: Cuckoo.VerifyReadOnlyProperty<String> {
             return .init(manager: cuckoo_manager, name: "title", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         @discardableResult
         func refresh<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -276,6 +286,7 @@ final class MockMainChild: MainChild, nonisolated Cuckoo.ProtocolMock {
             )
         }
 
+        @MainActor
         @discardableResult
         func load() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -329,6 +340,9 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainGrandchild.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainGrandchild>()
 
@@ -460,10 +474,12 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         var title: Cuckoo.VerifyReadOnlyProperty<String> {
             return .init(manager: cuckoo_manager, name: "title", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
+        @MainActor
         @discardableResult
         func reset() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -475,6 +491,7 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
             )
         }
 
+        @MainActor
         @discardableResult
         func refresh<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -488,6 +505,7 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
             )
         }
 
+        @MainActor
         @discardableResult
         func load() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -545,6 +563,9 @@ final class MockStoreParent: StoreParent, nonisolated Cuckoo.ProtocolMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockStoreParent.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        InheritedStoreActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any StoreParent>()
 
@@ -595,6 +616,7 @@ final class MockStoreParent: StoreParent, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
+        @InheritedStoreActor
         @discardableResult
         func save<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
@@ -624,6 +646,9 @@ final class MockStoreChild: StoreChild, nonisolated Cuckoo.ProtocolMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockStoreChild.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        InheritedStoreActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any StoreChild>()
 
@@ -695,6 +720,7 @@ final class MockStoreChild: StoreChild, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
+        @InheritedStoreActor
         @discardableResult
         func fetch() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
@@ -706,6 +732,7 @@ final class MockStoreChild: StoreChild, nonisolated Cuckoo.ProtocolMock {
             )
         }
 
+        @InheritedStoreActor
         @discardableResult
         func save<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {

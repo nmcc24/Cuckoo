@@ -634,6 +634,9 @@ final class MockMainActorPeer: MainActorPeer, nonisolated Cuckoo.ProtocolMock {
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorPeer.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckoo_globalActor: (any Actor)? {
+        MainActor.shared
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorPeer>()
 
@@ -684,6 +687,7 @@ final class MockMainActorPeer: MainActorPeer, nonisolated Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
 
+        @MainActor
         @discardableResult
         func pair<M1: Cuckoo._Matchable>(with p0: M1) -> Cuckoo.__DoNotUse<(__CuckooSelf), __CuckooSelf> where M1.MatchedType == __CuckooSelf {
             let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {

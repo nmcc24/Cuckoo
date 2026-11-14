@@ -64,8 +64,8 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 
 - ``verify(_:_:fileID:filePath:line:column:)->M.Verification``
 - ``verify(_:_:fileID:filePath:line:column:)->M.StaticVerification``
-- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(Mock...,_,_,_,_)``
-- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(M.Type,_,_,_,_)``
+- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)``
+- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(M.Type,_,_,_,_,_)``
 - ``inOrder(strict:fileID:filePath:line:column:_:)``
 - ``eventually(timeout:pollingInterval:_:)``
 - ``ArgumentCaptor``
@@ -347,6 +347,7 @@ These are public because generated mocks use them. Tests don't need them directl
 - ``MockManager``
 - ``HasMockManager``
 - ``HasSuperclass``
+- ``HasGlobalActor``
 - ``StubbingProxy``
 - ``VerificationProxy``
 - ``DefaultImplementation``

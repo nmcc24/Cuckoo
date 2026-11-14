@@ -30,6 +30,9 @@ struct StubIsolation {
     /// For an actor mock's isolated members, the closure's leading `isolated MockX` parameter: the
     /// closure runs on the mock's actor and gets the mock itself.
     let isolatedParameter: String?
+    /// The global actor the member runs on, if any: its own, or the mocked type's. The verification proxy's member
+    /// takes it too, so `verify` reads the member's recorded arguments only on that actor.
+    let globalActor: String?
 
     var sharingType: String {
         "Cuckoo.StubSharing.\(sharing.rawValue)"
@@ -62,7 +65,8 @@ struct StubIsolation {
 
         isolatedParameter = if let actorMockName, member == nil { "isolated \(actorMockName)" } else { nil }
 
-        if case .globalActor(let name) = effective {
+        globalActor = if case .globalActor(let name) = effective { name } else { nil }
+        if let name = globalActor {
             closureAttributes = "@\(name) @Sendable "
             sharing = .isolated
         } else if isContainerSendable || actorMockName != nil {

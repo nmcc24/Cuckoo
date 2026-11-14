@@ -37,6 +37,15 @@ test shares it. A protocol that states no isolation of its own takes its parents
 protocol refining a `@MainActor` protocol is `@MainActor` too. A parent declared in another module, which the
 generator doesn't read, can't pass its isolation on; state it on the protocol you mock.
 
+Verifying reads the arguments a mock recorded, so it runs where the mock does. The verification proxy of a
+`@MainActor` mock is `@MainActor`, and so is the proxy of a mock of another global actor: verify such a mock from a
+test on that actor, or inside `await MainActor.run { }`. Otherwise a test could read an argument while the mock's
+actor still changes it, for example in ``eventually(timeout:pollingInterval:_:)`` while the code under test is
+still running. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)`` takes
+mocks of any isolation, so it checks at run time: called off a mock's global actor, it records a failure instead
+of reading that mock's calls. The compiler can't check an `actor` mock this way, since its proxy would need `await`
+on every `verify`: don't verify an actor mock while a call to it may still be running.
+
 ### Stub members
 
 ``stub(_:block:)-(M,_)`` hands its block a stubbing proxy with one member for each of the mock's. Pass a call on
@@ -166,7 +175,7 @@ verifyNoMoreInteractions(greeter)
 ```
 
 A failed `verify` lists the calls the member received, each with the first argument that didn't match, or every
-call the mock received if the member had none. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:)-(Mock...,_,_,_,_)``
+call the mock received if the member had none. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)``
 fails if the mock received a call no `verify` checked.
 
 A generic member whose type comes only from its return value needs the type spelled out:
