@@ -16,7 +16,8 @@ public func createMock<MOCKED: Mocked>(
 /// - Parameters:
 ///   - mockType: The generated mock's type.
 ///   - configuration: Receives a ``MockBuilder`` and the stubbing proxy, and returns the new mock, which picks up
-///     the stubs made here.
+///     the stubs made here. Only mocks of `mockType` created in it share them: other mocks it creates, such as the
+///     new mock's arguments, are separate.
 public func createMock<MOCK: Mock>(
     _ mockType: MOCK.Type,
     configuration: (MockBuilder, MOCK.Stubbing) -> MOCK
@@ -25,7 +26,8 @@ public func createMock<MOCK: Mock>(
 
     let builder = MockBuilder(manager: manager)
     let stubbing = MOCK.Stubbing(manager: manager)
-    return MockManager.$preconfiguredManager.withValue(manager) {
+    let preconfigured = MockManager.Preconfigured(manager: manager, mockType: ObjectIdentifier(MOCK.self))
+    return MockManager.$preconfigured.withValue(preconfigured) {
         configuration(builder, stubbing)
     }
 }

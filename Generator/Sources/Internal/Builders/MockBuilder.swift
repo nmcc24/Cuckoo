@@ -46,7 +46,7 @@ enum MockBuilder {
         lines.append("    // Original typealiases")
         lines.append(contentsOf: container.members.compactMap { ($0 as? Typealias).map { "    \(access)\($0.description)" } })
         lines.append("")
-        lines.append("    \(access)nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
+        lines.append("    \(access)nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
         lines.append("")
         lines.append(contentsOf: try defaultImplementation(of: container, isActor: isActor, usesTypeErasure: usesTypeErasure, globalActor: globalActor))
         lines.append("")
