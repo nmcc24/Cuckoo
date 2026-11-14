@@ -8,8 +8,8 @@
 # Fixtures listed in Fixtures/Swift6/expected-failures.txt are expected to fail. SWIFT6_MATRIX_EXPECTED
 # names another list, e.g. Fixtures/Swift6/expected-failures-default-mainactor.txt for that mode.
 # Fixtures/Swift6/expected-failures-swift-X.Y.txt adds the fixtures that fail only on Swift X.Y, in every mode.
-# A line may name the error the fixture must fail with, `name: text`; it then counts as a new failure when no
-# error located in the fixture or its mock contains that text, so an expected failure can't hide a different one.
+# A line may name the error the fixture must fail with, `name: text`; it then counts as a new failure unless every
+# error is located in the fixture or its mock and contains that text, so an expected failure can't hide another.
 # A fixture with `#if DEBUG` branches is also compiled with `-D DEBUG`.
 # A fixture fails when swiftc reports an error or exits non-zero, or when the generated mock has a warning: the
 # zero-warnings rule covers generated mocks, in every mode this script runs.
@@ -91,10 +91,11 @@ EOF
     "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" -D DEBUG \
       "$f" "$WORK/gen/$n.mock.swift" >> "$WORK/logs/$n.tc.log" 2>&1 || exit_code=$?
   fi
-  errors="$(grep -c "error:" "$WORK/logs/$n.tc.log")"
+  # swiftc's diagnostics, `path:line:column: error: …`, not the lines that quote them under the source.
+  errors="$(grep -cE '^[^[:space:]|].*:[0-9]+:[0-9]+: error: ' "$WORK/logs/$n.tc.log")"
   # Only the mock's warnings: a fixture may keep a warning on purpose, such as a call to a deprecated member.
   mock_warnings="$(grep -F "$WORK/gen/$n.mock.swift:" "$WORK/logs/$n.tc.log" | grep -c ": warning:")"
-  first="$(grep -m1 "error:" "$WORK/logs/$n.tc.log" | sed -E 's/.*error: //' | cut -c1-90)"
+  first="$(grep -m1 -E '^[^[:space:]|].*:[0-9]+:[0-9]+: error: ' "$WORK/logs/$n.tc.log" | sed -E 's/.*error: //' | cut -c1-90)"
   if [[ "$errors" == "0" && "$exit_code" != "0" ]]; then
     errors="?"; first="swiftc exited with $exit_code and printed no error"
   elif [[ "$errors" == "0" && "$mock_warnings" != "0" ]]; then
@@ -106,8 +107,18 @@ EOF
     [[ "$expected_line" == *:* ]] && expected_message="$(sed -E 's/^[^:]*:[[:space:]]*//' <<< "$expected_line")"
     if [[ "$errors" == "0" ]]; then
       result="XPASS"; status=1
-    elif [[ -n "$expected_message" ]] && ! grep -E "^($f|$WORK/gen/$n.mock.swift):[0-9]+:[0-9]+: error: " "$WORK/logs/$n.tc.log" | grep -qF -- "$expected_message"; then
-      result="FAIL"; status=1; first="not the expected error ($expected_message): $first"
+    elif [[ -n "$expected_message" ]]; then
+      # The errors in the fixture or its mock, matched by path as text: a path may hold regex characters.
+      located="$(awk -v fixture="$f:" -v mock="$WORK/gen/$n.mock.swift:" \
+        'index($0, fixture) == 1 || index($0, mock) == 1' "$WORK/logs/$n.tc.log" | grep -E ':[0-9]+:[0-9]+: error: ')"
+      located_count="$(grep -c . <<< "$located")"
+      matching_count="$(grep -cF -- "$expected_message" <<< "$located")"
+      if [[ "$located_count" == "$errors" && "$matching_count" == "$located_count" ]]; then
+        result="xfail"
+      else
+        unexpected="$(grep -vF -- "$expected_message" <<< "$located" | head -1 | sed -E 's/.*error: //' | cut -c1-60)"
+        result="FAIL"; status=1; first="not only the expected error ($expected_message): ${unexpected:-$first}"
+      fi
     else
       result="xfail"
     fi
