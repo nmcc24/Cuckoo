@@ -6,7 +6,8 @@ Move a test suite from Cuckoo 2 to Cuckoo 3, which is built for Swift 6's data-r
 
 Cuckoo 3 keeps the generator, the Cuckoofile and the Mockito-style API, so most tests compile unchanged. What
 changes comes from Swift 6: mocks now keep the isolation and `Sendable`-ness of the types they mock, per-test
-settings replace global ones, and a call with no stub fails the test instead of crashing it. A few options that
+settings replace global ones, and a call with no stub fails the test and answers with a default value, where
+Cuckoo 2 crashed it. A few options that
 only CocoaPods or Xcode projects used are gone.
 
 Work through the sections in order: first the setup, so the mocks generate, then the compiler errors in the
@@ -97,10 +98,11 @@ behaviour on top.
 
 - A call with no matching stub records a failure, then answers so the test can go on: a member that throws
   `any Error` throws ``CuckooError/unstubbedCall(method:)``, and any other, a `rethrows` one included, returns a
-  default value. Cuckoo 2
-  crashed the test process. A test that relied on a mock answering with defaults, without stubs, now fails: stub
-  those calls with `any()`, or make the mock answer quietly with
-  `withEnabledDefaultImplementation(GreeterStub())`.
+  default value. Cuckoo 2 crashed the test process. A call still crashes when its return type has no default
+  value: register one, as <doc:StubbingAndVerification> describes. A test that relied on a mock answering with
+  defaults, without stubs, now fails: stub those calls with `any()`, or make the mock answer quietly with
+  `withEnabledDefaultImplementation(GreeterStub())`, which can't forward members with a variadic or `~Copyable`
+  parameter, or that take or return `Self`.
 - Failures go to the framework running the test only: Swift Testing records an issue, XCTest an `XCTFail`.
   Cuckoo 2 reported each failure to both.
 - A failed `verify` leaves the calls it looked at unverified, so a later `verifyNoMoreInteractions` still reports
@@ -122,6 +124,9 @@ Once the suite compiles, these can replace workarounds:
   `withStaticStubs { }`.
 - ``inOrder(strict:fileID:filePath:line:column:_:)`` and ``eventually(timeout:pollingInterval:_:)`` verify
   call order and calls made from another task.
-- Typed throws, `inout`, `~Copyable` arguments and parameter packs can be stubbed.
+- Typed throws, `inout`, `~Copyable` arguments and parameter packs can be stubbed. On Apple platforms, a
+  closure parameter with typed throws, `(Int) throws(LoadError) -> Void`, can only be mocked from macOS 15, iOS 18,
+  tvOS 18 or watchOS 11: the mock keeps the closure's type at runtime, which older runtimes don't support. Mark the
+  requirement `@available` accordingly.
 
 See <doc:StubbingAndVerification> and <doc:Matching> for all of them.
