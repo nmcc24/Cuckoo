@@ -8,7 +8,7 @@ struct ArgumentCaptorTest {
     func multipleCalls() {
         let mock = MockTestedClass()
         stub(mock) { mock in
-            when(mock.readWriteProperty.set(anyInt())).thenDoNothing()
+            when(mock.readWriteProperty.set(any())).thenDoNothing()
         }
         mock.readWriteProperty = 10
         mock.readWriteProperty = 20
@@ -46,7 +46,7 @@ struct ArgumentCaptorTest {
     func capturesOnlyCallsEveryMatcherAccepts() {
         let mock = MockTestedClass()
         stub(mock) { stub in
-            when(stub.withLabelAndUnderscore(labelA: anyString(), anyString())).thenDoNothing()
+            when(stub.withLabelAndUnderscore(labelA: any(), any())).thenDoNothing()
         }
         mock.withLabelAndUnderscore(labelA: "1", "x")
         mock.withLabelAndUnderscore(labelA: "5", "y")
@@ -61,7 +61,7 @@ struct ArgumentCaptorTest {
     func failedVerificationCapturesNothing() {
         let mock = MockTestedClass()
         stub(mock) { stub in
-            when(stub.readWriteProperty.set(anyInt())).thenDoNothing()
+            when(stub.readWriteProperty.set(any())).thenDoNothing()
         }
         mock.readWriteProperty = 10
         mock.readWriteProperty = 20
@@ -80,7 +80,7 @@ struct ArgumentCaptorTest {
         let mock = MockTestedClass()
         let captor = ArgumentCaptor<String>()
         stub(mock) { stub in
-            when(stub.withLabelAndUnderscore(labelA: anyString(), anyString())).thenDoNothing()
+            when(stub.withLabelAndUnderscore(labelA: any(), any())).thenDoNothing()
             when(stub.withLabelAndUnderscore(labelA: captor.capture(), "y")).thenDoNothing()
         }
 
@@ -94,7 +94,7 @@ struct ArgumentCaptorTest {
     func inOrderCapturesTheCallsItTakes() {
         let mock = MockTestedClass()
         stub(mock) { stub in
-            when(stub.readWriteProperty.set(anyInt())).thenDoNothing()
+            when(stub.readWriteProperty.set(any())).thenDoNothing()
             when(stub.noReturn()).thenDoNothing()
         }
         mock.readWriteProperty = 10

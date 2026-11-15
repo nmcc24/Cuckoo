@@ -8,7 +8,7 @@ struct CuckooFunctionsTest {
     func testReset() {
         let mock = MockTestedClass().withEnabledSuperclassSpy()
         stub(mock) { mock in
-            when(mock.count(characters: anyString())).thenReturn(10)
+            when(mock.count(characters: any())).thenReturn(10)
         }
         #expect(mock.count(characters: "a") == 10)
         
@@ -23,7 +23,7 @@ struct CuckooFunctionsTest {
     func testClearStubs() {
         let mock = MockTestedClass().withEnabledSuperclassSpy()
         stub(mock) { mock in
-            when(mock.count(characters: anyString())).thenReturn(10)
+            when(mock.count(characters: any())).thenReturn(10)
         }
         #expect(mock.count(characters: "a") == 10)
 
@@ -38,7 +38,7 @@ struct CuckooFunctionsTest {
     func testClearInvocations() {
         let mock = MockTestedClass()
         stub(mock) { mock in
-            when(mock.count(characters: anyString())).thenReturn(10)
+            when(mock.count(characters: any())).thenReturn(10)
         }
         #expect(mock.count(characters: "a") == 10)
 

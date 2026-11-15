@@ -104,7 +104,10 @@ behaviour on top.
 - The stubs of a `Sendable` or actor mock take only ``SendableMatcher``s, since the mock can be called from any task.
   A matcher that keeps a non-`Sendable` value doesn't compile there. In a project that isolates code to the main
   actor by default, make the value's conformance `nonisolated Equatable` for such a mock.
-- `any()`, `anyInt()`, `anyString()`, `isNil()`, `notNil()`, `anyClosure()`, `hasLength` and `sameInstance(as:)`
+- `anyInt()`, `anyString()`, `anyClosure()`, `anyThrowingClosure()`, their async variants and
+  `anyOptionalThrowingClosure()` are removed: write `any()`, which takes its type from the parameter. On an optional
+  parameter they didn't match `nil`; where a test relies on that, write `notNil()`.
+- `any()`, `isNil()`, `notNil()`, `hasLength` and `sameInstance(as:)`
   return a ``SendableMatcher``. Code that names their type as `ParameterMatcher<…>` needs `SendableMatcher<…>`, or
   `.matcher` for a `ParameterMatcher`.
 - The Objective-C bridge (`objcStub`, `objcVerify` and the OCMock dependency) is removed. Put a small Swift

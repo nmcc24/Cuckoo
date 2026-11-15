@@ -15,7 +15,7 @@ struct StaticMemberTests {
         stub(MockStaticFactory.self) { stub in
             when(stub.make()).then { MockStaticFactory() }
             when(stub.count.get).thenReturn(3)
-            when(stub.count.set(anyInt())).thenDoNothing()
+            when(stub.count.set(any())).thenDoNothing()
             when(stub.name.get).thenReturn("factory")
             when(stub["a"].get).thenReturn(1)
             when(stub.load(id: 1)).thenReturn("one")
@@ -34,7 +34,7 @@ struct StaticMemberTests {
         verify(MockStaticFactory.self).count.set(4)
         verify(MockStaticFactory.self).count.get()
         verify(MockStaticFactory.self)["a"].get()
-        verify(MockStaticFactory.self, times(2)).load(id: anyInt())
+        verify(MockStaticFactory.self, times(2)).load(id: any())
     }
 
     @Test
@@ -67,7 +67,7 @@ struct StaticMemberTests {
         #expect(MockStaticMembersClass.describe(1) == "stubbed")
         #expect(MockStaticMembersClass.describe(2) == "real 2")
         #expect(MockStaticMembersClass.notMocked() == 0)
-        verify(MockStaticMembersClass.self, times(2)).describe(anyInt())
+        verify(MockStaticMembersClass.self, times(2)).describe(any())
     }
 
     @Test

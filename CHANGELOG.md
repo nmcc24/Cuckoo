@@ -59,6 +59,9 @@
   trait argument. Failures go to the framework running the test, which has its own way to expect one:
   `withKnownIssue` in Swift Testing and `XCTExpectFailure` in XCTest on Apple platforms. The handler also couldn't
   give an unstubbed call a location in the test, so it pointed into Cuckoo's own source.
+- `anyInt()`, `anyString()`, `anyClosure()`, `anyThrowingClosure()`, their async variants and
+  `anyOptionalThrowingClosure()`, about 110 functions. `any()` takes its type from the parameter and covers them.
+  On an optional parameter they didn't match `nil`, so a test that relies on that writes `notNil()`.
 
 ### Fixed
 - A failure that `eventually` reported after its timeout lost the test that created the mock, so from a task outside

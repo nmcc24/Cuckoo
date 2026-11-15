@@ -71,16 +71,6 @@ public func equal<T>(
     }
 }
 
-/// Returns a matcher matching any Int value.
-public func anyInt() -> SendableMatcher<Int> {
-    SendableMatcher()
-}
-
-/// Returns a matcher matching any String value.
-public func anyString() -> SendableMatcher<String> {
-    SendableMatcher()
-}
-
 /// Returns a matcher matching any T value or nil.
 public func any<T>(_ type: T.Type = T.self) -> SendableMatcher<T> {
     SendableMatcher()
@@ -136,21 +126,6 @@ public func equal<T>(to value: T?, equalWhen equalityFunction: @escaping (T?, T?
     ParameterMatcher {
         equalityFunction(value, $0)
     }
-}
-
-/// Returns a matcher matching any Int value.
-public func anyInt() -> SendableMatcher<Int?> {
-    notNil()
-}
-
-/// Returns a matcher matching any String value.
-public func anyString() -> SendableMatcher<String?> {
-    notNil()
-}
-
-/// Returns a matcher matching any non-`nil` optional throwing closure.
-public func anyOptionalThrowingClosure<IN, OUT>() -> SendableMatcher<(((IN)) throws -> OUT)?> {
-    notNil()
 }
 
 /// Returns a matcher matching any non-nil value.

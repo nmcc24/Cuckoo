@@ -10,7 +10,7 @@ struct GenericMethodClassTest {
 
     @Test
     func rethrowing() {
-        let matcher = anyThrowingClosure() as SendableMatcher<() throws -> Void>
+        let matcher = any() as SendableMatcher<() throws -> Void>
 
         stub(kawaiiMock) { mock in
             when(mock.someRethrowing(param: matcher)).thenDoNothing()

@@ -15,9 +15,9 @@ struct SubscriptTests {
         var written: [String] = []
         stub(mock) { stub in
             // The latest matching stub wins, so the catch-all goes first.
-            when(stub[anyString()].get).thenReturn(nil)
+            when(stub[any(String.self)].get).thenReturn(nil)
             when(stub["a"].get).thenReturn(1)
-            when(stub[anyString()].set(any())).then { key, value in written.append("\(key)=\(value.map(String.init) ?? "nil")") }
+            when(stub[any(String.self)].set(any())).then { key, value in written.append("\(key)=\(value.map(String.init) ?? "nil")") }
         }
 
         #expect(mock["a"] == 1)
@@ -27,7 +27,7 @@ struct SubscriptTests {
 
         #expect(written == ["c=3", "d=nil"])
         verify(mock)["a"].get()
-        verify(mock, times(2))[anyString()].get()
+        verify(mock, times(2))[any(String.self)].get()
         verify(mock)["c"].set(3)
         verify(mock)["d"].set(isNil())
         verify(mock, never())["a"].set(any())
@@ -50,7 +50,7 @@ struct SubscriptTests {
         let mock = MockSubscriptProtocol()
         var written: [Double] = []
         stub(mock) { stub in
-            when(stub[row: 1, column: anyInt()].get).then { row, column in Double(row * 10 + column) }
+            when(stub[row: 1, column: any()].get).then { row, column in Double(row * 10 + column) }
             when(stub[row: any(), column: 2].set(any())).then { _, _, value in written.append(value) }
         }
 
@@ -75,7 +75,7 @@ struct SubscriptTests {
         #expect(try mock[failable: "ok"] == 1)
         #expect(throws: TestError.self) { try mock[failable: "bad"] }
         #expect(await mock[remote: "x"] == "remote x")
-        verify(mock, times(2))[failable: anyString()].get()
+        verify(mock, times(2))[failable: any()].get()
         verify(mock)[remote: "x"].get()
     }
 
@@ -126,9 +126,9 @@ struct SubscriptTests {
         let mock = MockSubscriptClass()
         stub(mock) { stub in
             when(stub["a"].get).thenReturn(1)
-            when(stub[anyString()].set(anyInt())).thenCallRealImplementation()
+            when(stub[any(String.self)].set(any(Int.self))).thenCallRealImplementation()
             when(stub["b"].get).thenCallRealImplementation()
-            when(stub[anyInt()].get).thenCallRealImplementation()
+            when(stub[any(Int.self)].get).thenCallRealImplementation()
         }
 
         mock["b"] = 2

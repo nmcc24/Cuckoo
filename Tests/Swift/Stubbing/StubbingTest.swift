@@ -36,7 +36,7 @@ struct StubbingTest {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.count(characters: "a")).thenReturn(2)
-            when(mock.count(characters: anyString())).thenReturn(1)
+            when(mock.count(characters: any())).thenReturn(1)
         }
 
         #expect(mock.count(characters: "a") == 1)
@@ -46,7 +46,7 @@ struct StubbingTest {
     func overrideStubWithMoreSpecificParameterMatcher() {
         let mock = MockTestedClass()
         stub(mock) { mock in
-            when(mock.count(characters: anyString())).thenReturn(1)
+            when(mock.count(characters: any())).thenReturn(1)
             when(mock.count(characters: "a")).thenReturn(2)
         }
 
@@ -102,8 +102,8 @@ struct StubbingTest {
         let mock = MockTestedSubclass()
 
         stub(mock) { mock in
-            when(mock.methodWithParameter(anyInt())).thenReturn("t1")
-            when(mock.methodWithParameter(anyString())).thenReturn("t")
+            when(mock.methodWithParameter(any(Int.self))).thenReturn("t1")
+            when(mock.methodWithParameter(any(String.self))).thenReturn("t")
         }
 
         #expect(mock.methodWithParameter("a") == "t")
@@ -114,8 +114,8 @@ struct StubbingTest {
         let mock = MockTestedSubclass()
 
         stub(mock) { mock in
-            when(mock.methodWithParameter(anyInt())).thenReturn("t1")
-            when(mock.methodWithParameter(anyString())).thenReturn("s1")
+            when(mock.methodWithParameter(any(Int.self))).thenReturn("t1")
+            when(mock.methodWithParameter(any(String.self))).thenReturn("s1")
         }
 
         #expect(mock.methodWithParameter(1) == "t1")
@@ -198,14 +198,14 @@ struct StubbingTest {
             when(stub.withNoReturnAsyncThrows()).then {
                 callNoReturnAsyncThrows = true
             }
-            when(stub.withAsyncClosure(closure: anyClosure())).thenReturn("async closure")
-            when(stub.withAsyncSendableClosure(closure: anyClosure())).thenReturn("async sendable closure")
-            when(stub.withAsyncClosureAsync(closure: anyClosure())).thenReturn("closure async")
-            when(stub.withAsyncSendableClosureAsync(closure: anyClosure())).thenReturn("sendable closure async")
-            when(stub.withAsyncEscapingClosure(closure: anyClosure())).thenReturn("escaping async")
-            when(stub.withAsyncEscapingSendableClosure(closure: anyClosure())).thenReturn("escaping sendable async")
-            when(stub.withAsyncOptionalClosureAsync(closure: anyClosure())).thenReturn("optional async closure async")
-            when(stub.withAsyncSendableOptionalClosureAsync(closure: anyClosure())).thenReturn("optional async sendable closure async")
+            when(stub.withAsyncClosure(closure: any())).thenReturn("async closure")
+            when(stub.withAsyncSendableClosure(closure: any())).thenReturn("async sendable closure")
+            when(stub.withAsyncClosureAsync(closure: any())).thenReturn("closure async")
+            when(stub.withAsyncSendableClosureAsync(closure: any())).thenReturn("sendable closure async")
+            when(stub.withAsyncEscapingClosure(closure: any())).thenReturn("escaping async")
+            when(stub.withAsyncEscapingSendableClosure(closure: any())).thenReturn("escaping sendable async")
+            when(stub.withAsyncOptionalClosureAsync(closure: any())).thenReturn("optional async closure async")
+            when(stub.withAsyncSendableOptionalClosureAsync(closure: any())).thenReturn("optional async sendable closure async")
         }
         
         let resultAsync = await mock.withAsync()
@@ -235,14 +235,14 @@ struct StubbingTest {
         
         verify(mock, times(1)).withAsync()
         verify(mock, times(1)).withNoReturnAsync()
-        verify(mock, times(1)).withAsyncClosure(closure: anyClosure())
-        verify(mock, times(1)).withAsyncSendableClosure(closure: anyClosure())
-        verify(mock, times(1)).withAsyncClosureAsync(closure: anyClosure())
-        verify(mock, times(1)).withAsyncSendableClosureAsync(closure: anyClosure())
-        verify(mock, times(1)).withAsyncEscapingClosure(closure: anyClosure())
-        verify(mock, times(1)).withAsyncEscapingSendableClosure(closure: anyClosure())
-        verify(mock, times(1)).withAsyncOptionalClosureAsync(closure: anyClosure())
-        verify(mock, times(1)).withAsyncSendableOptionalClosureAsync(closure: anyClosure())
+        verify(mock, times(1)).withAsyncClosure(closure: any())
+        verify(mock, times(1)).withAsyncSendableClosure(closure: any())
+        verify(mock, times(1)).withAsyncClosureAsync(closure: any())
+        verify(mock, times(1)).withAsyncSendableClosureAsync(closure: any())
+        verify(mock, times(1)).withAsyncEscapingClosure(closure: any())
+        verify(mock, times(1)).withAsyncEscapingSendableClosure(closure: any())
+        verify(mock, times(1)).withAsyncOptionalClosureAsync(closure: any())
+        verify(mock, times(1)).withAsyncSendableOptionalClosureAsync(closure: any())
     }
 
     @Test
@@ -263,48 +263,48 @@ struct StubbingTest {
             when(stub.subSubMethod()).thenReturn("not nil")
 
             // sub-class
-            when(stub.withImplicitlyUnwrappedOptional(i: anyInt())).thenReturn("implicit unwrapped return")
+            when(stub.withImplicitlyUnwrappedOptional(i: any())).thenReturn("implicit unwrapped return")
             when(stub.withThrows()).thenReturn(10)
             when(stub.withNamedTuple(tuple: any())).thenReturn(11)
             when(stub.subclassMethod()).thenReturn(12)
-            when(stub.withOptionalClosureAndReturn(anyString(), closure: isNil())).thenReturn(2)
-            when(stub.withOptionalClosureAndReturn(anyString(), closure: anyClosure())).thenReturn(3)
-            when(stub.withClosureAndParam(anyString(), closure: anyClosure())).thenReturn(3)
-            when(stub.withMultClosures(closure: anyClosure(), closureB: anyClosure(), closureC: anyClosure())).thenReturn(4)
-            when(stub.withThrowingClosure(closure: anyThrowingClosure())).thenReturn("throwing closure")
-            when(stub.withThrowingClosureThrows(closure: anyThrowingClosure())).thenReturn("closure throwing")
-            when(stub.withThrowingEscapingClosure(closure: anyThrowingClosure())).thenReturn("escaping closure")
-            when(stub.withThrowingOptionalClosureThrows(closure: anyOptionalThrowingClosure())).thenReturn("optional closure throwing")
-            when(stub.methodWithParameter(anyString())).thenReturn("parameter string")
-            when(stub.methodWithParameter(anyInt())).thenReturn("parameter int")
+            when(stub.withOptionalClosureAndReturn(any(), closure: isNil())).thenReturn(2)
+            when(stub.withOptionalClosureAndReturn(any(), closure: notNil())).thenReturn(3)
+            when(stub.withClosureAndParam(any(), closure: any())).thenReturn(3)
+            when(stub.withMultClosures(closure: any(), closureB: any(), closureC: any())).thenReturn(4)
+            when(stub.withThrowingClosure(closure: any())).thenReturn("throwing closure")
+            when(stub.withThrowingClosureThrows(closure: any())).thenReturn("closure throwing")
+            when(stub.withThrowingEscapingClosure(closure: any())).thenReturn("escaping closure")
+            when(stub.withThrowingOptionalClosureThrows(closure: any())).thenReturn("optional closure throwing")
+            when(stub.methodWithParameter(any(String.self))).thenReturn("parameter string")
+            when(stub.methodWithParameter(any(Int.self))).thenReturn("parameter int")
 
             // class
             when(stub.privateSetProperty.get).thenReturn(5)
             when(stub.readOnlyProperty.get).thenReturn("b")
-            when(stub.readWriteProperty.set(anyInt())).then { i in
+            when(stub.readWriteProperty.set(any())).then { i in
                 setReadWriteProperty = i
             }
             when(stub.readWriteProperty.get).thenReturn(7)
-            when(stub.optionalProperty.set(anyInt())).then { i in
+            when(stub.optionalProperty.set(any())).then { i in
                 setOptionalProperty = i!
             }
             when(stub.optionalProperty.get).thenReturn(8)
             when(stub.noReturn()).then { _ in
                 callNoReturn = true
             }
-            when(stub.count(characters: anyString())).thenReturn(9)
+            when(stub.count(characters: any())).thenReturn(9)
             when(stub.withNoReturnThrows()).then { _ in
                 callNoReturnThrows = true
             }
-            when(stub.withClosure(anyClosure())).thenReturn(14)
-            when(stub.withAutoClosure(action: anyClosure())).thenReturn(16)
-            when(stub.withEscape(anyString(), action: anyClosure())).then { _ in
+            when(stub.withClosure(any())).thenReturn(14)
+            when(stub.withAutoClosure(action: any())).thenReturn(16)
+            when(stub.withEscape(any(), action: any())).then { _ in
                 callWithEscape = true
             }
-            when(stub.withOptionalClosure(anyString(), closure: anyClosure())).then { _ in
+            when(stub.withOptionalClosure(any(), closure: any())).then { _ in
                 callWithOptionalClosure = true
             }
-            when(stub.withLabelAndUnderscore(labelA: anyString(), anyString())).then { _ in
+            when(stub.withLabelAndUnderscore(labelA: any(), any())).then { _ in
                 callWithLabelAndUnderscore = true
             }
             when(stub.callingCountCharactersMethodWithHello()).thenReturn(15)
@@ -384,35 +384,35 @@ struct StubbingTest {
         verify(mock, times(1)).subSubMethod()
 
         // sub-class
-        verify(mock, times(1)).withImplicitlyUnwrappedOptional(i: anyInt())
+        verify(mock, times(1)).withImplicitlyUnwrappedOptional(i: any())
         verify(mock, times(1)).withThrows()
         verify(mock, times(1)).withNamedTuple(tuple: any())
         verify(mock, times(1)).subclassMethod()
-        verify(mock, times(1)).withOptionalClosureAndReturn(anyString(), closure: isNil())
-        verify(mock, times(1)).withClosureAndParam(anyString(), closure: anyClosure())
-        verify(mock, times(1)).withMultClosures(closure: anyClosure(), closureB: anyClosure(), closureC: anyClosure())
-        verify(mock, times(1)).withThrowingClosure(closure: anyThrowingClosure())
-        verify(mock, times(1)).withThrowingClosureThrows(closure: anyThrowingClosure())
-        verify(mock, times(1)).withThrowingEscapingClosure(closure: anyThrowingClosure())
-        verify(mock, times(1)).withThrowingOptionalClosureThrows(closure: anyOptionalThrowingClosure())
-        verify(mock, times(1)).methodWithParameter(anyString())
-        verify(mock, times(1)).methodWithParameter(anyInt())
+        verify(mock, times(1)).withOptionalClosureAndReturn(any(), closure: isNil())
+        verify(mock, times(1)).withClosureAndParam(any(), closure: any())
+        verify(mock, times(1)).withMultClosures(closure: any(), closureB: any(), closureC: any())
+        verify(mock, times(1)).withThrowingClosure(closure: any())
+        verify(mock, times(1)).withThrowingClosureThrows(closure: any())
+        verify(mock, times(1)).withThrowingEscapingClosure(closure: any())
+        verify(mock, times(1)).withThrowingOptionalClosureThrows(closure: any())
+        verify(mock, times(1)).methodWithParameter(any(String.self))
+        verify(mock, times(1)).methodWithParameter(any(Int.self))
 
         // class
         verify(mock, times(1)).privateSetProperty.get()
         verify(mock, times(1)).readOnlyProperty.get()
-        verify(mock, times(1)).readWriteProperty.set(anyInt())
+        verify(mock, times(1)).readWriteProperty.set(any())
         verify(mock, times(1)).readWriteProperty.get()
-        verify(mock, times(1)).optionalProperty.set(anyInt())
+        verify(mock, times(1)).optionalProperty.set(any())
         verify(mock, times(1)).optionalProperty.get()
         verify(mock, times(1)).noReturn()
-        verify(mock, times(1)).count(characters: anyString())
+        verify(mock, times(1)).count(characters: any())
         verify(mock, times(1)).withNoReturnThrows()
-        verify(mock, times(1)).withClosure(anyClosure())
-        verify(mock, times(1)).withAutoClosure(action: anyClosure())
-        verify(mock, times(1)).withEscape(anyString(), action: anyClosure())
-        verify(mock, times(1)).withOptionalClosure(anyString(), closure: anyClosure())
-        verify(mock, times(1)).withLabelAndUnderscore(labelA: anyString(), anyString())
+        verify(mock, times(1)).withClosure(any())
+        verify(mock, times(1)).withAutoClosure(action: any())
+        verify(mock, times(1)).withEscape(any(), action: any())
+        verify(mock, times(1)).withOptionalClosure(any(), closure: any())
+        verify(mock, times(1)).withLabelAndUnderscore(labelA: any(), any())
         verify(mock, times(1)).callingCountCharactersMethodWithHello()
 
         // protocol
