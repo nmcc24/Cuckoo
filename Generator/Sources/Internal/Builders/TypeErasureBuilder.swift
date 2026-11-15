@@ -28,6 +28,10 @@ enum TypeErasureBuilder {
             try members.append("\(context.access)typealias \(SelfResolution.typealiasName) = \(name)", of: name)
         }
         try members.append("private let cuckooReference: \(context.sendable)() -> any \(container.name)\(context.primaryArguments)", of: name)
+        if Self.storesThroughReference(subscripts) {
+            // A generic setter changes the opened default implementation and stores it back, so a value type keeps it.
+            try members.append("private let cuckooStore: \(context.sendable)(any \(container.name)\(context.primaryArguments)) -> Void", of: name)
+        }
 
         for property in properties {
             try append(property, sources(of: property, context), of: "\(container.name).\(property.name)", to: &members)
@@ -141,13 +145,26 @@ enum TypeErasureBuilder {
         declaration.append("\(context.access)subscript\(subscriptDeclaration.signature) {")
         declaration.append("    get \(effects){")
         let variadicCrash = "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(getter.fullyQualifiedName)))"
+        let unforwardable = "fatalError(\(Fragment.literal(getter.unforwardableDefaultMessage)))"
         if isGeneric && getter.hasVariadicParams {
             declaration.append("        \(variadicCrash)")
+        } else if isGeneric && !getter.associatedTypesInWhereClause.isEmpty {
+            declaration.append("        \(unforwardable)")
         } else if isGeneric && getter.usesNonPrimaryAssociatedTypes {
-            // Through `any P` an associated type reads as `Any`: the opened type gives it back, as for methods.
-            declaration.append("        func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic))\(effects.trimmedSpaces.isEmpty ? "" : " \(effects.trimmedSpaces)") -> \(returnType) {")
-            declaration.append("            return \(tryAwait)\(castResult("opened[\(castArguments)]"))")
-            declaration.append("        }")
+            // Through `any P` an associated type reads as `Any`: the opened type gives it back, as for methods, with
+            // the same copies of the local function for Swift 6.2.
+            let variants = getter.localFunctionVariants
+            for variant in variants {
+                if !variant.directive.isEmpty {
+                    declaration.append("        \(variant.directive)")
+                }
+                declaration.append("        \(variant.modifier)func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic))\(effects.trimmedSpaces.isEmpty ? "" : " \(effects.trimmedSpaces)") -> \(returnType) {")
+                declaration.append("            return \(tryAwait)\(castResult("opened[\(castArguments)]"))")
+                declaration.append("        }")
+            }
+            if variants.count > 1 {
+                declaration.append("        #endif")
+            }
             declaration.append("        return \(tryAwait)openExistential(cuckooReference())")
         } else if isGeneric {
             declaration.append("        return \(tryAwait)cuckooReference()[\(forwardingCall)]")
@@ -159,16 +176,20 @@ enum TypeErasureBuilder {
             declaration.append("    set {")
             if isGeneric && getter.hasVariadicParams {
                 declaration.append("        \(variadicCrash) as Void")
+            } else if isGeneric && !getter.associatedTypesInWhereClause.isEmpty {
+                declaration.append("        \(unforwardable)")
             } else if isGeneric && getter.usesNonPrimaryAssociatedTypes {
-                // Set on a copy of the opened value, as a non-generic subscript's setter storage does.
-                declaration.append("        func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic)) {")
+                // Set on the opened value, which is stored back, as a non-generic subscript's setter sets the box's.
+                declaration.append("        func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic)) -> any \(context.protocolName)\(context.primaryArguments) {")
                 declaration.append("            var opened = opened")
                 declaration.append("            opened[\(castArguments)] = \(castNewValue)")
+                declaration.append("            return opened")
                 declaration.append("        }")
-                declaration.append("        openExistential(cuckooReference())")
+                declaration.append("        cuckooStore(openExistential(cuckooReference()))")
             } else if isGeneric {
                 declaration.append("        var reference = cuckooReference()")
                 declaration.append("        reference[\(forwardingCall)] = newValue")
+                declaration.append("        cuckooStore(reference)")
             } else {
                 declaration.append("        _subscript_setter_storage$$\(number)(\(getter.parameterNames)\(newValueSeparator)newValue)")
             }
@@ -177,6 +198,12 @@ enum TypeErasureBuilder {
         declaration.append("}")
         sources.append(lines(declaration))
         return sources
+    }
+
+    /// Whether a generic subscript has a setter, which can't be stored as a closure and stores the changed default
+    /// implementation back instead.
+    private static func storesThroughReference(_ subscripts: [Subscript]) -> Bool {
+        subscripts.contains { !$0.genericParameters.isEmpty && !$0.isReadOnly && !$0.getter.hasVariadicParams }
     }
 
     /// The initializer, which stores a closure for each requirement that reads the default implementation from the
@@ -194,8 +221,11 @@ enum TypeErasureBuilder {
             "let box = Cuckoo.DefaultImplementation<\(generic)>()",
             "box.value = defaultImpl",
             "cuckooReference = { box.value }",
-            "",
         ]
+        if storesThroughReference(subscripts) {
+            body.append("cuckooStore = { box.value = $0 as! \(generic) }")
+        }
+        body.append("")
         func conditional(_ token: any HasAttributes, _ statements: [String]) -> [String] {
             token.hasCompilationCondition ? [token.compilationConditionCheck] + statements + ["#endif"] : statements
         }
@@ -260,6 +290,8 @@ enum TypeErasureBuilder {
         declaration.append("\(context.access)func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
         if method.hasVariadicParams && method.hasGenericParams {
             declaration.append("    Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(method.fullyQualifiedName)))")
+        } else if method.hasGenericParams && !method.associatedTypesInWhereClause.isEmpty {
+            declaration.append("    fatalError(\(Fragment.literal(method.unforwardableDefaultMessage)))")
         } else if method.hasGenericParams && method.usesNonPrimaryAssociatedTypes {
             // A `sending` argument is passed in rather than captured: a captured value can't be sent on.
             let variants = method.localFunctionVariants

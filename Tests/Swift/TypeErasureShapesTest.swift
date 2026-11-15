@@ -13,4 +13,14 @@ struct TypeErasureShapesTest {
         #expect(mock[7] == "value for 7")
         verify(mock)[equal(to: 7)].get()
     }
+
+    @Test
+    func genericSubscriptSetterKeepsAValueDefaultImplementationsChange() {
+        let mock = MockMutableKeyedStore<String>()
+        mock.enableDefaultImplementation(DictionaryKeyedStore())
+
+        mock[1] = "one"
+
+        #expect(mock[1] == "one")
+    }
 }

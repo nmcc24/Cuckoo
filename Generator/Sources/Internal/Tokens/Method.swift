@@ -213,6 +213,20 @@ extension Method {
         guard let parent = parent?.asProtocol else { return false }
         let names = parent.nonPrimaryAssociatedTypes.map(\.name)
         return signature.containsTypes(named: names) || returnType?.containsTypes(named: names) == true
+            || !associatedTypesInWhereClause.isEmpty
+    }
+
+    /// The protocol's non-primary associated types the member's `where` clause names, as in `C.Element == Key`.
+    var associatedTypesInWhereClause: [String] {
+        guard let parent = parent?.asProtocol else { return [] }
+        let words = Set(signature.whereConstraints.flatMap { $0.split { !($0.isLetter || $0.isNumber || $0 == "_") } }.map(String.init))
+        return parent.nonPrimaryAssociatedTypes.map(\.name).filter(words.contains)
+    }
+
+    /// The message a mock's type eraser stops with when such a member, which it can't forward, reaches the default
+    /// implementation: an opened existential's associated types can't be related to the mock's.
+    var unforwardableDefaultMessage: String {
+        "Cuckoo can't call \(fullyQualifiedName) on a default implementation: its where clause names the protocol's associated types \(associatedTypesInWhereClause.joined(separator: ", ")), which Swift can't relate to the mock's. Stub it instead."
     }
 
     /// The stub function type the stubbing proxy returns, such as `Cuckoo.ProtocolStubThrowingFunction`.

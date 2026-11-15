@@ -22,3 +22,12 @@ protocol ThrowingKeyedItems {
     associatedtype Item
     subscript<Key: Hashable>(key: Key) -> Item { get async throws }
 }
+
+// A generic member whose `where` clause names an associated type can't be forwarded to an opened default
+// implementation, whose associated types Swift can't relate to the mock's: the mock compiles, and a default
+// implementation stops with a message saying to stub it.
+protocol KeyedCounter {
+    associatedtype Key
+    func count<Keys: Collection>(_ keys: Keys) -> Int where Keys.Element == Key
+    subscript<Keys: Collection>(keys keys: Keys) -> Int where Keys.Element == Key { get }
+}
