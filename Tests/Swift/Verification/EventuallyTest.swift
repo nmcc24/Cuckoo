@@ -57,6 +57,22 @@ struct EventuallyTests {
     }
 
     @Test
+    func runsTheBlockEveryPollingInterval() async {
+        let mock = stubbedCounter()
+        let runs = Locked(0)
+
+        _ = await collectingMessages {
+            await eventually(timeout: .milliseconds(200), pollingInterval: .milliseconds(100)) {
+                runs.withLock { $0 += 1 }
+                verify(mock).count(characters: "a")
+            }
+        }
+        // A run at the start, one after each interval, and, at most, one when the timeout ends a shorter sleep. The
+        // default interval, 10 ms, would run it about 20 times.
+        #expect((2...4).contains(runs.withLock { $0 }))
+    }
+
+    @Test
     func reportsEveryFailureOfTheLastRun() async {
         let mock = stubbedCounter()
 
