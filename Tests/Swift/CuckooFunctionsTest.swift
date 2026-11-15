@@ -49,6 +49,46 @@ struct CuckooFunctionsTest {
         verify(mock).count(characters: "a")
     }
 
+    enum Clearing: CaseIterable, Sendable { case reset, invocations, stubs }
+
+    /// Clearing releases the recorded arguments and stubs outside the manager's lock, so a released value whose
+    /// `deinit` reads the mock doesn't deadlock.
+    @Test(arguments: Clearing.allCases)
+    func clearingReleasesValuesOutsideTheLock(clearing: Clearing) {
+        final class ReadsMockOnDeinit {
+            let mock: MockTestedProtocol
+            let released: Locked<Bool>
+            init(mock: MockTestedProtocol, released: Locked<Bool>) {
+                self.mock = mock
+                self.released = released
+            }
+            deinit {
+                verify(mock, never()).noReturn()
+                released.withLock { $0 = true }
+            }
+        }
+        let mock = MockTestedProtocol()
+        let stubReleased = Locked(false)
+        let callReleased = Locked(false)
+        do {
+            let inStub = ReadsMockOnDeinit(mock: mock, released: stubReleased)
+            let inCall = ReadsMockOnDeinit(mock: mock, released: callReleased)
+            stub(mock) { mock in
+                when(mock.withEscape(any(), action: any())).then { _, _ in _ = inStub }
+            }
+            mock.withEscape("a") { _ in _ = inCall }
+        }
+
+        switch clearing {
+        case .reset: reset(mock)
+        case .invocations: clearInvocations(mock)
+        case .stubs: clearStubs(mock)
+        }
+
+        #expect(stubReleased.withLock { $0 } == (clearing != .invocations))
+        #expect(callReleased.withLock { $0 } == (clearing != .stubs))
+    }
+
     @Test
     func testVerifyNoMoreInteractions() {
         let mock = MockTestedClass()
