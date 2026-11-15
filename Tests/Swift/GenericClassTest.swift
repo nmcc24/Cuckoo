@@ -5,7 +5,7 @@ import Cuckoo
 @testable import CuckooTestSources
 
 extension GenericClass: Mocked {
-    typealias MockType = MockGenericClass<T, U, V>
+    typealias CuckooMockType = MockGenericClass<T, U, V>
 }
 
 struct GenericClassTest {

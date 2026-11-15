@@ -2,9 +2,9 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any Combiner
-    typealias Stubbing = __StubbingProxy_Combiner
-    typealias Verification = __VerificationProxy_Combiner
+    typealias CuckooMocksType = any Combiner
+    typealias CuckooStubbing = __StubbingProxy_Combiner
+    typealias CuckooVerification = __VerificationProxy_Combiner
 
     // Original typealiases
 
@@ -210,9 +210,9 @@ nonisolated final class CombinerStub: Combiner {
 }
 
 final class MockMainActorCombiner: MainActorCombiner, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any MainActorCombiner
-    typealias Stubbing = __StubbingProxy_MainActorCombiner
-    typealias Verification = __VerificationProxy_MainActorCombiner
+    typealias CuckooMocksType = any MainActorCombiner
+    typealias CuckooStubbing = __StubbingProxy_MainActorCombiner
+    typealias CuckooVerification = __VerificationProxy_MainActorCombiner
 
     // Original typealiases
 
@@ -293,15 +293,15 @@ final class MainActorCombinerStub: MainActorCombiner {
 }
 
 actor MockActorCombiner: ActorCombiner, Cuckoo.ProtocolMock {
-    typealias MocksType = any ActorCombiner
-    typealias Stubbing = __StubbingProxy_ActorCombiner
-    typealias Verification = __VerificationProxy_ActorCombiner
+    typealias CuckooMocksType = any ActorCombiner
+    typealias CuckooStubbing = __StubbingProxy_ActorCombiner
+    typealias CuckooVerification = __VerificationProxy_ActorCombiner
 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockActorCombiner.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
 

@@ -2,9 +2,9 @@
 /// so they live in the current task's ``StaticStubs`` registry, one manager per mock type.
 public protocol StaticMock: HasGlobalActor {
     /// The proxy `stub(MockX.self)` hands to its block, with one stubbing member per static member.
-    associatedtype StaticStubbing: StubbingProxy
+    associatedtype CuckooStaticStubbing: StubbingProxy
     /// The proxy `verify(MockX.self)` returns, with one verifying member per static member.
-    associatedtype StaticVerification: VerificationProxy
+    associatedtype CuckooStaticVerification: VerificationProxy
 
     /// Whether the mocked type is a class, whose real static members can be called.
     static var cuckoo_hasSuperclass: Bool { get }

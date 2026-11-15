@@ -180,7 +180,7 @@ another module, such as `Equatable`'s `==`, aren't mocked, like any member the g
 
 ### Verify calls
 
-``verify(_:_:fileID:filePath:line:column:)->M.Verification`` checks that the mock received a call, once unless
+``verify(_:_:fileID:filePath:line:column:)->M.CuckooVerification`` checks that the mock received a call, once unless
 a call matcher says otherwise:
 
 ```swift

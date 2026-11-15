@@ -2,7 +2,7 @@
 ///
 /// The block receives the mock's stubbing proxy: `stub(mock) { stub in when(stub.greet(any())).thenReturn("Hi") }`.
 /// Call it as often as needed; a newer stub of the same call takes precedence over older ones.
-public func stub<M: Mock>(_ mock: M, block: (M.Stubbing) -> Void) {
+public func stub<M: Mock>(_ mock: M, block: (M.CuckooStubbing) -> Void) {
     block(mock.getStubbingProxy())
 }
 
@@ -17,7 +17,7 @@ public func when<F: BaseStubFunctionTrait>(_ function: F) -> F {
 ///
 /// `callMatcher` says how many matching calls are expected, `times(1)` by default. A failed check reports where
 /// `verify` was called, and lists the member's actual calls.
-public func verify<M: Mock>(_ mock: M, _ callMatcher: CallMatcher = times(1), fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) -> M.Verification {
+public func verify<M: Mock>(_ mock: M, _ callMatcher: CallMatcher = times(1), fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) -> M.CuckooVerification {
     return mock.getVerificationProxy(callMatcher, sourceLocation: (fileID, filePath, line, column))
 }
 
@@ -65,14 +65,14 @@ public func verifyNoMoreInteractions(
 }
 
 /// Stubs a mock type's static or class members, in the current ``StaticStubs`` scope: `stub(MockClock.self) { stub in … }`.
-public func stub<M: StaticMock>(_ type: M.Type, block: (M.StaticStubbing) -> Void) {
-    block(M.StaticStubbing(manager: M.cuckoo_staticManager))
+public func stub<M: StaticMock>(_ type: M.Type, block: (M.CuckooStaticStubbing) -> Void) {
+    block(M.CuckooStaticStubbing(manager: M.cuckoo_staticManager))
 }
 
 /// Returns a proxy that checks the calls a mock type's static or class members received, in the current
 /// ``StaticStubs`` scope.
-public func verify<M: StaticMock>(_ type: M.Type, _ callMatcher: CallMatcher = times(1), fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) -> M.StaticVerification {
-    M.StaticVerification(manager: M.cuckoo_staticManager, callMatcher: callMatcher, sourceLocation: (fileID, filePath, line, column))
+public func verify<M: StaticMock>(_ type: M.Type, _ callMatcher: CallMatcher = times(1), fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) -> M.CuckooStaticVerification {
+    M.CuckooStaticVerification(manager: M.cuckoo_staticManager, callMatcher: callMatcher, sourceLocation: (fileID, filePath, line, column))
 }
 
 /// Clears the stubs and recorded calls of mock types' static members, in the current ``StaticStubs`` scope.

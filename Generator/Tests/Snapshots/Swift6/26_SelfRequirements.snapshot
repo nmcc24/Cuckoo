@@ -2,12 +2,12 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
-    typealias MocksType = any Duplicable
-    typealias Stubbing = __StubbingProxy_Duplicable
-    typealias Verification = __VerificationProxy_Duplicable
+    typealias CuckooMocksType = any Duplicable
+    typealias CuckooStubbing = __StubbingProxy_Duplicable
+    typealias CuckooVerification = __VerificationProxy_Duplicable
     typealias __CuckooSelf = MockDuplicable
-    typealias StaticStubbing = __StaticStubbingProxy_Duplicable
-    typealias StaticVerification = __StaticVerificationProxy_Duplicable
+    typealias CuckooStaticStubbing = __StaticStubbingProxy_Duplicable
+    typealias CuckooStaticVerification = __StaticVerificationProxy_Duplicable
 
     // Original typealiases
 
@@ -509,9 +509,9 @@ nonisolated final class DuplicableStub: Duplicable {
 }
 
 nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any AsyncCloner
-    typealias Stubbing = __StubbingProxy_AsyncCloner
-    typealias Verification = __VerificationProxy_AsyncCloner
+    typealias CuckooMocksType = any AsyncCloner
+    typealias CuckooStubbing = __StubbingProxy_AsyncCloner
+    typealias CuckooVerification = __VerificationProxy_AsyncCloner
     typealias __CuckooSelf = MockAsyncCloner
 
     // Original typealiases
@@ -626,9 +626,9 @@ nonisolated final class AsyncClonerStub: AsyncCloner {
 }
 
 final class MockMainActorPeer: MainActorPeer, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any MainActorPeer
-    typealias Stubbing = __StubbingProxy_MainActorPeer
-    typealias Verification = __VerificationProxy_MainActorPeer
+    typealias CuckooMocksType = any MainActorPeer
+    typealias CuckooStubbing = __StubbingProxy_MainActorPeer
+    typealias CuckooVerification = __VerificationProxy_MainActorPeer
     typealias __CuckooSelf = MockMainActorPeer
 
     // Original typealiases
@@ -712,9 +712,9 @@ final class MainActorPeerStub: MainActorPeer {
 }
 
 nonisolated final class MockStack<Element>: Stack, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any Stack<Element>
-    typealias Stubbing = __StubbingProxy_Stack
-    typealias Verification = __VerificationProxy_Stack
+    typealias CuckooMocksType = any Stack<Element>
+    typealias CuckooStubbing = __StubbingProxy_Stack
+    typealias CuckooVerification = __VerificationProxy_Stack
     typealias __CuckooSelf = MockStack
 
     // Original typealiases
@@ -834,15 +834,15 @@ nonisolated final class StackStub<Element>: Stack {
 }
 
 actor MockActorPeer: ActorPeer, Cuckoo.ProtocolMock {
-    typealias MocksType = any ActorPeer
-    typealias Stubbing = __StubbingProxy_ActorPeer
-    typealias Verification = __VerificationProxy_ActorPeer
+    typealias CuckooMocksType = any ActorPeer
+    typealias CuckooStubbing = __StubbingProxy_ActorPeer
+    typealias CuckooVerification = __VerificationProxy_ActorPeer
 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockActorPeer.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
 
@@ -906,9 +906,9 @@ actor ActorPeerStub: ActorPeer {
 }
 
 final class MockNode: Node, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = Node
-    typealias Stubbing = __StubbingProxy_Node
-    typealias Verification = __VerificationProxy_Node
+    typealias CuckooMocksType = Node
+    typealias CuckooStubbing = __StubbingProxy_Node
+    typealias CuckooVerification = __VerificationProxy_Node
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockNode.self) ?? Cuckoo.MockManager(hasParent: true)
 

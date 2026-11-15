@@ -2,11 +2,11 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
-    typealias MocksType = any Logger
-    typealias Stubbing = __StubbingProxy_Logger
-    typealias Verification = __VerificationProxy_Logger
-    typealias StaticStubbing = __StaticStubbingProxy_Logger
-    typealias StaticVerification = __StaticVerificationProxy_Logger
+    typealias CuckooMocksType = any Logger
+    typealias CuckooStubbing = __StubbingProxy_Logger
+    typealias CuckooVerification = __VerificationProxy_Logger
+    typealias CuckooStaticStubbing = __StaticStubbingProxy_Logger
+    typealias CuckooStaticVerification = __StaticVerificationProxy_Logger
 
     // Original typealiases
 
@@ -421,15 +421,15 @@ nonisolated final class LoggerStub: Logger {
 }
 
 actor MockLoggerActor: LoggerActor, Cuckoo.ProtocolMock {
-    typealias MocksType = any LoggerActor
-    typealias Stubbing = __StubbingProxy_LoggerActor
-    typealias Verification = __VerificationProxy_LoggerActor
+    typealias CuckooMocksType = any LoggerActor
+    typealias CuckooStubbing = __StubbingProxy_LoggerActor
+    typealias CuckooVerification = __VerificationProxy_LoggerActor
 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockLoggerActor.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
 
@@ -495,9 +495,9 @@ actor LoggerActorStub: LoggerActor {
 }
 
 final class MockMainActorLogger: MainActorLogger, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any MainActorLogger
-    typealias Stubbing = __StubbingProxy_MainActorLogger
-    typealias Verification = __VerificationProxy_MainActorLogger
+    typealias CuckooMocksType = any MainActorLogger
+    typealias CuckooStubbing = __StubbingProxy_MainActorLogger
+    typealias CuckooVerification = __VerificationProxy_MainActorLogger
 
     // Original typealiases
 
@@ -578,9 +578,9 @@ final class MainActorLoggerStub: MainActorLogger {
 }
 
 nonisolated final class MockStore<Item>: Store, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = DefaultImplCaller
-    typealias Stubbing = __StubbingProxy_Store
-    typealias Verification = __VerificationProxy_Store
+    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_Store
+    typealias CuckooVerification = __VerificationProxy_Store
 
     // Original typealiases
 
@@ -800,9 +800,9 @@ nonisolated final class StoreStub<Item>: Store {
 }
 
 final class MockPrinter: Printer, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = Printer
-    typealias Stubbing = __StubbingProxy_Printer
-    typealias Verification = __VerificationProxy_Printer
+    typealias CuckooMocksType = Printer
+    typealias CuckooStubbing = __StubbingProxy_Printer
+    typealias CuckooVerification = __VerificationProxy_Printer
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPrinter.self) ?? Cuckoo.MockManager(hasParent: true)
 

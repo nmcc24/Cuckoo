@@ -2,15 +2,15 @@ import Cuckoo
 import Foundation
 
 actor MockStore: Store, Cuckoo.ProtocolMock {
-    typealias MocksType = any Store
-    typealias Stubbing = __StubbingProxy_Store
-    typealias Verification = __VerificationProxy_Store
+    typealias CuckooMocksType = any Store
+    typealias CuckooStubbing = __StubbingProxy_Store
+    typealias CuckooVerification = __VerificationProxy_Store
 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
 

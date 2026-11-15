@@ -2,9 +2,9 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockConfigurable: Configurable, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any Configurable
-    typealias Stubbing = __StubbingProxy_Configurable
-    typealias Verification = __VerificationProxy_Configurable
+    typealias CuckooMocksType = any Configurable
+    typealias CuckooStubbing = __StubbingProxy_Configurable
+    typealias CuckooVerification = __VerificationProxy_Configurable
 
     // Original typealiases
 
@@ -93,9 +93,9 @@ nonisolated final class ConfigurableStub: Configurable {
 }
 
 final class MockBox: Box, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = Box
-    typealias Stubbing = __StubbingProxy_Box
-    typealias Verification = __VerificationProxy_Box
+    typealias CuckooMocksType = Box
+    typealias CuckooStubbing = __StubbingProxy_Box
+    typealias CuckooVerification = __VerificationProxy_Box
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockBox.self) ?? Cuckoo.MockManager(hasParent: true)
 

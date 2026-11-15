@@ -2,11 +2,11 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
-    typealias MocksType = any Accumulator
-    typealias Stubbing = __StubbingProxy_Accumulator
-    typealias Verification = __VerificationProxy_Accumulator
-    typealias StaticStubbing = __StaticStubbingProxy_Accumulator
-    typealias StaticVerification = __StaticVerificationProxy_Accumulator
+    typealias CuckooMocksType = any Accumulator
+    typealias CuckooStubbing = __StubbingProxy_Accumulator
+    typealias CuckooVerification = __VerificationProxy_Accumulator
+    typealias CuckooStaticStubbing = __StaticStubbingProxy_Accumulator
+    typealias CuckooStaticVerification = __StaticVerificationProxy_Accumulator
 
     // Original typealiases
 
@@ -301,15 +301,15 @@ nonisolated final class AccumulatorStub: Accumulator {
 }
 
 actor MockAccumulatorActor: AccumulatorActor, Cuckoo.ProtocolMock {
-    typealias MocksType = any AccumulatorActor
-    typealias Stubbing = __StubbingProxy_AccumulatorActor
-    typealias Verification = __VerificationProxy_AccumulatorActor
+    typealias CuckooMocksType = any AccumulatorActor
+    typealias CuckooStubbing = __StubbingProxy_AccumulatorActor
+    typealias CuckooVerification = __VerificationProxy_AccumulatorActor
 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockAccumulatorActor.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
 
@@ -423,9 +423,9 @@ actor AccumulatorActorStub: AccumulatorActor {
 }
 
 final class MockMainActorAccumulator: MainActorAccumulator, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any MainActorAccumulator
-    typealias Stubbing = __StubbingProxy_MainActorAccumulator
-    typealias Verification = __VerificationProxy_MainActorAccumulator
+    typealias CuckooMocksType = any MainActorAccumulator
+    typealias CuckooStubbing = __StubbingProxy_MainActorAccumulator
+    typealias CuckooVerification = __VerificationProxy_MainActorAccumulator
 
     // Original typealiases
 
@@ -510,9 +510,9 @@ final class MainActorAccumulatorStub: MainActorAccumulator {
 }
 
 final class MockDoubler: Doubler, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = Doubler
-    typealias Stubbing = __StubbingProxy_Doubler
-    typealias Verification = __VerificationProxy_Doubler
+    typealias CuckooMocksType = Doubler
+    typealias CuckooStubbing = __StubbingProxy_Doubler
+    typealias CuckooVerification = __VerificationProxy_Doubler
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockDoubler.self) ?? Cuckoo.MockManager(hasParent: true)
 

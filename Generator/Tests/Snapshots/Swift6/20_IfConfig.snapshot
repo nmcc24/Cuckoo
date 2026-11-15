@@ -5,9 +5,9 @@ import Combine
 #endif
 
 nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any Platformed
-    typealias Stubbing = __StubbingProxy_Platformed
-    typealias Verification = __VerificationProxy_Platformed
+    typealias CuckooMocksType = any Platformed
+    typealias CuckooStubbing = __StubbingProxy_Platformed
+    typealias CuckooVerification = __VerificationProxy_Platformed
 
     // Original typealiases
 
@@ -283,9 +283,9 @@ nonisolated final class PlatformedStub: Platformed {
 }
 
 nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = DefaultImplCaller
-    typealias Stubbing = __StubbingProxy_PlatformedStore
-    typealias Verification = __VerificationProxy_PlatformedStore
+    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_PlatformedStore
+    typealias CuckooVerification = __VerificationProxy_PlatformedStore
 
     // Original typealiases
 
@@ -486,9 +486,9 @@ nonisolated final class PlatformedStoreStub<Item>: PlatformedStore {
 }
 
 final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = PlatformedService
-    typealias Stubbing = __StubbingProxy_PlatformedService
-    typealias Verification = __VerificationProxy_PlatformedService
+    typealias CuckooMocksType = PlatformedService
+    typealias CuckooStubbing = __StubbingProxy_PlatformedService
+    typealias CuckooVerification = __VerificationProxy_PlatformedService
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPlatformedService.self) ?? Cuckoo.MockManager(hasParent: true)
 
@@ -692,9 +692,9 @@ final class PlatformedServiceStub: PlatformedService {
 
 #if (canImport(Combine))
 nonisolated final class MockPublishing: Publishing, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any Publishing
-    typealias Stubbing = __StubbingProxy_Publishing
-    typealias Verification = __VerificationProxy_Publishing
+    typealias CuckooMocksType = any Publishing
+    typealias CuckooStubbing = __StubbingProxy_Publishing
+    typealias CuckooVerification = __VerificationProxy_Publishing
 
     // Original typealiases
 
@@ -770,9 +770,9 @@ nonisolated final class PublishingStub: Publishing {
 
 #if (DEBUG)
 final class MockDebugTools: DebugTools, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = DebugTools
-    typealias Stubbing = __StubbingProxy_DebugTools
-    typealias Verification = __VerificationProxy_DebugTools
+    typealias CuckooMocksType = DebugTools
+    typealias CuckooStubbing = __StubbingProxy_DebugTools
+    typealias CuckooVerification = __VerificationProxy_DebugTools
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockDebugTools.self) ?? Cuckoo.MockManager(hasParent: true)
 
@@ -847,9 +847,9 @@ final class DebugToolsStub: DebugTools {
 #if (DEBUG) && (os(Linux))
 extension DebugTools {
     final class MockLinuxProbe: LinuxProbe, nonisolated Cuckoo.ClassMock {
-        typealias MocksType = LinuxProbe
-        typealias Stubbing = __StubbingProxy_LinuxProbe
-        typealias Verification = __VerificationProxy_LinuxProbe
+        typealias CuckooMocksType = LinuxProbe
+        typealias CuckooStubbing = __StubbingProxy_LinuxProbe
+        typealias CuckooVerification = __VerificationProxy_LinuxProbe
 
         nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockLinuxProbe.self) ?? Cuckoo.MockManager(hasParent: true)
 

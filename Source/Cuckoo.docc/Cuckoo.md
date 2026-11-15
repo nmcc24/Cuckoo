@@ -62,8 +62,8 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 
 ### Verification
 
-- ``verify(_:_:fileID:filePath:line:column:)->M.Verification``
-- ``verify(_:_:fileID:filePath:line:column:)->M.StaticVerification``
+- ``verify(_:_:fileID:filePath:line:column:)->M.CuckooVerification``
+- ``verify(_:_:fileID:filePath:line:column:)->M.CuckooStaticVerification``
 - ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)``
 - ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(M.Type,_,_,_,_,_)``
 - ``inOrder(strict:fileID:filePath:line:column:_:)``

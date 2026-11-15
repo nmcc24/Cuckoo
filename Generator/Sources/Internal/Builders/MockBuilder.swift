@@ -32,15 +32,15 @@ enum MockBuilder {
         } else {
             "any \(container.name)\(container.genericArgumentsString)"
         }
-        lines.append("    \(access)typealias MocksType = \(mocksType)")
-        lines.append("    \(access)typealias Stubbing = __StubbingProxy_\(container.name)")
-        lines.append("    \(access)typealias Verification = __VerificationProxy_\(container.name)")
+        lines.append("    \(access)typealias CuckooMocksType = \(mocksType)")
+        lines.append("    \(access)typealias CuckooStubbing = __StubbingProxy_\(container.name)")
+        lines.append("    \(access)typealias CuckooVerification = __VerificationProxy_\(container.name)")
         if container.declaresSelfTypealias {
             lines.append("    \(access)typealias \(SelfResolution.typealiasName) = \(container.mockName)")
         }
         if hasStaticMembers {
-            lines.append("    \(access)typealias StaticStubbing = __StaticStubbingProxy_\(container.name)")
-            lines.append("    \(access)typealias StaticVerification = __StaticVerificationProxy_\(container.name)")
+            lines.append("    \(access)typealias CuckooStaticStubbing = __StaticStubbingProxy_\(container.name)")
+            lines.append("    \(access)typealias CuckooStaticVerification = __StaticVerificationProxy_\(container.name)")
         }
         lines.append("")
         let unknownAttributes = container.asClass?.unknownAttributes ?? container.asProtocol?.unknownAttributes ?? []
@@ -149,7 +149,7 @@ enum MockBuilder {
         ]
         if isActor {
             return [
-                "    \(access)nonisolated func enableDefaultImplementation(_ stub: MocksType) {",
+                "    \(access)nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {",
                 "        cuckoo_manager.refuseActorDefaultImplementation()",
                 "    }",
             ]
