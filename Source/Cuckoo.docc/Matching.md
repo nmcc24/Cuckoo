@@ -58,8 +58,8 @@ It combines with values and other matchers: `even().and(not(equal(to: 0)))`.
 
 ### Matchers for Sendable mocks
 
-The mock of a `Sendable` type, or of an actor, can be called from any task, so its stubs match arguments
-wherever a call comes from. They only take matchers that are safe there: a ``SendableMatcher``, whose closure is
+The mock of a `Sendable` type, or of an actor, can be called from any task, and so can a `nonisolated` member of
+a global-actor type, so their stubs match arguments wherever a call comes from. They only take matchers that are safe there: a ``SendableMatcher``, whose closure is
 `@Sendable`. Each matcher function returns one when the values it keeps are `Sendable`, and a ``ParameterMatcher``
 otherwise, so the same code works with every mock:
 
