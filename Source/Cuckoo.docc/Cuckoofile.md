@@ -151,5 +151,6 @@ swift run --package-path path/to/Cuckoo CuckooGenerator --configuration Cuckoofi
 A release's own manifest doesn't declare the `CuckooGenerator` product, which its plugin doesn't need, so build it
 from a branch, such as `master`, or run the generator inside the release's `CuckooGenerator.artifactbundle.zip`.
 
-`--verbose` prints each module's settings as the generator reads them. Each module writes to its `output`, or to the
-top-level one.
+Outside the plugin nothing passes the generator a target's files, so each module needs its own `sources`, and an
+`output`, its own or the top-level one, to write to. `--verbose` prints each module's settings as the generator reads
+them.

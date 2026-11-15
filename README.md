@@ -48,7 +48,8 @@ put a protocol in front of them.
 
 ## Documentation
 The documentation is a DocC catalog in [`Source/Cuckoo.docc`](Source/Cuckoo.docc). Build it with
-`scripts/build-docs.sh`, or open the package in Xcode and choose Product > Build Documentation.
+`scripts/build-docs.sh`, or open the package in Xcode and choose Product > Build Documentation. On GitHub, the
+links below open each article's Markdown source, where DocC's symbol links show as plain code.
 
 - [Getting started](Source/Cuckoo.docc/GettingStarted.md): add the package and a build plugin, and write a first test.
 - [The Cuckoofile](Source/Cuckoo.docc/Cuckoofile.md): every option of `Cuckoofile.toml`.
@@ -56,7 +57,6 @@ The documentation is a DocC catalog in [`Source/Cuckoo.docc`](Source/Cuckoo.docc
   implementations, static members, verification, argument captors.
 - [Matching arguments and calls](Source/Cuckoo.docc/Matching.md): matchers for arguments, collections and call
   counts.
-
 - [Cookbook](Source/Cuckoo.docc/Cookbook.md): MainActor view models, background work, actors, Swift Testing suites,
   slow calls, Objective-C dependencies and completion handlers.
 - [Migrating from Cuckoo 2](Source/Cuckoo.docc/MigratingFromCuckoo2.md): what changes for an existing suite.
@@ -70,10 +70,10 @@ Cuckoo is open for everyone and we'd like you to help us make the best Swift moc
 3. To test on a simulator, run `scripts/install-scheme.sh`, then use the `CuckooTests` scheme with `xcodebuild -skipPackagePluginValidation`.
 4. Peek around or file a pull request with your changes.
 
-The package consists of two parts - runtime and code generator:
-- `Source` - runtime sources and the DocC catalog
-- `Generator` - the generator (`CuckooGenerator`), its build plugin and its tests
-- `Tests` - tests for the runtime part, in Swift 6 mode like everything else
+The repository has three parts:
+- `Source`: the runtime and its DocC catalog.
+- `Generator`: the generator (`CuckooGenerator`), its build plugin and its tests.
+- `Tests`: the runtime's tests, in the Swift 6 mode like everything else.
 
 Thank you for your help!
 

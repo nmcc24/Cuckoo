@@ -37,6 +37,9 @@ also needs `@retroactive`.
 - `equal(to:)` matches an equal value. `sameInstance(as:)` matches the same class instance.
 - `isNil()` and `notNil()` match optionals.
 - `anyClosure()` and `anyThrowingClosure()` match closure arguments, which can't be compared.
+  On Apple platforms, a closure parameter with typed throws, `(Int) throws(LoadError) -> Void`, can only be mocked
+  from macOS 15, iOS 18, tvOS 18 or watchOS 11, since the mock keeps the closure's type at run time. Mark the
+  requirement `@available` accordingly.
 - `not(_:)` inverts a matcher, and `or(_:)` and `and(_:)` combine a matcher or value with another.
 
 ### Custom matchers

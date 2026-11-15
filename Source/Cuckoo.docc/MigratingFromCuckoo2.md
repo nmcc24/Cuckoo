@@ -6,9 +6,8 @@ Move a test suite from Cuckoo 2 to Cuckoo 3, which is built for Swift 6's data-r
 
 Cuckoo 3 keeps the generator, the Cuckoofile and the Mockito-style API, so most tests compile unchanged. What
 changes comes from Swift 6: mocks now keep the isolation and `Sendable`-ness of the types they mock, per-test
-settings replace global ones, and a call with no stub fails the test and answers with a default value, where
-Cuckoo 2 crashed it. A few options that
-only CocoaPods or Xcode projects used are gone.
+settings replace global ones, and a call with no stub fails the test and, when its type has a default value, answers
+with it, where Cuckoo 2 crashed the test process. A few options that only CocoaPods or Xcode projects used are gone.
 
 Work through the sections in order: first the setup, so the mocks generate, then the compiler errors in the
 tests, then the behaviour changes, which show up as test failures.
@@ -17,7 +16,7 @@ tests, then the behaviour changes, which show up as test failures.
 
 - Swift 6.2 or later (Xcode 26 or later). The Swift 6 language mode is recommended, and it's what brings the
   isolation checks below; the mocks also compile in the Swift 5 mode, which CI doesn't test.
-- iOS 17, macOS 14, tvOS 17 or watchOS 10, up from iOS 13 and macOS 10.15.
+- iOS 17, macOS 14, tvOS 17 or watchOS 10, up from iOS 13, macOS 11, tvOS 13 and watchOS 8.
 - SwiftPM only. The podspec and the `run` script, which downloaded or built the generator for build-phase
   scripts, are gone. Add the package and the build plugin as <doc:GettingStarted> shows. To run the
   generator from a script anyway, see "Running the generator yourself" in <doc:Cuckoofile>.

@@ -1,6 +1,7 @@
 extension Dictionary: _Matchable where Value: _Matchable, Value == Value.MatchedType {
     public typealias MatchedType = [Key: Value]
 
+    /// Matches a dictionary with the same keys whose values each match the value under the same key.
     public var matcher: ParameterMatcher<[Key: Value]> {
         let matchers = mapValues(\.matcher)
         return ParameterMatcher<[Key: Value]> { other in
@@ -14,6 +15,7 @@ extension Dictionary: _Matchable where Value: _Matchable, Value == Value.Matched
 /// Keys must be matchable themselves, as a stand-in for `Sendable`, which a conditional conformance can't require.
 extension Dictionary: _SendableMatchable
 where Key: _SendableMatchable, Value: _SendableMatchable, Value == Value.MatchedType {
+    /// Matches a dictionary with the same keys whose values each match the value under the same key.
     public var sendableMatcher: SendableMatcher<[Key: Value]> {
         let matchers = mapValues(\.sendableMatcher)
         return SendableMatcher<[Key: Value]> { other in

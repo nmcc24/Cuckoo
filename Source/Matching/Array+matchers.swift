@@ -1,6 +1,7 @@
 extension Array: _Matchable where Element: _Matchable, Element == Element.MatchedType {
     public typealias MatchedType = [Element]
 
+    /// Matches an array of the same length whose elements each match the element at the same index.
     public var matcher: ParameterMatcher<[Element]> {
         let matchers = map(\.matcher)
         return ParameterMatcher<[Element]> { other in
@@ -10,6 +11,7 @@ extension Array: _Matchable where Element: _Matchable, Element == Element.Matche
 }
 
 extension Array: _SendableMatchable where Element: _SendableMatchable, Element == Element.MatchedType {
+    /// Matches an array of the same length whose elements each match the element at the same index.
     public var sendableMatcher: SendableMatcher<[Element]> {
         let matchers = map(\.sendableMatcher)
         return SendableMatcher<[Element]> { other in
