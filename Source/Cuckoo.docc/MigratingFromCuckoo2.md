@@ -26,9 +26,10 @@ tests, then the behaviour changes, which show up as test failures.
 
 ### The Cuckoofile
 
-- The `xcodeproj` table is removed. List the target's files with `sources` globs, or, with the build plugin, leave
-  `sources` out to mock the files of the target the plugin generates for. A leftover `xcodeproj` table fails with
-  the `sources` line to write; <doc:Cuckoofile> shows the change.
+- The `xcodeproj` table is removed. List the target's files with `sources` globs. With the build plugin in an
+  Xcode project, the entry is named after the test target, since that's the one the plugin generates; in a
+  package, the plugin can leave `sources` out to mock the files of a dependency. A leftover `xcodeproj` table fails
+  with the `sources` line to write; <doc:Cuckoofile> shows the change.
 - The two build plugins are now one, `CuckooPlugin`. Replace `CuckooPluginModular` with it, as is. With
   `CuckooPluginSingleFile`, the plugin generates one file per dependency, from the entry with that dependency's
   name, plus one from the entry named after the test target, instead of every entry into one file. Rename entries
