@@ -90,6 +90,17 @@ testableImports = ["MyApp"]
 sources = ["MyApp/**/*.swift", "Shared/**/*.swift"]
 ```
 
+This is the form for running the generator yourself. With the build plugin in an Xcode project, which only
+generates the entry named after the test target, name it `[modules.MyAppTests]`; the plugin writes the file
+itself, so it needs no `output`:
+
+```toml
+# Cuckoo 3, with the build plugin in an Xcode project
+[modules.MyAppTests]
+testableImports = ["MyApp"]
+sources = ["MyApp/**/*.swift", "Shared/**/*.swift"]
+```
+
 Globs select files by folder, not by target membership. If a folder also holds files the target doesn't compile,
 narrow the glob or list those types in `exclude`. In a package, the build plugin can leave `sources` out instead,
 to mock the files of the target.

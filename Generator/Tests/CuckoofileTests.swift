@@ -414,7 +414,7 @@ struct CuckoofileTests {
         #expect(!xcode.sourcesAreFromPlugin)
 
         let cuckoofile = try examples(in: "Cuckoofile")
-        try #require(cuckoofile.count == 5)
+        try #require(cuckoofile.count == 6)
         // No example uses a key Cuckoo doesn't read, except Cuckoo 2's `xcodeproj` table, which is there to show the
         // error it gives.
         for example in gettingStarted + cuckoofile where !example.contains("xcodeproj") {
@@ -441,5 +441,9 @@ struct CuckoofileTests {
 
         let cuckoo3 = try #require(try parse(cuckoofile[4])["MyApp"])
         #expect(cuckoo3.sources?.map(\.rawValue) == ["/project/MyApp/**/*.swift", "/project/Shared/**/*.swift"])
+
+        let xcodePlugin = try #require(try parse(cuckoofile[5], overriddenOutput: "/derived/Mocks.swift")["MyAppTests"])
+        #expect(xcodePlugin.sources?.map(\.rawValue) == ["/project/MyApp/**/*.swift", "/project/Shared/**/*.swift"])
+        #expect(xcodePlugin.testableImports == ["MyApp"])
     }
 }
