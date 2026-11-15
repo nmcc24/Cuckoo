@@ -148,8 +148,9 @@ to look at what it writes, build `CuckooGenerator` from a clone of the repositor
 swift run --package-path path/to/Cuckoo CuckooGenerator --configuration Cuckoofile.toml --verbose
 ```
 
-A release's own manifest doesn't declare the `CuckooGenerator` product, which its plugin doesn't need, so build it
-from a branch, such as `master`, or run the generator inside the release's `CuckooGenerator.artifactbundle.zip`.
+`CuckooGenerator` is an executable target, not a product, so it runs from a clone of a branch, such as `master`;
+a release's own manifest declares no generator target, so for a release run the generator inside its
+`CuckooGenerator.artifactbundle.zip`.
 
 Outside the plugin nothing passes the generator a target's files, so each module needs its own `sources`, and an
 `output`, its own or the top-level one, to write to. `--verbose` prints each module's settings as the generator reads

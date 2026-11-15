@@ -62,6 +62,8 @@
 - `anyInt()`, `anyString()`, `anyClosure()`, `anyThrowingClosure()`, their async variants and
   `anyOptionalThrowingClosure()`, about 110 functions. `any()` takes its type from the parameter and covers them.
   On an optional parameter they didn't match `nil`, so a test that relies on that writes `notNil()`.
+- The `CuckooGenerator` executable product. The plugin depends on the generator's target, and a release's manifest
+  already left the product out. `swift run CuckooGenerator` from a clone still runs the generator.
 
 ### Fixed
 - An unstubbed call from a `Task.detached` or a dispatch queue ignored the `.cuckoo(defaultValues:)` of the test
