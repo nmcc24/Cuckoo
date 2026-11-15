@@ -87,7 +87,8 @@ final class Crawler: SyntaxVisitor {
         let locationConverter: SourceLocationConverter
         let globalActors: Set<String>
         let noncopyableTypes: Set<String>
-        /// The module's non-generic typealiases of function types, by name, to the function type.
+        /// The module's typealiases of function types, by qualified name, to the function type, generic ones with
+        /// their generic parameters first.
         let closureTypealiases: [String: String]
         /// The module's types declared without `public` or `open`.
         let nonPublicTypes: Set<String>
@@ -226,7 +227,7 @@ final class Crawler: SyntaxVisitor {
             token.accessibility = .internal
             token.internalMockReason = type
         }
-        guard !hasReservedGenericName(token.genericParameters.map(\.name), of: token.name, node) else { return .skipChildren }
+        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, of: token.name, node) else { return .skipChildren }
         tokens.append(token)
         return .skipChildren
     }
@@ -267,7 +268,7 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
-        guard !hasReservedGenericName(token.genericParameters.map(\.name), of: token.name, node) else { return .skipChildren }
+        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, of: token.name, node) else { return .skipChildren }
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
@@ -538,25 +539,54 @@ final class Crawler: SyntaxVisitor {
 
     /// The function type a typealias written as `type` stands for, qualified to read the same in the mock, or nil.
     private func expandedClosureTypealias(_ type: TypeSyntax) -> TypeSyntax? {
-        if let identifier = type.as(IdentifierTypeSyntax.self), identifier.genericArgumentClause == nil,
-           let functionType = closureTypealias(named: identifier.name.text, from: Syntax(type)) {
-            return qualifying(functionType, in: closureTypealiasScope(named: identifier.name.text))
+        if let identifier = type.as(IdentifierTypeSyntax.self),
+           let (functionType, scope) = closureTypealias(named: identifier.name.text, from: Syntax(type)),
+           let instance = Self.instantiating(functionType, with: identifier.genericArgumentClause) {
+            return qualifying(instance, in: scope)
         }
         // A qualified one, `Uploader.Completion`, by its full name.
-        if let member = type.as(MemberTypeSyntax.self), member.genericArgumentClause == nil,
-           let functionType = context.closureTypealiases[member.trimmedDescription] {
+        if let member = type.as(MemberTypeSyntax.self),
+           let functionType = context.closureTypealiases[member.with(\.genericArgumentClause, nil).trimmedDescription],
+           let instance = Self.instantiating(functionType, with: member.genericArgumentClause) {
             let scope = member.baseType.trimmedDescription.split(separator: ".").map(String.init)
-            return qualifying(functionType, in: scope)
+            return qualifying(instance, in: scope)
         }
         return nil
     }
 
-    /// The scope of the typealias `name` stands for when it's declared in a type: its only nested declaration of
-    /// that name, if there's one.
-    private func closureTypealiasScope(named name: String) -> [String] {
-        let nested = context.closureTypealiases.keys.filter { $0.hasSuffix("." + name) }
-        guard context.closureTypealiases[name] == nil, nested.count == 1, let key = nested.first else { return [] }
-        return key.split(separator: ".").dropLast().map(String.init)
+    /// A typealias's function type for the generic arguments it's used with, `Handler<Int>` for
+    /// `<T> (T) -> Void` being `(Int) -> Void`, or nil when they don't match its generic parameters. The arguments
+    /// are written where the typealias is used, so they're left as they are when the function type is qualified.
+    private static func instantiating(_ functionType: String, with arguments: GenericArgumentClauseSyntax?) -> String? {
+        guard functionType.hasPrefix("<"), let end = functionType.firstIndex(of: ">") else {
+            return arguments == nil ? functionType : nil
+        }
+        let parameters = functionType[functionType.index(after: functionType.startIndex)..<end]
+            .split(separator: ",").map { String($0.trimmedSpaces) }
+        guard let arguments, arguments.arguments.count == parameters.count else { return nil }
+        // An argument such as `any P` or `() -> Void` is parenthesized, so it keeps its meaning in any position.
+        let substitutions = Dictionary(uniqueKeysWithValues: zip(parameters, arguments.arguments.map { argument in
+            let type = argument.argument.as(TypeSyntax.self)
+            let needsParentheses = type.map {
+                $0.is(FunctionTypeSyntax.self) || $0.is(CompositionTypeSyntax.self) || $0.is(SomeOrAnyTypeSyntax.self) || $0.is(AttributedTypeSyntax.self)
+            } ?? true
+            return needsParentheses ? "(\(argument.argument.trimmedDescription))" : argument.argument.trimmedDescription
+        }))
+        final class Substitution: SyntaxRewriter {
+            let substitutions: [String: String]
+            init(_ substitutions: [String: String]) {
+                self.substitutions = substitutions
+            }
+            override func visit(_ node: IdentifierTypeSyntax) -> TypeSyntax {
+                guard node.genericArgumentClause == nil, let argument = substitutions[node.name.text] else {
+                    return super.visit(node)
+                }
+                var parser = Parser(argument)
+                return TypeSyntax.parse(from: &parser).with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
+            }
+        }
+        var parser = Parser(String(functionType[functionType.index(after: end)...]))
+        return Substitution(substitutions).rewrite(TypeSyntax.parse(from: &parser)).trimmedDescription
     }
 
     /// `functionType`, written in `scope`, with each type it names from that scope written qualified, so it reads
@@ -576,7 +606,9 @@ final class Crawler: SyntaxVisitor {
                 for length in stride(from: scope.count, through: 1, by: -1) {
                     let qualified = (scope.prefix(length) + [node.name.text]).joined(separator: ".")
                     if types.contains(qualified) {
-                        var parser = Parser(qualified + (node.genericArgumentClause?.trimmedDescription ?? ""))
+                        // `Box<Receipt>`: the arguments name types of the same scope too.
+                        let arguments = node.genericArgumentClause.map { rewrite(Syntax($0)).trimmedDescription } ?? ""
+                        var parser = Parser(qualified + arguments)
                         return TypeSyntax.parse(from: &parser).with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
                     }
                 }
@@ -590,27 +622,33 @@ final class Crawler: SyntaxVisitor {
     /// an associated type or a typealias of an enclosing declaration comes first, then the module's top-level
     /// typealiases. A typealias Swift finds elsewhere, in another extension of the type, a superclass or a parent
     /// protocol, is taken when it's the module's only one of that name. Nil when `name` isn't a typealias of a
-    /// function type there.
-    private func closureTypealias(named name: String, from node: Syntax) -> String? {
+    /// function type there; otherwise the function type with the qualified name of the type that declares it,
+    /// whose names it uses.
+    private func closureTypealias(named name: String, from node: Syntax) -> (type: String, scope: [String])? {
+        func components(_ name: String) -> [String] {
+            name.split(separator: ".").map(String.init)
+        }
         switch closureTypealiasInScope(named: name, from: node) {
         case .shadowed:
             return nil
-        case .found(let functionType):
-            return functionType
+        case .found(let functionType, let scope):
+            return functionType.map { ($0, components(scope)) }
         case .notFound:
             // Declared in another extension of an enclosing type, or in one of its superclasses or parent protocols.
             for scope in memberLookupScopes(from: node) {
                 if let functionType = context.closureTypealiases["\(scope).\(name)"] {
-                    return functionType
+                    return (functionType, components(scope))
                 }
             }
             if let topLevel = context.closureTypealiases[name] {
-                return topLevel
+                return (topLevel, [])
             }
             // Only when nothing else in the module has the name, which a type of its own would then be.
             guard !context.nominalTypes.contains(name) else { return nil }
-            let nested = Set(context.closureTypealiases.filter { $0.key.hasSuffix("." + name) }.values)
-            return nested.count == 1 ? nested.first : nil
+            let nested = context.closureTypealiases.filter { $0.key.hasSuffix("." + name) }
+            guard Set(nested.values).count == 1, let (key, functionType) = nested.first else { return nil }
+            // Spelled the same in several types, it's qualified only when they're all the same type.
+            return (functionType, nested.count == 1 ? Array(components(key).dropLast()) : [])
         }
     }
 
@@ -635,7 +673,8 @@ final class Crawler: SyntaxVisitor {
 
     private enum ScopedTypealias {
         case shadowed
-        case found(String?)
+        /// The function type, if the typealias stands for one, and the qualified name of the type declaring it.
+        case found(String?, scope: String)
         case notFound
     }
 
@@ -665,7 +704,7 @@ final class Crawler: SyntaxVisitor {
                         return .shadowed
                     }
                     if let alias = member.decl.as(TypeAliasDeclSyntax.self), alias.name.text == name {
-                        return .found(Self.functionType(of: alias))
+                        return .found(Self.functionType(of: alias), scope: Self.qualifiedScope(of: current))
                     }
                 }
             }
@@ -674,14 +713,29 @@ final class Crawler: SyntaxVisitor {
         return .notFound
     }
 
-    /// The function type a non-generic typealias stands for, or nil when it's another type.
+    /// The qualified name of a type declaration or of the type an extension extends.
+    private static func qualifiedScope(of group: Syntax) -> String {
+        if let extensionDeclaration = group.as(ExtensionDeclSyntax.self) {
+            return DeclaredNameCollector.qualifiedName(of: extensionDeclaration.extendedType.trimmedDescription, at: group)
+        }
+        if let named = group.asProtocol((any NamedDeclSyntax).self) {
+            return DeclaredNameCollector.qualifiedName(of: named.name.text, at: group)
+        }
+        return ""
+    }
+
+    /// The function type a typealias stands for, or nil when it's another type. A generic typealias's starts with
+    /// its generic parameters' names, `<T> (T) -> Void`, which ``instantiating(_:with:)`` replaces.
     static func functionType(of alias: TypeAliasDeclSyntax) -> String? {
         var type = alias.initializer.value
         if let attributed = type.as(AttributedTypeSyntax.self), attributed.specifiers.isEmpty {
             type = attributed.baseType
         }
-        guard alias.genericParameterClause == nil, type.is(FunctionTypeSyntax.self) else { return nil }
-        return alias.initializer.value.trimmedDescription
+        guard type.is(FunctionTypeSyntax.self) else { return nil }
+        guard let generics = alias.genericParameterClause else { return alias.initializer.value.trimmedDescription }
+        // A pack or a value generic can't be substituted by name.
+        guard generics.parameters.allSatisfy({ $0.specifier == nil }) else { return nil }
+        return "<\(generics.parameters.map(\.name.text).joined(separator: ", "))> \(alias.initializer.value.trimmedDescription)"
     }
 
     /// Whether `type` contains an opaque `some` type anywhere, as in `some View` or `[some View]`.
@@ -704,12 +758,37 @@ final class Crawler: SyntaxVisitor {
     /// same name would clash with.
     private static let reservedMockNames: Set<String> = ["MocksType", "Stubbing", "Verification", "StaticStubbing", "StaticVerification"]
 
-    /// Whether the type has a generic parameter or associated type named like one of the mock's own type names. Its
-    /// mock couldn't compile, so it's left out with a warning that says what to rename.
-    private func hasReservedGenericName(_ names: [String], of declaration: String, _ node: some SyntaxProtocol) -> Bool {
-        guard let clash = names.first(where: Self.reservedMockNames.contains) else { return false }
-        warn(node, "'\(declaration)' has a generic parameter or associated type named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
-        return true
+    /// Whether the type has a generic parameter, associated type, nested type or typealias named like one of the
+    /// mock's own type names. Its mock couldn't compile, so it's left out with a warning that says what to rename.
+    private func hasReservedName(_ genericNames: [String], members: MemberBlockSyntax, of declaration: String, _ node: some SyntaxProtocol) -> Bool {
+        if let clash = genericNames.first(where: Self.reservedMockNames.contains) {
+            warn(node, "'\(declaration)' has a generic parameter or associated type named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
+            return true
+        }
+        if let clash = Self.nestedTypeNames(in: members.members).first(where: Self.reservedMockNames.contains) {
+            warn(node, "'\(declaration)' declares a type or typealias named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
+            return true
+        }
+        return false
+    }
+
+    /// The names of the types and typealiases a type declares, under `#if` too.
+    private static func nestedTypeNames(in members: MemberBlockItemListSyntax) -> [String] {
+        members.flatMap { member -> [String] in
+            if let conditional = member.decl.as(IfConfigDeclSyntax.self) {
+                return conditional.clauses.flatMap { clause -> [String] in
+                    guard case .decls(let nested)? = clause.elements else { return [] }
+                    return nestedTypeNames(in: nested)
+                }
+            }
+            if let alias = member.decl.as(TypeAliasDeclSyntax.self) {
+                return [alias.name.text]
+            }
+            if member.decl.asProtocol((any DeclGroupSyntax).self) != nil, let named = member.decl.asProtocol((any NamedDeclSyntax).self) {
+                return [named.name.text]
+            }
+            return []
+        }
     }
 
     private func warn(_ node: some SyntaxProtocol, _ message: String) {
@@ -1369,7 +1448,8 @@ extension Crawler {
         var globalActors: Set<String> = []
         /// The `~Copyable` structs and enums, whose arguments mocks record as placeholders.
         var noncopyableTypes: Set<String> = []
-        /// The non-generic typealiases of function types, by name, to the function type they stand for.
+        /// The typealiases of function types, by qualified name, to the function type they stand for; a generic one's
+        /// starts with its generic parameters, as in `<T> (T) -> Void`. See `Crawler.functionType(of:)`.
         var closureTypealiases: [String: String] = [:]
         /// The types declared without `public` or `open`, which a public declaration can't name.
         var nonPublicTypes: Set<String> = []

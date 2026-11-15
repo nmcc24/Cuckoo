@@ -6,8 +6,6 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
     typealias Stubbing = __StubbingProxy_ClosureSpecifierRunner
     typealias Verification = __VerificationProxy_ClosureSpecifierRunner
 
-    // Original typealiases
-
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockClosureSpecifierRunner.self) ?? Cuckoo.MockManager(hasParent: true)
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<ClosureSpecifierRunner>()
@@ -89,6 +87,24 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
         })
     }
 
+    override func generic(_ p0: sending (Int) -> Void) {
+        return withoutActuallyEscaping(p0, do: { (p0: @escaping (Int) -> Void) in
+            let __p0 = Cuckoo.__SendingArgument(p0)
+            return cuckoo_manager.call(
+                "generic(_ p0: sending (Int) -> Void)",
+                parameters: (p0),
+                escapingParameters: (({ _ in
+                                        fatalError("This is a stub! It's not supposed to be called!")
+                                    } as (Int) -> Void)),
+                invoke: { (implementation: ((@escaping (Int) -> Void)) -> Void, arguments) in
+                                implementation(arguments)
+                            },
+                superclassCall: super.generic(__p0.value),
+                defaultCall: __defaultImplStub.value.generic(__p0.value)
+            )
+        })
+    }
+
     override func plain(_ p0: () -> Void) {
         return withoutActuallyEscaping(p0, do: { (p0: @escaping () -> Void) in
             return cuckoo_manager.call(
@@ -149,6 +165,16 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
                 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureSpecifierRunner.self,
                 method: "aliased(_ p0: sending () -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func generic<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<((Int) -> Void), ((@escaping (Int) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (Int) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((Int) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockClosureSpecifierRunner.self,
+                method: "generic(_ p0: sending (Int) -> Void)",
                 parameterMatchers: matchers
             ))
         }
@@ -228,6 +254,19 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
         }
 
         @discardableResult
+        func generic<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((Int) -> Void), Void> where M1.MatchedType == (Int) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((Int) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "generic(_ p0: sending (Int) -> Void)",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+
+        @discardableResult
         func plain<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where M1.MatchedType == () -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
@@ -256,6 +295,10 @@ final class ClosureSpecifierRunnerStub: ClosureSpecifierRunner {
     }
 
     override func aliased(_ p0: sending () -> Void) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    override func generic(_ p0: sending (Int) -> Void) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 

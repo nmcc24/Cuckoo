@@ -67,9 +67,13 @@ enum MockBuilder {
             lines.append(contentsOf: unmockedMembers.map { "    // - \($0)" })
             lines.append("")
         }
-        lines.append("    // Original typealiases")
-        lines.append(contentsOf: container.members.compactMap { ($0 as? Typealias).map { "    \(access)\($0.description)" } })
-        lines.append("")
+        // A class mock inherits the class's typealiases, as its stub does, and a copy would read its names in the
+        // mock's scope instead of the class's.
+        if !container.isClass {
+            lines.append("    // Original typealiases")
+            lines.append(contentsOf: container.members.compactMap { ($0 as? Typealias).map { "    \(access)\($0.description)" } })
+            lines.append("")
+        }
         lines.append("    \(access)nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
         // A public or package protocol mock is created from another module, which can't see the implicit internal
         // initializer. It stays nonisolated, as the implicit one is; an actor's initializer is already. A mock that

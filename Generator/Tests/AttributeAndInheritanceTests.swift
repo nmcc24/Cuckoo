@@ -160,6 +160,29 @@ struct AttributeAndInheritanceTests {
         ])
     }
 
+    /// A nested type or typealias of such a name, under `#if` too, would clash with the mock's own as well.
+    @Test
+    func reservedNestedNameSkipsTheMockWithAWarning() throws {
+        let crawler = Crawler.crawl(source: """
+            class Crate {
+                struct Stubbing {}
+                init() {}
+                func make() -> Stubbing { Stubbing() }
+            }
+            protocol Shelf {
+                #if DEBUG
+                typealias Verification = Int
+                #endif
+                func count() -> Int
+            }
+            """, url: url)
+        #expect(crawler.tokens.isEmpty)
+        #expect(crawler.diagnostics.map(\.description) == [
+            "/project/Sources/Store.swift:1:1: warning: cuckoo: 'Crate' declares a type or typealias named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Crate'.",
+            "/project/Sources/Store.swift:6:1: warning: cuckoo: 'Shelf' declares a type or typealias named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Shelf'.",
+        ])
+    }
+
     /// Two types of the same qualified name, from two files, get mocks that clash: the warning names both files. One
     /// under `#if` may be the other's alternative, so it doesn't count.
     @Test

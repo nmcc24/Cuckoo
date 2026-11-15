@@ -259,3 +259,26 @@ class PrivateDefaults {
 func configureWithDefault(_ mock: MockPrivateDefaults) {
     mock.configure()
 }
+
+// A typealias of a superclass whose function type names a type of the superclass's scope, used where another type
+// declares a typealias of the same name; and a qualified one whose generic arguments name a type of its scope. The
+// class mock inherits the superclass's typealias rather than copying it, which would read its names in its own scope.
+enum ScopedLedger {
+    struct Receipt {}
+    struct Box<T> {}
+    class Base {
+        typealias Done = (Receipt) -> Void
+        typealias Boxed = (Box<Receipt>) -> Void
+        init() {}
+    }
+}
+enum UnrelatedLedger {
+    typealias Done = () -> Void
+}
+class LedgerChild: ScopedLedger.Base {
+    func run(_ done: sending Done) {}
+    func plain(_ done: Done) {}
+}
+protocol LedgerSender {
+    func send(_ boxed: ScopedLedger.Base.Boxed)
+}
