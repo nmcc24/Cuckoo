@@ -33,11 +33,6 @@ public enum DefaultValueRegistry {
         registeredTypes.withLock { $0[ObjectIdentifier(type)] = DefaultValueFactory(factory) }
     }
 
-    /// Registers `value` as the default for `type`, replacing any earlier one, for every test.
-    @available(*, deprecated, renamed: "register(_:for:)")
-    public static func register<T: Sendable>(value: T, forType type: T.Type) {
-        register(value, for: type)
-    }
     
     /// The registered default for `type`, else an empty value for optionals and the standard collections, even when
     /// `T` is a generic parameter. Crashes when there is none, with a message naming the type.

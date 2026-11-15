@@ -58,6 +58,10 @@
   each call.
 
 ### Removed
+- The deprecated Cuckoo 2 names: `hasLength(inRange:)` and `hasLength(inRange:inclusive:)` (write `hasLength(in:)`
+  with the range you mean: `inRange: 1..<3` matched 3, `in: 1..<3` doesn't), `register(value:forType:)` (write
+  `register(_:for:)`), `equal(to:)` on a class that isn't `Equatable` (write `sameInstance(as:)`), and the
+  `Matchable` and `OptionalMatchable` aliases (pass `equal(to:)`, which takes any `Equatable` value).
 - `DefaultValueRegistry.defaultValue(for:)`'s overloads for `Set`, `Array`, `Dictionary` and `Optional`. Calls
   compile unchanged and get the same value from the generic one.
 - `MockBuilder.enableDefaultStubImplementation()`. A mock that `createMock` configured with it forwarded unstubbed

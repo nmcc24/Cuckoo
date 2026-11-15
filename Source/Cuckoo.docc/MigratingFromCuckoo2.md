@@ -73,9 +73,9 @@ behaviour on top.
   `.cuckoo(defaultValues:)`, which tests running in parallel don't share.
 - The checks no longer take a `file:` argument: they take `filePath:`, which defaults to `#filePath`, the full path
   Xcode needs.
-- `hasLength(inRange:)` is deprecated in favour of ``hasLength(in:)``, whose range means what it says. With a
-  half-open range, `inRange:` kept including the upper bound, as `inclusive: true` did by default: `inRange: 1..<3`
-  matches 3, and so does `in: 1...3`, while `in: 1..<3` doesn't. Move each call to `in:` with the range you mean.
+- `hasLength(inRange:)` is removed in favour of ``hasLength(in:)``, whose range means what it says. With a
+  half-open range, `inRange:` included the upper bound, as `inclusive: true` did by default: `inRange: 1..<3`
+  matched 3, and so does `in: 1...3`, while `in: 1..<3` doesn't. Move each call to `in:` with the range you mean.
 - The names a mock declares for Cuckoo carry Cuckoo's prefix, so none of yours is hidden in a mock any more.
   Code that names them changes, and the compiler points at each place (the 3.0 betas' `StaticStubbing` and
   `StaticVerification`, for static members, are `CuckooStaticStubbing` and `CuckooStaticVerification` too):
@@ -98,13 +98,12 @@ behaviour on top.
   What the closure writes now reaches the caller. Closures that let Swift infer the types are unaffected.
 - The stub function types that `when` returns, such as `ProtocolStubFunction`, have more generic parameters. Code
   that names them, rather than letting `when` infer them, needs updating.
-- Deprecated, with a warning that names the replacement: `register(value:forType:)` for
-  ``DefaultValueRegistry/register(_:for:)``, and `equal(to:)` on a class that isn't `Equatable`, which compared
-  identities, for ``sameInstance(as:)->SendableMatcher<T>``. `equal(to:)` on an `Equatable` class now compares with
-  `==`.
-- Conforming your own types to `Matchable` or `OptionalMatchable` is deprecated. Replace `extension User: Matchable
-  { … }` with `equal(to: user)` where you pass the value, which takes any `Equatable` type; for other types use
-  `equal(to:equalWhen:)` or a matcher of your own. See <doc:Matching>.
+- `register(value:forType:)` is removed: call ``DefaultValueRegistry/register(_:for:)``.
+- `equal(to:)` on a class that isn't `Equatable`, which compared identities, is removed: write
+  ``sameInstance(as:)->SendableMatcher<T>``. `equal(to:)` on an `Equatable` class compares with `==`.
+- The `Matchable` and `OptionalMatchable` protocols are removed from your code's view. Replace
+  `extension User: Matchable { … }` with `equal(to: user)` where you pass the value, which takes any `Equatable`
+  type; for other types use `equal(to:equalWhen:)` or a matcher of your own. See <doc:Matching>.
 - The stubs of a `Sendable` or actor mock take only ``SendableMatcher``s, since the mock can be called from any task.
   A matcher that keeps a non-`Sendable` value doesn't compile there. In a project that isolates code to the main
   actor by default, make the value's conformance `nonisolated Equatable` for such a mock.

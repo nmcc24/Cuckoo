@@ -18,7 +18,7 @@ struct ParameterMatcherFunctionsTest {
         #expect(!(sameInstance(as: x) as SendableMatcher<X?>).matches(nil))
     }
 
-    /// An `Equatable` class used to make `equal(to:)` ambiguous between the `Equatable` and the identity overloads.
+    /// An `Equatable` class compares with `==`, not by identity, which `sameInstance(as:)` checks.
     @Test
     func equalToAnEquatableClassUsesEquality() {
         final class Point: Equatable {
