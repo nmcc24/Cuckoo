@@ -86,6 +86,7 @@ struct EventuallyTests {
                 }
             }
             #expect(messages.count == 1)
+            #expect(messages.first?.hasPrefix("Still failing when the waiting task was cancelled: ") == true)
         }
         #expect(elapsed < .seconds(30))
     }

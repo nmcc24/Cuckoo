@@ -28,9 +28,11 @@ public nonisolated(nonsending) func eventually(
         }
         let remaining = clock.now.duration(to: deadline)
         guard remaining > .zero, !Task.isCancelled else {
+            // A cancelled wait ends before the timeout, so it doesn't claim the timeout passed.
+            let when = Task.isCancelled ? "when the waiting task was cancelled" : "after \(timeout)"
             for failure in failures {
                 reportFailure(
-                    "Still failing after \(timeout): \(failure.message)",
+                    "Still failing \(when): \(failure.message)",
                     at: failure.sourceLocation,
                     creatingTest: failure.creatingTest
                 )
