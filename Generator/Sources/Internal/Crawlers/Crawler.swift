@@ -808,9 +808,16 @@ final class Crawler: SyntaxVisitor {
         // Declared in the type itself, in an extension of it, or in a type it inherits from, found by scope, which the
         // module's nested types and closure typealiases list by qualified name.
         let qualifiedName = DeclaredNameCollector.qualifiedName(of: declaration, at: Syntax(node))
-        let scopes = [qualifiedName] + inherited.compactMap { resolvedTypeName($0, inScopeOf: qualifiedName) }
+        let inheritedScopes = inherited.compactMap { resolvedTypeName($0, inScopeOf: qualifiedName) }
+        // A class's subclass mock may declare a name its superclass declares too; it only breaks when one of the
+        // class's members uses that name. A protocol's mock has to conform with whatever its parents name.
+        let usedNames = Set(members.tokens(viewMode: .sourceAccurate).map(\.text))
         let elsewhere = Self.reservedMockNames.sorted().first { name in
-            scopes.contains { context.nominalTypes.contains("\($0).\(name)") || context.closureTypealiases["\($0).\(name)"] != nil }
+            func isDeclared(in scope: String) -> Bool {
+                context.nominalTypes.contains("\(scope).\(name)") || context.closureTypealiases["\(scope).\(name)"] != nil
+            }
+            return isDeclared(in: qualifiedName)
+                || ((node.is(ProtocolDeclSyntax.self) || usedNames.contains(name)) && inheritedScopes.contains(where: isDeclared))
         }
         if let clash = Self.nestedTypeNames(in: members.members).first(where: Self.reservedMockNames.contains) ?? elsewhere {
             warn(node, "'\(declaration)' has a nested type, typealias or associated type named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")

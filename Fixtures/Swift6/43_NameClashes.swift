@@ -12,3 +12,14 @@ protocol KeywordProperty {
     var `default`: Int { get }
     func take(_ element: Element)
 }
+
+// A superclass's typealias named like the mock's own types: the subclass's mock may redeclare it, since none of
+// the subclass's members use it, so it's mocked. (A class that uses one is left out with a warning.)
+class ClashingBase {
+    typealias Verification = Int
+    init() {}
+}
+class QuietSubclass: ClashingBase {
+    override init() {}
+    func count() -> Int { 0 }
+}

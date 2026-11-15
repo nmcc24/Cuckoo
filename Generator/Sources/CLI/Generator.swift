@@ -3,6 +3,8 @@ import FoundationEssentials
 #else
 import Foundation
 #endif
+import SwiftParser
+import SwiftSyntax
 
 final class Generator {
     typealias TokenFilter = (any Token) -> Bool
@@ -149,7 +151,7 @@ final class Generator {
             printToStandardError("warning: cuckoo: \(warning)\n")
         }
         let inheritedFiles = if module.options.enableInheritance {
-            mergingAndBinding(flatMappedFiles, typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes))
+            mergingAndBinding(flatMappedFiles, typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), nominalTypes: declaredNames.nominalTypes)
         } else {
             flatMappedFiles
         }
@@ -230,17 +232,24 @@ final class Generator {
 
     /// The files with each protocol and class merged with what it inherits, then each protocol bound to the class
     /// it requires, both resolved by scope as Swift does.
-    private static func mergingAndBinding(_ files: [FileRepresentation], typealiases: [String: String], types: Set<String>) -> [FileRepresentation] {
+    private static func mergingAndBinding(_ files: [FileRepresentation], typealiases: [String: String], types: Set<String>, nominalTypes: Set<String>) -> [FileRepresentation] {
         let merged = files.map { $0.mergingInheritance(with: files, names: TypeNames(typealiases: typealiases, types: types, files: files)) }
-        return bindingSuperclasses(merged, names: TypeNames(typealiases: typealiases, types: types, files: merged))
+        return bindingSuperclasses(merged, declared: files, names: TypeNames(typealiases: typealiases, types: types, files: merged), nominalTypes: nominalTypes)
     }
 
     /// Binds every protocol that requires a superclass to it: a class declared in the sources that the protocol
     /// names, as `protocol P: Base` or `where Self: Base`, directly or through another protocol, or `NSObject` for
     /// an `NSObjectProtocol`. The protocol's mock and stub then subclass it.
-    private static func bindingSuperclasses(_ filesRepresentation: [FileRepresentation], names: TypeNames) -> [FileRepresentation] {
-        func superclass(of protocolDeclaration: ProtocolDeclaration, visited: Set<String>) -> (name: String, declaration: ClassDeclaration?)? {
-            guard !visited.contains(protocolDeclaration.fullyQualifiedName) else { return nil }
+    /// `declared` are the files before inheritance was merged, whose protocols list only the types they name
+    /// themselves, so each generic argument is qualified from the scope of the protocol that wrote it.
+    private static func bindingSuperclasses(_ filesRepresentation: [FileRepresentation], declared: [FileRepresentation], names: TypeNames, nominalTypes: Set<String>) -> [FileRepresentation] {
+        let declaredProtocols = Dictionary(
+            declared.flatMap(\.tokens).compactMap(\.asProtocol).map { ($0.fullyQualifiedName, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        func superclass(of mergedDeclaration: ProtocolDeclaration, visited: Set<String>) -> (name: String, declaration: ClassDeclaration?)? {
+            guard !visited.contains(mergedDeclaration.fullyQualifiedName) else { return nil }
+            let protocolDeclaration = declaredProtocols[mergedDeclaration.fullyQualifiedName] ?? mergedDeclaration
             // A generic class is bound with the arguments it's written with, `: Gen<Int>`, and found by its name.
             let parents = protocolDeclaration.inheritedTypes.map { inheritedType in
                 let name = inheritedType.firstIndex(of: "<").map { String(inheritedType[..<$0]) } ?? inheritedType
@@ -254,7 +263,8 @@ final class Generator {
                 // Named by its qualified name, which reads the same from wherever the mock is: a parent protocol
                 // may have named it relative to its own scope.
                 if let declaration = resolved as? ClassDeclaration {
-                    return (declaration.fullyQualifiedName + arguments, declaration)
+                    let scope = protocolDeclaration.fullyQualifiedName.split(separator: ".").dropLast().map(String.init)
+                    return (declaration.fullyQualifiedName + qualifying(arguments, in: scope, nominalTypes: nominalTypes), declaration)
                 }
             }
             return parents.lazy
@@ -270,6 +280,36 @@ final class Generator {
                 return protocolDeclaration.replacing(superclass: superclass.name, declaration: superclass.declaration)
             })
         }
+    }
+
+    /// Generic arguments, `<Item>`, written in `scope`, with each type they name from that scope written qualified,
+    /// so they read the same in the mock: `<Item>` in `NS` is `<NS.Item>`.
+    private static func qualifying(_ arguments: String, in scope: [String], nominalTypes: Set<String>) -> String {
+        guard !arguments.isEmpty, !scope.isEmpty else { return arguments }
+        final class Qualifier: SyntaxRewriter {
+            let scope: [String]
+            let nominalTypes: Set<String>
+            init(scope: [String], nominalTypes: Set<String>) {
+                self.scope = scope
+                self.nominalTypes = nominalTypes
+            }
+            override func visit(_ node: IdentifierTypeSyntax) -> TypeSyntax {
+                for length in stride(from: scope.count, through: 1, by: -1) {
+                    let qualified = (scope.prefix(length) + [node.name.text]).joined(separator: ".")
+                    if nominalTypes.contains(qualified) {
+                        let arguments = node.genericArgumentClause.map { rewrite(Syntax($0)).trimmedDescription } ?? ""
+                        var parser = Parser(qualified + arguments)
+                        return TypeSyntax.parse(from: &parser)
+                    }
+                }
+                return super.visit(node)
+            }
+        }
+        // Parsed as the arguments of a placeholder type, which names nothing in the module.
+        let placeholder = "__CuckooArguments"
+        var parser = Parser(placeholder + arguments)
+        let rewritten = Qualifier(scope: scope, nominalTypes: nominalTypes).rewrite(TypeSyntax.parse(from: &parser)).trimmedDescription
+        return String(rewritten.dropFirst(placeholder.count))
     }
 
     private static func removeTypes(from files: [FileRepresentation], using filters: [TokenFilter]) -> [FileRepresentation] {

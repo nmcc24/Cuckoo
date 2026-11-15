@@ -98,3 +98,21 @@ protocol KeyedEntity: Identifiable where ID: Hashable {
 extension KeyedEntity {
     nonisolated var id: Int { 0 }
 }
+
+// A protocol bound to a generic class whose arguments name a type of the protocol's scope, and protocols that
+// inherit it from elsewhere, where the same name means another type: the mock subclasses `Ledger.Store<Ledger.Entry>`.
+enum Ledger {
+    struct Entry {}
+    class Store<Element> {
+        init() {}
+        func all() -> [Element] { [] }
+    }
+}
+extension Ledger {
+    protocol EntryStore: Store<Entry> { func refresh() }
+}
+protocol TopEntryStore: Ledger.EntryStore { func top() }
+enum OtherLedger {
+    struct Entry {}
+    protocol OtherEntryStore: Ledger.EntryStore { func other() }
+}
