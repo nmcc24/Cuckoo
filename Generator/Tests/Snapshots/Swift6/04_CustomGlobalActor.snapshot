@@ -85,7 +85,7 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
 
         @DatabaseActor
         @discardableResult
-        func save<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(String), Void> where __M1.MatchedType == String {
+        func save<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(String), Void> where __M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -99,7 +99,7 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
 
         @DatabaseActor
         @discardableResult
-        func all() -> Cuckoo.__DoNotUse<(), [String]> {
+        func all() -> Cuckoo.VerifiedCall<(), [String]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "all() -> [String]",

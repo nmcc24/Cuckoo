@@ -298,9 +298,9 @@ struct ClassTest {
         mock.functionImplicit(param: "Implicits are obsolete.")
 
         verify(mock).function(param: any())
-        _ = verify(mock).clashingFunction(param1: notNil(), param2: "Henlo Fren") as Cuckoo.__DoNotUse<(Int?, String), Void>
-        _ = verify(mock).clashingFunction(param1: isNil(), param2: "Henlo Fren") as Cuckoo.__DoNotUse<(Int?, String), Void>
-        _ = verify(mock).clashingFunction(param1: 42, param2: "What's the question?") as Cuckoo.__DoNotUse<(Int, String?), Void>
+        _ = verify(mock).clashingFunction(param1: notNil(), param2: "Henlo Fren") as Cuckoo.VerifiedCall<(Int?, String), Void>
+        _ = verify(mock).clashingFunction(param1: isNil(), param2: "Henlo Fren") as Cuckoo.VerifiedCall<(Int?, String), Void>
+        _ = verify(mock).clashingFunction(param1: 42, param2: "What's the question?") as Cuckoo.VerifiedCall<(Int, String?), Void>
         verify(mock).implicitOptionalProperty.get()
         verify(mock).implicitOptionalProperty.set(any())
         verify(mock).functionImplicit(param: any())

@@ -236,9 +236,9 @@ struct ProtocolTest {
         #expect(mock.empty(false))
 
         // the calls are ambiguous if we do not specify the input and output types
-        _ = verify(mock).empty(any()) as __DoNotUse<String, Int>
-        _ = verify(mock).empty(any()) as __DoNotUse<String, Void>
-        _ = verify(mock).empty(any()) as __DoNotUse<Bool, Bool>
+        _ = verify(mock).empty(any()) as VerifiedCall<String, Int>
+        _ = verify(mock).empty(any()) as VerifiedCall<String, Void>
+        _ = verify(mock).empty(any()) as VerifiedCall<Bool, Bool>
     }
 
     @Test

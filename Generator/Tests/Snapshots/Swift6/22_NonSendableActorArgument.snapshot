@@ -162,7 +162,7 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Box), Int> where __M1.MatchedType == Box {
+        func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Box), Int> where __M1.MatchedType == Box {
             let matchers: [Cuckoo.ParameterMatcher<(Box)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -175,7 +175,7 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func swap<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, _ p1: __M2) -> Cuckoo.__DoNotUse<(Box, Box), Box> where __M1.MatchedType == Box, __M2.MatchedType == Box {
+        func swap<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, _ p1: __M2) -> Cuckoo.VerifiedCall<(Box, Box), Box> where __M1.MatchedType == Box, __M2.MatchedType == Box {
             let matchers: [Cuckoo.ParameterMatcher<(Box, Box)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -190,7 +190,7 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Box), Int> where __M1.MatchedType == Box {
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Box), Int> where __M1.MatchedType == Box {
             let matchers: [Cuckoo.ParameterMatcher<(Box)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -216,7 +216,7 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Box)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(Box), Int> {
+            func get() -> Cuckoo.VerifiedCall<(Box), Int> {
                 return cuckooManager.verify(
                     "subscript(_ p0: Box) -> Int#get",
                     callMatcher: cuckooCallMatcher,

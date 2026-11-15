@@ -55,7 +55,7 @@ actor MockItemActor<Item>: ItemActor, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func item() -> Cuckoo.__DoNotUse<(), Item> {
+        func item() -> Cuckoo.VerifiedCall<(), Item> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "item() -> Item",
@@ -170,7 +170,7 @@ nonisolated final class MockStaticResetting<Value>: StaticResetting, nonisolated
         }
 
         @discardableResult
-        func value() -> Cuckoo.__DoNotUse<(), Value> {
+        func value() -> Cuckoo.VerifiedCall<(), Value> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "value() -> Value",
@@ -209,7 +209,7 @@ nonisolated final class MockStaticResetting<Value>: StaticResetting, nonisolated
         }
 
         @discardableResult
-        func reset() -> Cuckoo.__DoNotUse<(), Void> {
+        func reset() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "static reset()",
@@ -416,7 +416,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Key)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(Key), Item> {
+            func get() -> Cuckoo.VerifiedCall<(Key), Item> {
                 return cuckooManager.verify(
                     "subscript<Key: Hashable>(_ p0: Key) -> Item#get",
                     callMatcher: cuckooCallMatcher,
@@ -426,7 +426,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
             }
 
             @discardableResult
-            func set<__M2: Cuckoo._Matchable>(_ p1: __M2) -> Cuckoo.__DoNotUse<(Key, Item), Void> where __M2.MatchedType == Item {
+            func set<__M2: Cuckoo._Matchable>(_ p1: __M2) -> Cuckoo.VerifiedCall<(Key, Item), Void> where __M2.MatchedType == Item {
                 let matchers: [Cuckoo.ParameterMatcher<(Key, Item)>] = self.matchers.map { matcher in
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
@@ -457,7 +457,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Key)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(Key), Item?> {
+            func get() -> Cuckoo.VerifiedCall<(Key), Item?> {
                 return cuckooManager.verify(
                     "subscript<Key: Hashable>(lookup p0: Key) -> Item?#get",
                     callMatcher: cuckooCallMatcher,
@@ -596,7 +596,7 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Key)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(Key), Item> {
+            func get() -> Cuckoo.VerifiedCall<(Key), Item> {
                 return cuckooManager.verify(
                     "subscript<Key: Hashable>(_ p0: Key) -> Item#get",
                     callMatcher: cuckooCallMatcher,
@@ -731,7 +731,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
         }
 
         @discardableResult
-        func count<__M1: Cuckoo._Matchable, Keys: Collection>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Keys), Int> where __M1.MatchedType == Keys, Keys.Element == Key {
+        func count<__M1: Cuckoo._Matchable, Keys: Collection>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Keys), Int> where __M1.MatchedType == Keys, Keys.Element == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -757,7 +757,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Keys)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(Keys), Int> {
+            func get() -> Cuckoo.VerifiedCall<(Keys), Int> {
                 return cuckooManager.verify(
                     "subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get",
                     callMatcher: cuckooCallMatcher,

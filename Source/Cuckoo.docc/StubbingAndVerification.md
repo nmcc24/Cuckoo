@@ -205,7 +205,8 @@ A failed `verify` lists the calls the member received, each with the first argum
 call the mock received if the member had none. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)``
 fails if the mock received a call no `verify` checked.
 
-A generic member whose type comes only from its return value needs the type spelled out:
+A generic member whose type comes only from its return value needs the type spelled out, on the ``VerifiedCall``
+that `verify` returns:
 
 ```swift
 verify(cache).value(forKey: "a").with(returnType: Int?.self)

@@ -184,7 +184,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
 
         #if (os(Linux))
         @discardableResult
-        func onLinux() -> Cuckoo.__DoNotUse<(), Int> {
+        func onLinux() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "onLinux() -> Int",
@@ -197,7 +197,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
 
         #if !(os(Linux)) && (canImport(Darwin))
         @discardableResult
-        func onDarwin() -> Cuckoo.__DoNotUse<(), String> {
+        func onDarwin() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "onDarwin() -> String",
@@ -210,7 +210,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
 
         #if !(os(Linux)) && !(canImport(Darwin))
         @discardableResult
-        func elsewhere() -> Cuckoo.__DoNotUse<(), Void> {
+        func elsewhere() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "elsewhere()",
@@ -223,7 +223,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
 
         #if (DEBUG) && (os(Linux))
         @discardableResult
-        func debugOnLinux() -> Cuckoo.__DoNotUse<(), Void> {
+        func debugOnLinux() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "debugOnLinux()",
@@ -235,7 +235,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
         #endif
 
         @discardableResult
-        func everywhere() -> Cuckoo.__DoNotUse<(), Void> {
+        func everywhere() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "everywhere()",
@@ -439,7 +439,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
 
         #if (DEBUG)
         @discardableResult
-        func dump() -> Cuckoo.__DoNotUse<(), String> {
+        func dump() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "dump() -> String",
@@ -451,7 +451,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
         #endif
 
         @discardableResult
-        func item<__M1: Cuckoo._Matchable>(at p0: __M1) -> Cuckoo.__DoNotUse<(Int), Item> where __M1.MatchedType == Int {
+        func item<__M1: Cuckoo._Matchable>(at p0: __M1) -> Cuckoo.VerifiedCall<(Int), Item> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -626,7 +626,7 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
 
         #if (DEBUG)
         @discardableResult
-        func debugDump() -> Cuckoo.__DoNotUse<(), String> {
+        func debugDump() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "debugDump() -> String",
@@ -639,7 +639,7 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
 
         #if !(DEBUG)
         @discardableResult
-        func releaseOnly() -> Cuckoo.__DoNotUse<(), Void> {
+        func releaseOnly() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "releaseOnly()",
@@ -651,7 +651,7 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
         #endif
 
         @discardableResult
-        func run() -> Cuckoo.__DoNotUse<(), Void> {
+        func run() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "run()",
@@ -748,7 +748,7 @@ nonisolated final class MockPublishing: Publishing, nonisolated Cuckoo.ProtocolM
         }
 
         @discardableResult
-        func publisher() -> Cuckoo.__DoNotUse<(), AnyPublisher<Int, Never>> {
+        func publisher() -> Cuckoo.VerifiedCall<(), AnyPublisher<Int, Never>> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "publisher() -> AnyPublisher<Int, Never>",
@@ -824,7 +824,7 @@ final class MockDebugTools: DebugTools, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func check() -> Cuckoo.__DoNotUse<(), Void> {
+        func check() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "check()",
@@ -901,7 +901,7 @@ extension DebugTools {
             }
 
             @discardableResult
-            func probe() -> Cuckoo.__DoNotUse<(), Void> {
+            func probe() -> Cuckoo.VerifiedCall<(), Void> {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckooManager.verify(
                     "probe()",

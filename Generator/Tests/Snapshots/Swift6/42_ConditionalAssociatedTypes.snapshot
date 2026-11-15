@@ -151,7 +151,7 @@ nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.Proto
 
         #if (DEBUG)
         @discardableResult
-        func next() -> Cuckoo.__DoNotUse<(), Item> {
+        func next() -> Cuckoo.VerifiedCall<(), Item> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "next() -> Item",
@@ -164,7 +164,7 @@ nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.Proto
 
         #if !(DEBUG)
         @discardableResult
-        func next() -> Cuckoo.__DoNotUse<(), Int> {
+        func next() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "next() -> Int",
@@ -387,7 +387,7 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
 
         #if (DEBUG)
         @discardableResult
-        func value<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.__DoNotUse<(Key), Value> where __M1.MatchedType == Key {
+        func value<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.VerifiedCall<(Key), Value> where __M1.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -402,7 +402,7 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
 
         #if !(DEBUG) && (os(Linux))
         @discardableResult
-        func value<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.__DoNotUse<(Key), String> where __M1.MatchedType == Key {
+        func value<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.VerifiedCall<(Key), String> where __M1.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -417,7 +417,7 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
 
         #if !(DEBUG) && !(os(Linux))
         @discardableResult
-        func value<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.__DoNotUse<(Key), Int> where __M1.MatchedType == Key {
+        func value<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.VerifiedCall<(Key), Int> where __M1.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -648,7 +648,7 @@ nonisolated final class MockTwoConditionFeed<Item, Tag>: TwoConditionFeed, nonis
 
         #if (DEBUG)
         @discardableResult
-        func item() -> Cuckoo.__DoNotUse<(), Item> {
+        func item() -> Cuckoo.VerifiedCall<(), Item> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "item() -> Item",
@@ -661,7 +661,7 @@ nonisolated final class MockTwoConditionFeed<Item, Tag>: TwoConditionFeed, nonis
 
         #if (CUCKOO_FIXTURE_FLAG)
         @discardableResult
-        func tag() -> Cuckoo.__DoNotUse<(), Tag> {
+        func tag() -> Cuckoo.VerifiedCall<(), Tag> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "tag() -> Tag",
@@ -765,7 +765,7 @@ nonisolated final class MockBothClausesFeed<Element: Equatable>: BothClausesFeed
         }
 
         @discardableResult
-        func element() -> Cuckoo.__DoNotUse<(), Element> {
+        func element() -> Cuckoo.VerifiedCall<(), Element> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "element() -> Element",

@@ -10,6 +10,8 @@
   and `getVerificationProxy(_:sourceLocation:)` are `cuckooStubbingProxy()` and
   `cuckooVerificationProxy(_:sourceLocation:)`. Generated mocks spell them; code that names them changes, and the
   migration guide lists each. Names starting with `Cuckoo`, `cuckoo` or `__` are reserved for mocks.
+- `verify`'s result, `__DoNotUse`, is `VerifiedCall`, documented: its `with(returnType:)` names a generic member's
+  return type. Code rarely names the type itself.
 - The Cuckoofile option `enableInheritance` is removed: set to `false`, it gave a mock of `protocol B: A` that didn't
   conform to `A`. Mocks always repeat inherited members, and a Cuckoofile that still sets it gets a warning.
 - `Mocked` and `createMock(for:configuration:)` are removed: call `createMock(MockPerson.self) { … }` with the mock's
@@ -34,7 +36,7 @@
   changed it, which Swift 6's checking didn't catch. `verifyNoMoreInteractions` records a failure off a mock's
   global actor instead of reading its calls. It takes a new last parameter, `isolation`, which defaults to the
   caller's, and mocks conform to the new `HasGlobalActor`, which names their actor.
-- `verify`'s result, `__DoNotUse`, is `Sendable`.
+- `verify`'s result is `Sendable`.
 - A `nonisolated` member of a `@MainActor` or other global-actor type gets `Sendable` stubs, since it can be called
   from any task at once: `thenReturn` and `equal(to:)` take only `Sendable` values there. For a value that isn't,
   return a new one from `then { Token() }`.

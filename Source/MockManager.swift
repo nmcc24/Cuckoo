@@ -255,7 +255,7 @@ public final class MockManager: Sendable {
 
     /// Checks the recorded calls of `method` whose arguments match `parameterMatchers` against `callMatcher`, and
     /// reports a failure at `sourceLocation` when they don't match.
-    public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> __DoNotUse<IN, OUT> {
+    public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> VerifiedCall<IN, OUT> {
         let recordedCalls = state.withLock { $0.calls }
         // Each call to this member with the first argument its matcher rejected, or `nil` if the call matches. Like
         // stub matching, it stops at that argument. A captor's captures wait until the `verify` passes.
@@ -281,7 +281,7 @@ public final class MockManager: Sendable {
                     taken.forEach { $0.captures.commit() }
                 }
             ))
-            return __DoNotUse()
+            return VerifiedCall()
         }
         let calls = matching.map(\.call)
         guard callMatcher.matches(calls) else {
@@ -289,13 +289,13 @@ public final class MockManager: Sendable {
             let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(timesDescription(calls.count))")."
             let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, among: recordedCalls)
             reportFailure(message + "\n" + described, at: sourceLocation, creatingTest: creatingTest)
-            return __DoNotUse()
+            return VerifiedCall()
         }
         state.withLock { state in
             state.unverifiedCallIDs.subtract(matching.map(\.id))
         }
         matchingCalls.forEach { $0.captures.commit() }
-        return __DoNotUse()
+        return VerifiedCall()
     }
 
     /// What a failed `verify` of `method` saw: its calls and the argument each one that didn't match got wrong, or
