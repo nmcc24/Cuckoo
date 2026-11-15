@@ -31,12 +31,15 @@ struct TypeNames: Sendable {
     var types: Set<String> = []
     /// The sources' classes and protocols by canonical qualified name, the first of a name.
     private var declarations: [String: any Token & HasName] = [:]
+    /// The sources' classes and protocols by the qualified name they're declared with.
+    private var qualifiedDeclarations: Set<String> = []
 
     /// The names, with the classes and protocols of `files`, flattened so nested ones are listed, indexed for
     /// ``declaration(named:)`` and ``resolve(_:from:)``.
     init(typealiases: [String: String] = [:], types: Set<String> = [], files: [FileRepresentation]) {
         self.typealiases = typealiases
         self.types = types
+        qualifiedDeclarations = Set(files.flatMap(\.tokens).compactMap { ($0 as? any Token & HasName)?.fullyQualifiedName })
         for token in files.flatMap(\.tokens) where token.isClass || token.isProtocol {
             guard let named = token as? any Token & HasName else { continue }
             let name = canonical(named.fullyQualifiedName)
@@ -63,7 +66,13 @@ struct TypeNames: Sendable {
             // The longest prefix that's a typealias stands for its type.
             guard let length = (1...max(components.count, 1)).reversed().first(where: { typealiases[components.prefix($0).joined(separator: ".")] != nil }),
                   let target = typealiases[components.prefix(length).joined(separator: ".")] else { break }
-            components = target.split(separator: ".").map(String.init) + components.dropFirst(length)
+            // The target is written in the typealias's scope: `typealias S = Service` in `Feature` is `Feature.Service`.
+            let aliasScope = Array(components.prefix(length - 1))
+            let targetComponents = target.split(separator: ".").map(String.init)
+            let scoped = stride(from: aliasScope.count, through: 1, by: -1)
+                .map { Array(aliasScope.prefix($0)) + targetComponents }
+                .first { qualifiedDeclarations.contains($0.joined(separator: ".")) }
+            components = (scoped ?? targetComponents) + components.dropFirst(length)
         }
         return components.joined(separator: ".")
     }

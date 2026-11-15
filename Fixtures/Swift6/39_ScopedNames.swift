@@ -177,3 +177,46 @@ extension Fix.QualifiedHost.Worker {
     protocol Job { func run() }
 }
 nonisolated func runJob(_ job: any Fix.QualifiedHost.Worker.Job) { job.run() }
+
+// A closure typealias used qualified, whose function type names a type of its own scope; one declared in another
+// extension of the enclosing type, or in a superclass, found even when an unrelated type shares its name; and a
+// typealias of a parent protocol whose target is written relative to its own scope.
+class QualifiedUploader {
+    struct Receipt {}
+    typealias Completion = (Receipt) -> Void
+    init() {}
+}
+protocol QualifiedSender {
+    func send(_ completion: QualifiedUploader.Completion)
+}
+
+enum ExtendedFeature {}
+extension ExtendedFeature {
+    typealias Handler = () -> Void
+}
+extension ExtendedFeature {
+    class Worker {
+        init() {}
+        func run(_ handler: Handler) { handler() }
+    }
+}
+struct UnrelatedRouter {
+    struct Handler {}
+}
+
+class AliasBase {
+    init() {}
+    typealias Completion = () -> Void
+}
+class AliasChild: AliasBase {
+    func load(_ completion: Completion) { completion() }
+}
+enum UnrelatedCompletion {
+    enum Completion {}
+}
+
+enum RelativeFeature {
+    protocol Service { func service() }
+    typealias Alias = Service
+}
+protocol UsesRelativeAlias: RelativeFeature.Alias { func own() }
