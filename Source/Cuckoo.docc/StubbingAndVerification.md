@@ -260,7 +260,8 @@ verify(greeter, times(2)).greet(name: names.capture())
 ```
 
 A captor captures only the calls a passing `verify` matched, or, in a stub, the calls that stub answered: a call
-another matcher rejected isn't captured.
+another matcher rejected isn't captured. Give a stub and a `verify` captors of their own: one captor in both records
+each call twice, once when the stub answers it and once when the `verify` matches it.
 
 ### Reset a mock
 
