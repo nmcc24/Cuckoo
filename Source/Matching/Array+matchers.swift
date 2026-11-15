@@ -567,38 +567,6 @@ public func hasLength<C: Collection & SendableMetatype>(
     }
 }
 
-/**
- * Matcher for collections of elements that checks if the collection is between N and M elements long, both bounds
- * included (by default) or both excluded, as in Cuckoo 2.
- * - parameter requiredLengthRange: Required length range of the matching collection. Its upper bound counts as a
- *   bound, despite the half-open range: `1..<3` matches 3 unless `inclusive` is `false`.
- * - parameter inclusive: Whether the length range bounds should be included.
- * - returns: SendableMatcher object.
- */
-@available(*, deprecated, message: "Use hasLength(in:), whose range means what it says: inRange: 1..<3 matches 3, as in Cuckoo 2, and in: 1..<3 doesn't. Write in: 1...3 to keep matching 3.")
-public func hasLength<C: Collection & SendableMetatype>(
-    inRange requiredLengthRange: Range<Int>,
-    inclusive: Bool = true
-) -> SendableMatcher<C> {
-    hasLength(atLeast: requiredLengthRange.lowerBound, inclusive: inclusive)
-        .and(hasLength(atMost: requiredLengthRange.upperBound, inclusive: inclusive))
-}
-
-/**
- * Matcher for collections of elements that checks if the collection's length is in a closed or partial range, as
- * ``hasLength(in:)`` does. Only a half-open range, such as `1..<3`, keeps Cuckoo 2's meaning under this name.
- * - parameter requiredLengthRange: The lengths that match.
- * - returns: SendableMatcher object.
- */
-@available(*, deprecated, renamed: "hasLength(in:)")
-@_disfavoredOverload
-public func hasLength<C: Collection & SendableMetatype>(
-    inRange requiredLengthRange: some RangeExpression<Int> & Sendable
-) -> SendableMatcher<C> {
-    hasLength(in: requiredLengthRange)
-}
-
-
 // MARK: - Predicates, shared by both kinds of each matcher.
 func containsAny<S: Sequence>(_ sequence: S, _ elements: [S.Element], where equality: (S.Element, S.Element) -> Bool) -> Bool {
     elements.contains { element in

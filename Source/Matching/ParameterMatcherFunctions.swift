@@ -13,13 +13,6 @@ public func equal<T: Equatable>(to value: T) -> ParameterMatcher<T> {
     ParameterMatcher { $0 == value }
 }
 
-/// Returns an identity matcher. Disfavored, so an `Equatable` class compares with `==`.
-@available(*, deprecated, renamed: "sameInstance(as:)", message: "equal(to:) compares an Equatable class with ==; use sameInstance(as:) to compare identity.")
-@_disfavoredOverload
-public func equal<T: AnyObject>(to value: T) -> ParameterMatcher<T> {
-    equal(to: value, equalWhen: ===)
-}
-
 /// Returns an equality matcher for Array<Equatable> (ordered)
 public func equal<T: Equatable & Sendable>(to array: [T]) -> SendableMatcher<[T]> {
     SendableMatcher { $0 == array }
@@ -89,13 +82,6 @@ public func equal<T: Equatable & Sendable>(to value: T?) -> SendableMatcher<T?> 
 /// Returns an equality matcher, for a value that isn't `Sendable` or whose `==` is isolated to an actor.
 public func equal<T: Equatable>(to value: T?) -> ParameterMatcher<T?> {
     ParameterMatcher { $0 == value }
-}
-
-/// Returns an identity matcher. Disfavored, so an `Equatable` class compares with `==`.
-@available(*, deprecated, renamed: "sameInstance(as:)", message: "equal(to:) compares an Equatable class with ==; use sameInstance(as:) to compare identity.")
-@_disfavoredOverload
-public func equal<T: AnyObject>(to value: T?) -> ParameterMatcher<T?> {
-    equal(to: value, equalWhen: ===)
 }
 
 /// Returns an identity matcher. It compares identities only, so it's `Sendable` for any class.

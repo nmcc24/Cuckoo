@@ -26,9 +26,7 @@ verify(store).save(equal(to: User(id: 1)))
 ```
 
 For a type that isn't `Equatable`, or to compare it another way, use `equal(to:equalWhen:)` or a matcher of your
-own. Cuckoo 2 had you conform your own types to `Matchable` instead. That's deprecated: the protocol is how
-generated mocks take their arguments, and Cuckoo 4 hides it from your code. A conformance of a type you don't own
-also needs `@retroactive`.
+own. Cuckoo 2 had you conform your own types to `Matchable` instead, which Cuckoo 3 removes.
 
 ### Matcher functions
 
