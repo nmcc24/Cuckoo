@@ -55,6 +55,8 @@ struct GlobTests {
         ].map { Path("\(root)/\($0)").standardRawValue })
         let named = Glob(pattern: "\(root)/App/.build/**/*.swift").map { Path($0).standardRawValue }
         #expect(named == [Path("\(root)/App/.build/checkouts/Dependency/Sources/Dependency.swift").standardRawValue])
+        let namedAfter = Glob(pattern: "\(root)/App/**/.hidden/*.swift").map { Path($0).standardRawValue }
+        #expect(namedAfter == [Path("\(root)/App/Feature/.hidden/Skipped.swift").standardRawValue])
     }
 
     /// A source that stands for no file is reported, since it usually means a typo or a moved directory.
