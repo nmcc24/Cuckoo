@@ -115,7 +115,12 @@ enum MockMembersBuilder {
             source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.getter))) in \(tryAwait)implementation(\(isolated ? "self" : "()")) },")
         }
         source.append("            superclassCall: \(context.isClass ? "\(tryAwait)super.\(name)" : crashOnSuperclass),")
-        source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)"))")
+        if let unstubbedTuple = GeneratorHelper.unstubbedTupleArgument(for: property.type) {
+            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)")),")
+            source.append("            \(unstubbedTuple)")
+        } else {
+            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)"))")
+        }
         source.append("        )")
         source.append("    }")
         if !property.isReadOnly {
@@ -229,7 +234,12 @@ enum MockMembersBuilder {
         }
         recording.append("    invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: method.stubTypes(resolvingSelfAs: nil).implementation)), arguments) \(implementationEffects)in \(prologue)\(call) },")
         recording.append("    superclassCall: \(superclassCall),")
-        recording.append("    defaultCall: \(defaultCall)")
+        if let unstubbedTuple = method.returnsSending ? nil : GeneratorHelper.unstubbedTupleArgument(for: method.returnType) {
+            recording.append("    defaultCall: \(defaultCall),")
+            recording.append("    \(unstubbedTuple)")
+        } else {
+            recording.append("    defaultCall: \(defaultCall)")
+        }
         recording.append(")\(method.returnsSending ? ").value" : "")")
         body.append(contentsOf: recording.map { callIndentation + $0 })
         body.append(contentsOf: GeneratorHelper.closeNestedClosure(for: method))

@@ -157,6 +157,27 @@ struct GeneratorHelper {
         return "let matchers: [\(type)<(\(genericSafeType(from: tupleType)))>] = [\(matchers)]"
     }
 
+    /// The argument that gives an unstubbed call returning a tuple its default value, or `nil` for any other return
+    /// type: the manager's generic return type can't name a tuple's elements. Labels are dropped, as the runtime looks
+    /// the tuple up by its element types and the value converts back to the labeled type.
+    static func unstubbedTupleArgument(for type: ComplexType?) -> String? {
+        guard case .type(let description) = type,
+              let tuple = typeSyntax(description)?.as(TupleTypeSyntax.self),
+              tuple.elements.count >= 2,
+              tuple.elements.allSatisfy({ $0.ellipsis == nil && $0.type.as(PackExpansionTypeSyntax.self) == nil && !$0.type.trimmedDescription.hasPrefix("some ") })
+        else {
+            return nil
+        }
+        let elements = tuple.elements.map { $0.type.trimmedDescription }.joined(separator: ", ")
+        return "unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (\(elements)).self)"
+    }
+
+    /// `description` parsed as a type, from a `typealias` that names it.
+    private static func typeSyntax(_ description: String) -> TypeSyntax? {
+        Parser.parse(source: "typealias __CuckooType = \(description)").statements.first?.item
+            .as(TypeAliasDeclSyntax.self)?.initializer.value
+    }
+
     static func genericSafeType(from type: String) -> String {
         return type.replacing("!", with: "?")
     }

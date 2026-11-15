@@ -1099,7 +1099,8 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.audit()
+            defaultCall: cuckooDefaultImplementation.value.audit(),
+            unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Item?, [Element]).self)
         )
     }
 
