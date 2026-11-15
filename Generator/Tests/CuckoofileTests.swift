@@ -360,8 +360,10 @@ struct CuckoofileTests {
             configurationPath: Path(url.path(percentEncoded: false)),
             overriddenOutput: "/derived/GeneratedMocks.swift"
         )
-        #expect(modules.keys.sorted() == ["CuckooPluginTestSources", "CuckooTestSources"])
+        #expect(modules.keys.sorted() == ["CuckooMainActorTestSources", "CuckooPluginTestSources", "CuckooTestSources"])
         #expect(modules["CuckooPluginTestSources"]?.sources == nil)
+        #expect(modules["CuckooMainActorTestSources"]?.sources == nil)
+        #expect(modules["CuckooMainActorTestSources"]?.options.defaultIsolation == .globalActor("MainActor"))
         #expect(modules["CuckooTestSources"]?.testableImports == ["Cuckoo", "CuckooTestSources"])
         #expect(modules["CuckooTestSources"]?.exclude == ["ExcludedTestClass", "ExcludedProtocol"])
         #expect(modules["CuckooTestSources"]?.options.keepDocumentation == false)

@@ -114,32 +114,38 @@ let package = Package(
             path: "Tests/Plugin/Source",
             swiftSettings: swiftSettings
         ),
+        // Built with MainActor default isolation; its Cuckoofile entry sets `defaultIsolation` to match.
+        .target(
+            name: "CuckooMainActorTestSources",
+            path: "Tests/MainActor/Source",
+            swiftSettings: swiftSettings + [.defaultIsolation(MainActor.self)]
+        ),
         .target(
             name: "CuckooMocks",
-            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources"],
+            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooMainActorTestSources"],
             path: "Tests/Swift/Mocks",
             swiftSettings: swiftSettings,
             plugins: ["CuckooPlugin"]
         ),
         .testTarget(
             name: "CuckooTests",
-            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooMocks"],
+            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooMainActorTestSources", "CuckooMocks"],
             path: "Tests",
-            exclude: ["Swift/Source", "Swift/Mocks", "Plugin/Source", "SingleFile"],
+            exclude: ["Swift/Source", "Swift/Mocks", "Plugin/Source", "MainActor", "SingleFile"],
             swiftSettings: swiftSettings
         ),
         // A test-only plugin generates every Cuckoofile module into one file, as the generator does for modules that
         // share an `output`, which merges the imports of all the sources.
         .target(
             name: "CuckooSingleFileMocks",
-            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources"],
+            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooMainActorTestSources"],
             path: "Tests/SingleFile/Mocks",
             swiftSettings: swiftSettings,
             plugins: ["CuckooSingleFileTestPlugin"]
         ),
         .testTarget(
             name: "CuckooSingleFileTests",
-            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooSingleFileMocks"],
+            dependencies: ["Cuckoo", "CuckooTestSources", "CuckooPluginTestSources", "CuckooMainActorTestSources", "CuckooSingleFileMocks"],
             path: "Tests/SingleFile",
             exclude: ["Mocks", "Plugin"],
             swiftSettings: swiftSettings
