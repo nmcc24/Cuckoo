@@ -128,12 +128,27 @@ enum TypeErasureBuilder {
             }
         }
         let forwardingCall = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
+        // An opened type's view of the keys, the result and the new value, which name the protocol's associated types.
+        let generic = GeneratedNames.staticGenericParameter
+        let nonPrimary = getter.parent?.asProtocol?.nonPrimaryAssociatedTypes.map(\.name) ?? []
+        let opened: (String) -> String = { "\(generic).\($0)" }
+        let castArguments = getter.signature.parameters.map { $0.callAndCastTypes(named: nonPrimary, as: opened) }.joined(separator: ", ")
+        func castResult(_ expression: String) -> String {
+            subscriptDeclaration.returnType.containsTypes(named: nonPrimary) ? expression.forceCast(as: subscriptDeclaration.returnType) : expression
+        }
+        let castNewValue = subscriptDeclaration.returnType.replaceTypes(named: nonPrimary, with: opened).map { "newValue".forceCast(as: $0) } ?? "newValue"
         var declaration = subscriptDeclaration.spiAttributes(at: subscriptDeclaration.accessibility).map(\.description)
         declaration.append("\(context.access)subscript\(subscriptDeclaration.signature) {")
         declaration.append("    get \(effects){")
         let variadicCrash = "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(getter.fullyQualifiedName)))"
         if isGeneric && getter.hasVariadicParams {
             declaration.append("        \(variadicCrash)")
+        } else if isGeneric && getter.usesNonPrimaryAssociatedTypes {
+            // Through `any P` an associated type reads as `Any`: the opened type gives it back, as for methods.
+            declaration.append("        func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic))\(effects.trimmedSpaces.isEmpty ? "" : " \(effects.trimmedSpaces)") -> \(returnType) {")
+            declaration.append("            return \(tryAwait)\(castResult("opened[\(castArguments)]"))")
+            declaration.append("        }")
+            declaration.append("        return \(tryAwait)openExistential(cuckooReference())")
         } else if isGeneric {
             declaration.append("        return \(tryAwait)cuckooReference()[\(forwardingCall)]")
         } else {
@@ -144,6 +159,13 @@ enum TypeErasureBuilder {
             declaration.append("    set {")
             if isGeneric && getter.hasVariadicParams {
                 declaration.append("        \(variadicCrash) as Void")
+            } else if isGeneric && getter.usesNonPrimaryAssociatedTypes {
+                // Set on a copy of the opened value, as a non-generic subscript's setter storage does.
+                declaration.append("        func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic)) {")
+                declaration.append("            var opened = opened")
+                declaration.append("            opened[\(castArguments)] = \(castNewValue)")
+                declaration.append("        }")
+                declaration.append("        openExistential(cuckooReference())")
             } else if isGeneric {
                 declaration.append("        var reference = cuckooReference()")
                 declaration.append("        reference[\(forwardingCall)] = newValue")
@@ -289,7 +311,8 @@ enum TypeErasureBuilder {
     private static func staticSource(of method: Method, _ context: Context) -> String {
         var source = method.spiAttributes(at: method.accessibility).map(\.description)
         source.append("\(context.access)static \(method.declaration)\(method.signature.description) {")
-        source.append("    Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\(Fragment.literal(method.fullyQualifiedName)))")
+        // Returned, so the result type is inferred from the method's, `Void` included.
+        source.append("    return Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\(Fragment.literal(method.fullyQualifiedName)))")
         source.append("}")
         return lines(source)
     }

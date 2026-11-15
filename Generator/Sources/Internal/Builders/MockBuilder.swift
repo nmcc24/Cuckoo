@@ -8,7 +8,8 @@ enum MockBuilder {
         let access = container.accessibility.spaced
         let isActor = container.asProtocol?.isActor == true
         let globalActor = container.asProtocol?.globalActor
-        let usesTypeErasure = container.isGeneric && !container.isClass && !container.hasOnlyPrimaryAssociatedTypes
+        // An actor's mock refuses a default implementation, so it names the protocol itself and needs no type eraser.
+        let usesTypeErasure = container.isGeneric && !container.isClass && !container.hasOnlyPrimaryAssociatedTypes && !isActor
         let hasStaticMembers = container.mockedProperties.contains(where: \.isStatic)
             || container.mockedMethods.contains(where: \.isStatic) || container.mockedSubscripts.contains(where: \.isStatic)
         let enclosingConditions = (container as? any HasEnclosingCompilationConditions)?.enclosingCompilationConditions ?? []
@@ -30,7 +31,8 @@ enum MockBuilder {
         } else if container.isClass {
             "\(container.name)\(container.genericArgumentsString)"
         } else {
-            "any \(container.name)\(container.genericArgumentsString)"
+            // Only primary associated types can constrain the existential.
+            "any \(container.name)\(container.genericPrimaryAssociatedTypeArguments ?? "")"
         }
         lines.append("    \(access)typealias CuckooMocksType = \(mocksType)")
         lines.append("    \(access)typealias CuckooStubbing = __StubbingProxy_\(container.name)")
@@ -155,7 +157,8 @@ enum MockBuilder {
             ]
         }
         guard usesTypeErasure else {
-            let type = "\(container.isClass ? "" : "any ")\(container.name)\(container.genericArgumentsString)"
+            let type = container.isClass ? "\(container.name)\(container.genericArgumentsString)"
+                : "any \(container.name)\(container.genericPrimaryAssociatedTypeArguments ?? "")"
             return [
                 "    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<\(type)>()",
                 "",

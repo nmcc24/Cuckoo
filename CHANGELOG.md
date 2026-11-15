@@ -97,6 +97,9 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   superclass's included, generic arguments too.
 - Keyword and backticked argument labels, a label named like the mock's own parameter names (`p0`), and generic
   parameters named like the proxies' matcher generics (`M1`).
+- Protocols with associated types: an actor protocol's mock named a type eraser that actor mocks don't declare, a
+  static method returning nothing didn't compile in the type eraser, and a generic subscript naming an associated
+  type couldn't be forwarded to the default implementation.
 - A class's `where` clause wasn't repeated on its mock, and the mock and stub of an `@unchecked Sendable` class, or
   of a protocol bound to one, didn't restate it, which Swift warns about; an extension's `@unchecked Sendable`
   counts too. A protocol bound to a generic class, `protocol P: Repository<Int>`, got a mock that didn't subclass it;
