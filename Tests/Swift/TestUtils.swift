@@ -4,8 +4,8 @@ struct TestUtils {
     static func catchCuckooFail(inClosure closure: () -> Void) -> String? {
         let message = Locked<String?>(nil)
         var configuration = CuckooConfiguration.current
-        configuration.failureHandler = { failure, _ in
-            message.withLock { $0 = failure }
+        configuration.failureHandler = { failure in
+            message.withLock { $0 = failure.message }
         }
         CuckooConfiguration.$current.withValue(configuration) {
             closure()

@@ -1,5 +1,5 @@
 import Testing
-import Cuckoo
+@testable import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
@@ -67,7 +67,7 @@ struct ConcurrencyStressTests {
 
         // Unstubbed calls fail, and so does verifyNoMoreInteractions whenever a call slipped in since the last
         // clear. Neither matters here.
-        let ignoreFailures = CuckooConfiguration(failureHandler: { _, _ in })
+        let ignoreFailures = CuckooConfiguration(failureHandler: { _ in })
         await CuckooConfiguration.$current.withValue(ignoreFailures) {
             await withTaskGroup(of: Void.self) { group in
                 for index in 0..<Self.iterations {

@@ -261,8 +261,8 @@ another matcher rejected isn't captured.
 
 ``reset(_:)-f6hy`` does the same for a mock type's static members.
 
-### Report failures elsewhere
+### Where failures go
 
-Failures go to the framework running the test: Swift Testing records an issue, and XCTest an `XCTFail`. A
-``CuckooConfiguration`` with a `failureHandler` receives them instead, for one test with
-`.cuckoo(failureHandler:)` or for any scope with `CuckooConfiguration.$current.withValue(_:operation:)`.
+Failures go to the framework running the test: Swift Testing records an issue, and XCTest an `XCTFail`. A test
+that expects one, to check that a mock is misused as it should be, wraps the code in `withKnownIssue { … }` in
+Swift Testing, or `XCTExpectFailure { … }` in XCTest on Apple platforms.

@@ -94,8 +94,8 @@ struct EventuallyTests {
     private func collectingMessages(_ body: () async -> Void) async -> [String] {
         let messages = Locked<[String]>([])
         var configuration = CuckooConfiguration.current
-        configuration.failureHandler = { message, _ in
-            messages.withLock { $0.append(message) }
+        configuration.failureHandler = { failure in
+            messages.withLock { $0.append(failure.message) }
         }
         await CuckooConfiguration.$current.withValue(configuration) {
             await body()

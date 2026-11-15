@@ -173,8 +173,8 @@ struct DiagnosticsTests {
     private func collectingMessages(_ body: () -> Void) -> [String] {
         let messages = Locked<[String]>([])
         var configuration = CuckooConfiguration.current
-        configuration.failureHandler = { message, _ in
-            messages.withLock { $0.append(message) }
+        configuration.failureHandler = { failure in
+            messages.withLock { $0.append(failure.message) }
         }
         CuckooConfiguration.$current.withValue(configuration) {
             body()

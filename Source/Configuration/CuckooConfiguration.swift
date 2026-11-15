@@ -14,19 +14,20 @@ import XCTest
 /// has no `try` to catch an error with.
 /// It crashes only when neither is possible.
 public struct CuckooConfiguration: Sendable {
-    /// Receives each failure instead of the test framework. `nil` reports to the framework running the test.
-    public typealias FailureHandler = @Sendable (_ message: String, _ sourceLocation: SourceLocation) -> Void
-
     /// Default values that take precedence over `DefaultValueRegistry` for this scope.
     public var defaultValues: DefaultValues
-    /// Receives each failure instead of the test framework, `nil` by default.
-    public var failureHandler: FailureHandler?
-    /// Takes each failure before ``failureHandler``, with its location if it has one and the test that created
-    /// the mock: `eventually` holds failures back with it and reports them later.
-    var failureCollector: (@Sendable (_ failure: ReportedFailure) -> Void)?
+    /// Takes each failure instead of the test framework, with its location if it has one and the test that
+    /// created the mock: `eventually` holds failures back with it and reports them later, and Cuckoo's own tests
+    /// check them with it. `nil` reports to the framework running the test.
+    var failureHandler: (@Sendable (_ failure: ReportedFailure) -> Void)?
 
-    /// Creates a configuration with `defaultValues` and `failureHandler`.
-    public init(defaultValues: DefaultValues = DefaultValues(), failureHandler: FailureHandler? = nil) {
+    /// Creates a configuration with `defaultValues`.
+    public init(defaultValues: DefaultValues = DefaultValues()) {
+        self.defaultValues = defaultValues
+    }
+
+    /// Creates a configuration whose failures go to `failureHandler` instead of the test framework.
+    init(defaultValues: DefaultValues = DefaultValues(), failureHandler: @escaping @Sendable (_ failure: ReportedFailure) -> Void) {
         self.defaultValues = defaultValues
         self.failureHandler = failureHandler
     }
@@ -65,7 +66,7 @@ public enum CuckooError: Error, Sendable, Equatable {
     case unstubbedCall(method: String)
 }
 
-/// A failure as `reportFailure` receives it, which a ``CuckooConfiguration/failureCollector`` keeps.
+/// A failure as `reportFailure` receives it, which a configuration's `failureHandler` takes.
 struct ReportedFailure: Sendable {
     let message: String
     let sourceLocation: SourceLocation?
@@ -101,12 +102,8 @@ struct CreatingTest: Sendable {
 /// created the mock. Swift Testing attributes it to that test while it runs.
 func reportFailure(_ message: String, at sourceLocation: SourceLocation?, creatingTest: CreatingTest? = nil) {
     let configuration = CuckooConfiguration.current
-    if let collector = configuration.failureCollector {
-        collector(ReportedFailure(message: message, sourceLocation: sourceLocation, creatingTest: creatingTest))
-        return
-    }
     if let handler = configuration.failureHandler {
-        handler(message, sourceLocation ?? (#fileID, #filePath, #line, #column))
+        handler(ReportedFailure(message: message, sourceLocation: sourceLocation, creatingTest: creatingTest))
         return
     }
     #if canImport(Testing)

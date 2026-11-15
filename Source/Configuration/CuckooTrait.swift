@@ -28,19 +28,13 @@ public struct CuckooTrait: TestTrait, SuiteTrait, TestScoping {
 }
 
 extension Trait where Self == CuckooTrait {
-    /// Configures the mocks used by a test or suite. Arguments left `nil` keep the enclosing configuration.
+    /// Configures the mocks used by a test or suite. `defaultValues` left `nil` keeps the enclosing ones.
     ///
     ///     @Suite(.cuckoo(defaultValues: values))
-    public static func cuckoo(
-        defaultValues: DefaultValues? = nil,
-        failureHandler: CuckooConfiguration.FailureHandler? = nil
-    ) -> Self {
+    public static func cuckoo(defaultValues: DefaultValues? = nil) -> Self {
         CuckooTrait { configuration in
             if let defaultValues {
                 configuration.defaultValues = defaultValues
-            }
-            if let failureHandler {
-                configuration.failureHandler = failureHandler
             }
         }
     }

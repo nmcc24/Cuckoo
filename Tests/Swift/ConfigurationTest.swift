@@ -11,8 +11,8 @@ private final class FailureLog: Sendable {
         messages.withLock { $0 }
     }
 
-    var handler: CuckooConfiguration.FailureHandler {
-        { message, _ in self.messages.withLock { $0.append(message) } }
+    var handler: @Sendable (ReportedFailure) -> Void {
+        { failure in self.messages.withLock { $0.append(failure.message) } }
     }
 }
 
@@ -142,7 +142,7 @@ struct CuckooTraitTests {
 
     /// Runs `body` with the configuration the traits set, plus `failureHandler`, so the unstubbed calls these tests
     /// make on purpose don't fail them.
-    private func withTraitConfiguration(failureHandler: @escaping CuckooConfiguration.FailureHandler, _ body: () -> Void) {
+    private func withTraitConfiguration(failureHandler: @escaping @Sendable (ReportedFailure) -> Void, _ body: () -> Void) {
         var configuration = CuckooConfiguration.current
         configuration.failureHandler = failureHandler
         CuckooConfiguration.$current.withValue(configuration, operation: body)
@@ -210,7 +210,7 @@ struct FailuresOutsideTheTestTaskTests {
 
         let failures = Locked<[ReportedFailure]>([])
         var configuration = CuckooConfiguration.current
-        configuration.failureCollector = { failure in failures.withLock { $0.append(failure) } }
+        configuration.failureHandler = { failure in failures.withLock { $0.append(failure) } }
         await CuckooConfiguration.$current.withValue(configuration) {
             _ = mock.count(characters: "unstubbed")
             _ = unfinished.count(characters: "a")

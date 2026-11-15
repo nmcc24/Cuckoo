@@ -287,8 +287,8 @@ struct InOrderTests {
 
         let messages = Locked<[String]>([])
         var configuration = CuckooConfiguration.current
-        configuration.failureHandler = { message, _ in
-            messages.withLock { $0.append(message) }
+        configuration.failureHandler = { failure in
+            messages.withLock { $0.append(failure.message) }
         }
         await CuckooConfiguration.$current.withValue(configuration) {
             var late: Task<Void, Never>?
@@ -313,8 +313,8 @@ struct InOrderTests {
     private func collectingMessages(_ body: () -> Void) -> [String] {
         let messages = Locked<[String]>([])
         var configuration = CuckooConfiguration.current
-        configuration.failureHandler = { message, _ in
-            messages.withLock { $0.append(message) }
+        configuration.failureHandler = { failure in
+            messages.withLock { $0.append(failure.message) }
         }
         CuckooConfiguration.$current.withValue(configuration) {
             body()
