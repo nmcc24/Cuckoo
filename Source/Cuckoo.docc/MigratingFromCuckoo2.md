@@ -37,9 +37,11 @@ tests, then the behaviour changes, which show up as test failures.
   change: the mocks land in the same test module either way.
 - With the build plugin, a module without `sources` mocks the target's own files, which the plugin lists. Entries
   that list `sources` work as before.
-- New keys: `regex` also takes an array of patterns, `sources` takes a table by Swift module, and the options
-  `mockPrefix`, `mockSuffix` and `defaultIsolation`. Set `defaultIsolation = "MainActor"` for a module built with
-  MainActor default isolation, or its mocks won't match its types.
+- New keys: `regex` also takes an array of patterns, `sources` takes a table by Swift module, `globalActors` lists
+  the global actors the types use from other modules, and the options `mockPrefix`, `mockSuffix` and
+  `defaultIsolation`. Set `defaultIsolation = "MainActor"` for a module built with MainActor default isolation, or
+  its mocks won't match its types; list a global actor such as `@DatabaseActor` from another module in
+  `globalActors`, or its types' mocks aren't isolated to it.
 
 ### Mocks follow the mocked type's isolation
 
@@ -98,9 +100,10 @@ behaviour on top.
   that names them, rather than letting `when` infer them, needs updating.
 - Deprecated, with a warning that names the replacement: `register(value:forType:)` for
   ``DefaultValueRegistry/register(_:for:)``, and `equal(to:)` on a class that isn't `Equatable`, which compared
-  identities, for ``sameInstance(as:)->SendableMatcher<T>``. `equal(to:)` on an `Equatable` class now compares with `==`.
-- Conforming your own types to `Matchable` or `OptionalMatchable` is deprecated. Replace `extension User: Matchable { … }` with
-  `equal(to: user)` where you pass the value, which takes any `Equatable` type; for other types use
+  identities, for ``sameInstance(as:)->SendableMatcher<T>``. `equal(to:)` on an `Equatable` class now compares with
+  `==`.
+- Conforming your own types to `Matchable` or `OptionalMatchable` is deprecated. Replace `extension User: Matchable
+  { … }` with `equal(to: user)` where you pass the value, which takes any `Equatable` type; for other types use
   `equal(to:equalWhen:)` or a matcher of your own. See <doc:Matching>.
 - The stubs of a `Sendable` or actor mock take only ``SendableMatcher``s, since the mock can be called from any task.
   A matcher that keeps a non-`Sendable` value doesn't compile there. In a project that isolates code to the main
@@ -128,6 +131,9 @@ behaviour on top.
 - A failed `verify` leaves the calls it looked at unverified, so a later `verifyNoMoreInteractions` still reports
   them.
 - `enableSuperclassSpy()` on a protocol mock, which has no superclass, records a failure.
+- An ``ArgumentCaptor`` captures only from the calls a passing `verify` matched, or that its stub answered. Cuckoo 2
+  captured every argument its matcher saw, also from a failing `verify` and from calls another matcher rejected, so
+  a test that read `allValues` after those may see fewer values.
 - Failure messages list the calls a member received, and the argument each stub or `verify` rejected.
 
 ### Swift 7 features
