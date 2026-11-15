@@ -100,8 +100,6 @@ import Combine
 @testable public import protocol CuckooTestSources.PublicBoundService
 @testable public import class CuckooTestSources.PublicPlainBase
 @testable public import protocol CuckooTestSources.PublicPlainBoundService
-@testable public import class CuckooTestSources.PublicImplicitWorker
-@testable public import protocol CuckooTestSources.PublicImplicitBoundService
 @testable public import protocol CuckooTestSources.ParameterPackProtocol
 @testable public import class CuckooTestSources.ParameterPackClass
 @testable public import struct CuckooTestSources.DoublingWrapper
@@ -1822,9 +1820,6 @@ public final class MockClassWithTypeAlias: ClassWithTypeAlias, nonisolated Cucko
     public typealias Verification = __VerificationProxy_ClassWithTypeAlias
 
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockClassWithTypeAlias.self) ?? Cuckoo.MockManager(hasParent: true)
-    public nonisolated override init() {
-        super.init()
-    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<ClassWithTypeAlias>()
 
@@ -1891,10 +1886,6 @@ public final class MockClassWithTypeAlias: ClassWithTypeAlias, nonisolated Cucko
 }
 
 public final class ClassWithTypeAliasStub: ClassWithTypeAlias {
-    public nonisolated override init() {
-        super.init()
-    }
-
     public override func noop(_ p0: TypeAlias) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -24633,168 +24624,6 @@ public final class PublicPlainBoundServiceStub: PublicPlainBase, PublicPlainBoun
     }
 }
 
-public final class MockPublicImplicitWorker: PublicImplicitWorker, nonisolated Cuckoo.ClassMock {
-    public typealias MocksType = PublicImplicitWorker
-    public typealias Stubbing = __StubbingProxy_PublicImplicitWorker
-    public typealias Verification = __VerificationProxy_PublicImplicitWorker
-
-    public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPublicImplicitWorker.self) ?? Cuckoo.MockManager(hasParent: true)
-    public nonisolated override init() {
-        super.init()
-    }
-
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<PublicImplicitWorker>()
-
-    public nonisolated func enableDefaultImplementation(_ stub: PublicImplicitWorker) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    public override func work() -> Int {
-        return cuckoo_manager.call(
-            "work() -> Int",
-            parameters: (),
-            escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
-            },
-            superclassCall: super.work(),
-            defaultCall: __defaultImplStub.value.work()
-        )
-    }
-
-    public nonisolated struct __StubbingProxy_PublicImplicitWorker: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-
-        public init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
-        }
-
-        public func work() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockPublicImplicitWorker.self,
-                method: "work() -> Int",
-                parameterMatchers: matchers
-            ))
-        }
-    }
-
-    public nonisolated struct __VerificationProxy_PublicImplicitWorker: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
-
-        public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
-        }
-
-        @discardableResult
-        public func work() -> Cuckoo.__DoNotUse<(), Int> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-                "work() -> Int",
-                callMatcher: cuckoo_callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
-            )
-        }
-    }
-}
-
-public final class PublicImplicitWorkerStub: PublicImplicitWorker {
-    public nonisolated override init() {
-        super.init()
-    }
-
-    public override func work() -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
-    }
-}
-
-public final class MockPublicImplicitBoundService: PublicImplicitWorker, PublicImplicitBoundService, nonisolated Cuckoo.ProtocolMock {
-    public typealias MocksType = any PublicImplicitBoundService
-    public typealias Stubbing = __StubbingProxy_PublicImplicitBoundService
-    public typealias Verification = __VerificationProxy_PublicImplicitBoundService
-
-    // Original typealiases
-
-    public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPublicImplicitBoundService.self) ?? Cuckoo.MockManager(hasParent: false)
-    public nonisolated override init() {
-        super.init()
-    }
-
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any PublicImplicitBoundService>()
-
-    public nonisolated func enableDefaultImplementation(_ stub: any PublicImplicitBoundService) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-    public func check() -> Bool {
-        return cuckoo_manager.call(
-            "check() -> Bool",
-            parameters: (),
-            escapingParameters: (),
-            invoke: { (implementation: (()) -> Bool, arguments) in
-                implementation(arguments)
-            },
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.check()
-        )
-    }
-
-    public nonisolated struct __StubbingProxy_PublicImplicitBoundService: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-
-        public init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
-        }
-
-        public func check() -> Cuckoo.ProtocolStubFunction<(), Bool, (()) -> Bool, Cuckoo.StubSharing.Confined> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockPublicImplicitBoundService.self,
-                method: "check() -> Bool",
-                parameterMatchers: matchers
-            ))
-        }
-    }
-
-    public nonisolated struct __VerificationProxy_PublicImplicitBoundService: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
-
-        public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
-        }
-
-        @discardableResult
-        public func check() -> Cuckoo.__DoNotUse<(), Bool> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-                "check() -> Bool",
-                callMatcher: cuckoo_callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
-            )
-        }
-    }
-}
-
-public final class PublicImplicitBoundServiceStub: PublicImplicitWorker, PublicImplicitBoundService {
-    public nonisolated override init() {
-        super.init()
-    }
-
-    public func check() -> Bool {
-        return DefaultValueRegistry.defaultValue(for: (Bool).self)
-    }
-}
-
 nonisolated final class MockParameterPackProtocol: ParameterPackProtocol, nonisolated Cuckoo.ProtocolMock {
     typealias MocksType = any ParameterPackProtocol
     typealias Stubbing = __StubbingProxy_ParameterPackProtocol
@@ -29514,9 +29343,6 @@ public final class MockOpenTestedClass: OpenTestedClass, nonisolated Cuckoo.Clas
     public typealias Verification = __VerificationProxy_OpenTestedClass
 
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockOpenTestedClass.self) ?? Cuckoo.MockManager(hasParent: true)
-    public nonisolated override init() {
-        super.init()
-    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<OpenTestedClass>()
 
@@ -29579,10 +29405,6 @@ public final class MockOpenTestedClass: OpenTestedClass, nonisolated Cuckoo.Clas
 }
 
 public final class OpenTestedClassStub: OpenTestedClass {
-    public nonisolated override init() {
-        super.init()
-    }
-
     public override func printConstant() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -29594,9 +29416,6 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
     public typealias Verification = __VerificationProxy_PublicTestedClass
 
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPublicTestedClass.self) ?? Cuckoo.MockManager(hasParent: true)
-    public nonisolated override init() {
-        super.init()
-    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<PublicTestedClass>()
 
@@ -30028,10 +29847,6 @@ public final class PublicTestedClassStub: PublicTestedClass {
         }
     }
 
-    public nonisolated override init() {
-        super.init()
-    }
-
     public override func noReturn() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -30071,9 +29886,6 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
     public typealias Verification = __VerificationProxy_PublicPublicTestedClass
 
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPublicPublicTestedClass.self) ?? Cuckoo.MockManager(hasParent: true)
-    public nonisolated override init() {
-        super.init()
-    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<PublicPublicTestedClass>()
 
@@ -30503,10 +30315,6 @@ public final class PublicPublicTestedClassStub: PublicPublicTestedClass {
         }
         set {
         }
-    }
-
-    public nonisolated override init() {
-        super.init()
     }
 
     public override func noReturn() {
@@ -31059,9 +30867,6 @@ public final class MockInternalFieldsInPublicClass: InternalFieldsInPublicClass,
     public typealias Verification = __VerificationProxy_InternalFieldsInPublicClass
 
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockInternalFieldsInPublicClass.self) ?? Cuckoo.MockManager(hasParent: true)
-    public nonisolated override init() {
-        super.init()
-    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<InternalFieldsInPublicClass>()
 
@@ -31189,10 +30994,6 @@ public final class InternalFieldsInPublicClassStub: InternalFieldsInPublicClass 
         get {
             return DefaultValueRegistry.defaultValue(for: (Int?).self)
         }
-    }
-
-    public nonisolated override init() {
-        super.init()
     }
 
     public override func function() {
@@ -31524,9 +31325,6 @@ public final class MockPublicType: PublicType, nonisolated Cuckoo.ClassMock {
     public typealias Verification = __VerificationProxy_PublicType
 
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPublicType.self) ?? Cuckoo.MockManager(hasParent: true)
-    public nonisolated override init() {
-        super.init()
-    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<PublicType>()
 
@@ -31557,9 +31355,6 @@ public final class MockPublicType: PublicType, nonisolated Cuckoo.ClassMock {
 }
 
 public final class PublicTypeStub: PublicType {
-    public nonisolated override init() {
-        super.init()
-    }
 }
 
 final class MockFinalFields: FinalFields, nonisolated Cuckoo.ClassMock {

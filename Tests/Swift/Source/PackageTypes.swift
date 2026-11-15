@@ -36,14 +36,3 @@ open class PublicPlainBase {
 public protocol PublicPlainBoundService: PublicPlainBase {
     func ping() -> Bool
 }
-
-/// A public class whose only initializer is the implicit, internal `init()`: its mock and stub declare a public one.
-open class PublicImplicitWorker {
-    open func work() -> Int {
-        1
-    }
-}
-
-public protocol PublicImplicitBoundService: PublicImplicitWorker {
-    func check() -> Bool
-}

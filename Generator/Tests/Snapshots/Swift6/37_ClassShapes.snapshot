@@ -573,3 +573,151 @@ extension ShapeStore {
         }
     }
 }
+
+final class MockUncheckedCache: UncheckedCache, nonisolated Cuckoo.ClassMock, @unchecked Sendable {
+    typealias MocksType = UncheckedCache
+    typealias Stubbing = __StubbingProxy_UncheckedCache
+    typealias Verification = __VerificationProxy_UncheckedCache
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockUncheckedCache.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<UncheckedCache>()
+
+    nonisolated func enableDefaultImplementation(_ stub: UncheckedCache) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    override func value() -> Int {
+        return cuckoo_manager.call(
+            "value() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.value(),
+            defaultCall: __defaultImplStub.value.value()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_UncheckedCache: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func value() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockUncheckedCache.self,
+                method: "value() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_UncheckedCache: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func value() -> Cuckoo.__DoNotUse<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "value() -> Int",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+    }
+}
+
+final class UncheckedCacheStub: UncheckedCache, @unchecked Sendable {
+    override func value() -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}
+
+final class MockUncheckedCacheUser: UncheckedCache, UncheckedCacheUser, nonisolated Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = any UncheckedCacheUser
+    typealias Stubbing = __StubbingProxy_UncheckedCacheUser
+    typealias Verification = __VerificationProxy_UncheckedCacheUser
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockUncheckedCacheUser.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any UncheckedCacheUser>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any UncheckedCacheUser) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func use() -> Bool {
+        return cuckoo_manager.call(
+            "use() -> Bool",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Bool, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.use()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_UncheckedCacheUser: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func use() -> Cuckoo.ProtocolStubFunction<(), Bool, (()) -> Bool, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockUncheckedCacheUser.self,
+                method: "use() -> Bool",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_UncheckedCacheUser: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func use() -> Cuckoo.__DoNotUse<(), Bool> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "use() -> Bool",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+    }
+}
+
+final class UncheckedCacheUserStub: UncheckedCache, UncheckedCacheUser, @unchecked Sendable {
+    func use() -> Bool {
+        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+    }
+}

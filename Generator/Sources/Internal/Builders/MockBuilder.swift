@@ -133,7 +133,7 @@ enum MockBuilder {
         if hasStaticMembers {
             header += ",\(nonisolated) Cuckoo.StaticMock"
         }
-        return header + container.genericWhereClause + " {"
+        return header + container.restatedUncheckedSendable + container.genericWhereClause + " {"
     }
 
     /// The default implementation the mock forwards to, and `enableDefaultImplementation(_:)`, which sets it. An

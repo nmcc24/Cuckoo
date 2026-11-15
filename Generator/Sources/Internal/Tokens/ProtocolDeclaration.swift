@@ -18,9 +18,8 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// Whether ``superclass`` is declared in the sources. The mock then takes on the class's isolation, as
     /// a subclass must, instead of being `nonisolated`.
     var isSuperclassDeclared = false
-    /// Whether the declared superclass's only initializer is its implicit `init()`; see
-    /// ``ClassDeclaration/hasOnlyImplicitInitializer``.
-    var superclassHasOnlyImplicitInitializer = false
+    /// Whether the declared superclass is `@unchecked Sendable`, which a subclass has to restate.
+    var isSuperclassUncheckedSendable = false
     /// Requirements of the protocol's or its associated types' `where` clauses that neither constrain an associated
     /// type nor fix one, such as `Items.Element == Int`: the mock and stub repeat them in their own `where` clause.
     var whereRequirements: [String] = []
@@ -61,7 +60,7 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             isolation: isolation,
             superclass: superclass,
             isSuperclassDeclared: isSuperclassDeclared,
-            superclassHasOnlyImplicitInitializer: superclassHasOnlyImplicitInitializer,
+            isSuperclassUncheckedSendable: isSuperclassUncheckedSendable,
             whereRequirements: whereRequirements,
             isIsolationDefault: isIsolationDefault,
             inheritsActor: inheritsActor,
@@ -77,7 +76,7 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         var protocolDeclaration = self
         protocolDeclaration.superclass = superclass
         protocolDeclaration.isSuperclassDeclared = declaration != nil
-        protocolDeclaration.superclassHasOnlyImplicitInitializer = declaration?.hasOnlyImplicitInitializer ?? false
+        protocolDeclaration.isSuperclassUncheckedSendable = declaration?.isUncheckedSendable ?? false
         protocolDeclaration.isolation = isolation ?? declaration?.isolation
         return protocolDeclaration
     }
