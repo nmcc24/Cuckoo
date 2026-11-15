@@ -58,6 +58,8 @@
   each call.
 
 ### Removed
+- `DefaultValueRegistry.defaultValue(for:)`'s overloads for `Set`, `Array`, `Dictionary` and `Optional`. Calls
+  compile unchanged and get the same value from the generic one.
 - `MockBuilder.enableDefaultStubImplementation()`. A mock that `createMock` configured with it forwarded unstubbed
   calls to a default implementation it didn't have, so the first unstubbed call crashed the test process. Call
   `enableDefaultImplementation(_:)` on the mock once it exists.

@@ -39,26 +39,6 @@ public enum DefaultValueRegistry {
         register(value, for: type)
     }
     
-    /// The registered default for a set type, or an empty set.
-    public static func defaultValue<T>(for type: Set<T>.Type) -> Set<T> {
-        return defaultValueOrNil(for: type) ?? []
-    }
-    
-    /// The registered default for an array type, or an empty array.
-    public static func defaultValue<T>(for type: Array<T>.Type) -> Array<T> {
-        return defaultValueOrNil(for: type) ?? []
-    }
-    
-    /// The registered default for a dictionary type, or an empty dictionary.
-    public static func defaultValue<K, V>(for type: Dictionary<K, V>.Type) -> Dictionary<K, V> {
-        return defaultValueOrNil(for: type) ?? [:]
-    }
-    
-    /// The registered default for an optional type, or `nil`.
-    public static func defaultValue<T>(for type: Optional<T>.Type) -> Optional<T> {
-        return defaultValueOrNil(for: type) ?? nil
-    }
-    
     /// The registered default for `type`, else an empty value for optionals and the standard collections, even when
     /// `T` is a generic parameter. Crashes when there is none, with a message naming the type.
     public static func defaultValue<T>(for type: T.Type) -> T {
