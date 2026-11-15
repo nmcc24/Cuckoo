@@ -66,10 +66,17 @@ enum TypeErasureBuilder {
             try append(subscriptDeclaration, [staticSource(of: subscriptDeclaration, context)], of: "\(container.name)[]", to: &members)
         }
 
+        // Forwarding to a deprecated requirement is the eraser's job, not a use the deprecation warns about. Only Swift
+        // 6.4 has a way to say so; older compilers keep the warning.
+        let hasDeprecatedRequirement = (properties + container.mockedProperties).contains { $0.attributes.contains(where: \.isDeprecated) }
+            || container.mockedMethods.contains { $0.attributes.contains(where: \.isDeprecated) }
+            || container.mockedSubscripts.contains { $0.attributes.contains(where: \.isDeprecated) }
+        let ignoringDeprecations = hasDeprecatedRequirement
+            ? "#if hasAttribute(diagnose)\n@diagnose(DeprecatedDeclaration, as: ignored)\n#endif\n" : ""
         let header = if let globalActor {
-            "@\(globalActor) \(context.access)final class \(name): \(container.name) {\n}"
+            "\(ignoringDeprecations)@\(globalActor) \(context.access)final class \(name): \(container.name) {\n}"
         } else {
-            "\(context.access)nonisolated final class \(name): \(container.name), Sendable {\n}"
+            "\(ignoringDeprecations)\(context.access)nonisolated final class \(name): \(container.name), Sendable {\n}"
         }
         guard var classDeclaration = try Fragment.declaration(header, of: name).as(ClassDeclSyntax.self) else {
             throw FragmentError.unparsable(declaration: name, source: header)
