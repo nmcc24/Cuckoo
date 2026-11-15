@@ -31,6 +31,8 @@
 - The comment above each file's mocks names the mocked file by its path from the Cuckoofile, not from wherever
   the generator ran, so a build plugin's mocks no longer show `../../../..` paths. `--help` names the command
   `CuckooGenerator`, and a build log shows "Generate Cuckoo mocks for …" instead of "Run Cuckoonator for …".
+- A class mock no longer repeats the class's typealiases: it inherits them, as the class's stub already did. The
+  copies read their names in the mock's scope, so one naming a nested type didn't compile.
 
 ### Added
 - Operator requirements are mocked. A protocol with `static func + (lhs: Self, rhs: Self) -> Self` had a mock that
@@ -57,11 +59,16 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 - A typed-throws getter's `thenThrow` stub was never found: the getter looked its stub up with its own error type.
 - A class mock dropped the default argument values of its methods and subscripts, so a call through the mock's type
   had to pass every argument. A default that names a `private` or `fileprivate` declaration, which the mock can't
-  see, is still left out, as is one using a member of a `private extension` or a type's `fileprivate init`.
+  see, is still left out, as is one using a member of a `private extension`, a type nested in one, or a call of a
+  type whose init is `private` or `fileprivate`. A default that only names such a type, as in `Config.shared`, stays.
 - A class member whose type is opaque (`some P`) can't be overridden; it's now left out with a comment in the mock,
   instead of making the mock fail to compile. `some` nested in a protocol requirement's parameter is handled.
 - A non-escaping closure parameter written with `sending`, `borrowing` or `inout` made the generator fail for the
-  whole module. Such methods and requirements are now mocked, written directly or through a typealias.
+  whole module. Such methods and requirements are now mocked, written directly or through a typealias, a generic
+  one (`sending Handler<Int>`) included.
+- A closure typealias's function type was written into the mock with the names of the type that declared it, such
+  as `(Receipt) -> Void` for `Uploader.Receipt`. It's now qualified from the scope the typealias was found in, a
+  superclass's included, generic arguments too.
 - Keyword and backticked argument labels, a label named like the mock's own parameter names (`p0`), and generic
   parameters named like the proxies' matcher generics (`M1`).
 - A class's `where` clause wasn't repeated on its mock.
@@ -88,12 +95,15 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   mock's access (an `@_spi` member's proxies stay internal).
 
 - An `associatedtype` declared under `#if` was missed, so the mock didn't compile in the build that declares it.
-  The mock now takes it as a generic parameter, constrained only in that build.
+  The mock now takes it as a generic parameter, constrained only in that build, for any combination of the
+  conditions it's declared under. One declared in both an `#if` and its `#else` is in every build, with each
+  clause's constraints.
 
 - A property named `callMatcher` or `sourceLocation` clashed with the verification proxy's own, and a backticked
   property such as `` `default` `` in a protocol with an associated type stopped generation for the whole module.
   A generic parameter or associated type named like one of the mock's own type names (`Stubbing`, `Verification`,
-  `MocksType`) gave a mock that couldn't compile; the type is now left out with a warning saying what to rename.
+  `MocksType`), or a nested type or typealias of such a name, gave a mock that couldn't compile; the type is now
+  left out with a warning saying what to rename.
 
 - Two sources declaring the same type, such as `A/User.swift` and `B/User.swift`, gave two `MockUser` and only an
   info line. It's now a warning that names both files. A protocol bound to a class (`protocol P: Base`) is found by
@@ -112,7 +122,8 @@ Build plugin:
   plugin which of the project's own targets a test target depends on. An Xcode project's entry is named after the
   test target and lists its `sources`, as in Cuckoo 2, and a test target with no entry of its own, or one whose entry
   lists no `sources`, now fails with a message saying what to write. Getting Started and the Cuckoofile article say so.
-- A Cuckoofile key in quotes, such as `[modules."My App"]`, lost its spaces and dots, so it named no target.
+- A Cuckoofile key in quotes, such as `[modules."My App"]`, lost its spaces and dots, so it named no target, and a
+  multi-line string closed by `\\"""` or `""""` hid the entries after it.
 - A test target's dependency on an executable target got no mocks.
 - A missing Cuckoofile gave an unclear failure; the plugin now says where it looked and what to add.
 - The generator logged the Cuckoofile's path with a double slash.
@@ -120,7 +131,7 @@ Build plugin:
 ### Warnings
 - A Cuckoofile key Cuckoo doesn't read, such as `testableImport`, `[module.App]` or `options.protocolOnly`, was
   ignored without a word. It's now a warning naming the keys Cuckoo knows there, and a Cuckoofile with no modules
-  says so.
+  says so. The plugins' runs for one module warn only about that module's keys and the file's own.
 - A type marked with an attribute that isn't a known global actor gets a comment in its mock, and a warning when
   the name ends in `Actor`. A parent protocol declared outside the sources gets a comment in the mock.
 
