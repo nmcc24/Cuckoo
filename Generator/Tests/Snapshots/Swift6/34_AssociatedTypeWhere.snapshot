@@ -2,7 +2,7 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockConstrainedElement<Element: Equatable>: ConstrainedElement, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_ConstrainedElement
     typealias CuckooVerification = __VerificationProxy_ConstrainedElement
 
@@ -10,13 +10,13 @@ nonisolated final class MockConstrainedElement<Element: Equatable>: ConstrainedE
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConstrainedElement.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: ConstrainedElement, Sendable {
-        private let reference: @Sendable () -> any ConstrainedElement
+    nonisolated final class __DefaultImplCaller: ConstrainedElement, Sendable {
+        private let cuckooReference: @Sendable () -> any ConstrainedElement
 
         init<_CUCKOO$$GENERIC: ConstrainedElement & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -31,10 +31,10 @@ nonisolated final class MockConstrainedElement<Element: Equatable>: ConstrainedE
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ConstrainedElement & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -98,7 +98,7 @@ nonisolated final class ConstrainedElementStub<Element: Equatable>: ConstrainedE
 }
 
 nonisolated final class MockConstrainedItems<Items: Collection>: ConstrainedItems, nonisolated Cuckoo.ProtocolMock where Items.Element == Int {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_ConstrainedItems
     typealias CuckooVerification = __VerificationProxy_ConstrainedItems
 
@@ -106,13 +106,13 @@ nonisolated final class MockConstrainedItems<Items: Collection>: ConstrainedItem
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConstrainedItems.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: ConstrainedItems, Sendable {
-        private let reference: @Sendable () -> any ConstrainedItems
+    nonisolated final class __DefaultImplCaller: ConstrainedItems, Sendable {
+        private let cuckooReference: @Sendable () -> any ConstrainedItems
 
         init<_CUCKOO$$GENERIC: ConstrainedItems & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Items == Items, Items: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -127,10 +127,10 @@ nonisolated final class MockConstrainedItems<Items: Collection>: ConstrainedItem
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ConstrainedItems & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Items == Items, Items: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -194,7 +194,7 @@ nonisolated final class ConstrainedItemsStub<Items: Collection>: ConstrainedItem
 }
 
 nonisolated final class MockSameTypeAssociatedTypes<A>: SameTypeAssociatedTypes, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_SameTypeAssociatedTypes
     typealias CuckooVerification = __VerificationProxy_SameTypeAssociatedTypes
 
@@ -203,13 +203,13 @@ nonisolated final class MockSameTypeAssociatedTypes<A>: SameTypeAssociatedTypes,
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSameTypeAssociatedTypes.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: SameTypeAssociatedTypes, Sendable {
-        private let reference: @Sendable () -> any SameTypeAssociatedTypes
+    nonisolated final class __DefaultImplCaller: SameTypeAssociatedTypes, Sendable {
+        private let cuckooReference: @Sendable () -> any SameTypeAssociatedTypes
 
         init<_CUCKOO$$GENERIC: SameTypeAssociatedTypes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.A == A, A: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -224,10 +224,10 @@ nonisolated final class MockSameTypeAssociatedTypes<A>: SameTypeAssociatedTypes,
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: SameTypeAssociatedTypes & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.A == A, A: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -251,7 +251,7 @@ nonisolated final class MockSameTypeAssociatedTypes<A>: SameTypeAssociatedTypes,
             self.cuckooManager = manager
         }
 
-        func convert<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(A), B, ((A)) -> B, Cuckoo.StubSharing.Confined> where M1.MatchedType == A {
+        func convert<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(A), B, ((A)) -> B, Cuckoo.StubSharing.Confined> where __M1.MatchedType == A {
             let matchers: [Cuckoo.ParameterMatcher<(A)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -274,7 +274,7 @@ nonisolated final class MockSameTypeAssociatedTypes<A>: SameTypeAssociatedTypes,
         }
 
         @discardableResult
-        func convert<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(A), B> where M1.MatchedType == A {
+        func convert<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(A), B> where __M1.MatchedType == A {
             let matchers: [Cuckoo.ParameterMatcher<(A)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -297,7 +297,7 @@ nonisolated final class SameTypeAssociatedTypesStub<A>: SameTypeAssociatedTypes 
 }
 
 nonisolated final class MockProtocolWhereOnNestedType<Items: Collection>: ProtocolWhereOnNestedType, nonisolated Cuckoo.ProtocolMock where Items.Element: Hashable {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_ProtocolWhereOnNestedType
     typealias CuckooVerification = __VerificationProxy_ProtocolWhereOnNestedType
 
@@ -305,13 +305,13 @@ nonisolated final class MockProtocolWhereOnNestedType<Items: Collection>: Protoc
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockProtocolWhereOnNestedType.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: ProtocolWhereOnNestedType, Sendable {
-        private let reference: @Sendable () -> any ProtocolWhereOnNestedType
+    nonisolated final class __DefaultImplCaller: ProtocolWhereOnNestedType, Sendable {
+        private let cuckooReference: @Sendable () -> any ProtocolWhereOnNestedType
 
         init<_CUCKOO$$GENERIC: ProtocolWhereOnNestedType & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Items == Items, Items: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -326,10 +326,10 @@ nonisolated final class MockProtocolWhereOnNestedType<Items: Collection>: Protoc
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ProtocolWhereOnNestedType & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Items == Items, Items: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -393,7 +393,7 @@ nonisolated final class ProtocolWhereOnNestedTypeStub<Items: Collection>: Protoc
 }
 
 nonisolated final class MockRefinesConstrainedItems<Items: Collection>: RefinesConstrainedItems, nonisolated Cuckoo.ProtocolMock where Items.Element == Int {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_RefinesConstrainedItems
     typealias CuckooVerification = __VerificationProxy_RefinesConstrainedItems
 
@@ -401,13 +401,13 @@ nonisolated final class MockRefinesConstrainedItems<Items: Collection>: RefinesC
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockRefinesConstrainedItems.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: RefinesConstrainedItems, Sendable {
-        private let reference: @Sendable () -> any RefinesConstrainedItems
+    nonisolated final class __DefaultImplCaller: RefinesConstrainedItems, Sendable {
+        private let cuckooReference: @Sendable () -> any RefinesConstrainedItems
 
         init<_CUCKOO$$GENERIC: RefinesConstrainedItems & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Items == Items, Items: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -430,10 +430,10 @@ nonisolated final class MockRefinesConstrainedItems<Items: Collection>: RefinesC
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: RefinesConstrainedItems & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Items == Items, Items: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 

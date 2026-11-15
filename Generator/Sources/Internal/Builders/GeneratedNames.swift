@@ -4,5 +4,5 @@ enum GeneratedNames {
     /// default implementation's type.
     static let staticGenericParameter = "_CUCKOO$$GENERIC"
     /// The type-erasing caller a generic protocol's mock calls its default implementation through.
-    static let typeErasureClassName = "DefaultImplCaller"
+    static let typeErasureClassName = "__DefaultImplCaller"
 }

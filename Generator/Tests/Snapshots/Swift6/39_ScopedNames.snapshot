@@ -66,7 +66,7 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
             self.cuckooManager = manager
         }
 
-        func a<M1: Cuckoo._Matchable>(count p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+        func a<__M1: Cuckoo._Matchable>(count p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -76,7 +76,7 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func b<M1: Cuckoo._Matchable>(prefix p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(String), ((String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
+        func b<__M1: Cuckoo._Matchable>(prefix p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(String), ((String)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -86,7 +86,7 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        subscript <M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, _ p1: M2) -> __Subscript1 where M1.MatchedType == Int, M2.MatchedType == Int {
+        subscript <__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, _ p1: __M2) -> __Subscript1 where __M1.MatchedType == Int, __M2.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -120,7 +120,7 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func a<M1: Cuckoo._Matchable>(count p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+        func a<__M1: Cuckoo._Matchable>(count p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -133,7 +133,7 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func b<M1: Cuckoo._Matchable>(prefix p0: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
+        func b<__M1: Cuckoo._Matchable>(prefix p0: __M1) -> Cuckoo.__DoNotUse<(String), Void> where __M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -145,7 +145,7 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
             )
         }
 
-        subscript <M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, _ p1: M2) -> __Subscript1 where M1.MatchedType == Int, M2.MatchedType == Int {
+        subscript <__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, _ p1: __M2) -> __Subscript1 where __M1.MatchedType == Int, __M2.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -190,7 +190,7 @@ final class DefaultsPrinterStub: DefaultsPrinter {
 }
 
 nonisolated final class MockScopedRouter<ScopedHandler>: ScopedRouter, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_ScopedRouter
     typealias CuckooVerification = __VerificationProxy_ScopedRouter
 
@@ -198,13 +198,13 @@ nonisolated final class MockScopedRouter<ScopedHandler>: ScopedRouter, nonisolat
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockScopedRouter.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: ScopedRouter, Sendable {
-        private let reference: @Sendable () -> any ScopedRouter
+    nonisolated final class __DefaultImplCaller: ScopedRouter, Sendable {
+        private let cuckooReference: @Sendable () -> any ScopedRouter
 
         init<_CUCKOO$$GENERIC: ScopedRouter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ScopedHandler == ScopedHandler, ScopedHandler: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -219,10 +219,10 @@ nonisolated final class MockScopedRouter<ScopedHandler>: ScopedRouter, nonisolat
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ScopedRouter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ScopedHandler == ScopedHandler, ScopedHandler: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -246,7 +246,7 @@ nonisolated final class MockScopedRouter<ScopedHandler>: ScopedRouter, nonisolat
             self.cuckooManager = manager
         }
 
-        func route<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ScopedHandler), ((ScopedHandler)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ScopedHandler {
+        func route<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ScopedHandler), ((ScopedHandler)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ScopedHandler {
             let matchers: [Cuckoo.ParameterMatcher<(ScopedHandler)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -269,7 +269,7 @@ nonisolated final class MockScopedRouter<ScopedHandler>: ScopedRouter, nonisolat
         }
 
         @discardableResult
-        func route<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(ScopedHandler), Void> where M1.MatchedType == ScopedHandler {
+        func route<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(ScopedHandler), Void> where __M1.MatchedType == ScopedHandler {
             let matchers: [Cuckoo.ParameterMatcher<(ScopedHandler)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -325,7 +325,7 @@ nonisolated final class MockScopedGenericUser: ScopedGenericUser, nonisolated Cu
             self.cuckooManager = manager
         }
 
-        func use<M1: Cuckoo._Matchable, ScopedHandler>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ScopedHandler), ((ScopedHandler)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ScopedHandler {
+        func use<__M1: Cuckoo._Matchable, ScopedHandler>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ScopedHandler), ((ScopedHandler)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ScopedHandler {
             let matchers: [Cuckoo.ParameterMatcher<(ScopedHandler)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -348,7 +348,7 @@ nonisolated final class MockScopedGenericUser: ScopedGenericUser, nonisolated Cu
         }
 
         @discardableResult
-        func use<M1: Cuckoo._Matchable, ScopedHandler>(_ p0: M1) -> Cuckoo.__DoNotUse<(ScopedHandler), Void> where M1.MatchedType == ScopedHandler {
+        func use<__M1: Cuckoo._Matchable, ScopedHandler>(_ p0: __M1) -> Cuckoo.__DoNotUse<(ScopedHandler), Void> where __M1.MatchedType == ScopedHandler {
             let matchers: [Cuckoo.ParameterMatcher<(ScopedHandler)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -406,7 +406,7 @@ final class MockScopedDownloader: ScopedDownloader, nonisolated Cuckoo.ClassMock
             self.cuckooManager = manager
         }
 
-        func load<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<((Bool) -> Void), ((@escaping (Bool) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (Bool) -> Void {
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<((Bool) -> Void), ((@escaping (Bool) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (Bool) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((Bool) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -429,7 +429,7 @@ final class MockScopedDownloader: ScopedDownloader, nonisolated Cuckoo.ClassMock
         }
 
         @discardableResult
-        func load<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((Bool) -> Void), Void> where M1.MatchedType == (Bool) -> Void {
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<((Bool) -> Void), Void> where __M1.MatchedType == (Bool) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((Bool) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -487,7 +487,7 @@ final class MockScopedUploader: ScopedUploader, nonisolated Cuckoo.ClassMock {
             self.cuckooManager = manager
         }
 
-        func send<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<((Int, String) -> Void), ((@escaping (Int, String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (Int, String) -> Void {
+        func send<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<((Int, String) -> Void), ((@escaping (Int, String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (Int, String) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((Int, String) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -510,7 +510,7 @@ final class MockScopedUploader: ScopedUploader, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func send<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((Int, String) -> Void), Void> where M1.MatchedType == (Int, String) -> Void {
+        func send<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<((Int, String) -> Void), Void> where __M1.MatchedType == (Int, String) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((Int, String) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -570,7 +570,7 @@ nonisolated final class MockScopedSender: ScopedSender, nonisolated Cuckoo.Proto
             self.cuckooManager = manager
         }
 
-        func send<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<((Int, String) -> Void), ((@escaping (Int, String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (Int, String) -> Void {
+        func send<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<((Int, String) -> Void), ((@escaping (Int, String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (Int, String) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((Int, String) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -593,7 +593,7 @@ nonisolated final class MockScopedSender: ScopedSender, nonisolated Cuckoo.Proto
         }
 
         @discardableResult
-        func send<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((Int, String) -> Void), Void> where M1.MatchedType == (Int, String) -> Void {
+        func send<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<((Int, String) -> Void), Void> where __M1.MatchedType == (Int, String) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((Int, String) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1477,7 +1477,7 @@ extension API {
                 self.cuckooManager = manager
             }
 
-            func fetch<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () -> Void {
+            func fetch<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == () -> Void {
                 let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                         $0
                     }]
@@ -1500,7 +1500,7 @@ extension API {
             }
 
             @discardableResult
-            func fetch<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where M1.MatchedType == () -> Void {
+            func fetch<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where __M1.MatchedType == () -> Void {
                 let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                         $0
                     }]
@@ -1597,7 +1597,7 @@ final class MockChildRunner: ChildRunner, nonisolated Cuckoo.ClassMock {
             self.cuckooManager = manager
         }
 
-        func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () -> Void {
+        func run<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == () -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1620,7 +1620,7 @@ final class MockChildRunner: ChildRunner, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where M1.MatchedType == () -> Void {
+        func run<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where __M1.MatchedType == () -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1723,7 +1723,7 @@ nonisolated final class MockChildTask: ChildTask, nonisolated Cuckoo.ProtocolMoc
             self.cuckooManager = manager
         }
 
-        func go<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<((Int) -> Void), ((@escaping (Int) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (Int) -> Void {
+        func go<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<((Int) -> Void), ((@escaping (Int) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (Int) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((Int) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1746,7 +1746,7 @@ nonisolated final class MockChildTask: ChildTask, nonisolated Cuckoo.ProtocolMoc
         }
 
         @discardableResult
-        func go<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((Int) -> Void), Void> where M1.MatchedType == (Int) -> Void {
+        func go<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<((Int) -> Void), Void> where __M1.MatchedType == (Int) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((Int) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1802,7 +1802,7 @@ final class MockSettingsStore: SettingsStore, nonisolated Cuckoo.ClassMock {
             self.cuckooManager = manager
         }
 
-        func save<M1: Cuckoo._Matchable>(settings p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Settings), ((Settings)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Settings {
+        func save<__M1: Cuckoo._Matchable>(settings p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(Settings), ((Settings)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Settings {
             let matchers: [Cuckoo.ParameterMatcher<(Settings)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1825,7 +1825,7 @@ final class MockSettingsStore: SettingsStore, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func save<M1: Cuckoo._Matchable>(settings p0: M1) -> Cuckoo.__DoNotUse<(Settings), Void> where M1.MatchedType == Settings {
+        func save<__M1: Cuckoo._Matchable>(settings p0: __M1) -> Cuckoo.__DoNotUse<(Settings), Void> where __M1.MatchedType == Settings {
             let matchers: [Cuckoo.ParameterMatcher<(Settings)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -2487,7 +2487,7 @@ final class MockSwapRunner: SwapRunner, nonisolated Cuckoo.ClassMock {
             self.cuckooManager = manager
         }
 
-        func swap<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(SwapHandler), (inout SwapHandler) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == SwapHandler {
+        func swap<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(SwapHandler), (inout SwapHandler) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == SwapHandler {
             let matchers: [Cuckoo.ParameterMatcher<(SwapHandler)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -2510,7 +2510,7 @@ final class MockSwapRunner: SwapRunner, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func swap<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(SwapHandler), Void> where M1.MatchedType == SwapHandler {
+        func swap<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(SwapHandler), Void> where __M1.MatchedType == SwapHandler {
             let matchers: [Cuckoo.ParameterMatcher<(SwapHandler)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -2609,7 +2609,7 @@ final class MockConfiguredClient: ConfiguredClient, nonisolated Cuckoo.ClassMock
             self.cuckooManager = manager
         }
 
-        func load<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Model), ((Model)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Model {
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(Model), ((Model)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Model {
             let matchers: [Cuckoo.ParameterMatcher<(Model)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -2632,7 +2632,7 @@ final class MockConfiguredClient: ConfiguredClient, nonisolated Cuckoo.ClassMock
         }
 
         @discardableResult
-        func load<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Model), Void> where M1.MatchedType == Model {
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Model), Void> where __M1.MatchedType == Model {
             let matchers: [Cuckoo.ParameterMatcher<(Model)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -2807,7 +2807,7 @@ nonisolated final class MockQualifiedSender: QualifiedSender, nonisolated Cuckoo
             self.cuckooManager = manager
         }
 
-        func send<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<((QualifiedUploader.Receipt) -> Void), ((@escaping (QualifiedUploader.Receipt) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (QualifiedUploader.Receipt) -> Void {
+        func send<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<((QualifiedUploader.Receipt) -> Void), ((@escaping (QualifiedUploader.Receipt) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (QualifiedUploader.Receipt) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((QualifiedUploader.Receipt) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -2830,7 +2830,7 @@ nonisolated final class MockQualifiedSender: QualifiedSender, nonisolated Cuckoo
         }
 
         @discardableResult
-        func send<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((QualifiedUploader.Receipt) -> Void), Void> where M1.MatchedType == (QualifiedUploader.Receipt) -> Void {
+        func send<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<((QualifiedUploader.Receipt) -> Void), Void> where __M1.MatchedType == (QualifiedUploader.Receipt) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((QualifiedUploader.Receipt) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -2889,7 +2889,7 @@ extension ExtendedFeature {
                 self.cuckooManager = manager
             }
 
-            func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () -> Void {
+            func run<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == () -> Void {
                 let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                         $0
                     }]
@@ -2912,7 +2912,7 @@ extension ExtendedFeature {
             }
 
             @discardableResult
-            func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where M1.MatchedType == () -> Void {
+            func run<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where __M1.MatchedType == () -> Void {
                 let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                         $0
                     }]
@@ -3009,7 +3009,7 @@ final class MockAliasChild: AliasChild, nonisolated Cuckoo.ClassMock {
             self.cuckooManager = manager
         }
 
-        func load<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () -> Void {
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == () -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3032,7 +3032,7 @@ final class MockAliasChild: AliasChild, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func load<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where M1.MatchedType == () -> Void {
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where __M1.MatchedType == () -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3380,7 +3380,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
             self.cuckooManager = manager
         }
 
-        func load<M1: Cuckoo._Matchable>(timeout p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+        func load<__M1: Cuckoo._Matchable>(timeout p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3390,7 +3390,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func sign<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(SigningToken), ((SigningToken)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == SigningToken {
+        func sign<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(SigningToken), ((SigningToken)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == SigningToken {
             let matchers: [Cuckoo.ParameterMatcher<(SigningToken)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3400,7 +3400,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func secret<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+        func secret<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3410,7 +3410,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
             ))
         }
         #if (DEBUG)
-        func debugSecret<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+        func debugSecret<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3421,7 +3421,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         }
         #endif
 
-        func configure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(ScopedConfig), ((ScopedConfig)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ScopedConfig {
+        func configure<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(ScopedConfig), ((ScopedConfig)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ScopedConfig {
             let matchers: [Cuckoo.ParameterMatcher<(ScopedConfig)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3431,7 +3431,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func boxed<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(ScopedBox<Int>), ((ScopedBox<Int>)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ScopedBox<Int> {
+        func boxed<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(ScopedBox<Int>), ((ScopedBox<Int>)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ScopedBox<Int> {
             let matchers: [Cuckoo.ParameterMatcher<(ScopedBox<Int>)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3441,7 +3441,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func implicitInit<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(SigningToken), ((SigningToken)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == SigningToken {
+        func implicitInit<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(SigningToken), ((SigningToken)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == SigningToken {
             let matchers: [Cuckoo.ParameterMatcher<(SigningToken)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3451,7 +3451,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func tokens<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<([SigningToken]), (([SigningToken])) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == [SigningToken] {
+        func tokens<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<([SigningToken]), (([SigningToken])) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == [SigningToken] {
             let matchers: [Cuckoo.ParameterMatcher<([SigningToken])>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3461,7 +3461,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func selfInit<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(SigningToken), ((SigningToken)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == SigningToken {
+        func selfInit<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(SigningToken), ((SigningToken)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == SigningToken {
             let matchers: [Cuckoo.ParameterMatcher<(SigningToken)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3484,7 +3484,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func load<M1: Cuckoo._Matchable>(timeout p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+        func load<__M1: Cuckoo._Matchable>(timeout p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3497,7 +3497,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func sign<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(SigningToken), Void> where M1.MatchedType == SigningToken {
+        func sign<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(SigningToken), Void> where __M1.MatchedType == SigningToken {
             let matchers: [Cuckoo.ParameterMatcher<(SigningToken)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3510,7 +3510,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func secret<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+        func secret<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3524,7 +3524,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
 
         #if (DEBUG)
         @discardableResult
-        func debugSecret<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+        func debugSecret<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3538,7 +3538,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         #endif
 
         @discardableResult
-        func configure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(ScopedConfig), Void> where M1.MatchedType == ScopedConfig {
+        func configure<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(ScopedConfig), Void> where __M1.MatchedType == ScopedConfig {
             let matchers: [Cuckoo.ParameterMatcher<(ScopedConfig)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3551,7 +3551,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func boxed<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(ScopedBox<Int>), Void> where M1.MatchedType == ScopedBox<Int> {
+        func boxed<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(ScopedBox<Int>), Void> where __M1.MatchedType == ScopedBox<Int> {
             let matchers: [Cuckoo.ParameterMatcher<(ScopedBox<Int>)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3564,7 +3564,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func implicitInit<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(SigningToken), Void> where M1.MatchedType == SigningToken {
+        func implicitInit<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(SigningToken), Void> where __M1.MatchedType == SigningToken {
             let matchers: [Cuckoo.ParameterMatcher<(SigningToken)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3577,7 +3577,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func tokens<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<([SigningToken]), Void> where M1.MatchedType == [SigningToken] {
+        func tokens<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<([SigningToken]), Void> where __M1.MatchedType == [SigningToken] {
             let matchers: [Cuckoo.ParameterMatcher<([SigningToken])>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3590,7 +3590,7 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func selfInit<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(SigningToken), Void> where M1.MatchedType == SigningToken {
+        func selfInit<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(SigningToken), Void> where __M1.MatchedType == SigningToken {
             let matchers: [Cuckoo.ParameterMatcher<(SigningToken)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3739,7 +3739,7 @@ final class MockLedgerChild: LedgerChild, nonisolated Cuckoo.ClassMock {
             self.cuckooManager = manager
         }
 
-        func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<((ScopedLedger.Receipt) -> Void), ((@escaping (ScopedLedger.Receipt) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (ScopedLedger.Receipt) -> Void {
+        func run<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<((ScopedLedger.Receipt) -> Void), ((@escaping (ScopedLedger.Receipt) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (ScopedLedger.Receipt) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((ScopedLedger.Receipt) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3749,7 +3749,7 @@ final class MockLedgerChild: LedgerChild, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func plain<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<((ScopedLedger.Receipt) -> Void), ((@escaping (ScopedLedger.Receipt) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (ScopedLedger.Receipt) -> Void {
+        func plain<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<((ScopedLedger.Receipt) -> Void), ((@escaping (ScopedLedger.Receipt) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (ScopedLedger.Receipt) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((ScopedLedger.Receipt) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3772,7 +3772,7 @@ final class MockLedgerChild: LedgerChild, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((ScopedLedger.Receipt) -> Void), Void> where M1.MatchedType == (ScopedLedger.Receipt) -> Void {
+        func run<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<((ScopedLedger.Receipt) -> Void), Void> where __M1.MatchedType == (ScopedLedger.Receipt) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((ScopedLedger.Receipt) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3785,7 +3785,7 @@ final class MockLedgerChild: LedgerChild, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func plain<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((ScopedLedger.Receipt) -> Void), Void> where M1.MatchedType == (ScopedLedger.Receipt) -> Void {
+        func plain<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<((ScopedLedger.Receipt) -> Void), Void> where __M1.MatchedType == (ScopedLedger.Receipt) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((ScopedLedger.Receipt) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3849,7 +3849,7 @@ nonisolated final class MockLedgerSender: LedgerSender, nonisolated Cuckoo.Proto
             self.cuckooManager = manager
         }
 
-        func send<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<((ScopedLedger.Box<ScopedLedger.Receipt>) -> Void), ((@escaping (ScopedLedger.Box<ScopedLedger.Receipt>) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == (ScopedLedger.Box<ScopedLedger.Receipt>) -> Void {
+        func send<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<((ScopedLedger.Box<ScopedLedger.Receipt>) -> Void), ((@escaping (ScopedLedger.Box<ScopedLedger.Receipt>) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (ScopedLedger.Box<ScopedLedger.Receipt>) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((ScopedLedger.Box<ScopedLedger.Receipt>) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -3872,7 +3872,7 @@ nonisolated final class MockLedgerSender: LedgerSender, nonisolated Cuckoo.Proto
         }
 
         @discardableResult
-        func send<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((ScopedLedger.Box<ScopedLedger.Receipt>) -> Void), Void> where M1.MatchedType == (ScopedLedger.Box<ScopedLedger.Receipt>) -> Void {
+        func send<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<((ScopedLedger.Box<ScopedLedger.Receipt>) -> Void), Void> where __M1.MatchedType == (ScopedLedger.Box<ScopedLedger.Receipt>) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<((ScopedLedger.Box<ScopedLedger.Receipt>) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]

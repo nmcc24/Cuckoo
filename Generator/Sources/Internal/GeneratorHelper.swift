@@ -117,12 +117,10 @@ struct GeneratorHelper {
             .joined(separator: ", ")
     }
 
-    /// The name of a proxy member's matcher generics, `M1`, `M2` and so on, or `__M1`... when the member or its type
-    /// already has a generic parameter named that way, which the proxy member would otherwise redeclare.
+    /// The name of a proxy member's matcher generics, `__M1`, `__M2` and so on, which no name of the mocked code
+    /// shadows or is shadowed by, as `M1` could be: a generic parameter of the member or a type it names.
     static func matcherPrefix(for method: Method) -> String {
-        let containerGenerics = (method.parent?.value as? any HasGenerics)?.genericParameters.map(\.name) ?? []
-        let names = method.signature.genericParameters.map(\.name) + containerGenerics
-        return names.contains { $0.wholeMatch(of: #/M[0-9]+/#) != nil } ? "__M" : "M"
+        "__M"
     }
 
     /// The protocol a proxy's matcher parameter conforms to.

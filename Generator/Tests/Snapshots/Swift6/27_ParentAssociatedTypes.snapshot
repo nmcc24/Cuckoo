@@ -2,7 +2,7 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_Repository
     typealias CuckooVerification = __VerificationProxy_Repository
 
@@ -10,13 +10,13 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockRepository.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: Repository, Sendable {
-        private let reference: @Sendable () -> any Repository
+    nonisolated final class __DefaultImplCaller: Repository, Sendable {
+        private let cuckooReference: @Sendable () -> any Repository
 
         init<_CUCKOO$$GENERIC: Repository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -31,10 +31,10 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Repository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -58,7 +58,7 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
             self.cuckooManager = manager
         }
 
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -81,7 +81,7 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
         }
 
         @discardableResult
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -102,7 +102,7 @@ nonisolated final class RepositoryStub<Item, ID: Hashable>: Repository {
 }
 
 nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedRepository, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_CachedRepository
     typealias CuckooVerification = __VerificationProxy_CachedRepository
 
@@ -110,13 +110,13 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockCachedRepository.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: CachedRepository, Sendable {
-        private let reference: @Sendable () -> any CachedRepository
+    nonisolated final class __DefaultImplCaller: CachedRepository, Sendable {
+        private let cuckooReference: @Sendable () -> any CachedRepository
 
         init<_CUCKOO$$GENERIC: CachedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -147,10 +147,10 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: CachedRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -208,7 +208,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
             ))
         }
 
-        func evict<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ID), ((ID)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
+        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ID), ((ID)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -218,7 +218,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
             ))
         }
 
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -252,7 +252,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         }
 
         @discardableResult
-        func evict<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Void> where M1.MatchedType == ID {
+        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Void> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -265,7 +265,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         }
 
         @discardableResult
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -369,7 +369,7 @@ nonisolated final class PrimaryRepositoryStub<Element>: PrimaryRepository {
 }
 
 nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_SortedRepository
     typealias CuckooVerification = __VerificationProxy_SortedRepository
 
@@ -377,13 +377,13 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSortedRepository.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: SortedRepository, Sendable {
-        private let reference: @Sendable () -> any SortedRepository
+    nonisolated final class __DefaultImplCaller: SortedRepository, Sendable {
+        private let cuckooReference: @Sendable () -> any SortedRepository
 
         init<_CUCKOO$$GENERIC: SortedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -406,10 +406,10 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: SortedRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -450,7 +450,7 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
             self.cuckooManager = manager
         }
 
-        func sorted<M1: Cuckoo._Matchable>(by p0: M1) -> Cuckoo.ProtocolStubFunction<((Element, Element) -> Bool), [Element], ((@escaping (Element, Element) -> Bool)) -> [Element], Cuckoo.StubSharing.Confined> where M1.MatchedType == (Element, Element) -> Bool {
+        func sorted<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.ProtocolStubFunction<((Element, Element) -> Bool), [Element], ((@escaping (Element, Element) -> Bool)) -> [Element], Cuckoo.StubSharing.Confined> where __M1.MatchedType == (Element, Element) -> Bool {
             let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -481,7 +481,7 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
         }
 
         @discardableResult
-        func sorted<M1: Cuckoo._Matchable>(by p0: M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where M1.MatchedType == (Element, Element) -> Bool {
+        func sorted<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where __M1.MatchedType == (Element, Element) -> Bool {
             let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -517,7 +517,7 @@ nonisolated final class SortedRepositoryStub<Element>: SortedRepository {
 }
 
 nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_StringRepository
     typealias CuckooVerification = __VerificationProxy_StringRepository
 
@@ -526,13 +526,13 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockStringRepository.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: StringRepository, Sendable {
-        private let reference: @Sendable () -> any StringRepository
+    nonisolated final class __DefaultImplCaller: StringRepository, Sendable {
+        private let cuckooReference: @Sendable () -> any StringRepository
 
         init<_CUCKOO$$GENERIC: StringRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ID == ID, ID: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -555,10 +555,10 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: StringRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ID == ID, ID: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -603,7 +603,7 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
             ))
         }
 
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -637,7 +637,7 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
         }
 
         @discardableResult
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -778,7 +778,7 @@ nonisolated final class IntRepositoryStub: IntRepository {
 }
 
 nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: HashedRepository, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_HashedRepository
     typealias CuckooVerification = __VerificationProxy_HashedRepository
 
@@ -786,13 +786,13 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockHashedRepository.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: HashedRepository, Sendable {
-        private let reference: @Sendable () -> any HashedRepository
+    nonisolated final class __DefaultImplCaller: HashedRepository, Sendable {
+        private let cuckooReference: @Sendable () -> any HashedRepository
 
         init<_CUCKOO$$GENERIC: HashedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -831,10 +831,10 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: HashedRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, Item: SendableMetatype, ID: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -913,7 +913,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
             ))
         }
 
-        func evict<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ID), ((ID)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
+        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ID), ((ID)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -923,7 +923,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
             ))
         }
 
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -968,7 +968,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         }
 
         @discardableResult
-        func evict<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Void> where M1.MatchedType == ID {
+        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Void> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -981,7 +981,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         }
 
         @discardableResult
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1014,7 +1014,7 @@ nonisolated final class HashedRepositoryStub<Item: Hashable, ID: Hashable>: Hash
 }
 
 nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: AuditedRepository, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_AuditedRepository
     typealias CuckooVerification = __VerificationProxy_AuditedRepository
 
@@ -1022,13 +1022,13 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockAuditedRepository.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: AuditedRepository, Sendable {
-        private let reference: @Sendable () -> any AuditedRepository
+    nonisolated final class __DefaultImplCaller: AuditedRepository, Sendable {
+        private let cuckooReference: @Sendable () -> any AuditedRepository
 
         init<_CUCKOO$$GENERIC: AuditedRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, _CUCKOO$$GENERIC.Element == Element, Item: SendableMetatype, ID: SendableMetatype, Element: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -1083,10 +1083,10 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: AuditedRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.ID == ID, _CUCKOO$$GENERIC.Element == Element, Item: SendableMetatype, ID: SendableMetatype, Element: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -1195,7 +1195,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             ))
         }
 
-        func evict<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ID), ((ID)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
+        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ID), ((ID)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1205,7 +1205,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             ))
         }
 
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.ProtocolStubFunction<(ID), Item?, ((ID)) -> Item?, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1215,7 +1215,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             ))
         }
 
-        func sorted<M1: Cuckoo._Matchable>(by p0: M1) -> Cuckoo.ProtocolStubFunction<((Element, Element) -> Bool), [Element], ((@escaping (Element, Element) -> Bool)) -> [Element], Cuckoo.StubSharing.Confined> where M1.MatchedType == (Element, Element) -> Bool {
+        func sorted<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.ProtocolStubFunction<((Element, Element) -> Bool), [Element], ((@escaping (Element, Element) -> Bool)) -> [Element], Cuckoo.StubSharing.Confined> where __M1.MatchedType == (Element, Element) -> Bool {
             let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1268,7 +1268,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
 
         @discardableResult
-        func evict<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Void> where M1.MatchedType == ID {
+        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Void> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1281,7 +1281,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
 
         @discardableResult
-        func fetch<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.__DoNotUse<(ID), Item?> where M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1294,7 +1294,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
 
         @discardableResult
-        func sorted<M1: Cuckoo._Matchable>(by p0: M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where M1.MatchedType == (Element, Element) -> Bool {
+        func sorted<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where __M1.MatchedType == (Element, Element) -> Bool {
             let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]

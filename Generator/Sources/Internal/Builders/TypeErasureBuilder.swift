@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-/// Builds `DefaultImplCaller`, which erases the type of a generic protocol's default implementation.
+/// Builds `__DefaultImplCaller`, which erases the type of a generic protocol's default implementation.
 ///
 /// Its closures share one `Cuckoo.DefaultImplementation` box, which is `Sendable`, so the closures are `@Sendable`
 /// and the caller is checked `Sendable`, as a mock of a `Sendable` generic protocol needs. A protocol isolated to a
@@ -27,7 +27,7 @@ enum TypeErasureBuilder {
         if container.declaresSelfTypealias {
             try members.append("\(context.access)typealias \(SelfResolution.typealiasName) = \(name)", of: name)
         }
-        try members.append("private let reference: \(context.sendable)() -> any \(container.name)\(context.primaryArguments)", of: name)
+        try members.append("private let cuckooReference: \(context.sendable)() -> any \(container.name)\(context.primaryArguments)", of: name)
 
         for property in properties {
             try append(property, sources(of: property, context), of: "\(container.name).\(property.name)", to: &members)
@@ -135,7 +135,7 @@ enum TypeErasureBuilder {
         if isGeneric && getter.hasVariadicParams {
             declaration.append("        \(variadicCrash)")
         } else if isGeneric {
-            declaration.append("        return \(tryAwait)reference()[\(forwardingCall)]")
+            declaration.append("        return \(tryAwait)cuckooReference()[\(forwardingCall)]")
         } else {
             declaration.append("        return \(tryAwait)_subscript_getter_storage$$\(number)(\(getter.parameterNames))")
         }
@@ -145,7 +145,7 @@ enum TypeErasureBuilder {
             if isGeneric && getter.hasVariadicParams {
                 declaration.append("        \(variadicCrash) as Void")
             } else if isGeneric {
-                declaration.append("        var reference = reference()")
+                declaration.append("        var reference = cuckooReference()")
                 declaration.append("        reference[\(forwardingCall)] = newValue")
             } else {
                 declaration.append("        _subscript_setter_storage$$\(number)(\(getter.parameterNames)\(newValueSeparator)newValue)")
@@ -158,7 +158,7 @@ enum TypeErasureBuilder {
     }
 
     /// The initializer, which stores a closure for each requirement that reads the default implementation from the
-    /// box. Generic requirements are called on `reference()` instead, as a generic closure can't be stored.
+    /// box. Generic requirements are called on `cuckooReference()` instead, as a generic closure can't be stored.
     private static func initializer(
         _ container: any ContainerToken,
         properties: [Variable],
@@ -171,7 +171,7 @@ enum TypeErasureBuilder {
         var body = [
             "let box = Cuckoo.DefaultImplementation<\(generic)>()",
             "box.value = defaultImpl",
-            "reference = { box.value }",
+            "cuckooReference = { box.value }",
             "",
         ]
         func conditional(_ token: any HasAttributes, _ statements: [String]) -> [String] {
@@ -254,9 +254,9 @@ enum TypeErasureBuilder {
                 declaration.append("    #endif")
             }
             let sendingNames = method.sendingParameterNames.map { ", \($0)" }.joined()
-            declaration.append("    return \(tryAwait)openExistential(reference()\(sendingNames))")
+            declaration.append("    return \(tryAwait)openExistential(cuckooReference()\(sendingNames))")
         } else if method.hasGenericParams {
-            declaration.append("    return \(tryAwait)reference().\(method.name)(\(method.call))")
+            declaration.append("    return \(tryAwait)cuckooReference().\(method.name)(\(method.call))")
         } else if let throwType = method.signature.throwType, throwType.isTyped {
             // The stored closure throws untyped errors: a typed-throws function type needs runtime support that iOS 17
             // lacks once it's a stored property's type. The method narrows it back, as the mock's members do.
