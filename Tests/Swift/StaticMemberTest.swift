@@ -186,7 +186,7 @@ struct StaticMemberTests {
     func staticMembersRefuseADefaultImplementation() {
         let failures = Locked<[String]>([])
         CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { failure in failures.withLock { $0.append(failure.message) } })) {
-            MockStaticFactory.cuckooStaticManager.enableDefaultStubImplementation()
+            MockStaticFactory.cuckooStaticManager.enableDefaultImplementation()
         }
         stub(MockStaticFactory.self) { stub in
             when(stub.count.get).thenReturn(3)

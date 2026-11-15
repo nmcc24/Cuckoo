@@ -12,7 +12,7 @@ final class MockNonSendableBox: NonSendableBox, nonisolated Cuckoo.ClassMock {
 
     nonisolated func enableDefaultImplementation(_ stub: NonSendableBox) {
         cuckooDefaultImplementation.value = stub
-        cuckooManager.enableDefaultStubImplementation()
+        cuckooManager.enableDefaultImplementation()
     }
 
     override var v: Int {
@@ -91,7 +91,7 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
 
     nonisolated func enableDefaultImplementation(_ stub: any Transfer) {
         cuckooDefaultImplementation.value = stub
-        cuckooManager.enableDefaultStubImplementation()
+        cuckooManager.enableDefaultImplementation()
     }
 
     func take(_ p0: sending NonSendableBox) {
@@ -232,7 +232,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
-        cuckooManager.enableDefaultStubImplementation()
+        cuckooManager.enableDefaultImplementation()
     }
 
     func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {

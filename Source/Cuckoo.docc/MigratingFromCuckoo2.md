@@ -95,6 +95,8 @@ behaviour on top.
 - `MockBuilder.enableDefaultStubImplementation()` is removed. It made a mock created by `createMock` forward
   unstubbed calls to a default implementation it didn't have yet, so its first unstubbed call crashed. Call
   `enableDefaultImplementation(_:)` on the mock, or `withEnabledDefaultImplementation(_:)`, once it exists.
+- `MockManager.enableDefaultStubImplementation()` is `enableDefaultImplementation()`. Generated mocks call it, so
+  only code that calls it on a mock's `cuckooManager` changes.
 - A `then` closure that spells out an `inout` parameter's type needs `inout`, as in `{ (value: inout Int) in … }`.
   What the closure writes now reaches the caller. Closures that let Swift infer the types are unaffected.
 - The stub function types that `when` returns, such as `ProtocolStubFunction`, have more generic parameters. Code

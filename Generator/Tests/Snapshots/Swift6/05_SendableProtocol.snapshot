@@ -14,7 +14,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
 
     nonisolated func enableDefaultImplementation(_ stub: any Networking) {
         cuckooDefaultImplementation.value = stub
-        cuckooManager.enableDefaultStubImplementation()
+        cuckooManager.enableDefaultImplementation()
     }
 
     func get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void) {
@@ -163,7 +163,7 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyValueStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
-        cuckooManager.enableDefaultStubImplementation()
+        cuckooManager.enableDefaultImplementation()
     }
 
     var count: Int {
