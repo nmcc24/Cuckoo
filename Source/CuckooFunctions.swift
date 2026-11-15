@@ -6,9 +6,10 @@ public func stub<M: Mock>(_ mock: M, block: (M.CuckooStubbing) -> Void) {
     block(mock.cuckooStubbingProxy())
 }
 
-/// Marks the member being stubbed inside a ``stub(_:block:)-(M,_)`` block, for example `when(stub.count.get)`.
+/// Names the member being stubbed inside a ``stub(_:block:)-(M,_)`` block, as in
+/// `when(stub.count(characters: any())).thenReturn(1)` or `when(stub.count.get)`.
 ///
-/// It returns `function` unchanged today, but write it anyway: later versions may rely on it.
+/// It returns `function` itself, so that the stub reads as a sentence; the `then` action that follows gives the stub its answer.
 public func when<F: BaseStubFunctionTrait>(_ function: F) -> F {
     return function
 }
