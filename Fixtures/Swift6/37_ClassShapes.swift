@@ -48,3 +48,19 @@ class UncheckedCache: @unchecked Sendable {
 protocol UncheckedCacheUser: UncheckedCache {
     func use() -> Bool
 }
+
+// `@unchecked Sendable` declared in an extension, which the mock and stub restate too.
+class LateUncheckedCache {
+    init() {}
+    func value() -> Int { 0 }
+}
+extension LateUncheckedCache: @unchecked Sendable {}
+
+// A protocol bound to a generic class, written with its arguments.
+class GenericRepository<Item> {
+    init() {}
+    func count() -> Int { 0 }
+}
+protocol IntRepositoryUser: GenericRepository<Int> {
+    func refresh()
+}

@@ -17,11 +17,9 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var unknownAttributes: [String] = []
     /// The non-public type whose use by a non-public member made a public class's mock internal, if any.
     var internalMockReason: String?
-
-    /// Whether the class is declared `@unchecked Sendable`, which a subclass, its mock and stub, has to restate.
-    var isUncheckedSendable: Bool {
-        inheritedTypes.contains { $0.replacing(" ", with: "") == "@uncheckedSendable" || $0.replacing(" ", with: "") == "@uncheckedSwift.Sendable" }
-    }
+    /// Whether the class, or an extension of it, is declared `@unchecked Sendable`, which a subclass, its mock and
+    /// stub, has to restate.
+    var isUncheckedSendable = false
 
     func replacing(members: [any Token]) -> ClassDeclaration {
         ClassDeclaration(
@@ -37,7 +35,8 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             isolation: isolation,
             unmockedMembers: unmockedMembers,
             unknownAttributes: unknownAttributes,
-            internalMockReason: internalMockReason
+            internalMockReason: internalMockReason,
+            isUncheckedSendable: isUncheckedSendable
         )
     }
 }

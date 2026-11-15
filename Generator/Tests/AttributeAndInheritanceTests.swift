@@ -160,9 +160,9 @@ struct AttributeAndInheritanceTests {
         ])
     }
 
-    /// One in an extension of the type clashes too.
+    /// One in an extension of the type, or in a class it inherits from, found by scope, clashes too.
     @Test
-    func reservedNameInAnExtensionSkipsTheMock() throws {
+    func reservedNameInAnExtensionOrSuperclassSkipsTheMock() throws {
         let source = """
             class Foo {
                 init() {}
@@ -175,14 +175,28 @@ struct AttributeAndInheritanceTests {
                 struct Verification {}
                 init() {}
             }
+            class Child: Base {
+                func b(_ v: Verification) -> Int { 0 }
+            }
+            // `X` here is `Other.X`, not the `X` that nests a `Stubbing`.
+            struct X {
+                struct Stubbing {}
+            }
+            enum Other {
+                protocol X {}
+                class Conforming: X {
+                    init() {}
+                }
+            }
             """
         let crawler = Crawler.crawl(source: source, url: url)
-        // Only the extension's token is left, which has nothing to mock.
         #expect(!crawler.tokens.contains { $0 is ClassDeclaration })
         #expect(crawler.diagnostics.map(\.message) == [
-            "'Foo' has a nested type or typealias named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Foo'.",
-            "'Base' has a nested type or typealias named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Base'.",
+            "'Foo' has a nested type, typealias or associated type named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Foo'.",
+            "'Base' has a nested type, typealias or associated type named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Base'.",
+            "'Child' has a nested type, typealias or associated type named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Child'.",
         ])
+        #expect(crawler.tokens.contains { ($0 as? NamespaceDeclaration)?.members.contains { $0 is ClassDeclaration } == true })
     }
 
     /// A nested type or typealias of such a name, under `#if` too, would clash with the mock's own as well.
@@ -203,8 +217,26 @@ struct AttributeAndInheritanceTests {
             """, url: url)
         #expect(crawler.tokens.isEmpty)
         #expect(crawler.diagnostics.map(\.description) == [
-            "/project/Sources/Store.swift:1:1: warning: cuckoo: 'Crate' has a nested type or typealias named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Crate'.",
-            "/project/Sources/Store.swift:6:1: warning: cuckoo: 'Shelf' has a nested type or typealias named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Shelf'.",
+            "/project/Sources/Store.swift:1:1: warning: cuckoo: 'Crate' has a nested type, typealias or associated type named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Crate'.",
+            "/project/Sources/Store.swift:6:1: warning: cuckoo: 'Shelf' has a nested type, typealias or associated type named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Shelf'.",
+        ])
+    }
+
+    /// A protocol inheriting such a typealias or associated type clashes too.
+    @Test
+    func reservedNameInheritedByAProtocolSkipsTheMock() throws {
+        let crawler = Crawler.crawl(source: """
+            protocol Base { typealias Stubbing = Int }
+            protocol Refined: Base { func a() }
+            protocol Associated { associatedtype Verification }
+            protocol RefinedAssociated: Associated { func b() }
+            """, url: url)
+        #expect(!crawler.tokens.contains { $0 is ProtocolDeclaration })
+        #expect(crawler.diagnostics.map(\.message).map { String($0.prefix(while: { $0 != "," })) } == [
+            "'Base' has a nested type",
+            "'Refined' has a nested type",
+            "'Associated' has a generic parameter or associated type named 'Verification'",
+            "'RefinedAssociated' has a nested type",
         ])
     }
 

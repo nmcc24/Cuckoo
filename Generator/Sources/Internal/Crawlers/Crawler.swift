@@ -19,6 +19,7 @@ final class Crawler: SyntaxVisitor {
         nonPublicTypes: Set<String> = [],
         genericTypes: Set<String> = [],
         qualifiedGenericTypes: Set<String> = [],
+        uncheckedSendableTypes: Set<String> = [],
         protocolsAndClasses: Set<String>? = nil,
         compositionTypealiases: [String: [String]] = [:],
         actors: Set<String> = [],
@@ -36,6 +37,7 @@ final class Crawler: SyntaxVisitor {
             nonPublicTypes: nonPublicTypes,
             genericTypes: genericTypes,
             qualifiedGenericTypes: qualifiedGenericTypes,
+            uncheckedSendableTypes: uncheckedSendableTypes,
             protocolsAndClasses: protocolsAndClasses,
             compositionTypealiases: compositionTypealiases,
             actors: actors,
@@ -54,6 +56,7 @@ final class Crawler: SyntaxVisitor {
         nonPublicTypes: Set<String> = [],
         genericTypes: Set<String> = [],
         qualifiedGenericTypes: Set<String> = [],
+        uncheckedSendableTypes: Set<String> = [],
         protocolsAndClasses: Set<String>? = nil,
         compositionTypealiases: [String: [String]] = [:],
         actors: Set<String> = [],
@@ -73,6 +76,7 @@ final class Crawler: SyntaxVisitor {
             nonPublicTypes: nonPublicTypes,
             genericTypes: genericTypes,
             qualifiedGenericTypes: qualifiedGenericTypes.union(local.qualifiedGenericTypes),
+            uncheckedSendableTypes: uncheckedSendableTypes.union(local.uncheckedSendableTypes),
             protocolsAndClasses: protocolsAndClasses,
             compositionTypealiases: compositionTypealiases,
             actors: actors.union(local.actors),
@@ -100,6 +104,8 @@ final class Crawler: SyntaxVisitor {
         let genericTypes: Set<String>
         /// The generic types, by qualified name.
         let qualifiedGenericTypes: Set<String>
+        /// The types an extension declares `@unchecked Sendable`, by qualified name.
+        let uncheckedSendableTypes: Set<String>
         /// The module's protocols and classes, or nil when unknown, as in a crawl of one file for a test.
         let protocolsAndClasses: Set<String>?
         /// The module's typealiases of protocol compositions.
@@ -123,6 +129,7 @@ final class Crawler: SyntaxVisitor {
             nonPublicTypes: Set<String> = [],
             genericTypes: Set<String> = [],
             qualifiedGenericTypes: Set<String> = [],
+            uncheckedSendableTypes: Set<String> = [],
             protocolsAndClasses: Set<String>? = nil,
             compositionTypealiases: [String: [String]] = [:],
             actors: Set<String> = [],
@@ -138,6 +145,7 @@ final class Crawler: SyntaxVisitor {
             self.nonPublicTypes = nonPublicTypes
             self.genericTypes = genericTypes
             self.qualifiedGenericTypes = qualifiedGenericTypes
+            self.uncheckedSendableTypes = uncheckedSendableTypes
             self.protocolsAndClasses = protocolsAndClasses
             self.compositionTypealiases = compositionTypealiases
             self.actors = actors
@@ -229,13 +237,15 @@ final class Crawler: SyntaxVisitor {
         token.members = crawler.tokens
         token.unmockedMembers = crawler.unmockedMembers
         token.unknownAttributes = unknownAttributes(node.attributes, declaration: token.name)
+        token.isUncheckedSendable = node.inheritanceClause?.inheritedTypes.contains(where: { Self.isUncheckedSendable($0.type) }) == true
+            || context.uncheckedSendableTypes.contains(DeclaredNameCollector.qualifiedName(of: token.name, at: Syntax(node)))
         // A public mock's overrides must be public (with a `@testable` import too), and a public override can't name
         // a non-public type. A public class with such members gets an internal mock, as `@testable` users need anyway.
         if token.accessibility >= .public, let type = token.members.lazy.compactMap({ self.nonPublicType(usedBy: $0) }).first {
             token.accessibility = .internal
             token.internalMockReason = type
         }
-        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, of: token.name, node) else { return .skipChildren }
+        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, inherited: token.inheritedTypes, of: token.name, node) else { return .skipChildren }
         tokens.append(token)
         return .skipChildren
     }
@@ -276,7 +286,7 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
-        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, of: token.name, node) else { return .skipChildren }
+        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, inherited: token.inheritedTypes, of: token.name, node) else { return .skipChildren }
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
@@ -790,22 +800,50 @@ final class Crawler: SyntaxVisitor {
 
     /// Whether the type has a generic parameter, associated type, nested type or typealias named like one of the
     /// mock's own type names. Its mock couldn't compile, so it's left out with a warning that says what to rename.
-    private func hasReservedName(_ genericNames: [String], members: MemberBlockSyntax, of declaration: String, _ node: some SyntaxProtocol) -> Bool {
+    private func hasReservedName(_ genericNames: [String], members: MemberBlockSyntax, inherited: [String], of declaration: String, _ node: some SyntaxProtocol) -> Bool {
         if let clash = genericNames.first(where: Self.reservedMockNames.contains) {
             warn(node, "'\(declaration)' has a generic parameter or associated type named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
             return true
         }
-        // Declared in the type itself, or in an extension of it, which the module's nested types and closure
-        // typealiases list by qualified name.
+        // Declared in the type itself, in an extension of it, or in a type it inherits from, found by scope, which the
+        // module's nested types and closure typealiases list by qualified name.
         let qualifiedName = DeclaredNameCollector.qualifiedName(of: declaration, at: Syntax(node))
+        let scopes = [qualifiedName] + inherited.compactMap { resolvedTypeName($0, inScopeOf: qualifiedName) }
         let elsewhere = Self.reservedMockNames.sorted().first { name in
-            context.nominalTypes.contains("\(qualifiedName).\(name)") || context.closureTypealiases["\(qualifiedName).\(name)"] != nil
+            scopes.contains { context.nominalTypes.contains("\($0).\(name)") || context.closureTypealiases["\($0).\(name)"] != nil }
         }
         if let clash = Self.nestedTypeNames(in: members.members).first(where: Self.reservedMockNames.contains) ?? elsewhere {
-            warn(node, "'\(declaration)' has a nested type or typealias named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
+            warn(node, "'\(declaration)' has a nested type, typealias or associated type named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
             return true
         }
         return false
+    }
+
+    /// Whether an inherited type is `@unchecked Sendable`.
+    static func isUncheckedSendable(_ type: TypeSyntax) -> Bool {
+        guard let attributed = type.as(AttributedTypeSyntax.self),
+              attributed.attributes.contains(where: { $0.trimmedDescription == "@unchecked" }) else { return false }
+        let base = attributed.baseType.trimmedDescription
+        return base == "Sendable" || base == "Swift.Sendable"
+    }
+
+    /// The qualified name of the module's type that `name`, written in the declaration `qualifiedName`, refers to:
+    /// looked up from the innermost enclosing scope outwards, without its generic arguments or a module prefix.
+    /// Nil when the module declares no such type.
+    private func resolvedTypeName(_ name: String, inScopeOf qualifiedName: String) -> String? {
+        var components = (name.split(separator: "<").first ?? "").split(separator: ".").map(String.init)
+        if components.count > 1, !context.nominalTypes.contains(components[0]) {
+            components.removeFirst()
+        }
+        var scope = qualifiedName.split(separator: ".").dropLast().map(String.init)
+        while true {
+            let candidate = (scope + components).joined(separator: ".")
+            if context.nominalTypes.contains(candidate) {
+                return candidate
+            }
+            guard !scope.isEmpty else { return nil }
+            scope.removeLast()
+        }
     }
 
     /// The names of the types and typealiases a type declares, under `#if` too.
@@ -1201,6 +1239,25 @@ extension Crawler {
             }
             /// The name a `.init(…)` of an unknown type goes in as.
             static let unknownInitializer = ".init("
+            override func visit(_ node: MemberAccessExprSyntax) -> SyntaxVisitorContinueKind {
+                // `Token.init(secret:)` without a call, a function value that needs the initializer as much as a
+                // call does; a call's `.init` is read with its call.
+                guard node.declName.baseName.tokenKind == .keyword(.`init`), node.parent?.as(FunctionCallExprSyntax.self)?.calledExpression.id != node.id else {
+                    return .visitChildren
+                }
+                var base = node.base
+                if let specialized = base?.as(GenericSpecializationExprSyntax.self) {
+                    base = specialized.expression
+                }
+                if let reference = base?.as(DeclReferenceExprSyntax.self) {
+                    names.append(DeclaredNames.privateInitializerName(of: reference.baseName.text))
+                } else if let member = base?.as(MemberAccessExprSyntax.self) {
+                    names.append(DeclaredNames.privateInitializerName(of: member.declName.baseName.text))
+                } else if base == nil {
+                    names.append(Self.unknownInitializer)
+                }
+                return .visitChildren
+            }
             override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
                 // `Token(…)`, `Module.Token(…)`, `Box<Int>(…)`, `Token.init(…)` and `.init(…)` call an initializer
                 // of `Token`, or of the parameter's type.
@@ -1537,6 +1594,8 @@ extension Crawler {
         var genericTypes: Set<String> = []
         /// The same, by qualified name, so a scope can tell `Outer.Box<T>` from an unrelated `Box`.
         var qualifiedGenericTypes: Set<String> = []
+        /// The types an extension declares `@unchecked Sendable`, by qualified name, which a subclass has to restate.
+        var uncheckedSendableTypes: Set<String> = []
         /// The protocols and classes, by name: a protocol's parent outside them isn't implemented by its mock.
         var protocolsAndClasses: Set<String> = []
         /// The typealiases of protocol compositions, `typealias AB = A & B`, by name, to the composed types.
@@ -1567,6 +1626,7 @@ extension Crawler {
             publicTypes.formUnion(other.publicTypes)
             genericTypes.formUnion(other.genericTypes)
             qualifiedGenericTypes.formUnion(other.qualifiedGenericTypes)
+            uncheckedSendableTypes.formUnion(other.uncheckedSendableTypes)
             protocolsAndClasses.formUnion(other.protocolsAndClasses)
             compositionTypealiases.merge(other.compositionTypealiases) { first, _ in first }
             closureTypealiases.merge(other.closureTypealiases) { first, _ in first }
@@ -1599,6 +1659,22 @@ extension Crawler {
             collectAccess(node.modifiers, name: node.name, at: node)
             names.protocolsAndClasses.insert(node.name.text)
             // Its typealiases count, as `typealias Callback = …` does for the protocols that refine it.
+            return .visitChildren
+        }
+
+        /// An associated type named like a mock's own types, recorded as a reserved typealias is, so a protocol that
+        /// inherits it is left out too.
+        override func visit(_ node: AssociatedTypeDeclSyntax) -> SyntaxVisitorContinueKind {
+            if Crawler.reservedMockNames.contains(node.name.text) {
+                names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
+            }
+            return .skipChildren
+        }
+
+        override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
+            if node.inheritanceClause?.inheritedTypes.contains(where: { Crawler.isUncheckedSendable($0.type) }) == true {
+                names.uncheckedSendableTypes.insert(Self.qualifiedName(of: node.extendedType.trimmedDescription, at: Syntax(node)))
+            }
             return .visitChildren
         }
 
@@ -1714,6 +1790,11 @@ extension Crawler {
             var type = node.initializer.value
             if let attributed = type.as(AttributedTypeSyntax.self), attributed.specifiers.isEmpty {
                 type = attributed.baseType
+            }
+            // One named like a mock's own types is recorded by qualified name with the nested types, so a type that
+            // declares it in an extension, or inherits it, is left out too; see `hasReservedName`.
+            if Crawler.reservedMockNames.contains(node.name.text) {
+                names.nominalTypes.insert(Self.qualifiedName(of: node))
             }
             // Keyed by qualified name; a use finds it by scope, see `closureTypealias(named:from:)`.
             if let function = Crawler.functionType(of: node) {

@@ -108,7 +108,7 @@ final class Glob: Collection {
         }
 
         var results = [String]()
-        var directories = Self.directories(under: firstPart, globstarRoot: Path(firstPart).absolute.standardized)
+        var directories = Self.directories(under: firstPart, globstarRoot: Self.resolvingLinks(firstPart))
 
         if behavior.includesFilesFromRootOfGlobstar {
             // Check the base directory for the glob star as well.
@@ -132,6 +132,12 @@ final class Glob: Collection {
     /// Every directory under `root`, at any depth. `**` doesn't descend into hidden directories, as a shell's
     /// globstar doesn't: `.build` holds the package's dependencies' sources, and `.git` and `.swiftpm` nothing to mock,
     /// so they aren't even listed. A pattern can still name one, before the `**` or after it.
+    /// `path` as the file system resolves it, every symbolic link in it followed, so `/var` and `/private/var`
+    /// compare equal on macOS.
+    private static func resolvingLinks(_ path: String) -> Path {
+        Path(URL(filePath: Path(path).absolute.rawValue).resolvingSymlinksInPath().path(percentEncoded: false)).standardized
+    }
+
     private static func directories(under root: String, globstarRoot: Path) -> [String] {
         let entries: [String]
         do {
@@ -149,8 +155,8 @@ final class Glob: Collection {
             guard let destination = try? FileManager.default.destinationOfSymbolicLink(atPath: path) else {
                 return [path] + directories(under: path, globstarRoot: globstarRoot)
             }
-            let target = (destination.hasPrefix("/") ? Path(destination) : Path(root).absolute + destination).standardized
-            let isInsideRoot = target == globstarRoot || target.standardRawValue.hasPrefix(globstarRoot.standardRawValue + "/")
+            let target = Self.resolvingLinks((destination.hasPrefix("/") ? Path(destination) : Path(root).absolute + destination).rawValue)
+            let isInsideRoot = target == globstarRoot || target.rawValue.hasPrefix(globstarRoot.rawValue + "/")
             return isInsideRoot ? [] : [path]
         }
     }
