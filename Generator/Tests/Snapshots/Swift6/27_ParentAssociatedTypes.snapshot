@@ -81,7 +81,7 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
         }
 
         @discardableResult
-        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -241,7 +241,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         }
 
         @discardableResult
-        func cached() -> Cuckoo.__DoNotUse<(), [Item]> {
+        func cached() -> Cuckoo.VerifiedCall<(), [Item]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "cached() -> [Item]",
@@ -252,7 +252,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         }
 
         @discardableResult
-        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Void> where __M1.MatchedType == ID {
+        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(ID), Void> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -265,7 +265,7 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
         }
 
         @discardableResult
-        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -350,7 +350,7 @@ nonisolated final class MockPrimaryRepository<Element>: PrimaryRepository, nonis
         }
 
         @discardableResult
-        func all() -> Cuckoo.__DoNotUse<(), [Element]> {
+        func all() -> Cuckoo.VerifiedCall<(), [Element]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "all() -> [Element]",
@@ -481,7 +481,7 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
         }
 
         @discardableResult
-        func sorted<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where __M1.MatchedType == (Element, Element) -> Bool {
+        func sorted<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.VerifiedCall<((Element, Element) -> Bool), [Element]> where __M1.MatchedType == (Element, Element) -> Bool {
             let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -494,7 +494,7 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
         }
 
         @discardableResult
-        func all() -> Cuckoo.__DoNotUse<(), [Element]> {
+        func all() -> Cuckoo.VerifiedCall<(), [Element]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "all() -> [Element]",
@@ -626,7 +626,7 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
         }
 
         @discardableResult
-        func joined() -> Cuckoo.__DoNotUse<(), String> {
+        func joined() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "joined() -> String",
@@ -637,7 +637,7 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
         }
 
         @discardableResult
-        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -742,7 +742,7 @@ nonisolated final class MockIntRepository: IntRepository, nonisolated Cuckoo.Pro
         }
 
         @discardableResult
-        func sum() -> Cuckoo.__DoNotUse<(), Element> {
+        func sum() -> Cuckoo.VerifiedCall<(), Element> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "sum() -> Element",
@@ -753,7 +753,7 @@ nonisolated final class MockIntRepository: IntRepository, nonisolated Cuckoo.Pro
         }
 
         @discardableResult
-        func all() -> Cuckoo.__DoNotUse<(), [Element]> {
+        func all() -> Cuckoo.VerifiedCall<(), [Element]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "all() -> [Element]",
@@ -946,7 +946,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         }
 
         @discardableResult
-        func uniqued() -> Cuckoo.__DoNotUse<(), Set<Item>> {
+        func uniqued() -> Cuckoo.VerifiedCall<(), Set<Item>> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "uniqued() -> Set<Item>",
@@ -957,7 +957,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         }
 
         @discardableResult
-        func cached() -> Cuckoo.__DoNotUse<(), [Item]> {
+        func cached() -> Cuckoo.VerifiedCall<(), [Item]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "cached() -> [Item]",
@@ -968,7 +968,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         }
 
         @discardableResult
-        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Void> where __M1.MatchedType == ID {
+        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(ID), Void> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -981,7 +981,7 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
         }
 
         @discardableResult
-        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1246,7 +1246,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
 
         @discardableResult
-        func audit() -> Cuckoo.__DoNotUse<(), (Item?, [Element])> {
+        func audit() -> Cuckoo.VerifiedCall<(), (Item?, [Element])> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "audit() -> (Item?, [Element])",
@@ -1257,7 +1257,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
 
         @discardableResult
-        func cached() -> Cuckoo.__DoNotUse<(), [Item]> {
+        func cached() -> Cuckoo.VerifiedCall<(), [Item]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "cached() -> [Item]",
@@ -1268,7 +1268,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
 
         @discardableResult
-        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Void> where __M1.MatchedType == ID {
+        func evict<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(ID), Void> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1281,7 +1281,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
 
         @discardableResult
-        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(ID), Item?> where __M1.MatchedType == ID {
+        func fetch<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(ID), Item?> where __M1.MatchedType == ID {
             let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1294,7 +1294,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
 
         @discardableResult
-        func sorted<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.__DoNotUse<((Element, Element) -> Bool), [Element]> where __M1.MatchedType == (Element, Element) -> Bool {
+        func sorted<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.VerifiedCall<((Element, Element) -> Bool), [Element]> where __M1.MatchedType == (Element, Element) -> Bool {
             let matchers: [Cuckoo.ParameterMatcher<((Element, Element) -> Bool)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1307,7 +1307,7 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
         }
 
         @discardableResult
-        func all() -> Cuckoo.__DoNotUse<(), [Element]> {
+        func all() -> Cuckoo.VerifiedCall<(), [Element]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "all() -> [Element]",

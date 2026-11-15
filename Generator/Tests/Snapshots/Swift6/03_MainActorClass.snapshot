@@ -116,7 +116,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
 
         @MainActor
         @discardableResult
-        func reload() -> Cuckoo.__DoNotUse<(), Void> {
+        func reload() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "reload() async",
@@ -128,7 +128,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
 
         @MainActor
         @discardableResult
-        func select<__M1: Cuckoo._Matchable>(index p0: __M1) -> Cuckoo.__DoNotUse<(Int), Bool> where __M1.MatchedType == Int {
+        func select<__M1: Cuckoo._Matchable>(index p0: __M1) -> Cuckoo.VerifiedCall<(Int), Bool> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]

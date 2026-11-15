@@ -106,7 +106,7 @@ final class MockMainParent: MainParent, nonisolated Cuckoo.ProtocolMock {
 
         @MainActor
         @discardableResult
-        func load() -> Cuckoo.__DoNotUse<(), Int> {
+        func load() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "load() -> Int",
@@ -117,7 +117,7 @@ final class MockMainParent: MainParent, nonisolated Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func identifier() -> Cuckoo.__DoNotUse<(), String> {
+        func identifier() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "identifier() -> String",
@@ -274,7 +274,7 @@ final class MockMainChild: MainChild, nonisolated Cuckoo.ProtocolMock {
 
         @MainActor
         @discardableResult
-        func refresh<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
+        func refresh<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -288,7 +288,7 @@ final class MockMainChild: MainChild, nonisolated Cuckoo.ProtocolMock {
 
         @MainActor
         @discardableResult
-        func load() -> Cuckoo.__DoNotUse<(), Int> {
+        func load() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "load() -> Int",
@@ -299,7 +299,7 @@ final class MockMainChild: MainChild, nonisolated Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func identifier() -> Cuckoo.__DoNotUse<(), String> {
+        func identifier() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "identifier() -> String",
@@ -481,7 +481,7 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
 
         @MainActor
         @discardableResult
-        func reset() -> Cuckoo.__DoNotUse<(), Void> {
+        func reset() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "reset() async",
@@ -493,7 +493,7 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
 
         @MainActor
         @discardableResult
-        func refresh<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
+        func refresh<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -507,7 +507,7 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
 
         @MainActor
         @discardableResult
-        func load() -> Cuckoo.__DoNotUse<(), Int> {
+        func load() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "load() -> Int",
@@ -518,7 +518,7 @@ final class MockMainGrandchild: MainGrandchild, nonisolated Cuckoo.ProtocolMock 
         }
 
         @discardableResult
-        func identifier() -> Cuckoo.__DoNotUse<(), String> {
+        func identifier() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "identifier() -> String",
@@ -618,7 +618,7 @@ final class MockStoreParent: StoreParent, nonisolated Cuckoo.ProtocolMock {
 
         @InheritedStoreActor
         @discardableResult
-        func save<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
+        func save<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -722,7 +722,7 @@ final class MockStoreChild: StoreChild, nonisolated Cuckoo.ProtocolMock {
 
         @InheritedStoreActor
         @discardableResult
-        func fetch() -> Cuckoo.__DoNotUse<(), Int> {
+        func fetch() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "fetch() -> Int",
@@ -734,7 +734,7 @@ final class MockStoreChild: StoreChild, nonisolated Cuckoo.ProtocolMock {
 
         @InheritedStoreActor
         @discardableResult
-        func save<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
+        func save<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -812,7 +812,7 @@ actor MockActorParent: ActorParent, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func count() -> Cuckoo.__DoNotUse<(), Int> {
+        func count() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "count() -> Int",
@@ -905,7 +905,7 @@ actor MockActorChild: ActorChild, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func increment<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
+        func increment<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.VerifiedCall<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -918,7 +918,7 @@ actor MockActorChild: ActorChild, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func count() -> Cuckoo.__DoNotUse<(), Int> {
+        func count() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "count() -> Int",
@@ -997,7 +997,7 @@ nonisolated final class MockSendableParent: SendableParent, nonisolated Cuckoo.P
         }
 
         @discardableResult
-        func value() -> Cuckoo.__DoNotUse<(), Int> {
+        func value() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "value() -> Int",
@@ -1093,7 +1093,7 @@ nonisolated final class MockSendableChild: SendableChild, nonisolated Cuckoo.Pro
         }
 
         @discardableResult
-        func update<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Int), Void> where __M1.MatchedType == Int {
+        func update<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Int), Void> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1106,7 +1106,7 @@ nonisolated final class MockSendableChild: SendableChild, nonisolated Cuckoo.Pro
         }
 
         @discardableResult
-        func value() -> Cuckoo.__DoNotUse<(), Int> {
+        func value() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "value() -> Int",

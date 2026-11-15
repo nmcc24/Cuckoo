@@ -110,7 +110,7 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(String), Int?> {
+            func get() -> Cuckoo.VerifiedCall<(String), Int?> {
                 return cuckooManager.verify(
                     "subscript(_ p0: String) -> Int?#get",
                     callMatcher: cuckooCallMatcher,
@@ -120,7 +120,7 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
             }
 
             @discardableResult
-            func set<__M2: Cuckoo._OptionalMatchable>(_ p1: __M2) -> Cuckoo.__DoNotUse<(String, Int?), Void> where __M2.OptionalMatchedType == Int {
+            func set<__M2: Cuckoo._OptionalMatchable>(_ p1: __M2) -> Cuckoo.VerifiedCall<(String, Int?), Void> where __M2.OptionalMatchedType == Int {
                 let matchers: [Cuckoo.ParameterMatcher<(String, Int?)>] = self.matchers.map { matcher in
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
@@ -331,7 +331,7 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(Int, Int), Double> {
+            func get() -> Cuckoo.VerifiedCall<(Int, Int), Double> {
                 return cuckooManager.verify(
                     "subscript(row p0: Int, column p1: Int) -> Double#get",
                     callMatcher: cuckooCallMatcher,
@@ -341,7 +341,7 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
             }
 
             @discardableResult
-            func set<__M3: Cuckoo._Matchable>(_ p2: __M3) -> Cuckoo.__DoNotUse<(Int, Int, Double), Void> where __M3.MatchedType == Double {
+            func set<__M3: Cuckoo._Matchable>(_ p2: __M3) -> Cuckoo.VerifiedCall<(Int, Int, Double), Void> where __M3.MatchedType == Double {
                 let matchers: [Cuckoo.ParameterMatcher<(Int, Int, Double)>] = self.matchers.map { matcher in
                     Cuckoo.ParameterMatcher {
                         matcher.matches(($0.0, $0.1))
@@ -372,7 +372,7 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(String), String> {
+            func get() -> Cuckoo.VerifiedCall<(String), String> {
                 return cuckooManager.verify(
                     "subscript(remote p0: String) -> String#get",
                     callMatcher: cuckooCallMatcher,
@@ -396,7 +396,7 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(T)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(T), T> {
+            func get() -> Cuckoo.VerifiedCall<(T), T> {
                 return cuckooManager.verify(
                     "subscript<T: Equatable>(echo p0: T) -> T#get",
                     callMatcher: cuckooCallMatcher,
@@ -543,7 +543,7 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
 
             @MainActor
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(Int), String> {
+            func get() -> Cuckoo.VerifiedCall<(Int), String> {
                 return cuckooManager.verify(
                     "subscript(_ p0: Int) -> String#get",
                     callMatcher: cuckooCallMatcher,
@@ -554,7 +554,7 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
 
             @MainActor
             @discardableResult
-            func set<__M2: Cuckoo._Matchable>(_ p1: __M2) -> Cuckoo.__DoNotUse<(Int, String), Void> where __M2.MatchedType == String {
+            func set<__M2: Cuckoo._Matchable>(_ p1: __M2) -> Cuckoo.VerifiedCall<(Int, String), Void> where __M2.MatchedType == String {
                 let matchers: [Cuckoo.ParameterMatcher<(Int, String)>] = self.matchers.map { matcher in
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
@@ -664,7 +664,7 @@ nonisolated final class MockSendableLookup: SendableLookup, nonisolated Cuckoo.P
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(String), Int> {
+            func get() -> Cuckoo.VerifiedCall<(String), Int> {
                 return cuckooManager.verify(
                     "subscript(_ p0: String) -> Int#get",
                     callMatcher: cuckooCallMatcher,
@@ -762,7 +762,7 @@ actor MockActorStore: ActorStore, Cuckoo.ProtocolMock {
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(String), Int> {
+            func get() -> Cuckoo.VerifiedCall<(String), Int> {
                 return cuckooManager.verify(
                     "subscript(_ p0: String) -> Int#get",
                     callMatcher: cuckooCallMatcher,

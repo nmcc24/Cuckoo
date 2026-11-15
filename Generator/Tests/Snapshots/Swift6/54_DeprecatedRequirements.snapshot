@@ -148,7 +148,7 @@ nonisolated final class MockLegacyFeed<Item>: LegacyFeed, nonisolated Cuckoo.Pro
 
         @available(*, deprecated, message: "use next()")
         @discardableResult
-        func old() -> Cuckoo.__DoNotUse<(), Item> {
+        func old() -> Cuckoo.VerifiedCall<(), Item> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "old() -> Item",
@@ -159,7 +159,7 @@ nonisolated final class MockLegacyFeed<Item>: LegacyFeed, nonisolated Cuckoo.Pro
         }
 
         @discardableResult
-        func next() -> Cuckoo.__DoNotUse<(), Item> {
+        func next() -> Cuckoo.VerifiedCall<(), Item> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "next() -> Item",

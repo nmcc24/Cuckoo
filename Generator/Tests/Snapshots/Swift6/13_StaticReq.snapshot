@@ -127,7 +127,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
         }
 
         @discardableResult
-        func build() -> Cuckoo.__DoNotUse<(), Int> {
+        func build() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "build() -> Int",
@@ -203,7 +203,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
         }
 
         @discardableResult
-        func make() -> Cuckoo.__DoNotUse<(), __CuckooSelf> {
+        func make() -> Cuckoo.VerifiedCall<(), __CuckooSelf> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "static make() -> Self",
@@ -214,7 +214,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
         }
 
         @discardableResult
-        func load<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.__DoNotUse<(Int), String> where __M1.MatchedType == Int {
+        func load<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(Int), String> where __M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -240,7 +240,7 @@ nonisolated final class MockFactory: Factory, nonisolated Cuckoo.ProtocolMock, n
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             @discardableResult
-            func get() -> Cuckoo.__DoNotUse<(String), Int> {
+            func get() -> Cuckoo.VerifiedCall<(String), Int> {
                 return cuckooManager.verify(
                     "static subscript(_ p0: String) -> Int#get",
                     callMatcher: cuckooCallMatcher,
@@ -387,7 +387,7 @@ final class MockMainActorRegistry: MainActorRegistry, nonisolated Cuckoo.Protoco
 
         @MainActor
         @discardableResult
-        func current() -> Cuckoo.__DoNotUse<(), String> {
+        func current() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "static current() -> String",
@@ -490,7 +490,7 @@ nonisolated final class MockSendableClock: SendableClock, nonisolated Cuckoo.Pro
         }
 
         @discardableResult
-        func now() -> Cuckoo.__DoNotUse<(), Int> {
+        func now() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "static now() -> Int",
@@ -577,7 +577,7 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
         }
 
         @discardableResult
-        func items() -> Cuckoo.__DoNotUse<(), [String]> {
+        func items() -> Cuckoo.VerifiedCall<(), [String]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "items() -> [String]",
@@ -616,7 +616,7 @@ actor MockActorCatalog: ActorCatalog, Cuckoo.ProtocolMock, Cuckoo.StaticMock {
         }
 
         @discardableResult
-        func identifier() -> Cuckoo.__DoNotUse<(), String> {
+        func identifier() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "static identifier() -> String",
@@ -712,7 +712,7 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
         }
 
         @discardableResult
-        func use<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Product), Void> where __M1.MatchedType == Product {
+        func use<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Product), Void> where __M1.MatchedType == Product {
             let matchers: [Cuckoo.ParameterMatcher<(Product)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -753,7 +753,7 @@ nonisolated final class MockGenericFactory<Product>: GenericFactory, nonisolated
         }
 
         @discardableResult
-        func make() -> Cuckoo.__DoNotUse<(), Product> {
+        func make() -> Cuckoo.VerifiedCall<(), Product> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "static make() -> Product",

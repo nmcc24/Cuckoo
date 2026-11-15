@@ -97,7 +97,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func increment() -> Cuckoo.__DoNotUse<(), Int> {
+        func increment() -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "increment() -> Int",
@@ -108,7 +108,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func fetch() -> Cuckoo.__DoNotUse<(), [String]> {
+        func fetch() -> Cuckoo.VerifiedCall<(), [String]> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "fetch() async -> [String]",

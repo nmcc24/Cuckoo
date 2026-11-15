@@ -159,7 +159,7 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
         }
 
         @discardableResult
-        func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(NonSendableBox), Void> where __M1.MatchedType == NonSendableBox {
+        func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(NonSendableBox), Void> where __M1.MatchedType == NonSendableBox {
             let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -172,7 +172,7 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
         }
 
         @discardableResult
-        func make() -> Cuckoo.__DoNotUse<(), NonSendableBox> {
+        func make() -> Cuckoo.VerifiedCall<(), NonSendableBox> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "make() -> sending NonSendableBox",
@@ -284,7 +284,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func convert<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable, T>(value p0: __M1, input p1: __M2, fallback p2: __M3) -> Cuckoo.__DoNotUse<(T, Input, Output), Output> where __M1.MatchedType == T, __M2.MatchedType == Input, __M3.MatchedType == Output {
+        func convert<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable, T>(value p0: __M1, input p1: __M2, fallback p2: __M3) -> Cuckoo.VerifiedCall<(T, Input, Output), Output> where __M1.MatchedType == T, __M2.MatchedType == Input, __M3.MatchedType == Output {
             let matchers: [Cuckoo.ParameterMatcher<(T, Input, Output)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {

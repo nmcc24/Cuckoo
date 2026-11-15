@@ -83,7 +83,7 @@ final class MockCoordinator: Coordinator, nonisolated Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func identifier() -> Cuckoo.__DoNotUse<(), String> {
+        func identifier() -> Cuckoo.VerifiedCall<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "identifier() -> String",
@@ -95,7 +95,7 @@ final class MockCoordinator: Coordinator, nonisolated Cuckoo.ProtocolMock {
 
         @MainActor
         @discardableResult
-        func start() -> Cuckoo.__DoNotUse<(), Void> {
+        func start() -> Cuckoo.VerifiedCall<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "start()",

@@ -324,7 +324,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func convert<__M1: Cuckoo._Matchable, T>(value p0: __M1) -> Cuckoo.__DoNotUse<(T), Output> where __M1.MatchedType == T {
+        func convert<__M1: Cuckoo._Matchable, T>(value p0: __M1) -> Cuckoo.VerifiedCall<(T), Output> where __M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -337,7 +337,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func convert<__M1: Cuckoo._Matchable>(input p0: __M1) -> Cuckoo.__DoNotUse<(Input), Output> where __M1.MatchedType == Input {
+        func convert<__M1: Cuckoo._Matchable>(input p0: __M1) -> Cuckoo.VerifiedCall<(Input), Output> where __M1.MatchedType == Input {
             let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -350,7 +350,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func wrap<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.__DoNotUse<(T), [Output]> where __M1.MatchedType == T {
+        func wrap<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.VerifiedCall<(T), [Output]> where __M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -363,7 +363,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func pair<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, T>(_ p0: __M1, input p1: __M2) -> Cuckoo.__DoNotUse<(T, Input), (Output, T)> where __M1.MatchedType == T, __M2.MatchedType == Input {
+        func pair<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, T>(_ p0: __M1, input p1: __M2) -> Cuckoo.VerifiedCall<(T, Input), (Output, T)> where __M1.MatchedType == T, __M2.MatchedType == Input {
             let matchers: [Cuckoo.ParameterMatcher<(T, Input)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -378,7 +378,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func merge<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, T>(_ p0: __M1, into p1: __M2) -> Cuckoo.__DoNotUse<(T, Output), Output> where __M1.MatchedType == T, __M2.MatchedType == Output {
+        func merge<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, T>(_ p0: __M1, into p1: __M2) -> Cuckoo.VerifiedCall<(T, Output), Output> where __M1.MatchedType == T, __M2.MatchedType == Output {
             let matchers: [Cuckoo.ParameterMatcher<(T, Output)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -393,7 +393,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func lookup<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.__DoNotUse<(T), Output?> where __M1.MatchedType == T {
+        func lookup<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.VerifiedCall<(T), Output?> where __M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -406,7 +406,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func collect<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, T>(_ p0: __M1, tag p1: __M2) -> Cuckoo.__DoNotUse<([Output], T), [String: Output]> where __M1.MatchedType == [Output], __M2.MatchedType == T {
+        func collect<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, T>(_ p0: __M1, tag p1: __M2) -> Cuckoo.VerifiedCall<([Output], T), [String: Output]> where __M1.MatchedType == [Output], __M2.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<([Output], T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -421,7 +421,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func result<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.__DoNotUse<(T), Result<Output, any Error>> where __M1.MatchedType == T {
+        func result<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.VerifiedCall<(T), Result<Output, any Error>> where __M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -434,7 +434,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func nested<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.__DoNotUse<(T), Wrapper.Output> where __M1.MatchedType == T {
+        func nested<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.VerifiedCall<(T), Wrapper.Output> where __M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -633,7 +633,7 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
         }
 
         @discardableResult
-        func produce<__M1: Cuckoo._Matchable, T>(from p0: __M1) -> Cuckoo.__DoNotUse<(T), Output> where __M1.MatchedType == T {
+        func produce<__M1: Cuckoo._Matchable, T>(from p0: __M1) -> Cuckoo.VerifiedCall<(T), Output> where __M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -646,7 +646,7 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
         }
 
         @discardableResult
-        func consume<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, T>(_ p0: __M1, with p1: __M2) -> Cuckoo.__DoNotUse<(Output, T), Void> where __M1.MatchedType == Output, __M2.MatchedType == T {
+        func consume<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, T>(_ p0: __M1, with p1: __M2) -> Cuckoo.VerifiedCall<(Output, T), Void> where __M1.MatchedType == Output, __M2.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(Output, T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -661,7 +661,7 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
         }
 
         @discardableResult
-        func produceAll<__M1: Cuckoo._Matchable, T>(from p0: __M1) -> Cuckoo.__DoNotUse<([T]), [Output]> where __M1.MatchedType == [T] {
+        func produceAll<__M1: Cuckoo._Matchable, T>(from p0: __M1) -> Cuckoo.VerifiedCall<([T]), [Output]> where __M1.MatchedType == [T] {
             let matchers: [Cuckoo.ParameterMatcher<([T])>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
