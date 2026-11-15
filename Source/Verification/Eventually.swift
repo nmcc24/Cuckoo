@@ -43,14 +43,36 @@ public nonisolated(nonsending) func eventually(
 }
 
 /// Runs `block` with a failure handler that keeps its failures instead of reporting them.
+///
+/// A task the block starts inherits the handler. Its failures after the block has returned would be kept where
+/// nothing reads them, so they're reported the way they would have been without `eventually`.
 private func collectingFailures(of block: () -> Void) -> [ReportedFailure] {
-    let failures = Locked<[ReportedFailure]>([])
-    var configuration = CuckooConfiguration.current
+    struct Collected {
+        var failures: [ReportedFailure] = []
+        var isClosed = false
+    }
+    let collected = Locked(Collected())
+    let outer = CuckooConfiguration.current
+    var configuration = outer
     configuration.failureHandler = { failure in
-        failures.withLock { $0.append(failure) }
+        let isLate = collected.withLock { collected in
+            guard !collected.isClosed else {
+                return true
+            }
+            collected.failures.append(failure)
+            return false
+        }
+        if isLate {
+            CuckooConfiguration.$current.withValue(outer) {
+                reportFailure(failure.message, at: failure.sourceLocation, creatingTest: failure.creatingTest)
+            }
+        }
     }
     CuckooConfiguration.$current.withValue(configuration) {
         block()
     }
-    return failures.withLock { $0 }
+    return collected.withLock { collected in
+        collected.isClosed = true
+        return collected.failures
+    }
 }

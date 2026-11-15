@@ -90,6 +90,36 @@ struct EventuallyTests {
         #expect(elapsed < .seconds(30))
     }
 
+    /// A task the block starts keeps `eventually`'s failure handler. A failure it records after the block has
+    /// returned still reaches the test.
+    @Test
+    func reportsAFailureFromATaskTheBlockStarted() async {
+        let mock = MockConcurrentCounter()
+        let started = Locked<Task<Void, Never>?>(nil)
+        // The task calls the mock only once `eventually` has returned, so its failure always arrives late.
+        let returned = Locked(false)
+
+        let messages = await collectingMessages {
+            await eventually(timeout: .seconds(10)) {
+                started.withLock { task in
+                    guard task == nil else {
+                        return
+                    }
+                    task = Task {
+                        while !returned.withLock({ $0 }) {
+                            await Task.yield()
+                        }
+                        _ = mock.count(characters: "a")
+                    }
+                }
+            }
+            returned.withLock { $0 = true }
+            await started.withLock { $0 }?.value
+        }
+        #expect(messages.count == 1)
+        #expect(messages.first?.contains("count(characters:") == true)
+    }
+
     /// The failures `body` reports, without failing the test.
     private func collectingMessages(_ body: () async -> Void) async -> [String] {
         let messages = Locked<[String]>([])
