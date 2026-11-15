@@ -3,17 +3,13 @@ import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-extension Nested.NestedTestedClass: Mocked {
-    typealias CuckooMockType = Nested.MockNestedTestedClass
-}
-
 struct NestedClassTest {
 
     private let mock = Nested.MockNestedTestedClass()
 
     @Test
     func readOnlyPropertyWithMockCreator() {
-        let mock = createMock(for: Nested.NestedTestedClass.self) { builder, stub in
+        let mock = createMock(Nested.MockNestedTestedClass.self) { builder, stub in
             when(stub.readOnlyProperty.get).thenReturn("a")
 
             return Nested.MockNestedTestedClass()

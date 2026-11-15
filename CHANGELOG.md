@@ -4,13 +4,14 @@
 
 ### Changed
 - The names a mock declares for Cuckoo carry its prefix, so they no longer hide yours: `Mock`'s `MocksType`,
-  `Stubbing` and `Verification`, `StaticMock`'s `StaticStubbing` and `StaticVerification`, and `Mocked`'s `MockType`
-  are `CuckooMocksType`, `CuckooStubbing`, `CuckooVerification`, `CuckooStaticStubbing`, `CuckooStaticVerification`
-  and `CuckooMockType`; `cuckoo_manager`, `cuckoo_staticManager`, `cuckoo_hasSuperclass` and `cuckoo_globalActor`
+  `Stubbing` and `Verification`, and `StaticMock`'s `StaticStubbing` and `StaticVerification` are `CuckooMocksType`,
+  `CuckooStubbing`, `CuckooVerification`, `CuckooStaticStubbing` and `CuckooStaticVerification`; `cuckoo_manager`, `cuckoo_staticManager`, `cuckoo_hasSuperclass` and `cuckoo_globalActor`
   are `cuckooManager`, `cuckooStaticManager`, `cuckooHasSuperclass` and `cuckooGlobalActor`; `getStubbingProxy()`
   and `getVerificationProxy(_:sourceLocation:)` are `cuckooStubbingProxy()` and
   `cuckooVerificationProxy(_:sourceLocation:)`. Generated mocks spell them; code that names them changes, and the
   migration guide lists each. Names starting with `Cuckoo`, `cuckoo` or `__` are reserved for mocks.
+- `Mocked` and `createMock(for:configuration:)` are removed: call `createMock(MockPerson.self) { … }` with the mock's
+  type instead, which is all they saved.
 - Inside `inOrder`, a call matcher counts as it does outside it. A `verify` took the fewest calls its matcher
   accepted, so `times(1)` passed on two calls in a row and `atLeast(2)` took two of three calls, leaving the third
   for `strict` to reject. It now takes all its matching calls after the previous `verify` if its matcher accepts
