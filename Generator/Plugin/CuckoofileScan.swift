@@ -3,6 +3,17 @@ import Foundation
 // The plugin's reading of a Cuckoofile, line by line: a plugin can't depend on a TOML parser. The generator's tests
 // link this file too (Generator/Tests/CuckoofileScan.swift), since a test target can't depend on a plugin.
 
+/// The warning for the Cuckoofile's entries that no target can use, as a misspelled `[modules.Netwrk]` is, or nil
+/// when every entry names a module some target depends on or a target itself. Every plugin run sees every target, so
+/// each warns about the same entries.
+func unusedCuckoofileEntriesWarning(entries: Set<String>, usableNames: Set<String>) -> String? {
+    let unused = entries.subtracting(usableNames).sorted()
+    guard !unused.isEmpty else { return nil }
+    let list = unused.map { "'\($0)'" }.joined(separator: ", ")
+    return "The Cuckoofile's \(unused.count == 1 ? "entry" : "entries") \(list) \(unused.count == 1 ? "names" : "name") no target or module "
+        + "any target depends on, so \(unused.count == 1 ? "it generates" : "they generate") nothing. Rename \(unused.count == 1 ? "it" : "them") after one."
+}
+
 /// The names of the Cuckoofile's entries: `App` for `[modules.App]`, `[modules.App.options]`, a dotted
 /// `modules.App.sources = …` key, or an `App = { … }` key in a `[modules]` table. Like
 /// ``cuckoofileEntry(named:listsSourcesIn:)``, it reads the lines rather than the TOML.
