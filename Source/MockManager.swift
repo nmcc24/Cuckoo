@@ -507,6 +507,18 @@ extension MockManager {
         fatalError("Cuckoo can't call the real or default implementation of \(member), because it takes a ~Copyable argument. Stub it instead.")
     }
 
+    /// Stands in for forwarding `member` to a default implementation that a protocol mock's type eraser can't
+    /// forward it to, for `reason`, such as an `inout` parameter: it records a failure saying to stub the member, and
+    /// returns the default value an unstubbed call would, so the test goes on.
+    public static func unforwardableDefaultImplementationCall<OUT>(_ member: String, reason: String) -> OUT {
+        let message = "Cuckoo can't forward \(member) to the default implementation: \(reason). Stub it instead."
+        reportFailure(message, at: nil)
+        guard let value = DefaultValueRegistry.unstubbedValue(for: OUT.self) else {
+            fatalError("\(message) Its return type \(OUT.self) has no default value either.")
+        }
+        return value
+    }
+
     /// A variadic argument is an array inside the mock, and Swift can't pass an array on as separate arguments, so
     /// the mock can't call the real or default implementation of a member that takes one.
     public static func crashOnVariadicArgumentForward<OUT>(_ member: String) -> OUT {

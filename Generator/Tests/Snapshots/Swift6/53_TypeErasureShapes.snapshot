@@ -630,7 +630,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
 
         subscript <Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key {
             get {
-                fatalError("Cuckoo can't call subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get on a default implementation: its where clause names the protocol's associated types Key, which Swift can't relate to the mock's. Stub it instead.")
+                return Cuckoo.MockManager.unforwardableDefaultImplementationCall("subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get", reason: "its where clause names the protocol's associated types Key, which Swift can't relate to the mock's")
             }
         }
 
@@ -643,7 +643,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
         }
 
         func count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key {
-            fatalError("Cuckoo can't call count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key on a default implementation: its where clause names the protocol's associated types Key, which Swift can't relate to the mock's. Stub it instead.")
+            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key", reason: "its where clause names the protocol's associated types Key, which Swift can't relate to the mock's")
         }
     }
 
