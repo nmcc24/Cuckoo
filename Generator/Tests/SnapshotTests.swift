@@ -21,22 +21,18 @@ struct SnapshotTests {
         return files.filter { $0.hasSuffix(".swift") }.sorted()
     }()
 
-    /// The fixtures are listed at run time, so a moved directory would leave the parameterized test with no cases,
-    /// which passes.
+    /// The fixtures and their snapshots match one to one. The fixtures are listed at run time, so a moved directory
+    /// would leave the parameterized test with no cases, which passes; a snapshot with no fixture is left from a
+    /// deleted or renamed one.
     @Test
-    func swift6FixturesAreFound() {
-        #expect(Self.swift6Fixtures.count >= 30)
-    }
-
-    /// A fixture's snapshot goes when the fixture does: a snapshot with no fixture is left from a deleted or renamed one.
-    @Test
-    func everySwift6SnapshotHasItsFixture() throws {
+    func everySwift6FixtureHasItsSnapshot() throws {
         let directory = Self.snapshotsDirectory.appending(path: "Swift6")
         let snapshots = try FileManager.default.contentsOfDirectory(atPath: directory.path(percentEncoded: false))
             .filter { $0.hasSuffix(".snapshot") }
             .map { String($0.dropLast(".snapshot".count)) }
-        let fixtures = Set(Self.swift6Fixtures.map { String($0.dropLast(".swift".count)) })
-        #expect(snapshots.filter { !fixtures.contains($0) }.sorted() == [])
+        let fixtures = Self.swift6Fixtures.map { String($0.dropLast(".swift".count)) }
+        #expect(!fixtures.isEmpty)
+        #expect(snapshots.sorted() == fixtures)
     }
 
     @Test(arguments: swift6Fixtures)
@@ -45,18 +41,19 @@ struct SnapshotTests {
         try assertSnapshot(contents, named: "Swift6/\(fileName.dropLast(".swift".count))")
     }
 
-    /// Mirrors the `CuckooTestSources` module in `Cuckoofile.toml`, which generates the mocks used by the runtime test suite.
+    /// The `CuckooTestSources` module of the repository's `Cuckoofile.toml`, which generates the mocks the runtime test
+    /// suite uses, read from the file itself so the snapshot follows it.
     @Test
     func runtimeTestSources() async throws {
-        let contents = try await generateFiles(
-            sourcesByModule: ["CuckooTestSources": ["Tests/Swift/Source/*.swift"]],
-            testableImports: ["Cuckoo", "CuckooTestSources"],
-            exclude: ["ExcludedTestClass", "ExcludedProtocol"],
-            keepDocumentation: false,
-            singleFileOutput: true
-        )
-        .joinedByBlankLines()
-        try assertSnapshot(contents, named: "RuntimeTests")
+        let configuration = Self.repositoryRoot.appending(path: "Cuckoofile.toml")
+        let module = try #require(try Cuckoofile.modules(
+            from: String(contentsOf: configuration, encoding: .utf8),
+            configurationPath: Path(configuration.path(percentEncoded: false)),
+            overriddenOutput: "unused.swift",
+            requestedModuleName: "CuckooTestSources"
+        ).first)
+        let files = try await Generator.generate(for: module, singleFileOutput: true, verbose: false)
+        try assertSnapshot(files.map(\.contents).joinedByBlankLines(), named: "RuntimeTests")
     }
 
     /// Doc comments are copied onto mock members unless `keepDocumentation = false`.
@@ -120,7 +117,6 @@ struct SnapshotTests {
 
     private func generateFiles(
         sources: [String] = [],
-        sourcesByModule: [String: [String]]? = nil,
         testableImports: [String]? = nil,
         exclude: [String]? = nil,
         keepDocumentation: Bool? = nil,
@@ -134,7 +130,7 @@ struct SnapshotTests {
                 imports: ["Foundation"],
                 publicImports: nil,
                 testableImports: testableImports,
-                sources: sourcesByModule.map { .byModule($0) } ?? .paths(sources),
+                sources: .paths(sources),
                 exclude: exclude,
                 regex: nil,
                 globalActors: nil,
