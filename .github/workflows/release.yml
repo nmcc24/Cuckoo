@@ -1,10 +1,11 @@
 name: Release
 # Releases a version with the prebuilt generator (roadmap Phase 5 item 2, option B). Run it by hand on master, with
-# the version that `version` and Generator/Sources/CLI/Version.swift already hold (bump them in a PR first).
+# the version that Generator/Sources/CLI/Version.swift already holds (bump it in a PR first).
 #
-# It builds the generator's `artifactbundle` for macOS (universal) and Linux (x86_64 and arm64), tests it the way a
-# user gets it, then tags one commit off master that points the plugins at the bundle, and publishes the release
-# with the bundle attached. Master keeps building the generator from source; only the tag carries the binary.
+# It builds the generator's `artifactbundle` for macOS (universal) and Linux (x86_64 and arm64), zips it once, tests
+# that zip the way a user gets it on macOS and on Linux with every supported Swift version (6.2 to 6.4), then tags
+# one commit off master that points the plugins at the bundle, and publishes the release with the bundle attached.
+# Master keeps building the generator from source; only the tag carries the binary.
 #
 # The Linux parts are built on Ubuntu 22.04 (`-jammy`), so the binary needs glibc 2.35 at most and runs on 22.04 or
 # later, and on other distributions with that glibc or newer. A dry run stops after the smoke tests.
@@ -123,45 +124,64 @@ jobs:
           if-no-files-found: error
 
   bundle:
-    name: Bundle and smoke-test (${{ matrix.name }})
+    name: Bundle and smoke-test (macOS)
     needs: build
-    strategy:
-      fail-fast: true
-      matrix:
-        include:
-          - { name: macOS, runner: macos-26 }
-          - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3-jammy" }
-          - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3-jammy" }
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-26
     timeout-minutes: 45
-    container: ${{ matrix.container }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Install zip
-        if: runner.os == 'Linux'
-        run: apt-get update -qq && apt-get install -y -qq zip
       - name: Download the parts
         uses: actions/download-artifact@v8
         with:
           pattern: part-*
           path: parts
       - name: Bundle
-        # Every leg merges the same parts; the macOS leg's zip is the one released.
         run: scripts/build-artifactbundle.sh merge "$VERSION" bundle/CuckooGenerator.artifactbundle parts/*
       - name: Smoke test
         run: scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
       - name: Upload the bundle
-        if: runner.os == 'macOS'
         uses: actions/upload-artifact@v7
         with:
           name: bundle
           path: bundle/CuckooGenerator.artifactbundle.zip
           if-no-files-found: error
 
+  # The zip the release attaches, unpacked and smoke-tested on Linux with every Swift version a consumer may use.
+  smoke_linux:
+    name: Smoke-test the bundle (${{ matrix.name }})
+    needs: bundle
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { name: Linux x86_64 Swift 6.2, runner: ubuntu-latest, container: "swift:6.2" }
+          - { name: Linux arm64 Swift 6.2, runner: ubuntu-26.04-arm, container: "swift:6.2" }
+          - { name: Linux x86_64 Swift 6.3, runner: ubuntu-latest, container: "swift:6.3" }
+          - { name: Linux arm64 Swift 6.3, runner: ubuntu-26.04-arm, container: "swift:6.3" }
+          - { name: Linux x86_64 Swift 6.4, runner: ubuntu-latest, container: "swift:6.4" }
+          - { name: Linux arm64 Swift 6.4, runner: ubuntu-26.04-arm, container: "swift:6.4" }
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    container: ${{ matrix.container }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install unzip
+        run: apt-get update -qq && apt-get install -y -qq unzip
+      - name: Download the bundle
+        uses: actions/download-artifact@v8
+        with:
+          name: bundle
+          path: bundle
+      - name: Smoke test
+        run: |
+          unzip -q bundle/CuckooGenerator.artifactbundle.zip -d bundle
+          scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
+
   release:
     name: Tag and publish
-    needs: bundle
+    needs: [bundle, smoke_linux]
     if: ${{ !inputs.dry_run }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -248,8 +268,12 @@ jobs:
       matrix:
         include:
           - { name: macOS, runner: macos-26 }
-          - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3" }
-          - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3" }
+          - { name: Linux x86_64 Swift 6.2, runner: ubuntu-latest, container: "swift:6.2" }
+          - { name: Linux arm64 Swift 6.2, runner: ubuntu-26.04-arm, container: "swift:6.2" }
+          - { name: Linux x86_64 Swift 6.3, runner: ubuntu-latest, container: "swift:6.3" }
+          - { name: Linux arm64 Swift 6.3, runner: ubuntu-26.04-arm, container: "swift:6.3" }
+          - { name: Linux x86_64 Swift 6.4, runner: ubuntu-latest, container: "swift:6.4" }
+          - { name: Linux arm64 Swift 6.4, runner: ubuntu-26.04-arm, container: "swift:6.4" }
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     container: ${{ matrix.container }}
