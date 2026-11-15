@@ -104,6 +104,8 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   doesn't compile. A same-type requirement on an outside parent's associated type becomes a typealias in the mock.
 
 Build plugin:
+- A release still declared the package's test targets and its test-only plugin, so Xcode compiled that plugin in
+  every project using Cuckoo. A release declares only the runtime, the plugin and the prebuilt generator.
 - In an Xcode project, Getting Started's Cuckoofile generated no mocks, without a word: Xcode doesn't tell the
   plugin which of the project's own targets a test target depends on. An Xcode project's entry is named after the
   test target and lists its `sources`, as in Cuckoo 2, and a test target with no entry of its own, or one whose entry
