@@ -29,6 +29,16 @@ struct DefaultValueRegistryTest {
     }
 
     @Test
+    func aFactoryMakesANewValueForEachCall() {
+        final class Box {}
+        DefaultValueRegistry.register(for: Box.self) { Box() }
+        let first = DefaultValueRegistry.defaultValue(for: Box.self)
+        let second = DefaultValueRegistry.defaultValue(for: Box.self)
+        #expect(first !== second)
+        DefaultValueRegistry.reset()
+    }
+
+    @Test
     func tupleElementsUseTheirDefaults() {
         let value = DefaultValueRegistry.defaultValue(for: (Int, String?, [Marker], Bool, Int, Int, Int).self)
         #expect(value.0 == 0)
