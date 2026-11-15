@@ -58,10 +58,10 @@ It combines with values and other matchers: `even().and(not(equal(to: 0)))`.
 
 ### Matchers for Sendable mocks
 
-The mock of a `Sendable` type, or of an actor, can be called from any task, and so can a `nonisolated` member of
-a global-actor type, so their stubs match arguments wherever a call comes from. They only take matchers that are safe there: a ``SendableMatcher``, whose closure is
-`@Sendable`. Each matcher function returns one when the values it keeps are `Sendable`, and a ``ParameterMatcher``
-otherwise, so the same code works with every mock:
+The mock of a `Sendable` type, or of an actor, can be called from any task, and so can a `nonisolated` member of a
+global-actor type, so their stubs match arguments wherever a call comes from. They only take matchers that are safe
+there: a ``SendableMatcher``, whose closure is `@Sendable`. Each matcher function returns one when the values it
+keeps are `Sendable`, and a ``ParameterMatcher`` otherwise, so the same code works with every mock:
 
 ```swift
 when(cache.lookup(equal(to: "Ann"), limit: isNil())).thenReturn(1)    // SendableMatcher
@@ -90,8 +90,9 @@ Verification compares arguments right away, in your test, so `verify` takes eith
 
 Arrays, sets and dictionaries match equal collections. The collection matchers compare part of one instead:
 
-- `containsAllOf(_:)`, `containsAnyOf(_:)` and `containsNoneOf(_:)` match a sequence holding all, any or none of
-  the elements, passed as a sequence or one by one after `values:`. For elements that aren't `Equatable`, pass `where:` with a closure that compares two.
+- `containsAllOf(_:)`, `containsAnyOf(_:)` and `containsNoneOf(_:)` match a sequence holding all, any or none of the
+  elements, passed as a sequence or one by one after `values:`. For elements that aren't `Equatable`, pass `where:`
+  with a closure that compares two.
 - `containsAllKeysOf(_:)`, `containsAllValuesOf(_:)` and their `Any` and `No` versions look at a dictionary's
   keys or values.
 - `hasLength(exactly:)`, `hasLength(atLeast:inclusive:)`, `hasLength(atMost:inclusive:)` and
@@ -118,8 +119,8 @@ an array, `equal(to: ["a", "b"])`, with `any()` or a collection matcher; a `then
 array too. Swift can't pass an array on as separate arguments, so the mock can't call the real or default
 implementation of a member that takes one: stub it instead.
 
-An `inout` argument is recorded and matched with the value the caller passed in. A `then` closure takes it as `inout`, and what the closure
-writes reaches the caller when the call returns.
+An `inout` argument is recorded and matched with the value the caller passed in. A `then` closure takes it as
+`inout`, and what the closure writes reaches the caller when the call returns.
 
 ### Call matchers
 
