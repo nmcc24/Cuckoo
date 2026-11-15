@@ -47,6 +47,9 @@ public final class MockManager: Sendable {
     /// The Swift Testing test the mock was created in, so a failure from a task outside the test, which doesn't
     /// know the test, still goes to Swift Testing rather than XCTest.
     let creatingTest: CreatingTest?
+    /// The default values of the scope the mock was created in, such as a test's `.cuckoo(defaultValues:)` trait,
+    /// for an unstubbed call from a task outside that scope, which doesn't see them.
+    private let creatingDefaultValues: DefaultValues
 
     /// Creates the manager of a mock. `hasParent` says whether the mock can call a real implementation.
     public convenience init(hasParent: Bool) {
@@ -57,6 +60,7 @@ public final class MockManager: Sendable {
         self.hasParent = hasParent
         self.isStatic = isStatic
         self.creatingTest = CreatingTest.current
+        self.creatingDefaultValues = CuckooConfiguration.current.defaultValues
     }
 
     /// Records the call and decides how to answer it. Crashes if the call can't be answered.
@@ -145,7 +149,12 @@ public final class MockManager: Sendable {
 
     /// The default value an unstubbed call returns, or a crash if its type has none.
     private func unstubbedValue<OUT>(_ method: String) -> OUT {
-        guard let value = DefaultValueRegistry.unstubbedValue(for: OUT.self) else {
+        var configuration = CuckooConfiguration.current
+        configuration.defaultValues = configuration.defaultValues.withFallback(creatingDefaultValues)
+        let value = CuckooConfiguration.$current.withValue(configuration) {
+            DefaultValueRegistry.unstubbedValue(for: OUT.self)
+        }
+        guard let value else {
             failAndCrash("No stub for method `\(method)`, and its return type \(OUT.self) has no default value. Stub it, or register one with `DefaultValueRegistry` or the `.cuckoo(defaultValues:)` trait.")
         }
         return value

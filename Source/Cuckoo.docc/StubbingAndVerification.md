@@ -107,6 +107,10 @@ func showsTheGuest() { … }
 A type that isn't `Sendable`, such as a class, registers a factory instead, which makes a new value for each
 call: `values.register(for: Canvas.self) { Canvas() }`.
 
+A mock keeps the default values of the scope it was created in, so an unstubbed call from a `Task.detached` or a
+dispatch queue, which don't see the trait, still gets them. They also fill in for the types an inner scope doesn't
+register: the call's scope wins only for the types it has a value for.
+
 ``DefaultValueRegistry/register(_:for:)`` registers a value for every test instead, which tests running in
 parallel all see. Prefer the trait.
 
