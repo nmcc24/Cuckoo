@@ -39,25 +39,36 @@ extension HasGenerics {
     }
 
     /// The constraints a protocol mock's generic default-implementation entry points take: each generic parameter
-    /// is the static generic type's, and with `metatypes`, a `SendableMetatype`. Without `includingConditional`,
-    /// those of the associated types declared under `#if` are left out, for the build where they don't exist.
-    func genericProtocolRequirements(metatypes: Bool, includingConditional: Bool) -> [String] {
-        let parameters = genericParameters.filter { includingConditional || $0.condition == nil }
+    /// is the static generic type's, and with `metatypes`, a `SendableMetatype`. With `holding`, an associated type
+    /// declared under `#if` takes part only when its condition is one of those, for the build where it exists.
+    func genericProtocolRequirements(metatypes: Bool, holding conditions: Set<String>? = nil) -> [String] {
+        let parameters = genericParameters.filter { parameter in
+            parameter.condition.map { conditions?.contains($0) ?? true } ?? true
+        }
         return parameters.map { "\(GeneratedNames.staticGenericParameter).\($0.name) == \($0.name)" }
             + (metatypes ? parameters.map { "\($0.name): SendableMetatype" } : [])
     }
 
-    /// The `#if` condition of the protocol's associated types declared under one, if any.
-    var conditionalGenericParameterCondition: String? {
-        let conditions = Array(Set(genericParameters.compactMap(\.condition))).sorted()
-        return conditions.isEmpty ? nil : conditions.map { "(\($0))" }.joined(separator: " && ")
+    /// The `#if` conditions of the protocol's associated types declared under one.
+    var genericParameterConditions: [String] {
+        Array(Set(genericParameters.compactMap(\.condition))).sorted()
     }
 
-    /// The lines of a whole declaration whose `where` clause names the generic parameters, once with each set of
-    /// them: under the `#if` of the associated types declared under one, and without them in its `#else`.
-    func conditionalOnGenericParameters(_ declaration: (_ includingConditional: Bool) -> [String]) -> [String] {
-        guard let condition = conditionalGenericParameterCondition else { return declaration(true) }
-        return ["#if \(condition)"] + declaration(true) + ["#else"] + declaration(false) + ["#endif"]
+    /// The lines of a whole declaration whose `where` clause names the generic parameters, once for each
+    /// combination of the conditions the associated types are declared under: `declaration` gets the conditions
+    /// that hold in that branch, or nil when no associated type is conditional.
+    func conditionalOnGenericParameters(_ declaration: (_ holding: Set<String>?) -> [String]) -> [String] {
+        let conditions = genericParameterConditions
+        guard !conditions.isEmpty else { return declaration(nil) }
+        var lines: [String] = []
+        let combinations = 1 << conditions.count
+        for mask in (0..<combinations).reversed() {
+            let holding = Set(conditions.indices.filter { mask & (1 << $0) != 0 }.map { conditions[$0] })
+            let clause = conditions.map { holding.contains($0) ? "(\($0))" : "!(\($0))" }.joined(separator: " && ")
+            lines.append(mask == combinations - 1 ? "#if \(clause)" : mask == 0 ? "#else" : "#elseif \(clause)")
+            lines.append(contentsOf: declaration(holding))
+        }
+        return lines + ["#endif"]
     }
 
     /// A protocol's primary associated types, in angle brackets, or `nil` if it has none.

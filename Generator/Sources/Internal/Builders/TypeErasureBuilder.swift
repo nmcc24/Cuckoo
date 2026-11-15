@@ -216,8 +216,8 @@ enum TypeErasureBuilder {
             }
             body.append(contentsOf: conditional(method, [statement]))
         }
-        let source = container.conditionalOnGenericParameters { includingConditional in
-            let requirements = container.genericProtocolRequirements(metatypes: globalActor == nil, includingConditional: includingConditional)
+        let source = container.conditionalOnGenericParameters { holding in
+            let requirements = container.genericProtocolRequirements(metatypes: globalActor == nil, holding: holding)
             return ["init<\(generic): \(container.name)\(metatype)>(_ defaultImpl: \(generic))\(MockBuilder.whereClause(requirements)) {"]
                 + body.map { $0.isEmpty ? "" : "    \($0)" } + ["}"]
         }

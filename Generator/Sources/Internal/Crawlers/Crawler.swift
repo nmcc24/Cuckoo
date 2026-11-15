@@ -1064,6 +1064,20 @@ extension Crawler {
                 names.append(node.name.text)
                 return .visitChildren
             }
+            override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
+                // `Token(…)`, `Module.Token(…)` and `Token.init(…)` call an initializer of `Token`.
+                var callee = node.calledExpression
+                if let member = callee.as(MemberAccessExprSyntax.self), member.declName.baseName.tokenKind == .keyword(.`init`),
+                   let base = member.base {
+                    callee = base
+                }
+                if let reference = callee.as(DeclReferenceExprSyntax.self) {
+                    names.append(DeclaredNames.privateInitializerName(of: reference.baseName.text))
+                } else if let member = callee.as(MemberAccessExprSyntax.self) {
+                    names.append(DeclaredNames.privateInitializerName(of: member.declName.baseName.text))
+                }
+                return .visitChildren
+            }
         }
         let references = References(viewMode: .sourceAccurate)
         references.walk(clause.value)
@@ -1283,7 +1297,7 @@ extension Crawler {
             }
             // Each clause holds when its own condition does and none before it did.
             var previous: [String] = []
-            return conditional.clauses.flatMap { clause -> [GenericParameter] in
+            let clauses = conditional.clauses.map { clause -> [GenericParameter] in
                 let own = clause.condition.map { "(\($0.trimmedDescription))" }
                 let clauseCondition = ([condition].compactMap { $0 } + previous.map { "!\($0)" } + [own].compactMap { $0 })
                     .joined(separator: " && ")
@@ -1292,6 +1306,23 @@ extension Crawler {
                 }
                 guard case .decls(let members)? = clause.elements else { return [] }
                 return associatedTypes(from: members, condition: clauseCondition)
+            }
+            // One declared in every clause, `#else` included, exists whatever the conditions; in some of them, under
+            // any of their conditions. It takes every clause's constraints, which the mock's generic parameter
+            // meets in each build.
+            let hasElse = conditional.clauses.last?.condition == nil
+            return clauses.joined().map(\.name).uniquing().map { name in
+                let declarations = clauses.joined().filter { $0.name == name }
+                let isInEveryClause = hasElse && clauses.allSatisfy { $0.contains { $0.name == name } }
+                let conditions = declarations.compactMap(\.condition).uniquing()
+                return GenericParameter(
+                    name: name,
+                    inheritedTypes: declarations.flatMap(\.inheritedTypes).uniquing(),
+                    kind: declarations[0].kind,
+                    condition: isInEveryClause || declarations.contains { $0.condition == nil }
+                        ? condition
+                        : conditions.count == 1 ? conditions[0] : conditions.map { "(\($0))" }.joined(separator: " || ")
+                )
             }
         }
         .reduce(into: [GenericParameter]()) { unique, parameter in
@@ -1360,6 +1391,12 @@ extension Crawler {
         /// The structs, classes, enums, actors and protocols, by name.
         var nominalTypes: Set<String> = []
 
+        /// The entry in ``privateNames`` for a type with a `private` or `fileprivate` initializer: a call of the
+        /// type, `Name(…)` or `Name.init(…)`, may need it.
+        static func privateInitializerName(of type: String) -> String {
+            "\(type)("
+        }
+
         mutating func formUnion(_ other: DeclaredNames) {
             actors.formUnion(other.actors)
             typealiases.merge(other.typealiases) { first, _ in first }
@@ -1386,8 +1423,8 @@ extension Crawler {
     private final class DeclaredNameCollector: SyntaxVisitor {
         var names = DeclaredNames()
 
-        private func collectAccess(_ modifiers: DeclModifierListSyntax, name: TokenSyntax) {
-            collectPrivate(modifiers, names: [name], at: name)
+        private func collectAccess(_ modifiers: DeclModifierListSyntax, name: TokenSyntax, at node: some SyntaxProtocol) {
+            collectPrivate(modifiers, names: [name], at: node)
             let isPublic = modifiers.contains { $0.name.tokenKind == .keyword(.public) || $0.name.tokenKind == .keyword(.open) }
             if isPublic {
                 names.publicTypes.insert(name.text)
@@ -1399,7 +1436,7 @@ extension Crawler {
         override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
             names.nominalTypes.insert(node.name.text)
             names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
-            collectAccess(node.modifiers, name: node.name)
+            collectAccess(node.modifiers, name: node.name, at: node)
             names.protocolsAndClasses.insert(node.name.text)
             // Its typealiases count, as `typealias Callback = …` does for the protocols that refine it.
             return .visitChildren
@@ -1448,8 +1485,23 @@ extension Crawler {
             if isPrivate(modifiers) {
                 return true
             }
-            let enclosingGroup = node.parent?.parent?.parent?.parent
-            return enclosingGroup?.as(ExtensionDeclSyntax.self).map { isPrivate($0.modifiers) } ?? false
+            return enclosingGroup(of: node)?.as(ExtensionDeclSyntax.self).map { isPrivate($0.modifiers) } ?? false
+        }
+
+        /// The type or extension a declaration is a member of, through any `#if` around it, or nil for a
+        /// top-level or local declaration.
+        private static func enclosingGroup(of node: some SyntaxProtocol) -> Syntax? {
+            var parent = node.parent
+            while let current = parent {
+                if current.isProtocol((any DeclGroupSyntax).self) {
+                    return current
+                }
+                if current.is(CodeBlockSyntax.self) || current.is(SourceFileSyntax.self) || current.is(ClosureExprSyntax.self) {
+                    return nil
+                }
+                parent = current.parent
+            }
+            return nil
         }
 
         private func collectPrivate(_ modifiers: DeclModifierListSyntax, names: [TokenSyntax], at node: some SyntaxProtocol) {
@@ -1468,16 +1520,16 @@ extension Crawler {
             return .skipChildren
         }
 
-        /// A private initializer has no name a default could name, so its type counts as private: a default that
-        /// calls `Token(secret: 0)` may need it. Leaving such a default out is always safe.
+        /// A private initializer has no name a default could name, so a default that calls its type, as in
+        /// `Token(secret: 0)`, may need it: the type goes in as ``DeclaredNames/privateInitializerName(of:)``. A
+        /// default that only names the type, such as `Config.shared`, keeps it. Leaving such a default out is always safe.
         override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
-            if Self.isPrivateMember(node.modifiers, at: node),
-               let group = node.parent?.parent?.parent?.parent {
+            if Self.isPrivateMember(node.modifiers, at: node), let group = Self.enclosingGroup(of: node) {
                 if let named = group.asProtocol((any NamedDeclSyntax).self) {
-                    names.privateNames.insert(named.name.text)
+                    names.privateNames.insert(DeclaredNames.privateInitializerName(of: named.name.text))
                 } else if let extensionDeclaration = group.as(ExtensionDeclSyntax.self),
                           let name = extensionDeclaration.extendedType.trimmedDescription.split(separator: ".").last {
-                    names.privateNames.insert(String(name))
+                    names.privateNames.insert(DeclaredNames.privateInitializerName(of: String(name)))
                 }
             }
             return .skipChildren
@@ -1488,16 +1540,16 @@ extension Crawler {
             names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             names.actors.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
-            collectAccess(node.modifiers, name: node.name)
+            collectAccess(node.modifiers, name: node.name, at: node)
             return .visitChildren
         }
 
         override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
             // A protocol's typealias has the protocol's access, which it can't state itself.
             if let enclosingProtocol = node.parent?.parent?.parent?.parent?.as(ProtocolDeclSyntax.self) {
-                collectAccess(enclosingProtocol.modifiers, name: node.name)
+                collectAccess(enclosingProtocol.modifiers, name: node.name, at: node)
             } else {
-                collectAccess(node.modifiers, name: node.name)
+                collectAccess(node.modifiers, name: node.name, at: node)
             }
             var type = node.initializer.value
             if let attributed = type.as(AttributedTypeSyntax.self), attributed.specifiers.isEmpty {
@@ -1520,7 +1572,7 @@ extension Crawler {
             names.nominalTypes.insert(node.name.text)
             names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
-            collectAccess(node.modifiers, name: node.name)
+            collectAccess(node.modifiers, name: node.name, at: node)
             names.protocolsAndClasses.insert(node.name.text)
             if node.genericParameterClause != nil {
                 names.genericTypes.insert(node.name.text)
@@ -1532,7 +1584,7 @@ extension Crawler {
             names.nominalTypes.insert(node.name.text)
             names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
-            collectAccess(node.modifiers, name: node.name)
+            collectAccess(node.modifiers, name: node.name, at: node)
             if node.genericParameterClause != nil {
                 names.genericTypes.insert(node.name.text)
             }
@@ -1543,7 +1595,7 @@ extension Crawler {
             names.nominalTypes.insert(node.name.text)
             names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
-            collectAccess(node.modifiers, name: node.name)
+            collectAccess(node.modifiers, name: node.name, at: node)
             if node.genericParameterClause != nil {
                 names.genericTypes.insert(node.name.text)
             }

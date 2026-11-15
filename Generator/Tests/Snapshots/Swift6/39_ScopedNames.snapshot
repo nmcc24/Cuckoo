@@ -3328,6 +3328,47 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
         )
     }
 
+    override func secret(_ p0: Int) {
+        return cuckoo_manager.call(
+            "secret(_ p0: Int)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Int)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.secret(p0),
+            defaultCall: __defaultImplStub.value.secret(p0)
+        )
+    }
+
+    #if (DEBUG)
+    override func debugSecret(_ p0: Int) {
+        return cuckoo_manager.call(
+            "debugSecret(_ p0: Int)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Int)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.debugSecret(p0),
+            defaultCall: __defaultImplStub.value.debugSecret(p0)
+        )
+    }
+    #endif
+
+    override func configure(_ p0: ScopedConfig = ScopedConfig.current) {
+        return cuckoo_manager.call(
+            "configure(_ p0: ScopedConfig)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((ScopedConfig)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.configure(p0),
+            defaultCall: __defaultImplStub.value.configure(p0)
+        )
+    }
+
     nonisolated struct __StubbingProxy_PrivateDefaults: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
 
@@ -3351,6 +3392,37 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
                 }]
             return .init(stub: cuckoo_manager.createStub(for: MockPrivateDefaults.self,
                 method: "sign(_ p0: SigningToken)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func secret<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockPrivateDefaults.self,
+                method: "secret(_ p0: Int)",
+                parameterMatchers: matchers
+            ))
+        }
+        #if (DEBUG)
+        func debugSecret<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockPrivateDefaults.self,
+                method: "debugSecret(_ p0: Int)",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+
+        func configure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(ScopedConfig), ((ScopedConfig)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == ScopedConfig {
+            let matchers: [Cuckoo.ParameterMatcher<(ScopedConfig)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockPrivateDefaults.self,
+                method: "configure(_ p0: ScopedConfig)",
                 parameterMatchers: matchers
             ))
         }
@@ -3392,6 +3464,47 @@ final class MockPrivateDefaults: PrivateDefaults, nonisolated Cuckoo.ClassMock {
                 sourceLocation: cuckoo_sourceLocation
             )
         }
+
+        @discardableResult
+        func secret<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "secret(_ p0: Int)",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+
+        #if (DEBUG)
+        @discardableResult
+        func debugSecret<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "debugSecret(_ p0: Int)",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+        #endif
+
+        @discardableResult
+        func configure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(ScopedConfig), Void> where M1.MatchedType == ScopedConfig {
+            let matchers: [Cuckoo.ParameterMatcher<(ScopedConfig)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "configure(_ p0: ScopedConfig)",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
     }
 }
 
@@ -3401,6 +3514,19 @@ final class PrivateDefaultsStub: PrivateDefaults {
     }
 
     override func sign(_ p0: SigningToken) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    override func secret(_ p0: Int) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    #if (DEBUG)
+    override func debugSecret(_ p0: Int) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    #endif
+
+    override func configure(_ p0: ScopedConfig) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }

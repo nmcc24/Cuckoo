@@ -229,8 +229,33 @@ private extension Int {
 struct SigningToken {
     fileprivate init(secret: Int) {}
 }
+// A type nested in a private extension is private too, through an `#if` as well. A default that only names a type
+// with a private init, such as a singleton's `current`, stays in the mock.
+private extension SigningToken {
+    enum Secret {
+        static let value = 1
+    }
+    #if DEBUG
+    enum DebugSecret {
+        static let value = 2
+    }
+    #endif
+}
+final class ScopedConfig: Sendable {
+    static let current = ScopedConfig()
+    private init() {}
+}
 class PrivateDefaults {
     init() {}
     func load(timeout: Int = .scopedDefaultTimeout) {}
     func sign(_ token: SigningToken = SigningToken(secret: 0)) {}
+    func secret(_ value: Int = SigningToken.Secret.value) {}
+    #if DEBUG
+    func debugSecret(_ value: Int = SigningToken.DebugSecret.value) {}
+    #endif
+    func configure(_ config: ScopedConfig = ScopedConfig.current) {}
+}
+
+func configureWithDefault(_ mock: MockPrivateDefaults) {
+    mock.configure()
 }
