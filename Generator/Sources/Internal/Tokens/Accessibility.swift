@@ -3,6 +3,8 @@ import SwiftSyntax
 enum Accessibility: String, Equatable {
     case `open`
     case `public`
+    /// Visible to the modules of the same package, so a mock in the package's test-support module can see it.
+    case `package`
     case `internal`
     case `private`
     case `fileprivate`
@@ -13,6 +15,8 @@ enum Accessibility: String, Equatable {
             fallthrough
         case .public:
             return "public"
+        case .package:
+            return "package"
         case .internal:
             return ""
         case .private:
@@ -34,6 +38,8 @@ extension Accessibility {
             self = .public
         case .keyword(.internal):
             self = .internal
+        case .keyword(.package):
+            self = .package
         case .keyword(.private):
             self = .private
         case .keyword(.fileprivate):
@@ -55,8 +61,10 @@ extension Accessibility: Comparable {
     private var openness: Int {
         switch self {
         case .open:
-            return 4
+            return 5
         case .public:
+            return 4
+        case .package:
             return 3
         case .internal:
             return 2

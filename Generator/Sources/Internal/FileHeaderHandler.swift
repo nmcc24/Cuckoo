@@ -64,14 +64,14 @@ struct FileHeaderHandler {
         }
         // A scoped import of each type the module declares beats every whole-module import, so the type's name
         // means it in the mocks even where another imported module declares the same name. Without a testable
-        // import, only the public types are visible.
+        // import, only the public types are visible, and the `package` ones to mocks in the same package.
         let scopedImports = (testableImports + publicImports + unconditionalImports).flatMap { module -> [String] in
             let testable = testableImports.contains(module)
             // The module's own import carries its `@_spi` groups, which also cover the scoped imports.
             let prefix = testable ? "@testable \(access(module))"
                 : publicImports.contains(module) ? "public " : access(module)
             return (typesByModule[module] ?? [])
-                .filter { testable || $0.accessibility == .public || $0.accessibility == .open }
+                .filter { testable || $0.accessibility >= .package }
                 .map { type in
                     let line = "\(prefix)import \(type.kind) \(module).\(type.name)"
                     guard !type.compilationConditions.isEmpty else { return line }
