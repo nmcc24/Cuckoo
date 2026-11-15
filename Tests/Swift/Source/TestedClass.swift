@@ -17,6 +17,9 @@ class TestedClass {
 
     private(set) var privateSetProperty: Int = 0
 
+    /// How many times `noReturn()` and `withNoReturnThrows()` ran their own bodies. `final`, so the mock keeps it.
+    final var realImplementationCalls = 0
+
     var readOnlyProperty: String {
         return "a"
     }
@@ -92,6 +95,7 @@ class TestedClass {
     }
 
     func noReturn() {
+        realImplementationCalls += 1
     }
 
     func count(characters: String) -> Int {
@@ -161,6 +165,7 @@ class TestedClass {
     }
 
     func withNoReturnThrows() throws {
+        realImplementationCalls += 1
     }
 
     func withClosure(_ closure: (String) -> Int) -> Int {

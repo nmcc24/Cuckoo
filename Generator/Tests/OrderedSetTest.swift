@@ -4,9 +4,10 @@ import Testing
 struct OrderedSetTest {
     @Test
     func initializers() {
-        _ = OrderedSet<Int>()
-        _ = [] as OrderedSet<String>
-        _ = ["1", "2", "4"] as OrderedSet<String>
+        #expect(OrderedSet<Int>().values == [])
+        #expect(([] as OrderedSet<String>).values == [])
+        #expect((["1", "2", "4"] as OrderedSet<String>).values == ["1", "2", "4"])
+        #expect(OrderedSet(["b", "a", "b"]).values == ["b", "a"])
     }
 
     @Test
