@@ -48,6 +48,8 @@
   `enableDefaultImplementation(_:)` on the mock once it exists.
 
 ### Fixed
+- A failure that `eventually` reported after its timeout lost the test that created the mock, so from a task outside
+  the test, such as a `Task.detached`, it went to XCTest, which ignores it under Swift Testing.
 - A call to a generic member that had stubs only for other type arguments said the mock had no stub for it. The
   failure now lists those stubs' types next to the call's, and names a generic member without its generic
   parameters, as `parse(_:)`.

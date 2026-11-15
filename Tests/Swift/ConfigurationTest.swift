@@ -192,6 +192,50 @@ struct FailuresOutsideTheTestTaskTests {
         #expect(location?.line == 12)
     }
 
+    /// Each way a mock fails passes on the test that created it, which a failure from a task outside the test
+    /// needs to reach Swift Testing.
+    @Test
+    func everyFailurePathPassesTheCreatingTest() async throws {
+        let testLocation = try #require(Test.current?.sourceLocation)
+        let mock = MockTestedProtocol()
+        stub(mock) { stub in
+            when(stub.noReturn()).thenDoNothing()
+        }
+        let unfinished = MockTestedProtocol()
+        stub(unfinished) { stub in
+            _ = when(stub.count(characters: "a"))
+        }
+        mock.noReturn()
+        mock.noReturn()
+
+        let failures = Locked<[ReportedFailure]>([])
+        var configuration = CuckooConfiguration.current
+        configuration.failureCollector = { failure in failures.withLock { $0.append(failure) } }
+        await CuckooConfiguration.$current.withValue(configuration) {
+            _ = mock.count(characters: "unstubbed")
+            _ = unfinished.count(characters: "a")
+            verify(mock, times(3)).noReturn()
+            verifyNoMoreInteractions(mock)
+            inOrder {
+                verify(mock).count(characters: "unstubbed")
+                verify(mock, times(2)).noReturn()
+            }
+            inOrder(strict: true) {
+                verify(mock, times(2)).noReturn()
+                verify(unfinished).count(characters: "a")
+            }
+            await eventually(timeout: .milliseconds(20)) {
+                verify(mock, never()).noReturn()
+            }
+        }
+
+        let reported = failures.withLock { $0 }
+        #expect(reported.count == 7, "\(reported.map(\.message))")
+        for failure in reported {
+            #expect(failure.creatingTest?.sourceLocation == testLocation, "\(failure.message)")
+        }
+    }
+
     @Test
     func failureOfAMockCreatedOutsideATestGoesToXCTest() async {
         let location = await Task.detached {
