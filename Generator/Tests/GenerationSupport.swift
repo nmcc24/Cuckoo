@@ -35,3 +35,37 @@ extension String {
         split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
     }
 }
+
+/// What `body` logs and prints to standard error, at `level` and above.
+func capturingOutput(level: Logger.LogLevel = .info, _ body: () async throws -> Void) async rethrows -> String {
+    let output = CapturedOutput()
+    try await Logger.$level.withValue(level) {
+        try await Logger.$capture.withValue({ output.append($0) }) {
+            try await body()
+        }
+    }
+    return output.text
+}
+
+/// What `body` logs and prints to standard error, at `level` and above.
+func capturingOutput(level: Logger.LogLevel = .info, _ body: () throws -> Void) rethrows -> String {
+    let output = CapturedOutput()
+    try Logger.$level.withValue(level) {
+        try Logger.$capture.withValue({ output.append($0) }, operation: body)
+    }
+    return output.text
+}
+
+/// The lock guards `captured`, as the runtime's `Locked` does: `Mutex` needs macOS 15.
+private final class CapturedOutput: @unchecked Sendable {
+    private let lock = NSLock()
+    private var captured = ""
+
+    func append(_ text: String) {
+        lock.withLock { captured += text }
+    }
+
+    var text: String {
+        lock.withLock { captured }
+    }
+}

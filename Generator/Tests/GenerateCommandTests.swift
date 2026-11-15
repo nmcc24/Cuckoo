@@ -94,6 +94,25 @@ struct GenerateCommandTests {
         }
     }
 
+    /// The plugins run the generator once per module of the Cuckoofile; a module it doesn't have generates nothing,
+    /// and the output it was given is left empty, so the build has the file it expects.
+    @Test
+    func aMissingModuleIsReportedAndLeavesAnEmptyOutput() async throws {
+        try await withPackage(output: "GeneratedMocks.swift") { directory in
+            let output = directory.appending(path: "Other/Mocks.swift")
+            let printed = try await capturingOutput {
+                try await GenerateCommand.parse([
+                    "--configuration", directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false),
+                ]).run(environment: [
+                    "CUCKOO_MODULE_NAME": "Other",
+                    "CUCKOO_OVERRIDE_OUTPUT": output.path(percentEncoded: false),
+                ])
+            }
+            #expect(printed.contains("No module named 'Other' found in Cuckoofile, skipping generation."))
+            #expect(try String(contentsOf: output, encoding: .utf8) == "")
+        }
+    }
+
     private func withPackage(output: String, extraKeys: String = "", _ body: (URL) async throws -> Void) async throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooCommand-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
