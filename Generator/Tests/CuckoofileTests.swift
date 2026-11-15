@@ -140,15 +140,75 @@ struct CuckoofileTests {
     }
 
     @Test
-    func unknownKeysAreIgnored() throws {
-        let modules = try parse("""
+    func unknownKeysAreIgnoredWithAWarning() throws {
+        let contents = """
             unknown = 1
 
             [modules.App]
             output = "Mocks.swift"
-            somethingElse = "ignored"
+            testableImport = ["App"]
+
+            [modules.App.options]
+            protocolOnly = true
+            """
+        #expect(try parse(contents).keys.sorted() == ["App"])
+        let warnings = Cuckoofile.warnings(for: contents)
+        #expect(warnings.count == 3)
+        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'unknown' isn't one Cuckoo reads") })
+        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'modules.App.testableImport' isn't one Cuckoo reads") })
+        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'modules.App.options.protocolOnly' isn't one Cuckoo reads") })
+    }
+
+    /// `[module.App]`, singular, defines no module: both the key and the missing modules are reported.
+    @Test
+    func misspelledModulesTableWarns() {
+        let warnings = Cuckoofile.warnings(for: """
+            [module.App]
+            sources = ["App.swift"]
             """)
-        #expect(modules.keys.sorted() == ["App"])
+        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'module' isn't one Cuckoo reads") })
+        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile defines no modules") })
+    }
+
+    /// An option written at the module's level says where it belongs.
+    @Test
+    func misplacedOptionSaysWhereItGoes() {
+        let warnings = Cuckoofile.warnings(for: """
+            [modules.App]
+            output = "Mocks.swift"
+            keepDocumentation = false
+            """)
+        #expect(warnings == [
+            "The Cuckoofile key 'modules.App.keepDocumentation' is an option, so it's ignored here: put it in the module's `[modules.App.options]` table.",
+        ])
+    }
+
+    /// Every key the documentation's examples use is known.
+    @Test
+    func documentedKeysDontWarn() throws {
+        #expect(Cuckoofile.warnings(for: """
+            output = "Mocks.swift"
+
+            [modules.App]
+            imports = ["Foundation"]
+            publicImports = []
+            testableImports = ["App"]
+            sources = { App = ["App/**/*.swift"] }
+            exclude = ["Legacy"]
+            regex = "Service$"
+            globalActors = ["DatabaseActor"]
+            filenameFormat = "{}Mocks"
+
+            [modules.App.options]
+            glob = true
+            keepDocumentation = false
+            enableInheritance = true
+            protocolsOnly = false
+            omitHeaders = true
+            mockPrefix = "Mock"
+            mockSuffix = ""
+            defaultIsolation = "MainActor"
+            """).isEmpty)
     }
 
     /// Cuckoo 2's `xcodeproj` table is still read, so it can be reported with what to write instead.
@@ -335,6 +395,11 @@ struct CuckoofileTests {
 
         let cuckoofile = try examples(in: "Cuckoofile")
         try #require(cuckoofile.count == 5)
+        // No example uses a key Cuckoo doesn't read, except Cuckoo 2's `xcodeproj` table, which is there to show the
+        // error it gives.
+        for example in gettingStarted + cuckoofile where !example.contains("xcodeproj") {
+            #expect(Cuckoofile.warnings(for: example).isEmpty, "\(example)")
+        }
 
         let full = try #require(try parse(cuckoofile[0])["App"])
         #expect(full.output == "Tests/Generated/GeneratedMocks.swift")

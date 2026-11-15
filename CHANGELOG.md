@@ -87,6 +87,9 @@ Build plugin:
 - The generator logged the Cuckoofile's path with a double slash.
 
 ### Warnings
+- A Cuckoofile key Cuckoo doesn't read, such as `testableImport`, `[module.App]` or `options.protocolOnly`, was
+  ignored without a word. It's now a warning naming the keys Cuckoo knows there, and a Cuckoofile with no modules
+  says so.
 - A type marked with an attribute that isn't a known global actor gets a comment in its mock, and a warning when
   the name ends in `Actor`. A parent protocol declared outside the sources gets a comment in the mock.
 
