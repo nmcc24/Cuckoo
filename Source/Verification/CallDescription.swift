@@ -1,8 +1,8 @@
 extension StubCall {
     /// The call as a test reads it: the member's name and its arguments.
     var readableDescription: String {
-        if let bracketIndex = method.firstIndex(of: "(") {
-            return method[..<bracketIndex] + parametersAsString
+        if let (baseName, _) = MemberSignature.baseNameAndParameterList(in: method) {
+            return baseName + parametersAsString
         } else if method.hasSuffix("#set") {
             return method + parametersAsString
         } else {
@@ -23,19 +23,16 @@ struct MemberSignature {
         let isSetter = method.hasSuffix("#set")
         // A generic method's name is followed by its generic parameters, as in `parse<T: Decodable> (_ p0: String)`;
         // an operator's `<` follows a space or another operator character: `static <(_ p0: Self, _ p1: Self)`.
-        let genericClause = Self.genericClauseStart(in: method)
-        let open = genericClause.map { Self.parameterListStart(in: method, after: $0) } ?? method.firstIndex(of: "(")
-        guard let open else {
-            name = String(method[..<(genericClause ?? method.endIndex)].prefix { $0 != "#" })
+        guard let (baseName, open) = Self.baseNameAndParameterList(in: method) else {
+            name = String(method.prefix { $0 != "#" })
             labels = isSetter ? ["newValue"] : []
             return
         }
-        let baseName = String(method[..<(genericClause ?? open)])
         let parameters = Self.topLevelParameters(in: method[method.index(after: open)...])
         let declaredLabels = parameters.map { parameter in
             String(parameter.drop(while: \.isSpace).prefix { $0 != " " && $0 != ":" })
         }
-        name = baseName + "(" + declaredLabels.map { $0 + ":" }.joined() + ")"
+        name = String(baseName) + "(" + declaredLabels.map { $0 + ":" }.joined() + ")"
         labels = declaredLabels + (isSetter ? ["newValue"] : [])
     }
 
@@ -52,6 +49,16 @@ struct MemberSignature {
         case let label:
             return "`\(label):`"
         }
+    }
+
+    /// A method's name without its generic parameters, and the parenthesis that opens its parameter list; `nil`
+    /// for a property.
+    static func baseNameAndParameterList(in method: String) -> (baseName: Substring, open: String.Index)? {
+        let genericClause = genericClauseStart(in: method)
+        guard let open = genericClause.map({ parameterListStart(in: method, after: $0) }) ?? method.firstIndex(of: "(") else {
+            return nil
+        }
+        return (method[..<(genericClause ?? open)], open)
     }
 
     /// The `<` that opens a generic method's generic parameters, right after its name, before any parenthesis.

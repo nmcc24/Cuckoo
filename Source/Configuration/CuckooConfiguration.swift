@@ -65,8 +65,6 @@ public enum CuckooError: Error, Sendable, Equatable {
     case unstubbedCall(method: String)
 }
 
-/// The Swift Testing test a mock was created in, so a failure from a task the test doesn't run in can still go to
-/// Swift Testing, at that test.
 /// A failure as `reportFailure` receives it, which a ``CuckooConfiguration/failureCollector`` keeps.
 struct ReportedFailure: Sendable {
     let message: String
@@ -74,6 +72,8 @@ struct ReportedFailure: Sendable {
     let creatingTest: CreatingTest?
 }
 
+/// The Swift Testing test a mock was created in, so a failure from a task the test doesn't run in can still go to
+/// Swift Testing, at that test.
 struct CreatingTest: Sendable {
     #if canImport(Testing)
     let sourceLocation: Testing.SourceLocation

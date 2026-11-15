@@ -11,7 +11,11 @@ struct MainActorDefaultIsolationTests {
         let mock = MockDefaultIsolatedGreeter()
         stub(mock) { stub in
             when(stub.name.get).thenReturn("Ann")
-            when(stub.greet(any())).then { person in "Hello, \(person)" }
+            when(stub.greet(any())).then { person in
+                // Fails if the mock weren't isolated to the main actor, as its type is.
+                MainActor.assertIsolated()
+                return "Hello, \(person)"
+            }
         }
 
         #expect(mock.name == "Ann")
@@ -26,7 +30,10 @@ struct MainActorDefaultIsolationTests {
     func aClassStatingNoIsolationIsMockedOnTheMainActor() {
         let mock = MockDefaultIsolatedCounter().withEnabledSuperclassSpy()
         stub(mock) { stub in
-            when(stub.increment(by: 1)).thenReturn(10)
+            when(stub.increment(by: 1)).then { _ in
+                MainActor.assertIsolated()
+                return 10
+            }
         }
 
         #expect(mock.increment(by: 1) == 10)

@@ -29,7 +29,7 @@ else
     # A CI container's checkout belongs to another user, which git refuses unless the directory is marked safe.
     # A file deleted from the working tree but not from the index is still listed: keep only what exists.
     git -c safe.directory="$repo" -C "$repo" ls-files -z --cached --others --exclude-standard \
-        | (cd "$repo" && while IFS= read -r -d '' file; do [[ -e "$file" ]] && printf '%s\0' "$file"; done) \
+        | (cd "$repo" && while IFS= read -r -d '' file; do if [[ -e "$file" ]]; then printf '%s\0' "$file"; fi; done) \
         > "$work/files"
     [[ -s "$work/files" ]] || { echo "No files listed in $repo" >&2; exit 1; }
     (cd "$repo" && tar -cf - --null -T "$work/files") | tar -xf - -C "$work/Cuckoo"

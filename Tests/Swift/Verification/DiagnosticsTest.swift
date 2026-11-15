@@ -123,6 +123,19 @@ struct DiagnosticsTests {
               1. (String) -> Optional<String>
             """
         ) == true, "\(messages)")
+
+        // The list of calls a failed verify shows names the member without its generic parameters too.
+        let listed = collectingMessages {
+            verify(mock).method(param: "x")
+        }
+        #expect(listed.first?.hasSuffix("  1. genericReturn(\"1\")") == true, "\(listed)")
+    }
+
+    @Test
+    func aSingleFunctionTypedParameterIsParenthesizedInTheStubsTypes() {
+        #expect(ConcreteStub<(String) -> Int, Void, Never, Void>.types(in: ((String) -> Int).self, out: Void.self) == "((String) -> Int) -> ()")
+        #expect(ConcreteStub<(String, Int), Int, Never, Void>.types(in: (String, Int).self, out: Int.self) == "(String, Int) -> Int")
+        #expect(ConcreteStub<Void, Int, Never, Void>.types(in: Void.self, out: Int.self) == "() -> Int")
     }
 
     @Test
