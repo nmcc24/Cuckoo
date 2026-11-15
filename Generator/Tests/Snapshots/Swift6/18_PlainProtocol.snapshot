@@ -8,41 +8,41 @@ nonisolated final class MockGreeter: Greeter, nonisolated Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockGreeter.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockGreeter.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Greeter>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Greeter>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Greeter) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     var count: Int {
         get {
-            return cuckoo_manager.getter(
+            return cuckooManager.getter(
                 "count",
                 invoke: { (implementation: (()) -> Int) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.count
+                defaultCall: cuckooDefaultImplementation.value.count
             )
         }
         set {
-            cuckoo_manager.setter(
+            cuckooManager.setter(
                 "count",
                 value: newValue,
                 invoke: { (implementation: (Int) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.count = newValue
+                defaultCall: cuckooDefaultImplementation.value.count = newValue
             )
         }
     }
 
     func greet(name p0: String) -> String {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "greet(name p0: String) -> String",
             parameters: (p0),
             escapingParameters: (p0),
@@ -50,26 +50,26 @@ nonisolated final class MockGreeter: Greeter, nonisolated Cuckoo.ProtocolMock {
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.greet(name: p0)
+            defaultCall: cuckooDefaultImplementation.value.greet(name: p0)
         )
     }
 
     nonisolated struct __StubbingProxy_Greeter: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         var count: Cuckoo.ProtocolToBeStubbedProperty<MockGreeter, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
-            return .init(manager: cuckoo_manager, name: "count")
+            return .init(manager: cuckooManager, name: "count")
         }
 
         func greet<M1: Cuckoo._Matchable>(name p0: M1) -> Cuckoo.ProtocolStubFunction<(String), String, ((String)) -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockGreeter.self,
+            return .init(stub: cuckooManager.createStub(for: MockGreeter.self,
                 method: "greet(name p0: String) -> String",
                 parameterMatchers: matchers
             ))
@@ -77,18 +77,18 @@ nonisolated final class MockGreeter: Greeter, nonisolated Cuckoo.ProtocolMock {
     }
 
     nonisolated struct __VerificationProxy_Greeter: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         var count: Cuckoo.VerifyProperty<Int> {
-            return .init(manager: cuckoo_manager, name: "count", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
+            return .init(manager: cuckooManager, name: "count", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         @discardableResult
@@ -96,11 +96,11 @@ nonisolated final class MockGreeter: Greeter, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "greet(name p0: String) -> String",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

@@ -8,17 +8,17 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockProfileStore.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockProfileStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any ProfileStore>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ProfileStore>()
 
     nonisolated func enableDefaultImplementation(_ stub: any ProfileStore) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func save(_ p0: Profile, tags p1: [String]) -> Bool {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "save(_ p0: Profile, tags p1: [String]) -> Bool",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
@@ -26,12 +26,12 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.save(p0, tags: p1)
+            defaultCall: cuckooDefaultImplementation.value.save(p0, tags: p1)
         )
     }
 
     func open(_ p0: Session) {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "open(_ p0: Session)",
             parameters: (p0),
             escapingParameters: (p0),
@@ -39,15 +39,15 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.open(p0)
+            defaultCall: cuckooDefaultImplementation.value.open(p0)
         )
     }
 
     nonisolated struct __StubbingProxy_ProfileStore: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func save<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, tags p1: M2) -> Cuckoo.ProtocolStubFunction<(Profile, [String]), Bool, ((Profile, [String])) -> Bool, Cuckoo.StubSharing.Confined> where M1.MatchedType == Profile, M2.MatchedType == [String] {
@@ -56,7 +56,7 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockProfileStore.self,
+            return .init(stub: cuckooManager.createStub(for: MockProfileStore.self,
                 method: "save(_ p0: Profile, tags p1: [String]) -> Bool",
                 parameterMatchers: matchers
             ))
@@ -66,7 +66,7 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<(Session)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockProfileStore.self,
+            return .init(stub: cuckooManager.createStub(for: MockProfileStore.self,
                 method: "open(_ p0: Session)",
                 parameterMatchers: matchers
             ))
@@ -74,14 +74,14 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
     }
 
     nonisolated struct __VerificationProxy_ProfileStore: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -91,11 +91,11 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "save(_ p0: Profile, tags p1: [String]) -> Bool",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -104,11 +104,11 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<(Session)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "open(_ p0: Session)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }
@@ -131,17 +131,17 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockProfileCache.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockProfileCache.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any ProfileCache>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ProfileCache>()
 
     nonisolated func enableDefaultImplementation(_ stub: any ProfileCache) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func lookup(_ p0: String, limit p1: Int?) -> Int {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "lookup(_ p0: String, limit p1: Int?) -> Int",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
@@ -149,12 +149,12 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.lookup(p0, limit: p1)
+            defaultCall: cuckooDefaultImplementation.value.lookup(p0, limit: p1)
         )
     }
 
     func names(matching p0: [String]) -> [String] {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "names(matching p0: [String]) -> [String]",
             parameters: (p0),
             escapingParameters: (p0),
@@ -162,20 +162,20 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.names(matching: p0)
+            defaultCall: cuckooDefaultImplementation.value.names(matching: p0)
         )
     }
 
     nonisolated struct __StubbingProxy_ProfileCache: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func lookup<M1: Cuckoo._SendableMatchable, M2: Cuckoo._SendableOptionalMatchable>(_ p0: M1, limit p1: M2) -> Cuckoo.ProtocolStubFunction<(String, Int?), Int, @Sendable ((String, Int?)) -> Int, Cuckoo.StubSharing.Shared> where M1.MatchedType == String, M2.OptionalMatchedType == Int {
             let matchers: [Cuckoo.SendableMatcher<(String, Int?)>] = [Cuckoo.wrap(matchable: p0, at: \.0), Cuckoo.wrap(matchable: p1, at: \.1)]
-            return .init(stub: cuckoo_manager.createStub(for: MockProfileCache.self,
+            return .init(stub: cuckooManager.createStub(for: MockProfileCache.self,
                 method: "lookup(_ p0: String, limit p1: Int?) -> Int",
                 parameterMatchers: matchers
             ))
@@ -183,7 +183,7 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
 
         func names<M1: Cuckoo._SendableMatchable>(matching p0: M1) -> Cuckoo.ProtocolStubFunction<([String]), [String], @Sendable (([String])) -> [String], Cuckoo.StubSharing.Shared> where M1.MatchedType == [String] {
             let matchers: [Cuckoo.SendableMatcher<([String])>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
-            return .init(stub: cuckoo_manager.createStub(for: MockProfileCache.self,
+            return .init(stub: cuckooManager.createStub(for: MockProfileCache.self,
                 method: "names(matching p0: [String]) -> [String]",
                 parameterMatchers: matchers
             ))
@@ -191,14 +191,14 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
     }
 
     nonisolated struct __VerificationProxy_ProfileCache: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -208,11 +208,11 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "lookup(_ p0: String, limit p1: Int?) -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -221,11 +221,11 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<([String])>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "names(matching p0: [String]) -> [String]",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

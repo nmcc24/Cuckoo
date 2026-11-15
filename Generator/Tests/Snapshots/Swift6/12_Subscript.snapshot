@@ -8,18 +8,18 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockCache.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockCache.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Cache>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Cache>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Cache) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     subscript(_ p0: String) -> Int? {
         get {
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "subscript(_ p0: String) -> Int?#get",
                 parameters: (p0),
                 escapingParameters: (p0),
@@ -27,11 +27,11 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value[p0]
+                defaultCall: cuckooDefaultImplementation.value[p0]
             )
         }
         set(p1) {
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "subscript(_ p0: String) -> Int?#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
@@ -39,31 +39,31 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value[p0] = p1
+                defaultCall: cuckooDefaultImplementation.value[p0] = p1
             )
         }
     }
 
     nonisolated struct __StubbingProxy_Cache: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         subscript <M1: Cuckoo._Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
+            fileprivate let cuckooManager: Cuckoo.MockManager
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             var get: Cuckoo.ProtocolStubFunction<(String), Int?, ((String)) -> Int?, Cuckoo.StubSharing.Confined> {
-                return .init(stub: cuckoo_manager.createStub(for: MockCache.self,
+                return .init(stub: cuckooManager.createStub(for: MockCache.self,
                     method: "subscript(_ p0: String) -> Int?#get",
                     parameterMatchers: matchers
                 ))
@@ -77,7 +77,7 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
                 } + [Cuckoo.wrap(matchable: p1) {
                         $0.1
                     }]
-                return .init(stub: cuckoo_manager.createStub(for: MockCache.self,
+                return .init(stub: cuckooManager.createStub(for: MockCache.self,
                     method: "subscript(_ p0: String) -> Int?#set",
                     parameterMatchers: matchers
                 ))
@@ -86,36 +86,36 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
     }
 
     nonisolated struct __VerificationProxy_Cache: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         subscript <M1: Cuckoo._Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
-            fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher
-            fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(String), Int?> {
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript(_ p0: String) -> Int?#get",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
 
@@ -128,11 +128,11 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
                 } + [Cuckoo.wrap(matchable: p1) {
                         $0.1
                     }]
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript(_ p0: String) -> Int?#set",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
         }
@@ -156,18 +156,18 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockGrid.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockGrid.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Grid>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Grid>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Grid) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     subscript(row p0: Int, column p1: Int) -> Double {
         get {
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "subscript(row p0: Int, column p1: Int) -> Double#get",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
@@ -175,11 +175,11 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value[row: p0, column: p1]
+                defaultCall: cuckooDefaultImplementation.value[row: p0, column: p1]
             )
         }
         set(p2) {
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "subscript(row p0: Int, column p1: Int) -> Double#set",
                 parameters: (p0, p1, p2),
                 escapingParameters: (p0, p1, p2),
@@ -187,14 +187,14 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value[row: p0, column: p1] = p2
+                defaultCall: cuckooDefaultImplementation.value[row: p0, column: p1] = p2
             )
         }
     }
 
     subscript(remote p0: String) -> String {
         get async throws {
-            return try await cuckoo_manager.callThrows(
+            return try await cuckooManager.callThrows(
                 "subscript(remote p0: String) -> String#get",
                 parameters: (p0),
                 escapingParameters: (p0),
@@ -203,14 +203,14 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                     try await implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: await __defaultImplStub.value[remote: p0]
+                defaultCall: await cuckooDefaultImplementation.value[remote: p0]
             )
         }
     }
 
     subscript <T: Equatable>(echo p0: T) -> T {
         get {
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "subscript<T: Equatable>(echo p0: T) -> T#get",
                 parameters: (p0),
                 escapingParameters: (p0),
@@ -218,16 +218,16 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value[echo: p0]
+                defaultCall: cuckooDefaultImplementation.value[echo: p0]
             )
         }
     }
 
     nonisolated struct __StubbingProxy_Grid: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         subscript <M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(row p0: M1, column p1: M2) -> __Subscript1 where M1.MatchedType == Int, M2.MatchedType == Int {
@@ -236,15 +236,15 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
+            fileprivate let cuckooManager: Cuckoo.MockManager
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>]
 
             var get: Cuckoo.ProtocolStubFunction<(Int, Int), Double, ((Int, Int)) -> Double, Cuckoo.StubSharing.Confined> {
-                return .init(stub: cuckoo_manager.createStub(for: MockGrid.self,
+                return .init(stub: cuckooManager.createStub(for: MockGrid.self,
                     method: "subscript(row p0: Int, column p1: Int) -> Double#get",
                     parameterMatchers: matchers
                 ))
@@ -258,7 +258,7 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                 } + [Cuckoo.wrap(matchable: p2) {
                         $0.2
                     }]
-                return .init(stub: cuckoo_manager.createStub(for: MockGrid.self,
+                return .init(stub: cuckooManager.createStub(for: MockGrid.self,
                     method: "subscript(row p0: Int, column p1: Int) -> Double#set",
                     parameterMatchers: matchers
                 ))
@@ -269,15 +269,15 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
         }
 
         nonisolated struct __Subscript2 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
+            fileprivate let cuckooManager: Cuckoo.MockManager
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             var get: Cuckoo.ProtocolStubThrowingFunction<(String), String, any Swift.Error, nonisolated(nonsending) ((String)) async throws -> String, Cuckoo.StubSharing.Confined> {
-                return .init(stub: cuckoo_manager.createStub(for: MockGrid.self,
+                return .init(stub: cuckooManager.createStub(for: MockGrid.self,
                     method: "subscript(remote p0: String) -> String#get",
                     parameterMatchers: matchers
                 ))
@@ -288,15 +288,15 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
         }
 
         nonisolated struct __Subscript3<T: Equatable> {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
+            fileprivate let cuckooManager: Cuckoo.MockManager
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(T)>]
 
             var get: Cuckoo.ProtocolStubFunction<(T), T, ((T)) -> T, Cuckoo.StubSharing.Confined> {
-                return .init(stub: cuckoo_manager.createStub(for: MockGrid.self,
+                return .init(stub: cuckooManager.createStub(for: MockGrid.self,
                     method: "subscript<T: Equatable>(echo p0: T) -> T#get",
                     parameterMatchers: matchers
                 ))
@@ -305,14 +305,14 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
     }
 
     nonisolated struct __VerificationProxy_Grid: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         subscript <M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(row p0: M1, column p1: M2) -> __Subscript1 where M1.MatchedType == Int, M2.MatchedType == Int {
@@ -321,22 +321,22 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
-            fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher
-            fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>]
 
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(Int, Int), Double> {
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript(row p0: Int, column p1: Int) -> Double#get",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
 
@@ -349,11 +349,11 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                 } + [Cuckoo.wrap(matchable: p2) {
                         $0.2
                     }]
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript(row p0: Int, column p1: Int) -> Double#set",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
         }
@@ -362,22 +362,22 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
         }
 
         nonisolated struct __Subscript2 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
-            fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher
-            fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(String), String> {
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript(remote p0: String) -> String#get",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
         }
@@ -386,22 +386,22 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
         }
 
         nonisolated struct __Subscript3<T: Equatable> {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
-            fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher
-            fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(T)>]
 
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(T), T> {
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript<T: Equatable>(echo p0: T) -> T#get",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
         }
@@ -437,21 +437,21 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorTable.self) ?? Cuckoo.MockManager(hasParent: false)
-    nonisolated static var cuckoo_globalActor: (any Actor)? {
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorTable.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckooGlobalActor: (any Actor)? {
         MainActor.shared
     }
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorTable>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any MainActorTable>()
 
     nonisolated func enableDefaultImplementation(_ stub: any MainActorTable) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     subscript(_ p0: Int) -> String {
         get {
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "subscript(_ p0: Int) -> String#get",
                 parameters: (p0),
                 escapingParameters: (p0),
@@ -459,11 +459,11 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value[p0]
+                defaultCall: cuckooDefaultImplementation.value[p0]
             )
         }
         set(p1) {
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "subscript(_ p0: Int) -> String#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
@@ -471,31 +471,31 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value[p0] = p1
+                defaultCall: cuckooDefaultImplementation.value[p0] = p1
             )
         }
     }
 
     nonisolated struct __StubbingProxy_MainActorTable: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         subscript <M1: Cuckoo._Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
+            fileprivate let cuckooManager: Cuckoo.MockManager
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int)>]
 
             var get: Cuckoo.ProtocolStubFunction<(Int), String, @MainActor @Sendable ((Int)) -> String, Cuckoo.StubSharing.Isolated> {
-                return .init(stub: cuckoo_manager.createStub(for: MockMainActorTable.self,
+                return .init(stub: cuckooManager.createStub(for: MockMainActorTable.self,
                     method: "subscript(_ p0: Int) -> String#get",
                     parameterMatchers: matchers
                 ))
@@ -509,7 +509,7 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
                 } + [Cuckoo.wrap(matchable: p1) {
                         $0.1
                     }]
-                return .init(stub: cuckoo_manager.createStub(for: MockMainActorTable.self,
+                return .init(stub: cuckooManager.createStub(for: MockMainActorTable.self,
                     method: "subscript(_ p0: Int) -> String#set",
                     parameterMatchers: matchers
                 ))
@@ -518,37 +518,37 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
     }
 
     nonisolated struct __VerificationProxy_MainActorTable: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         subscript <M1: Cuckoo._Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
-            fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher
-            fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int)>]
 
             @MainActor
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(Int), String> {
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript(_ p0: Int) -> String#get",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
 
@@ -562,11 +562,11 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
                 } + [Cuckoo.wrap(matchable: p1) {
                         $0.1
                     }]
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript(_ p0: Int) -> String#set",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
         }
@@ -590,18 +590,18 @@ nonisolated final class MockSendableLookup: SendableLookup, nonisolated Cuckoo.P
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockSendableLookup.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSendableLookup.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any SendableLookup>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any SendableLookup>()
 
     nonisolated func enableDefaultImplementation(_ stub: any SendableLookup) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     subscript(_ p0: String) -> Int {
         get {
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "subscript(_ p0: String) -> Int#get",
                 parameters: (p0),
                 escapingParameters: (p0),
@@ -609,29 +609,29 @@ nonisolated final class MockSendableLookup: SendableLookup, nonisolated Cuckoo.P
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value[p0]
+                defaultCall: cuckooDefaultImplementation.value[p0]
             )
         }
     }
 
     nonisolated struct __StubbingProxy_SendableLookup: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         subscript <M1: Cuckoo._SendableMatchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
             let matchers: [Cuckoo.SendableMatcher<(String)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
-            return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
+            fileprivate let cuckooManager: Cuckoo.MockManager
             fileprivate let matchers: [Cuckoo.SendableMatcher<(String)>]
 
             var get: Cuckoo.ProtocolStubFunction<(String), Int, @Sendable ((String)) -> Int, Cuckoo.StubSharing.Shared> {
-                return .init(stub: cuckoo_manager.createStub(for: MockSendableLookup.self,
+                return .init(stub: cuckooManager.createStub(for: MockSendableLookup.self,
                     method: "subscript(_ p0: String) -> Int#get",
                     parameterMatchers: matchers
                 ))
@@ -640,36 +640,36 @@ nonisolated final class MockSendableLookup: SendableLookup, nonisolated Cuckoo.P
     }
 
     nonisolated struct __VerificationProxy_SendableLookup: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         subscript <M1: Cuckoo._Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
-            fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher
-            fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(String), Int> {
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript(_ p0: String) -> Int#get",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
         }
@@ -691,15 +691,15 @@ actor MockActorStore: ActorStore, Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockActorStore.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockActorStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
-        cuckoo_manager.refuseActorDefaultImplementation()
+        cuckooManager.refuseActorDefaultImplementation()
     }
 
     subscript(_ p0: String) -> Int {
         get {
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "subscript(_ p0: String) -> Int#get",
                 parameters: (p0),
                 escapingParameters: (p0),
@@ -713,23 +713,23 @@ actor MockActorStore: ActorStore, Cuckoo.ProtocolMock {
     }
 
     nonisolated struct __StubbingProxy_ActorStore: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         subscript <M1: Cuckoo._SendableMatchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
             let matchers: [Cuckoo.SendableMatcher<(String)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
-            return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
+            fileprivate let cuckooManager: Cuckoo.MockManager
             fileprivate let matchers: [Cuckoo.SendableMatcher<(String)>]
 
             var get: Cuckoo.ProtocolStubFunction<(String), Int, @Sendable (isolated MockActorStore, String) -> Int, Cuckoo.StubSharing.Shared> {
-                return .init(stub: cuckoo_manager.createStub(for: MockActorStore.self,
+                return .init(stub: cuckooManager.createStub(for: MockActorStore.self,
                     method: "subscript(_ p0: String) -> Int#get",
                     parameterMatchers: matchers
                 ))
@@ -738,36 +738,36 @@ actor MockActorStore: ActorStore, Cuckoo.ProtocolMock {
     }
 
     nonisolated struct __VerificationProxy_ActorStore: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         subscript <M1: Cuckoo._Matchable>(_ p0: M1) -> __Subscript1 where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
-            fileprivate let cuckoo_manager: Cuckoo.MockManager
-            fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher
-            fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(String), Int> {
-                return cuckoo_manager.verify(
+                return cuckooManager.verify(
                     "subscript(_ p0: String) -> Int#get",
-                    callMatcher: cuckoo_callMatcher,
+                    callMatcher: cuckooCallMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: cuckoo_sourceLocation
+                    sourceLocation: cuckooSourceLocation
                 )
             }
         }

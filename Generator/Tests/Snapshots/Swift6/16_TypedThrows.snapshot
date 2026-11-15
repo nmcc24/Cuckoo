@@ -8,17 +8,17 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockTypedAPI.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockTypedAPI.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any TypedAPI>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any TypedAPI>()
 
     nonisolated func enableDefaultImplementation(_ stub: any TypedAPI) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func call() throws(NetErr) -> Int {
-        return try cuckoo_manager.callThrows(
+        return try cuckooManager.callThrows(
             "call() throws(NetErr) -> Int",
             parameters: (),
             escapingParameters: (),
@@ -31,12 +31,12 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 }
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.call()
+            defaultCall: cuckooDefaultImplementation.value.call()
         )
     }
 
     func callAsync() async throws(NetErr) -> Int {
-        return try await cuckoo_manager.callThrows(
+        return try await cuckooManager.callThrows(
             "callAsync() async throws(NetErr) -> Int",
             parameters: (),
             escapingParameters: (),
@@ -49,12 +49,12 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 }
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub.value.callAsync()
+            defaultCall: await cuckooDefaultImplementation.value.callAsync()
         )
     }
 
     func fetch() throws(Network.Failure) -> String {
-        return try cuckoo_manager.callThrows(
+        return try cuckooManager.callThrows(
             "fetch() throws(Network.Failure) -> String",
             parameters: (),
             escapingParameters: (),
@@ -67,12 +67,12 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 }
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.fetch()
+            defaultCall: cuckooDefaultImplementation.value.fetch()
         )
     }
 
     func decode() throws(Wrapped<Int>) {
-        return try cuckoo_manager.callThrows(
+        return try cuckooManager.callThrows(
             "decode() throws(Wrapped<Int>)",
             parameters: (),
             escapingParameters: (),
@@ -85,13 +85,13 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 }
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.decode()
+            defaultCall: cuckooDefaultImplementation.value.decode()
         )
     }
 
     @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
     func retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
@@ -99,13 +99,13 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.retry(p0)
+            defaultCall: cuckooDefaultImplementation.value.retry(p0)
         )
     }
 
     func log(_ p0: (String...) -> Void) {
         return withoutActuallyEscaping(p0, do: { (p0: @escaping (String...) -> Void) in
-            return cuckoo_manager.call(
+            return cuckooManager.call(
                 "log(_ p0: (String...) -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ _ in
@@ -115,21 +115,21 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                                 implementation(arguments)
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.log(p0)
+                defaultCall: cuckooDefaultImplementation.value.log(p0)
             )
         })
     }
 
     nonisolated struct __StubbingProxy_TypedAPI: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func call() -> Cuckoo.ProtocolStubThrowingFunction<(), Int, NetErr, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+            return .init(stub: cuckooManager.createStub(for: MockTypedAPI.self,
                 method: "call() throws(NetErr) -> Int",
                 parameterMatchers: matchers
             ))
@@ -137,7 +137,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
 
         func callAsync() -> Cuckoo.ProtocolStubThrowingFunction<(), Int, NetErr, nonisolated(nonsending) (()) async throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+            return .init(stub: cuckooManager.createStub(for: MockTypedAPI.self,
                 method: "callAsync() async throws(NetErr) -> Int",
                 parameterMatchers: matchers
             ))
@@ -145,7 +145,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
 
         func fetch() -> Cuckoo.ProtocolStubThrowingFunction<(), String, Network.Failure, (()) throws -> String, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+            return .init(stub: cuckooManager.createStub(for: MockTypedAPI.self,
                 method: "fetch() throws(Network.Failure) -> String",
                 parameterMatchers: matchers
             ))
@@ -153,7 +153,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
 
         func decode() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(), Wrapped<Int>, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+            return .init(stub: cuckooManager.createStub(for: MockTypedAPI.self,
                 method: "decode() throws(Wrapped<Int>)",
                 parameterMatchers: matchers
             ))
@@ -164,7 +164,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             let matchers: [Cuckoo.ParameterMatcher<(() throws(NetErr) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+            return .init(stub: cuckooManager.createStub(for: MockTypedAPI.self,
                 method: "retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int",
                 parameterMatchers: matchers
             ))
@@ -174,7 +174,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             let matchers: [Cuckoo.ParameterMatcher<((String...) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockTypedAPI.self,
+            return .init(stub: cuckooManager.createStub(for: MockTypedAPI.self,
                 method: "log(_ p0: (String...) -> Void)",
                 parameterMatchers: matchers
             ))
@@ -182,57 +182,57 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
     }
 
     nonisolated struct __VerificationProxy_TypedAPI: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
         func call() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "call() throws(NetErr) -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
         @discardableResult
         func callAsync() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "callAsync() async throws(NetErr) -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
         @discardableResult
         func fetch() -> Cuckoo.__DoNotUse<(), String> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "fetch() throws(Network.Failure) -> String",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
         @discardableResult
         func decode() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "decode() throws(Wrapped<Int>)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -242,11 +242,11 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             let matchers: [Cuckoo.ParameterMatcher<(() throws(NetErr) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -255,11 +255,11 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             let matchers: [Cuckoo.ParameterMatcher<((String...) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "log(_ p0: (String...) -> Void)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

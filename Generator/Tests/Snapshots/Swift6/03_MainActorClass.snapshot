@@ -6,44 +6,44 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
     typealias CuckooStubbing = __StubbingProxy_ViewModel
     typealias CuckooVerification = __VerificationProxy_ViewModel
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockViewModel.self) ?? Cuckoo.MockManager(hasParent: true)
-    nonisolated static var cuckoo_globalActor: (any Actor)? {
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockViewModel.self) ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated static var cuckooGlobalActor: (any Actor)? {
         MainActor.shared
     }
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<ViewModel>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ViewModel>()
 
     nonisolated func enableDefaultImplementation(_ stub: ViewModel) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     override var state: String {
         get {
-            return cuckoo_manager.getter(
+            return cuckooManager.getter(
                 "state",
                 invoke: { (implementation: @MainActor @Sendable (()) -> String) in
                     implementation(())
                 },
                 superclassCall: super.state,
-                defaultCall: __defaultImplStub.value.state
+                defaultCall: cuckooDefaultImplementation.value.state
             )
         }
         set {
-            cuckoo_manager.setter(
+            cuckooManager.setter(
                 "state",
                 value: newValue,
                 invoke: { (implementation: @MainActor @Sendable (String) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.state = newValue,
-                defaultCall: __defaultImplStub.value.state = newValue
+                defaultCall: cuckooDefaultImplementation.value.state = newValue
             )
         }
     }
 
     override func reload() async {
-        return await cuckoo_manager.call(
+        return await cuckooManager.call(
             "reload() async",
             parameters: (),
             escapingParameters: (),
@@ -51,12 +51,12 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
                 await implementation(arguments)
             },
             superclassCall: await super.reload(),
-            defaultCall: await __defaultImplStub.value.reload()
+            defaultCall: await cuckooDefaultImplementation.value.reload()
         )
     }
 
     override func select(index p0: Int) -> Bool {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "select(index p0: Int) -> Bool",
             parameters: (p0),
             escapingParameters: (p0),
@@ -64,24 +64,24 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
                 implementation(arguments)
             },
             superclassCall: super.select(index: p0),
-            defaultCall: __defaultImplStub.value.select(index: p0)
+            defaultCall: cuckooDefaultImplementation.value.select(index: p0)
         )
     }
 
     nonisolated struct __StubbingProxy_ViewModel: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         var state: Cuckoo.ClassToBeStubbedProperty<MockViewModel, String, @MainActor @Sendable (()) -> String, @MainActor @Sendable (String) -> Void, Cuckoo.StubSharing.Isolated> {
-            return .init(manager: cuckoo_manager, name: "state")
+            return .init(manager: cuckooManager, name: "state")
         }
 
         func reload() -> Cuckoo.ClassStubNoReturnFunction<(), @MainActor @Sendable (()) async -> Void, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockViewModel.self,
+            return .init(stub: cuckooManager.createStub(for: MockViewModel.self,
                 method: "reload() async",
                 parameterMatchers: matchers
             ))
@@ -91,7 +91,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockViewModel.self,
+            return .init(stub: cuckooManager.createStub(for: MockViewModel.self,
                 method: "select(index p0: Int) -> Bool",
                 parameterMatchers: matchers
             ))
@@ -99,30 +99,30 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
     }
 
     nonisolated struct __VerificationProxy_ViewModel: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @MainActor
         var state: Cuckoo.VerifyProperty<String> {
-            return .init(manager: cuckoo_manager, name: "state", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
+            return .init(manager: cuckooManager, name: "state", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         @MainActor
         @discardableResult
         func reload() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "reload() async",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -132,11 +132,11 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "select(index p0: Int) -> Bool",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

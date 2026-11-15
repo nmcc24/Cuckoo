@@ -7,17 +7,17 @@ final class MockFixedBuffer<let Count: Int>: FixedBuffer<Count>, nonisolated Cuc
     typealias CuckooStubbing = __StubbingProxy_FixedBuffer
     typealias CuckooVerification = __VerificationProxy_FixedBuffer
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockFixedBuffer.self) ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockFixedBuffer.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<FixedBuffer<Count>>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<FixedBuffer<Count>>()
 
     nonisolated func enableDefaultImplementation(_ stub: FixedBuffer<Count>) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     override func first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
@@ -25,22 +25,22 @@ final class MockFixedBuffer<let Count: Int>: FixedBuffer<Count>, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: super.first(p0),
-            defaultCall: __defaultImplStub.value.first(p0)
+            defaultCall: cuckooDefaultImplementation.value.first(p0)
         )
     }
 
     nonisolated struct __StubbingProxy_FixedBuffer: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func first<M1: Cuckoo._Matchable, let N: Int>(_ p0: M1) -> Cuckoo.ClassStubFunction<(InlineArray<N, Int>), Int, ((InlineArray<N, Int>)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == InlineArray<N, Int> {
             let matchers: [Cuckoo.ParameterMatcher<(InlineArray<N, Int>)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockFixedBuffer.self,
+            return .init(stub: cuckooManager.createStub(for: MockFixedBuffer.self,
                 method: "first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int",
                 parameterMatchers: matchers
             ))
@@ -48,14 +48,14 @@ final class MockFixedBuffer<let Count: Int>: FixedBuffer<Count>, nonisolated Cuc
     }
 
     nonisolated struct __VerificationProxy_FixedBuffer: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -63,11 +63,11 @@ final class MockFixedBuffer<let Count: Int>: FixedBuffer<Count>, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(InlineArray<N, Int>)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

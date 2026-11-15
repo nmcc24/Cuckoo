@@ -8,17 +8,17 @@ nonisolated final class MockIsolatedWork: IsolatedWork, nonisolated Cuckoo.Proto
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockIsolatedWork.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockIsolatedWork.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any IsolatedWork>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any IsolatedWork>()
 
     nonisolated func enableDefaultImplementation(_ stub: any IsolatedWork) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func run(isolation p0: isolated (any Actor)?) async -> Int {
-        return await cuckoo_manager.call(
+        return await cuckooManager.call(
             "run(isolation p0: isolated (any Actor)?) async -> Int",
             parameters: (p0),
             escapingParameters: (p0),
@@ -26,22 +26,22 @@ nonisolated final class MockIsolatedWork: IsolatedWork, nonisolated Cuckoo.Proto
                 await implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub.value.run(isolation: p0)
+            defaultCall: await cuckooDefaultImplementation.value.run(isolation: p0)
         )
     }
 
     nonisolated struct __StubbingProxy_IsolatedWork: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func run<M1: Cuckoo._OptionalMatchable>(isolation p0: M1) -> Cuckoo.ProtocolStubFunction<((any Actor)?), Int, nonisolated(nonsending) (((any Actor)?)) async -> Int, Cuckoo.StubSharing.Confined> where M1.OptionalMatchedType == (any Actor)? {
             let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockIsolatedWork.self,
+            return .init(stub: cuckooManager.createStub(for: MockIsolatedWork.self,
                 method: "run(isolation p0: isolated (any Actor)?) async -> Int",
                 parameterMatchers: matchers
             ))
@@ -49,14 +49,14 @@ nonisolated final class MockIsolatedWork: IsolatedWork, nonisolated Cuckoo.Proto
     }
 
     nonisolated struct __VerificationProxy_IsolatedWork: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -64,11 +64,11 @@ nonisolated final class MockIsolatedWork: IsolatedWork, nonisolated Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "run(isolation p0: isolated (any Actor)?) async -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

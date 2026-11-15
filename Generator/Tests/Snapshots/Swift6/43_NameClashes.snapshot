@@ -8,43 +8,43 @@ nonisolated final class MockVerificationNames: VerificationNames, nonisolated Cu
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockVerificationNames.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockVerificationNames.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any VerificationNames>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any VerificationNames>()
 
     nonisolated func enableDefaultImplementation(_ stub: any VerificationNames) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     var callMatcher: Int {
         get {
-            return cuckoo_manager.getter(
+            return cuckooManager.getter(
                 "callMatcher",
                 invoke: { (implementation: (()) -> Int) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.callMatcher
+                defaultCall: cuckooDefaultImplementation.value.callMatcher
             )
         }
     }
 
     var sourceLocation: String {
         get {
-            return cuckoo_manager.getter(
+            return cuckooManager.getter(
                 "sourceLocation",
                 invoke: { (implementation: (()) -> String) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.sourceLocation
+                defaultCall: cuckooDefaultImplementation.value.sourceLocation
             )
         }
     }
 
     func manager() -> Int {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "manager() -> Int",
             parameters: (),
             escapingParameters: (),
@@ -52,28 +52,28 @@ nonisolated final class MockVerificationNames: VerificationNames, nonisolated Cu
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.manager()
+            defaultCall: cuckooDefaultImplementation.value.manager()
         )
     }
 
     nonisolated struct __StubbingProxy_VerificationNames: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         var callMatcher: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockVerificationNames, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
-            return .init(manager: cuckoo_manager, name: "callMatcher")
+            return .init(manager: cuckooManager, name: "callMatcher")
         }
 
         var sourceLocation: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockVerificationNames, String, (()) -> String, Cuckoo.StubSharing.Confined> {
-            return .init(manager: cuckoo_manager, name: "sourceLocation")
+            return .init(manager: cuckooManager, name: "sourceLocation")
         }
 
         func manager() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockVerificationNames.self,
+            return .init(stub: cuckooManager.createStub(for: MockVerificationNames.self,
                 method: "manager() -> Int",
                 parameterMatchers: matchers
             ))
@@ -81,32 +81,32 @@ nonisolated final class MockVerificationNames: VerificationNames, nonisolated Cu
     }
 
     nonisolated struct __VerificationProxy_VerificationNames: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         var callMatcher: Cuckoo.VerifyReadOnlyProperty<Int> {
-            return .init(manager: cuckoo_manager, name: "callMatcher", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
+            return .init(manager: cuckooManager, name: "callMatcher", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         var sourceLocation: Cuckoo.VerifyReadOnlyProperty<String> {
-            return .init(manager: cuckoo_manager, name: "sourceLocation", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
+            return .init(manager: cuckooManager, name: "sourceLocation", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         @discardableResult
         func manager() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "manager() -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }
@@ -137,7 +137,7 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockKeywordProperty.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeywordProperty.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class DefaultImplCaller: KeywordProperty, Sendable {
         private let reference: @Sendable () -> any KeywordProperty
@@ -170,28 +170,28 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
         }
     }
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeywordProperty & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
-        __defaultImplStub.value = DefaultImplCaller(stub)
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     var `default`: Int {
         get {
-            return cuckoo_manager.getter(
+            return cuckooManager.getter(
                 "`default`",
                 invoke: { (implementation: (()) -> Int) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.`default`
+                defaultCall: cuckooDefaultImplementation.value.`default`
             )
         }
     }
 
     func take(_ p0: Element) {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "take(_ p0: Element)",
             parameters: (p0),
             escapingParameters: (p0),
@@ -199,26 +199,26 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.take(p0)
+            defaultCall: cuckooDefaultImplementation.value.take(p0)
         )
     }
 
     nonisolated struct __StubbingProxy_KeywordProperty: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         var `default`: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockKeywordProperty, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
-            return .init(manager: cuckoo_manager, name: "`default`")
+            return .init(manager: cuckooManager, name: "`default`")
         }
 
         func take<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Element), ((Element)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Element {
             let matchers: [Cuckoo.ParameterMatcher<(Element)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockKeywordProperty.self,
+            return .init(stub: cuckooManager.createStub(for: MockKeywordProperty.self,
                 method: "take(_ p0: Element)",
                 parameterMatchers: matchers
             ))
@@ -226,18 +226,18 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
     }
 
     nonisolated struct __VerificationProxy_KeywordProperty: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         var `default`: Cuckoo.VerifyReadOnlyProperty<Int> {
-            return .init(manager: cuckoo_manager, name: "`default`", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
+            return .init(manager: cuckooManager, name: "`default`", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         @discardableResult
@@ -245,11 +245,11 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
             let matchers: [Cuckoo.ParameterMatcher<(Element)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "take(_ p0: Element)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }
@@ -272,17 +272,17 @@ final class MockQuietSubclass: QuietSubclass, nonisolated Cuckoo.ClassMock {
     typealias CuckooStubbing = __StubbingProxy_QuietSubclass
     typealias CuckooVerification = __VerificationProxy_QuietSubclass
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockQuietSubclass.self) ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockQuietSubclass.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<QuietSubclass>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<QuietSubclass>()
 
     nonisolated func enableDefaultImplementation(_ stub: QuietSubclass) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     override func count() -> Int {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "count() -> Int",
             parameters: (),
             escapingParameters: (),
@@ -290,20 +290,20 @@ final class MockQuietSubclass: QuietSubclass, nonisolated Cuckoo.ClassMock {
                 implementation(arguments)
             },
             superclassCall: super.count(),
-            defaultCall: __defaultImplStub.value.count()
+            defaultCall: cuckooDefaultImplementation.value.count()
         )
     }
 
     nonisolated struct __StubbingProxy_QuietSubclass: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func count() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockQuietSubclass.self,
+            return .init(stub: cuckooManager.createStub(for: MockQuietSubclass.self,
                 method: "count() -> Int",
                 parameterMatchers: matchers
             ))
@@ -311,24 +311,24 @@ final class MockQuietSubclass: QuietSubclass, nonisolated Cuckoo.ClassMock {
     }
 
     nonisolated struct __VerificationProxy_QuietSubclass: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
         func count() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "count() -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

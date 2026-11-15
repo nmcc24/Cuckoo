@@ -6,17 +6,17 @@ final class MockImplicitInitService: ImplicitInitService, nonisolated Cuckoo.Cla
     typealias CuckooStubbing = __StubbingProxy_ImplicitInitService
     typealias CuckooVerification = __VerificationProxy_ImplicitInitService
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockImplicitInitService.self) ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockImplicitInitService.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<ImplicitInitService>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ImplicitInitService>()
 
     nonisolated func enableDefaultImplementation(_ stub: ImplicitInitService) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     override func run() {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "run()",
             parameters: (),
             escapingParameters: (),
@@ -24,20 +24,20 @@ final class MockImplicitInitService: ImplicitInitService, nonisolated Cuckoo.Cla
                 implementation(arguments)
             },
             superclassCall: super.run(),
-            defaultCall: __defaultImplStub.value.run()
+            defaultCall: cuckooDefaultImplementation.value.run()
         )
     }
 
     nonisolated struct __StubbingProxy_ImplicitInitService: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func run() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockImplicitInitService.self,
+            return .init(stub: cuckooManager.createStub(for: MockImplicitInitService.self,
                 method: "run()",
                 parameterMatchers: matchers
             ))
@@ -45,24 +45,24 @@ final class MockImplicitInitService: ImplicitInitService, nonisolated Cuckoo.Cla
     }
 
     nonisolated struct __VerificationProxy_ImplicitInitService: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
         func run() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "run()",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

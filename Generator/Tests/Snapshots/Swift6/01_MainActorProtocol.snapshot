@@ -8,44 +8,44 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorService.self) ?? Cuckoo.MockManager(hasParent: false)
-    nonisolated static var cuckoo_globalActor: (any Actor)? {
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorService.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckooGlobalActor: (any Actor)? {
         MainActor.shared
     }
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any MainActorService>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any MainActorService>()
 
     nonisolated func enableDefaultImplementation(_ stub: any MainActorService) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     var title: String {
         get {
-            return cuckoo_manager.getter(
+            return cuckooManager.getter(
                 "title",
                 invoke: { (implementation: @MainActor @Sendable (()) -> String) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.title
+                defaultCall: cuckooDefaultImplementation.value.title
             )
         }
         set {
-            cuckoo_manager.setter(
+            cuckooManager.setter(
                 "title",
                 value: newValue,
                 invoke: { (implementation: @MainActor @Sendable (String) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.title = newValue
+                defaultCall: cuckooDefaultImplementation.value.title = newValue
             )
         }
     }
 
     func load(id p0: Int) -> String {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "load(id p0: Int) -> String",
             parameters: (p0),
             escapingParameters: (p0),
@@ -53,12 +53,12 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.load(id: p0)
+            defaultCall: cuckooDefaultImplementation.value.load(id: p0)
         )
     }
 
     func refresh() async throws {
-        return try await cuckoo_manager.callThrows(
+        return try await cuckooManager.callThrows(
             "refresh() async throws",
             parameters: (),
             escapingParameters: (),
@@ -67,26 +67,26 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
                 try await implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub.value.refresh()
+            defaultCall: await cuckooDefaultImplementation.value.refresh()
         )
     }
 
     nonisolated struct __StubbingProxy_MainActorService: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         var title: Cuckoo.ProtocolToBeStubbedProperty<MockMainActorService, String, @MainActor @Sendable (()) -> String, @MainActor @Sendable (String) -> Void, Cuckoo.StubSharing.Isolated> {
-            return .init(manager: cuckoo_manager, name: "title")
+            return .init(manager: cuckooManager, name: "title")
         }
 
         func load<M1: Cuckoo._Matchable>(id p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), String, @MainActor @Sendable ((Int)) -> String, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Int {
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockMainActorService.self,
+            return .init(stub: cuckooManager.createStub(for: MockMainActorService.self,
                 method: "load(id p0: Int) -> String",
                 parameterMatchers: matchers
             ))
@@ -94,7 +94,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
 
         func refresh() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(), any Swift.Error, @MainActor @Sendable (()) async throws -> Void, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockMainActorService.self,
+            return .init(stub: cuckooManager.createStub(for: MockMainActorService.self,
                 method: "refresh() async throws",
                 parameterMatchers: matchers
             ))
@@ -102,19 +102,19 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
     }
 
     nonisolated struct __VerificationProxy_MainActorService: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @MainActor
         var title: Cuckoo.VerifyProperty<String> {
-            return .init(manager: cuckoo_manager, name: "title", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
+            return .init(manager: cuckooManager, name: "title", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         @MainActor
@@ -123,11 +123,11 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
             let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "load(id p0: Int) -> String",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -135,11 +135,11 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
         @discardableResult
         func refresh() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "refresh() async throws",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }
