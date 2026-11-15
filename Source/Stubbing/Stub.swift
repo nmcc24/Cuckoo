@@ -26,7 +26,27 @@ public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub, TypedStub {
     /// Arguments `IN` and result `OUT` as failure messages show them, such as `(String) -> Int`.
     static func types(in _: IN.Type, out _: OUT.Type) -> String {
         let arguments = "\(IN.self)"
-        return (arguments.hasPrefix("(") ? arguments : "(\(arguments))") + " -> \(OUT.self)"
+        return (isParenthesized(arguments) ? arguments : "(\(arguments))") + " -> \(OUT.self)"
+    }
+
+    /// Whether `type` is one pair of parentheses, as a tuple or `()` is, rather than a type that starts with one,
+    /// such as `(String) -> Int`.
+    private static func isParenthesized(_ type: String) -> Bool {
+        guard type.first == "(" else {
+            return false
+        }
+        var depth = 0
+        for (offset, character) in type.enumerated() {
+            if character == "(" {
+                depth += 1
+            } else if character == ")" {
+                depth -= 1
+                if depth == 0 {
+                    return offset == type.count - 1
+                }
+            }
+        }
+        return false
     }
 
     init(method: String, parameterMatchers: [ParameterMatcher<IN>]) {
