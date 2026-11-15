@@ -61,9 +61,9 @@ behaviour on top.
 
 ### API changes
 
-- `MockManager.fail` is gone. To receive failures yourself, set a ``CuckooConfiguration`` with a
-  `failureHandler`, for one test with `.cuckoo(failureHandler:)` or for any scope with
-  `CuckooConfiguration.$current.withValue(_:operation:)`.
+- `MockManager.fail` is gone, with no replacement: failures go to the framework running the test, Swift Testing
+  or XCTest. A test that expects Cuckoo to fail, such as one checking that a call isn't stubbed, wraps it in
+  `withKnownIssue { … }` in Swift Testing or `XCTExpectFailure { … }` in XCTest.
 - ``DefaultValueRegistry/register(_:for:)`` takes `Sendable` values; register a non-`Sendable` type's default with
   ``DefaultValueRegistry/register(for:factory:)``, which makes a new value for each call. The registry still
   applies to every test; for values only some tests need, register them in `DefaultValues` through

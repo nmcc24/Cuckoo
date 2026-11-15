@@ -46,7 +46,7 @@ public nonisolated(nonsending) func eventually(
 private func collectingFailures(of block: () -> Void) -> [ReportedFailure] {
     let failures = Locked<[ReportedFailure]>([])
     var configuration = CuckooConfiguration.current
-    configuration.failureCollector = { failure in
+    configuration.failureHandler = { failure in
         failures.withLock { $0.append(failure) }
     }
     CuckooConfiguration.$current.withValue(configuration) {

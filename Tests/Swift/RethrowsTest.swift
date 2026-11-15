@@ -10,7 +10,7 @@ struct RethrowsTest {
 
     private func recordingFailures(_ body: () -> Void) -> [String] {
         let failures = Locked<[String]>([])
-        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { message, _ in failures.withLock { $0.append(message) } })) {
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { failure in failures.withLock { $0.append(failure.message) } })) {
             body()
         }
         return failures.withLock { $0 }
@@ -33,7 +33,7 @@ struct RethrowsTest {
         let mock = MockRethrowingService()
         let failures = Locked<[String]>([])
 
-        await CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { message, _ in failures.withLock { $0.append(message) } })) {
+        await CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { failure in failures.withLock { $0.append(failure.message) } })) {
             #expect(await mock.transformAsync(1, using: { $0 + 1 }) == 0)
         }
 

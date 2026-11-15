@@ -39,7 +39,7 @@ struct ActorMockArgumentTests {
     func actorMocksRefuseADefaultImplementation() async {
         let failures = Locked<[String]>([])
         let mock = MockLedgerStore()
-        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { message, _ in failures.withLock { $0.append(message) } })) {
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { failure in failures.withLock { $0.append(failure.message) } })) {
             mock.enableDefaultImplementation(RealLedgerStore())
         }
         stub(mock) { stub in

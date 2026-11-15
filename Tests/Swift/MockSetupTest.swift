@@ -46,7 +46,7 @@ struct MockSetupTest {
         mock.noReturn()
 
         let failures = Locked<[String]>([])
-        let collect = CuckooConfiguration(failureHandler: { message, _ in failures.withLock { $0.append(message) } })
+        let collect = CuckooConfiguration(failureHandler: { failure in failures.withLock { $0.append(failure.message) } })
         CuckooConfiguration.$current.withValue(collect) {
             verify(mock, times(2)).noReturn()
             verifyNoMoreInteractions(mock)

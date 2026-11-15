@@ -46,6 +46,10 @@
 - `MockBuilder.enableDefaultStubImplementation()`. A mock that `createMock` configured with it forwarded unstubbed
   calls to a default implementation it didn't have, so the first unstubbed call crashed the test process. Call
   `enableDefaultImplementation(_:)` on the mock once it exists.
+- `CuckooConfiguration.failureHandler`, `CuckooConfiguration.FailureHandler` and the `.cuckoo(failureHandler:)`
+  trait argument. Failures go to the framework running the test, which has its own way to expect one:
+  `withKnownIssue` in Swift Testing and `XCTExpectFailure` in XCTest. The handler also couldn't give an unstubbed
+  call a location in the test, so it pointed into Cuckoo's own source.
 
 ### Fixed
 - A failure that `eventually` reported after its timeout lost the test that created the mock, so from a task outside

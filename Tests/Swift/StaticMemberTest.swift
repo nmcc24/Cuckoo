@@ -143,7 +143,7 @@ struct StaticMemberTests {
     @Test
     func usingStaticMembersOutsideAScopeFails() {
         let failures = Locked<[String]>([])
-        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { message, _ in failures.withLock { $0.append(message) } })) {
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { failure in failures.withLock { $0.append(failure.message) } })) {
             StaticStubs.$current.withValue(nil) {
                 _ = MockStaticFactory.count
             }
@@ -155,7 +155,7 @@ struct StaticMemberTests {
     @Test
     func staticMembersRefuseADefaultImplementation() {
         let failures = Locked<[String]>([])
-        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { message, _ in failures.withLock { $0.append(message) } })) {
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { failure in failures.withLock { $0.append(failure.message) } })) {
             MockStaticFactory.cuckoo_staticManager.enableDefaultStubImplementation()
         }
         stub(MockStaticFactory.self) { stub in
