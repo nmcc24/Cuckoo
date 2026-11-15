@@ -112,21 +112,41 @@ struct CuckooFunctionsTest {
         stub(protocolMock) { stub in
             when(stub.noReturn()).thenDoNothing()
         }
+
+        // Each check gets a call on one mock only, first the second and then the first, so one that looked at a
+        // single argument would pass.
+        protocolMock.noReturn()
+        #expect(TestUtils.catchCuckooFail { verifyNoMoreInteractions(classMock, protocolMock) } != nil)
+        clearInvocations(classMock, protocolMock)
+        classMock.noReturn()
+        #expect(TestUtils.catchCuckooFail { verifyNoMoreInteractions(classMock, protocolMock) } != nil)
+        clearInvocations(classMock, protocolMock)
+        verifyNoMoreInteractions(classMock)
+        verifyNoMoreInteractions(protocolMock)
+
+        clearStubs(classMock, protocolMock)
+        #expect(TestUtils.catchCuckooFail { classMock.noReturn() } != nil)
+        #expect(TestUtils.catchCuckooFail { protocolMock.noReturn() } != nil)
+    }
+
+    @Test
+    func resetClearsEveryMockPassed() {
+        let classMock = MockTestedClass()
+        let protocolMock = MockTestedProtocol()
+        stub(classMock) { stub in
+            when(stub.noReturn()).thenDoNothing()
+        }
+        stub(protocolMock) { stub in
+            when(stub.noReturn()).thenDoNothing()
+        }
         classMock.noReturn()
         protocolMock.noReturn()
 
-        let unverified = TestUtils.catchCuckooFail {
-            verifyNoMoreInteractions(classMock, protocolMock)
-        }
-        #expect(unverified != nil)
+        reset(classMock, protocolMock)
 
-        clearInvocations(classMock, protocolMock)
-        verifyNoMoreInteractions(classMock, protocolMock)
-
-        clearStubs(classMock, protocolMock)
-        let unstubbed = TestUtils.catchCuckooFail {
-            protocolMock.noReturn()
-        }
-        #expect(unstubbed != nil)
+        verifyNoMoreInteractions(classMock)
+        verifyNoMoreInteractions(protocolMock)
+        #expect(TestUtils.catchCuckooFail { classMock.noReturn() } != nil)
+        #expect(TestUtils.catchCuckooFail { protocolMock.noReturn() } != nil)
     }
 }
