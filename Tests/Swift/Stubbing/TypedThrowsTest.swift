@@ -79,6 +79,6 @@ struct TypedThrowsTest {
         let failure = TestUtils.catchCuckooFail {
             #expect((try? mock.typedThrows()) == .some(nil))
         }
-        #expect(failure?.hasPrefix("No stub for method `typedThrows()") == true)
+        #expect(failure?.hasPrefix("No stub for typedThrows().") == true)
     }
 }

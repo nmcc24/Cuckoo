@@ -100,7 +100,7 @@ public final class MockManager: Sendable {
             captures.commit()
             if case .callRealImplementation = action {
                 guard hasParent else {
-                    failAndCrash("No real implementation found for method `\(method)`. This is probably caused by stubbed object being a mock of a protocol.")
+                    failAndCrash("\(call.memberAndArguments) has no real implementation to call: the mock's type has no superclass.")
                 }
                 return .superclass
             }
@@ -112,14 +112,14 @@ public final class MockManager: Sendable {
         } else if fallback == .defaultImplementation {
             return .defaultImplementation
         } else if sawUnfinishedStub {
-            fail("Stubbing of method `\(method)` using parameters \(call.parametersAsString) wasn't finished (missing thenReturn()).")
+            fail("The stub that matches \(call.memberAndArguments) has no answer. Give it one, such as thenReturn(_:), after when(_:).")
             return .unstubbed
         } else {
             // A generic member's stubs made with other type arguments can't answer this call.
             let callTypes = ConcreteStub<IN, OUT, ERROR, IMPL>.types(in: IN.self, out: OUT.self)
             let otherTypes = sameMember.compactMap { ($0 as? any TypedStub)?.types }.filter { $0 != callTypes }
             fail(
-                "No stub for method `\(method)` using parameters \(call.parametersAsString).\n"
+                "No stub for \(call.memberAndArguments).\n"
                     + describeStubs(of: method, mismatches: mismatches, otherTypes: otherTypes, callTypes: callTypes)
             )
             return .unstubbed
@@ -155,7 +155,7 @@ public final class MockManager: Sendable {
             DefaultValueRegistry.unstubbedValue(for: OUT.self)
         }
         guard let value else {
-            failAndCrash("No stub for method `\(method)`, and its return type \(OUT.self) has no default value. Stub it, or register one with `DefaultValueRegistry` or the `.cuckoo(defaultValues:)` trait.")
+            failAndCrash("No stub for \(ConcreteStubCall(method: method, parameters: ()).memberAndArguments), and its return type \(OUT.self) has no default value. Stub it, or register one with `DefaultValueRegistry` or the `.cuckoo(defaultValues:)` trait.")
         }
         return value
     }

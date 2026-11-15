@@ -1,13 +1,67 @@
 extension StubCall {
-    /// The call as a test reads it: the member's name and its arguments.
+    /// The call as a test reads it: the member's name and its arguments, such as `count("b")`, `name`, `name = 1`,
+    /// `[0]` or `[0] = "a"`.
     var readableDescription: String {
+        let arguments = (self as? any DescribedArguments)?.argumentDescriptions
         if let (baseName, _) = MemberSignature.baseNameAndParameterList(in: method) {
-            return baseName + parametersAsString
-        } else if method.hasSuffix("#set") {
-            return method + parametersAsString
-        } else {
-            return method
+            guard baseName.hasSuffix("subscript"), let arguments else {
+                return baseName + parametersAsString
+            }
+            let prefix = baseName.dropLast("subscript".count)
+            if method.hasSuffix("#set"), let newValue = arguments.last {
+                return prefix + "[" + arguments.dropLast().joined(separator: ", ") + "] = " + newValue
+            }
+            return prefix + "[" + arguments.joined(separator: ", ") + "]"
         }
+        let name = MemberSignature(method).name
+        if method.hasSuffix("#set") {
+            let newValue = (self as? any DescribedArguments)?.valueDescription ?? String(parametersAsString.dropFirst().dropLast())
+            return name + " = " + newValue
+        }
+        return name
+    }
+
+    /// The call as a failure's sentence names it: `count(characters:) with ("b")`, `noReturn()`, `the getter of
+    /// name` or `the setter of name with (1)`.
+    var memberAndArguments: String {
+        let name = MemberSignature(method).name
+        let arguments = parametersAsString == "()" ? "" : " with \(parametersAsString)"
+        if MemberSignature.baseNameAndParameterList(in: method) == nil || name.hasPrefix("subscript(") {
+            if method.hasSuffix("#get") {
+                return "the getter of \(name)" + arguments
+            }
+            if method.hasSuffix("#set") {
+                return "the setter of \(name)" + arguments
+            }
+        }
+        return name + arguments
+    }
+}
+
+/// A call's arguments, each as a failure message shows it.
+protocol DescribedArguments {
+    /// One per argument: a subscript setter's new value comes last.
+    var argumentDescriptions: [String] { get }
+    /// A property setter's new value, a tuple in its parentheses.
+    var valueDescription: String { get }
+}
+
+extension ConcreteStubCall: DescribedArguments {
+    var argumentDescriptions: [String] {
+        let mirror = Mirror(reflecting: parameters)
+        guard mirror.displayStyle == .tuple else {
+            return [Self.describe(parameters)]
+        }
+        return mirror.children.map { Self.describe($0.value) }
+    }
+
+    var valueDescription: String {
+        Mirror(reflecting: parameters).displayStyle == .tuple ? String(describing: parameters) : Self.describe(parameters)
+    }
+
+    /// `value` as a tuple's element describes it, so a string gets its quotes.
+    private static func describe(_ value: Any) -> String {
+        String(String(describing: (value, 0)).dropFirst().dropLast(4))
     }
 }
 

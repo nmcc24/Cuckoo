@@ -25,7 +25,7 @@ struct UnstubbedCallTests {
             #expect(mock.count(characters: "a") == 0)
         } matching: { issue in
             // The call happens inside the mock, so the issue points at the test rather than into Cuckoo.
-            issue.comments.map(\.rawValue).first?.hasPrefix("No stub for method `count(characters") == true
+            issue.comments.map(\.rawValue).first?.hasPrefix("No stub for count(characters:) with (\"a\")") == true
                 && issue.sourceLocation?.fileName == "ConfigurationTest.swift"
         }
     }
@@ -85,7 +85,7 @@ struct UnstubbedCallTests {
         CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
             #expect(mock.count(characters: "a") == 0)
         }
-        #expect(log.all.first?.contains("wasn't finished (missing thenReturn())") == true)
+        #expect(log.all.first?.hasPrefix("The stub that matches count(characters:) with (\"a\") has no answer.") == true)
     }
 
     @Test
@@ -126,7 +126,7 @@ struct CuckooTraitTests {
             #expect(mock.optionalProperty == nil)
         }
         #expect(log.all.count == 3)
-        #expect(log.all.allSatisfy { $0.hasPrefix("No stub for method") })
+        #expect(log.all.allSatisfy { $0.hasPrefix("No stub for ") })
     }
 
     @Test(.cuckoo(defaultValues: DefaultValues()))

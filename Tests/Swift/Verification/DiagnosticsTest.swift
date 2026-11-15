@@ -82,7 +82,7 @@ struct DiagnosticsTests {
         }
         #expect(messages == [
             """
-            No stub for method `count(characters p0: String) -> Int` using parameters ("b").
+            No stub for count(characters:) with ("b").
             Stubs of count(characters:), newest first:
               1. `characters:` doesn't match
               2. `characters:` doesn't match
@@ -99,7 +99,7 @@ struct DiagnosticsTests {
         }
         #expect(messages == [
             """
-            No stub for method `count(characters p0: String) -> Int` using parameters ("b").
+            No stub for count(characters:) with ("b").
             The mock has no stub for count(characters:).
             """,
         ])
@@ -118,7 +118,7 @@ struct DiagnosticsTests {
         #expect(messages.count == 1)
         #expect(messages.first?.hasSuffix(
             """
-            using parameters ("1").
+            genericReturn(_:) with ("1").
             Stubs of genericReturn(_:) made for other types, which can't answer a call with (String) -> Optional<Int>:
               1. (String) -> Optional<String>
             """
@@ -167,6 +167,26 @@ struct DiagnosticsTests {
         let setter = MemberSignature("subscript(_ p0: Int) -> String#set")
         #expect(setter.name == "subscript(_:)")
         #expect(setter.argument(at: 1) == "the new value")
+    }
+
+    @Test
+    func callsAreNamedAsATestWritesThem() {
+        let getter = ConcreteStubCall(method: "readWriteProperty#get", parameters: ())
+        #expect(getter.readableDescription == "readWriteProperty")
+        #expect(getter.memberAndArguments == "the getter of readWriteProperty")
+        let setter = ConcreteStubCall(method: "readWriteProperty#set", parameters: 1)
+        #expect(setter.readableDescription == "readWriteProperty = 1")
+        #expect(setter.memberAndArguments == "the setter of readWriteProperty with (1)")
+        let subscriptSetter = ConcreteStubCall(method: "subscript(_ p0: Int) -> String#set", parameters: (0, "a"))
+        #expect(subscriptSetter.readableDescription == "[0] = \"a\"")
+        #expect(ConcreteStubCall(method: "subscript(_ p0: Int) -> String#get", parameters: 0).readableDescription == "[0]")
+        let tupleSetter = ConcreteStubCall(method: "pair#set", parameters: (1, 2))
+        #expect(tupleSetter.readableDescription == "pair = (1, 2)")
+        #expect(subscriptSetter.memberAndArguments == "the setter of subscript(_:) with (0, \"a\")")
+        let method = ConcreteStubCall(method: "count(characters p0: String) -> Int", parameters: "b")
+        #expect(method.readableDescription == "count(\"b\")")
+        #expect(method.memberAndArguments == "count(characters:) with (\"b\")")
+        #expect(ConcreteStubCall(method: "noReturn()", parameters: ()).memberAndArguments == "noReturn()")
     }
 
     /// The failures `body` reports, without failing the test.
