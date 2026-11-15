@@ -27,11 +27,13 @@ build warning that names the keys Cuckoo knows there.
 
 The name of a module matters with the build plugin. `CuckooPlugin` generates one file per dependency of the test
 target, from the entry with that dependency's name, plus one from the entry named after the test target. A
-dependency without an entry gets an empty file, and an entry named after neither isn't generated for that target.
-To mock files from several modules in one entry, name it after the test target and list its `sources`.
+dependency without an entry gets an empty file, and an entry named after neither isn't generated for that target. A
+target that gets no entry at all is a build warning. To mock files from several modules in one entry, name it after
+the test target and list its `sources`. (The plugin works the same on a regular target, such as a module of mocks
+that several test targets share.)
 
 A dependency is a library or executable target the test target depends on directly, or a target of a package
-product it depends on. Xcode tells the plugin about a test target's package products, but not about the targets of
+product it depends on: the dependencies of those dependencies aren't mocked unless an entry lists their `sources`. Xcode tells the plugin about a test target's package products, but not about the targets of
 its own project. So in an Xcode project, name the entry after the test target and list its `sources`, as in
 Cuckoo 2; a test target that uses the plugin with no entry of its own fails with a message saying so.
 

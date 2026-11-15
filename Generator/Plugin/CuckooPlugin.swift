@@ -25,25 +25,30 @@ struct CuckooPlugin: BuildToolPlugin {
                 )
             }
 
-        // For test targets, also emit a build command keyed by the test target's own name.
-        // This allows Cuckoofile.toml to have a [modules.TestTargetName] entry that mocks
-        // specific files from any dependency, independently of per-dependency mock generation.
-        var allSourceModules = sourceModules
-        if let testTarget = target as? SourceModuleTarget, testTarget.kind == .test {
-            let selfModule = SourceModule(
-                name: target.name,
-                sources: sourceModules.flatMap(\.sources),
-                listedSources: sourceModules.flatMap(\.listedSources)
+        // Also a build command keyed by the target's own name, as in an Xcode project, so the Cuckoofile can have a
+        // `[modules.TargetName]` entry that mocks files of any dependency, or lists its own `sources`.
+        let selfModule = SourceModule(
+            name: target.name,
+            sources: sourceModules.flatMap(\.sources),
+            listedSources: sourceModules.flatMap(\.listedSources)
+        )
+        let configuration = try readCuckoofile(in: context.package.directoryURL)
+        // An entry for none of them generates nothing, without an error: usually a misspelled or renamed module.
+        let entries = cuckoofileModuleNames(in: configuration)
+        let generated = Set(sourceModules.map(\.name) + [target.name])
+        if !entries.isEmpty, entries.isDisjoint(with: generated) {
+            Diagnostics.warning(
+                "The Cuckoofile has no entry for target '\(target.name)' or its dependencies (\(generated.sorted().joined(separator: ", "))), "
+                    + "so it gets no mocks. Its entries: \(entries.sorted().joined(separator: ", ")). Name an entry after one of them."
             )
-            allSourceModules.append(selfModule)
         }
 
         return try commandsPerModule(
-            sourceModules: allSourceModules,
+            sourceModules: sourceModules + [selfModule],
             executableFactory: context.tool(named:),
             targetName: target.name,
             projectDir: context.package.directoryURL,
-            configuration: try readCuckoofile(in: context.package.directoryURL),
+            configuration: configuration,
             derivedSourcesDir: context.pluginWorkDirectoryURL,
             projectSources: context.package.targets
                 .compactMap { $0 as? SourceModuleTarget }
@@ -265,7 +270,11 @@ func cuckoofileKeyLines(_ configuration: String) -> [(key: [String], value: Subs
     for line in configuration.split(whereSeparator: \.isNewline) {
         // Lines inside a multi-line string are its text, not keys.
         if let delimiter = multilineDelimiter {
-            if line.contains(delimiter) {
+            // In a basic string, `\"""` is an escaped quote and two more, not the closing delimiter.
+            let closes = line.ranges(of: delimiter).contains { range in
+                delimiter.first != "\"" || range.lowerBound == line.startIndex || line[line.index(before: range.lowerBound)] != "\\"
+            }
+            if closes {
                 multilineDelimiter = nil
             }
             continue
