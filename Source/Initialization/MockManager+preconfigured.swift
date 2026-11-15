@@ -9,7 +9,7 @@ extension MockManager {
     @TaskLocal static var preconfigured: Preconfigured?
 
     /// The manager `createMock` prepared for a mock of `mockType`, if one is being created. A generated mock picks
-    /// it up as its `cuckoo_manager`. Other mocks created inside `createMock`'s closure, such as the mock's
+    /// it up as its `cuckooManager`. Other mocks created inside `createMock`'s closure, such as the mock's
     /// arguments, get managers of their own.
     public static func preconfiguredManager(for mockType: Any.Type) -> MockManager? {
         guard let preconfigured, preconfigured.mockType == ObjectIdentifier(mockType) else {

@@ -7,13 +7,13 @@ public protocol StaticMock: HasGlobalActor {
     associatedtype CuckooStaticVerification: VerificationProxy
 
     /// Whether the mocked type is a class, whose real static members can be called.
-    static var cuckoo_hasSuperclass: Bool { get }
+    static var cuckooHasSuperclass: Bool { get }
 }
 
 public extension StaticMock {
     /// The manager for this mock type's static members in the current ``StaticStubs`` scope.
-    static var cuckoo_staticManager: MockManager {
-        StaticStubs.manager(for: Self.self, hasParent: cuckoo_hasSuperclass)
+    static var cuckooStaticManager: MockManager {
+        StaticStubs.manager(for: Self.self, hasParent: cuckooHasSuperclass)
     }
 }
 

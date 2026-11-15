@@ -33,7 +33,7 @@ struct ClassTest {
         }
         let otherMock = try #require(other)
 
-        #expect(mock.cuckoo_manager !== otherMock.cuckoo_manager)
+        #expect(mock.cuckooManager !== otherMock.cuckooManager)
         #expect(mock.readOnlyProperty == "a")
         verifyNoMoreInteractions(otherMock)
     }

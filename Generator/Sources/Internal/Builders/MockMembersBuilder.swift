@@ -69,7 +69,7 @@ enum MockMembersBuilder {
     }
 
     private static func manager(isStatic: Bool) -> String {
-        isStatic ? "cuckoo_staticManager" : "cuckoo_manager"
+        isStatic ? "cuckooStaticManager" : "cuckooManager"
     }
 
     private static func source(of property: Variable, _ context: Context) -> String {
@@ -115,7 +115,7 @@ enum MockMembersBuilder {
             source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.getter))) in \(tryAwait)implementation(\(isolated ? "self" : "()")) },")
         }
         source.append("            superclassCall: \(context.isClass ? "\(tryAwait)super.\(name)" : crashOnSuperclass),")
-        source.append("            defaultCall: \(defaultCall("\(tryAwait)__defaultImplStub.value.\(name)"))")
+        source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)"))")
         source.append("        )")
         source.append("    }")
         if !property.isReadOnly {
@@ -125,7 +125,7 @@ enum MockMembersBuilder {
             source.append("            value: newValue,")
             source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.setter)), value) in implementation(\(isolated ? "self, value" : "value")) },")
             source.append("            superclassCall: \(context.isClass ? "super.\(name) = newValue" : crashOnSuperclass),")
-            source.append("            defaultCall: \(defaultCall("__defaultImplStub.value.\(name) = newValue"))")
+            source.append("            defaultCall: \(defaultCall("cuckooDefaultImplementation.value.\(name) = newValue"))")
             source.append("        )")
             source.append("    }")
         }

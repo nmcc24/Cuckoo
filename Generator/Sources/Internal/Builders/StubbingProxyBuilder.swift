@@ -13,11 +13,11 @@ enum StubbingProxyBuilder {
         let access = container.accessibility.spaced
         var members = MemberList()
 
-        try members.append("private let cuckoo_manager: Cuckoo.MockManager", of: name)
+        try members.append("private let cuckooManager: Cuckoo.MockManager", of: name)
         members.separate()
         try members.append(lines([
             "\(access)init(manager: Cuckoo.MockManager) {",
-            "    self.cuckoo_manager = manager",
+            "    self.cuckooManager = manager",
             "}",
         ]), of: name)
         for property in container.mockedProperties where property.isStatic == isStatic {
@@ -51,7 +51,7 @@ enum StubbingProxyBuilder {
         var source = property.repeatedAttributes.map(\.description)
         let arguments = GeneratorHelper.genericSafeType(from: property.stubGenericArguments)
         source.append("\(memberAccess.spaced)var \(property.name): Cuckoo.\(property.stubType)<\(mockName), \(arguments)> {")
-        source.append("    return .init(manager: cuckoo_manager, name: \(Fragment.literal(property.name)))")
+        source.append("    return .init(manager: cuckooManager, name: \(Fragment.literal(property.name)))")
         source.append("}")
         return lines(source)
     }
@@ -96,7 +96,7 @@ enum StubbingProxyBuilder {
         var accessor = attributes
         accessor.append("\(memberAccess.spaced)subscript\(generics)(\(parameters)) -> __Subscript\(number)\(subscriptDeclaration.genericArgumentsClause)\(whereClause) {")
         accessor.append("    \(GeneratorHelper.parameterMatchers(for: keys, sendable: sendable))")
-        accessor.append("    return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)")
+        accessor.append("    return .init(cuckooManager: cuckooManager, matchers: matchers)")
         accessor.append("}")
 
         var getterArguments = ["(\(getterInput))", GeneratorHelper.genericSafeType(from: getterTypes.output)]
@@ -108,7 +108,7 @@ enum StubbingProxyBuilder {
 
         var type = attributes
         type.append("\(memberAccess.spaced)nonisolated struct __Subscript\(number)\(subscriptDeclaration.genericParametersClause)\(subscriptDeclaration.whereClause) {")
-        type.append("    fileprivate let cuckoo_manager: Cuckoo.MockManager")
+        type.append("    fileprivate let cuckooManager: Cuckoo.MockManager")
         type.append("    fileprivate let matchers: [\(GeneratorHelper.matcherType(sendable: sendable))<(\(getterInput))>]")
         type.append("")
         type.append("    \(memberAccess.spaced)var get: \(getter.stubFunction)<\(getterArguments.joined(separator: ", "))> {")
@@ -137,7 +137,7 @@ enum StubbingProxyBuilder {
     /// The lines that return the member's stub, made from the matchers in `matchers`.
     private static func createStub(for method: Method, mockName: String) -> [String] {
         [
-            "    return .init(stub: cuckoo_manager.createStub(for: \(mockName).self,",
+            "    return .init(stub: cuckooManager.createStub(for: \(mockName).self,",
             "        method: \(Fragment.literal(method.fullyQualifiedName)),",
             "        parameterMatchers: matchers",
             "    ))",
