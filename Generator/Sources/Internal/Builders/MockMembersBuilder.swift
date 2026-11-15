@@ -207,9 +207,11 @@ enum MockMembersBuilder {
             "\(method.isAsync && !method.isStatic ? "await " : "")\(method.defaultCall)"
         }
 
-        var body = method.sendingParameterNames.map { "let __\($0) = Cuckoo.__SendingArgument(\($0))" }
+        // A `sending` closure is wrapped inside the closures that make it escaping, as a non-escaping one can't be
+        // stored.
         let opening = GeneratorHelper.openNestedClosure(for: method)
-        body.append(contentsOf: opening)
+        var body = opening
+        body.append(contentsOf: method.sendingParameterNames.map { "\(GeneratorHelper.indentation(opening.count))let __\($0) = Cuckoo.__SendingArgument(\($0))" })
         // The call sits inside the innermost closure or local function.
         let callIndentation = GeneratorHelper.indentation(opening.count)
         var recording: [String] = []

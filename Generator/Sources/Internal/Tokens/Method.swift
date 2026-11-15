@@ -264,7 +264,8 @@ extension Method {
             if passesBorrowed(parameter) {
                 "borrowing \(resolved(parameter.type.withoutAttributes()).genericArgumentSafe.description)"
             } else {
-                "\(parameter.isInout ? "inout " : "")\(escapingIfClosure(type))"
+                // An `inout` closure is escaping already, and `@escaping` isn't allowed on it.
+                parameter.isInout ? "inout \(type.genericArgumentSafe.description)" : escapingIfClosure(type)
             }
         }
         let implementationInput = if let isolatedParameter = stubIsolation.isolatedParameter {

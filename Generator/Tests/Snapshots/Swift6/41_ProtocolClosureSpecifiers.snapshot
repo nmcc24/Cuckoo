@@ -18,8 +18,8 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
     }
 
     func run(_ p0: sending () -> Void) {
-        let __p0 = Cuckoo.__SendingArgument(p0)
         return withoutActuallyEscaping(p0, do: { (p0: @escaping () -> Void) in
+            let __p0 = Cuckoo.__SendingArgument(p0)
             return cuckoo_manager.call(
                 "run(_ p0: sending () -> Void)",
                 parameters: (p0),
@@ -35,6 +35,79 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
         })
     }
 
+    func swap(_ p0: inout () -> Void) {
+        return cuckoo_manager.call(
+            "swap(_ p0: inout () -> Void)",
+            parameters: (p0),
+            escapingParameters: (({ () in
+                        fatalError("This is a stub! It's not supposed to be called!")
+                    } as () -> Void)),
+            invoke: { (implementation: (inout () -> Void) -> Void, arguments) in
+                var __inout0 = arguments;
+                defer {
+                    p0 = __inout0
+                };
+                return implementation(&__inout0)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.swap(&p0)
+        )
+    }
+
+    func read(_ p0: borrowing () -> Int) -> Int {
+        return withoutActuallyEscaping(copy p0, do: { (p0: @escaping () -> Int) -> Int in
+            return cuckoo_manager.call(
+                "read(_ p0: borrowing () -> Int) -> Int",
+                parameters: ((copy p0)),
+                escapingParameters: (({ () in
+                                        fatalError("This is a stub! It's not supposed to be called!")
+                                    } as () -> Int)),
+                invoke: { (implementation: ((@escaping () -> Int)) -> Int, arguments) in
+                                implementation(arguments)
+                            },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.read(copy p0)
+            )
+        })
+    }
+
+    func aliased(_ p0: sending () -> Void) {
+        return withoutActuallyEscaping(p0, do: { (p0: @escaping () -> Void) in
+            let __p0 = Cuckoo.__SendingArgument(p0)
+            return cuckoo_manager.call(
+                "aliased(_ p0: sending () -> Void)",
+                parameters: (p0),
+                escapingParameters: (({ () in
+                                        fatalError("This is a stub! It's not supposed to be called!")
+                                    } as () -> Void)),
+                invoke: { (implementation: ((@escaping () -> Void)) -> Void, arguments) in
+                                implementation(arguments)
+                            },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.aliased(__p0.value)
+            )
+        })
+    }
+
+    func asyncRun(_ p0: sending () async -> Void) async {
+        nonisolated(nonsending) func __cuckoo_escaping_p0(_ p0: @escaping () async -> Void) async {
+            let __p0 = Cuckoo.__SendingArgument(p0)
+            return await cuckoo_manager.call(
+                "asyncRun(_ p0: sending () async -> Void) async",
+                parameters: (p0),
+                escapingParameters: (({ () in
+                            fatalError("This is a stub! It's not supposed to be called!")
+                        } as () async -> Void)),
+                invoke: { (implementation: nonisolated(nonsending) ((@escaping () async -> Void)) async -> Void, arguments) in
+                    await implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: await __defaultImplStub.value.asyncRun(__p0.value)
+            )
+        }
+        return await withoutActuallyEscaping(p0, do: __cuckoo_escaping_p0)
+    }
+
     nonisolated struct __StubbingProxy_ClosureSpecifierService: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
 
@@ -48,6 +121,46 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
                 }]
             return .init(stub: cuckoo_manager.createStub(for: MockClosureSpecifierService.self,
                 method: "run(_ p0: sending () -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func swap<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(() -> Void), (inout () -> Void) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockClosureSpecifierService.self,
+                method: "swap(_ p0: inout () -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func read<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(() -> Int), Int, ((@escaping () -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == () -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockClosureSpecifierService.self,
+                method: "read(_ p0: borrowing () -> Int) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func aliased<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(() -> Void), ((@escaping () -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockClosureSpecifierService.self,
+                method: "aliased(_ p0: sending () -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func asyncRun<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(() async -> Void), nonisolated(nonsending) ((@escaping () async -> Void)) async -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == () async -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(() async -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockClosureSpecifierService.self,
+                method: "asyncRun(_ p0: sending () async -> Void) async",
                 parameterMatchers: matchers
             ))
         }
@@ -76,11 +189,79 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
                 sourceLocation: cuckoo_sourceLocation
             )
         }
+
+        @discardableResult
+        func swap<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where M1.MatchedType == () -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "swap(_ p0: inout () -> Void)",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+
+        @discardableResult
+        func read<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() -> Int), Int> where M1.MatchedType == () -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "read(_ p0: borrowing () -> Int) -> Int",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+
+        @discardableResult
+        func aliased<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() -> Void), Void> where M1.MatchedType == () -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "aliased(_ p0: sending () -> Void)",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+
+        @discardableResult
+        func asyncRun<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(() async -> Void), Void> where M1.MatchedType == () async -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(() async -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "asyncRun(_ p0: sending () async -> Void) async",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
     }
 }
 
 nonisolated final class ClosureSpecifierServiceStub: ClosureSpecifierService {
     func run(_ p0: sending () -> Void) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    func swap(_ p0: inout () -> Void) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    func read(_ p0: borrowing () -> Int) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+
+    func aliased(_ p0: sending () -> Void) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    func asyncRun(_ p0: sending () async -> Void) async {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
