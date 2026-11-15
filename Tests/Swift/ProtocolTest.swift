@@ -22,7 +22,7 @@ struct ProtocolTest {
         var called = false
         stub(mock) { mock in
             when(mock.readWriteProperty.get).thenReturn(1)
-            when(mock.readWriteProperty.set(anyInt())).then { _ in called = true }
+            when(mock.readWriteProperty.set(any())).then { _ in called = true }
         }
 
         mock.readWriteProperty = 0
@@ -38,7 +38,7 @@ struct ProtocolTest {
         var called = false
         stub(mock) { mock in
             when(mock.optionalProperty.get).thenReturn(nil)
-            when(mock.optionalProperty.set(anyInt())).then { _ in called = true }
+            when(mock.optionalProperty.set(any())).then { _ in called = true }
         }
 
         mock.optionalProperty = 0
@@ -167,55 +167,55 @@ struct ProtocolTest {
     @Test
     func withClosure() {
         stub(mock) { mock in
-            when(mock.withClosure(anyClosure())).then { $0("a") }
+            when(mock.withClosure(any())).then { $0("a") }
         }
 
         #expect(mock.withClosure { _ in 1 } == 1)
-        verify(mock).withClosure(anyClosure())
+        verify(mock).withClosure(any())
     }
 
     @Test
     func withEscape() {
         var called = false
         stub(mock) { mock in
-            when(mock.withEscape(anyString(), action: anyClosure())).then { text, closure in closure(text) }
+            when(mock.withEscape(any(), action: any())).then { text, closure in closure(text) }
         }
 
         mock.withEscape("a") { called = $0 == "a" }
 
         #expect(called)
-        verify(mock).withEscape(anyString(), action: anyClosure())
+        verify(mock).withEscape(any(), action: any())
     }
 
     @Test
     func withOptionalClosure() {
         var called = false
         stub(mock) { mock in
-            when(mock.withOptionalClosure(anyString(), closure: anyClosure())).then { text, closure in closure?(text)  }
+            when(mock.withOptionalClosure(any(), closure: any())).then { text, closure in closure?(text)  }
         }
 
         mock.withOptionalClosure("a") { called = $0 == "a" }
 
         #expect(called)
-        verify(mock).withOptionalClosure(anyString(), closure: anyClosure())
+        verify(mock).withOptionalClosure(any(), closure: any())
     }
 
     @Test
     func withLabel() {
         var called = false
         stub(mock) { mock in
-            when(mock.withLabelAndUnderscore(labelA: anyString(), anyString())).then { _ in called = true }
+            when(mock.withLabelAndUnderscore(labelA: any(), any())).then { _ in called = true }
         }
 
         mock.withLabelAndUnderscore(labelA: "a", "b")
         #expect(called)
-        verify(mock).withLabelAndUnderscore(labelA: anyString(), anyString())
+        verify(mock).withLabelAndUnderscore(labelA: any(), any())
     }
 
     @Test
     func withImplicitlyUnwrappedOptional() {
         stub(mock) { mock in
-            when(mock.withImplicitlyUnwrappedOptional(i: anyInt())).thenReturn("test")
+            when(mock.withImplicitlyUnwrappedOptional(i: any())).thenReturn("test")
         }
 
         #expect(mock.withImplicitlyUnwrappedOptional(i: 5) == "test")
@@ -226,8 +226,8 @@ struct ProtocolTest {
     func emptyLabels() {
         let mock = MockEmptyLabelProtocol<Bool>()
         stub(mock) { mock in
-            when(mock.empty(anyString())).thenReturn(420)
-            when(mock.empty(anyString())).then { print("OK: \($0)") }
+            when(mock.empty(any())).thenReturn(420)
+            when(mock.empty(any())).then { print("OK: \($0)") }
             when(mock.empty(any())).thenReturn(true)
         }
 
@@ -236,8 +236,8 @@ struct ProtocolTest {
         #expect(mock.empty(false))
 
         // the calls are ambiguous if we do not specify the input and output types
-        _ = verify(mock).empty(anyString()) as __DoNotUse<String, Int>
-        _ = verify(mock).empty(anyString()) as __DoNotUse<String, Void>
+        _ = verify(mock).empty(any()) as __DoNotUse<String, Int>
+        _ = verify(mock).empty(any()) as __DoNotUse<String, Void>
         _ = verify(mock).empty(any()) as __DoNotUse<Bool, Bool>
     }
 

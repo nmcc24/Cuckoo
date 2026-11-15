@@ -15,7 +15,7 @@ struct ShortCircuitMatchingTest {
             return true
         }
         stub(mock) { stub in
-            when(stub.withLabelAndUnderscore(labelA: anyString(), anyString())).thenDoNothing()
+            when(stub.withLabelAndUnderscore(labelA: any(), any())).thenDoNothing()
             when(stub.withLabelAndUnderscore(labelA: "a", counting)).thenDoNothing()
         }
 
@@ -30,7 +30,7 @@ struct ShortCircuitMatchingTest {
     func verifySkipsTheMatchersAfterARejectedArgument() {
         let mock = MockTestedClass()
         stub(mock) { stub in
-            when(stub.withLabelAndUnderscore(labelA: anyString(), anyString())).thenDoNothing()
+            when(stub.withLabelAndUnderscore(labelA: any(), any())).thenDoNothing()
         }
         mock.withLabelAndUnderscore(labelA: "b", "x")
         mock.withLabelAndUnderscore(labelA: "a", "y")

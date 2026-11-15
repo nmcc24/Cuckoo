@@ -35,7 +35,7 @@ func stubProfiles(store: MockProfileStore, cache: MockProfileCache) {
     stub(cache) { stub in
         when(stub.lookup("Ann", limit: isNil())).thenReturn(1)
         when(stub.lookup(equal(to: "Ann").or(equal(to: "Bo")), limit: 3)).thenReturn(2)
-        when(stub.lookup(anyString(), limit: notNil())).thenReturn(3)
+        when(stub.lookup(any(), limit: notNil())).thenReturn(3)
         when(stub.names(matching: containsAnyOf(values: "a", where: { $0 == $1 }))).thenReturn([])
         when(stub.names(matching: hasLength(atLeast: 2))).thenReturn(["a"])
     }

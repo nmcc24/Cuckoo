@@ -65,18 +65,15 @@ struct ParameterMatcherFunctionsTest {
     }
 
     @Test
-    func testAnyInt() {
-        #expect(anyInt().matches(1))
-    }
-
-    @Test
-    func testAnyString() {
-        #expect(anyString().matches("a"))
-    }
-
-    @Test
     func testAny() {
         #expect(any().matches(X()))
+    }
+
+    @Test
+    func anyMatchesClosures() {
+        #expect((any() as SendableMatcher<(Int) -> Int>).matches { $0 })
+        #expect((any() as SendableMatcher<@Sendable (Int, Int) throws -> Int>).matches { _, _ in 0 })
+        #expect((any() as SendableMatcher<(Int) async throws -> Int>).matches { $0 })
     }
 
     @Test
@@ -85,90 +82,6 @@ struct ParameterMatcherFunctionsTest {
         #expect(isNil().matches(nil as X?))
         #expect(isNil().matches(optional))
         #expect(!isNil().matches(X()))
-    }
-
-    @Test
-    func testAnyClosure() {
-        #expect((anyClosure() as SendableMatcher<() -> Int>).matches { 0 })
-        #expect((anyClosure() as SendableMatcher<(Int) -> Int>).matches { _ in 0 })
-        #expect((anyClosure() as SendableMatcher<(Int, Int) -> Int>).matches { _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<(Int, Int, Int) -> Int>).matches { _, _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<(Int, Int, Int, Int) -> Int>).matches { _, _, _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<(Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _, _ in 0 })
-    }
-
-    @Test
-    func anySendableClosure() {
-        #expect((anyClosure() as SendableMatcher<@Sendable () -> Int>).matches { 0 })
-        #expect((anyClosure() as SendableMatcher<@Sendable (Int) -> Int>).matches { _ in 0 })
-        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int) -> Int>).matches { _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int) -> Int>).matches { _, _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int) -> Int>).matches { _, _, _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _ in 0 })
-        #expect((anyClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int, Int) -> Int>).matches { _, _, _, _, _, _, _ in 0 })
-    }
-
-    @Test
-    func anyOptionalSendableClosureRejectsNil() {
-        #expect(!(anyClosure() as SendableMatcher<(@Sendable () -> Int)?>).matches(nil))
-        #expect((anyClosure() as SendableMatcher<(@Sendable () -> Int)?>).matches { 0 })
-        #expect(!(anyClosure() as SendableMatcher<(@Sendable () async -> Int)?>).matches(nil))
-        #expect((anyClosure() as SendableMatcher<(@Sendable () async -> Int)?>).matches { 0 })
-        #expect(!(anyClosure() as SendableMatcher<(@Sendable (Int) -> Int)?>).matches(nil))
-    }
-
-    @Test
-    func testAnyThrowingClosure() {
-        struct MockError: Error { }
-        
-        #expect((anyThrowingClosure() as SendableMatcher<() throws -> Int>).matches { 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int) throws -> Int>).matches { _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int) throws -> Int>).matches { _, _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int) throws -> Int>).matches { _, _, _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _, _ in 0 })
-
-        #expect((anyThrowingClosure() as SendableMatcher<() throws -> Int>).matches { throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int) throws -> Int>).matches { _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int) throws -> Int>).matches { _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int) throws -> Int>).matches { _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<(Int, Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _, _ in throw MockError() })
-    }
-
-    @Test
-    func anySendableThrowingClosure() {
-        struct MockError: Error { }
-
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable () throws -> Int>).matches { 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int) throws -> Int>).matches { _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int) throws -> Int>).matches { _, _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int) throws -> Int>).matches { _, _, _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in 0 })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in 0 })
-
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable () throws -> Int>).matches { throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int) throws -> Int>).matches { _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int) throws -> Int>).matches { _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int) throws -> Int>).matches { _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _ in throw MockError() })
-        #expect((anyThrowingClosure() as SendableMatcher<@Sendable (Int, Int, Int, Int, Int, Int, Int) throws -> Int>).matches { _, _, _, _, _, _, _ in throw MockError() })
-    }
-
-    @Test
-    func testAnyOptionalThrowingClosure() {
-        #expect(anyOptionalThrowingClosure().matches { (i: String) in 0 })
-        #expect(anyOptionalThrowingClosure().matches { (p: Int) throws in 1 })
     }
 
     @Test
@@ -206,27 +119,9 @@ struct ParameterMatcherFunctionsTest {
     }
 
     @Test
-    func optionalAnyInt() {
-        #expect(anyInt().matches(1 as Int?))
-        #expect(!anyString().matches(nil as String?))
-    }
-
-    @Test
-    func optionalAnyString() {
-        #expect(anyString().matches("a" as String?))
-        #expect(!anyString().matches(nil as String?))
-    }
-
-    @Test
     func optionalAny() {
         #expect(any(X.self).matches(X() as X?))
         #expect(any(X.self).matches(nil as X?))
-    }
-
-    @Test
-    func optionalAnyClosure() {
-        #expect(anyClosure().matches({ (arg) in let () = arg; return 0 } as ((()) -> Int)?))
-        #expect(!anyClosure().matches(nil as ((()) -> Int)?))
     }
 
     @Test

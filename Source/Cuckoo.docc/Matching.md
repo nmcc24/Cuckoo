@@ -32,11 +32,11 @@ also needs `@retroactive`.
 
 ### Matcher functions
 
-- `any()` matches every argument. Pass the type, `any(Int.self)`, where inference can't pick it. `anyInt()` and
-  `anyString()` spell two common ones.
+- `any()` matches every argument, closures included, and on an optional parameter `nil` too. Pass the type,
+  `any(Int.self)`, where inference can't pick it.
 - `equal(to:)` matches an equal value. `sameInstance(as:)` matches the same class instance.
 - `isNil()` and `notNil()` match optionals.
-- `anyClosure()` and `anyThrowingClosure()` match closure arguments, which can't be compared.
+- A closure argument can't be compared, so match it with `any()`, or `notNil()` for an optional one.
   On Apple platforms, a closure parameter with typed throws, `(Int) throws(LoadError) -> Void`, can only be mocked
   from macOS 15, iOS 18, tvOS 18 or watchOS 11, since the mock keeps the closure's type at run time. Mark the
   requirement `@available` accordingly.

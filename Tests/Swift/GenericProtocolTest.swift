@@ -166,7 +166,7 @@ struct GenericProtocolTest {
         let mock = createMock(value: 10)
         stub(mock) { mock in
             when(mock.readWritePropertyV.get).then { 11 }
-            when(mock.readWritePropertyV.set(anyInt())).thenDoNothing()
+            when(mock.readWritePropertyV.set(any())).thenDoNothing()
         }
 
         mock.readWritePropertyV = 42
@@ -414,7 +414,7 @@ struct GenericProtocolTest {
         let expected = 123
         
         stub(mock) { mock in
-            when(mock.convertToOutput(value: anyInt(), input: anyString(), convert: any(ConvertClosure.self)))
+            when(mock.convertToOutput(value: any(), input: any(), convert: any(ConvertClosure.self)))
                 .thenReturn(expected)
         }
         let closure: @MainActor @Sendable (Int, String) async throws -> sending Int? = { _, _ in nil }

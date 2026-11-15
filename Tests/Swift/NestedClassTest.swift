@@ -60,7 +60,7 @@ struct NestedClassTest {
         var called = false
         stub(mock) { mock in
             when(mock.readWriteProperty.get).thenReturn(1)
-            when(mock.readWriteProperty.set(anyInt())).then { _ in called = true }
+            when(mock.readWriteProperty.set(any())).then { _ in called = true }
         }
 
         mock.readWriteProperty = 0
@@ -76,7 +76,7 @@ struct NestedClassTest {
         var called = false
         stub(mock) { mock in
             when(mock.optionalProperty.get).thenReturn(nil)
-            when(mock.optionalProperty.set(anyInt())).then { _ in called = true }
+            when(mock.optionalProperty.set(any())).then { _ in called = true }
         }
 
         mock.optionalProperty = 0
@@ -151,12 +151,12 @@ struct NestedClassTest {
         }
 
         stub(mock) { mock in
-            when(mock.withClosure(anyClosure())).then { $0("a") }
-            when(mock.withClosureReturningVoid(anyClosure())).then { $0("a")() }
-            when(mock.withClosureReturningInt(anyClosure())).then { $0("a")(1) }
-            when(mock.withOptionalClosureAlone(anyClosure())).then { $0?("a")(1) ?? 1 }
-            when(mock.withNestedClosure1(anyClosure())).then { $0("a")({ Int($0) ?? 1 }) }
-            when(mock.withNestedClosure2(anyNestedClosure())).then { $0({ Int($0) ?? 1 })({ Int($0) ?? 1 }) }
+            when(mock.withClosure(any())).then { $0("a") }
+            when(mock.withClosureReturningVoid(any())).then { $0("a")() }
+            when(mock.withClosureReturningInt(any())).then { $0("a")(1) }
+            when(mock.withOptionalClosureAlone(any())).then { $0?("a")(1) ?? 1 }
+            when(mock.withNestedClosure1(any())).then { $0("a")({ Int($0) ?? 1 }) }
+            when(mock.withNestedClosure2(any())).then { $0({ Int($0) ?? 1 })({ Int($0) ?? 1 }) }
         }
 
         #expect(mock.withClosure { _ in 1 } == 1)
@@ -166,50 +166,50 @@ struct NestedClassTest {
         #expect(mock.withNestedClosure1 { _ in { _ in return 1 } } == 1)
         #expect(mock.withNestedClosure2 { _ in { _ in return 1 } } == 1)
 
-        verify(mock).withClosure(anyClosure())
-        verify(mock).withClosureReturningVoid(anyClosure())
-        verify(mock).withClosureReturningInt(anyClosure())
-        verify(mock).withOptionalClosureAlone(anyClosure())
-        verify(mock).withNestedClosure1(anyClosure())
-        verify(mock).withNestedClosure2(anyNestedClosure())
+        verify(mock).withClosure(any())
+        verify(mock).withClosureReturningVoid(any())
+        verify(mock).withClosureReturningInt(any())
+        verify(mock).withOptionalClosureAlone(any())
+        verify(mock).withNestedClosure1(any())
+        verify(mock).withNestedClosure2(any())
     }
 
     @Test
     func withEscape() {
         var called = false
         stub(mock) { mock in
-            when(mock.withEscape(anyString(), action: anyClosure())).then { text, closure in closure(text) }
+            when(mock.withEscape(any(), action: any())).then { text, closure in closure(text) }
         }
 
         mock.withEscape("a") { called = $0 == "a" }
 
         #expect(called)
-        verify(mock).withEscape(anyString(), action: anyClosure())
+        verify(mock).withEscape(any(), action: any())
     }
 
     @Test
     func withOptionalClosure() {
         var called = false
         stub(mock) { mock in
-            when(mock.withOptionalClosure(anyString(), closure: anyClosure())).then { text, closure in closure?(text)  }
+            when(mock.withOptionalClosure(any(), closure: any())).then { text, closure in closure?(text)  }
         }
 
         mock.withOptionalClosure("a") { called = $0 == "a" }
 
         #expect(called)
-        verify(mock).withOptionalClosure(anyString(), closure: anyClosure())
+        verify(mock).withOptionalClosure(any(), closure: any())
     }
 
     @Test
     func withLabel() {
         var called = false
         stub(mock) { mock in
-            when(mock.withLabelAndUnderscore(labelA: anyString(), anyString())).then { _ in called = true }
+            when(mock.withLabelAndUnderscore(labelA: any(), any())).then { _ in called = true }
         }
 
         mock.withLabelAndUnderscore(labelA: "a", "b")
         #expect(called)
-        verify(mock).withLabelAndUnderscore(labelA: anyString(), anyString())
+        verify(mock).withLabelAndUnderscore(labelA: any(), any())
     }
 
     @Test

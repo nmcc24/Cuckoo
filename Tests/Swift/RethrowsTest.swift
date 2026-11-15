@@ -55,18 +55,18 @@ struct RethrowsTest {
     func stubbedCallStillAnswersFromItsStub() throws {
         let mock = MockRethrowingService()
         stub(mock) { stub in
-            when(stub.transform(any(), using: anyThrowingClosure())).thenReturn(7)
+            when(stub.transform(any(), using: any())).thenReturn(7)
         }
 
         #expect(mock.transform(1, using: { $0 }) == 7)
-        verify(mock).transform(equal(to: 1), using: anyThrowingClosure())
+        verify(mock).transform(equal(to: 1), using: any())
     }
 
     @Test
     func thenThrowReachesACallerWhoseClosureThrows() {
         let mock = MockRethrowingService()
         stub(mock) { stub in
-            when(stub.transform(any(), using: anyThrowingClosure())).thenThrow(Failure())
+            when(stub.transform(any(), using: any())).thenThrow(Failure())
         }
 
         #expect(throws: Failure.self) {

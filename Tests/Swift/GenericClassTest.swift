@@ -55,10 +55,10 @@ struct GenericClassTest {
         var calledV = false
         stub(mock) { mock in
             when(mock.readWritePropertyT.get).thenReturn(1)
-            when(mock.readWritePropertyT.set(anyInt())).then { _ in calledT = true }
+            when(mock.readWritePropertyT.set(any())).then { _ in calledT = true }
 
             when(mock.readWritePropertyU.get).thenReturn("Hello, mocker!")
-            when(mock.readWritePropertyU.set(anyString())).then { _ in calledU = true }
+            when(mock.readWritePropertyU.set(any())).then { _ in calledU = true }
 
             when(mock.readWritePropertyV.get).thenReturn(false)
             when(mock.readWritePropertyV.set(any())).then { _ in calledV = true }
@@ -88,7 +88,7 @@ struct GenericClassTest {
         var called = false
         stub(mock) { mock in
             when(mock.optionalProperty.get).thenReturn(nil)
-            when(mock.optionalProperty.set(anyString())).then { _ in called = true }
+            when(mock.optionalProperty.set(any())).then { _ in called = true }
         }
 
         mock.optionalProperty = "tukabel"
@@ -130,8 +130,8 @@ struct GenericClassTest {
     @Test
     func getThird() {
         stub(mock) { mock in
-            when(mock.getThird(foo: anyInt(), bar: "gimme true", baz: any())).thenReturn(false)
-            when(mock.getThird(foo: anyInt(), bar: "gimme false", baz: any())).thenReturn(true)
+            when(mock.getThird(foo: any(), bar: "gimme true", baz: any())).thenReturn(false)
+            when(mock.getThird(foo: any(), bar: "gimme false", baz: any())).thenReturn(true)
         }
 
         #expect(!mock.getThird(foo: 10, bar: "gimme true", baz: true))
@@ -143,7 +143,7 @@ struct GenericClassTest {
     @Test
     func testPrint() {
         stub(mock) { mock in
-            when(mock.print(theT: anyInt())).thenDoNothing()
+            when(mock.print(theT: any())).thenDoNothing()
         }
 
         mock.print(theT: 555)
@@ -154,7 +154,7 @@ struct GenericClassTest {
     func encode() throws {
         mock.enableDefaultImplementation(original)
         stub(mock) { mock in
-            when(mock.encode(theU: anyString())).thenCallRealImplementation()
+            when(mock.encode(theU: any())).thenCallRealImplementation()
         }
 
         let world = "Hello, world!"
@@ -166,21 +166,21 @@ struct GenericClassTest {
     @Test
     func withClosure() {
         stub(mock) { mock in
-            when(mock.withClosure(anyClosure())).then { $0(666) }
+            when(mock.withClosure(any())).then { $0(666) }
         }
 
         #expect(mock.withClosure { number in number * 2 + 5 } == 1337)
-        verify(mock).withClosure(anyClosure())
+        verify(mock).withClosure(any())
     }
 
     @Test
     func withGenericClosure() {
         stub(mock) { mock in
-            when(mock.genericClosure(gg: "gg", closure: anyClosure())).thenDoNothing()
+            when(mock.genericClosure(gg: "gg", closure: any())).thenDoNothing()
         }
 
         mock.genericClosure(gg: "gg", closure: { print($0.readWritePropertyT) })
-        verify(mock).genericClosure(gg: "gg", closure: anyClosure())
+        verify(mock).genericClosure(gg: "gg", closure: any())
     }
 
     @Test

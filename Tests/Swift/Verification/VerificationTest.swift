@@ -34,14 +34,14 @@ struct VerificationTest {
         let mock = MockTestedClass()
         stub(mock) { mock in
             when(mock.noReturn()).thenDoNothing()
-            when(mock.count(characters: anyString())).thenReturn(1)
+            when(mock.count(characters: any())).thenReturn(1)
         }
 
         _ = mock.count(characters: "a")
         mock.noReturn()
 
         verify(mock).noReturn()
-        verify(mock).count(characters: anyString())
+        verify(mock).count(characters: any())
     }
 
     @Test
