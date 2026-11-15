@@ -117,7 +117,7 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         protocolDeclaration.associatedTypes = (associatedTypes + inheritedAssociatedTypes)
             .merged()
             .filter { !fixedNames.contains($0.name) }
-            .map { GenericParameter(name: $0.name, inheritedTypes: ($0.inheritedTypes + constraints[$0.name, default: []]).uniquing(), kind: $0.kind) }
+            .map { GenericParameter(name: $0.name, inheritedTypes: ($0.inheritedTypes + constraints[$0.name, default: []]).uniquing(), kind: $0.kind, condition: $0.condition) }
         protocolDeclaration.primaryAssociatedTypes = primaryAssociatedTypes.filter { !fixedNames.contains($0.name) }
         // A parent's typealiases arrive with its members; keep one of each.
         var aliases: Set<String> = []

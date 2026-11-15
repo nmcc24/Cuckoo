@@ -84,6 +84,9 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   `package` type's mock is now `package`, and a public or package mock's proxies and protocol initializer have the
   mock's access (an `@_spi` member's proxies stay internal).
 
+- An `associatedtype` declared under `#if` was missed, so the mock didn't compile in the build that declares it.
+  The mock now takes it as a generic parameter, constrained only in that build.
+
 Build plugin:
 - In an Xcode project, Getting Started's Cuckoofile generated no mocks, without a word: Xcode doesn't tell the
   plugin which of the project's own targets a test target depends on. An Xcode project's entry is named after the

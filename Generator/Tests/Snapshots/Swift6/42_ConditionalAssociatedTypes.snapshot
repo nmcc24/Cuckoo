@@ -1,0 +1,451 @@
+import Cuckoo
+import Foundation
+
+nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = DefaultImplCaller
+    typealias Stubbing = __StubbingProxy_DebugFeed
+    typealias Verification = __VerificationProxy_DebugFeed
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockDebugFeed.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class DefaultImplCaller: DebugFeed, Sendable {
+        private let reference: @Sendable () -> any DebugFeed
+
+        #if ((DEBUG))
+        init<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = {
+                box.value
+            }
+
+            #if (DEBUG)
+            _storage$1$next = {
+                box.value.next()
+            }
+            #endif
+            #if !(DEBUG)
+            _storage$2$next = {
+                box.value.next()
+            }
+            #endif
+        }
+        #else
+        init<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = {
+                box.value
+            }
+
+            #if (DEBUG)
+            _storage$1$next = {
+                box.value.next()
+            }
+            #endif
+            #if !(DEBUG)
+            _storage$2$next = {
+                box.value.next()
+            }
+            #endif
+        }
+        #endif
+
+        #if (DEBUG)
+        private let _storage$1$next: @Sendable () -> Item
+        func next() -> Item {
+            return _storage$1$next()
+        }
+        #endif
+
+        #if !(DEBUG)
+        private let _storage$2$next: @Sendable () -> Int
+        func next() -> Int {
+            return _storage$2$next()
+        }
+        #endif
+    }
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+
+    #if ((DEBUG))
+        nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+            __defaultImplStub.value = DefaultImplCaller(stub)
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+    #else
+        nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) {
+            __defaultImplStub.value = DefaultImplCaller(stub)
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+    #endif
+
+    #if (DEBUG)
+    func next() -> Item {
+        return cuckoo_manager.call(
+            "next() -> Item",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Item, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.next()
+        )
+    }
+    #endif
+
+    #if !(DEBUG)
+    func next() -> Int {
+        return cuckoo_manager.call(
+            "next() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.next()
+        )
+    }
+    #endif
+
+    nonisolated struct __StubbingProxy_DebugFeed: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        #if (DEBUG)
+        func next() -> Cuckoo.ProtocolStubFunction<(), Item, (()) -> Item, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockDebugFeed.self,
+                method: "next() -> Item",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        #if !(DEBUG)
+        func next() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockDebugFeed.self,
+                method: "next() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+    }
+
+    nonisolated struct __VerificationProxy_DebugFeed: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        #if (DEBUG)
+        @discardableResult
+        func next() -> Cuckoo.__DoNotUse<(), Item> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "next() -> Item",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+
+        #if !(DEBUG)
+        @discardableResult
+        func next() -> Cuckoo.__DoNotUse<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "next() -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+    }
+}
+
+nonisolated final class DebugFeedStub<Item>: DebugFeed {
+    #if (DEBUG)
+    func next() -> Item {
+        return DefaultValueRegistry.defaultValue(for: (Item).self)
+    }
+    #endif
+    #if !(DEBUG)
+    func next() -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+    #endif
+}
+
+nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = DefaultImplCaller
+    typealias Stubbing = __StubbingProxy_EitherFeed
+    typealias Verification = __VerificationProxy_EitherFeed
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockEitherFeed.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class DefaultImplCaller: EitherFeed, Sendable {
+        private let reference: @Sendable () -> any EitherFeed
+
+        #if ((DEBUG))
+        init<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = {
+                box.value
+            }
+
+            #if (DEBUG)
+            _storage$1$value = { p0 in
+                box.value.value(for: p0)
+            }
+            #endif
+            #if !(DEBUG) && (os(Linux))
+            _storage$2$value = { p0 in
+                box.value.value(for: p0)
+            }
+            #endif
+            #if !(DEBUG) && !(os(Linux))
+            _storage$3$value = { p0 in
+                box.value.value(for: p0)
+            }
+            #endif
+        }
+        #else
+        init<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            reference = {
+                box.value
+            }
+
+            #if (DEBUG)
+            _storage$1$value = { p0 in
+                box.value.value(for: p0)
+            }
+            #endif
+            #if !(DEBUG) && (os(Linux))
+            _storage$2$value = { p0 in
+                box.value.value(for: p0)
+            }
+            #endif
+            #if !(DEBUG) && !(os(Linux))
+            _storage$3$value = { p0 in
+                box.value.value(for: p0)
+            }
+            #endif
+        }
+        #endif
+
+        #if (DEBUG)
+        private let _storage$1$value: @Sendable (Key) -> Value
+        func value(for p0: Key) -> Value {
+            return _storage$1$value(p0)
+        }
+        #endif
+
+        #if !(DEBUG) && (os(Linux))
+        private let _storage$2$value: @Sendable (Key) -> String
+        func value(for p0: Key) -> String {
+            return _storage$2$value(p0)
+        }
+        #endif
+
+        #if !(DEBUG) && !(os(Linux))
+        private let _storage$3$value: @Sendable (Key) -> Int
+        func value(for p0: Key) -> Int {
+            return _storage$3$value(p0)
+        }
+        #endif
+    }
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+
+    #if ((DEBUG))
+        nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
+            __defaultImplStub.value = DefaultImplCaller(stub)
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+    #else
+        nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+            __defaultImplStub.value = DefaultImplCaller(stub)
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+    #endif
+
+    #if (DEBUG)
+    func value(for p0: Key) -> Value {
+        return cuckoo_manager.call(
+            "value(for p0: Key) -> Value",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Key)) -> Value, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.value(for: p0)
+        )
+    }
+    #endif
+
+    #if !(DEBUG) && (os(Linux))
+    func value(for p0: Key) -> String {
+        return cuckoo_manager.call(
+            "value(for p0: Key) -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Key)) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.value(for: p0)
+        )
+    }
+    #endif
+
+    #if !(DEBUG) && !(os(Linux))
+    func value(for p0: Key) -> Int {
+        return cuckoo_manager.call(
+            "value(for p0: Key) -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Key)) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.value(for: p0)
+        )
+    }
+    #endif
+
+    nonisolated struct __StubbingProxy_EitherFeed: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+        #if (DEBUG)
+        func value<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), Value, ((Key)) -> Value, Cuckoo.StubSharing.Confined> where M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockEitherFeed.self,
+                method: "value(for p0: Key) -> Value",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        #if !(DEBUG) && (os(Linux))
+        func value<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), String, ((Key)) -> String, Cuckoo.StubSharing.Confined> where M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockEitherFeed.self,
+                method: "value(for p0: Key) -> String",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+        #if !(DEBUG) && !(os(Linux))
+        func value<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), Int, ((Key)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockEitherFeed.self,
+                method: "value(for p0: Key) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+        #endif
+    }
+
+    nonisolated struct __VerificationProxy_EitherFeed: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        #if (DEBUG)
+        @discardableResult
+        func value<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), Value> where M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "value(for p0: Key) -> Value",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+
+        #if !(DEBUG) && (os(Linux))
+        @discardableResult
+        func value<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), String> where M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "value(for p0: Key) -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+
+        #if !(DEBUG) && !(os(Linux))
+        @discardableResult
+        func value<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), Int> where M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "value(for p0: Key) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        #endif
+    }
+}
+
+nonisolated final class EitherFeedStub<Key, Value>: EitherFeed {
+    #if (DEBUG)
+    func value(for p0: Key) -> Value {
+        return DefaultValueRegistry.defaultValue(for: (Value).self)
+    }
+    #endif
+    #if !(DEBUG) && (os(Linux))
+    func value(for p0: Key) -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+    #endif
+    #if !(DEBUG) && !(os(Linux))
+    func value(for p0: Key) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+    #endif
+}

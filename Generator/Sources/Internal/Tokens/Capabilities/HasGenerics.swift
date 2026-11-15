@@ -38,19 +38,26 @@ extension HasGenerics {
         return protocolDeclaration.primaryAssociatedTypes.count == protocolDeclaration.genericParameters.count
     }
 
-    /// The `where` constraints that make a protocol's generic parameters the static generic type's, or `nil` for a
-    /// class.
-    var genericProtocolIdentity: String? {
-        guard isProtocol else { return nil }
-        return genericParameters
-            .map { "\(GeneratedNames.staticGenericParameter).\($0.name) == \($0.name)" }
-            .joined(separator: ", ")
+    /// The constraints a protocol mock's generic default-implementation entry points take: each generic parameter
+    /// is the static generic type's, and with `metatypes`, a `SendableMetatype`. Without `includingConditional`,
+    /// those of the associated types declared under `#if` are left out, for the build where they don't exist.
+    func genericProtocolRequirements(metatypes: Bool, includingConditional: Bool) -> [String] {
+        let parameters = genericParameters.filter { includingConditional || $0.condition == nil }
+        return parameters.map { "\(GeneratedNames.staticGenericParameter).\($0.name) == \($0.name)" }
+            + (metatypes ? parameters.map { "\($0.name): SendableMetatype" } : [])
     }
 
-    /// A nonisolated `DefaultImplCaller`'s `@Sendable` closures capture these parameters' metatypes. `nil` for a class.
-    var sendableMetatypeRequirements: String? {
-        guard isProtocol else { return nil }
-        return genericParameters.map { ", \($0.name): SendableMetatype" }.joined()
+    /// The `#if` condition of the protocol's associated types declared under one, if any.
+    var conditionalGenericParameterCondition: String? {
+        let conditions = Array(Set(genericParameters.compactMap(\.condition))).sorted()
+        return conditions.isEmpty ? nil : conditions.map { "(\($0))" }.joined(separator: " && ")
+    }
+
+    /// The lines of a whole declaration whose `where` clause names the generic parameters, once with each set of
+    /// them: under the `#if` of the associated types declared under one, and without them in its `#else`.
+    func conditionalOnGenericParameters(_ declaration: (_ includingConditional: Bool) -> [String]) -> [String] {
+        guard let condition = conditionalGenericParameterCondition else { return declaration(true) }
+        return ["#if \(condition)"] + declaration(true) + ["#else"] + declaration(false) + ["#endif"]
     }
 
     /// A protocol's primary associated types, in angle brackets, or `nil` if it has none.
@@ -58,5 +65,4 @@ extension HasGenerics {
         guard let protocolDeclaration = asProtocol, hasPrimaryAssociatedTypes else { return nil }
         return "<\(protocolDeclaration.primaryAssociatedTypes.map { $0.name }.joined(separator: ", "))>"
     }
-
 }
