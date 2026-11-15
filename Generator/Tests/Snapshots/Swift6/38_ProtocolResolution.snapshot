@@ -2056,3 +2056,310 @@ nonisolated final class DescribedStub: Described {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
+
+extension BoundScope {
+    final class MockBase: Base, nonisolated Cuckoo.ClassMock {
+        typealias MocksType = Base
+        typealias Stubbing = __StubbingProxy_Base
+        typealias Verification = __VerificationProxy_Base
+
+        // Original typealiases
+
+        nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockBase.self) ?? Cuckoo.MockManager(hasParent: true)
+
+        nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<Base>()
+
+        nonisolated func enableDefaultImplementation(_ stub: Base) {
+            __defaultImplStub.value = stub
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+
+        nonisolated struct __StubbingProxy_Base: Cuckoo.StubbingProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckoo_manager = manager
+            }
+        }
+
+        nonisolated struct __VerificationProxy_Base: Cuckoo.VerificationProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckoo_manager = manager
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
+            }
+        }
+    }
+
+    final class BaseStub: Base {
+    }
+}
+
+extension BoundScope {
+    final class MockBound: BoundScope.Base, Bound, nonisolated Cuckoo.ProtocolMock {
+        typealias MocksType = any Bound
+        typealias Stubbing = __StubbingProxy_Bound
+        typealias Verification = __VerificationProxy_Bound
+
+        // Original typealiases
+
+        nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockBound.self) ?? Cuckoo.MockManager(hasParent: false)
+
+        nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Bound>()
+
+        nonisolated func enableDefaultImplementation(_ stub: any Bound) {
+            __defaultImplStub.value = stub
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+
+        func bound() {
+            return cuckoo_manager.call(
+                "bound()",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> Void, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.bound()
+            )
+        }
+
+        nonisolated struct __StubbingProxy_Bound: Cuckoo.StubbingProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckoo_manager = manager
+            }
+
+            func bound() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckoo_manager.createStub(for: MockBound.self,
+                    method: "bound()",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+
+        nonisolated struct __VerificationProxy_Bound: Cuckoo.VerificationProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckoo_manager = manager
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
+            }
+
+            @discardableResult
+            func bound() -> Cuckoo.__DoNotUse<(), Void> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckoo_manager.verify(
+                    "bound()",
+                    callMatcher: cuckoo_callMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckoo_sourceLocation
+                )
+            }
+        }
+    }
+
+    final class BoundStub: BoundScope.Base, Bound {
+        func bound() {
+            return DefaultValueRegistry.defaultValue(for: (Void).self)
+        }
+    }
+}
+
+extension OtherScope {
+    nonisolated final class MockBound: Bound, nonisolated Cuckoo.ProtocolMock {
+        typealias MocksType = any Bound
+        typealias Stubbing = __StubbingProxy_Bound
+        typealias Verification = __VerificationProxy_Bound
+
+        // Original typealiases
+
+        nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockBound.self) ?? Cuckoo.MockManager(hasParent: false)
+
+        nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Bound>()
+
+        nonisolated func enableDefaultImplementation(_ stub: any Bound) {
+            __defaultImplStub.value = stub
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+
+        func other() {
+            return cuckoo_manager.call(
+                "other()",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> Void, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.other()
+            )
+        }
+
+        nonisolated struct __StubbingProxy_Bound: Cuckoo.StubbingProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckoo_manager = manager
+            }
+
+            func other() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckoo_manager.createStub(for: MockBound.self,
+                    method: "other()",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+
+        nonisolated struct __VerificationProxy_Bound: Cuckoo.VerificationProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckoo_manager = manager
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
+            }
+
+            @discardableResult
+            func other() -> Cuckoo.__DoNotUse<(), Void> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckoo_manager.verify(
+                    "other()",
+                    callMatcher: cuckoo_callMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckoo_sourceLocation
+                )
+            }
+        }
+    }
+
+    nonisolated final class BoundStub: Bound {
+        func other() {
+            return DefaultValueRegistry.defaultValue(for: (Void).self)
+        }
+    }
+}
+
+final class MockRefinesBound: BoundScope.Base, RefinesBound, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any RefinesBound
+    typealias Stubbing = __StubbingProxy_RefinesBound
+    typealias Verification = __VerificationProxy_RefinesBound
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockRefinesBound.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any RefinesBound>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any RefinesBound) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func refined() {
+        return cuckoo_manager.call(
+            "refined()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.refined()
+        )
+    }
+
+    func bound() {
+        return cuckoo_manager.call(
+            "bound()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.bound()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_RefinesBound: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func refined() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockRefinesBound.self,
+                method: "refined()",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func bound() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockRefinesBound.self,
+                method: "bound()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_RefinesBound: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func refined() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "refined()",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+
+        @discardableResult
+        func bound() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "bound()",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+    }
+}
+
+final class RefinesBoundStub: BoundScope.Base, RefinesBound {
+    func refined() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    func bound() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}

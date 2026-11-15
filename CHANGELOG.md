@@ -92,6 +92,10 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   A generic parameter or associated type named like one of the mock's own type names (`Stubbing`, `Verification`,
   `MocksType`) gave a mock that couldn't compile; the type is now left out with a warning saying what to rename.
 
+- Two sources declaring the same type, such as `A/User.swift` and `B/User.swift`, gave two `MockUser` and only an
+  info line. It's now a warning that names both files. A protocol bound to a class (`protocol P: Base`) is found by
+  scope, so a same-named protocol elsewhere no longer stands in for it.
+
 Build plugin:
 - In an Xcode project, Getting Started's Cuckoofile generated no mocks, without a word: Xcode doesn't tell the
   plugin which of the project's own targets a test target depends on. An Xcode project's entry is named after the
