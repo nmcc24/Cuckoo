@@ -126,6 +126,8 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
     }
 
     func store(items p0: consuming [Int], name p1: borrowing String) -> Int {
+        let p0 = copy p0
+        let p1 = copy p1
         return cuckooManager.call(
             "store(items p0: consuming [Int], name p1: borrowing String) -> Int",
             parameters: ((copy p0), (copy p1)),

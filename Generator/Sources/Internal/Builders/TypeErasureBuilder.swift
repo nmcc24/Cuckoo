@@ -17,7 +17,8 @@ enum TypeErasureBuilder {
             access: container.accessibility.spaced,
             sendable: globalActor == nil ? "@Sendable " : "",
             protocolName: container.name,
-            primaryArguments: container.genericPrimaryAssociatedTypeArguments ?? ""
+            primaryArguments: container.genericPrimaryAssociatedTypeArguments ?? "",
+            globalActor: globalActor
         )
         let properties = container.mockedProperties.filter { !$0.isStatic }
         let methods = container.mockedMethods.filter { !$0.isStatic }
@@ -41,7 +42,7 @@ enum TypeErasureBuilder {
         }
 
         members.separate()
-        try members.append(initializer(container, properties: properties, subscripts: subscripts, methods: methods, globalActor: globalActor), of: "\(name).init")
+        try members.append(initializer(container, properties: properties, subscripts: subscripts, methods: methods, globalActor: globalActor, context), of: "\(name).init")
         for (index, initializer) in container.mockedInitializers.enumerated() {
             let access = initializer.parent?.asProtocol?.accessibility ?? initializer.accessibility
             var source = index == 0 ? ["/// MARK:- ignored required initializers"] : []
@@ -92,6 +93,37 @@ enum TypeErasureBuilder {
         var sendable: String
         var protocolName: String
         var primaryArguments: String
+        /// The eraser's global actor, or nil when it's nonisolated.
+        var globalActor: String?
+
+        /// Why a member can't be forwarded to the opened default implementation, or nil when it can: such a member
+        /// records a failure saying to stub it and returns a default value, so the mock still compiles.
+        func unforwardableReason(isolation: Isolation?, mentionsSelf: Bool, hasInout: Bool, hasSending: Bool) -> String? {
+            if hasInout {
+                return "it takes an inout argument"
+            }
+            if hasSending {
+                return "it takes a sending argument, which a stored closure can't pass on"
+            }
+            if mentionsSelf {
+                return "it names Self, which the eraser isn't"
+            }
+            let callerIsolation = globalActor.map(Isolation.globalActor) ?? .nonisolated
+            if let isolation, isolation != callerIsolation {
+                return "it's isolated differently from the protocol"
+            }
+            return nil
+        }
+
+        /// `nonisolated `, for a member that opts out of the eraser's global actor, so it satisfies the requirement.
+        func modifier(for isolation: Isolation?) -> String {
+            isolation == .nonisolated && globalActor != nil ? "nonisolated " : ""
+        }
+    }
+
+    /// The name of a member's stored closure, without the backticks a keyword-named member is written with.
+    static func storageName(_ name: String) -> String {
+        name.filter { $0 != "`" }
     }
 
     /// A member's declarations, after a blank line: inside its `#if` as one member, or each on its own line.
@@ -108,19 +140,57 @@ enum TypeErasureBuilder {
 
     private static func sources(of property: Variable, _ context: Context) -> [String] {
         let type = property.type.description
-        var sources = ["private let _getter_storage$$\(property.name.filter { $0 != "`" }): \(context.sendable)() -> \(type)"]
-        if !property.isReadOnly {
-            sources.append("private let _setter_storage$$\(property.name.filter { $0 != "`" }): \(context.sendable)(\(type)) -> Void")
-        }
+        let storage = storageName(property.name)
+        let getterEffects = property.effects.getterDeclaration
         var declaration = property.spiAttributes(at: property.accessibility).map(\.description)
-        declaration.append("\(context.access)var \(property.name): \(type) {")
-        declaration.append("    get { return _getter_storage$$\(property.name.filter { $0 != "`" })() }")
+        declaration.append("\(context.access)\(context.modifier(for: property.isolation))var \(property.name): \(type) {")
+        if let reason = unforwardableReason(of: property, context) {
+            declaration.append("    get \(getterEffects){ return Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal("\(context.protocolName).\(property.name)")), reason: \(Fragment.literal(reason))) }")
+            if !property.isReadOnly {
+                declaration.append("    set { Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal("\(context.protocolName).\(property.name)")), reason: \(Fragment.literal(reason))) as Void }")
+            }
+            declaration.append("}")
+            return [lines(declaration)]
+        }
+        // The stored closure throws untyped errors, as a method's does: the getter narrows a typed one back.
+        let closureEffects = (property.effects.isAsync ? "async " : "") + (property.effects.isThrowing ? "throws " : "")
+        let tryAwait = (property.effects.isThrowing ? "try " : "") + (property.effects.isAsync ? "await " : "")
+        var sources = ["private let _getter_storage$$\(storage): \(context.sendable)() \(closureEffects)-> \(type)"]
         if !property.isReadOnly {
-            declaration.append("    set { _setter_storage$$\(property.name.filter { $0 != "`" })(newValue) }")
+            sources.append("private let _setter_storage$$\(storage): \(context.sendable)(\(type)) -> Void")
+        }
+        if let typedError = property.effects.typedError {
+            declaration.append("    get \(getterEffects){")
+            declaration.append("        do {")
+            declaration.append("            return \(tryAwait)_getter_storage$$\(storage)()")
+            declaration.append("        } catch {")
+            declaration.append("            throw Cuckoo.MockManager.typedError(error, as: (\(typedError)).self, member: \(Fragment.literal("\(context.protocolName).\(property.name)")))")
+            declaration.append("        }")
+            declaration.append("    }")
+        } else {
+            declaration.append("    get \(getterEffects){ return \(tryAwait)_getter_storage$$\(storage)() }")
+        }
+        if !property.isReadOnly {
+            declaration.append("    set { _setter_storage$$\(storage)(newValue) }")
         }
         declaration.append("}")
         sources.append(lines(declaration))
         return sources
+    }
+
+    private static func unforwardableReason(of property: Variable, _ context: Context) -> String? {
+        context.unforwardableReason(isolation: property.isolation, mentionsSelf: property.mentionsSelf, hasInout: false, hasSending: false)
+    }
+
+    private static func unforwardableReason(of method: Method, _ context: Context) -> String? {
+        context.unforwardableReason(
+            isolation: method.isolation,
+            mentionsSelf: method.mentionsSelf,
+            hasInout: method.signature.parameters.contains(where: \.isInout),
+            // A generic member calls the opened default implementation directly and passes a `sending` argument on;
+            // only a stored closure can't.
+            hasSending: !method.hasGenericParams && method.signature.parameters.contains(where: \.isSending)
+        )
     }
 
     private static func sources(of subscriptDeclaration: Subscript, number: Int, _ context: Context) -> [String] {
@@ -152,11 +222,11 @@ enum TypeErasureBuilder {
         declaration.append("\(context.access)subscript\(subscriptDeclaration.signature) {")
         declaration.append("    get \(effects){")
         let variadicCrash = "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(getter.fullyQualifiedName)))"
-        let unforwardable = "fatalError(\(Fragment.literal(getter.unforwardableDefaultMessage)))"
+        let unforwardable = "Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal(getter.fullyQualifiedName)), reason: \(Fragment.literal(getter.unforwardableWhereClauseReason)))"
         if isGeneric && getter.hasVariadicParams {
             declaration.append("        \(variadicCrash)")
         } else if isGeneric && !getter.associatedTypesInWhereClause.isEmpty {
-            declaration.append("        \(unforwardable)")
+            declaration.append("        return \(unforwardable)")
         } else if isGeneric && getter.usesNonPrimaryAssociatedTypes {
             // Through `any P` an associated type reads as `Any`: the opened type gives it back, as for methods, with
             // the same copies of the local function for Swift 6.2.
@@ -184,7 +254,7 @@ enum TypeErasureBuilder {
             if isGeneric && getter.hasVariadicParams {
                 declaration.append("        \(variadicCrash) as Void")
             } else if isGeneric && !getter.associatedTypesInWhereClause.isEmpty {
-                declaration.append("        \(unforwardable)")
+                declaration.append("        \(unforwardable) as Void")
             } else if isGeneric && getter.usesNonPrimaryAssociatedTypes {
                 // Set on the opened value, which is stored back, as a non-generic subscript's setter sets the box's.
                 declaration.append("        func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic)) -> any \(context.protocolName)\(context.primaryArguments) {")
@@ -220,7 +290,8 @@ enum TypeErasureBuilder {
         properties: [Variable],
         subscripts: [Subscript],
         methods: [Method],
-        globalActor: String?
+        globalActor: String?,
+        _ context: Context
     ) -> String {
         let generic = GeneratedNames.staticGenericParameter
         let metatype = globalActor == nil ? " & SendableMetatype" : ""
@@ -236,10 +307,11 @@ enum TypeErasureBuilder {
         func conditional(_ token: any HasAttributes, _ statements: [String]) -> [String] {
             token.hasCompilationCondition ? [token.compilationConditionCheck] + statements + ["#endif"] : statements
         }
-        for property in properties {
-            var statements = ["_getter_storage$$\(property.name.filter { $0 != "`" }) = { box.value.\(property.name) }"]
+        for property in properties where unforwardableReason(of: property, context) == nil {
+            let tryAwait = (property.effects.isThrowing ? "try " : "") + (property.effects.isAsync ? "await " : "")
+            var statements = ["_getter_storage$$\(storageName(property.name)) = { \(tryAwait)box.value.\(property.name) }"]
             if !property.isReadOnly {
-                statements.append("_setter_storage$$\(property.name.filter { $0 != "`" }) = { box.value.\(property.name) = $0 }")
+                statements.append("_setter_storage$$\(storageName(property.name)) = { box.value.\(property.name) = $0 }")
             }
             body.append(contentsOf: conditional(property, statements))
         }
@@ -264,14 +336,14 @@ enum TypeErasureBuilder {
             }
             body.append(contentsOf: conditional(subscriptDeclaration, statements))
         }
-        for (index, method) in methods.enumerated() where !method.hasGenericParams {
+        for (index, method) in methods.enumerated() where !method.hasGenericParams && unforwardableReason(of: method, context) == nil {
             let parameters = method.parameterNames.isEmpty ? "" : "\(method.parameterNames) in "
             let tryAwait = (method.isThrowing ? "try " : "") + (method.isAsync ? "await " : "")
             // Swift can't pass a variadic parameter's recorded array on as separate arguments.
             let statement = if method.hasVariadicParams {
-                "_storage$\(index + 1)$\(method.name) = { \(parameters)Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(method.fullyQualifiedName))) }"
+                "_storage$\(index + 1)$\(storageName(method.name)) = { \(parameters)Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(method.fullyQualifiedName))) }"
             } else {
-                "_storage$\(index + 1)$\(method.name) = { \(parameters)\(tryAwait)box.value.\(escapeReservedKeywords(for: method.name))(\(method.call)) }"
+                "_storage$\(index + 1)$\(storageName(method.name)) = { \(parameters)\(tryAwait)box.value.\(escapeReservedKeywords(for: method.name))(\(method.call)) }"
             }
             body.append(contentsOf: conditional(method, [statement]))
         }
@@ -288,17 +360,20 @@ enum TypeErasureBuilder {
         let returnType = method.returnType?.description ?? ""
         let effects = (method.isAsync ? " async" : "") + (method.isThrowing ? " throws" : "")
         let tryAwait = (method.isThrowing ? "try " : "") + (method.isAsync ? "await " : "")
-        let storage = "_storage$\(number)$\(method.name)"
+        let storage = "_storage$\(number)$\(storageName(method.name))"
+        let unforwardable = unforwardableReason(of: method, context)
         var sources: [String] = []
-        if !method.hasGenericParams {
+        if !method.hasGenericParams && unforwardable == nil {
             sources.append("private let \(storage): \(context.sendable)(\(method.inputTypes))\(effects) -> \(returnType)")
         }
         var declaration = method.spiAttributes(at: method.accessibility).map(\.description)
-        declaration.append("\(context.access)func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
-        if method.hasVariadicParams && method.hasGenericParams {
+        declaration.append("\(context.access)\(context.modifier(for: method.isolation))func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
+        if let unforwardable {
+            declaration.append("    return Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal(method.fullyQualifiedName)), reason: \(Fragment.literal(unforwardable)))")
+        } else if method.hasVariadicParams && method.hasGenericParams {
             declaration.append("    Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(method.fullyQualifiedName)))")
         } else if method.hasGenericParams && !method.associatedTypesInWhereClause.isEmpty {
-            declaration.append("    fatalError(\(Fragment.literal(method.unforwardableDefaultMessage)))")
+            declaration.append("    return Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal(method.fullyQualifiedName)), reason: \(Fragment.literal(method.unforwardableWhereClauseReason)))")
         } else if method.hasGenericParams && method.usesNonPrimaryAssociatedTypes {
             // A `sending` argument is passed in rather than captured: a captured value can't be sent on.
             let variants = method.localFunctionVariants

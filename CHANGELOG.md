@@ -126,6 +126,11 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 - The mock of a protocol with associated types warned that the protocol's deprecated requirements were deprecated:
   its type eraser forwards to them. With Swift 6.4 the eraser says so with `@diagnose`, and the mock has no warning;
   Swift 6.2 and 6.3 have no way to, so the warning stays there.
+- The type eraser of a protocol with associated types forwards async and throwing getters, and a member it can't
+  forward (an `inout` or `sending` argument, `Self`, a member isolated otherwise than the protocol, a `where` clause
+  naming an associated type) records a failure saying to stub it and returns a default value, as an unstubbed call
+  does. Such a protocol's mock didn't compile. A `borrowing` or `consuming` argument of a non-`Sendable` type is
+  copied once in the mock, which also didn't compile, and a backticked method name no longer stops generation.
 - Protocols with associated types: an actor protocol's mock named a type eraser that actor mocks don't declare, a
   static method returning nothing didn't compile in the type eraser, and a generic subscript naming an associated
   type couldn't be forwarded to the default implementation; its setter now keeps a value-type default

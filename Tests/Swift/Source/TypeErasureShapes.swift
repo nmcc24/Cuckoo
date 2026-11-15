@@ -25,3 +25,20 @@ struct DictionaryKeyedStore: MutableKeyedStore {
         set { values[key] = newValue }
     }
 }
+
+/// Members the type eraser forwards with their effects, and one it can't forward: an `inout` argument.
+protocol EffectfulStore {
+    associatedtype Item
+    var latest: Item { get async throws }
+    func adjust(_ item: inout Item)
+}
+
+struct IntEffectfulStore: EffectfulStore {
+    var latest: Int {
+        get async throws { 42 }
+    }
+
+    func adjust(_ item: inout Int) {
+        item += 1
+    }
+}

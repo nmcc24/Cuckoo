@@ -23,4 +23,28 @@ struct TypeErasureShapesTest {
 
         #expect(mock[1] == "one")
     }
+
+    @Test
+    func asyncThrowingGetterForwardsToTheDefaultImplementation() async throws {
+        let mock = MockEffectfulStore<Int>()
+        mock.enableDefaultImplementation(IntEffectfulStore())
+
+        #expect(try await mock.latest == 42)
+    }
+
+    /// An `inout` member can't reach the default implementation: the call records a failure saying to stub it, and
+    /// the test goes on with the argument unchanged.
+    @Test
+    func unforwardableMemberRecordsAFailure() {
+        let mock = MockEffectfulStore<Int>()
+        mock.enableDefaultImplementation(IntEffectfulStore())
+        var value = 1
+
+        withKnownIssue {
+            mock.adjust(&value)
+        } matching: { issue in
+            issue.description.contains("can't forward") && issue.description.contains("Stub it instead")
+        }
+        #expect(value == 1)
+    }
 }

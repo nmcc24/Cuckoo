@@ -223,10 +223,10 @@ extension Method {
         return parent.nonPrimaryAssociatedTypes.map(\.name).filter(words.contains)
     }
 
-    /// The message a mock's type eraser stops with when such a member, which it can't forward, reaches the default
-    /// implementation: an opened existential's associated types can't be related to the mock's.
-    var unforwardableDefaultMessage: String {
-        "Cuckoo can't call \(fullyQualifiedName) on a default implementation: its where clause names the protocol's associated types \(associatedTypesInWhereClause.joined(separator: ", ")), which Swift can't relate to the mock's. Stub it instead."
+    /// Why a mock's type eraser can't forward such a member to the opened default implementation, whose associated
+    /// types Swift can't relate to the mock's.
+    var unforwardableWhereClauseReason: String {
+        "its where clause names the protocol's associated types \(associatedTypesInWhereClause.joined(separator: ", ")), which Swift can't relate to the mock's"
     }
 
     /// The stub function type the stubbing proxy returns, such as `Cuckoo.ProtocolStubThrowingFunction`.

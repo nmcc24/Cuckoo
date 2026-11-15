@@ -209,8 +209,13 @@ enum MockMembersBuilder {
 
         // A `sending` closure is wrapped inside the closures that make it escaping, as a non-escaping one can't be
         // stored.
+        // A `borrowing` or `consuming` argument of a copyable type is copied once, into a local of the same name: the
+        // recording, the superclass call and the default call are closures, which can't capture it as it is.
+        let copies = method.signature.parameters
+            .filter { $0.needsExplicitCopy && !$0.type.withoutAttributes().isClosure }
+            .map { "let \($0.usableName) = copy \($0.usableName)" }
         let opening = GeneratorHelper.openNestedClosure(for: method)
-        var body = opening
+        var body = copies + opening
         body.append(contentsOf: method.sendingParameterNames.map { "\(GeneratorHelper.indentation(opening.count))let __\($0) = Cuckoo.__SendingArgument(\($0))" })
         // The call sits inside the innermost closure or local function.
         let callIndentation = GeneratorHelper.indentation(opening.count)
