@@ -142,10 +142,11 @@ final class Glob: Collection {
         }
         return entries.sorted().flatMap { entry -> [String] in
             let path = (Path(root) + entry).rawValue
-            // A symbolic link isn't followed, as `FileManager.subpathsOfDirectory` doesn't, so a cycle can't recurse.
-            guard !entry.hasPrefix("."), Path(path).isDirectory,
-                  (try? FileManager.default.destinationOfSymbolicLink(atPath: path)) == nil else { return [] }
-            return [path] + directories(under: path)
+            guard !entry.hasPrefix("."), Path(path).isDirectory else { return [] }
+            // A symbolic link to a directory is searched itself but not walked into, as `subpathsOfDirectory` did,
+            // so a cycle can't recurse.
+            let isLink = (try? FileManager.default.destinationOfSymbolicLink(atPath: path)) != nil
+            return [path] + (isLink ? [] : directories(under: path))
         }
     }
 

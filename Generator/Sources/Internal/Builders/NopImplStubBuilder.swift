@@ -22,6 +22,9 @@ enum NopImplStubBuilder {
             try members.append(property, source: source(of: property), of: "\(container.name).\(property.name)")
         }
         members.separate()
+        if let initializer = container.crossModuleInitializer(isActor: container.asProtocol?.isActor == true) {
+            try members.append(initializer, of: "\(name).init()")
+        }
         for initializer in container.mockedInitializers {
             try members.append(initializer, source: source(of: initializer), of: "\(container.name).init\(initializer.signature.description)")
         }

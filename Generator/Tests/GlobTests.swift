@@ -59,6 +59,25 @@ struct GlobTests {
         #expect(namedAfter == [Path("\(root)/App/Feature/.hidden/Skipped.swift").standardRawValue])
     }
 
+    /// A symbolic link to a directory is searched, but not walked into, so a link cycle can't recurse.
+    @Test
+    func globstarSearchesLinkedDirectoriesOnce() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooGlob-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        for file in ["App/Service.swift", "Other/Linked.swift", "Other/Deeper/Skipped.swift"] {
+            let url = directory.appending(path: file)
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try "".write(to: url, atomically: true, encoding: .utf8)
+        }
+        let root = directory.path(percentEncoded: false)
+        try FileManager.default.createSymbolicLink(atPath: "\(root)/App/Link", withDestinationPath: "../Other")
+        try FileManager.default.createSymbolicLink(atPath: "\(root)/App/Loop", withDestinationPath: ".")
+        let matches = Set(Glob(pattern: "\(root)/App/**/*.swift").map { Path($0).standardRawValue })
+        #expect(matches.contains(Path("\(root)/App/Service.swift").standardRawValue))
+        #expect(matches.contains(Path("\(root)/App/Link/Linked.swift").standardRawValue))
+        #expect(!matches.contains(Path("\(root)/App/Link/Deeper/Skipped.swift").standardRawValue))
+    }
+
     /// A source that stands for no file is reported, since it usually means a typo or a moved directory.
     @Test
     func sourcesMatchingNothingAreReported() throws {

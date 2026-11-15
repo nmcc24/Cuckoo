@@ -221,13 +221,15 @@ final class Crawler: SyntaxVisitor {
         token.members = crawler.tokens
         token.unmockedMembers = crawler.unmockedMembers
         token.unknownAttributes = unknownAttributes(node.attributes, declaration: token.name)
+        token.hasOnlyImplicitInitializer = !Self.declaresInitializer(node.memberBlock.members)
+            && (node.inheritanceClause?.inheritedTypes ?? []).allSatisfy { Self.parentsWithoutRequirements.contains($0.type.trimmedDescription) }
         // A public mock's overrides must be public (with a `@testable` import too), and a public override can't name
         // a non-public type. A public class with such members gets an internal mock, as `@testable` users need anyway.
         if token.accessibility >= .public, let type = token.members.lazy.compactMap({ self.nonPublicType(usedBy: $0) }).first {
             token.accessibility = .internal
             token.internalMockReason = type
         }
-        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, of: token.name, node) else { return .skipChildren }
+        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, inherited: token.inheritedTypes, of: token.name, node) else { return .skipChildren }
         tokens.append(token)
         return .skipChildren
     }
@@ -268,7 +270,7 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
-        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, of: token.name, node) else { return .skipChildren }
+        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, inherited: token.inheritedTypes, of: token.name, node) else { return .skipChildren }
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
@@ -540,29 +542,40 @@ final class Crawler: SyntaxVisitor {
     /// The function type a typealias written as `type` stands for, qualified to read the same in the mock, or nil.
     private func expandedClosureTypealias(_ type: TypeSyntax) -> TypeSyntax? {
         if let identifier = type.as(IdentifierTypeSyntax.self),
-           let (functionType, scope) = closureTypealias(named: identifier.name.text, from: Syntax(type)),
-           let instance = Self.instantiating(functionType, with: identifier.genericArgumentClause) {
-            return qualifying(instance, in: scope)
+           let (functionType, scope) = closureTypealias(named: identifier.name.text, from: Syntax(type)) {
+            return instance(of: functionType, in: scope, with: identifier.genericArgumentClause)
         }
         // A qualified one, `Uploader.Completion`, by its full name.
         if let member = type.as(MemberTypeSyntax.self),
-           let functionType = context.closureTypealiases[member.with(\.genericArgumentClause, nil).trimmedDescription],
-           let instance = Self.instantiating(functionType, with: member.genericArgumentClause) {
+           let functionType = context.closureTypealiases[member.with(\.genericArgumentClause, nil).trimmedDescription] {
             let scope = member.baseType.trimmedDescription.split(separator: ".").map(String.init)
-            return qualifying(instance, in: scope)
+            return instance(of: functionType, in: scope, with: member.genericArgumentClause)
         }
         return nil
     }
 
-    /// A typealias's function type for the generic arguments it's used with, `Handler<Int>` for
-    /// `<T> (T) -> Void` being `(Int) -> Void`, or nil when they don't match its generic parameters. The arguments
-    /// are written where the typealias is used, so they're left as they are when the function type is qualified.
-    private static func instantiating(_ functionType: String, with arguments: GenericArgumentClauseSyntax?) -> String? {
-        guard functionType.hasPrefix("<"), let end = functionType.firstIndex(of: ">") else {
-            return arguments == nil ? functionType : nil
-        }
+    /// A typealias's function type, written in `scope`, for the generic arguments it's used with: qualified first,
+    /// since its names are the scope's, then given the arguments, which are written where it's used.
+    private func instance(of functionType: String, in scope: [String], with arguments: GenericArgumentClauseSyntax?) -> TypeSyntax? {
+        let (parameters, body) = Self.genericParameters(of: functionType)
+        let qualified = qualifying(body, in: scope, excluding: Set(parameters)).trimmedDescription
+        guard let instance = Self.instantiating(qualified, parameters: parameters, with: arguments) else { return nil }
+        var parser = Parser(instance)
+        return TypeSyntax.parse(from: &parser)
+    }
+
+    /// The generic parameters a stored function type starts with, `<T> (T) -> Void`, and the function type after them.
+    private static func genericParameters(of functionType: String) -> (parameters: [String], body: String) {
+        guard functionType.hasPrefix("<"), let end = functionType.firstIndex(of: ">") else { return ([], functionType) }
         let parameters = functionType[functionType.index(after: functionType.startIndex)..<end]
             .split(separator: ",").map { String($0.trimmedSpaces) }
+        return (parameters, String(functionType[functionType.index(after: end)...]).trimmedSpaces)
+    }
+
+    /// A generic typealias's function type for the generic arguments it's used with, `Handler<Int>` for `<T>` and
+    /// `(T) -> Void` being `(Int) -> Void`, or nil when they don't match its generic parameters.
+    private static func instantiating(_ functionType: String, parameters: [String], with arguments: GenericArgumentClauseSyntax?) -> String? {
+        guard !parameters.isEmpty else { return arguments == nil ? functionType : nil }
         guard let arguments, arguments.arguments.count == parameters.count else { return nil }
         // An argument such as `any P` or `() -> Void` is parenthesized, so it keeps its meaning in any position.
         let substitutions = Dictionary(uniqueKeysWithValues: zip(parameters, arguments.arguments.map { argument in
@@ -585,27 +598,36 @@ final class Crawler: SyntaxVisitor {
                 return TypeSyntax.parse(from: &parser).with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
             }
         }
-        var parser = Parser(String(functionType[functionType.index(after: end)...]))
+        var parser = Parser(functionType)
         return Substitution(substitutions).rewrite(TypeSyntax.parse(from: &parser)).trimmedDescription
     }
 
     /// `functionType`, written in `scope`, with each type it names from that scope written qualified, so it reads
-    /// the same where the mock uses it: `(Receipt) -> Void` in `Uploader` is `(Uploader.Receipt) -> Void`.
-    private func qualifying(_ functionType: String, in scope: [String]) -> TypeSyntax {
+    /// the same where the mock uses it: `(Receipt) -> Void` in `Uploader` is `(Uploader.Receipt) -> Void`. The
+    /// `excluded` names, a generic typealias's parameters, stay as written. A generic type in the scope can't be
+    /// named without its arguments, so what's nested in it stays unqualified: a class mock, its subclass, finds it.
+    private func qualifying(_ functionType: String, in scope: [String], excluding excluded: Set<String> = []) -> TypeSyntax {
         var parser = Parser(functionType)
         let type = TypeSyntax.parse(from: &parser)
         guard !scope.isEmpty else { return type }
         final class Qualifier: SyntaxRewriter {
             let scope: [String]
             let types: Set<String>
-            init(scope: [String], types: Set<String>) {
+            let genericTypes: Set<String>
+            let excluded: Set<String>
+            init(scope: [String], types: Set<String>, genericTypes: Set<String>, excluded: Set<String>) {
                 self.scope = scope
                 self.types = types
+                self.genericTypes = genericTypes
+                self.excluded = excluded
             }
             override func visit(_ node: IdentifierTypeSyntax) -> TypeSyntax {
+                guard !excluded.contains(node.name.text) else { return super.visit(node) }
                 for length in stride(from: scope.count, through: 1, by: -1) {
                     let qualified = (scope.prefix(length) + [node.name.text]).joined(separator: ".")
                     if types.contains(qualified) {
+                        // The innermost declaration is the one meant, even when it can't be written qualified.
+                        guard !scope.prefix(length).contains(where: genericTypes.contains) else { return super.visit(node) }
                         // `Box<Receipt>`: the arguments name types of the same scope too.
                         let arguments = node.genericArgumentClause.map { rewrite(Syntax($0)).trimmedDescription } ?? ""
                         var parser = Parser(qualified + arguments)
@@ -615,7 +637,8 @@ final class Crawler: SyntaxVisitor {
                 return super.visit(node)
             }
         }
-        return Qualifier(scope: scope, types: context.nominalTypes).rewrite(type).cast(TypeSyntax.self)
+        return Qualifier(scope: scope, types: context.nominalTypes, genericTypes: context.genericTypes, excluded: excluded)
+            .rewrite(type).cast(TypeSyntax.self)
     }
 
     /// The function type `name` stands for where `node` uses it, found as Swift finds it: a generic parameter,
@@ -760,16 +783,35 @@ final class Crawler: SyntaxVisitor {
 
     /// Whether the type has a generic parameter, associated type, nested type or typealias named like one of the
     /// mock's own type names. Its mock couldn't compile, so it's left out with a warning that says what to rename.
-    private func hasReservedName(_ genericNames: [String], members: MemberBlockSyntax, of declaration: String, _ node: some SyntaxProtocol) -> Bool {
+    private func hasReservedName(_ genericNames: [String], members: MemberBlockSyntax, inherited: [String], of declaration: String, _ node: some SyntaxProtocol) -> Bool {
         if let clash = genericNames.first(where: Self.reservedMockNames.contains) {
             warn(node, "'\(declaration)' has a generic parameter or associated type named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
             return true
         }
-        if let clash = Self.nestedTypeNames(in: members.members).first(where: Self.reservedMockNames.contains) {
-            warn(node, "'\(declaration)' declares a type or typealias named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
+        // Declared in the type itself, in an extension of it, or in a type it inherits from, which the module's
+        // nested types and closure typealiases list by qualified name.
+        let scopes = [DeclaredNameCollector.qualifiedName(of: declaration, at: Syntax(node))] + inherited
+        let elsewhere = Self.reservedMockNames.sorted().first { name in
+            scopes.contains { context.nominalTypes.contains("\($0).\(name)") || context.closureTypealiases["\($0).\(name)"] != nil }
+        }
+        if let clash = Self.nestedTypeNames(in: members.members).first(where: Self.reservedMockNames.contains) ?? elsewhere {
+            warn(node, "'\(declaration)' has a nested type or typealias named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
             return true
         }
         return false
+    }
+
+    /// Whether a type declares an initializer, under `#if` too.
+    private static func declaresInitializer(_ members: MemberBlockItemListSyntax) -> Bool {
+        members.contains { member in
+            if let conditional = member.decl.as(IfConfigDeclSyntax.self) {
+                return conditional.clauses.contains { clause in
+                    guard case .decls(let nested)? = clause.elements else { return false }
+                    return declaresInitializer(nested)
+                }
+            }
+            return member.decl.is(InitializerDeclSyntax.self)
+        }
     }
 
     /// The names of the types and typealiases a type declares, under `#if` too.
@@ -1012,7 +1054,7 @@ extension Crawler {
                     innerName: nil,
                     type: isVariadic ? .type("[\(type)]") : type,
                     variadicElement: isVariadic ? type : nil,
-                    defaultValue: parameter.defaultValue.flatMap(mockableDefaultValue)
+                    defaultValue: parameter.defaultValue.flatMap { mockableDefaultValue($0, of: parameter.type) }
                 )
             },
             returnType: ComplexType(syntax: node.returnClause.type),
@@ -1118,7 +1160,7 @@ extension Crawler {
                 type: isVariadic ? .type("[\(type)]") : type,
                 isNoncopyable: isNoncopyable(parameter.type, generics: noncopyableGenerics),
                 variadicElement: isVariadic ? type : nil,
-                defaultValue: parameter.defaultValue.flatMap(mockableDefaultValue)
+                defaultValue: parameter.defaultValue.flatMap { mockableDefaultValue($0, of: parameter.type) }
             )
         }
     }
@@ -1127,7 +1169,7 @@ extension Crawler {
     /// the mock, in another file, can't see. Without its default, a call through the mock's own type passes the
     /// argument, as it did before Cuckoo kept defaults. A name the module declares private anywhere counts, whatever
     /// else shares it, since leaving a default out is always safe; argument labels don't.
-    private func mockableDefaultValue(_ clause: InitializerClauseSyntax) -> String? {
+    private func mockableDefaultValue(_ clause: InitializerClauseSyntax, of parameterType: TypeSyntax) -> String? {
         guard !context.privateNames.isEmpty else { return clause.value.trimmedDescription }
         final class References: SyntaxVisitor {
             var names: [String] = []
@@ -1143,12 +1185,37 @@ extension Crawler {
                 names.append(node.name.text)
                 return .visitChildren
             }
+            /// The type `.init(…)` with no type written creates: the parameter's.
+            let parameterTypeName: String?
+            init(parameterType: TypeSyntax) {
+                var type = parameterType
+                while true {
+                    if let attributed = type.as(AttributedTypeSyntax.self) {
+                        type = attributed.baseType
+                    } else if let optional = type.as(OptionalTypeSyntax.self) {
+                        type = optional.wrappedType
+                    } else if let unwrapped = type.as(ImplicitlyUnwrappedOptionalTypeSyntax.self) {
+                        type = unwrapped.wrappedType
+                    } else {
+                        break
+                    }
+                }
+                parameterTypeName = type.as(IdentifierTypeSyntax.self)?.name.text ?? type.as(MemberTypeSyntax.self)?.name.text
+                super.init(viewMode: .sourceAccurate)
+            }
             override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
-                // `Token(…)`, `Module.Token(…)` and `Token.init(…)` call an initializer of `Token`.
+                // `Token(…)`, `Module.Token(…)`, `Box<Int>(…)`, `Token.init(…)` and `.init(…)` call an initializer
+                // of `Token`, or of the parameter's type.
                 var callee = node.calledExpression
-                if let member = callee.as(MemberAccessExprSyntax.self), member.declName.baseName.tokenKind == .keyword(.`init`),
-                   let base = member.base {
+                if let member = callee.as(MemberAccessExprSyntax.self), member.declName.baseName.tokenKind == .keyword(.`init`) {
+                    guard let base = member.base else {
+                        names += parameterTypeName.map { [DeclaredNames.privateInitializerName(of: $0)] } ?? []
+                        return .visitChildren
+                    }
                     callee = base
+                }
+                if let specialized = callee.as(GenericSpecializationExprSyntax.self) {
+                    callee = specialized.expression
                 }
                 if let reference = callee.as(DeclReferenceExprSyntax.self) {
                     names.append(DeclaredNames.privateInitializerName(of: reference.baseName.text))
@@ -1158,7 +1225,7 @@ extension Crawler {
                 return .visitChildren
             }
         }
-        let references = References(viewMode: .sourceAccurate)
+        let references = References(parameterType: parameterType)
         references.walk(clause.value)
         return references.names.contains(where: context.privateNames.contains) ? nil : clause.value.trimmedDescription
     }
