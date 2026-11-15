@@ -10,6 +10,8 @@
   and `getVerificationProxy(_:sourceLocation:)` are `cuckooStubbingProxy()` and
   `cuckooVerificationProxy(_:sourceLocation:)`. Generated mocks spell them; code that names them changes, and the
   migration guide lists each. Names starting with `Cuckoo`, `cuckoo` or `__` are reserved for mocks.
+- The Cuckoofile option `enableInheritance` is removed: set to `false`, it gave a mock of `protocol B: A` that didn't
+  conform to `A`. Mocks always repeat inherited members, and a Cuckoofile that still sets it gets a warning.
 - `Mocked` and `createMock(for:configuration:)` are removed: call `createMock(MockPerson.self) { … }` with the mock's
   type instead, which is all they saved.
 - Inside `inOrder`, a call matcher counts as it does outside it. A `verify` took the fewest calls its matcher

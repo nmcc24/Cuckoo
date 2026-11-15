@@ -150,11 +150,7 @@ final class Generator {
         for warning in duplicateDeclarationWarnings(flatMappedFiles) {
             printToStandardError("warning: cuckoo: \(warning)\n")
         }
-        let inheritedFiles = if module.options.enableInheritance {
-            mergingAndBinding(flatMappedFiles, typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), nominalTypes: declaredNames.nominalTypes)
-        } else {
-            flatMappedFiles
-        }
+        let inheritedFiles = mergingAndBinding(flatMappedFiles, typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), nominalTypes: declaredNames.nominalTypes)
         let finalFiles = inheritedFiles.map { file in file.replacing(tokens: file.tokens.map { $0.resolvingSelf() }) }
 
         // filter classes/protocols based on the settings passed to the generator

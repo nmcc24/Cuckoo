@@ -16,7 +16,7 @@ struct GeneratorOptionsTests {
     }
 
     @Test
-    func inheritanceCanBeTurnedOff() async throws {
+    func mocksRepeatInheritedMembers() async throws {
         let source = """
             protocol Base {
                 func base()
@@ -26,12 +26,22 @@ struct GeneratorOptionsTests {
             }
             """
         // Each mock spells a member in its mock, stubbing proxy, verification proxy and stub: MockDerived repeats
-        // Base's members only with inheritance on.
-        let inherited = try await generate(source: source)
-        let flat = try await generate(source: source, options: "enableInheritance = false")
-        #expect(occurrences(of: "func base()", in: flat) > 0)
-        #expect(occurrences(of: "func base()", in: inherited) == 2 * occurrences(of: "func base()", in: flat))
-        #expect(occurrences(of: "func derived()", in: inherited) == occurrences(of: "func derived()", in: flat))
+        // Base's members, so `base()` is written twice as often as `derived()`.
+        let output = try await generate(source: source)
+        #expect(occurrences(of: "func base()", in: output) == 2 * occurrences(of: "func derived()", in: output))
+    }
+
+    /// `enableInheritance` is gone: a Cuckoofile that still sets it gets the unknown-key warning.
+    @Test
+    func enableInheritanceIsAnUnknownKey() {
+        let warnings = Cuckoofile.warnings(for: """
+            [modules.App]
+            sources = ["App.swift"]
+
+            [modules.App.options]
+            enableInheritance = false
+            """)
+        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'modules.App.options.enableInheritance' isn't one Cuckoo reads") })
     }
 
     @Test
