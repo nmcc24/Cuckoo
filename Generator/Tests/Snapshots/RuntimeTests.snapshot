@@ -90,6 +90,8 @@ import Combine
 #endif
 @testable public import class CuckooTestSources.OpenClass
 @testable public import protocol CuckooTestSources.Amount
+@testable public import protocol CuckooTestSources.PackageService
+@testable public import class CuckooTestSources.PackageWorker
 @testable public import protocol CuckooTestSources.ParameterPackProtocol
 @testable public import class CuckooTestSources.ParameterPackClass
 @testable public import struct CuckooTestSources.DoublingWrapper
@@ -1849,7 +1851,7 @@ public final class MockClassWithTypeAlias: ClassWithTypeAlias, nonisolated Cucko
             self.cuckoo_manager = manager
         }
 
-        func noop<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(TypeAlias), ((TypeAlias)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == TypeAlias {
+        public func noop<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubNoReturnFunction<(TypeAlias), ((TypeAlias)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == TypeAlias {
             let matchers: [Cuckoo.ParameterMatcher<(TypeAlias)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -1872,7 +1874,7 @@ public final class MockClassWithTypeAlias: ClassWithTypeAlias, nonisolated Cucko
         }
 
         @discardableResult
-        func noop<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(TypeAlias), Void> where M1.MatchedType == TypeAlias {
+        public func noop<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(TypeAlias), Void> where M1.MatchedType == TypeAlias {
             let matchers: [Cuckoo.ParameterMatcher<(TypeAlias)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -23598,7 +23600,7 @@ public final class MockOpenClass: OpenClass, nonisolated Cuckoo.ClassMock {
             self.cuckoo_manager = manager
         }
 
-        func openFunc() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+        public func openFunc() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockOpenClass.self,
                 method: "openFunc()",
@@ -23619,7 +23621,7 @@ public final class MockOpenClass: OpenClass, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func openFunc() -> Cuckoo.__DoNotUse<(), Void> {
+        public func openFunc() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "openFunc()",
@@ -23870,6 +23872,162 @@ nonisolated final class AmountStub: Amount {
 
     static func <~> (_ p0: __CuckooSelf, _ p1: Int) -> Bool {
         return DefaultValueRegistry.defaultValue(for: (Bool).self)
+    }
+}
+
+package nonisolated final class MockPackageService: PackageService, nonisolated Cuckoo.ProtocolMock {
+    package typealias MocksType = any PackageService
+    package typealias Stubbing = __StubbingProxy_PackageService
+    package typealias Verification = __VerificationProxy_PackageService
+
+    // Original typealiases
+
+    package nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPackageService.self) ?? Cuckoo.MockManager(hasParent: false)
+    package nonisolated init() {
+    }
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any PackageService>()
+
+    package nonisolated func enableDefaultImplementation(_ stub: any PackageService) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    package func run(_ p0: Int) -> Int {
+        return cuckoo_manager.call(
+            "run(_ p0: Int) -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Int)) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.run(p0)
+        )
+    }
+
+    package nonisolated struct __StubbingProxy_PackageService: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        package init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        package func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(Int), Int, ((Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockPackageService.self,
+                method: "run(_ p0: Int) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    package nonisolated struct __VerificationProxy_PackageService: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        package init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        package func run<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Int), Int> where M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "run(_ p0: Int) -> Int",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+package nonisolated final class PackageServiceStub: PackageService {
+    package func run(_ p0: Int) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}
+
+package final class MockPackageWorker: PackageWorker, nonisolated Cuckoo.ClassMock {
+    package typealias MocksType = PackageWorker
+    package typealias Stubbing = __StubbingProxy_PackageWorker
+    package typealias Verification = __VerificationProxy_PackageWorker
+
+    // Original typealiases
+
+    package nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPackageWorker.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<PackageWorker>()
+
+    package nonisolated func enableDefaultImplementation(_ stub: PackageWorker) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    package override func work() -> String {
+        return cuckoo_manager.call(
+            "work() -> String",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.work(),
+            defaultCall: __defaultImplStub.value.work()
+        )
+    }
+
+    package nonisolated struct __StubbingProxy_PackageWorker: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        package init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        package func work() -> Cuckoo.ClassStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockPackageWorker.self,
+                method: "work() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    package nonisolated struct __VerificationProxy_PackageWorker: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let callMatcher: Cuckoo.CallMatcher
+        private let sourceLocation: Cuckoo.SourceLocation
+
+        package init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.callMatcher = callMatcher
+            self.sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        package func work() -> Cuckoo.__DoNotUse<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "work() -> String",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+}
+
+package final class PackageWorkerStub: PackageWorker {
+    package override func work() -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
     }
 }
 
@@ -24296,6 +24454,8 @@ public nonisolated final class MockVault: Vault, nonisolated Cuckoo.ProtocolMock
     // Original typealiases
 
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockVault.self) ?? Cuckoo.MockManager(hasParent: false)
+    public nonisolated init() {
+    }
 
     nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Vault>()
 
@@ -24338,7 +24498,7 @@ public nonisolated final class MockVault: Vault, nonisolated Cuckoo.ProtocolMock
             self.cuckoo_manager = manager
         }
 
-        func isOpen() -> Cuckoo.ProtocolStubFunction<(), Bool, (()) -> Bool, Cuckoo.StubSharing.Confined> {
+        public func isOpen() -> Cuckoo.ProtocolStubFunction<(), Bool, (()) -> Bool, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockVault.self,
                 method: "isOpen() -> Bool",
@@ -24369,7 +24529,7 @@ public nonisolated final class MockVault: Vault, nonisolated Cuckoo.ProtocolMock
         }
 
         @discardableResult
-        func isOpen() -> Cuckoo.__DoNotUse<(), Bool> {
+        public func isOpen() -> Cuckoo.__DoNotUse<(), Bool> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "isOpen() -> Bool",
@@ -28636,7 +28796,7 @@ public final class MockOpenTestedClass: OpenTestedClass, nonisolated Cuckoo.Clas
             self.cuckoo_manager = manager
         }
 
-        func printConstant() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+        public func printConstant() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockOpenTestedClass.self,
                 method: "printConstant()",
@@ -28657,7 +28817,7 @@ public final class MockOpenTestedClass: OpenTestedClass, nonisolated Cuckoo.Clas
         }
 
         @discardableResult
-        func printConstant() -> Cuckoo.__DoNotUse<(), Void> {
+        public func printConstant() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "printConstant()",
@@ -28869,19 +29029,19 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             self.cuckoo_manager = manager
         }
 
-        var readOnlyProperty: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockPublicTestedClass, String, (()) -> String, Cuckoo.StubSharing.Confined> {
+        public var readOnlyProperty: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockPublicTestedClass, String, (()) -> String, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "readOnlyProperty")
         }
 
-        var readWriteProperty: Cuckoo.ClassToBeStubbedProperty<MockPublicTestedClass, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
+        public var readWriteProperty: Cuckoo.ClassToBeStubbedProperty<MockPublicTestedClass, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "readWriteProperty")
         }
 
-        var optionalProperty: Cuckoo.ClassToBeStubbedOptionalProperty<MockPublicTestedClass, Int, (()) -> Int?, (Int?) -> Void, Cuckoo.StubSharing.Confined> {
+        public var optionalProperty: Cuckoo.ClassToBeStubbedOptionalProperty<MockPublicTestedClass, Int, (()) -> Int?, (Int?) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "optionalProperty")
         }
 
-        func noReturn() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+        public func noReturn() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicTestedClass.self,
                 method: "noReturn()",
@@ -28889,7 +29049,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             ))
         }
 
-        func count<M1: Cuckoo._Matchable>(characters p0: M1) -> Cuckoo.ClassStubFunction<(String), Int, ((String)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
+        public func count<M1: Cuckoo._Matchable>(characters p0: M1) -> Cuckoo.ClassStubFunction<(String), Int, ((String)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -28899,7 +29059,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             ))
         }
 
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int, any Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+        public func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int, any Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicTestedClass.self,
                 method: "withThrows() throws -> Int",
@@ -28907,7 +29067,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             ))
         }
 
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(), any Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
+        public func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(), any Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicTestedClass.self,
                 method: "withNoReturnThrows() throws",
@@ -28915,7 +29075,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             ))
         }
 
-        func withClosure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubFunction<((String) -> Int), Int, ((@escaping (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) -> Int {
+        public func withClosure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubFunction<((String) -> Int), Int, ((@escaping (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) -> Int {
             let matchers: [Cuckoo.ParameterMatcher<((String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -28925,7 +29085,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             ))
         }
 
-        func withEscape<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, (String) -> Void), ((String, (String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
+        public func withEscape<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, (String) -> Void), ((String, (String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(String, (String) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -28937,7 +29097,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             ))
         }
 
-        func withOptionalClosure<M1: Cuckoo._Matchable, M2: Cuckoo._OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, ((String) -> Void)?), ((String, ((String) -> Void)?)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
+        public func withOptionalClosure<M1: Cuckoo._Matchable, M2: Cuckoo._OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, ((String) -> Void)?), ((String, ((String) -> Void)?)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
             let matchers: [Cuckoo.ParameterMatcher<(String, ((String) -> Void)?)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -28949,7 +29109,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             ))
         }
 
-        func withLabelAndUnderscore<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, String), ((String, String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == String {
+        public func withLabelAndUnderscore<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, String), ((String, String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -28973,20 +29133,20 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
             self.sourceLocation = sourceLocation
         }
 
-        var readOnlyProperty: Cuckoo.VerifyReadOnlyProperty<String> {
+        public var readOnlyProperty: Cuckoo.VerifyReadOnlyProperty<String> {
             return .init(manager: cuckoo_manager, name: "readOnlyProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var readWriteProperty: Cuckoo.VerifyProperty<Int> {
+        public var readWriteProperty: Cuckoo.VerifyProperty<Int> {
             return .init(manager: cuckoo_manager, name: "readWriteProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var optionalProperty: Cuckoo.VerifyOptionalProperty<Int> {
+        public var optionalProperty: Cuckoo.VerifyOptionalProperty<Int> {
             return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
         @discardableResult
-        func noReturn() -> Cuckoo.__DoNotUse<(), Void> {
+        public func noReturn() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "noReturn()",
@@ -28997,7 +29157,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
         }
 
         @discardableResult
-        func count<M1: Cuckoo._Matchable>(characters p0: M1) -> Cuckoo.__DoNotUse<(String), Int> where M1.MatchedType == String {
+        public func count<M1: Cuckoo._Matchable>(characters p0: M1) -> Cuckoo.__DoNotUse<(String), Int> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -29010,7 +29170,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
         }
 
         @discardableResult
-        func withThrows() -> Cuckoo.__DoNotUse<(), Int> {
+        public func withThrows() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "withThrows() throws -> Int",
@@ -29021,7 +29181,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
         }
 
         @discardableResult
-        func withNoReturnThrows() -> Cuckoo.__DoNotUse<(), Void> {
+        public func withNoReturnThrows() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "withNoReturnThrows() throws",
@@ -29032,7 +29192,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
         }
 
         @discardableResult
-        func withClosure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((String) -> Int), Int> where M1.MatchedType == (String) -> Int {
+        public func withClosure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((String) -> Int), Int> where M1.MatchedType == (String) -> Int {
             let matchers: [Cuckoo.ParameterMatcher<((String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -29045,7 +29205,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
         }
 
         @discardableResult
-        func withEscape<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.__DoNotUse<(String, (String) -> Void), Void> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
+        public func withEscape<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.__DoNotUse<(String, (String) -> Void), Void> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(String, (String) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -29060,7 +29220,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
         }
 
         @discardableResult
-        func withOptionalClosure<M1: Cuckoo._Matchable, M2: Cuckoo._OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.__DoNotUse<(String, ((String) -> Void)?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
+        public func withOptionalClosure<M1: Cuckoo._Matchable, M2: Cuckoo._OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.__DoNotUse<(String, ((String) -> Void)?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
             let matchers: [Cuckoo.ParameterMatcher<(String, ((String) -> Void)?)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -29075,7 +29235,7 @@ public final class MockPublicTestedClass: PublicTestedClass, nonisolated Cuckoo.
         }
 
         @discardableResult
-        func withLabelAndUnderscore<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.__DoNotUse<(String, String), Void> where M1.MatchedType == String, M2.MatchedType == String {
+        public func withLabelAndUnderscore<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.__DoNotUse<(String, String), Void> where M1.MatchedType == String, M2.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -29341,19 +29501,19 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             self.cuckoo_manager = manager
         }
 
-        var readOnlyProperty: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockPublicPublicTestedClass, String, (()) -> String, Cuckoo.StubSharing.Confined> {
+        public var readOnlyProperty: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockPublicPublicTestedClass, String, (()) -> String, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "readOnlyProperty")
         }
 
-        var readWriteProperty: Cuckoo.ClassToBeStubbedProperty<MockPublicPublicTestedClass, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
+        public var readWriteProperty: Cuckoo.ClassToBeStubbedProperty<MockPublicPublicTestedClass, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "readWriteProperty")
         }
 
-        var optionalProperty: Cuckoo.ClassToBeStubbedOptionalProperty<MockPublicPublicTestedClass, Int, (()) -> Int?, (Int?) -> Void, Cuckoo.StubSharing.Confined> {
+        public var optionalProperty: Cuckoo.ClassToBeStubbedOptionalProperty<MockPublicPublicTestedClass, Int, (()) -> Int?, (Int?) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "optionalProperty")
         }
 
-        func noReturn() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+        public func noReturn() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicPublicTestedClass.self,
                 method: "noReturn()",
@@ -29361,7 +29521,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             ))
         }
 
-        func count<M1: Cuckoo._Matchable>(characters p0: M1) -> Cuckoo.ClassStubFunction<(String), Int, ((String)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
+        public func count<M1: Cuckoo._Matchable>(characters p0: M1) -> Cuckoo.ClassStubFunction<(String), Int, ((String)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -29371,7 +29531,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             ))
         }
 
-        func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int, any Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+        public func withThrows() -> Cuckoo.ClassStubThrowingFunction<(), Int, any Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicPublicTestedClass.self,
                 method: "withThrows() throws -> Int",
@@ -29379,7 +29539,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             ))
         }
 
-        func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(), any Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
+        public func withNoReturnThrows() -> Cuckoo.ClassStubNoReturnThrowingFunction<(), any Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicPublicTestedClass.self,
                 method: "withNoReturnThrows() throws",
@@ -29387,7 +29547,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             ))
         }
 
-        func withClosure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubFunction<((String) -> Int), Int, ((@escaping (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) -> Int {
+        public func withClosure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ClassStubFunction<((String) -> Int), Int, ((@escaping (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == (String) -> Int {
             let matchers: [Cuckoo.ParameterMatcher<((String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -29397,7 +29557,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             ))
         }
 
-        func withEscape<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, (String) -> Void), ((String, (String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
+        public func withEscape<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, (String) -> Void), ((String, (String) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(String, (String) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -29409,7 +29569,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             ))
         }
 
-        func withOptionalClosure<M1: Cuckoo._Matchable, M2: Cuckoo._OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, ((String) -> Void)?), ((String, ((String) -> Void)?)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
+        public func withOptionalClosure<M1: Cuckoo._Matchable, M2: Cuckoo._OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, ((String) -> Void)?), ((String, ((String) -> Void)?)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
             let matchers: [Cuckoo.ParameterMatcher<(String, ((String) -> Void)?)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -29421,7 +29581,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             ))
         }
 
-        func withLabelAndUnderscore<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, String), ((String, String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == String {
+        public func withLabelAndUnderscore<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.ClassStubNoReturnFunction<(String, String), ((String, String)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == String, M2.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -29445,20 +29605,20 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
             self.sourceLocation = sourceLocation
         }
 
-        var readOnlyProperty: Cuckoo.VerifyReadOnlyProperty<String> {
+        public var readOnlyProperty: Cuckoo.VerifyReadOnlyProperty<String> {
             return .init(manager: cuckoo_manager, name: "readOnlyProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var readWriteProperty: Cuckoo.VerifyProperty<Int> {
+        public var readWriteProperty: Cuckoo.VerifyProperty<Int> {
             return .init(manager: cuckoo_manager, name: "readWriteProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var optionalProperty: Cuckoo.VerifyOptionalProperty<Int> {
+        public var optionalProperty: Cuckoo.VerifyOptionalProperty<Int> {
             return .init(manager: cuckoo_manager, name: "optionalProperty", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
         @discardableResult
-        func noReturn() -> Cuckoo.__DoNotUse<(), Void> {
+        public func noReturn() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "noReturn()",
@@ -29469,7 +29629,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
         }
 
         @discardableResult
-        func count<M1: Cuckoo._Matchable>(characters p0: M1) -> Cuckoo.__DoNotUse<(String), Int> where M1.MatchedType == String {
+        public func count<M1: Cuckoo._Matchable>(characters p0: M1) -> Cuckoo.__DoNotUse<(String), Int> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -29482,7 +29642,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
         }
 
         @discardableResult
-        func withThrows() -> Cuckoo.__DoNotUse<(), Int> {
+        public func withThrows() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "withThrows() throws -> Int",
@@ -29493,7 +29653,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
         }
 
         @discardableResult
-        func withNoReturnThrows() -> Cuckoo.__DoNotUse<(), Void> {
+        public func withNoReturnThrows() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "withNoReturnThrows() throws",
@@ -29504,7 +29664,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
         }
 
         @discardableResult
-        func withClosure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((String) -> Int), Int> where M1.MatchedType == (String) -> Int {
+        public func withClosure<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<((String) -> Int), Int> where M1.MatchedType == (String) -> Int {
             let matchers: [Cuckoo.ParameterMatcher<((String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -29517,7 +29677,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
         }
 
         @discardableResult
-        func withEscape<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.__DoNotUse<(String, (String) -> Void), Void> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
+        public func withEscape<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(_ p0: M1, action p1: M2) -> Cuckoo.__DoNotUse<(String, (String) -> Void), Void> where M1.MatchedType == String, M2.MatchedType == (String) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(String, (String) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -29532,7 +29692,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
         }
 
         @discardableResult
-        func withOptionalClosure<M1: Cuckoo._Matchable, M2: Cuckoo._OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.__DoNotUse<(String, ((String) -> Void)?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
+        public func withOptionalClosure<M1: Cuckoo._Matchable, M2: Cuckoo._OptionalMatchable>(_ p0: M1, closure p1: M2) -> Cuckoo.__DoNotUse<(String, ((String) -> Void)?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ((String) -> Void) {
             let matchers: [Cuckoo.ParameterMatcher<(String, ((String) -> Void)?)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -29547,7 +29707,7 @@ public final class MockPublicPublicTestedClass: PublicPublicTestedClass, nonisol
         }
 
         @discardableResult
-        func withLabelAndUnderscore<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.__DoNotUse<(String, String), Void> where M1.MatchedType == String, M2.MatchedType == String {
+        public func withLabelAndUnderscore<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(labelA p0: M1, _ p1: M2) -> Cuckoo.__DoNotUse<(String, String), Void> where M1.MatchedType == String, M2.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -30209,15 +30369,15 @@ public final class MockInternalFieldsInPublicClass: InternalFieldsInPublicClass,
             self.cuckoo_manager = manager
         }
 
-        var field: Cuckoo.ClassToBeStubbedOptionalProperty<MockInternalFieldsInPublicClass, Int, (()) -> Int?, (Int?) -> Void, Cuckoo.StubSharing.Confined> {
+        public var field: Cuckoo.ClassToBeStubbedOptionalProperty<MockInternalFieldsInPublicClass, Int, (()) -> Int?, (Int?) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "field")
         }
 
-        var privateSetField: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockInternalFieldsInPublicClass, Int?, (()) -> Int?, Cuckoo.StubSharing.Confined> {
+        public var privateSetField: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockInternalFieldsInPublicClass, Int?, (()) -> Int?, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "privateSetField")
         }
 
-        func function() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+        public func function() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockInternalFieldsInPublicClass.self,
                 method: "function()",
@@ -30237,16 +30397,16 @@ public final class MockInternalFieldsInPublicClass: InternalFieldsInPublicClass,
             self.sourceLocation = sourceLocation
         }
 
-        var field: Cuckoo.VerifyOptionalProperty<Int> {
+        public var field: Cuckoo.VerifyOptionalProperty<Int> {
             return .init(manager: cuckoo_manager, name: "field", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
-        var privateSetField: Cuckoo.VerifyReadOnlyProperty<Int?> {
+        public var privateSetField: Cuckoo.VerifyReadOnlyProperty<Int?> {
             return .init(manager: cuckoo_manager, name: "privateSetField", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
         @discardableResult
-        func function() -> Cuckoo.__DoNotUse<(), Void> {
+        public func function() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "function()",
@@ -35315,6 +35475,8 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
     // Original typealiases
 
     public nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPublicoProtocolo.self) ?? Cuckoo.MockManager(hasParent: false)
+    public nonisolated init() {
+    }
 
     public nonisolated final class DefaultImplCaller: PublicoProtocolo, Sendable {
         private let reference: @Sendable () -> any PublicoProtocolo
@@ -35412,11 +35574,11 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
             self.cuckoo_manager = manager
         }
 
-        var stringoStar: Cuckoo.ProtocolToBeStubbedProperty<MockPublicoProtocolo, String, (()) -> String, (String) -> Void, Cuckoo.StubSharing.Confined> {
+        public var stringoStar: Cuckoo.ProtocolToBeStubbedProperty<MockPublicoProtocolo, String, (()) -> String, (String) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckoo_manager, name: "stringoStar")
         }
 
-        func internalMethod() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+        public func internalMethod() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPublicoProtocolo.self,
                 method: "internalMethod()",
@@ -35436,12 +35598,12 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
             self.sourceLocation = sourceLocation
         }
 
-        var stringoStar: Cuckoo.VerifyProperty<String> {
+        public var stringoStar: Cuckoo.VerifyProperty<String> {
             return .init(manager: cuckoo_manager, name: "stringoStar", callMatcher: callMatcher, sourceLocation: sourceLocation)
         }
 
         @discardableResult
-        func internalMethod() -> Cuckoo.__DoNotUse<(), Void> {
+        public func internalMethod() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "internalMethod()",

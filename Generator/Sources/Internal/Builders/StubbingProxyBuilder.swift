@@ -21,15 +21,15 @@ enum StubbingProxyBuilder {
             "}",
         ]), of: name)
         for property in container.mockedProperties where property.isStatic == isStatic {
-            try members.append(property, source: source(of: property, mockName: mockName), of: "\(container.name).\(property.name)")
+            try members.append(property, source: source(of: property, mockName: mockName, access: GeneratorHelper.proxyAccess(of: property, in: container)), of: "\(container.name).\(property.name)")
         }
         for method in container.mockedMethods where method.isStatic == isStatic {
-            try members.append(method, source: source(of: method, mockName: mockName), of: "\(container.name).\(method.name)")
+            try members.append(method, source: source(of: method, mockName: mockName, access: GeneratorHelper.proxyAccess(of: method, in: container)), of: "\(container.name).\(method.name)")
         }
         let subscripts = container.mockedSubscripts.filter { $0.isStatic == isStatic }
         for (index, subscriptDeclaration) in subscripts.enumerated() {
             let declaration = "\(container.name)[]"
-            let (accessor, type) = sources(of: subscriptDeclaration, number: index + 1, mockName: mockName)
+            let (accessor, type) = sources(of: subscriptDeclaration, number: index + 1, mockName: mockName, access: GeneratorHelper.proxyAccess(of: subscriptDeclaration, in: container))
             if subscriptDeclaration.hasCompilationCondition {
                 try members.append(subscriptDeclaration, source: lines([accessor, "", type]), of: declaration)
             } else {
@@ -47,16 +47,16 @@ enum StubbingProxyBuilder {
         return structDeclaration.description
     }
 
-    private static func source(of property: Variable, mockName: String) -> String {
+    private static func source(of property: Variable, mockName: String, access memberAccess: Accessibility) -> String {
         var source = property.repeatedAttributes.map(\.description)
         let arguments = GeneratorHelper.genericSafeType(from: property.stubGenericArguments)
-        source.append("var \(property.name): Cuckoo.\(property.stubType)<\(mockName), \(arguments)> {")
+        source.append("\(memberAccess.spaced)var \(property.name): Cuckoo.\(property.stubType)<\(mockName), \(arguments)> {")
         source.append("    return .init(manager: cuckoo_manager, name: \(Fragment.literal(property.name)))")
         source.append("}")
         return lines(source)
     }
 
-    private static func source(of method: Method, mockName: String) -> String {
+    private static func source(of method: Method, mockName: String, access memberAccess: Accessibility) -> String {
         let types = method.proxyStubTypes
         var arguments = ["(\(GeneratorHelper.genericSafeType(from: types.input)))"]
         if (method.returnType?.description ?? "") != "Void" {
@@ -73,7 +73,7 @@ enum StubbingProxyBuilder {
         let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method)
         var source = method.repeatedAttributes.map(\.description)
-        source.append("func \(method.proxyName)\(generics)(\(parameters)) -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
+        source.append("\(memberAccess.spaced)func \(method.proxyName)\(generics)(\(parameters)) -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
         source.append("    \(GeneratorHelper.parameterMatchers(for: method.signature.parameters, sendable: sendable))")
         source.append(contentsOf: createStub(for: method, mockName: mockName))
         source.append("}")
@@ -82,7 +82,7 @@ enum StubbingProxyBuilder {
 
     /// The subscript, which takes the keys' matchers, and the type it returns, `__Subscript<number>`, whose `get`
     /// and `set(_:)` return the accessors' stubs.
-    private static func sources(of subscriptDeclaration: Subscript, number: Int, mockName: String) -> (accessor: String, type: String) {
+    private static func sources(of subscriptDeclaration: Subscript, number: Int, mockName: String, access memberAccess: Accessibility) -> (accessor: String, type: String) {
         let getter = subscriptDeclaration.getter
         let getterTypes = getter.proxyStubTypes
         let getterInput = GeneratorHelper.genericSafeType(from: getterTypes.input)
@@ -94,7 +94,7 @@ enum StubbingProxyBuilder {
         let parameters = GeneratorHelper.matchableParameterSignature(with: keys, of: getter)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: getter)
         var accessor = attributes
-        accessor.append("subscript\(generics)(\(parameters)) -> __Subscript\(number)\(subscriptDeclaration.genericArgumentsClause)\(whereClause) {")
+        accessor.append("\(memberAccess.spaced)subscript\(generics)(\(parameters)) -> __Subscript\(number)\(subscriptDeclaration.genericArgumentsClause)\(whereClause) {")
         accessor.append("    \(GeneratorHelper.parameterMatchers(for: keys, sendable: sendable))")
         accessor.append("    return .init(cuckoo_manager: cuckoo_manager, matchers: matchers)")
         accessor.append("}")
@@ -107,11 +107,11 @@ enum StubbingProxyBuilder {
         getterArguments.append(getter.stubIsolation.sharingType)
 
         var type = attributes
-        type.append("nonisolated struct __Subscript\(number)\(subscriptDeclaration.genericParametersClause)\(subscriptDeclaration.whereClause) {")
+        type.append("\(memberAccess.spaced)nonisolated struct __Subscript\(number)\(subscriptDeclaration.genericParametersClause)\(subscriptDeclaration.whereClause) {")
         type.append("    fileprivate let cuckoo_manager: Cuckoo.MockManager")
         type.append("    fileprivate let matchers: [\(GeneratorHelper.matcherType(sendable: sendable))<(\(getterInput))>]")
         type.append("")
-        type.append("    var get: \(getter.stubFunction)<\(getterArguments.joined(separator: ", "))> {")
+        type.append("    \(memberAccess.spaced)var get: \(getter.stubFunction)<\(getterArguments.joined(separator: ", "))> {")
         type.append(contentsOf: createStub(for: getter, mockName: mockName).map { "    \($0)" })
         type.append("    }")
         if !subscriptDeclaration.isReadOnly {
@@ -125,7 +125,7 @@ enum StubbingProxyBuilder {
             ]
             let index = subscriptDeclaration.newValueMatcherIndex
             type.append("")
-            type.append("    func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: sendable))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix(for: subscriptDeclaration.getter))\(index)) -> \(setter.stubFunction)<\(setterArguments.joined(separator: ", "))> where \(subscriptDeclaration.newValueMatcherConstraint) {")
+            type.append("    \(memberAccess.spaced)func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: sendable))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix(for: subscriptDeclaration.getter))\(index)) -> \(setter.stubFunction)<\(setterArguments.joined(separator: ", "))> where \(subscriptDeclaration.newValueMatcherConstraint) {")
             type.append("        let matchers: [\(GeneratorHelper.matcherType(sendable: sendable))<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers(sendable: sendable))[\(subscriptDeclaration.newValueMatcher(sendable: sendable))]")
             type.append(contentsOf: createStub(for: setter, mockName: mockName).map { "    \($0)" })
             type.append("    }")

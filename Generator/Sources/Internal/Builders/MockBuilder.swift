@@ -71,6 +71,12 @@ enum MockBuilder {
         lines.append(contentsOf: container.members.compactMap { ($0 as? Typealias).map { "    \(access)\($0.description)" } })
         lines.append("")
         lines.append("    \(access)nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
+        // A public or package protocol mock is created from another module, which can't see the implicit internal
+        // initializer. It stays nonisolated, as the implicit one is.
+        if !container.isClass, container.accessibility >= .package,
+           !container.mockedInitializers.contains(where: { $0.signature.parameters.isEmpty }) {
+            lines.append("    \(access)nonisolated init() {}")
+        }
         if case .globalActor(let name)? = container.declaredIsolation, !isActor {
             // Checks that read the recorded calls of several mocks at once, such as `verifyNoMoreInteractions`,
             // can't take one mock's isolation, so they ask for it at run time.

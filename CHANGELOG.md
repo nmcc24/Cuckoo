@@ -79,6 +79,11 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 - A `**` in `sources` walked into hidden directories, so `Sources/**/*.swift` next to a `.build` folder mocked the
   dependencies' checked-out sources too. It skips hidden directories now, as a shell's globstar does.
 
+- A `package` protocol or class got an internal mock, and a public mock's stubbing and verification proxies were
+  internal, so neither could be used from another module without `@testable`, which only debug builds allow. A
+  `package` type's mock is now `package`, and a public or package mock's proxies and protocol initializer have the
+  mock's access (an `@_spi` member's proxies stay internal).
+
 Build plugin:
 - In an Xcode project, Getting Started's Cuckoofile generated no mocks, without a word: Xcode doesn't tell the
   plugin which of the project's own targets a test target depends on. An Xcode project's entry is named after the

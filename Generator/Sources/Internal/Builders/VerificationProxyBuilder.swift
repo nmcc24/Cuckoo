@@ -26,16 +26,16 @@ enum VerificationProxyBuilder {
         // Every member is set off by a blank line, with or without a `#if`.
         for property in container.mockedProperties where property.isStatic == isStatic {
             members.separate()
-            try members.append(members.conditional(property, source(of: property)), of: "\(container.name).\(property.name)")
+            try members.append(members.conditional(property, source(of: property, access: GeneratorHelper.proxyAccess(of: property, in: container))), of: "\(container.name).\(property.name)")
         }
         for method in container.mockedMethods where method.isStatic == isStatic {
             members.separate()
-            try members.append(members.conditional(method, source(of: method)), of: "\(container.name).\(method.name)")
+            try members.append(members.conditional(method, source(of: method, access: GeneratorHelper.proxyAccess(of: method, in: container))), of: "\(container.name).\(method.name)")
         }
         let subscripts = container.mockedSubscripts.filter { $0.isStatic == isStatic }
         for (index, subscriptDeclaration) in subscripts.enumerated() {
             let declaration = "\(container.name)[]"
-            let (accessor, type) = sources(of: subscriptDeclaration, number: index + 1)
+            let (accessor, type) = sources(of: subscriptDeclaration, number: index + 1, access: GeneratorHelper.proxyAccess(of: subscriptDeclaration, in: container))
             members.separate()
             if subscriptDeclaration.hasCompilationCondition {
                 try members.append(members.conditional(subscriptDeclaration, lines([accessor, "", type])), of: declaration)
@@ -54,17 +54,17 @@ enum VerificationProxyBuilder {
         return structDeclaration.description
     }
 
-    private static func source(of property: Variable) -> String {
+    private static func source(of property: Variable, access memberAccess: Accessibility) -> String {
         var source = property.repeatedAttributes.map(\.description)
         source.append(contentsOf: isolation(property.stubIsolation))
         let type = GeneratorHelper.genericSafeType(from: (property.isReadOnly ? property.type : property.type.unoptionaled).description)
-        source.append("var \(property.name): Cuckoo.\(property.verifyType)<\(type)> {")
+        source.append("\(memberAccess.spaced)var \(property.name): Cuckoo.\(property.verifyType)<\(type)> {")
         source.append("    return .init(manager: cuckoo_manager, name: \(Fragment.literal(property.name)), callMatcher: callMatcher, sourceLocation: sourceLocation)")
         source.append("}")
         return lines(source)
     }
 
-    private static func source(of method: Method) -> String {
+    private static func source(of method: Method, access memberAccess: Accessibility) -> String {
         let input = GeneratorHelper.genericSafeType(from: method.proxyStubTypes.input)
         let output = GeneratorHelper.genericSafeType(from: method.verificationReturnType)
         let generics = GeneratorHelper.matchableGenericTypes(from: method, forVerification: true)
@@ -73,7 +73,7 @@ enum VerificationProxyBuilder {
         var source = method.repeatedAttributes.map(\.description)
         source.append(contentsOf: isolation(method.stubIsolation))
         source.append("@discardableResult")
-        source.append("func \(method.proxyName)\(generics)(\(parameters)) -> Cuckoo.__DoNotUse<(\(input)), \(output)>\(whereClause) {")
+        source.append("\(memberAccess.spaced)func \(method.proxyName)\(generics)(\(parameters)) -> Cuckoo.__DoNotUse<(\(input)), \(output)>\(whereClause) {")
         source.append("    \(GeneratorHelper.parameterMatchers(for: method.signature.parameters))")
         source.append(contentsOf: verify(method))
         source.append("}")
@@ -82,7 +82,7 @@ enum VerificationProxyBuilder {
 
     /// The subscript, which takes the keys' matchers, and the type it returns, `__Subscript<number>`, whose `get()`
     /// and `set(_:)` verify the accessors' calls.
-    private static func sources(of subscriptDeclaration: Subscript, number: Int) -> (accessor: String, type: String) {
+    private static func sources(of subscriptDeclaration: Subscript, number: Int, access memberAccess: Accessibility) -> (accessor: String, type: String) {
         let getter = subscriptDeclaration.getter
         let getterTypes = getter.proxyStubTypes
         let getterInput = GeneratorHelper.genericSafeType(from: getterTypes.input)
@@ -95,13 +95,13 @@ enum VerificationProxyBuilder {
         // The accessor only builds the keys' matchers; `get()` and `set(_:)` read the recorded arguments.
         let actor = isolation(getter.stubIsolation).map { "    \($0)" }
         var accessor = attributes
-        accessor.append("subscript\(generics)(\(parameters)) -> __Subscript\(number)\(subscriptDeclaration.genericArgumentsClause)\(whereClause) {")
+        accessor.append("\(memberAccess.spaced)subscript\(generics)(\(parameters)) -> __Subscript\(number)\(subscriptDeclaration.genericArgumentsClause)\(whereClause) {")
         accessor.append("    \(GeneratorHelper.parameterMatchers(for: keys))")
         accessor.append("    return .init(cuckoo_manager: cuckoo_manager, callMatcher: callMatcher, sourceLocation: sourceLocation, matchers: matchers)")
         accessor.append("}")
 
         var type = attributes
-        type.append("nonisolated struct __Subscript\(number)\(subscriptDeclaration.genericParametersClause)\(subscriptDeclaration.whereClause) {")
+        type.append("\(memberAccess.spaced)nonisolated struct __Subscript\(number)\(subscriptDeclaration.genericParametersClause)\(subscriptDeclaration.whereClause) {")
         type.append("    fileprivate let cuckoo_manager: Cuckoo.MockManager")
         type.append("    fileprivate let callMatcher: Cuckoo.CallMatcher")
         type.append("    fileprivate let sourceLocation: Cuckoo.SourceLocation")
@@ -109,7 +109,7 @@ enum VerificationProxyBuilder {
         type.append("")
         type.append(contentsOf: actor)
         type.append("    @discardableResult")
-        type.append("    func get() -> Cuckoo.__DoNotUse<(\(getterInput)), \(GeneratorHelper.genericSafeType(from: getterTypes.output))> {")
+        type.append("    \(memberAccess.spaced)func get() -> Cuckoo.__DoNotUse<(\(getterInput)), \(GeneratorHelper.genericSafeType(from: getterTypes.output))> {")
         type.append(contentsOf: verify(getter).map { "    \($0)" })
         type.append("    }")
         if !subscriptDeclaration.isReadOnly {
@@ -119,7 +119,7 @@ enum VerificationProxyBuilder {
             type.append("")
             type.append(contentsOf: actor)
             type.append("    @discardableResult")
-            type.append("    func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: false))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix(for: subscriptDeclaration.getter))\(index)) -> Cuckoo.__DoNotUse<(\(setterInput)), Void> where \(subscriptDeclaration.newValueMatcherConstraint) {")
+            type.append("    \(memberAccess.spaced)func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: false))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix(for: subscriptDeclaration.getter))\(index)) -> Cuckoo.__DoNotUse<(\(setterInput)), Void> where \(subscriptDeclaration.newValueMatcherConstraint) {")
             type.append("        let matchers: [Cuckoo.ParameterMatcher<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers(sendable: false))[\(subscriptDeclaration.newValueMatcher(sendable: false))]")
             type.append(contentsOf: verify(setter).map { "    \($0)" })
             type.append("    }")

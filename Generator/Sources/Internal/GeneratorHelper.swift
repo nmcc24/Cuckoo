@@ -3,6 +3,15 @@ import SwiftParser
 import SwiftSyntax
 
 struct GeneratorHelper {
+    /// The access of a member's stubbing or verification proxy member: the member's own, up to
+    /// the mock's, so a public or package mock can be stubbed and verified from another module without `@testable`.
+    /// An `@_spi` member's proxy members stay internal, as before: public ones would need the tests to import the
+    /// mocks with the same `@_spi`.
+    static func proxyAccess(of member: some HasAccessibility & HasAttributes, in container: any ContainerToken) -> Accessibility {
+        guard member.attributes.allSatisfy({ $0.spiGroup == nil }) else { return min(member.accessibility, .internal) }
+        return min(member.accessibility, container.accessibility)
+    }
+
     /// The mocks and stubs of a file's mocked types, laid out.
     static func generate(tokens: [any Token], keepDocumentation: Bool = true, mockNaming: MockNaming = .default) throws -> String {
         // The builders name mocks through the tokens.
