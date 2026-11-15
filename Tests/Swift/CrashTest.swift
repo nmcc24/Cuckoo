@@ -51,5 +51,69 @@ struct CrashTest {
         })
         #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("which isn't a"))
     }
+
+    @Test
+    func defaultImplementationOfAMemberWithSelfStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let mock = MockShape()
+            mock.enableDefaultImplementation(ShapeStub())
+            _ = mock.scaled(by: 2)
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("because it takes or returns Self"))
+    }
+
+    @Test
+    func superclassSpyOfAVariadicMemberStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let mock = MockVariadicFormatter()
+            mock.enableSuperclassSpy()
+            _ = mock.join("a", "b", separator: "-")
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("because it takes a variadic argument"))
+    }
+
+    @Test
+    func superclassSpyOfANoncopyableArgumentStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let mock = MockTicketShredder()
+            mock.enableSuperclassSpy()
+            _ = mock.shred(Ticket(seat: 1))
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("because it takes a ~Copyable argument"))
+    }
+
+    @Test
+    func superclassSpyWithTheDefaultImplementationEnabledStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let mock = MockTestedClass()
+            mock.enableDefaultImplementation(TestedClassStub())
+            mock.enableSuperclassSpy()
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("not allowed with the default stub implementation enabled"))
+    }
+
+    @Test
+    func defaultImplementationWithTheSuperclassSpyEnabledStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let mock = MockTestedClass()
+            mock.enableSuperclassSpy()
+            mock.enableDefaultImplementation(TestedClassStub())
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("not allowed with superclass spy enabled"))
+    }
+
+    @Test
+    func defaultImplementationAfterTheFirstCallStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let mock = MockTestedProtocol()
+            stub(mock) { stub in
+                when(stub.noReturn()).thenDoNothing()
+            }
+            mock.noReturn()
+            mock.enableDefaultImplementation(TestedProtocolStub())
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling default stub implementation is not allowed after the mock's first call"))
+    }
+
 }
 #endif
