@@ -56,4 +56,30 @@ struct PackageAccessTest {
         verify(bound).describe()
         verify(plain).ping()
     }
+
+    @Test
+    func mocksOfClassesWithAnImplicitInitializerCanBeCreated() {
+        let worker = MockPublicImplicitWorker()
+        let bound = MockPublicImplicitBoundService()
+        stub(worker) { stub in
+            when(stub.work()).thenReturn(5)
+        }
+        stub(bound) { stub in
+            when(stub.check()).thenReturn(true)
+        }
+
+        #expect(worker.work() == 5)
+        #expect(bound.check())
+        verify(worker).work()
+        verify(bound).check()
+    }
+
+    /// The stubs of public types can be created from another module too.
+    @Test
+    func stubsOfPublicTypesCanBeCreated() async {
+        #expect(PublicImplicitWorkerStub().work() == 0)
+        #expect(!PublicImplicitBoundServiceStub().check())
+        #expect(PublicPlainBoundServiceStub().ping() == false)
+        #expect(await PublicActorServiceStub().count() == 0)
+    }
 }

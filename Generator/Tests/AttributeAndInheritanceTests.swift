@@ -160,6 +160,35 @@ struct AttributeAndInheritanceTests {
         ])
     }
 
+    /// One in an extension of the type, or in a class it inherits from, clashes too.
+    @Test
+    func reservedNameInAnExtensionOrSuperclassSkipsTheMock() throws {
+        let source = """
+            class Foo {
+                init() {}
+                func a(_ s: Stubbing) -> Int { 0 }
+            }
+            extension Foo {
+                struct Stubbing {}
+            }
+            class Base {
+                struct Verification {}
+                init() {}
+            }
+            class Child: Base {
+                func b(_ v: Verification) -> Int { 0 }
+            }
+            """
+        let crawler = Crawler.crawl(source: source, url: url)
+        // Only the extension's token is left, which has nothing to mock.
+        #expect(!crawler.tokens.contains { $0 is ClassDeclaration })
+        #expect(crawler.diagnostics.map(\.message) == [
+            "'Foo' has a nested type or typealias named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Foo'.",
+            "'Base' has a nested type or typealias named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Base'.",
+            "'Child' has a nested type or typealias named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Child'.",
+        ])
+    }
+
     /// A nested type or typealias of such a name, under `#if` too, would clash with the mock's own as well.
     @Test
     func reservedNestedNameSkipsTheMockWithAWarning() throws {
@@ -178,8 +207,8 @@ struct AttributeAndInheritanceTests {
             """, url: url)
         #expect(crawler.tokens.isEmpty)
         #expect(crawler.diagnostics.map(\.description) == [
-            "/project/Sources/Store.swift:1:1: warning: cuckoo: 'Crate' declares a type or typealias named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Crate'.",
-            "/project/Sources/Store.swift:6:1: warning: cuckoo: 'Shelf' declares a type or typealias named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Shelf'.",
+            "/project/Sources/Store.swift:1:1: warning: cuckoo: 'Crate' has a nested type or typealias named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Crate'.",
+            "/project/Sources/Store.swift:6:1: warning: cuckoo: 'Shelf' has a nested type or typealias named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Shelf'.",
         ])
     }
 

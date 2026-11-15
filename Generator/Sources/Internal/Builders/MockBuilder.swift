@@ -75,12 +75,8 @@ enum MockBuilder {
             lines.append("")
         }
         lines.append("    \(access)nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
-        // A public or package protocol mock is created from another module, which can't see the implicit internal
-        // initializer. It stays nonisolated, as the implicit one is; an actor's initializer is already. A mock that
-        // subclasses the protocol's class inherits that class's initializers instead.
-        if !container.isClass, container.accessibility >= .package, (container.asProtocol?.superclass ?? "").isEmpty,
-           !container.mockedInitializers.contains(where: { $0.signature.parameters.isEmpty }) {
-            lines.append("    \(access)\(isActor ? "" : "nonisolated ")init() {}")
+        if let initializer = container.crossModuleInitializer(isActor: isActor) {
+            lines.append("    \(initializer)")
         }
         if case .globalActor(let name)? = container.declaredIsolation, !isActor {
             // Checks that read the recorded calls of several mocks at once, such as `verifyNoMoreInteractions`,

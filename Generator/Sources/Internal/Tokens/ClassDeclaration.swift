@@ -17,6 +17,9 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var unknownAttributes: [String] = []
     /// The non-public type whose use by a non-public member made a public class's mock internal, if any.
     var internalMockReason: String?
+    /// Whether the class declares no initializer and inherits from no class but `NSObject`, so its only initializer
+    /// is the implicit `init()`, which is internal: a public mock declares its own, so another module can create it.
+    var hasOnlyImplicitInitializer = false
 
     func replacing(members: [any Token]) -> ClassDeclaration {
         ClassDeclaration(
@@ -32,7 +35,8 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             isolation: isolation,
             unmockedMembers: unmockedMembers,
             unknownAttributes: unknownAttributes,
-            internalMockReason: internalMockReason
+            internalMockReason: internalMockReason,
+            hasOnlyImplicitInitializer: hasOnlyImplicitInitializer
         )
     }
 }
