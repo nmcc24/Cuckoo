@@ -1,6 +1,6 @@
 import Foundation
 
-/// Records a mock's calls and holds its stubs. Every generated mock owns one, as `cuckoo_manager`.
+/// Records a mock's calls and holds its stubs. Every generated mock owns one, as `cuckooManager`.
 ///
 /// Tests don't call it directly: ``stub(_:block:)-(M,_)``, ``verify(_:_:fileID:filePath:line:column:)->M.CuckooVerification``
 /// and the reset functions go through it. Its methods are public for the generated mocks.

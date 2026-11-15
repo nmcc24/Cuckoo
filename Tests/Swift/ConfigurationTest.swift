@@ -169,7 +169,7 @@ struct FailuresOutsideTheTestTaskTests {
     @Test
     func failureFromADetachedTaskGoesToSwiftTestingAtTheCreatingTest() async throws {
         let mock = MockTestedProtocol()
-        let creatingTest = mock.cuckoo_manager.creatingTest
+        let creatingTest = mock.cuckooManager.creatingTest
 
         let location = await Task.detached {
             swiftTestingIssueLocation(for: nil, creatingTest: creatingTest)
@@ -182,7 +182,7 @@ struct FailuresOutsideTheTestTaskTests {
     @Test
     func failureWithALocationKeepsIt() async throws {
         let mock = MockTestedProtocol()
-        let creatingTest = mock.cuckoo_manager.creatingTest
+        let creatingTest = mock.cuckooManager.creatingTest
 
         let location = await Task.detached {
             swiftTestingIssueLocation(for: ("Module/File.swift", "/path/File.swift", 12, 3), creatingTest: creatingTest)
@@ -239,7 +239,7 @@ struct FailuresOutsideTheTestTaskTests {
     @Test
     func failureOfAMockCreatedOutsideATestGoesToXCTest() async {
         let location = await Task.detached {
-            let creatingTest = MockTestedProtocol().cuckoo_manager.creatingTest
+            let creatingTest = MockTestedProtocol().cuckooManager.creatingTest
             return swiftTestingIssueLocation(for: nil, creatingTest: creatingTest)
         }.value
 

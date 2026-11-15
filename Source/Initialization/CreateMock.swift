@@ -22,7 +22,7 @@ public func createMock<MOCK: Mock>(
     _ mockType: MOCK.Type,
     configuration: (MockBuilder, MOCK.CuckooStubbing) -> MOCK
 ) -> MOCK {
-    let manager = MockManager(hasParent: MOCK.cuckoo_hasSuperclass)
+    let manager = MockManager(hasParent: MOCK.cuckooHasSuperclass)
 
     let builder = MockBuilder(manager: manager)
     let stubbing = MOCK.CuckooStubbing(manager: manager)

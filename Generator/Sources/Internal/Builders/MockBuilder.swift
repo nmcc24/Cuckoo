@@ -74,14 +74,14 @@ enum MockBuilder {
             lines.append(contentsOf: container.members.compactMap { ($0 as? Typealias).map { "    \(access)\($0.description)" } })
             lines.append("")
         }
-        lines.append("    \(access)nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
+        lines.append("    \(access)nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
         if let initializer = container.crossModuleInitializer(isActor: isActor) {
             lines.append("    \(initializer)")
         }
         if case .globalActor(let name)? = container.declaredIsolation, !isActor {
             // Checks that read the recorded calls of several mocks at once, such as `verifyNoMoreInteractions`,
             // can't take one mock's isolation, so they ask for it at run time.
-            lines.append("    \(access)nonisolated static var cuckoo_globalActor: (any Actor)? { \(name).shared }")
+            lines.append("    \(access)nonisolated static var cuckooGlobalActor: (any Actor)? { \(name).shared }")
         }
         lines.append("")
         lines.append(contentsOf: try defaultImplementation(of: container, isActor: isActor, usesTypeErasure: usesTypeErasure, globalActor: globalActor))
@@ -143,21 +143,21 @@ enum MockBuilder {
         let caller = GeneratedNames.typeErasureClassName
         let generic = GeneratedNames.staticGenericParameter
         let enable = [
-            "        __defaultImplStub.value = stub",
-            "        cuckoo_manager.enableDefaultStubImplementation()",
+            "        cuckooDefaultImplementation.value = stub",
+            "        cuckooManager.enableDefaultStubImplementation()",
             "    }",
         ]
         if isActor {
             return [
                 "    \(access)nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {",
-                "        cuckoo_manager.refuseActorDefaultImplementation()",
+                "        cuckooManager.refuseActorDefaultImplementation()",
                 "    }",
             ]
         }
         guard usesTypeErasure else {
             let type = "\(container.isClass ? "" : "any ")\(container.name)\(container.genericArgumentsString)"
             return [
-                "    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<\(type)>()",
+                "    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<\(type)>()",
                 "",
                 "    \(access)nonisolated func enableDefaultImplementation(_ stub: \(type)) {",
             ] + enable
@@ -166,7 +166,7 @@ enum MockBuilder {
         var lines = [
             "    " + (try TypeErasureBuilder.build(container)),
             "",
-            "    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<\(caller)>()",
+            "    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<\(caller)>()",
         ]
         if let globalActor, !globalActor.isEmpty {
             // `Mock`'s requirement. Wrapping a default implementation reads it on the global actor, so the generic
@@ -178,14 +178,14 @@ enum MockBuilder {
             lines.append(contentsOf: container.conditionalOnGenericParameters { holding in
                 let requirements = container.genericProtocolRequirements(metatypes: false, holding: holding)
                 return ["    @\(globalActor) \(access)func enableDefaultImplementation<\(generic): \(container.name)>(_ stub: \(generic))\(Self.whereClause(requirements)) {",
-                        "        __defaultImplStub.value = \(caller)(stub)"] + enable.dropFirst()
+                        "        cuckooDefaultImplementation.value = \(caller)(stub)"] + enable.dropFirst()
             })
         } else {
             lines.append("")
             lines.append(contentsOf: container.conditionalOnGenericParameters { holding in
                 let requirements = container.genericProtocolRequirements(metatypes: true, holding: holding)
                 return ["    \(access)nonisolated func enableDefaultImplementation<\(generic): \(container.name) & SendableMetatype>(_ stub: \(generic))\(Self.whereClause(requirements)) {",
-                        "        __defaultImplStub.value = \(caller)(stub)"] + enable.dropFirst()
+                        "        cuckooDefaultImplementation.value = \(caller)(stub)"] + enable.dropFirst()
             })
         }
         return lines

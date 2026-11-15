@@ -107,7 +107,7 @@ extension Subscript {
         var getter = getter
         let keyArguments = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
         getter.superclassCallOverride = "super[\(keyArguments)]"
-        getter.defaultCallOverride = "__defaultImplStub.value[\(keyArguments)]"
+        getter.defaultCallOverride = "cuckooDefaultImplementation.value[\(keyArguments)]"
         getter.mentionsSelf = mentionsSelf
         return getter
     }
@@ -118,7 +118,7 @@ extension Subscript {
         var setter = setter
         let keyArguments = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
         setter.superclassCallOverride = "super[\(keyArguments)] = \(newValueName)"
-        setter.defaultCallOverride = "__defaultImplStub.value[\(keyArguments)] = \(newValueName)"
+        setter.defaultCallOverride = "cuckooDefaultImplementation.value[\(keyArguments)] = \(newValueName)"
         setter.mentionsSelf = mentionsSelf
         return setter
     }

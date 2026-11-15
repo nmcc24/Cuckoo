@@ -1,13 +1,13 @@
 /// A type that records its calls and stubs in a ``MockManager``. Every generated mock conforms.
 public protocol HasMockManager {
     /// The manager holding this mock's stubs and recorded calls.
-    var cuckoo_manager: MockManager { get }
+    var cuckooManager: MockManager { get }
 }
 
 /// A type that says whether it has a real implementation to call, as a class mock's superclass.
 public protocol HasSuperclass {
     /// Whether the mocked type is a class, whose real implementation the mock can call.
-    static var cuckoo_hasSuperclass: Bool { get }
+    static var cuckooHasSuperclass: Bool { get }
 }
 
 /// A type that says which global actor its mock runs on, if any.
@@ -15,11 +15,11 @@ public protocol HasGlobalActor {
     /// The global actor the mocked type is isolated to, such as `MainActor.shared`, or `nil`. A mock of a
     /// global-actor type records its calls' arguments on that actor, so checks that read them, such as
     /// ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)``, must run there too.
-    static var cuckoo_globalActor: (any Actor)? { get }
+    static var cuckooGlobalActor: (any Actor)? { get }
 }
 
 public extension HasGlobalActor {
-    static var cuckoo_globalActor: (any Actor)? { nil }
+    static var cuckooGlobalActor: (any Actor)? { nil }
 }
 
 /// A generated mock of a protocol or class.
@@ -35,10 +35,10 @@ public protocol Mock: HasMockManager, HasSuperclass, HasGlobalActor {
     associatedtype CuckooVerification: VerificationProxy
 
     /// Returns the proxy for stubbing this mock's members.
-    func getStubbingProxy() -> CuckooStubbing
+    func cuckooStubbingProxy() -> CuckooStubbing
 
     /// Returns the proxy that checks this mock's calls against `callMatcher`, reporting failures at `sourceLocation`.
-    func getVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> CuckooVerification
+    func cuckooVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> CuckooVerification
 
     /// Makes every unstubbed member forward to `stub`, so the mock behaves like that implementation while still
     /// recording calls.
@@ -50,13 +50,13 @@ public protocol Mock: HasMockManager, HasSuperclass, HasGlobalActor {
 
 public extension Mock {
     /// Returns the proxy for stubbing this mock's members.
-    func getStubbingProxy() -> CuckooStubbing {
-        CuckooStubbing(manager: cuckoo_manager)
+    func cuckooStubbingProxy() -> CuckooStubbing {
+        CuckooStubbing(manager: cuckooManager)
     }
     
     /// Returns the proxy that checks this mock's calls against `callMatcher`, reporting failures at `sourceLocation`.
-    func getVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> CuckooVerification {
-        CuckooVerification(manager: cuckoo_manager, callMatcher: callMatcher, sourceLocation: sourceLocation)
+    func cuckooVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> CuckooVerification {
+        CuckooVerification(manager: cuckooManager, callMatcher: callMatcher, sourceLocation: sourceLocation)
     }
 
     /// Calls ``Mock/enableDefaultImplementation(_:)`` and returns the mock, for use in an initializer chain.
@@ -78,7 +78,7 @@ public protocol ClassMock: Mock {
 public extension ClassMock {
     /// Makes every unstubbed member call the superclass's real implementation, while still recording calls.
     func enableSuperclassSpy() {
-        cuckoo_manager.enableSuperclassSpy()
+        cuckooManager.enableSuperclassSpy()
     }
 
     /// Calls ``ClassMock/enableSuperclassSpy()`` and returns the mock, for use in an initializer chain.
@@ -90,14 +90,14 @@ public extension ClassMock {
 
 public extension ClassMock {
     /// `true`: a class mock can call its superclass.
-    static var cuckoo_hasSuperclass: Bool {
+    static var cuckooHasSuperclass: Bool {
         true
     }
 }
 
 public extension ProtocolMock {
     /// `false`: a protocol has no implementation to call.
-    static var cuckoo_hasSuperclass: Bool {
+    static var cuckooHasSuperclass: Bool {
         false
     }
 }

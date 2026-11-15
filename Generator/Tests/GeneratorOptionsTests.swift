@@ -78,7 +78,7 @@ struct GeneratorOptionsTests {
         #expect(output.contains("final class FakeServiceDouble: Service,"))
         #expect(output.contains("actor FakeStoreDouble: Store,"))
         #expect(output.contains("typealias __CuckooSelf = FakeServiceDouble"))
-        #expect(output.contains("cuckoo_manager.createStub(for: FakeServiceDouble.self,"))
+        #expect(output.contains("cuckooManager.createStub(for: FakeServiceDouble.self,"))
         #expect(output.contains("final class ServiceStub: Service"))
         #expect(!output.contains("MockService"))
         #expect(!output.contains("MockStore"))

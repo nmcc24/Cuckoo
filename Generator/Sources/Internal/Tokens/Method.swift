@@ -417,7 +417,7 @@ extension Method {
         if isStatic {
             return "Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\"\(fullyQualifiedName)\")"
         }
-        return defaultCallOverride ?? "__defaultImplStub.value.\(name)\(isOptional ? "!" : "")(\(signature.parameters.map(\.forwardingCall).joined(separator: ", ")))"
+        return defaultCallOverride ?? "cuckooDefaultImplementation.value.\(name)\(isOptional ? "!" : "")(\(signature.parameters.map(\.forwardingCall).joined(separator: ", ")))"
     }
 
 }

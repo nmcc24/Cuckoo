@@ -3,7 +3,7 @@
 /// The block receives the mock's stubbing proxy: `stub(mock) { stub in when(stub.greet(any())).thenReturn("Hi") }`.
 /// Call it as often as needed; a newer stub of the same call takes precedence over older ones.
 public func stub<M: Mock>(_ mock: M, block: (M.CuckooStubbing) -> Void) {
-    block(mock.getStubbingProxy())
+    block(mock.cuckooStubbingProxy())
 }
 
 /// Marks the member being stubbed inside a ``stub(_:block:)-(M,_)`` block, for example `when(stub.count.get)`.
@@ -18,27 +18,27 @@ public func when<F: BaseStubFunctionTrait>(_ function: F) -> F {
 /// `callMatcher` says how many matching calls are expected, `times(1)` by default. A failed check reports where
 /// `verify` was called, and lists the member's actual calls.
 public func verify<M: Mock>(_ mock: M, _ callMatcher: CallMatcher = times(1), fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) -> M.CuckooVerification {
-    return mock.getVerificationProxy(callMatcher, sourceLocation: (fileID, filePath, line, column))
+    return mock.cuckooVerificationProxy(callMatcher, sourceLocation: (fileID, filePath, line, column))
 }
 
 /// Clears the stubs and the recorded calls of `mocks`.
 public func reset(_ mocks: any HasMockManager...) {
     mocks.forEach { mock in
-        mock.cuckoo_manager.reset()
+        mock.cuckooManager.reset()
     }
 }
 
 /// Clears the stubs of `mocks`, keeping their recorded calls. The mocks may be of different types.
 public func clearStubs(_ mocks: any Mock...) {
     mocks.forEach { mock in
-        mock.cuckoo_manager.clearStubs()
+        mock.cuckooManager.clearStubs()
     }
 }
 
 /// Clears the recorded calls of `mocks`, keeping their stubs. The mocks may be of different types.
 public func clearInvocations(_ mocks: any Mock...) {
     mocks.forEach { mock in
-        mock.cuckoo_manager.clearInvocations()
+        mock.cuckooManager.clearInvocations()
     }
 }
 
@@ -55,10 +55,10 @@ public func verifyNoMoreInteractions(
     isolation: isolated (any Actor)? = #isolation
 ) {
     mocks.forEach { mock in
-        mock.cuckoo_manager.verifyNoMoreInteractions(
+        mock.cuckooManager.verifyNoMoreInteractions(
             (fileID, filePath, line, column),
             mockType: type(of: mock),
-            globalActor: type(of: mock).cuckoo_globalActor,
+            globalActor: type(of: mock).cuckooGlobalActor,
             caller: isolation
         )
     }
@@ -66,19 +66,19 @@ public func verifyNoMoreInteractions(
 
 /// Stubs a mock type's static or class members, in the current ``StaticStubs`` scope: `stub(MockClock.self) { stub in … }`.
 public func stub<M: StaticMock>(_ type: M.Type, block: (M.CuckooStaticStubbing) -> Void) {
-    block(M.CuckooStaticStubbing(manager: M.cuckoo_staticManager))
+    block(M.CuckooStaticStubbing(manager: M.cuckooStaticManager))
 }
 
 /// Returns a proxy that checks the calls a mock type's static or class members received, in the current
 /// ``StaticStubs`` scope.
 public func verify<M: StaticMock>(_ type: M.Type, _ callMatcher: CallMatcher = times(1), fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) -> M.CuckooStaticVerification {
-    M.CuckooStaticVerification(manager: M.cuckoo_staticManager, callMatcher: callMatcher, sourceLocation: (fileID, filePath, line, column))
+    M.CuckooStaticVerification(manager: M.cuckooStaticManager, callMatcher: callMatcher, sourceLocation: (fileID, filePath, line, column))
 }
 
 /// Clears the stubs and recorded calls of mock types' static members, in the current ``StaticStubs`` scope.
 public func reset(_ types: any StaticMock.Type...) {
     types.forEach { type in
-        type.cuckoo_staticManager.reset()
+        type.cuckooStaticManager.reset()
     }
 }
 
@@ -92,10 +92,10 @@ public func verifyNoMoreInteractions<M: StaticMock>(
     column: Int = #column,
     isolation: isolated (any Actor)? = #isolation
 ) {
-    M.cuckoo_staticManager.verifyNoMoreInteractions(
+    M.cuckooStaticManager.verifyNoMoreInteractions(
         (fileID, filePath, line, column),
         mockType: type,
-        globalActor: M.cuckoo_globalActor,
+        globalActor: M.cuckooGlobalActor,
         caller: isolation
     )
 }

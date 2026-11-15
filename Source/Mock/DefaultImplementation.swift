@@ -12,7 +12,7 @@ public final class DefaultImplementation<Stub>: Sendable {
     /// The default implementation. Reading it before one was set is a programming error.
     ///
     /// The setter writes back a mutated copy, so a mutating member of a value-type default implementation
-    /// (`__defaultImplStub.value.count += 1`) keeps its change, as it did when the mock stored the value itself.
+    /// (`cuckooDefaultImplementation.value.count += 1`) keeps its change, as it did when the mock stored the value itself.
     /// The member runs outside the lock.
     public var value: Stub {
         get {
