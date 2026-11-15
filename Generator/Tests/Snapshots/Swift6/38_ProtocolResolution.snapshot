@@ -2522,3 +2522,379 @@ nonisolated final class KeyedEntityStub: KeyedEntity {
         return DefaultValueRegistry.defaultValue(for: (Int).self)
     }
 }
+
+extension Ledger {
+    final class MockStore<Element>: Store<Element>, nonisolated Cuckoo.ClassMock {
+        typealias MocksType = Store<Element>
+        typealias Stubbing = __StubbingProxy_Store
+        typealias Verification = __VerificationProxy_Store
+
+        nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockStore.self) ?? Cuckoo.MockManager(hasParent: true)
+
+        nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<Store<Element>>()
+
+        nonisolated func enableDefaultImplementation(_ stub: Store<Element>) {
+            __defaultImplStub.value = stub
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+
+        override func all() -> [Element] {
+            return cuckoo_manager.call(
+                "all() -> [Element]",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> [Element], arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: super.all(),
+                defaultCall: __defaultImplStub.value.all()
+            )
+        }
+
+        nonisolated struct __StubbingProxy_Store: Cuckoo.StubbingProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckoo_manager = manager
+            }
+
+            func all() -> Cuckoo.ClassStubFunction<(), [Element], (()) -> [Element], Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckoo_manager.createStub(for: MockStore.self,
+                    method: "all() -> [Element]",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+
+        nonisolated struct __VerificationProxy_Store: Cuckoo.VerificationProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckoo_manager = manager
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
+            }
+
+            @discardableResult
+            func all() -> Cuckoo.__DoNotUse<(), [Element]> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckoo_manager.verify(
+                    "all() -> [Element]",
+                    callMatcher: cuckoo_callMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckoo_sourceLocation
+                )
+            }
+        }
+    }
+
+    final class StoreStub<Element>: Store<Element> {
+        override func all() -> [Element] {
+            return DefaultValueRegistry.defaultValue(for: ([Element]).self)
+        }
+    }
+}
+
+extension Ledger {
+    final class MockEntryStore: Ledger.Store<Ledger.Entry>, EntryStore, nonisolated Cuckoo.ProtocolMock {
+        typealias MocksType = any EntryStore
+        typealias Stubbing = __StubbingProxy_EntryStore
+        typealias Verification = __VerificationProxy_EntryStore
+
+        // Original typealiases
+
+        nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockEntryStore.self) ?? Cuckoo.MockManager(hasParent: false)
+
+        nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any EntryStore>()
+
+        nonisolated func enableDefaultImplementation(_ stub: any EntryStore) {
+            __defaultImplStub.value = stub
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+
+        func refresh() {
+            return cuckoo_manager.call(
+                "refresh()",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> Void, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.refresh()
+            )
+        }
+
+        nonisolated struct __StubbingProxy_EntryStore: Cuckoo.StubbingProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckoo_manager = manager
+            }
+
+            func refresh() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckoo_manager.createStub(for: MockEntryStore.self,
+                    method: "refresh()",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+
+        nonisolated struct __VerificationProxy_EntryStore: Cuckoo.VerificationProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckoo_manager = manager
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
+            }
+
+            @discardableResult
+            func refresh() -> Cuckoo.__DoNotUse<(), Void> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckoo_manager.verify(
+                    "refresh()",
+                    callMatcher: cuckoo_callMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckoo_sourceLocation
+                )
+            }
+        }
+    }
+
+    final class EntryStoreStub: Ledger.Store<Ledger.Entry>, EntryStore {
+        func refresh() {
+            return DefaultValueRegistry.defaultValue(for: (Void).self)
+        }
+    }
+}
+
+final class MockTopEntryStore: Ledger.Store<Ledger.Entry>, TopEntryStore, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any TopEntryStore
+    typealias Stubbing = __StubbingProxy_TopEntryStore
+    typealias Verification = __VerificationProxy_TopEntryStore
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockTopEntryStore.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any TopEntryStore>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any TopEntryStore) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func top() {
+        return cuckoo_manager.call(
+            "top()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.top()
+        )
+    }
+
+    func refresh() {
+        return cuckoo_manager.call(
+            "refresh()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.refresh()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_TopEntryStore: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func top() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockTopEntryStore.self,
+                method: "top()",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func refresh() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockTopEntryStore.self,
+                method: "refresh()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_TopEntryStore: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func top() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "top()",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+
+        @discardableResult
+        func refresh() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "refresh()",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+    }
+}
+
+final class TopEntryStoreStub: Ledger.Store<Ledger.Entry>, TopEntryStore {
+    func top() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    func refresh() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+}
+
+extension OtherLedger {
+    final class MockOtherEntryStore: Ledger.Store<Ledger.Entry>, OtherEntryStore, nonisolated Cuckoo.ProtocolMock {
+        typealias MocksType = any OtherEntryStore
+        typealias Stubbing = __StubbingProxy_OtherEntryStore
+        typealias Verification = __VerificationProxy_OtherEntryStore
+
+        // Original typealiases
+
+        nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockOtherEntryStore.self) ?? Cuckoo.MockManager(hasParent: false)
+
+        nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any OtherEntryStore>()
+
+        nonisolated func enableDefaultImplementation(_ stub: any OtherEntryStore) {
+            __defaultImplStub.value = stub
+            cuckoo_manager.enableDefaultStubImplementation()
+        }
+
+        func other() {
+            return cuckoo_manager.call(
+                "other()",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> Void, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.other()
+            )
+        }
+
+        func refresh() {
+            return cuckoo_manager.call(
+                "refresh()",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> Void, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: __defaultImplStub.value.refresh()
+            )
+        }
+
+        nonisolated struct __StubbingProxy_OtherEntryStore: Cuckoo.StubbingProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckoo_manager = manager
+            }
+
+            func other() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckoo_manager.createStub(for: MockOtherEntryStore.self,
+                    method: "other()",
+                    parameterMatchers: matchers
+                ))
+            }
+
+            func refresh() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckoo_manager.createStub(for: MockOtherEntryStore.self,
+                    method: "refresh()",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+
+        nonisolated struct __VerificationProxy_OtherEntryStore: Cuckoo.VerificationProxy {
+            private let cuckoo_manager: Cuckoo.MockManager
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckoo_manager = manager
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
+            }
+
+            @discardableResult
+            func other() -> Cuckoo.__DoNotUse<(), Void> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckoo_manager.verify(
+                    "other()",
+                    callMatcher: cuckoo_callMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckoo_sourceLocation
+                )
+            }
+
+            @discardableResult
+            func refresh() -> Cuckoo.__DoNotUse<(), Void> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckoo_manager.verify(
+                    "refresh()",
+                    callMatcher: cuckoo_callMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckoo_sourceLocation
+                )
+            }
+        }
+    }
+
+    final class OtherEntryStoreStub: Ledger.Store<Ledger.Entry>, OtherEntryStore {
+        func other() {
+            return DefaultValueRegistry.defaultValue(for: (Void).self)
+        }
+
+        func refresh() {
+            return DefaultValueRegistry.defaultValue(for: (Void).self)
+        }
+    }
+}

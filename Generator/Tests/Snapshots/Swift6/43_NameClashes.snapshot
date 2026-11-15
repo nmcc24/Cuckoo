@@ -266,3 +266,76 @@ nonisolated final class KeywordPropertyStub<Element>: KeywordProperty {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
+
+final class MockQuietSubclass: QuietSubclass, nonisolated Cuckoo.ClassMock {
+    typealias MocksType = QuietSubclass
+    typealias Stubbing = __StubbingProxy_QuietSubclass
+    typealias Verification = __VerificationProxy_QuietSubclass
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockQuietSubclass.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<QuietSubclass>()
+
+    nonisolated func enableDefaultImplementation(_ stub: QuietSubclass) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    override func count() -> Int {
+        return cuckoo_manager.call(
+            "count() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.count(),
+            defaultCall: __defaultImplStub.value.count()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_QuietSubclass: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func count() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockQuietSubclass.self,
+                method: "count() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_QuietSubclass: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func count() -> Cuckoo.__DoNotUse<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "count() -> Int",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+    }
+}
+
+final class QuietSubclassStub: QuietSubclass {
+    override func count() -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}

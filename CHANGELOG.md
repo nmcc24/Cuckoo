@@ -75,7 +75,8 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   parameters named like the proxies' matcher generics (`M1`).
 - A class's `where` clause wasn't repeated on its mock, and the mock and stub of an `@unchecked Sendable` class, or
   of a protocol bound to one, didn't restate it, which Swift warns about; an extension's `@unchecked Sendable`
-  counts too. A protocol bound to a generic class, `protocol P: Repository<Int>`, got a mock that didn't subclass it.
+  counts too. A protocol bound to a generic class, `protocol P: Repository<Int>`, got a mock that didn't subclass it;
+  its arguments are qualified from the protocol that wrote them, so a protocol inheriting it elsewhere gets the same.
 - A public class with internal members that use internal types got a public mock whose overrides made those
   members public, which doesn't compile next to the class. Its mock is now internal, and says why.
 - A `nonisolated` member of a `@MainActor` or global-actor protocol got non-`Sendable` stubs, so it couldn't be
@@ -109,8 +110,8 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   property such as `` `default` `` in a protocol with an associated type stopped generation for the whole module.
   A generic parameter or associated type named like one of the mock's own type names (`Stubbing`, `Verification`,
   `MocksType`), or a nested type, typealias or associated type of such a name, in the type, an extension of it or
-  a type it inherits from, gave a mock that couldn't compile; the type is now left out with a warning saying what to
-  rename.
+  a protocol it inherits from (a class's superclass only when the class's members use the name), gave a mock that
+  couldn't compile; the type is now left out with a warning saying what to rename.
 
 - Two sources declaring the same type, such as `A/User.swift` and `B/User.swift`, gave two `MockUser` and only an
   info line. It's now a warning that names both files. A protocol bound to a class (`protocol P: Base`) is found by
