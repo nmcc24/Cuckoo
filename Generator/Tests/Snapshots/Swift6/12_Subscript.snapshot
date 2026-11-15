@@ -2,9 +2,9 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any Cache
-    typealias Stubbing = __StubbingProxy_Cache
-    typealias Verification = __VerificationProxy_Cache
+    typealias CuckooMocksType = any Cache
+    typealias CuckooStubbing = __StubbingProxy_Cache
+    typealias CuckooVerification = __VerificationProxy_Cache
 
     // Original typealiases
 
@@ -150,9 +150,9 @@ nonisolated final class CacheStub: Cache {
 }
 
 nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any Grid
-    typealias Stubbing = __StubbingProxy_Grid
-    typealias Verification = __VerificationProxy_Grid
+    typealias CuckooMocksType = any Grid
+    typealias CuckooStubbing = __StubbingProxy_Grid
+    typealias CuckooVerification = __VerificationProxy_Grid
 
     // Original typealiases
 
@@ -431,9 +431,9 @@ nonisolated final class GridStub: Grid {
 }
 
 final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any MainActorTable
-    typealias Stubbing = __StubbingProxy_MainActorTable
-    typealias Verification = __VerificationProxy_MainActorTable
+    typealias CuckooMocksType = any MainActorTable
+    typealias CuckooStubbing = __StubbingProxy_MainActorTable
+    typealias CuckooVerification = __VerificationProxy_MainActorTable
 
     // Original typealiases
 
@@ -584,9 +584,9 @@ final class MainActorTableStub: MainActorTable {
 }
 
 nonisolated final class MockSendableLookup: SendableLookup, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any SendableLookup
-    typealias Stubbing = __StubbingProxy_SendableLookup
-    typealias Verification = __VerificationProxy_SendableLookup
+    typealias CuckooMocksType = any SendableLookup
+    typealias CuckooStubbing = __StubbingProxy_SendableLookup
+    typealias CuckooVerification = __VerificationProxy_SendableLookup
 
     // Original typealiases
 
@@ -685,15 +685,15 @@ nonisolated final class SendableLookupStub: SendableLookup {
 }
 
 actor MockActorStore: ActorStore, Cuckoo.ProtocolMock {
-    typealias MocksType = any ActorStore
-    typealias Stubbing = __StubbingProxy_ActorStore
-    typealias Verification = __VerificationProxy_ActorStore
+    typealias CuckooMocksType = any ActorStore
+    typealias CuckooStubbing = __StubbingProxy_ActorStore
+    typealias CuckooVerification = __VerificationProxy_ActorStore
 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockActorStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
 

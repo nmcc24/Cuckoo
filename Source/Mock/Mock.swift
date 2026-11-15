@@ -24,43 +24,43 @@ public extension HasGlobalActor {
 
 /// A generated mock of a protocol or class.
 ///
-/// The generator writes the conformance; tests use a mock through ``stub(_:block:)-(M,_)``, ``verify(_:_:fileID:filePath:line:column:)->M.Verification``
+/// The generator writes the conformance; tests use a mock through ``stub(_:block:)-(M,_)``, ``verify(_:_:fileID:filePath:line:column:)->M.CuckooVerification``
 /// and ``Mock/enableDefaultImplementation(_:)``.
 public protocol Mock: HasMockManager, HasSuperclass, HasGlobalActor {
     /// The mocked protocol or class.
-    associatedtype MocksType
+    associatedtype CuckooMocksType
     /// The proxy ``stub(_:block:)-(M,_)`` hands to its block, with one stubbing member per mocked member.
-    associatedtype Stubbing: StubbingProxy
-    /// The proxy ``verify(_:_:fileID:filePath:line:column:)->M.Verification`` returns, with one verifying member per mocked member.
-    associatedtype Verification: VerificationProxy
+    associatedtype CuckooStubbing: StubbingProxy
+    /// The proxy ``verify(_:_:fileID:filePath:line:column:)->M.CuckooVerification`` returns, with one verifying member per mocked member.
+    associatedtype CuckooVerification: VerificationProxy
 
     /// Returns the proxy for stubbing this mock's members.
-    func getStubbingProxy() -> Stubbing
+    func getStubbingProxy() -> CuckooStubbing
 
     /// Returns the proxy that checks this mock's calls against `callMatcher`, reporting failures at `sourceLocation`.
-    func getVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> Verification
+    func getVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> CuckooVerification
 
     /// Makes every unstubbed member forward to `stub`, so the mock behaves like that implementation while still
     /// recording calls.
     ///
     /// A value-type `stub` is copied once: the mock keeps the changes made through it, and later changes to the
     /// original don't reach it. Pass a class instance to share state with the test.
-    func enableDefaultImplementation(_ stub: MocksType)
+    func enableDefaultImplementation(_ stub: CuckooMocksType)
 }
 
 public extension Mock {
     /// Returns the proxy for stubbing this mock's members.
-    func getStubbingProxy() -> Stubbing {
-        Stubbing(manager: cuckoo_manager)
+    func getStubbingProxy() -> CuckooStubbing {
+        CuckooStubbing(manager: cuckoo_manager)
     }
     
     /// Returns the proxy that checks this mock's calls against `callMatcher`, reporting failures at `sourceLocation`.
-    func getVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> Verification {
-        Verification(manager: cuckoo_manager, callMatcher: callMatcher, sourceLocation: sourceLocation)
+    func getVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> CuckooVerification {
+        CuckooVerification(manager: cuckoo_manager, callMatcher: callMatcher, sourceLocation: sourceLocation)
     }
 
     /// Calls ``Mock/enableDefaultImplementation(_:)`` and returns the mock, for use in an initializer chain.
-    func withEnabledDefaultImplementation(_ stub: MocksType) -> Self {
+    func withEnabledDefaultImplementation(_ stub: CuckooMocksType) -> Self {
         enableDefaultImplementation(stub)
         return self
     }

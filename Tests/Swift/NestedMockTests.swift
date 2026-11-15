@@ -4,7 +4,7 @@ import Cuckoo
 @testable import CuckooTestSources
 
 extension Nested.NestedExtensionTestedClass: Mocked {
-    typealias MockType = Nested.MockNestedExtensionTestedClass
+    typealias CuckooMockType = Nested.MockNestedExtensionTestedClass
 }
 
 /// Mocks of classes nested in other types and extensions. `NestedClassTest` runs the whole `TestedClass` suite on

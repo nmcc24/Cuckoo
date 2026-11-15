@@ -2,15 +2,15 @@ import Cuckoo
 import Foundation
 
 actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
-    typealias MocksType = any BoxActor
-    typealias Stubbing = __StubbingProxy_BoxActor
-    typealias Verification = __VerificationProxy_BoxActor
+    typealias CuckooMocksType = any BoxActor
+    typealias CuckooStubbing = __StubbingProxy_BoxActor
+    typealias CuckooVerification = __VerificationProxy_BoxActor
 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockBoxActor.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
 

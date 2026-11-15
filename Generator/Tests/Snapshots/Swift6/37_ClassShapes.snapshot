@@ -2,9 +2,9 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockShapeProtocol: ShapeProtocol, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any ShapeProtocol
-    typealias Stubbing = __StubbingProxy_ShapeProtocol
-    typealias Verification = __VerificationProxy_ShapeProtocol
+    typealias CuckooMocksType = any ShapeProtocol
+    typealias CuckooStubbing = __StubbingProxy_ShapeProtocol
+    typealias CuckooVerification = __VerificationProxy_ShapeProtocol
 
     // Original typealiases
 
@@ -42,9 +42,9 @@ nonisolated final class ShapeProtocolStub: ShapeProtocol {
 }
 
 final class MockWhereBox<T: Hashable, U>: WhereBox<T, U>, nonisolated Cuckoo.ClassMock where U: Sendable {
-    typealias MocksType = WhereBox<T, U>
-    typealias Stubbing = __StubbingProxy_WhereBox
-    typealias Verification = __VerificationProxy_WhereBox
+    typealias CuckooMocksType = WhereBox<T, U>
+    typealias CuckooStubbing = __StubbingProxy_WhereBox
+    typealias CuckooVerification = __VerificationProxy_WhereBox
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockWhereBox.self) ?? Cuckoo.MockManager(hasParent: true)
 
@@ -119,9 +119,9 @@ final class WhereBoxStub<T: Hashable, U>: WhereBox<T, U> where U: Sendable {
 }
 
 final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = ShapePrinter
-    typealias Stubbing = __StubbingProxy_ShapePrinter
-    typealias Verification = __VerificationProxy_ShapePrinter
+    typealias CuckooMocksType = ShapePrinter
+    typealias CuckooStubbing = __StubbingProxy_ShapePrinter
+    typealias CuckooVerification = __VerificationProxy_ShapePrinter
 
     // Not mocked, so calls run the class's own implementation:
     // - 'body' has the opaque type 'some ShapeProtocol', which an override can't repeat.
@@ -501,9 +501,9 @@ final class ShapePrinterStub: ShapePrinter {
 
 extension ShapeStore {
     final class MockCache: Cache, nonisolated Cuckoo.ClassMock {
-        typealias MocksType = Cache
-        typealias Stubbing = __StubbingProxy_Cache
-        typealias Verification = __VerificationProxy_Cache
+        typealias CuckooMocksType = Cache
+        typealias CuckooStubbing = __StubbingProxy_Cache
+        typealias CuckooVerification = __VerificationProxy_Cache
 
         nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockCache.self) ?? Cuckoo.MockManager(hasParent: true)
 
@@ -575,9 +575,9 @@ extension ShapeStore {
 }
 
 final class MockUncheckedCache: UncheckedCache, nonisolated Cuckoo.ClassMock, @unchecked Sendable {
-    typealias MocksType = UncheckedCache
-    typealias Stubbing = __StubbingProxy_UncheckedCache
-    typealias Verification = __VerificationProxy_UncheckedCache
+    typealias CuckooMocksType = UncheckedCache
+    typealias CuckooStubbing = __StubbingProxy_UncheckedCache
+    typealias CuckooVerification = __VerificationProxy_UncheckedCache
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockUncheckedCache.self) ?? Cuckoo.MockManager(hasParent: true)
 
@@ -648,9 +648,9 @@ final class UncheckedCacheStub: UncheckedCache, @unchecked Sendable {
 }
 
 final class MockUncheckedCacheUser: UncheckedCache, UncheckedCacheUser, nonisolated Cuckoo.ProtocolMock, @unchecked Sendable {
-    typealias MocksType = any UncheckedCacheUser
-    typealias Stubbing = __StubbingProxy_UncheckedCacheUser
-    typealias Verification = __VerificationProxy_UncheckedCacheUser
+    typealias CuckooMocksType = any UncheckedCacheUser
+    typealias CuckooStubbing = __StubbingProxy_UncheckedCacheUser
+    typealias CuckooVerification = __VerificationProxy_UncheckedCacheUser
 
     // Original typealiases
 
@@ -723,9 +723,9 @@ final class UncheckedCacheUserStub: UncheckedCache, UncheckedCacheUser, @uncheck
 }
 
 final class MockLateUncheckedCache: LateUncheckedCache, nonisolated Cuckoo.ClassMock, @unchecked Sendable {
-    typealias MocksType = LateUncheckedCache
-    typealias Stubbing = __StubbingProxy_LateUncheckedCache
-    typealias Verification = __VerificationProxy_LateUncheckedCache
+    typealias CuckooMocksType = LateUncheckedCache
+    typealias CuckooStubbing = __StubbingProxy_LateUncheckedCache
+    typealias CuckooVerification = __VerificationProxy_LateUncheckedCache
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockLateUncheckedCache.self) ?? Cuckoo.MockManager(hasParent: true)
 
@@ -796,9 +796,9 @@ final class LateUncheckedCacheStub: LateUncheckedCache, @unchecked Sendable {
 }
 
 final class MockGenericRepository<Item>: GenericRepository<Item>, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = GenericRepository<Item>
-    typealias Stubbing = __StubbingProxy_GenericRepository
-    typealias Verification = __VerificationProxy_GenericRepository
+    typealias CuckooMocksType = GenericRepository<Item>
+    typealias CuckooStubbing = __StubbingProxy_GenericRepository
+    typealias CuckooVerification = __VerificationProxy_GenericRepository
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockGenericRepository.self) ?? Cuckoo.MockManager(hasParent: true)
 
@@ -869,9 +869,9 @@ final class GenericRepositoryStub<Item>: GenericRepository<Item> {
 }
 
 final class MockIntRepositoryUser: GenericRepository<Int>, IntRepositoryUser, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any IntRepositoryUser
-    typealias Stubbing = __StubbingProxy_IntRepositoryUser
-    typealias Verification = __VerificationProxy_IntRepositoryUser
+    typealias CuckooMocksType = any IntRepositoryUser
+    typealias CuckooStubbing = __StubbingProxy_IntRepositoryUser
+    typealias CuckooVerification = __VerificationProxy_IntRepositoryUser
 
     // Original typealiases
 

@@ -2,9 +2,9 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockTransformer: Transformer, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any Transformer
-    typealias Stubbing = __StubbingProxy_Transformer
-    typealias Verification = __VerificationProxy_Transformer
+    typealias CuckooMocksType = any Transformer
+    typealias CuckooStubbing = __StubbingProxy_Transformer
+    typealias CuckooVerification = __VerificationProxy_Transformer
 
     // Original typealiases
 
@@ -174,9 +174,9 @@ nonisolated final class TransformerStub: Transformer {
 }
 
 final class MockTransformingService: TransformingService, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = TransformingService
-    typealias Stubbing = __StubbingProxy_TransformingService
-    typealias Verification = __VerificationProxy_TransformingService
+    typealias CuckooMocksType = TransformingService
+    typealias CuckooStubbing = __StubbingProxy_TransformingService
+    typealias CuckooVerification = __VerificationProxy_TransformingService
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockTransformingService.self) ?? Cuckoo.MockManager(hasParent: true)
 

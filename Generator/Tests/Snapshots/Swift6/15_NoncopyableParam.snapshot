@@ -2,9 +2,9 @@ import Cuckoo
 import Foundation
 
 nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock {
-    typealias MocksType = any Consumer
-    typealias Stubbing = __StubbingProxy_Consumer
-    typealias Verification = __VerificationProxy_Consumer
+    typealias CuckooMocksType = any Consumer
+    typealias CuckooStubbing = __StubbingProxy_Consumer
+    typealias CuckooVerification = __VerificationProxy_Consumer
 
     // Original typealiases
 
@@ -294,15 +294,15 @@ nonisolated final class ConsumerStub: Consumer {
 }
 
 actor MockTokenVault: TokenVault, Cuckoo.ProtocolMock {
-    typealias MocksType = any TokenVault
-    typealias Stubbing = __StubbingProxy_TokenVault
-    typealias Verification = __VerificationProxy_TokenVault
+    typealias CuckooMocksType = any TokenVault
+    typealias CuckooStubbing = __StubbingProxy_TokenVault
+    typealias CuckooVerification = __VerificationProxy_TokenVault
 
     // Original typealiases
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockTokenVault.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated func enableDefaultImplementation(_ stub: MocksType) {
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckoo_manager.refuseActorDefaultImplementation()
     }
 
@@ -370,9 +370,9 @@ actor TokenVaultStub: TokenVault {
 }
 
 final class MockShredder: Shredder, nonisolated Cuckoo.ClassMock {
-    typealias MocksType = Shredder
-    typealias Stubbing = __StubbingProxy_Shredder
-    typealias Verification = __VerificationProxy_Shredder
+    typealias CuckooMocksType = Shredder
+    typealias CuckooStubbing = __StubbingProxy_Shredder
+    typealias CuckooVerification = __VerificationProxy_Shredder
 
     nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockShredder.self) ?? Cuckoo.MockManager(hasParent: true)
 

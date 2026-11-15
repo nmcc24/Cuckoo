@@ -4,7 +4,7 @@ import Cuckoo
 @testable import CuckooTestSources
 
 extension TestedClass: Mocked {
-    typealias MockType = MockTestedClass
+    typealias CuckooMockType = MockTestedClass
 }
 
 struct ClassTest {
