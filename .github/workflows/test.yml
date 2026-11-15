@@ -1,11 +1,14 @@
 name: Run tests
-# A branch with a pull request is tested once, by its pull_request run, which reports the
-# required "CI passed" check. Pushes are tested only on master, after a merge. Run the workflow
-# by hand (workflow_dispatch) to test a branch without a pull request.
+# A pull request into master is tested by its pull_request run, which reports the required
+# "CI passed" check. A pull request stacked on another branch isn't: its run couldn't merge it,
+# and GitHub restacks it onto master, which starts its run, once the one below merges. Pushes are
+# tested only on master, after a merge. Run the workflow by hand (workflow_dispatch) to test a
+# branch without a pull request into master.
 on:
   push:
     branches: [master]
   pull_request:
+    branches: [master]
   workflow_dispatch:
 # One run per pull request (or per branch for the other events). A new push to a pull request
 # cancels its run in progress; runs on master always finish.
