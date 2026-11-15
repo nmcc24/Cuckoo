@@ -3,17 +3,13 @@ import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-extension TestedClass: Mocked {
-    typealias CuckooMockType = MockTestedClass
-}
-
 struct ClassTest {
 
     private let mock = MockTestedClass()
 
     @Test
     func readOnlyPropertyWithMockCreator() {
-        let mock = createMock(for: TestedClass.self) { builder, stub in
+        let mock = createMock(MockTestedClass.self) { builder, stub in
             when(stub.readOnlyProperty.get).thenReturn("a")
 
             return MockTestedClass()
@@ -26,7 +22,7 @@ struct ClassTest {
     @Test
     func mockCreatorKeepsOtherMocksSeparate() throws {
         var other: MockTestedProtocol?
-        let mock = createMock(for: TestedClass.self) { builder, stub in
+        let mock = createMock(MockTestedClass.self) { builder, stub in
             other = MockTestedProtocol()
             when(stub.readOnlyProperty.get).thenReturn("a")
             return MockTestedClass()

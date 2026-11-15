@@ -3,17 +3,13 @@ import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-extension Nested.NestedExtensionTestedClass: Mocked {
-    typealias CuckooMockType = Nested.MockNestedExtensionTestedClass
-}
-
 /// Mocks of classes nested in other types and extensions. `NestedClassTest` runs the whole `TestedClass` suite on
 /// one of them; the generated code of the others differs only in the names, which the runtime snapshot covers, so
 /// each gets one test of stubbing, a property, a call to the real implementation and a default implementation.
 struct NestedMockTests {
     @Test
     func createMockOfANestedClass() {
-        let mock = createMock(for: Nested.NestedExtensionTestedClass.self) { _, stub in
+        let mock = createMock(Nested.MockNestedExtensionTestedClass.self) { _, stub in
             when(stub.readOnlyProperty.get).thenReturn("a")
             return Nested.MockNestedExtensionTestedClass()
         }

@@ -4,17 +4,13 @@ import Cuckoo
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-extension GenericClass: Mocked {
-    typealias CuckooMockType = MockGenericClass<T, U, V>
-}
-
 struct GenericClassTest {
     private let mock: MockGenericClass<Int, String, Bool> = MockGenericClass(theT: 10, theU: "Hello, generics!", theV: false)
     private let original: GenericClass<Int, String, Bool> = GenericClass(theT: 42, theU: "Hello world!", theV: false)
 
     @Test
     func readWritePropertyWithMockCreator() {
-        let mock = createMock(for: GenericClass<Int, String, Bool>.self) { builder, stub in
+        let mock = createMock(MockGenericClass<Int, String, Bool>.self) { builder, stub in
             when(stub.readWritePropertyU.get).thenReturn("a")
 
             return MockGenericClass(theT: 0, theU: "", theV: true)

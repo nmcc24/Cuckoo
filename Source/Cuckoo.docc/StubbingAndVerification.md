@@ -19,7 +19,7 @@ protocol Greeter {
 
 A mock has the initializers of the type it mocks: `MockGreeter()` for a protocol, and the class's own
 initializers for a class. A mock whose initializer calls its own members needs those stubbed before it exists;
-``createMock(_:configuration:)`` and ``createMock(for:configuration:)`` stub it first, and its ``MockBuilder``
+``createMock(_:configuration:)`` stubs it first, and its ``MockBuilder``
 enables a spy or default implementation before the initializer runs:
 
 ```swift

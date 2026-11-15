@@ -39,9 +39,7 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 - ``ProtocolMock``
 - ``ClassMock``
 - ``StaticMock``
-- ``Mocked``
 - ``createMock(_:configuration:)``
-- ``createMock(for:configuration:)``
 - ``MockBuilder``
 - ``StaticStubs``
 - ``withStaticStubs(_:)-9n6r1``

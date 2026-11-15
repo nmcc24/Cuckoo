@@ -80,9 +80,11 @@ behaviour on top.
   | Cuckoo 2 | Cuckoo 3 |
   | --- | --- |
   | `MockX.Stubbing`, `MockX.Verification`, `MockX.MocksType` | `MockX.CuckooStubbing`, `MockX.CuckooVerification`, `MockX.CuckooMocksType` |
-  | `typealias MockType` in a `Mocked` conformance | `typealias CuckooMockType` |
   | `cuckoo_manager`, `cuckoo_hasSuperclass` | `cuckooManager`, `cuckooHasSuperclass` |
   | `getStubbingProxy()`, `getVerificationProxy(_:sourceLocation:)` | `cuckooStubbingProxy()`, `cuckooVerificationProxy(_:sourceLocation:)` |
+- `Mocked` and `createMock(for:configuration:)` are removed: they only saved naming the mock. Call
+  ``createMock(_:configuration:)`` with the mock's type, `createMock(MockPerson.self) { builder, stub in … }`, and
+  drop the `Mocked` conformance.
 - `enableDefaultImplementation(mutating:)` is removed: it kept a pointer to your variable after the call returned.
   A `struct` default implementation is copied once and keeps the changes made through the mock; pass a class
   instance to share state with the test.
