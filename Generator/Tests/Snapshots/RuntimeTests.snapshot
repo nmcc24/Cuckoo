@@ -161,6 +161,8 @@ import Combine
 @testable public import protocol CuckooTestSources.TestedSubProtocol
 @testable public import class CuckooTestSources.TestedSubclass
 @testable public import class CuckooTestSources.TestedSubSubClass
+@testable public import protocol CuckooTestSources.KeyedStore
+@testable public import struct CuckooTestSources.StringKeyedStore
 @testable public import class CuckooTestSources.UnavailablePlatformClass
 @testable public import protocol CuckooTestSources.UnavailablePlatformProtocol
 @testable public import protocol CuckooTestSources.UnicodeTest
@@ -43959,6 +43961,130 @@ final class TestedSubSubClassStub: TestedSubSubClass {
 
     func protocolMethod() -> String {
         return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+}
+
+nonisolated final class MockKeyedStore<Item>: KeyedStore, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = __DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_KeyedStore
+    typealias CuckooVerification = __VerificationProxy_KeyedStore
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyedStore.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class __DefaultImplCaller: KeyedStore, Sendable {
+        private let cuckooReference: @Sendable () -> any KeyedStore
+
+        subscript <Key: Hashable>(_ p0: Key) -> Item {
+            get {
+                func openExistential<_CUCKOO$$GENERIC: KeyedStore>(_ opened: _CUCKOO$$GENERIC) -> Item {
+                    return opened[p0] as! Item
+                }
+                return openExistential(cuckooReference())
+            }
+        }
+
+        init<_CUCKOO$$GENERIC: KeyedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            cuckooReference = {
+                box.value
+            }
+        }
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyedStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooManager.enableDefaultStubImplementation()
+    }
+
+    subscript <Key: Hashable>(_ p0: Key) -> Item {
+        get {
+            return cuckooManager.call(
+                "subscript<Key: Hashable>(_ p0: Key) -> Item#get",
+                parameters: (p0),
+                escapingParameters: (p0),
+                invoke: { (implementation: ((Key)) -> Item, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value[p0]
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_KeyedStore: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        subscript <__M1: Cuckoo._Matchable, Key: Hashable>(_ p0: __M1) -> __Subscript1<Key> where __M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1<Key: Hashable> {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(Key)>]
+
+            var get: Cuckoo.ProtocolStubFunction<(Key), Item, ((Key)) -> Item, Cuckoo.StubSharing.Confined> {
+                return .init(stub: cuckooManager.createStub(for: MockKeyedStore.self,
+                    method: "subscript<Key: Hashable>(_ p0: Key) -> Item#get",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+    }
+
+    nonisolated struct __VerificationProxy_KeyedStore: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        subscript <__M1: Cuckoo._Matchable, Key: Hashable>(_ p0: __M1) -> __Subscript1<Key> where __M1.MatchedType == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1<Key: Hashable> {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(Key)>]
+
+            @discardableResult
+            func get() -> Cuckoo.__DoNotUse<(Key), Item> {
+                return cuckooManager.verify(
+                    "subscript<Key: Hashable>(_ p0: Key) -> Item#get",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+}
+
+nonisolated final class KeyedStoreStub<Item>: KeyedStore {
+    subscript <Key: Hashable>(_ p0: Key) -> Item {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Item).self)
+        }
     }
 }
 
