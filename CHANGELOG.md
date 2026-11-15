@@ -42,6 +42,11 @@
   `Sendable`, such as a class, or a tuple a default value for unstubbed calls; the factory makes a new value for
   each call.
 
+### Removed
+- `MockBuilder.enableDefaultStubImplementation()`. A mock that `createMock` configured with it forwarded unstubbed
+  calls to a default implementation it didn't have, so the first unstubbed call crashed the test process. Call
+  `enableDefaultImplementation(_:)` on the mock once it exists.
+
 ### Fixed
 - `createMock` handed its manager to every mock created in its closure, so a mock passed to the new one shared its
   stubs and calls. Only the requested mock type takes it now.

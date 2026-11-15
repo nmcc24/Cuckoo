@@ -77,6 +77,9 @@ behaviour on top.
 - `enableDefaultImplementation(mutating:)` is removed: it kept a pointer to your variable after the call returned.
   A `struct` default implementation is copied once and keeps the changes made through the mock; pass a class
   instance to share state with the test.
+- `MockBuilder.enableDefaultStubImplementation()` is removed. It made a mock created by `createMock` forward
+  unstubbed calls to a default implementation it didn't have yet, so its first unstubbed call crashed. Call
+  `enableDefaultImplementation(_:)` on the mock, or `withEnabledDefaultImplementation(_:)`, once it exists.
 - A `then` closure that spells out an `inout` parameter's type needs `inout`, as in `{ (value: inout Int) in … }`.
   What the closure writes now reaches the caller. Closures that let Swift infer the types are unaffected.
 - The stub function types that `when` returns, such as `ProtocolStubFunction`, have more generic parameters. Code
