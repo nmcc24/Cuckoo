@@ -97,10 +97,17 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             let name = requirement[..<separator.lowerBound].trimmedSpaces
             let type = requirement[separator.upperBound...].trimmedSpaces
             guard associatedTypeNames.contains(name) else {
-                // A nested type, as in `Items.Element == Int`: the mock states it in its `where` clause.
-                if name != "Self" {
+                let root = String(name.split(separator: ".").first ?? "")
+                if name.contains("."), associatedTypeNames.contains(root) {
+                    // A nested type, as in `Items.Element == Int`: the mock states it in its `where` clause.
                     whereRequirements.append(requirement)
+                } else if name != "Self", !name.contains("."), requirement[separator] == "==" {
+                    // An associated type of a parent outside the sources, as `ID` of `Identifiable`: the mock fixes
+                    // it with a typealias, since it has no generic parameter of that name to constrain.
+                    fixedTypes.append((name, type))
                 }
+                // Anything else names what the mock can't constrain, such as a conformance of an outside parent's
+                // associated type; Swift checks it on the mock's own declarations.
                 continue
             }
             if requirement[separator] == "==" {

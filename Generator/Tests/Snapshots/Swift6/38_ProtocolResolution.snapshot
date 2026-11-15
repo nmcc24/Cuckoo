@@ -2363,3 +2363,164 @@ final class RefinesBoundStub: BoundScope.Base, RefinesBound {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
+
+nonisolated final class MockNamedEntity: NamedEntity, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any NamedEntity
+    typealias Stubbing = __StubbingProxy_NamedEntity
+    typealias Verification = __VerificationProxy_NamedEntity
+
+    // NamedEntity inherits 'Identifiable', declared outside the mocked sources, so this mock and
+    // NamedEntityStub only implement requirements that have default implementations. If they don't
+    // conform, add the missing members to them in an extension in the test target.
+
+    // Original typealiases
+    typealias ID = String
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockNamedEntity.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any NamedEntity>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any NamedEntity) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func name() -> String {
+        return cuckoo_manager.call(
+            "name() -> String",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.name()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_NamedEntity: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func name() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockNamedEntity.self,
+                method: "name() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_NamedEntity: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func name() -> Cuckoo.__DoNotUse<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "name() -> String",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class NamedEntityStub: NamedEntity {
+    typealias ID = String
+
+    func name() -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
+    }
+}
+
+nonisolated final class MockKeyedEntity: KeyedEntity, nonisolated Cuckoo.ProtocolMock {
+    typealias MocksType = any KeyedEntity
+    typealias Stubbing = __StubbingProxy_KeyedEntity
+    typealias Verification = __VerificationProxy_KeyedEntity
+
+    // KeyedEntity inherits 'Identifiable', declared outside the mocked sources, so this mock and
+    // KeyedEntityStub only implement requirements that have default implementations. If they don't
+    // conform, add the missing members to them in an extension in the test target.
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyedEntity.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any KeyedEntity>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any KeyedEntity) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    func key() -> Int {
+        return cuckoo_manager.call(
+            "key() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub.value.key()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_KeyedEntity: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func key() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockKeyedEntity.self,
+                method: "key() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_KeyedEntity: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func key() -> Cuckoo.__DoNotUse<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "key() -> Int",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class KeyedEntityStub: KeyedEntity {
+    func key() -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}
