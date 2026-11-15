@@ -10,10 +10,4 @@ public final class MockBuilder {
     public func enableSuperclassSpy() {
         manager.enableSuperclassSpy()
     }
-
-    /// Makes the new mock forward unstubbed calls to its default implementation, which
-    /// ``Mock/enableDefaultImplementation(_:)`` sets.
-    public func enableDefaultStubImplementation() {
-        manager.enableDefaultStubImplementation()
-    }
 }
