@@ -1,6 +1,5 @@
 // Non-escaping closures written with a specifier, `sending`, `borrowing` or `inout`, directly or through a
-// typealias, which a mock can't record yet (roadmap). A class mock leaves such a method out, with a comment, so
-// calls run the class's own implementation. Fixture 41 is the protocol case.
+// typealias: the mock records them as it does a plain non-escaping closure. Fixture 41 is the protocol case.
 typealias SpecifierHandler = () -> Void
 
 class ClosureSpecifierRunner {

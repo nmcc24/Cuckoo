@@ -390,11 +390,6 @@ final class Crawler: SyntaxVisitor {
             unmockedMembers.append("'\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)' returns the opaque type '\(returnType.trimmedDescription)', which an override can't repeat.")
             return .skipChildren
         }
-        if container.isClass, let parameter = node.signature.parameterClause.parameters.first(where: { isUnmockableClosure($0.type) }) {
-            unmockedMembers.append("'\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)' takes '\(parameter.type.trimmedDescription)', a non-escaping closure with a specifier, which a mock can't record yet.")
-            return .skipChildren
-        }
-
         if let method = parse(node) {
             tokens.append(method)
         }
@@ -526,17 +521,34 @@ final class Crawler: SyntaxVisitor {
     /// A parameter's type, with a typealias of a function type replaced by the function type: a non-escaping closure
     /// written through a typealias, `(_ handler: Handler)`, needs the same handling as one written out.
     private func parameterType(_ type: TypeSyntax) -> ComplexType {
+        // `sending Handler`, `@Sendable Handler`: the typealias under the specifiers and attributes. An `inout` one
+        // stays as written: the closure a variable holds is escaping, so the mock records it as it is.
+        if let attributed = type.as(AttributedTypeSyntax.self),
+           !attributed.specifiers.contains(where: { $0.trimmedDescription == "inout" }),
+           let expanded = expandedClosureTypealias(attributed.baseType) {
+            let prefix = (attributed.specifiers.map(\.trimmedDescription) + attributed.attributes.map(\.trimmedDescription)).joined(separator: " ")
+            var parser = Parser("\(prefix) \(expanded.trimmedDescription)")
+            return ComplexType(syntax: TypeSyntax.parse(from: &parser))
+        }
+        if let expanded = expandedClosureTypealias(type) {
+            return ComplexType(syntax: expanded)
+        }
+        return ComplexType(syntax: type)
+    }
+
+    /// The function type a typealias written as `type` stands for, qualified to read the same in the mock, or nil.
+    private func expandedClosureTypealias(_ type: TypeSyntax) -> TypeSyntax? {
         if let identifier = type.as(IdentifierTypeSyntax.self), identifier.genericArgumentClause == nil,
            let functionType = closureTypealias(named: identifier.name.text, from: Syntax(type)) {
-            return ComplexType(syntax: qualifying(functionType, in: closureTypealiasScope(named: identifier.name.text)))
+            return qualifying(functionType, in: closureTypealiasScope(named: identifier.name.text))
         }
         // A qualified one, `Uploader.Completion`, by its full name.
         if let member = type.as(MemberTypeSyntax.self), member.genericArgumentClause == nil,
            let functionType = context.closureTypealiases[member.trimmedDescription] {
             let scope = member.baseType.trimmedDescription.split(separator: ".").map(String.init)
-            return ComplexType(syntax: qualifying(functionType, in: scope))
+            return qualifying(functionType, in: scope)
         }
-        return ComplexType(syntax: type)
+        return nil
     }
 
     /// The scope of the typealias `name` stands for when it's declared in a type: its only nested declaration of
@@ -670,23 +682,6 @@ final class Crawler: SyntaxVisitor {
         }
         guard alias.genericParameterClause == nil, type.is(FunctionTypeSyntax.self) else { return nil }
         return alias.initializer.value.trimmedDescription
-    }
-
-    /// A non-escaping closure written with `sending`, `borrowing` or `inout`, which the mock's recording can't
-    /// make escaping yet (roadmap).
-    private func isUnmockableClosure(_ type: TypeSyntax) -> Bool {
-        guard let attributed = type.as(AttributedTypeSyntax.self),
-              attributed.specifiers.contains(where: { ["sending", "borrowing", "inout"].contains($0.trimmedDescription.split(separator: " ").first.map(String.init) ?? "") }),
-              !attributed.attributes.contains(where: { $0.trimmedDescription == "@escaping" }) else { return false }
-        if attributed.baseType.is(FunctionTypeSyntax.self) {
-            return true
-        }
-        // A closure written through a typealias, `sending Handler`. Through a typealias an `inout` closure is mocked
-        // already, as a variable the caller owns.
-        guard !attributed.specifiers.contains(where: { $0.trimmedDescription == "inout" }),
-              let identifier = attributed.baseType.as(IdentifierTypeSyntax.self), identifier.genericArgumentClause == nil,
-              let functionType = closureTypealias(named: identifier.name.text, from: Syntax(type)) else { return false }
-        return !functionType.contains("@escaping")
     }
 
     /// Whether `type` contains an opaque `some` type anywhere, as in `some View` or `[some View]`.

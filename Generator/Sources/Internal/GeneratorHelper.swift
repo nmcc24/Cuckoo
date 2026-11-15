@@ -180,6 +180,11 @@ struct GeneratorHelper {
 
     /// The lines that open the closures or local functions making each non-escaping closure parameter escaping, so
     /// the mock can record it; ``closeNestedClosure(for:)`` closes them after the body.
+    /// The closure `withoutActuallyEscaping` takes: a `borrowing` one is copied first, as it can't be passed on.
+    private static func escapable(_ parameter: MethodParameter) -> String {
+        parameter.type.containsAttribute(named: "borrowing") ? "copy \(parameter.usableName)" : parameter.usableName
+    }
+
     static func openNestedClosure(for method: Method) -> [String] {
         let parameters = nonEscapingClosureParameters(of: method)
         guard !parameters.isEmpty else { return [] }
@@ -204,7 +209,7 @@ struct GeneratorHelper {
             let typedThrows = method.signature.throwType.flatMap { $0.isTyped ? " \($0.description)" : nil } ?? ""
             return parameters.enumerated().map { level, element in
                 let parameter = element.1
-                return "\(indentation(level))return \(tries)withoutActuallyEscaping(\(parameter.usableName), do: { (\(parameter.usableName): @escaping \(parameter.type.withoutParameterSpecifiers))\(typedThrows)\(returnSignature) in"
+                return "\(indentation(level))return \(tries)withoutActuallyEscaping(\(escapable(parameter)), do: { (\(parameter.usableName): @escaping \(parameter.type.withoutParameterSpecifiers))\(typedThrows)\(returnSignature) in"
             }
         }
     }
@@ -215,7 +220,7 @@ struct GeneratorHelper {
         return parameters.enumerated().reversed().flatMap { level, element in
             let parameter = element.1
             return if usesLocalFunctions(method) {
-                ["}", "return \(tries)await withoutActuallyEscaping(\(parameter.usableName), do: \(localFunctionName(for: parameter)))"]
+                ["}", "return \(tries)await withoutActuallyEscaping(\(escapable(parameter)), do: \(localFunctionName(for: parameter)))"]
                     .map { indentation(level) + $0 }
             } else {
                 [indentation(level) + "})"]
