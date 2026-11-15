@@ -38,7 +38,8 @@ Cuckoo 2; a test target that uses the plugin with no entry of its own fails with
 ### Sources
 
 - term `sources`: The files to read, relative to the Cuckoofile. `*` matches within a folder, `**` matches any
-  number of folders, and `{A,B}` matches either name. A pattern that matches no file is a warning:
+  number of folders except hidden ones such as `.build`, and `{A,B}` matches either name. A pattern that matches
+  no file is a warning:
 
   ```toml
   [modules.App]

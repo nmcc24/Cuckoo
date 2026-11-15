@@ -110,7 +110,10 @@ final class Glob: Collection {
         var results = [String]()
         var directories: [String]
         do {
+            // `**` doesn't descend into hidden directories, as a shell's globstar doesn't: `.build` holds the package's
+            // dependencies' sources, and `.git` and `.swiftpm` nothing to mock. A pattern can still name one itself.
             directories = try FileManager.default.subpathsOfDirectory(atPath: firstPart).compactMap { subpath in
+                guard !subpath.split(separator: "/").contains(where: { $0.hasPrefix(".") }) else { return nil }
                 let fullPath = (Path(firstPart) + subpath).rawValue
                 return Path(fullPath).isDirectory ? fullPath : nil
             }

@@ -76,6 +76,9 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   `Array(repeating:count:)`, but no longer from a failable initializer such as `URL(string:)` or `Int("3")`, or a
   generic type without its arguments, which gave a mock with the wrong type.
 
+- A `**` in `sources` walked into hidden directories, so `Sources/**/*.swift` next to a `.build` folder mocked the
+  dependencies' checked-out sources too. It skips hidden directories now, as a shell's globstar does.
+
 Build plugin:
 - In an Xcode project, Getting Started's Cuckoofile generated no mocks, without a word: Xcode doesn't tell the
   plugin which of the project's own targets a test target depends on. An Xcode project's entry is named after the

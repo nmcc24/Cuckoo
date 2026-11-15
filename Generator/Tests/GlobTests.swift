@@ -29,6 +29,34 @@ struct GlobTests {
         ].map { Path("\(root)/\($0)").standardRawValue })
     }
 
+    /// A globstar skips hidden directories, as a shell's does: `.build` holds the dependencies' sources. A pattern can
+    /// still name a hidden directory itself.
+    @Test
+    func globstarSkipsHiddenDirectories() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooGlob-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let files = [
+            "App/Service.swift",
+            "App/Feature/View.swift",
+            "App/.build/checkouts/Dependency/Sources/Dependency.swift",
+            "App/.git/hooks/Hook.swift",
+            "App/Feature/.hidden/Skipped.swift",
+        ]
+        for file in files {
+            let url = directory.appending(path: file)
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try "".write(to: url, atomically: true, encoding: .utf8)
+        }
+        let root = directory.path(percentEncoded: false)
+        let matches = Glob(pattern: "\(root)/App/**/*.swift").map { Path($0).standardRawValue }.sorted()
+        #expect(matches == [
+            "App/Feature/View.swift",
+            "App/Service.swift",
+        ].map { Path("\(root)/\($0)").standardRawValue })
+        let named = Glob(pattern: "\(root)/App/.build/**/*.swift").map { Path($0).standardRawValue }
+        #expect(named == [Path("\(root)/App/.build/checkouts/Dependency/Sources/Dependency.swift").standardRawValue])
+    }
+
     /// A source that stands for no file is reported, since it usually means a typo or a moved directory.
     @Test
     func sourcesMatchingNothingAreReported() throws {
