@@ -9,6 +9,9 @@
 /// Inside ``eventually(timeout:pollingInterval:_:)``, a `verify` that passes on a run that fails elsewhere in the
 /// block captures again on the next run, so ``allValues`` can repeat arguments. Read ``value`` there, or create
 /// the captor inside the block.
+///
+/// Inside ``inOrder(strict:fileID:filePath:line:column:_:)``, the `verify` calls are checked when the block ends,
+/// so the captor fills only then: read it after `inOrder` returns.
 public final class ArgumentCaptor<T> {
     private let values = Locked<[T]>([])
 
