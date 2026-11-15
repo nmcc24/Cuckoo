@@ -114,7 +114,7 @@ jobs:
       - name: Check the scripts
         run: |
           for script in scripts/*.sh; do bash -n "$script"; done
-          scripts/release-notes.sh "$(cat version)" >/dev/null
+          scripts/release-notes.sh "$(sed -nE 's/^let version = "(.*)"$/\1/p' Generator/Sources/CLI/Version.swift)" >/dev/null
 
   # The release workflow's prebuilt generator, built and tested here so a change that breaks the release build
   # shows up in its PR rather than on release day. Linux only: the macOS bundle is built at release time, and a
@@ -133,7 +133,7 @@ jobs:
       - name: Build the bundle
         run: |
           scripts/build-artifactbundle.sh build parts
-          scripts/build-artifactbundle.sh merge "$(cat version)" bundle/CuckooGenerator.artifactbundle parts
+          scripts/build-artifactbundle.sh merge "$(sed -nE 's/^let version = "(.*)"$/\1/p' Generator/Sources/CLI/Version.swift)" bundle/CuckooGenerator.artifactbundle parts
       - name: Smoke test
         run: scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
 
