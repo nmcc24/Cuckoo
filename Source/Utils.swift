@@ -56,8 +56,10 @@ public typealias SourceLocation = (fileID: String, filePath: StaticString, line:
 /// - a `sending` result, which comes from a stub that may hand out the same value again.
 /// Only acceptable because mocks are test doubles that don't run that code concurrently.
 public struct __SendingArgument<T>: @unchecked Sendable {
+    /// The argument the mock passes on.
     public let value: T
 
+    /// Wraps `value` to pass it across the closure boundary.
     public init(_ value: T) {
         self.value = value
     }

@@ -1,4 +1,5 @@
 extension Dictionary: _Matchable where Value: _Matchable, Value == Value.MatchedType {
+    /// The arguments it matches: `[Key: Value]`.
     public typealias MatchedType = [Key: Value]
 
     /// Matches a dictionary with the same keys whose values each match the value under the same key.
