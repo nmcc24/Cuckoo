@@ -160,9 +160,9 @@ struct AttributeAndInheritanceTests {
         ])
     }
 
-    /// One in an extension of the type, or in a class it inherits from, clashes too.
+    /// One in an extension of the type clashes too.
     @Test
-    func reservedNameInAnExtensionOrSuperclassSkipsTheMock() throws {
+    func reservedNameInAnExtensionSkipsTheMock() throws {
         let source = """
             class Foo {
                 init() {}
@@ -175,9 +175,6 @@ struct AttributeAndInheritanceTests {
                 struct Verification {}
                 init() {}
             }
-            class Child: Base {
-                func b(_ v: Verification) -> Int { 0 }
-            }
             """
         let crawler = Crawler.crawl(source: source, url: url)
         // Only the extension's token is left, which has nothing to mock.
@@ -185,7 +182,6 @@ struct AttributeAndInheritanceTests {
         #expect(crawler.diagnostics.map(\.message) == [
             "'Foo' has a nested type or typealias named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Foo'.",
             "'Base' has a nested type or typealias named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Base'.",
-            "'Child' has a nested type or typealias named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Child'.",
         ])
     }
 

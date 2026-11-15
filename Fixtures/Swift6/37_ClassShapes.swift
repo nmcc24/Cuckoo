@@ -38,3 +38,13 @@ actor ShapeStore {
         func clear() {}
     }
 }
+
+// An `@unchecked Sendable` class: a subclass has to restate it, so its mock and stub do, as does a protocol's mock
+// bound to one.
+class UncheckedCache: @unchecked Sendable {
+    init() {}
+    func value() -> Int { 0 }
+}
+protocol UncheckedCacheUser: UncheckedCache {
+    func use() -> Bool
+}

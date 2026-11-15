@@ -32,19 +32,21 @@ extension ContainerToken {
         isClass ? [] : accessibilityAdjustedMembers.compactMap { $0 as? Initializer }
     }
 
-    /// The initializer a public or package mock or stub declares so another module can create it, which can't see
-    /// an implicit internal one, or nil when it needs none. A protocol's is `nonisolated`, as the implicit one is,
-    /// unless it's an actor's, whose initializer can't be. One that subclasses a declared class inherits that class's
-    /// initializers, unless its only one is the implicit `init()`, which it then overrides.
+    /// `, @unchecked Sendable` when the mock and stub subclass an `@unchecked Sendable` class, which a subclass has
+    /// to restate, or nothing.
+    var restatedUncheckedSendable: String {
+        asClass?.isUncheckedSendable == true || asProtocol?.isSuperclassUncheckedSendable == true ? ", @unchecked Sendable" : ""
+    }
+
+    /// The initializer a public or package protocol's mock or stub declares so another module can create it, which
+    /// can't see the implicit internal one, or nil when it needs none. It's `nonisolated`, as the implicit one is,
+    /// unless it's an actor's, whose initializer can't be. One that subclasses a class inherits the class's
+    /// initializers: a class whose only one is its implicit, internal `init()` can't be created from another module
+    /// either, and needs a `public init()` of its own.
     func crossModuleInitializer(isActor: Bool) -> String? {
-        guard accessibility >= .package else { return nil }
+        guard accessibility >= .package, let protocolDeclaration = asProtocol,
+              (protocolDeclaration.superclass ?? "").isEmpty else { return nil }
         let access = accessibility.spaced
-        guard let protocolDeclaration = asProtocol else {
-            return asClass?.hasOnlyImplicitInitializer == true ? "\(access)nonisolated override init() { super.init() }" : nil
-        }
-        if let superclass = protocolDeclaration.superclass, !superclass.isEmpty {
-            return protocolDeclaration.superclassHasOnlyImplicitInitializer ? "\(access)nonisolated override init() { super.init() }" : nil
-        }
         guard !mockedInitializers.contains(where: { $0.signature.parameters.isEmpty }) else { return nil }
         return "\(access)\(isActor ? "" : "nonisolated ")init() {}"
     }

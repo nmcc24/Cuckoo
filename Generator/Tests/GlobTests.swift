@@ -59,7 +59,8 @@ struct GlobTests {
         #expect(namedAfter == [Path("\(root)/App/Feature/.hidden/Skipped.swift").standardRawValue])
     }
 
-    /// A symbolic link to a directory is searched, but not walked into, so a link cycle can't recurse.
+    /// A symbolic link to a directory is searched, but not walked into, so a link cycle can't recurse, and one into
+    /// the directory the globstar already searches is skipped.
     @Test
     func globstarSearchesLinkedDirectoriesOnce() throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooGlob-\(UUID().uuidString)")
@@ -76,6 +77,8 @@ struct GlobTests {
         #expect(matches.contains(Path("\(root)/App/Service.swift").standardRawValue))
         #expect(matches.contains(Path("\(root)/App/Link/Linked.swift").standardRawValue))
         #expect(!matches.contains(Path("\(root)/App/Link/Deeper/Skipped.swift").standardRawValue))
+        // `Loop` links back into the directory the globstar searches, whose files are listed once already.
+        #expect(!matches.contains { $0.contains("/Loop/") })
     }
 
     /// A source that stands for no file is reported, since it usually means a typo or a moved directory.

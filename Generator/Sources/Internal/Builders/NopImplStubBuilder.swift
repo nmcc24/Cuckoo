@@ -65,7 +65,7 @@ enum NopImplStubBuilder {
     private static func inheritance(of container: any ContainerToken) -> String {
         let superclass = container.asProtocol?.superclass.flatMap { $0.isEmpty ? nil : "\($0), " } ?? ""
         let arguments = container.isClass ? container.genericArgumentsString : ""
-        return "\(superclass)\(container.name)\(arguments)"
+        return "\(superclass)\(container.name)\(arguments)\(container.restatedUncheckedSendable)"
     }
 
     private static func source(of property: Variable) -> String {

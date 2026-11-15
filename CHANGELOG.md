@@ -60,7 +60,8 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 - A class mock dropped the default argument values of its methods and subscripts, so a call through the mock's type
   had to pass every argument. A default that names a `private` or `fileprivate` declaration, which the mock can't
   see, is still left out, as is one using a member of a `private extension`, a type nested in one, or a call of a
-  type whose init is `private` or `fileprivate`, written `Token(…)`, `Box<Int>(…)`, `Token.init(…)` or `.init(…)`. A
+  type whose init is `private` or `fileprivate`, written `Token(…)`, `Box<Int>(…)`, `Token.init(…)` or `.init(…)`
+  (one whose type isn't known, inside an array or an argument, counts whenever the module has such an init). A
   default that only names such a type, as in `Config.shared`, stays.
 - A class member whose type is opaque (`some P`) can't be overridden; it's now left out with a comment in the mock,
   instead of making the mock fail to compile. `some` nested in a protocol requirement's parameter is handled.
@@ -72,7 +73,8 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   superclass's included, generic arguments too.
 - Keyword and backticked argument labels, a label named like the mock's own parameter names (`p0`), and generic
   parameters named like the proxies' matcher generics (`M1`).
-- A class's `where` clause wasn't repeated on its mock.
+- A class's `where` clause wasn't repeated on its mock, and the mock and stub of an `@unchecked Sendable` class, or
+  of a protocol bound to one, didn't restate it, which Swift warns about.
 - A public class with internal members that use internal types got a public mock whose overrides made those
   members public, which doesn't compile next to the class. Its mock is now internal, and says why.
 - A `nonisolated` member of a `@MainActor` or global-actor protocol got non-`Sendable` stubs, so it couldn't be
@@ -93,9 +95,9 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 - A `package` protocol or class got an internal mock, and a public mock's stubbing and verification proxies were
   internal, so neither could be used from another module without `@testable`, which only debug builds allow. A
   `package` type's mock is now `package`, and a public or package mock's proxies and protocol initializer have the
-  mock's access (an `@_spi` member's proxies stay internal). A public or package stub gets that initializer too,
-  and the mock and stub of a class whose only initializer is the implicit `init()`, or of a protocol bound to one,
-  override it, so they can be created from another module.
+  mock's access (an `@_spi` member's proxies stay internal). A public or package protocol's stub gets that
+  initializer too. A class whose only initializer is its implicit, internal `init()` can't be created from another
+  module, and neither can its mock: give the class a `public init()`.
 
 - An `associatedtype` declared under `#if` was missed, so the mock didn't compile in the build that declares it.
   The mock now takes it as a generic parameter, constrained only in that build, for any combination of the
@@ -105,8 +107,8 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 - A property named `callMatcher` or `sourceLocation` clashed with the verification proxy's own, and a backticked
   property such as `` `default` `` in a protocol with an associated type stopped generation for the whole module.
   A generic parameter or associated type named like one of the mock's own type names (`Stubbing`, `Verification`,
-  `MocksType`), or a nested type or typealias of such a name, in the type, an extension of it or a class it inherits
-  from, gave a mock that couldn't compile; the type is now left out with a warning saying what to rename.
+  `MocksType`), or a nested type or typealias of such a name, in the type or an extension of it, gave a mock that
+  couldn't compile; the type is now left out with a warning saying what to rename.
 
 - Two sources declaring the same type, such as `A/User.swift` and `B/User.swift`, gave two `MockUser` and only an
   info line. It's now a warning that names both files. A protocol bound to a class (`protocol P: Base`) is found by

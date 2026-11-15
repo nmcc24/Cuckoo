@@ -254,6 +254,14 @@ class PrivateDefaults {
     func debugSecret(_ value: Int = SigningToken.DebugSecret.value) {}
     #endif
     func configure(_ config: ScopedConfig = ScopedConfig.current) {}
+    // A private init called with generic arguments, through `.init`, inside an array, or through `.self`.
+    func boxed(_ box: ScopedBox<Int> = ScopedBox<Int>(1)) {}
+    func implicitInit(_ token: SigningToken = .init(secret: 0)) {}
+    func tokens(_ tokens: [SigningToken] = [.init(secret: 0)]) {}
+    func selfInit(_ token: SigningToken = SigningToken.self.init(secret: 0)) {}
+}
+struct ScopedBox<T> {
+    fileprivate init(_ value: T) {}
 }
 
 func configureWithDefault(_ mock: MockPrivateDefaults) {

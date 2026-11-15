@@ -108,7 +108,7 @@ final class Glob: Collection {
         }
 
         var results = [String]()
-        var directories = Self.directories(under: firstPart)
+        var directories = Self.directories(under: firstPart, globstarRoot: Path(firstPart).absolute.standardized)
 
         if behavior.includesFilesFromRootOfGlobstar {
             // Check the base directory for the glob star as well.
@@ -132,7 +132,7 @@ final class Glob: Collection {
     /// Every directory under `root`, at any depth. `**` doesn't descend into hidden directories, as a shell's
     /// globstar doesn't: `.build` holds the package's dependencies' sources, and `.git` and `.swiftpm` nothing to mock,
     /// so they aren't even listed. A pattern can still name one, before the `**` or after it.
-    private static func directories(under root: String) -> [String] {
+    private static func directories(under root: String, globstarRoot: Path) -> [String] {
         let entries: [String]
         do {
             entries = try FileManager.default.contentsOfDirectory(atPath: root)
@@ -144,9 +144,14 @@ final class Glob: Collection {
             let path = (Path(root) + entry).rawValue
             guard !entry.hasPrefix("."), Path(path).isDirectory else { return [] }
             // A symbolic link to a directory is searched itself but not walked into, as `subpathsOfDirectory` did,
-            // so a cycle can't recurse.
-            let isLink = (try? FileManager.default.destinationOfSymbolicLink(atPath: path)) != nil
-            return [path] + (isLink ? [] : directories(under: path))
+            // so a cycle can't recurse. One to a directory the globstar already searches is skipped, since its files
+            // would be listed twice and mocked twice.
+            guard let destination = try? FileManager.default.destinationOfSymbolicLink(atPath: path) else {
+                return [path] + directories(under: path, globstarRoot: globstarRoot)
+            }
+            let target = (destination.hasPrefix("/") ? Path(destination) : Path(root).absolute + destination).standardized
+            let isInsideRoot = target == globstarRoot || target.standardRawValue.hasPrefix(globstarRoot.standardRawValue + "/")
+            return isInsideRoot ? [] : [path]
         }
     }
 

@@ -126,6 +126,7 @@ final class Generator {
                     closureTypealiases: declaredNames.closureTypealiases,
                     nonPublicTypes: declaredNames.nonPublicTypes,
                     genericTypes: declaredNames.genericTypes,
+                    qualifiedGenericTypes: declaredNames.qualifiedGenericTypes,
                     protocolsAndClasses: declaredNames.protocolsAndClasses,
                     compositionTypealiases: declaredNames.compositionTypealiases,
                     actors: declaredNames.actors,
