@@ -1202,16 +1202,44 @@ extension Crawler {
         } ?? []
     }
 
-    private func associatedTypes(from memberList: MemberBlockItemListSyntax) -> [GenericParameter] {
-        memberList.compactMap { member in
-            guard let associatedType = member.decl.as(AssociatedTypeDeclSyntax.self),
-                  case .identifier(let identifier) = associatedType.name.tokenKind else { return nil }
-
-            return GenericParameter(
-                name: identifier,
-                inheritedTypes: inheritedTypes(from: associatedType.inheritanceClause?.inheritedTypes)
-            )
+    /// The protocol's associated types, those inside `#if` too: the mock's generic parameters can't depend on a
+    /// condition, so it takes them all, and in a build where the condition is false they're just unused.
+    private func associatedTypes(from memberList: MemberBlockItemListSyntax, condition: String? = nil) -> [GenericParameter] {
+        memberList.flatMap { member -> [GenericParameter] in
+            guard let conditional = member.decl.as(IfConfigDeclSyntax.self) else {
+                return associatedType(member).map { parameter in
+                    var parameter = parameter
+                    parameter.condition = condition
+                    return [parameter]
+                } ?? []
+            }
+            // Each clause holds when its own condition does and none before it did.
+            var previous: [String] = []
+            return conditional.clauses.flatMap { clause -> [GenericParameter] in
+                let own = clause.condition.map { "(\($0.trimmedDescription))" }
+                let clauseCondition = ([condition].compactMap { $0 } + previous.map { "!\($0)" } + [own].compactMap { $0 })
+                    .joined(separator: " && ")
+                if let own {
+                    previous.append(own)
+                }
+                guard case .decls(let members)? = clause.elements else { return [] }
+                return associatedTypes(from: members, condition: clauseCondition)
+            }
         }
+        .reduce(into: [GenericParameter]()) { unique, parameter in
+            if !unique.contains(where: { $0.name == parameter.name }) {
+                unique.append(parameter)
+            }
+        }
+    }
+
+    private func associatedType(_ member: MemberBlockItemSyntax) -> GenericParameter? {
+        guard let associatedType = member.decl.as(AssociatedTypeDeclSyntax.self),
+              case .identifier(let identifier) = associatedType.name.tokenKind else { return nil }
+        return GenericParameter(
+            name: identifier,
+            inheritedTypes: inheritedTypes(from: associatedType.inheritanceClause?.inheritedTypes)
+        )
     }
 
     private func genericRequirements(from genericRequirementList: GenericRequirementListSyntax?) -> [String] {

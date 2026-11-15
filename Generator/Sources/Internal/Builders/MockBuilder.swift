@@ -167,7 +167,6 @@ enum MockBuilder {
             "",
             "    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<\(caller)>()",
         ]
-        let identity = container.genericProtocolIdentity ?? ""
         if let globalActor, !globalActor.isEmpty {
             // `Mock`'s requirement. Wrapping a default implementation reads it on the global actor, so the generic
             // overload below is isolated to it.
@@ -175,14 +174,24 @@ enum MockBuilder {
             lines.append("    \(access)nonisolated func enableDefaultImplementation(_ stub: \(caller)) {")
             lines.append(contentsOf: enable)
             lines.append("")
-            lines.append("    @\(globalActor) \(access)func enableDefaultImplementation<\(generic): \(container.name)>(_ stub: \(generic)) where \(identity) {")
+            lines.append(contentsOf: container.conditionalOnGenericParameters { includingConditional in
+                let requirements = container.genericProtocolRequirements(metatypes: false, includingConditional: includingConditional)
+                return ["    @\(globalActor) \(access)func enableDefaultImplementation<\(generic): \(container.name)>(_ stub: \(generic))\(Self.whereClause(requirements)) {",
+                        "        __defaultImplStub.value = \(caller)(stub)"] + enable.dropFirst()
+            })
         } else {
-            let requirements = container.sendableMetatypeRequirements ?? ""
             lines.append("")
-            lines.append("    \(access)nonisolated func enableDefaultImplementation<\(generic): \(container.name) & SendableMetatype>(_ stub: \(generic)) where \(identity)\(requirements) {")
+            lines.append(contentsOf: container.conditionalOnGenericParameters { includingConditional in
+                let requirements = container.genericProtocolRequirements(metatypes: true, includingConditional: includingConditional)
+                return ["    \(access)nonisolated func enableDefaultImplementation<\(generic): \(container.name) & SendableMetatype>(_ stub: \(generic))\(Self.whereClause(requirements)) {",
+                        "        __defaultImplStub.value = \(caller)(stub)"] + enable.dropFirst()
+            })
         }
-        lines.append("        __defaultImplStub.value = \(caller)(stub)")
-        lines.append(contentsOf: enable.dropFirst())
         return lines
+    }
+
+    /// ` where a, b`, or nothing for no requirements.
+    static func whereClause(_ requirements: [String]) -> String {
+        requirements.isEmpty ? "" : " where " + requirements.joined(separator: ", ")
     }
 }

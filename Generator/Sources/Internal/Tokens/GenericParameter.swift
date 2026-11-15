@@ -11,6 +11,8 @@ struct GenericParameter: Equatable {
     let name: String
     let inheritedTypes: [String]
     var kind = Kind.type
+    /// The `#if` condition an associated type is declared under, or nil when it's declared unconditionally.
+    var condition: String?
 
     var isPack: Bool {
         kind == .pack
@@ -45,7 +47,10 @@ extension Array where Element == GenericParameter {
                 GenericParameter(
                     name: parameterName,
                     inheritedTypes: mergedInheritedTypes,
-                    kind: first { $0.name == parameterName }?.kind ?? .type
+                    kind: first { $0.name == parameterName }?.kind ?? .type,
+                    // Declared unconditionally anywhere, it's unconditional.
+                    condition: filter { $0.name == parameterName }.contains { $0.condition == nil }
+                        ? nil : first { $0.name == parameterName }?.condition
                 )
             )
         }

@@ -168,7 +168,6 @@ enum TypeErasureBuilder {
     ) -> String {
         let generic = GeneratedNames.staticGenericParameter
         let metatype = globalActor == nil ? " & SendableMetatype" : ""
-        let requirements = (container.genericProtocolIdentity ?? "") + (globalActor == nil ? container.sendableMetatypeRequirements ?? "" : "")
         var body = [
             "let box = Cuckoo.DefaultImplementation<\(generic)>()",
             "box.value = defaultImpl",
@@ -217,9 +216,11 @@ enum TypeErasureBuilder {
             }
             body.append(contentsOf: conditional(method, [statement]))
         }
-        var source = ["init<\(generic): \(container.name)\(metatype)>(_ defaultImpl: \(generic)) where \(requirements) {"]
-        source.append(contentsOf: body.map { $0.isEmpty ? "" : "    \($0)" })
-        source.append("}")
+        let source = container.conditionalOnGenericParameters { includingConditional in
+            let requirements = container.genericProtocolRequirements(metatypes: globalActor == nil, includingConditional: includingConditional)
+            return ["init<\(generic): \(container.name)\(metatype)>(_ defaultImpl: \(generic))\(MockBuilder.whereClause(requirements)) {"]
+                + body.map { $0.isEmpty ? "" : "    \($0)" } + ["}"]
+        }
         return lines(source)
     }
 
