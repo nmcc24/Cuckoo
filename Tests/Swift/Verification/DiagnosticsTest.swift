@@ -50,6 +50,26 @@ struct DiagnosticsTests {
     }
 
     @Test
+    func aStringArgumentThatLooksLikeATupleIsQuoted() {
+        let mock = MockTestedClass()
+        stub(mock) { stub in
+            when(stub.count(characters: any())).thenReturn(0)
+        }
+        _ = mock.count(characters: "(a, b)")
+
+        let messages = collectingMessages {
+            verify(mock).noReturn()
+        }
+        #expect(messages == [
+            """
+            Wanted 1 time but not invoked.
+            noReturn() wasn't called. The mock received:
+              1. count("(a, b)")
+            """,
+        ])
+    }
+
+    @Test
     func anUnmatchedCallNamesTheArgumentEachStubRejected() {
         let mock = MockTestedClass()
         stub(mock) { stub in
@@ -62,7 +82,7 @@ struct DiagnosticsTests {
         }
         #expect(messages == [
             """
-            No stub for method `count(characters p0: String) -> Int` using parameters b.
+            No stub for method `count(characters p0: String) -> Int` using parameters ("b").
             Stubs of count(characters:), newest first:
               1. `characters:` doesn't match
               2. `characters:` doesn't match
@@ -79,10 +99,30 @@ struct DiagnosticsTests {
         }
         #expect(messages == [
             """
-            No stub for method `count(characters p0: String) -> Int` using parameters b.
+            No stub for method `count(characters p0: String) -> Int` using parameters ("b").
             The mock has no stub for count(characters:).
             """,
         ])
+    }
+
+    @Test
+    func aGenericMemberStubbedForOtherTypesSaysSo() {
+        let mock = MockGenericMethodClass<String>()
+        stub(mock) { stub in
+            when(stub.genericReturn(any())).thenReturn("a")
+        }
+
+        let messages = collectingMessages {
+            let _: Int? = mock.genericReturn("1")
+        }
+        #expect(messages.count == 1)
+        #expect(messages.first?.hasSuffix(
+            """
+            using parameters ("1").
+            Stubs of genericReturn(_:) made for other types, which can't answer a call with (String) -> Optional<Int>:
+              1. (String) -> Optional<String>
+            """
+        ) == true, "\(messages)")
     }
 
     @Test
@@ -93,6 +133,18 @@ struct DiagnosticsTests {
         #expect(signature.argument(at: 1) == "`closure:`")
         #expect(signature.argument(at: 2) == "`map:`")
         #expect(signature.argument(at: 3) == "argument 4")
+    }
+
+    @Test
+    func signaturesOfGenericMethodsLeaveOutTheGenericParameters() {
+        let signature = MemberSignature("genericReturn<W: Codable> (_ p0: String) -> W?")
+        #expect(signature.name == "genericReturn(_:)")
+        let nested = MemberSignature("pairs<C: Collection<(Int, Int)>>(of p0: C) -> Int")
+        #expect(nested.name == "pairs(of:)")
+        #expect(nested.argument(at: 0) == "`of:`")
+        #expect(MemberSignature("static <(_ p0: Self, _ p1: Self) -> Bool").name == "static <(_:_:)")
+        #expect(MemberSignature("static <~>(_ p0: Self, _ p1: Int) -> Bool").name == "static <~>(_:_:)")
+        #expect(MemberSignature("static make<T> () -> T").name == "static make()")
     }
 
     @Test

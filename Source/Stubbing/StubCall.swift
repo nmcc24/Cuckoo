@@ -15,14 +15,14 @@ public struct ConcreteStubCall<IN>: StubCall {
 
     /// The call's arguments in parentheses, as failure messages show them.
     public var parametersAsString: String {
-        let string = String(describing: parameters)
-        if (string.contains(",") && string.hasPrefix("(")) || string == "()" {
-            return string
-        } else {
-            // If only one parameter add brackets and quotes
-            let wrappedParameter = String(describing: (parameters, 0))            
-            return wrappedParameter[..<wrappedParameter.index(wrappedParameter.endIndex, offsetBy: -4)] + ")"
+        // Several parameters, or none, are a tuple, which describes its elements as a debugger would: quoted strings.
+        // A string that only looks like a tuple, such as "(a, b)", is one parameter.
+        if Mirror(reflecting: parameters).displayStyle == .tuple {
+            return String(describing: parameters)
         }
+        // One parameter: described as a tuple's element, so a string gets its quotes, in parentheses.
+        let wrappedParameter = String(describing: (parameters, 0))
+        return wrappedParameter.dropLast(4) + ")"
     }
     
     /// Records a call to `method` with `parameters`.
