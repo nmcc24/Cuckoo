@@ -64,6 +64,8 @@
   On an optional parameter they didn't match `nil`, so a test that relies on that writes `notNil()`.
 
 ### Fixed
+- A `deinit` that called a mock, of a value a stub or a recorded call held, hung `reset`, `clearStubs` or
+  `clearInvocations`, which released the value under the mock's lock. They now release it after.
 - A failure that `eventually` reported after its timeout lost the test that created the mock, so from a task outside
   the test, such as a `Task.detached`, it went to XCTest, which ignores it under Swift Testing.
 - A call to a generic member that had stubs only for other type arguments said the mock had no stub for it. The

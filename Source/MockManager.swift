@@ -371,22 +371,34 @@ public final class MockManager: Sendable {
         fail("Actor mocks have no default implementation. Stub their members instead.", at: (fileID, filePath, line, column))
     }
 
+    // The removed stubs and calls are released after the lock is, since releasing them can run user code (a
+    // recorded argument's or a stub closure's captured value's `deinit`), which may call the mock.
+
     func reset() {
-        state.withLock { state in
-            state.stubs.removeAll()
-            state.calls.removeAll()
-            state.unverifiedCallIDs.removeAll()
+        _ = state.withLock { state in
+            defer {
+                state.stubs = []
+                state.calls = []
+                state.unverifiedCallIDs.removeAll()
+            }
+            return (state.stubs, state.calls)
         }
     }
-    
+
     func clearStubs() {
-        state.withLock { $0.stubs.removeAll() }
+        _ = state.withLock { state in
+            defer { state.stubs = [] }
+            return state.stubs
+        }
     }
-    
+
     func clearInvocations() {
-        state.withLock { state in
-            state.calls.removeAll()
-            state.unverifiedCallIDs.removeAll()
+        _ = state.withLock { state in
+            defer {
+                state.calls = []
+                state.unverifiedCallIDs.removeAll()
+            }
+            return state.calls
         }
     }
     
