@@ -27,6 +27,8 @@ struct StubNoReturnFunctionTest {
         }
 
         mock.noReturn()
+
+        #expect(mock.realImplementationCalls == 1)
     }
 
     @Test
