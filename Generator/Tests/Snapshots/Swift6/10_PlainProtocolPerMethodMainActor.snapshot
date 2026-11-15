@@ -8,32 +8,32 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockAnalytics.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockAnalytics.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Analytics>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Analytics>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Analytics) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     @MainActor
     var lastEvent: String? {
         get {
-            return cuckoo_manager.getter(
+            return cuckooManager.getter(
                 "lastEvent",
                 invoke: { (implementation: @MainActor @Sendable (()) -> String?) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.lastEvent
+                defaultCall: cuckooDefaultImplementation.value.lastEvent
             )
         }
     }
 
     @MainActor
     func track(event p0: String) {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "track(event p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
@@ -41,26 +41,26 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.track(event: p0)
+            defaultCall: cuckooDefaultImplementation.value.track(event: p0)
         )
     }
 
     nonisolated struct __StubbingProxy_Analytics: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         var lastEvent: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAnalytics, String?, @MainActor @Sendable (()) -> String?, Cuckoo.StubSharing.Isolated> {
-            return .init(manager: cuckoo_manager, name: "lastEvent")
+            return .init(manager: cuckooManager, name: "lastEvent")
         }
 
         func track<M1: Cuckoo._Matchable>(event p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), @MainActor @Sendable ((String)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockAnalytics.self,
+            return .init(stub: cuckooManager.createStub(for: MockAnalytics.self,
                 method: "track(event p0: String)",
                 parameterMatchers: matchers
             ))
@@ -68,19 +68,19 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
     }
 
     nonisolated struct __VerificationProxy_Analytics: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @MainActor
         var lastEvent: Cuckoo.VerifyReadOnlyProperty<String?> {
-            return .init(manager: cuckoo_manager, name: "lastEvent", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
+            return .init(manager: cuckooManager, name: "lastEvent", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         @MainActor
@@ -89,11 +89,11 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "track(event p0: String)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

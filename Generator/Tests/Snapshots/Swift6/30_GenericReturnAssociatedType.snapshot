@@ -8,7 +8,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockConverter.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConverter.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class DefaultImplCaller: Converter, Sendable {
         private let reference: @Sendable () -> any Converter<Input>
@@ -84,15 +84,15 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
     }
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
-        __defaultImplStub.value = DefaultImplCaller(stub)
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func convert<T> (value p0: T) -> Output {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "convert<T> (value p0: T) -> Output",
             parameters: (p0),
             escapingParameters: (p0),
@@ -100,12 +100,12 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.convert(value: p0)
+            defaultCall: cuckooDefaultImplementation.value.convert(value: p0)
         )
     }
 
     func convert(input p0: Input) -> Output {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "convert(input p0: Input) -> Output",
             parameters: (p0),
             escapingParameters: (p0),
@@ -113,12 +113,12 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.convert(input: p0)
+            defaultCall: cuckooDefaultImplementation.value.convert(input: p0)
         )
     }
 
     func wrap<T> (_ p0: T) -> [Output] {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "wrap<T> (_ p0: T) -> [Output]",
             parameters: (p0),
             escapingParameters: (p0),
@@ -126,12 +126,12 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.wrap(p0)
+            defaultCall: cuckooDefaultImplementation.value.wrap(p0)
         )
     }
 
     func pair<T> (_ p0: T, input p1: Input) -> (Output, T) {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
@@ -139,12 +139,12 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.pair(p0, input: p1)
+            defaultCall: cuckooDefaultImplementation.value.pair(p0, input: p1)
         )
     }
 
     func merge<T> (_ p0: T, into p1: Output) -> Output {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "merge<T> (_ p0: T, into p1: Output) -> Output",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
@@ -152,12 +152,12 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.merge(p0, into: p1)
+            defaultCall: cuckooDefaultImplementation.value.merge(p0, into: p1)
         )
     }
 
     func lookup<T> (_ p0: T) -> Output? {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "lookup<T> (_ p0: T) -> Output?",
             parameters: (p0),
             escapingParameters: (p0),
@@ -165,12 +165,12 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.lookup(p0)
+            defaultCall: cuckooDefaultImplementation.value.lookup(p0)
         )
     }
 
     func collect<T> (_ p0: [Output], tag p1: T) -> [String: Output] {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "collect<T> (_ p0: [Output], tag p1: T) -> [String: Output]",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
@@ -178,12 +178,12 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.collect(p0, tag: p1)
+            defaultCall: cuckooDefaultImplementation.value.collect(p0, tag: p1)
         )
     }
 
     func result<T> (_ p0: T) -> Result<Output, any Error> {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "result<T> (_ p0: T) -> Result<Output, any Error>",
             parameters: (p0),
             escapingParameters: (p0),
@@ -191,12 +191,12 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.result(p0)
+            defaultCall: cuckooDefaultImplementation.value.result(p0)
         )
     }
 
     func nested<T> (_ p0: T) -> Wrapper.Output {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "nested<T> (_ p0: T) -> Wrapper.Output",
             parameters: (p0),
             escapingParameters: (p0),
@@ -204,22 +204,22 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.nested(p0)
+            defaultCall: cuckooDefaultImplementation.value.nested(p0)
         )
     }
 
     nonisolated struct __StubbingProxy_Converter: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func convert<M1: Cuckoo._Matchable, T>(value p0: M1) -> Cuckoo.ProtocolStubFunction<(T), Output, ((T)) -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+            return .init(stub: cuckooManager.createStub(for: MockConverter.self,
                 method: "convert<T> (value p0: T) -> Output",
                 parameterMatchers: matchers
             ))
@@ -229,7 +229,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+            return .init(stub: cuckooManager.createStub(for: MockConverter.self,
                 method: "convert(input p0: Input) -> Output",
                 parameterMatchers: matchers
             ))
@@ -239,7 +239,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+            return .init(stub: cuckooManager.createStub(for: MockConverter.self,
                 method: "wrap<T> (_ p0: T) -> [Output]",
                 parameterMatchers: matchers
             ))
@@ -251,7 +251,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+            return .init(stub: cuckooManager.createStub(for: MockConverter.self,
                 method: "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
                 parameterMatchers: matchers
             ))
@@ -263,7 +263,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+            return .init(stub: cuckooManager.createStub(for: MockConverter.self,
                 method: "merge<T> (_ p0: T, into p1: Output) -> Output",
                 parameterMatchers: matchers
             ))
@@ -273,7 +273,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+            return .init(stub: cuckooManager.createStub(for: MockConverter.self,
                 method: "lookup<T> (_ p0: T) -> Output?",
                 parameterMatchers: matchers
             ))
@@ -285,7 +285,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+            return .init(stub: cuckooManager.createStub(for: MockConverter.self,
                 method: "collect<T> (_ p0: [Output], tag p1: T) -> [String: Output]",
                 parameterMatchers: matchers
             ))
@@ -295,7 +295,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+            return .init(stub: cuckooManager.createStub(for: MockConverter.self,
                 method: "result<T> (_ p0: T) -> Result<Output, any Error>",
                 parameterMatchers: matchers
             ))
@@ -305,7 +305,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConverter.self,
+            return .init(stub: cuckooManager.createStub(for: MockConverter.self,
                 method: "nested<T> (_ p0: T) -> Wrapper.Output",
                 parameterMatchers: matchers
             ))
@@ -313,14 +313,14 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
     }
 
     nonisolated struct __VerificationProxy_Converter: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -328,11 +328,11 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "convert<T> (value p0: T) -> Output",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -341,11 +341,11 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "convert(input p0: Input) -> Output",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -354,11 +354,11 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "wrap<T> (_ p0: T) -> [Output]",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -369,11 +369,11 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -384,11 +384,11 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "merge<T> (_ p0: T, into p1: Output) -> Output",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -397,11 +397,11 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "lookup<T> (_ p0: T) -> Output?",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -412,11 +412,11 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "collect<T> (_ p0: [Output], tag p1: T) -> [String: Output]",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -425,11 +425,11 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "result<T> (_ p0: T) -> Result<Output, any Error>",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -438,11 +438,11 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "nested<T> (_ p0: T) -> Wrapper.Output",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }
@@ -493,7 +493,7 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockProducer.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockProducer.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class DefaultImplCaller: Producer, Sendable {
         private let reference: @Sendable () -> any Producer
@@ -534,15 +534,15 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
         }
     }
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Producer & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Output == Output, Output: SendableMetatype {
-        __defaultImplStub.value = DefaultImplCaller(stub)
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func produce<T> (from p0: T) -> Output {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "produce<T> (from p0: T) -> Output",
             parameters: (p0),
             escapingParameters: (p0),
@@ -550,12 +550,12 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.produce(from: p0)
+            defaultCall: cuckooDefaultImplementation.value.produce(from: p0)
         )
     }
 
     func consume<T> (_ p0: Output, with p1: T) {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "consume<T> (_ p0: Output, with p1: T)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
@@ -563,12 +563,12 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.consume(p0, with: p1)
+            defaultCall: cuckooDefaultImplementation.value.consume(p0, with: p1)
         )
     }
 
     func produceAll<T> (from p0: [T]) async throws -> [Output] {
-        return try await cuckoo_manager.callThrows(
+        return try await cuckooManager.callThrows(
             "produceAll<T> (from p0: [T]) async throws -> [Output]",
             parameters: (p0),
             escapingParameters: (p0),
@@ -577,22 +577,22 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
                 try await implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub.value.produceAll(from: p0)
+            defaultCall: await cuckooDefaultImplementation.value.produceAll(from: p0)
         )
     }
 
     nonisolated struct __StubbingProxy_Producer: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func produce<M1: Cuckoo._Matchable, T>(from p0: M1) -> Cuckoo.ProtocolStubFunction<(T), Output, ((T)) -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == T {
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockProducer.self,
+            return .init(stub: cuckooManager.createStub(for: MockProducer.self,
                 method: "produce<T> (from p0: T) -> Output",
                 parameterMatchers: matchers
             ))
@@ -604,7 +604,7 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockProducer.self,
+            return .init(stub: cuckooManager.createStub(for: MockProducer.self,
                 method: "consume<T> (_ p0: Output, with p1: T)",
                 parameterMatchers: matchers
             ))
@@ -614,7 +614,7 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<([T])>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockProducer.self,
+            return .init(stub: cuckooManager.createStub(for: MockProducer.self,
                 method: "produceAll<T> (from p0: [T]) async throws -> [Output]",
                 parameterMatchers: matchers
             ))
@@ -622,14 +622,14 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
     }
 
     nonisolated struct __VerificationProxy_Producer: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -637,11 +637,11 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "produce<T> (from p0: T) -> Output",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -652,11 +652,11 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "consume<T> (_ p0: Output, with p1: T)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -665,11 +665,11 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<([T])>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "produceAll<T> (from p0: [T]) async throws -> [Output]",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

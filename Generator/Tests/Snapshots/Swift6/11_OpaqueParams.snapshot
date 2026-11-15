@@ -8,17 +8,17 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockSorter.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSorter.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Sorter>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Sorter>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Sorter) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func sort(_ p0: some Collection<Int>) -> [Int] {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "sort(_ p0: some Collection<Int>) -> [Int]",
             parameters: (p0 as any Collection<Int>),
             escapingParameters: (p0 as any Collection<Int>),
@@ -26,22 +26,22 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.sort(p0)
+            defaultCall: cuckooDefaultImplementation.value.sort(p0)
         )
     }
 
     nonisolated struct __StubbingProxy_Sorter: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func sort<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubFunction<(any Collection<Int>), [Int], ((any Collection<Int>)) -> [Int], Cuckoo.StubSharing.Confined> where M1.MatchedType == any Collection<Int> {
             let matchers: [Cuckoo.ParameterMatcher<(any Collection<Int>)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockSorter.self,
+            return .init(stub: cuckooManager.createStub(for: MockSorter.self,
                 method: "sort(_ p0: some Collection<Int>) -> [Int]",
                 parameterMatchers: matchers
             ))
@@ -49,14 +49,14 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
     }
 
     nonisolated struct __VerificationProxy_Sorter: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -64,11 +64,11 @@ nonisolated final class MockSorter: Sorter, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<(any Collection<Int>)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "sort(_ p0: some Collection<Int>) -> [Int]",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

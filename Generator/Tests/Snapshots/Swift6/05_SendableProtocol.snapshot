@@ -8,17 +8,17 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockNetworking.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockNetworking.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Networking>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Networking>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Networking) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void) {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
@@ -26,12 +26,12 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.get(url: p0, completion: p1)
+            defaultCall: cuckooDefaultImplementation.value.get(url: p0, completion: p1)
         )
     }
 
     func get(url p0: String) async throws -> String {
-        return try await cuckoo_manager.callThrows(
+        return try await cuckooManager.callThrows(
             "get(url p0: String) async throws -> String",
             parameters: (p0),
             escapingParameters: (p0),
@@ -40,20 +40,20 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
                 try await implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub.value.get(url: p0)
+            defaultCall: await cuckooDefaultImplementation.value.get(url: p0)
         )
     }
 
     nonisolated struct __StubbingProxy_Networking: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func get<M1: Cuckoo._SendableMatchable, M2: Cuckoo._SendableMatchable>(url p0: M1, completion p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, @Sendable (Result<String, any Error>) -> Void), @Sendable ((String, @Sendable (Result<String, any Error>) -> Void)) -> Void, Cuckoo.StubSharing.Shared> where M1.MatchedType == String, M2.MatchedType == @Sendable (Result<String, any Error>) -> Void {
             let matchers: [Cuckoo.SendableMatcher<(String, @Sendable (Result<String, any Error>) -> Void)>] = [Cuckoo.wrap(matchable: p0, at: \.0), Cuckoo.wrap(matchable: p1, at: \.1)]
-            return .init(stub: cuckoo_manager.createStub(for: MockNetworking.self,
+            return .init(stub: cuckooManager.createStub(for: MockNetworking.self,
                 method: "get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void)",
                 parameterMatchers: matchers
             ))
@@ -61,7 +61,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
 
         func get<M1: Cuckoo._SendableMatchable>(url p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(String), String, any Swift.Error, nonisolated(nonsending) @Sendable ((String)) async throws -> String, Cuckoo.StubSharing.Shared> where M1.MatchedType == String {
             let matchers: [Cuckoo.SendableMatcher<(String)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
-            return .init(stub: cuckoo_manager.createStub(for: MockNetworking.self,
+            return .init(stub: cuckooManager.createStub(for: MockNetworking.self,
                 method: "get(url p0: String) async throws -> String",
                 parameterMatchers: matchers
             ))
@@ -69,14 +69,14 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
     }
 
     nonisolated struct __VerificationProxy_Networking: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -86,11 +86,11 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
@@ -99,11 +99,11 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "get(url p0: String) async throws -> String",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }
@@ -126,7 +126,7 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyValueStore.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyValueStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class DefaultImplCaller: KeyValueStore, Sendable {
         private let reference: @Sendable () -> any KeyValueStore
@@ -159,28 +159,28 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
         }
     }
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyValueStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
-        __defaultImplStub.value = DefaultImplCaller(stub)
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     var count: Int {
         get {
-            return cuckoo_manager.getter(
+            return cuckooManager.getter(
                 "count",
                 invoke: { (implementation: @Sendable (()) -> Int) in
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: __defaultImplStub.value.count
+                defaultCall: cuckooDefaultImplementation.value.count
             )
         }
     }
 
     func value(for p0: Key) -> String? {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "value(for p0: Key) -> String?",
             parameters: (p0),
             escapingParameters: (p0),
@@ -188,24 +188,24 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.value(for: p0)
+            defaultCall: cuckooDefaultImplementation.value.value(for: p0)
         )
     }
 
     nonisolated struct __StubbingProxy_KeyValueStore: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         var count: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockKeyValueStore, Int, @Sendable (()) -> Int, Cuckoo.StubSharing.Shared> {
-            return .init(manager: cuckoo_manager, name: "count")
+            return .init(manager: cuckooManager, name: "count")
         }
 
         func value<M1: Cuckoo._SendableMatchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), String?, @Sendable ((Key)) -> String?, Cuckoo.StubSharing.Shared> where M1.MatchedType == Key {
             let matchers: [Cuckoo.SendableMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
-            return .init(stub: cuckoo_manager.createStub(for: MockKeyValueStore.self,
+            return .init(stub: cuckooManager.createStub(for: MockKeyValueStore.self,
                 method: "value(for p0: Key) -> String?",
                 parameterMatchers: matchers
             ))
@@ -213,18 +213,18 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
     }
 
     nonisolated struct __VerificationProxy_KeyValueStore: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         var count: Cuckoo.VerifyReadOnlyProperty<Int> {
-            return .init(manager: cuckoo_manager, name: "count", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
+            return .init(manager: cuckooManager, name: "count", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         @discardableResult
@@ -232,11 +232,11 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "value(for p0: Key) -> String?",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

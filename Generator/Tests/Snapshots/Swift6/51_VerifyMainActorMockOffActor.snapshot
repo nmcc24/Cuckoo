@@ -8,20 +8,20 @@ final class MockPageRenderer: PageRenderer, nonisolated Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockPageRenderer.self) ?? Cuckoo.MockManager(hasParent: false)
-    nonisolated static var cuckoo_globalActor: (any Actor)? {
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockPageRenderer.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckooGlobalActor: (any Actor)? {
         MainActor.shared
     }
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any PageRenderer>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any PageRenderer>()
 
     nonisolated func enableDefaultImplementation(_ stub: any PageRenderer) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func render(_ p0: Page) {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "render(_ p0: Page)",
             parameters: (p0),
             escapingParameters: (p0),
@@ -29,22 +29,22 @@ final class MockPageRenderer: PageRenderer, nonisolated Cuckoo.ProtocolMock {
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.render(p0)
+            defaultCall: cuckooDefaultImplementation.value.render(p0)
         )
     }
 
     nonisolated struct __StubbingProxy_PageRenderer: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func render<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Page), @MainActor @Sendable ((Page)) -> Void, Cuckoo.StubSharing.Isolated> where M1.MatchedType == Page {
             let matchers: [Cuckoo.ParameterMatcher<(Page)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockPageRenderer.self,
+            return .init(stub: cuckooManager.createStub(for: MockPageRenderer.self,
                 method: "render(_ p0: Page)",
                 parameterMatchers: matchers
             ))
@@ -52,14 +52,14 @@ final class MockPageRenderer: PageRenderer, nonisolated Cuckoo.ProtocolMock {
     }
 
     nonisolated struct __VerificationProxy_PageRenderer: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @MainActor
@@ -68,11 +68,11 @@ final class MockPageRenderer: PageRenderer, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<(Page)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "render(_ p0: Page)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

@@ -8,18 +8,18 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockLoader.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLoader.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any Loader>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Loader>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Loader) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     nonisolated(nonsending)
     func load() async -> Int {
-        return await cuckoo_manager.call(
+        return await cuckooManager.call(
             "load() async -> Int",
             parameters: (),
             escapingParameters: (),
@@ -27,13 +27,13 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
                 await implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub.value.load()
+            defaultCall: await cuckooDefaultImplementation.value.load()
         )
     }
 
     @concurrent
     func compute() async -> Int {
-        return await cuckoo_manager.call(
+        return await cuckooManager.call(
             "compute() async -> Int",
             parameters: (),
             escapingParameters: (),
@@ -41,20 +41,20 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
                 await implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await __defaultImplStub.value.compute()
+            defaultCall: await cuckooDefaultImplementation.value.compute()
         )
     }
 
     nonisolated struct __StubbingProxy_Loader: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func load() -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockLoader.self,
+            return .init(stub: cuckooManager.createStub(for: MockLoader.self,
                 method: "load() async -> Int",
                 parameterMatchers: matchers
             ))
@@ -62,7 +62,7 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
 
         func compute() -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockLoader.self,
+            return .init(stub: cuckooManager.createStub(for: MockLoader.self,
                 method: "compute() async -> Int",
                 parameterMatchers: matchers
             ))
@@ -70,35 +70,35 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
     }
 
     nonisolated struct __VerificationProxy_Loader: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
         func load() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "load() async -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
 
         @discardableResult
         func compute() -> Cuckoo.__DoNotUse<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "compute() async -> Int",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }

@@ -8,17 +8,17 @@ nonisolated final class MockTokenCache: TokenCache, nonisolated Cuckoo.ProtocolM
 
     // Original typealiases
 
-    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockTokenCache.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockTokenCache.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<any TokenCache>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any TokenCache>()
 
     nonisolated func enableDefaultImplementation(_ stub: any TokenCache) {
-        __defaultImplStub.value = stub
-        cuckoo_manager.enableDefaultStubImplementation()
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultStubImplementation()
     }
 
     func store(_ p0: Token) {
-        return cuckoo_manager.call(
+        return cuckooManager.call(
             "store(_ p0: Token)",
             parameters: (p0),
             escapingParameters: (p0),
@@ -26,20 +26,20 @@ nonisolated final class MockTokenCache: TokenCache, nonisolated Cuckoo.ProtocolM
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub.value.store(p0)
+            defaultCall: cuckooDefaultImplementation.value.store(p0)
         )
     }
 
     nonisolated struct __StubbingProxy_TokenCache: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckooManager: Cuckoo.MockManager
 
         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
+            self.cuckooManager = manager
         }
 
         func store<M1: Cuckoo._SendableMatchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Token), @Sendable ((Token)) -> Void, Cuckoo.StubSharing.Shared> where M1.MatchedType == Token {
             let matchers: [Cuckoo.SendableMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
-            return .init(stub: cuckoo_manager.createStub(for: MockTokenCache.self,
+            return .init(stub: cuckooManager.createStub(for: MockTokenCache.self,
                 method: "store(_ p0: Token)",
                 parameterMatchers: matchers
             ))
@@ -47,14 +47,14 @@ nonisolated final class MockTokenCache: TokenCache, nonisolated Cuckoo.ProtocolM
     }
 
     nonisolated struct __VerificationProxy_TokenCache: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let cuckoo_callMatcher: Cuckoo.CallMatcher
-        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.cuckoo_callMatcher = callMatcher
-            self.cuckoo_sourceLocation = sourceLocation
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -62,11 +62,11 @@ nonisolated final class MockTokenCache: TokenCache, nonisolated Cuckoo.ProtocolM
             let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return cuckoo_manager.verify(
+            return cuckooManager.verify(
                 "store(_ p0: Token)",
-                callMatcher: cuckoo_callMatcher,
+                callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: cuckoo_sourceLocation
+                sourceLocation: cuckooSourceLocation
             )
         }
     }
