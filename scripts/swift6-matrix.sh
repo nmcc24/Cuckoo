@@ -113,7 +113,7 @@ EOF
       # A fixture that fails only for its mock's warnings, such as one that must keep a warning on an older Swift,
       # matches its message against those warnings.
       kind="error"
-      [[ "$errors" == "?" && "$mock_warnings" != "0" ]] && kind="warning"
+      [[ "$errors" == "?" && "$mock_warnings" != "0" && "$exit_code" == "0" ]] && kind="warning"
       located="$(awk -v fixture="$f:" -v mock="$WORK/gen/$n.mock.swift:" \
         'index($0, fixture) == 1 || index($0, mock) == 1' "$WORK/logs/$n.tc.log" | grep -E ":[0-9]+:[0-9]+: $kind: ")"
       located_count="$(grep -c . <<< "$located")"

@@ -68,7 +68,7 @@ enum TypeErasureBuilder {
 
         // Forwarding to a deprecated requirement is the eraser's job, not a use the deprecation warns about. Only Swift
         // 6.4 has a way to say so; older compilers keep the warning.
-        let hasDeprecatedRequirement = (properties + container.mockedProperties).contains { $0.attributes.contains(where: \.isDeprecated) }
+        let hasDeprecatedRequirement = container.mockedProperties.contains { $0.attributes.contains(where: \.isDeprecated) }
             || container.mockedMethods.contains { $0.attributes.contains(where: \.isDeprecated) }
             || container.mockedSubscripts.contains { $0.attributes.contains(where: \.isDeprecated) }
         let ignoringDeprecations = hasDeprecatedRequirement
