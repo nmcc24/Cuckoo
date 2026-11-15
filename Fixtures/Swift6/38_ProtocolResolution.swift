@@ -72,3 +72,14 @@ protocol Described: CustomStringConvertible { func other() }
 extension Described {
     nonisolated var description: String { "described" }
 }
+
+// A protocol bound to a class is found by scope, so a same-named protocol elsewhere doesn't stand in for it, and
+// a protocol that refines it from another scope names the class by its qualified name.
+enum BoundScope {
+    class Base { init() {} }
+    protocol Bound: Base { func bound() }
+}
+enum OtherScope {
+    protocol Bound { func other() }
+}
+protocol RefinesBound: BoundScope.Bound { func refined() }

@@ -143,11 +143,11 @@ final class Generator {
             return FileRepresentation(file: file, imports: crawler.imports, tokens: crawler.tokens)
         }
         let flatMappedFiles = files.map { $0.flatMappingMemberContainers() }
+        for warning in duplicateDeclarationWarnings(flatMappedFiles) {
+            printToStandardError("warning: cuckoo: \(warning)\n")
+        }
         let inheritedFiles = if module.options.enableInheritance {
-            bindingSuperclasses(mergingInheritance(flatMappedFiles, names: TypeNames(
-                typealiases: declaredNames.typealiases,
-                types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes)
-            )))
+            mergingAndBinding(flatMappedFiles, typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes))
         } else {
             flatMappedFiles
         }
@@ -205,41 +205,61 @@ final class Generator {
         return Set(["Cuckoo"] + module.testableImports + files.flatMap { $0.imports.filter(\.isPublic).map(\.description) })
     }
 
-    private static func mergingInheritance(_ filesRepresentation: [FileRepresentation], names: TypeNames) -> [FileRepresentation] {
-        let indexed = names.indexing(filesRepresentation)
-        return filesRepresentation.map { $0.mergingInheritance(with: filesRepresentation, names: indexed) }
+    /// Two protocols or classes with the same qualified name, neither under `#if`, get two mocks of the same name,
+    /// which don't compile together. That happens when an entry's sources span modules or folders that each declare
+    /// the type. The warning names the files, so the build's "invalid redeclaration" has an explanation.
+    static func duplicateDeclarationWarnings(_ files: [FileRepresentation]) -> [String] {
+        var firstFiles: [String: Path] = [:]
+        var warnings: [String] = []
+        for file in files {
+            for token in file.tokens where token.isClass || token.isProtocol {
+                guard let named = token as? any Token & HasName,
+                      (token as? any HasAttributes)?.hasCompilationCondition != true,
+                      (token as? any HasEnclosingCompilationConditions)?.enclosingCompilationConditions.isEmpty != false else { continue }
+                if let first = firstFiles[named.fullyQualifiedName] {
+                    warnings.append("'\(named.fullyQualifiedName)' is declared in \(first) and in \(file.file.path), so their mocks have the same name and don't compile together. List only one of them in the module's `sources`.")
+                } else {
+                    firstFiles[named.fullyQualifiedName] = file.file.path
+                }
+            }
+        }
+        return warnings
+    }
+
+    /// The files with each protocol and class merged with what it inherits, then each protocol bound to the class
+    /// it requires, both resolved by scope as Swift does.
+    private static func mergingAndBinding(_ files: [FileRepresentation], typealiases: [String: String], types: Set<String>) -> [FileRepresentation] {
+        let merged = files.map { $0.mergingInheritance(with: files, names: TypeNames(typealiases: typealiases, types: types, files: files)) }
+        return bindingSuperclasses(merged, names: TypeNames(typealiases: typealiases, types: types, files: merged))
     }
 
     /// Binds every protocol that requires a superclass to it: a class declared in the sources that the protocol
     /// names, as `protocol P: Base` or `where Self: Base`, directly or through another protocol, or `NSObject` for
     /// an `NSObjectProtocol`. The protocol's mock and stub then subclass it.
-    private static func bindingSuperclasses(_ filesRepresentation: [FileRepresentation]) -> [FileRepresentation] {
-        let tokens = filesRepresentation.flatMap(\.tokens)
-        let protocols = Dictionary(tokens.compactMap { $0.asProtocol.map { ($0.name, $0) } }) { former, latter in
-            log(.info, message: "Duplicate protocol '\(former.name)' in source set, behavior is undefined.")
-            return latter
-        }
-        let classes = Dictionary(tokens.compactMap { $0.asClass.map { ($0.name, $0) } }) { _, latter in latter }
-
-        func superclass(of name: String, visited: Set<String>) -> (name: String, declaration: ClassDeclaration?)? {
-            guard !visited.contains(name), let protocolDeclaration = protocols[name] else { return nil }
-            for inheritedType in protocolDeclaration.inheritedTypes {
+    private static func bindingSuperclasses(_ filesRepresentation: [FileRepresentation], names: TypeNames) -> [FileRepresentation] {
+        func superclass(of protocolDeclaration: ProtocolDeclaration, visited: Set<String>) -> (name: String, declaration: ClassDeclaration?)? {
+            guard !visited.contains(protocolDeclaration.fullyQualifiedName) else { return nil }
+            let parents = protocolDeclaration.inheritedTypes.map { ($0, names.resolve($0, from: protocolDeclaration.fullyQualifiedName)) }
+            for (inheritedType, resolved) in parents {
                 if inheritedType == "NSObjectProtocol" {
                     return ("NSObject", nil)
                 }
-                if let declaration = classes[inheritedType] {
-                    return (inheritedType, declaration)
+                // Named by its qualified name, which reads the same from wherever the mock is: a parent protocol
+                // may have named it relative to its own scope.
+                if let declaration = resolved as? ClassDeclaration {
+                    return (declaration.fullyQualifiedName, declaration)
                 }
             }
-            return protocolDeclaration.inheritedTypes.lazy
-                .compactMap { superclass(of: $0, visited: visited.union([name])) }
+            return parents.lazy
+                .compactMap { $0.1 as? ProtocolDeclaration }
+                .compactMap { superclass(of: $0, visited: visited.union([protocolDeclaration.fullyQualifiedName])) }
                 .first
         }
 
         return filesRepresentation.map { file in
             file.replacing(tokens: file.tokens.map { token in
                 guard let protocolDeclaration = token.asProtocol,
-                      let superclass = superclass(of: protocolDeclaration.name, visited: []) else { return token }
+                      let superclass = superclass(of: protocolDeclaration, visited: []) else { return token }
                 return protocolDeclaration.replacing(superclass: superclass.name, declaration: superclass.declaration)
             })
         }

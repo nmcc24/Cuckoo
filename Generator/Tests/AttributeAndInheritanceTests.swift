@@ -159,4 +159,23 @@ struct AttributeAndInheritanceTests {
             "/project/Sources/Store.swift:5:1: warning: cuckoo: 'Box' has a generic parameter or associated type named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Box'.",
         ])
     }
+
+    /// Two types of the same qualified name, from two files, get mocks that clash: the warning names both files. One
+    /// under `#if` may be the other's alternative, so it doesn't count.
+    @Test
+    func duplicateDeclarationsAcrossFilesWarn() {
+        func file(_ path: String, _ source: String) -> FileRepresentation {
+            let url = URL(filePath: path)
+            let crawler = Crawler.crawl(source: source, url: url)
+            return FileRepresentation(file: TextFile(path: Path(path)), imports: [], tokens: crawler.tokens)
+        }
+        let warnings = Generator.duplicateDeclarationWarnings([
+            file("/project/A/User.swift", "protocol User { func a() }\nenum Outer { protocol Inner {} }"),
+            file("/project/B/User.swift", "protocol User { func b() }\nenum Other { protocol Inner {} }"),
+            file("/project/C/User.swift", "#if os(Linux)\nprotocol User { func c() }\n#endif"),
+        ])
+        #expect(warnings == [
+            "'User' is declared in /project/A/User.swift and in /project/B/User.swift, so their mocks have the same name and don't compile together. List only one of them in the module's `sources`.",
+        ])
+    }
 }
