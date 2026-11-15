@@ -57,12 +57,7 @@ let package = Package(
             name: "CuckooPlugin",
             targets: ["CuckooPlugin"]
         ),
-    ] + (buildsGenerator ? [
-        .executable(
-            name: "CuckooGenerator",
-            targets: ["CuckooGenerator"]
-        ),
-    ] : []),
+    ],
     dependencies: !buildsGenerator ? [] : [
         // Up to the next major release, so Cuckoo resolves alongside users' other packages. Packages still
         // at 0.x may break in a minor release, so they stop at the next minor one. The lockfiles pin exact revisions.
