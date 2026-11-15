@@ -180,7 +180,7 @@ final class Generator {
                 path: file.file.path,
                 contents: [
                     file.file.path == firstPath && sharedImports?.isEmpty == false ? sharedImports : nil,
-                    module.options.omitHeaders ? nil : FileHeaderHandler.header(for: file, timestamp: timestamp),
+                    module.options.omitHeaders ? nil : FileHeaderHandler.header(for: file, relativeTo: module.projectDirectory, timestamp: timestamp),
                     sharedImports == nil ? prepared.imports(for: [file]) : nil,
                     try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming),
                 ]

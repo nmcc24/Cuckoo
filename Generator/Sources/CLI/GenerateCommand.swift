@@ -8,15 +8,15 @@ import ArgumentParser
 @main
 struct GenerateCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        commandName: "Generate",
-        abstract: "Cuckoo CLI tool for generating mocks according to the specified configuration.",
+        commandName: "CuckooGenerator",
+        abstract: "Generates Cuckoo mocks for the modules of a Cuckoofile.",
         version: version,
         helpNames: .shortAndLong
     )
 
     @Option(
         name: [.customLong("configuration")],
-        help: "Set Cuckoofile path. By default the Cuckoonator looks for it in the project root.",
+        help: "The Cuckoofile to read. By default, Cuckoofile.toml in $PROJECT_DIR, then in the current directory.",
         completion: .file()
     )
     var configurationPath: String?
@@ -45,14 +45,19 @@ struct GenerateCommand: AsyncParsableCommand {
     var verbose = false
 
     func run() async throws {
+        try await run(environment: ProcessInfo.processInfo.environment)
+    }
+
+    /// Generates with `environment` as the process's: the build plugins pass `PROJECT_DIR`, `CUCKOO_OVERRIDE_OUTPUT`,
+    /// `CUCKOO_MODULE_NAME` and `CUCKOO_SOURCE_MODULE`(`_DIRECTORY`) this way.
+    func run(environment: [String: String]) async throws {
         try await Logger.$level.withValue(verbose ? .verbose : .info) {
-            try await generate()
+            try await generate(environment: environment)
         }
     }
 
-    private func generate() async throws {
-
-        let projectDir = ProcessInfo.processInfo.environment["PROJECT_DIR"]
+    private func generate(environment: [String: String]) async throws {
+        let projectDir = environment["PROJECT_DIR"]
         let configurationFile: (path: Path, contents: String)?
         if let configurationPath {
             // A relative path resolves against the project directory when there is one, else the current directory.
@@ -83,9 +88,8 @@ struct GenerateCommand: AsyncParsableCommand {
 
         log(.info, message: "Using configuration file at path:", configurationFile.path)
 
-        let overriddenOutput = ProcessInfo.processInfo.environment["CUCKOO_OVERRIDE_OUTPUT"]
-        let requestedModuleName = ProcessInfo.processInfo.environment["CUCKOO_MODULE_NAME"]
-        let environment = ProcessInfo.processInfo.environment
+        let overriddenOutput = environment["CUCKOO_OVERRIDE_OUTPUT"]
+        let requestedModuleName = environment["CUCKOO_MODULE_NAME"]
         let sourceModule = environment["CUCKOO_SOURCE_MODULE"].flatMap { name in
             environment["CUCKOO_SOURCE_MODULE_DIRECTORY"].map { Module.SourceModule(name: name, directory: Path($0)) }
         }

@@ -28,6 +28,10 @@
   mocks spell it; only code that names these types itself changes.
 - A Cuckoofile module can list the global actors its types use from other modules, in `globalActors`.
 
+- The comment above each file's mocks names the mocked file by its path from the Cuckoofile, not from wherever
+  the generator ran, so a build plugin's mocks no longer show `../../../..` paths. `--help` names the command
+  `CuckooGenerator`, and a build log shows "Generate Cuckoo mocks for …" instead of "Run Cuckoonator for …".
+
 ### Added
 - Operator requirements are mocked. A protocol with `static func + (lhs: Self, rhs: Self) -> Self` had a mock that
   didn't conform. The proxies name an operator `operator` and a word for each character, such as
