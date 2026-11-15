@@ -1,0 +1,83 @@
+import Cuckoo
+import Foundation
+
+@available(macOS 26, iOS 26, tvOS 26, watchOS 26, *)
+final class MockFixedBuffer<let Count: Int>: FixedBuffer<Count>, nonisolated Cuckoo.ClassMock {
+    typealias MocksType = FixedBuffer<Count>
+    typealias Stubbing = __StubbingProxy_FixedBuffer
+    typealias Verification = __VerificationProxy_FixedBuffer
+
+    // Original typealiases
+
+    nonisolated let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager(for: MockFixedBuffer.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let __defaultImplStub = Cuckoo.DefaultImplementation<FixedBuffer<Count>>()
+
+    nonisolated func enableDefaultImplementation(_ stub: FixedBuffer<Count>) {
+        __defaultImplStub.value = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+    override func first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int {
+        return cuckoo_manager.call(
+            "first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((InlineArray<N, Int>)) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.first(p0),
+            defaultCall: __defaultImplStub.value.first(p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_FixedBuffer: Cuckoo.StubbingProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckoo_manager = manager
+        }
+
+        func first<M1: Cuckoo._Matchable, let N: Int>(_ p0: M1) -> Cuckoo.ClassStubFunction<(InlineArray<N, Int>), Int, ((InlineArray<N, Int>)) -> Int, Cuckoo.StubSharing.Confined> where M1.MatchedType == InlineArray<N, Int> {
+            let matchers: [Cuckoo.ParameterMatcher<(InlineArray<N, Int>)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckoo_manager.createStub(for: MockFixedBuffer.self,
+                method: "first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_FixedBuffer: Cuckoo.VerificationProxy {
+        private let cuckoo_manager: Cuckoo.MockManager
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckoo_manager = manager
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func first<M1: Cuckoo._Matchable, let N: Int>(_ p0: M1) -> Cuckoo.__DoNotUse<(InlineArray<N, Int>), Int> where M1.MatchedType == InlineArray<N, Int> {
+            let matchers: [Cuckoo.ParameterMatcher<(InlineArray<N, Int>)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckoo_manager.verify(
+                "first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int",
+                callMatcher: cuckoo_callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckoo_sourceLocation
+            )
+        }
+    }
+}
+
+@available(macOS 26, iOS 26, tvOS 26, watchOS 26, *)
+final class FixedBufferStub<let Count: Int>: FixedBuffer<Count> {
+    override func first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+}

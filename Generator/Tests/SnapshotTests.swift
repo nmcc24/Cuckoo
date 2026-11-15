@@ -28,6 +28,17 @@ struct SnapshotTests {
         #expect(Self.swift6Fixtures.count >= 30)
     }
 
+    /// A fixture's snapshot goes when the fixture does: a snapshot with no fixture is left from a deleted or renamed one.
+    @Test
+    func everySwift6SnapshotHasItsFixture() throws {
+        let directory = Self.snapshotsDirectory.appending(path: "Swift6")
+        let snapshots = try FileManager.default.contentsOfDirectory(atPath: directory.path(percentEncoded: false))
+            .filter { $0.hasSuffix(".snapshot") }
+            .map { String($0.dropLast(".snapshot".count)) }
+        let fixtures = Set(Self.swift6Fixtures.map { String($0.dropLast(".swift".count)) })
+        #expect(snapshots.filter { !fixtures.contains($0) }.sorted() == [])
+    }
+
     @Test(arguments: swift6Fixtures)
     func swift6Fixture(_ fileName: String) async throws {
         let contents = try await generate(sources: ["Fixtures/Swift6/\(fileName)"])
