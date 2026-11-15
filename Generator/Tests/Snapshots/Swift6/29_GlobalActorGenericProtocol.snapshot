@@ -73,12 +73,12 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
 
     nonisolated func enableDefaultImplementation(_ stub: __DefaultImplCaller) {
         cuckooDefaultImplementation.value = stub
-        cuckooManager.enableDefaultStubImplementation()
+        cuckooManager.enableDefaultImplementation()
     }
 
     @MainActor func enableDefaultImplementation<_CUCKOO$$GENERIC: Inventory>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
-        cuckooManager.enableDefaultStubImplementation()
+        cuckooManager.enableDefaultImplementation()
     }
 
     var count: Int {
@@ -297,12 +297,12 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
 
     nonisolated func enableDefaultImplementation(_ stub: __DefaultImplCaller) {
         cuckooDefaultImplementation.value = stub
-        cuckooManager.enableDefaultStubImplementation()
+        cuckooManager.enableDefaultImplementation()
     }
 
     @StorageActor func enableDefaultImplementation<_CUCKOO$$GENERIC: Ledger>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
-        cuckooManager.enableDefaultStubImplementation()
+        cuckooManager.enableDefaultImplementation()
     }
 
     func entry(for p0: Key) -> Entry? {

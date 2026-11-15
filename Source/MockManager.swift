@@ -333,7 +333,7 @@ public final class MockManager: Sendable {
             case .superclass:
                 return nil
             case .defaultImplementation:
-                return "Enabling superclass spy is not allowed with the default stub implementation enabled."
+                return "Enabling superclass spy is not allowed with the default implementation enabled."
             case .none:
                 guard state.calls.isEmpty else {
                     return "Enabling superclass spy is not allowed after the mock's first call. Enable it right after creating the mock."
@@ -349,7 +349,7 @@ public final class MockManager: Sendable {
 
     /// Makes unstubbed calls forward to the default implementation. Allowed only before the mock's first call, except
     /// to replace the default implementation, which a generated mock does before calling this.
-    public func enableDefaultStubImplementation(fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
+    public func enableDefaultImplementation(fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
         guard !isStatic else {
             fail("Static members have no default implementation. Stub them instead.", at: (fileID, filePath, line, column))
             return
@@ -360,10 +360,10 @@ public final class MockManager: Sendable {
                 // The mock has just replaced its default implementation, which is allowed at any time.
                 return nil
             case .superclass:
-                return "Enabling default stub implementation is not allowed with superclass spy enabled."
+                return "Enabling the default implementation is not allowed with superclass spy enabled."
             case .none:
                 guard state.calls.isEmpty else {
-                    return "Enabling default stub implementation is not allowed after the mock's first call. Enable it right after creating the mock."
+                    return "Enabling the default implementation is not allowed after the mock's first call. Enable it right after creating the mock."
                 }
                 state.fallback = .defaultImplementation
                 return nil

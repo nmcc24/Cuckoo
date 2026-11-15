@@ -89,7 +89,7 @@ struct CrashTest {
             mock.enableDefaultImplementation(TestedClassStub())
             mock.enableSuperclassSpy()
         })
-        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("not allowed with the default stub implementation enabled"))
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("not allowed with the default implementation enabled"))
     }
 
     @Test
@@ -112,7 +112,7 @@ struct CrashTest {
             mock.noReturn()
             mock.enableDefaultImplementation(TestedProtocolStub())
         })
-        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling default stub implementation is not allowed after the mock's first call"))
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling the default implementation is not allowed after the mock's first call"))
     }
 
 }

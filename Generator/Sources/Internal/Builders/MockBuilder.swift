@@ -146,7 +146,7 @@ enum MockBuilder {
         let generic = GeneratedNames.staticGenericParameter
         let enable = [
             "        cuckooDefaultImplementation.value = stub",
-            "        cuckooManager.enableDefaultStubImplementation()",
+            "        cuckooManager.enableDefaultImplementation()",
             "    }",
         ]
         if isActor {
