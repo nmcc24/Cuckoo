@@ -116,3 +116,22 @@ enum OtherLedger {
     struct Entry {}
     protocol OtherEntryStore: Ledger.EntryStore { func other() }
 }
+
+// The same protocol declared under `#if` and `#else`, bound to a different generic class in each, and an argument
+// that's a typealias of the protocol's scope.
+class DebugStore<Element> {
+    init() {}
+}
+class ReleaseStore<Element> {
+    init() {}
+}
+#if DEBUG
+protocol BuildStore: DebugStore<Int> { func build() }
+#else
+protocol BuildStore: ReleaseStore<String> { func build() }
+#endif
+extension Ledger {
+    typealias Amount = Int
+    protocol AmountStore: Store<Amount> { func total() }
+}
+protocol TopAmountStore: Ledger.AmountStore { func topTotal() }

@@ -811,7 +811,9 @@ final class Crawler: SyntaxVisitor {
         let inheritedScopes = inherited.compactMap { resolvedTypeName($0, inScopeOf: qualifiedName) }
         // A class's subclass mock may declare a name its superclass declares too; it only breaks when one of the
         // class's members uses that name. A protocol's mock has to conform with whatever its parents name.
-        let usedNames = Set(members.tokens(viewMode: .sourceAccurate).map(\.text))
+        let usedNames = Set(members.tokens(viewMode: .sourceAccurate).compactMap { token -> String? in
+            if case .identifier(let name) = token.tokenKind { name } else { nil }
+        })
         let elsewhere = Self.reservedMockNames.sorted().first { name in
             func isDeclared(in scope: String) -> Bool {
                 context.nominalTypes.contains("\(scope).\(name)") || context.closureTypealiases["\(scope).\(name)"] != nil

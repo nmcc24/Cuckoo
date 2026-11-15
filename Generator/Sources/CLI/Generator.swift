@@ -234,22 +234,17 @@ final class Generator {
     /// it requires, both resolved by scope as Swift does.
     private static func mergingAndBinding(_ files: [FileRepresentation], typealiases: [String: String], types: Set<String>, nominalTypes: Set<String>) -> [FileRepresentation] {
         let merged = files.map { $0.mergingInheritance(with: files, names: TypeNames(typealiases: typealiases, types: types, files: files)) }
-        return bindingSuperclasses(merged, declared: files, names: TypeNames(typealiases: typealiases, types: types, files: merged), nominalTypes: nominalTypes)
+        return bindingSuperclasses(merged, names: TypeNames(typealiases: typealiases, types: types, files: merged), nominalTypes: nominalTypes)
     }
 
     /// Binds every protocol that requires a superclass to it: a class declared in the sources that the protocol
     /// names, as `protocol P: Base` or `where Self: Base`, directly or through another protocol, or `NSObject` for
     /// an `NSObjectProtocol`. The protocol's mock and stub then subclass it.
-    /// `declared` are the files before inheritance was merged, whose protocols list only the types they name
-    /// themselves, so each generic argument is qualified from the scope of the protocol that wrote it.
-    private static func bindingSuperclasses(_ filesRepresentation: [FileRepresentation], declared: [FileRepresentation], names: TypeNames, nominalTypes: Set<String>) -> [FileRepresentation] {
-        let declaredProtocols = Dictionary(
-            declared.flatMap(\.tokens).compactMap(\.asProtocol).map { ($0.fullyQualifiedName, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-        func superclass(of mergedDeclaration: ProtocolDeclaration, visited: Set<String>) -> (name: String, declaration: ClassDeclaration?)? {
-            guard !visited.contains(mergedDeclaration.fullyQualifiedName) else { return nil }
-            let protocolDeclaration = declaredProtocols[mergedDeclaration.fullyQualifiedName] ?? mergedDeclaration
+    /// A generic class's arguments are qualified from the scope of the protocol that wrote them: merging inheritance
+    /// leaves each protocol's `inheritedTypes` as it declared them.
+    private static func bindingSuperclasses(_ filesRepresentation: [FileRepresentation], names: TypeNames, nominalTypes: Set<String>) -> [FileRepresentation] {
+        func superclass(of protocolDeclaration: ProtocolDeclaration, visited: Set<String>) -> (name: String, declaration: ClassDeclaration?)? {
+            guard !visited.contains(protocolDeclaration.fullyQualifiedName) else { return nil }
             // A generic class is bound with the arguments it's written with, `: Gen<Int>`, and found by its name.
             let parents = protocolDeclaration.inheritedTypes.map { inheritedType in
                 let name = inheritedType.firstIndex(of: "<").map { String(inheritedType[..<$0]) } ?? inheritedType
@@ -263,8 +258,10 @@ final class Generator {
                 // Named by its qualified name, which reads the same from wherever the mock is: a parent protocol
                 // may have named it relative to its own scope.
                 if let declaration = resolved as? ClassDeclaration {
-                    let scope = protocolDeclaration.fullyQualifiedName.split(separator: ".").dropLast().map(String.init)
-                    return (declaration.fullyQualifiedName + qualifying(arguments, in: scope, nominalTypes: nominalTypes), declaration)
+                    // Canonical, so `extension App.Outer` scopes to `Outer`.
+                    let scope = names.canonical(protocolDeclaration.fullyQualifiedName).split(separator: ".").dropLast().map(String.init)
+                    let typeNames = nominalTypes.union(names.typealiases.keys)
+                    return (declaration.fullyQualifiedName + qualifying(arguments, in: scope, nominalTypes: typeNames), declaration)
                 }
             }
             return parents.lazy
@@ -282,7 +279,7 @@ final class Generator {
         }
     }
 
-    /// Generic arguments, `<Item>`, written in `scope`, with each type they name from that scope written qualified,
+    /// Generic arguments, `<Item>`, written in `scope`, with each type or typealias they name from that scope written qualified,
     /// so they read the same in the mock: `<Item>` in `NS` is `<NS.Item>`.
     private static func qualifying(_ arguments: String, in scope: [String], nominalTypes: Set<String>) -> String {
         guard !arguments.isEmpty, !scope.isEmpty else { return arguments }
