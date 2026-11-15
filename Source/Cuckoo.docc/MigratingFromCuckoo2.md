@@ -63,13 +63,13 @@ behaviour on top.
 
 - `MockManager.fail` is gone, with no replacement: failures go to the framework running the test, Swift Testing
   or XCTest. A test that expects Cuckoo to fail, such as one checking that a call isn't stubbed, wraps it in
-  `withKnownIssue { … }` in Swift Testing or `XCTExpectFailure { … }` in XCTest.
+  `withKnownIssue { … }` in Swift Testing or `XCTExpectFailure { … }` in XCTest, which only Apple platforms have.
 - ``DefaultValueRegistry/register(_:for:)`` takes `Sendable` values; register a non-`Sendable` type's default with
   ``DefaultValueRegistry/register(for:factory:)``, which makes a new value for each call. The registry still
   applies to every test; for values only some tests need, register them in `DefaultValues` through
   `.cuckoo(defaultValues:)`, which tests running in parallel don't share.
-- A failure handler's ``SourceLocation`` has no `file`: read `filePath`, a `StaticString`, which is the full path
-  Xcode needs. The checks no longer take a `file:` argument.
+- The checks no longer take a `file:` argument: they take `filePath:`, which defaults to `#filePath`, the full path
+  Xcode needs.
 - `hasLength(inRange:)` is deprecated in favour of ``hasLength(in:)``, whose range means what it says. With a
   half-open range, `inRange:` kept including the upper bound, as `inclusive: true` did by default: `inRange: 1..<3`
   matches 3, and so does `in: 1...3`, while `in: 1..<3` doesn't. Move each call to `in:` with the range you mean.
