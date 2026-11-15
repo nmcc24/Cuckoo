@@ -98,6 +98,30 @@ struct StaticMemberTests {
         #expect(TestUtils.catchCuckooFail { _ = MockStaticMembersClass.version } != nil)
     }
 
+    @Test
+    func clearingAndCheckingSeveralStaticMockTypes() {
+        stub(MockStaticFactory.self) { stub in
+            when(stub.name.get).thenReturn("a")
+        }
+        stub(MockStaticMembersClass.self) { stub in
+            when(stub.version.get).thenReturn(5)
+        }
+
+        // Each check gets a call on one type only, first the second and then the first.
+        _ = MockStaticMembersClass.version
+        #expect(TestUtils.catchCuckooFail { verifyNoMoreInteractions(MockStaticFactory.self, MockStaticMembersClass.self) } != nil)
+        clearInvocations(MockStaticFactory.self, MockStaticMembersClass.self)
+        _ = MockStaticFactory.name
+        #expect(TestUtils.catchCuckooFail { verifyNoMoreInteractions(MockStaticFactory.self, MockStaticMembersClass.self) } != nil)
+        clearInvocations(MockStaticFactory.self, MockStaticMembersClass.self)
+        verifyNoMoreInteractions(MockStaticFactory.self)
+        verifyNoMoreInteractions(MockStaticMembersClass.self)
+
+        clearStubs(MockStaticFactory.self, MockStaticMembersClass.self)
+        #expect(TestUtils.catchCuckooFail { _ = MockStaticFactory.name } != nil)
+        #expect(TestUtils.catchCuckooFail { _ = MockStaticMembersClass.version } != nil)
+    }
+
     /// Cases run in parallel; each sees only its own stubs and calls.
     @Test(arguments: 0..<20)
     func parallelTestsDontShareStaticStubs(value: Int) async {

@@ -83,20 +83,38 @@ public func reset(_ types: any StaticMock.Type...) {
     }
 }
 
-/// Fails if a mock type's static members received any call that no earlier `verify` checked, in the current
+/// Clears the stubs of mock types' static members, keeping their recorded calls, in the current ``StaticStubs``
+/// scope.
+public func clearStubs(_ types: any StaticMock.Type...) {
+    types.forEach { type in
+        type.cuckooStaticManager.clearStubs()
+    }
+}
+
+/// Clears the recorded calls of mock types' static members, keeping their stubs, in the current ``StaticStubs``
+/// scope.
+public func clearInvocations(_ types: any StaticMock.Type...) {
+    types.forEach { type in
+        type.cuckooStaticManager.clearInvocations()
+    }
+}
+
+/// Fails if mock types' static members received any call that no earlier `verify` checked, in the current
 /// ``StaticStubs`` scope. Like the instance form, a global-actor mock type is checked only on its actor.
-public func verifyNoMoreInteractions<M: StaticMock>(
-    _ type: M.Type,
+public func verifyNoMoreInteractions(
+    _ types: any StaticMock.Type...,
     fileID: String = #fileID,
     filePath: StaticString = #filePath,
     line: Int = #line,
     column: Int = #column,
     isolation: isolated (any Actor)? = #isolation
 ) {
-    M.cuckooStaticManager.verifyNoMoreInteractions(
-        (fileID, filePath, line, column),
-        mockType: type,
-        globalActor: M.cuckooGlobalActor,
-        caller: isolation
-    )
+    types.forEach { type in
+        type.cuckooStaticManager.verifyNoMoreInteractions(
+            (fileID, filePath, line, column),
+            mockType: type,
+            globalActor: type.cuckooGlobalActor,
+            caller: isolation
+        )
+    }
 }
