@@ -127,6 +127,7 @@ final class Generator {
                     nonPublicTypes: declaredNames.nonPublicTypes,
                     genericTypes: declaredNames.genericTypes,
                     qualifiedGenericTypes: declaredNames.qualifiedGenericTypes,
+                    uncheckedSendableTypes: declaredNames.uncheckedSendableTypes,
                     protocolsAndClasses: declaredNames.protocolsAndClasses,
                     compositionTypealiases: declaredNames.compositionTypealiases,
                     actors: declaredNames.actors,
@@ -240,15 +241,20 @@ final class Generator {
     private static func bindingSuperclasses(_ filesRepresentation: [FileRepresentation], names: TypeNames) -> [FileRepresentation] {
         func superclass(of protocolDeclaration: ProtocolDeclaration, visited: Set<String>) -> (name: String, declaration: ClassDeclaration?)? {
             guard !visited.contains(protocolDeclaration.fullyQualifiedName) else { return nil }
-            let parents = protocolDeclaration.inheritedTypes.map { ($0, names.resolve($0, from: protocolDeclaration.fullyQualifiedName)) }
-            for (inheritedType, resolved) in parents {
+            // A generic class is bound with the arguments it's written with, `: Gen<Int>`, and found by its name.
+            let parents = protocolDeclaration.inheritedTypes.map { inheritedType in
+                let name = inheritedType.firstIndex(of: "<").map { String(inheritedType[..<$0]) } ?? inheritedType
+                let arguments = String(inheritedType.dropFirst(name.count))
+                return (inheritedType, names.resolve(name, from: protocolDeclaration.fullyQualifiedName), arguments)
+            }
+            for (inheritedType, resolved, arguments) in parents {
                 if inheritedType == "NSObjectProtocol" {
                     return ("NSObject", nil)
                 }
                 // Named by its qualified name, which reads the same from wherever the mock is: a parent protocol
                 // may have named it relative to its own scope.
                 if let declaration = resolved as? ClassDeclaration {
-                    return (declaration.fullyQualifiedName, declaration)
+                    return (declaration.fullyQualifiedName + arguments, declaration)
                 }
             }
             return parents.lazy
