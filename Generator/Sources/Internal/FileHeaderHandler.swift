@@ -1,6 +1,8 @@
 struct FileHeaderHandler {
-    static func header(for file: FileRepresentation, timestamp: String?) -> String {
-        let path = getRelativePath(to: file)
+    /// The comment that names the mocked file, by its path from `directory`, the Cuckoofile's folder, so it reads
+    /// the same wherever the generator runs.
+    static func header(for file: FileRepresentation, relativeTo directory: Path, timestamp: String?) -> String {
+        let path = relativePath(of: file.file.path, from: directory)
         return [
             "// MARK: - Mocks generated from file: '\(path)'",
             timestamp.map { "at \($0)" },
@@ -102,12 +104,13 @@ struct FileHeaderHandler {
         return groups
     }
 
-    private static func getRelativePath(to file: FileRepresentation) -> String {
-        let path = file.file.path.absolute
-        let base = path.commonAncestor(Path.current)
+    static func relativePath(of file: Path, from directory: Path) -> String {
+        let path = file.absolute
+        let directory = directory.absolute
+        let base = path.commonAncestor(directory)
         let components = path.components.suffix(from: base.components.endIndex)
         let result = components.map { $0.rawValue }.joined(separator: Path.separator)
-        let difference = Path.current.components.endIndex - base.components.endIndex
+        let difference = directory.components.endIndex - base.components.endIndex
         return (0..<difference).reduce(result) { acc, _ in ".." + Path.separator + acc }
     }
 }

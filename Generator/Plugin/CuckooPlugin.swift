@@ -179,7 +179,7 @@ private func commandsPerModule(
         return .buildCommand(
             // SwiftPM names a command by its display name and arguments, so two test targets that depend on the same
             // module would get one command between them without the target's name here.
-            displayName: "Run Cuckoonator for \(sourceModule.name) in \(targetName)",
+            displayName: "Generate Cuckoo mocks for \(sourceModule.name) in \(targetName)",
             executable: executable,
             arguments: listing.arguments,
             environment: [

@@ -49,7 +49,52 @@ struct GenerateCommandTests {
         #expect(names == ["A_User", "B_User", "A_Models_Item", "B_Models_Item", "Greeter"])
     }
 
-    private func withPackage(output: String, _ body: (URL) async throws -> Void) async throws {
+    /// The header names the mocked file by its path from the Cuckoofile, wherever the generator runs.
+    @Test
+    func headerNamesTheFileFromTheCuckoofile() async throws {
+        try await withPackage(output: "GeneratedMocks.swift") { directory in
+            try await GenerateCommand.parse(["--configuration", directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)]).run(environment: [:])
+            let mocks = try String(contentsOf: directory.appending(path: "GeneratedMocks.swift"), encoding: .utf8)
+            #expect(mocks.contains("// MARK: - Mocks generated from file: 'App/Greeter.swift'"))
+        }
+    }
+
+    /// A directory output gets one file per source file, named by `filenameFormat`.
+    @Test
+    func directoryOutputWritesAFilePerSource() async throws {
+        try await withPackage(output: "Mocks", extraKeys: #"filenameFormat = "{}Mocks""#) { directory in
+            try await GenerateCommand.parse(["--configuration", directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)]).run(environment: [:])
+            let mocks = try String(contentsOf: directory.appending(path: "Mocks/GreeterMocks.swift"), encoding: .utf8)
+            #expect(mocks.contains("class MockGreeter"))
+        }
+    }
+
+    /// The build plugin's route: `PROJECT_DIR` finds the Cuckoofile, `CUCKOO_OVERRIDE_OUTPUT` replaces the output and
+    /// `CUCKOO_MODULE_NAME` picks the module. A module the Cuckoofile doesn't have gets an empty file, so the build
+    /// finds the output it declared.
+    @Test
+    func pluginEnvironmentPicksTheModuleAndOutput() async throws {
+        try await withPackage(output: "Unused.swift") { directory in
+            let output = directory.appending(path: "Derived/Mocks.swift")
+            let environment = [
+                "PROJECT_DIR": directory.path(percentEncoded: false),
+                "CUCKOO_OVERRIDE_OUTPUT": output.path(percentEncoded: false),
+                "CUCKOO_MODULE_NAME": "App",
+            ]
+            try await GenerateCommand.parse([]).run(environment: environment)
+            #expect(try String(contentsOf: output, encoding: .utf8).contains("class MockGreeter"))
+            #expect(!FileManager.default.fileExists(atPath: directory.appending(path: "Unused.swift").path(percentEncoded: false)))
+
+            let missing = directory.appending(path: "Derived/Missing.swift")
+            try await GenerateCommand.parse([]).run(environment: environment.merging([
+                "CUCKOO_OVERRIDE_OUTPUT": missing.path(percentEncoded: false),
+                "CUCKOO_MODULE_NAME": "Other",
+            ]) { $1 })
+            #expect(try String(contentsOf: missing, encoding: .utf8).isEmpty)
+        }
+    }
+
+    private func withPackage(output: String, extraKeys: String = "", _ body: (URL) async throws -> Void) async throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooCommand-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
         try FileManager.default.createDirectory(at: directory.appending(path: "App"), withIntermediateDirectories: true)
@@ -60,6 +105,7 @@ struct GenerateCommandTests {
             output = "\(output)"
             testableImports = ["App"]
             sources = ["App/*.swift"]
+            \(extraKeys)
             """
             .write(to: directory.appending(path: "Cuckoofile.toml"), atomically: true, encoding: .utf8)
         try await body(directory)

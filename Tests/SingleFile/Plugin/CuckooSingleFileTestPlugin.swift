@@ -47,7 +47,7 @@ func commands(
 
     return [
         .buildCommand(
-            displayName: "Run Cuckoonator (single file)",
+            displayName: "Generate Cuckoo mocks (single file)",
             executable: try executableFactory("CuckooGenerator").url,
             arguments: listing.arguments,
             environment: [

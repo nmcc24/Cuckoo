@@ -18,6 +18,8 @@ final class Module: Sendable {
     let output: String
     let filenameFormat: String?
     let options: Options
+    /// The Cuckoofile's folder, which relative paths, and the paths in the mocks' file headers, start from.
+    let projectDirectory: Path
 
     /// - Parameters:
     ///   - sourceModule: The Swift module the build plugin generates for. The table form of `sources` names the
@@ -43,6 +45,7 @@ final class Module: Sendable {
         }
 
         self.name = name
+        self.projectDirectory = configurationPath.parent
         self.imports = dto.imports?.map(\.trimmed) ?? []
         self.publicImports = dto.publicImports?.map(\.trimmed) ?? []
         self.testableImports = dto.testableImports?.map(\.trimmed) ?? []
