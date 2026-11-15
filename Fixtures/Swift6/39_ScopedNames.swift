@@ -220,3 +220,17 @@ enum RelativeFeature {
     typealias Alias = Service
 }
 protocol UsesRelativeAlias: RelativeFeature.Alias { func own() }
+
+// Defaults that need private access another way: a member of a `private extension`, which states no access of
+// its own, and a type's `fileprivate init`. The mock leaves them out.
+private extension Int {
+    static let scopedDefaultTimeout = 30
+}
+struct SigningToken {
+    fileprivate init(secret: Int) {}
+}
+class PrivateDefaults {
+    init() {}
+    func load(timeout: Int = .scopedDefaultTimeout) {}
+    func sign(_ token: SigningToken = SigningToken(secret: 0)) {}
+}
