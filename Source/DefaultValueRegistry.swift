@@ -71,12 +71,31 @@ public enum DefaultValueRegistry {
         return nil
     }
     
-    /// The registered default for a tuple type, else each element's default.
+    /// The registered default for a tuple type, else each element's default. Crashes when an element has none, with
+    /// a message naming the tuple type.
     public static func defaultValue<P1, P2, each P>(for type: (P1, P2, repeat each P).Type) -> (P1, P2, repeat each P) {
+        if let value = unstubbedValue(for: type) {
+            return value
+        }
+        fatalError("Type \(type) does not have default return value registered.")
+    }
+
+    /// The default value for an unstubbed call returning a tuple: a registered value for the tuple type, else each
+    /// element's default. `nil` if an element has none.
+    static func unstubbedValue<P1, P2, each P>(for type: (P1, P2, repeat each P).Type) -> (P1, P2, repeat each P)? {
         if let registeredDefault = defaultValueOrNil(for: type) {
             return registeredDefault
         }
-        return (defaultValue(for: P1.self), defaultValue(for: P2.self), repeat defaultValue(for: (each P).self))
+        guard let first = unstubbedValue(for: P1.self), let second = unstubbedValue(for: P2.self) else {
+            return nil
+        }
+        let rest = (repeat unstubbedValue(for: (each P).self))
+        for element in repeat each rest {
+            guard element != nil else {
+                return nil
+            }
+        }
+        return (first, second, repeat (each rest)!)
     }
 }
 

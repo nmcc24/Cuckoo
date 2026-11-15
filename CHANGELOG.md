@@ -84,6 +84,9 @@
   already left the product out. `swift run CuckooGenerator` from a clone still runs the generator.
 
 ### Fixed
+- An unstubbed member returning a tuple crashed unless the tuple type had a registered default: the manager's
+  generic return type can't name its elements. Mocks now pass the tuple's element types, so it returns each
+  element's default, as `DefaultValueRegistry.defaultValue(for:)` does for a tuple.
 - An unstubbed call from a `Task.detached` or a dispatch queue ignored the `.cuckoo(defaultValues:)` of the test
   that created the mock. A mock now keeps the default values of the scope it was created in, for the types the
   call's own scope doesn't register.

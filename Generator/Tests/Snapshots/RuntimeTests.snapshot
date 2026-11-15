@@ -883,7 +883,8 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
                     implementation(())
                 },
                 superclassCall: super.tuple2,
-                defaultCall: cuckooDefaultImplementation.value.tuple2
+                defaultCall: cuckooDefaultImplementation.value.tuple2,
+                unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int8, UInt8).self)
             )
         }
         set {
@@ -907,7 +908,8 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
                     implementation(())
                 },
                 superclassCall: super.tuple3,
-                defaultCall: cuckooDefaultImplementation.value.tuple3
+                defaultCall: cuckooDefaultImplementation.value.tuple3,
+                unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int16, UInt16, Bool).self)
             )
         }
         set {
@@ -931,7 +933,8 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
                     implementation(())
                 },
                 superclassCall: super.tuple4,
-                defaultCall: cuckooDefaultImplementation.value.tuple4
+                defaultCall: cuckooDefaultImplementation.value.tuple4,
+                unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int32, UInt32, Double, Int).self)
             )
         }
         set {
@@ -955,7 +958,8 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
                     implementation(())
                 },
                 superclassCall: super.tuple5,
-                defaultCall: cuckooDefaultImplementation.value.tuple5
+                defaultCall: cuckooDefaultImplementation.value.tuple5,
+                unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int64, UInt64, Float, Int, Int).self)
             )
         }
         set {
@@ -979,7 +983,8 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
                     implementation(())
                 },
                 superclassCall: super.tuple6,
-                defaultCall: cuckooDefaultImplementation.value.tuple6
+                defaultCall: cuckooDefaultImplementation.value.tuple6,
+                unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (UInt, String, Int, Int, Int, Int).self)
             )
         }
         set {
@@ -1003,7 +1008,8 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
                     implementation(())
                 },
                 superclassCall: super.tuple7,
-                defaultCall: cuckooDefaultImplementation.value.tuple7
+                defaultCall: cuckooDefaultImplementation.value.tuple7,
+                unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int, Int, Int, Int, Int, Int, Int).self)
             )
         }
         set {
@@ -1027,7 +1033,8 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
                     implementation(())
                 },
                 superclassCall: super.tupleWithOptionalAndArray,
-                defaultCall: cuckooDefaultImplementation.value.tupleWithOptionalAndArray
+                defaultCall: cuckooDefaultImplementation.value.tupleWithOptionalAndArray,
+                unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int, String?, [Int]).self)
             )
         }
         set {
@@ -2989,6 +2996,20 @@ nonisolated final class MockDefaultValueSource: DefaultValueSource, nonisolated 
         cuckooManager.enableDefaultImplementation()
     }
 
+    var labeledPair: (count: Int, name: String?) {
+        get {
+            return cuckooManager.getter(
+                "labeledPair",
+                invoke: { (implementation: (()) -> (count: Int, name: String?)) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.labeledPair,
+                unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int, String?).self)
+            )
+        }
+    }
+
     func pair() -> (Int, String) {
         return cuckooManager.call(
             "pair() -> (Int, String)",
@@ -2998,7 +3019,36 @@ nonisolated final class MockDefaultValueSource: DefaultValueSource, nonisolated 
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.pair()
+            defaultCall: cuckooDefaultImplementation.value.pair(),
+            unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int, String).self)
+        )
+    }
+
+    func triple() async -> (Int, [String], Bool) {
+        return await cuckooManager.call(
+            "triple() async -> (Int, [String], Bool)",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> (Int, [String], Bool), arguments) in
+                await implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await cuckooDefaultImplementation.value.triple(),
+            unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int, [String], Bool).self)
+        )
+    }
+
+    func generic<T> (_ p0: T.Type) -> (T?, Int) {
+        return cuckooManager.call(
+            "generic<T> (_ p0: T.Type) -> (T?, Int)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((T.Type)) -> (T?, Int), arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.generic(p0),
+            unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (T?, Int).self)
         )
     }
 
@@ -3022,10 +3072,32 @@ nonisolated final class MockDefaultValueSource: DefaultValueSource, nonisolated 
             self.cuckooManager = manager
         }
 
+        var labeledPair: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockDefaultValueSource, (count: Int, name: String?), (()) -> (count: Int, name: String?), Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "labeledPair")
+        }
+
         func pair() -> Cuckoo.ProtocolStubFunction<(), (Int, String), (()) -> (Int, String), Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckooManager.createStub(for: MockDefaultValueSource.self,
                 method: "pair() -> (Int, String)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func triple() -> Cuckoo.ProtocolStubFunction<(), (Int, [String], Bool), nonisolated(nonsending) (()) async -> (Int, [String], Bool), Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockDefaultValueSource.self,
+                method: "triple() async -> (Int, [String], Bool)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func generic<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(T.Type), (T?, Int), ((T.Type)) -> (T?, Int), Cuckoo.StubSharing.Confined> where __M1.MatchedType == T.Type {
+            let matchers: [Cuckoo.ParameterMatcher<(T.Type)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockDefaultValueSource.self,
+                method: "generic<T> (_ p0: T.Type) -> (T?, Int)",
                 parameterMatchers: matchers
             ))
         }
@@ -3050,11 +3122,39 @@ nonisolated final class MockDefaultValueSource: DefaultValueSource, nonisolated 
             self.cuckooSourceLocation = sourceLocation
         }
 
+        var labeledPair: Cuckoo.VerifyReadOnlyProperty<(count: Int, name: String?)> {
+            return .init(manager: cuckooManager, name: "labeledPair", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
         @discardableResult
         func pair() -> Cuckoo.VerifiedCall<(), (Int, String)> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "pair() -> (Int, String)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func triple() -> Cuckoo.VerifiedCall<(), (Int, [String], Bool)> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "triple() async -> (Int, [String], Bool)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func generic<__M1: Cuckoo._Matchable, T>(_ p0: __M1) -> Cuckoo.VerifiedCall<(T.Type), (T?, Int)> where __M1.MatchedType == T.Type {
+            let matchers: [Cuckoo.ParameterMatcher<(T.Type)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "generic<T> (_ p0: T.Type) -> (T?, Int)",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -3075,8 +3175,22 @@ nonisolated final class MockDefaultValueSource: DefaultValueSource, nonisolated 
 }
 
 nonisolated final class DefaultValueSourceStub: DefaultValueSource {
+    var labeledPair: (count: Int, name: String?) {
+        get {
+            return DefaultValueRegistry.defaultValue(for: ((count: Int, name: String?)).self)
+        }
+    }
+
     func pair() -> (Int, String) {
         return DefaultValueRegistry.defaultValue(for: ((Int, String)).self)
+    }
+
+    func triple() async -> (Int, [String], Bool) {
+        return DefaultValueRegistry.defaultValue(for: ((Int, [String], Bool)).self)
+    }
+
+    func generic<T> (_ p0: T.Type) -> (T?, Int) {
+        return DefaultValueRegistry.defaultValue(for: ((T?, Int)).self)
     }
 
     func canvas() -> Canvas {
@@ -5156,7 +5270,8 @@ nonisolated final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, n
                 await implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: await cuckooDefaultImplementation.value.computeAsync(classy: p0, value: p1)
+            defaultCall: await cuckooDefaultImplementation.value.computeAsync(classy: p0, value: p1),
+            unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (C, V).self)
         )
     }
 
@@ -5873,7 +5988,8 @@ nonisolated final class MockLabeler<Input, Output>: Labeler, nonisolated Cuckoo.
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.pair(p0, input: p1)
+            defaultCall: cuckooDefaultImplementation.value.pair(p0, input: p1),
+            unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Output, T).self)
         )
     }
 

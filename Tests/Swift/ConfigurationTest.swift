@@ -62,6 +62,23 @@ struct UnstubbedCallTests {
     }
 
     @Test
+    func unstubbedTuplesGetEachElementsDefault() async {
+        let log = FailureLog()
+        let mock = MockDefaultValueSource()
+
+        await CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
+            #expect(mock.pair() == (0, ""))
+            let labeled = mock.labeledPair
+            #expect(labeled.count == 0 && labeled.name == nil)
+            let triple = await mock.triple()
+            #expect(triple.0 == 0 && triple.1.isEmpty && !triple.2)
+            let generic = mock.generic(Canvas.self)
+            #expect(generic.0 == nil && generic.1 == 0)
+        }
+        #expect(log.all.count == 4)
+    }
+
+    @Test
     func throwingMembersThrowUnstubbedCall() {
         let log = FailureLog()
         let mock = MockTestedProtocol()
