@@ -48,12 +48,17 @@ extension Array where Element == GenericParameter {
                     name: parameterName,
                     inheritedTypes: mergedInheritedTypes,
                     kind: first { $0.name == parameterName }?.kind ?? .type,
-                    // Declared unconditionally anywhere, it's unconditional.
-                    condition: filter { $0.name == parameterName }.contains { $0.condition == nil }
-                        ? nil : first { $0.name == parameterName }?.condition
+                    condition: Self.mergedCondition(filter { $0.name == parameterName })
                 )
             )
         }
         return mergedParameters
+    }
+
+    /// Declared unconditionally anywhere, it's unconditional; otherwise it exists under any of its conditions.
+    private static func mergedCondition(_ declarations: [GenericParameter]) -> String? {
+        guard !declarations.contains(where: { $0.condition == nil }) else { return nil }
+        let conditions = declarations.compactMap(\.condition).uniquing()
+        return conditions.count == 1 ? conditions[0] : conditions.map { "(\($0))" }.joined(separator: " || ")
     }
 }
