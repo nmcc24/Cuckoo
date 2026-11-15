@@ -242,6 +242,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
 
     nonisolated final class __DefaultImplCaller: KeyedItems, Sendable {
         private let cuckooReference: @Sendable () -> any KeyedItems
+        private let cuckooStore: @Sendable (any KeyedItems) -> Void
 
         subscript <Key: Hashable>(_ p0: Key) -> Item {
             get {
@@ -251,11 +252,12 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
                 return openExistential(cuckooReference())
             }
             set {
-                func openExistential<_CUCKOO$$GENERIC: KeyedItems>(_ opened: _CUCKOO$$GENERIC) {
+                func openExistential<_CUCKOO$$GENERIC: KeyedItems>(_ opened: _CUCKOO$$GENERIC) -> any KeyedItems {
                     var opened = opened
                     opened[p0] = newValue as! _CUCKOO$$GENERIC.Item
+                    return opened
                 }
-                openExistential(cuckooReference())
+                cuckooStore(openExistential(cuckooReference()))
             }
         }
 
@@ -273,6 +275,9 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
             box.value = defaultImpl
             cuckooReference = {
                 box.value
+            }
+            cuckooStore = {
+                box.value = $0 as! _CUCKOO$$GENERIC
             }
         }
     }
@@ -494,9 +499,15 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
 
         subscript <Key: Hashable>(_ p0: Key) -> Item {
             get async throws {
+                #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
+                nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: ThrowingKeyedItems>(_ opened: _CUCKOO$$GENERIC) async throws -> Item {
+                    return try await opened[p0] as! Item
+                }
+                #else
                 func openExistential<_CUCKOO$$GENERIC: ThrowingKeyedItems>(_ opened: _CUCKOO$$GENERIC) async throws -> Item {
                     return try await opened[p0] as! Item
                 }
+                #endif
                 return try await openExistential(cuckooReference())
             }
         }
@@ -601,6 +612,171 @@ nonisolated final class ThrowingKeyedItemsStub<Item>: ThrowingKeyedItems {
     subscript <Key: Hashable>(_ p0: Key) -> Item {
         get async throws {
             return DefaultValueRegistry.defaultValue(for: (Item).self)
+        }
+    }
+}
+
+nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = __DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_KeyedCounter
+    typealias CuckooVerification = __VerificationProxy_KeyedCounter
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyedCounter.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class __DefaultImplCaller: KeyedCounter, Sendable {
+        private let cuckooReference: @Sendable () -> any KeyedCounter
+
+        subscript <Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key {
+            get {
+                fatalError("Cuckoo can't call subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get on a default implementation: its where clause names the protocol's associated types Key, which Swift can't relate to the mock's. Stub it instead.")
+            }
+        }
+
+        init<_CUCKOO$$GENERIC: KeyedCounter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            cuckooReference = {
+                box.value
+            }
+        }
+
+        func count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key {
+            fatalError("Cuckoo can't call count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key on a default implementation: its where clause names the protocol's associated types Key, which Swift can't relate to the mock's. Stub it instead.")
+        }
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyedCounter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooManager.enableDefaultStubImplementation()
+    }
+
+    func count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key {
+        return cuckooManager.call(
+            "count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Keys)) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.count(p0)
+        )
+    }
+
+    subscript <Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key {
+        get {
+            return cuckooManager.call(
+                "subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get",
+                parameters: (p0),
+                escapingParameters: (p0),
+                invoke: { (implementation: ((Keys)) -> Int, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value[keys: p0]
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_KeyedCounter: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func count<__M1: Cuckoo._Matchable, Keys: Collection>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Keys), Int, ((Keys)) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Keys, Keys.Element == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockKeyedCounter.self,
+                method: "count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key",
+                parameterMatchers: matchers
+            ))
+        }
+
+        subscript <__M1: Cuckoo._Matchable, Keys: Collection>(keys p0: __M1) -> __Subscript1<Keys> where __M1.MatchedType == Keys, Keys.Element == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1<Keys: Collection> where Keys.Element == Key {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(Keys)>]
+
+            var get: Cuckoo.ProtocolStubFunction<(Keys), Int, ((Keys)) -> Int, Cuckoo.StubSharing.Confined> {
+                return .init(stub: cuckooManager.createStub(for: MockKeyedCounter.self,
+                    method: "subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+    }
+
+    nonisolated struct __VerificationProxy_KeyedCounter: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func count<__M1: Cuckoo._Matchable, Keys: Collection>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Keys), Int> where __M1.MatchedType == Keys, Keys.Element == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        subscript <__M1: Cuckoo._Matchable, Keys: Collection>(keys p0: __M1) -> __Subscript1<Keys> where __M1.MatchedType == Keys, Keys.Element == Key {
+            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1<Keys: Collection> where Keys.Element == Key {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(Keys)>]
+
+            @discardableResult
+            func get() -> Cuckoo.__DoNotUse<(Keys), Int> {
+                return cuckooManager.verify(
+                    "subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+}
+
+nonisolated final class KeyedCounterStub<Key>: KeyedCounter {
+    func count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+
+    subscript <Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Int).self)
         }
     }
 }

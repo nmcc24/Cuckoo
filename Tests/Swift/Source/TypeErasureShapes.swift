@@ -10,3 +10,18 @@ struct StringKeyedStore: KeyedStore {
         "value for \(key)"
     }
 }
+
+/// A settable generic subscript, whose setter reaches a value-type default implementation and stays set.
+protocol MutableKeyedStore {
+    associatedtype Item
+    subscript<Key: Hashable>(key: Key) -> Item? { get set }
+}
+
+struct DictionaryKeyedStore: MutableKeyedStore {
+    var values: [AnyHashable: String] = [:]
+
+    subscript<Key: Hashable>(key: Key) -> String? {
+        get { values[key] }
+        set { values[key] = newValue }
+    }
+}
