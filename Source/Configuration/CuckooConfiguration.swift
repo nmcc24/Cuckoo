@@ -14,7 +14,8 @@ import XCTest
 /// has no `try` to catch an error with.
 /// It crashes only when neither is possible.
 public struct CuckooConfiguration: Sendable {
-    /// Default values that take precedence over `DefaultValueRegistry` for this scope.
+    /// Default values that take precedence over `DefaultValueRegistry` for this scope. A mock also keeps the values
+    /// of the scope it was created in, for the types this scope doesn't register.
     public var defaultValues: DefaultValues
     /// Takes each failure instead of the test framework, with its location if it has one and the test that
     /// created the mock: `eventually` holds failures back with it and reports them later, and Cuckoo's own tests
@@ -57,6 +58,13 @@ public struct DefaultValues: Sendable {
 
     func value<T>(for type: T.Type) -> T? {
         values[ObjectIdentifier(type)]?.make(type)
+    }
+
+    /// These values, with `fallback`'s for the types these don't have.
+    func withFallback(_ fallback: DefaultValues) -> DefaultValues {
+        var merged = self
+        merged.values.merge(fallback.values) { own, _ in own }
+        return merged
     }
 }
 

@@ -140,6 +140,21 @@ struct CuckooTraitTests {
         #expect(log.all.count == 1)
     }
 
+    /// A detached task doesn't see the trait. The mock keeps the default values of the scope it was created in.
+    @Test
+    func aDetachedTaskGetsTheDefaultsTheMockWasCreatedWith() async {
+        let log = FailureLog()
+        let mock = MockTestedProtocol()
+
+        let count = await Task.detached {
+            CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
+                mock.count(characters: "a")
+            }
+        }.value
+        #expect(count == 42)
+        #expect(log.all.count == 1)
+    }
+
     /// Runs `body` with the configuration the traits set, plus `failureHandler`, so the unstubbed calls these tests
     /// make on purpose don't fail them.
     private func withTraitConfiguration(failureHandler: @escaping @Sendable (ReportedFailure) -> Void, _ body: () -> Void) {
