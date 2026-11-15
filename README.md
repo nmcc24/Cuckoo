@@ -64,10 +64,14 @@ links below open each article's Markdown source, where DocC's symbol links show 
 The list of changes is in the [changelog](CHANGELOG.md).
 
 ## Contribute
-Cuckoo is open for everyone and we'd like you to help us make the best Swift mocking library. For Cuckoo development, follow these steps:
+
+Cuckoo is open for everyone and we'd like you to help us make the best Swift mocking library. For Cuckoo
+development, follow these steps:
 1. Clone the **Cuckoo** repository.
-2. Open `Package.swift` in Xcode, or run `swift test` (on macOS or Linux). It runs the generator's unit and snapshot tests and the runtime tests, with mocks the plugin generates from `Cuckoofile.toml`.
-3. To test on a simulator, run `scripts/install-scheme.sh`, then use the `CuckooTests` scheme with `xcodebuild -skipPackagePluginValidation`.
+2. Open `Package.swift` in Xcode, or run `swift test` (on macOS or Linux). It runs the generator's unit and snapshot
+   tests and the runtime tests, with mocks the plugin generates from `Cuckoofile.toml`.
+3. To test on a simulator, run `scripts/install-scheme.sh`, then use the `CuckooTests` scheme with `xcodebuild
+   -skipPackagePluginValidation`.
 4. Peek around or file a pull request with your changes.
 
 The repository has three parts:
@@ -83,7 +87,7 @@ Thank you for your help!
 
 ## Used libraries
 - [ArgumentParser](https://github.com/apple/swift-argument-parser)
-- [SwiftSyntax](https://github.com/apple/swift-syntax)
+- [SwiftSyntax](https://github.com/swiftlang/swift-syntax)
 - [TOMLDecoder](https://github.com/dduan/TOMLDecoder)
 
 ## License

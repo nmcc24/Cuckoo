@@ -71,7 +71,7 @@ Run `scripts/swift6-matrix.sh` to reproduce. It generates mocks for each file in
   - `keepDocumentation` is parsed but never read. The crawler also dropped doc comments on every indented declaration, so mocks never had docs;
   - `StubbingProxyTemplate` uses `method.isThrowing` inside the property loop (dead code).
 - **Version mismatch** *(fixed in Phase 0)*: `Version.swift` is stuck at `2.0.10`. The release lane writes it but never commits it, so the `run` script rebuilds the generator on every build. Upstream #601.
-- **Not portable to Linux** *(fixed in Phase 0)*: `Glob` uses `glob_t.gl_matchc`, FileKit doesn't compile on Linux, and `OrderedSet` (backed by `NSMutableOrderedSet`) doesn't dedupe there, which repeats imports in generated files. This also blocks working on the generator from Linux cloud sessions.
+- **Not portable to Linux** *(fixed in Phase 0)*: `Glob` uses `glob_t.gl_matchc`, FileKit doesn't compile on Linux, and `OrderedSet` (backed by `NSMutableOrderedSet`) doesn't dedupe there, which repeats imports in generated files. This also blocks working on the generator from Linux.
 - **Stencil templates** *(replaced in Phase 5)*: untyped and hard to debug. Signatures are spliced in by string-replacing filters (`genericSafe`, `removeClosureArgumentNames`).
 - **Xcode project support:** XcodeProj source discovery doesn't handle `PBXFileSystemSynchronizedRootGroup`, which is the default in Xcode 16+ projects (upstream #524).
 

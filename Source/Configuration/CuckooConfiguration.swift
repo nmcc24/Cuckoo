@@ -51,7 +51,7 @@ public struct DefaultValues: Sendable {
     }
 
     /// Registers `factory` to make the default for `type` in this set. Each unstubbed call gets a new value, so
-    /// `type` needn't be `Sendable`: a class, or a tuple such as `(Int, String)`.
+    /// `type` needn't be `Sendable`: a class, or a tuple that holds one, such as `(Int, Canvas)`.
     public mutating func register<T>(for type: T.Type = T.self, factory: @escaping @Sendable () -> T) {
         values[ObjectIdentifier(type)] = DefaultValueFactory(factory)
     }

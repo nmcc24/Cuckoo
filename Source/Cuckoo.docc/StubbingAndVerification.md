@@ -135,8 +135,8 @@ implementation: forwarding a call's arguments to another actor would race. Stub 
 The mock of a class can call the class itself. ``ClassMock/enableSuperclassSpy()``, or `withEnabledSuperclassSpy()`
 when creating it, makes every unstubbed member call the superclass, so the mock acts as a spy. Enable it before the
 mock's first call, or the test stops: a mock that has already answered calls can't change how it answers. A class
-whose initializer calls its own members has made calls by then, so enable the spy with ``createMock(_:configuration:)``'s
-``MockBuilder/enableSuperclassSpy()``, which applies before the initializer runs.
+whose initializer calls its own members has made calls by then, so enable the spy with
+``createMock(_:configuration:)``'s ``MockBuilder/enableSuperclassSpy()``, which applies before the initializer runs.
 
 Each generated mock `MockGreeter` comes with `GreeterStub`, a type with no stubbing or verification whose members
 return default values and do nothing else. `MockGreeter().withEnabledDefaultImplementation(GreeterStub())` makes
