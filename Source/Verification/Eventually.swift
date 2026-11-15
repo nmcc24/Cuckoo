@@ -29,7 +29,11 @@ public nonisolated(nonsending) func eventually(
         let remaining = clock.now.duration(to: deadline)
         guard remaining > .zero, !Task.isCancelled else {
             for failure in failures {
-                reportFailure("Still failing after \(timeout): \(failure.message)", at: failure.sourceLocation)
+                reportFailure(
+                    "Still failing after \(timeout): \(failure.message)",
+                    at: failure.sourceLocation,
+                    creatingTest: failure.creatingTest
+                )
             }
             return
         }
@@ -39,11 +43,11 @@ public nonisolated(nonsending) func eventually(
 }
 
 /// Runs `block` with a failure handler that keeps its failures instead of reporting them.
-private func collectingFailures(of block: () -> Void) -> [(message: String, sourceLocation: SourceLocation?)] {
-    let failures = Locked<[(message: String, sourceLocation: SourceLocation?)]>([])
+private func collectingFailures(of block: () -> Void) -> [ReportedFailure] {
+    let failures = Locked<[ReportedFailure]>([])
     var configuration = CuckooConfiguration.current
-    configuration.failureCollector = { message, sourceLocation in
-        failures.withLock { $0.append((message, sourceLocation)) }
+    configuration.failureCollector = { failure in
+        failures.withLock { $0.append(failure) }
     }
     CuckooConfiguration.$current.withValue(configuration) {
         block()

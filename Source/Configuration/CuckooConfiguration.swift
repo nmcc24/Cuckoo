@@ -21,9 +21,9 @@ public struct CuckooConfiguration: Sendable {
     public var defaultValues: DefaultValues
     /// Receives each failure instead of the test framework, `nil` by default.
     public var failureHandler: FailureHandler?
-    /// Takes each failure before ``failureHandler``, with its location if it has one: `eventually` holds failures
-    /// back with it and reports them later.
-    var failureCollector: (@Sendable (_ message: String, _ sourceLocation: SourceLocation?) -> Void)?
+    /// Takes each failure before ``failureHandler``, with its location if it has one and the test that created
+    /// the mock: `eventually` holds failures back with it and reports them later.
+    var failureCollector: (@Sendable (_ failure: ReportedFailure) -> Void)?
 
     /// Creates a configuration with `defaultValues` and `failureHandler`.
     public init(defaultValues: DefaultValues = DefaultValues(), failureHandler: FailureHandler? = nil) {
@@ -67,6 +67,13 @@ public enum CuckooError: Error, Sendable, Equatable {
 
 /// The Swift Testing test a mock was created in, so a failure from a task the test doesn't run in can still go to
 /// Swift Testing, at that test.
+/// A failure as `reportFailure` receives it, which a ``CuckooConfiguration/failureCollector`` keeps.
+struct ReportedFailure: Sendable {
+    let message: String
+    let sourceLocation: SourceLocation?
+    let creatingTest: CreatingTest?
+}
+
 struct CreatingTest: Sendable {
     #if canImport(Testing)
     let sourceLocation: Testing.SourceLocation
@@ -95,7 +102,7 @@ struct CreatingTest: Sendable {
 func reportFailure(_ message: String, at sourceLocation: SourceLocation?, creatingTest: CreatingTest? = nil) {
     let configuration = CuckooConfiguration.current
     if let collector = configuration.failureCollector {
-        collector(message, sourceLocation)
+        collector(ReportedFailure(message: message, sourceLocation: sourceLocation, creatingTest: creatingTest))
         return
     }
     if let handler = configuration.failureHandler {
