@@ -20,7 +20,7 @@ protocol Greeter {
 A mock has the initializers of the type it mocks: `MockGreeter()` for a protocol, and the class's own
 initializers for a class. A mock whose initializer calls its own members needs those stubbed before it exists;
 ``createMock(_:configuration:)`` stubs it first, and its ``MockBuilder``
-enables a spy or default implementation before the initializer runs:
+enables a superclass spy before the initializer runs:
 
 ```swift
 let store = createMock(MockSettingsStore.self) { builder, stub in
@@ -84,7 +84,9 @@ when(stub.greet(name: "Ann")).thenReturn("Hello, Ann") // Ann gets this one; any
 
 What `thenReturn` accepts follows from the mocked type's isolation, which ``StubSharing`` describes. The mock of a
 `Sendable` type can be called from any task, so its stubs return `Sendable` values; a `@MainActor` mock's
-closures run on the main actor and can use its state directly.
+closures run on the main actor and can use its state directly. A `nonisolated` member of a `@MainActor` or other
+global-actor type can be called from any task too, so its stubs take `Sendable` values like a `Sendable` mock's;
+for a value that isn't, return a new one from `then { Token() }`.
 
 ### Calls with no stub
 
