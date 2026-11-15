@@ -1,0 +1,190 @@
+import Cuckoo
+import Foundation
+
+nonisolated final class MockLegacyFeed<Item>: LegacyFeed, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = __DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_LegacyFeed
+    typealias CuckooVerification = __VerificationProxy_LegacyFeed
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLegacyFeed.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    #if hasAttribute(diagnose)
+    @diagnose(DeprecatedDeclaration, as: ignored)
+    #endif
+    nonisolated final class __DefaultImplCaller: LegacyFeed, Sendable {
+        private let cuckooReference: @Sendable () -> any LegacyFeed
+
+        private let _getter_storage$$legacyCount: @Sendable () -> Int
+        var legacyCount: Int {
+            get {
+                return _getter_storage$$legacyCount()
+            }
+        }
+
+        init<_CUCKOO$$GENERIC: LegacyFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            cuckooReference = {
+                box.value
+            }
+
+            _getter_storage$$legacyCount = {
+                box.value.legacyCount
+            }
+            _storage$1$old = {
+                box.value.old()
+            }
+            _storage$2$next = {
+                box.value.next()
+            }
+        }
+
+        private let _storage$1$old: @Sendable () -> Item
+        func old() -> Item {
+            return _storage$1$old()
+        }
+
+        private let _storage$2$next: @Sendable () -> Item
+        func next() -> Item {
+            return _storage$2$next()
+        }
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: LegacyFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooManager.enableDefaultStubImplementation()
+    }
+
+    @available(*, deprecated)
+    var legacyCount: Int {
+        get {
+            return cuckooManager.getter(
+                "legacyCount",
+                invoke: { (implementation: (()) -> Int) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.legacyCount
+            )
+        }
+    }
+
+    @available(*, deprecated, message: "use next()")
+    func old() -> Item {
+        return cuckooManager.call(
+            "old() -> Item",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Item, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.old()
+        )
+    }
+
+    func next() -> Item {
+        return cuckooManager.call(
+            "next() -> Item",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Item, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.next()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_LegacyFeed: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        @available(*, deprecated)
+        var legacyCount: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockLegacyFeed, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "legacyCount")
+        }
+
+        @available(*, deprecated, message: "use next()")
+        func old() -> Cuckoo.ProtocolStubFunction<(), Item, (()) -> Item, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockLegacyFeed.self,
+                method: "old() -> Item",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func next() -> Cuckoo.ProtocolStubFunction<(), Item, (()) -> Item, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockLegacyFeed.self,
+                method: "next() -> Item",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_LegacyFeed: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @available(*, deprecated)
+        var legacyCount: Cuckoo.VerifyReadOnlyProperty<Int> {
+            return .init(manager: cuckooManager, name: "legacyCount", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        @available(*, deprecated, message: "use next()")
+        @discardableResult
+        func old() -> Cuckoo.__DoNotUse<(), Item> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "old() -> Item",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func next() -> Cuckoo.__DoNotUse<(), Item> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "next() -> Item",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class LegacyFeedStub<Item>: LegacyFeed {
+    @available(*, deprecated)
+    var legacyCount: Int {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Int).self)
+        }
+    }
+
+    @available(*, deprecated, message: "use next()")
+    func old() -> Item {
+        return DefaultValueRegistry.defaultValue(for: (Item).self)
+    }
+
+    func next() -> Item {
+        return DefaultValueRegistry.defaultValue(for: (Item).self)
+    }
+}

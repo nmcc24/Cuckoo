@@ -23,6 +23,12 @@ enum Attribute: Hashable, CustomStringConvertible {
         return arguments.first == "*" && arguments.contains("unavailable")
     }
 
+    /// `@available(..., deprecated...)`, on any platform: a call of the member warns outside a deprecated context.
+    var isDeprecated: Bool {
+        guard case .available(let arguments) = self else { return false }
+        return arguments.contains { $0 == "deprecated" || $0.hasPrefix("deprecated:") }
+    }
+
     /// The platform of `@available(<platform>, unavailable[, message: ...])`.
     var unavailablePlatform: String? {
         guard case .available(let arguments) = self,

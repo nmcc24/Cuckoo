@@ -10,6 +10,7 @@
 # Fixtures/Swift6/expected-failures-swift-X.Y.txt adds the fixtures that fail only on Swift X.Y, in every mode.
 # A line may name the error the fixture must fail with, `name: text`; it then counts as a new failure unless every
 # error is located in the fixture or its mock and contains that text, so an expected failure can't hide another.
+# A fixture whose mock compiles with warnings matches the text against those warnings instead.
 # A fixture with `#if DEBUG` branches is also compiled with `-D DEBUG`.
 # A fixture fails when swiftc reports an error or exits non-zero, or when the generated mock has a warning: the
 # zero-warnings rule covers generated mocks, in every mode this script runs.
@@ -109,14 +110,20 @@ EOF
       result="XPASS"; status=1
     elif [[ -n "$expected_message" ]]; then
       # The errors in the fixture or its mock, matched by path as text: a path may hold regex characters.
+      # A fixture that fails only for its mock's warnings, such as one that must keep a warning on an older Swift,
+      # matches its message against those warnings.
+      kind="error"
+      [[ "$errors" == "?" && "$mock_warnings" != "0" ]] && kind="warning"
       located="$(awk -v fixture="$f:" -v mock="$WORK/gen/$n.mock.swift:" \
-        'index($0, fixture) == 1 || index($0, mock) == 1' "$WORK/logs/$n.tc.log" | grep -E ':[0-9]+:[0-9]+: error: ')"
+        'index($0, fixture) == 1 || index($0, mock) == 1' "$WORK/logs/$n.tc.log" | grep -E ":[0-9]+:[0-9]+: $kind: ")"
       located_count="$(grep -c . <<< "$located")"
       matching_count="$(grep -cF -- "$expected_message" <<< "$located")"
-      if [[ "$located_count" == "$errors" && "$matching_count" == "$located_count" ]]; then
+      expected_count="$errors"
+      [[ "$kind" == "warning" ]] && expected_count="$mock_warnings"
+      if [[ "$located_count" == "$expected_count" && "$matching_count" == "$located_count" ]]; then
         result="xfail"
       else
-        unexpected="$(grep -vF -- "$expected_message" <<< "$located" | head -1 | sed -E 's/.*error: //' | cut -c1-60)"
+        unexpected="$(grep -vF -- "$expected_message" <<< "$located" | head -1 | sed -E "s/.*$kind: //" | cut -c1-60)"
         result="FAIL"; status=1; first="not only the expected error ($expected_message): ${unexpected:-$first}"
       fi
     else
