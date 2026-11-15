@@ -22,6 +22,10 @@
   fills when it ends.
 - `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mocks of different types:
   `verifyNoMoreInteractions(database, cache)` compiles.
+- Failure messages name a call as a test writes it: `No stub for count(characters:) with ("b")`, not
+  `No stub for method \`count(characters p0: String) -> Int\` using parameters ("b")`, and `No stub for the getter
+  of name`. The lists of a mock's calls show a property's as `name` and `name = 1`, not `name#get` and
+  `name#set(1)`. A stub that has no answer yet says to give it one, such as `thenReturn(_:)`.
 - `MockManager.preconfiguredManager`, which only generated mocks used, is now `preconfiguredManager(for:)`.
 - `verify` on the mock of a `@MainActor` type, or of another global actor's, needs that actor: the verification
   proxy takes the mock's isolation. A test off the actor could read a recorded argument while the actor still

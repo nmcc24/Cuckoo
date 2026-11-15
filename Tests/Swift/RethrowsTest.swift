@@ -25,7 +25,7 @@ struct RethrowsTest {
         }
 
         #expect(failures.count == 1)
-        #expect(failures.first?.hasPrefix("No stub for method `transform(") == true)
+        #expect(failures.first?.hasPrefix("No stub for transform(") == true)
     }
 
     @Test

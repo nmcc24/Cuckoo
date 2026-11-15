@@ -59,8 +59,8 @@ struct FailTest {
             1. withOptionalClosure("a", nil)
             2. noReturn()
             3. count("b")
-            4. readWriteProperty#get
-            5. readWriteProperty#set(1)
+            4. readWriteProperty
+            5. readWriteProperty = 1
             6. withOptionalClosure("c", Optional((Function)))
             """),
     ]

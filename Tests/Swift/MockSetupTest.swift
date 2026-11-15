@@ -34,7 +34,7 @@ struct MockSetupTest {
         let unstubbed = TestUtils.catchCuckooFail {
             _ = mock?.count(characters: "a")
         }
-        #expect(unstubbed?.hasPrefix("No stub for method `count(characters") == true)
+        #expect(unstubbed?.hasPrefix("No stub for count(characters:)") == true)
     }
 
     @Test
