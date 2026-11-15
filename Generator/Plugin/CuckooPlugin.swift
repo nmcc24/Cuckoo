@@ -36,6 +36,13 @@ struct CuckooPlugin: BuildToolPlugin {
         // An entry for none of them generates nothing, without an error: usually a misspelled or renamed module.
         let entries = cuckoofileModuleNames(in: configuration)
         let generated = Set(sourceModules.map(\.name) + [target.name])
+        // A module any target depends on, or a target itself, can have an entry.
+        let usableNames = Set(context.package.targets.flatMap { packageTarget in
+            [packageTarget.name] + moduleNames(of: packageTarget.dependencies)
+        })
+        if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames) {
+            Diagnostics.warning(warning)
+        }
         if !entries.isEmpty, entries.isDisjoint(with: generated) {
             Diagnostics.warning(
                 "The Cuckoofile has no entry for target '\(target.name)' or its dependencies (\(generated.sorted().joined(separator: ", "))), "
@@ -54,6 +61,17 @@ struct CuckooPlugin: BuildToolPlugin {
                 .compactMap { $0 as? SourceModuleTarget }
                 .flatMap { $0.sourceFiles.filter { $0.type == .source }.map(\.url) }
         )
+    }
+}
+
+/// The module names of a package target's dependencies, which the Cuckoofile can name entries after.
+private func moduleNames(of dependencies: [TargetDependency]) -> [String] {
+    dependencies.flatMap { dependency -> [String] in
+        switch dependency {
+        case .product(let product): product.targets.compactMap { ($0 as? SourceModuleTarget)?.moduleName }
+        case .target(let target): [(target as? SourceModuleTarget)?.moduleName ?? target.name]
+        @unknown default: []
+        }
     }
 }
 
@@ -92,6 +110,18 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
         // it finds no entry at all isn't an error here; an empty one, or one without `modules`, is.
         let entries = cuckoofileModuleNames(in: configuration)
         let generated = Set(sourceModules.map(\.name) + [target.displayName])
+        let usableNames = Set(context.xcodeProject.targets.flatMap { projectTarget in
+            [projectTarget.displayName] + projectTarget.dependencies.flatMap { dependency -> [String] in
+                switch dependency {
+                case .product(let product): product.targets.compactMap { ($0 as? SourceModuleTarget)?.moduleName }
+                case .target(let target): [target.displayName]
+                @unknown default: []
+                }
+            }
+        })
+        if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames) {
+            Diagnostics.warning(warning)
+        }
         let readerMayHaveMissedEntries = entries.isEmpty && configuration.contains("modules")
         if !readerMayHaveMissedEntries, entries.isDisjoint(with: generated) {
             throw XcodeTestTargetWithoutEntryError(testTarget: target.displayName, entries: entries.sorted(), listsNoSources: false)

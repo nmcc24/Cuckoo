@@ -76,4 +76,12 @@ struct CuckoofileScanTests {
         #expect(!cuckoofileEntry(named: "App", listsSourcesIn: "[modules.App]\nimports = [\"Foundation\"]"))
         #expect(!cuckoofileEntry(named: "App", listsSourcesIn: "[modules.Other]\nsources = [\"a.swift\"]"))
     }
+
+    /// An entry that no target can generate, such as a misspelled module, is a warning naming it.
+    @Test
+    func entriesNoTargetUsesAreNamed() {
+        #expect(unusedCuckoofileEntriesWarning(entries: ["App", "AppTests"], usableNames: ["App", "AppTests", "Kit"]) == nil)
+        let warning = unusedCuckoofileEntriesWarning(entries: ["App", "Netwrk"], usableNames: ["App", "AppTests", "Network"])
+        #expect(warning?.hasPrefix("The Cuckoofile's entry 'Netwrk' names no target") == true)
+    }
 }

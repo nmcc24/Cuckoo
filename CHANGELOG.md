@@ -172,7 +172,9 @@ Build plugin:
 ### Warnings
 - A Cuckoofile key Cuckoo doesn't read, such as `testableImport`, `[module.App]` or `options.protocolOnly`, was
   ignored without a word. It's now a warning naming the keys Cuckoo knows there, and a Cuckoofile with no modules
-  says so. The plugins' runs for one module warn only about that module's keys and the file's own.
+  says so. The plugins' runs for one module warn only about that module's keys and the file's own. An entry no
+  target can use, such as a misspelled `[modules.Netwrk]`, is a build warning naming it: the plugin checks the
+  entries against every target of the package or Xcode project and the modules they depend on.
 - A type marked with an attribute that isn't a known global actor gets a comment in its mock, and a warning when
   the name ends in `Actor`. A parent protocol declared outside the sources gets a comment in the mock.
 
