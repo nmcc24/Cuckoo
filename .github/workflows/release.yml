@@ -54,6 +54,14 @@ jobs:
           [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "::error::Not a version: $VERSION"; exit 1; }
           grep -qxF "let version = \"$VERSION\"" Generator/Sources/CLI/Version.swift \
             || { echo "::error::Generator/Sources/CLI/Version.swift doesn't hold $VERSION."; exit 1; }
+          # Getting Started's install snippet: a pre-release is named exactly, since a range never picks one, and a
+          # release leaves no pre-release pin behind.
+          guide=Source/Cuckoo.docc/GettingStarted.md
+          if [[ "$VERSION" == *-* ]]; then
+            grep -qF "exact: \"$VERSION\"" "$guide" || { echo "::error::$guide doesn't install $VERSION."; exit 1; }
+          elif grep -qE 'exact: "[0-9]+\.[0-9]+\.[0-9]+-' "$guide"; then
+            echo "::error::$guide still installs a pre-release."; exit 1
+          fi
           # A dry run never tags, so it may rebuild a released version, which master's sources hold until the next bump.
           # A tag with no published release was left by a run that failed before publishing: the release job moves it.
           if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" >/dev/null; then
