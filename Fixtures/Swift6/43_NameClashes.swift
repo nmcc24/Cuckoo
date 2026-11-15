@@ -13,13 +13,34 @@ protocol KeywordProperty {
     func take(_ element: Element)
 }
 
-// A superclass's typealias named like the mock's own types: the subclass's mock may redeclare it, since none of
-// the subclass's members use it, so it's mocked. (A class that uses one is left out with a warning.)
-class ClashingBase {
-    typealias Verification = Int
-    init() {}
+
+// Names the mock's own used to hide before they carried Cuckoo's prefix: associated types, generic parameters,
+// nested types and typealiases named Stubbing, Verification or MocksType, declared, inherited or used unqualified,
+// and a type named like the old matcher generics, M1.
+protocol StubbingSource {
+    associatedtype Stubbing
+    func next() -> Stubbing
 }
-class QuietSubclass: ClashingBase {
-    override init() {}
-    func count() -> Int { 0 }
+protocol RefinedStubbingSource: StubbingSource {
+    func refresh()
+}
+class VerificationBase {
+    struct Verification {}
+    init() {}
+    func check(_ verification: Verification) -> Bool { true }
+}
+class VerificationChild: VerificationBase {
+    func record(_ verification: Verification) {}
+}
+typealias MocksType = Int
+protocol UsesTopLevelMocksType {
+    func count() -> MocksType
+}
+struct M1 {}
+protocol TakesM1 {
+    func take(_ value: M1, count: Int)
+}
+protocol ReferenceHolder {
+    associatedtype Item
+    var reference: Item { get }
 }

@@ -245,7 +245,6 @@ final class Crawler: SyntaxVisitor {
             token.accessibility = .internal
             token.internalMockReason = type
         }
-        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, inherited: token.inheritedTypes, of: token.name, node) else { return .skipChildren }
         tokens.append(token)
         return .skipChildren
     }
@@ -286,7 +285,6 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
-        guard !hasReservedName(token.genericParameters.map(\.name), members: node.memberBlock, inherited: token.inheritedTypes, of: token.name, node) else { return .skipChildren }
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
@@ -794,84 +792,12 @@ final class Crawler: SyntaxVisitor {
         return finder.found
     }
 
-    /// The names a mock declares to conform to Cuckoo's `Mock`, which a generic parameter or associated type of the
-    /// same name would clash with.
-    private static let reservedMockNames: Set<String> = ["MocksType", "Stubbing", "Verification", "StaticStubbing", "StaticVerification"]
-
-    /// Whether the type has a generic parameter, associated type, nested type or typealias named like one of the
-    /// mock's own type names. Its mock couldn't compile, so it's left out with a warning that says what to rename.
-    private func hasReservedName(_ genericNames: [String], members: MemberBlockSyntax, inherited: [String], of declaration: String, _ node: some SyntaxProtocol) -> Bool {
-        if let clash = genericNames.first(where: Self.reservedMockNames.contains) {
-            warn(node, "'\(declaration)' has a generic parameter or associated type named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
-            return true
-        }
-        // Declared in the type itself, in an extension of it, or in a type it inherits from, found by scope, which the
-        // module's nested types and closure typealiases list by qualified name.
-        let qualifiedName = DeclaredNameCollector.qualifiedName(of: declaration, at: Syntax(node))
-        let inheritedScopes = inherited.compactMap { resolvedTypeName($0, inScopeOf: qualifiedName) }
-        // A class's subclass mock may declare a name its superclass declares too; it only breaks when one of the
-        // class's members uses that name. A protocol's mock has to conform with whatever its parents name.
-        let usedNames = Set(members.tokens(viewMode: .sourceAccurate).compactMap { token -> String? in
-            if case .identifier(let name) = token.tokenKind { name } else { nil }
-        })
-        let elsewhere = Self.reservedMockNames.sorted().first { name in
-            func isDeclared(in scope: String) -> Bool {
-                context.nominalTypes.contains("\(scope).\(name)") || context.closureTypealiases["\(scope).\(name)"] != nil
-            }
-            return isDeclared(in: qualifiedName)
-                || ((node.is(ProtocolDeclSyntax.self) || usedNames.contains(name)) && inheritedScopes.contains(where: isDeclared))
-        }
-        if let clash = Self.nestedTypeNames(in: members.members).first(where: Self.reservedMockNames.contains) ?? elsewhere {
-            warn(node, "'\(declaration)' has a nested type, typealias or associated type named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
-            return true
-        }
-        return false
-    }
-
     /// Whether an inherited type is `@unchecked Sendable`.
     static func isUncheckedSendable(_ type: TypeSyntax) -> Bool {
         guard let attributed = type.as(AttributedTypeSyntax.self),
               attributed.attributes.contains(where: { $0.trimmedDescription == "@unchecked" }) else { return false }
         let base = attributed.baseType.trimmedDescription
         return base == "Sendable" || base == "Swift.Sendable"
-    }
-
-    /// The qualified name of the module's type that `name`, written in the declaration `qualifiedName`, refers to:
-    /// looked up from the innermost enclosing scope outwards, without its generic arguments or a module prefix.
-    /// Nil when the module declares no such type.
-    private func resolvedTypeName(_ name: String, inScopeOf qualifiedName: String) -> String? {
-        var components = (name.split(separator: "<").first ?? "").split(separator: ".").map(String.init)
-        if components.count > 1, !context.nominalTypes.contains(components[0]) {
-            components.removeFirst()
-        }
-        var scope = qualifiedName.split(separator: ".").dropLast().map(String.init)
-        while true {
-            let candidate = (scope + components).joined(separator: ".")
-            if context.nominalTypes.contains(candidate) {
-                return candidate
-            }
-            guard !scope.isEmpty else { return nil }
-            scope.removeLast()
-        }
-    }
-
-    /// The names of the types and typealiases a type declares, under `#if` too.
-    private static func nestedTypeNames(in members: MemberBlockItemListSyntax) -> [String] {
-        members.flatMap { member -> [String] in
-            if let conditional = member.decl.as(IfConfigDeclSyntax.self) {
-                return conditional.clauses.flatMap { clause -> [String] in
-                    guard case .decls(let nested)? = clause.elements else { return [] }
-                    return nestedTypeNames(in: nested)
-                }
-            }
-            if let alias = member.decl.as(TypeAliasDeclSyntax.self) {
-                return [alias.name.text]
-            }
-            if member.decl.asProtocol((any DeclGroupSyntax).self) != nil, let named = member.decl.asProtocol((any NamedDeclSyntax).self) {
-                return [named.name.text]
-            }
-            return []
-        }
     }
 
     private func warn(_ node: some SyntaxProtocol, _ message: String) {
@@ -1671,15 +1597,6 @@ extension Crawler {
             return .visitChildren
         }
 
-        /// An associated type named like a mock's own types, recorded as a reserved typealias is, so a protocol that
-        /// inherits it is left out too.
-        override func visit(_ node: AssociatedTypeDeclSyntax) -> SyntaxVisitorContinueKind {
-            if Crawler.reservedMockNames.contains(node.name.text) {
-                names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
-            }
-            return .skipChildren
-        }
-
         override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
             if node.inheritanceClause?.inheritedTypes.contains(where: { Crawler.isUncheckedSendable($0.type) }) == true {
                 names.uncheckedSendableTypes.insert(Self.qualifiedName(of: node.extendedType.trimmedDescription, at: Syntax(node)))
@@ -1799,11 +1716,6 @@ extension Crawler {
             var type = node.initializer.value
             if let attributed = type.as(AttributedTypeSyntax.self), attributed.specifiers.isEmpty {
                 type = attributed.baseType
-            }
-            // One named like a mock's own types is recorded by qualified name with the nested types, so a type that
-            // declares it in an extension, or inherits it, is left out too; see `hasReservedName`.
-            if Crawler.reservedMockNames.contains(node.name.text) {
-                names.nominalTypes.insert(Self.qualifiedName(of: node))
             }
             // Keyed by qualified name; a use finds it by scope, see `closureTypealias(named:from:)`.
             if let function = Crawler.functionType(of: node) {

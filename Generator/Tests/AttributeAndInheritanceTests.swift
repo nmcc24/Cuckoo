@@ -140,104 +140,22 @@ struct AttributeAndInheritanceTests {
         #expect(output.contains("// This mock is internal: Store's non-public members name 'Hidden', which the module declares"))
     }
 
-    /// A generic parameter or associated type named like one of the mock's own type names, such as `Stubbing`, would
-    /// make a mock that can't compile, so the type is left out with a warning that says what to rename.
+    /// Names that the mock's own used to hide, `Stubbing`, `Verification` or `MocksType`, are mocked like any
+    /// other: the mock's own names all carry Cuckoo's prefix.
     @Test
-    func reservedGenericNameSkipsTheMockWithAWarning() throws {
+    func formerlyReservedNamesAreMocked() throws {
         let crawler = Crawler.crawl(source: """
             protocol Pipeline {
                 associatedtype Stubbing
                 func run(_ stubbing: Stubbing)
             }
             class Box<Verification> {
+                struct MocksType {}
                 init() {}
             }
             """, url: url)
-        #expect(crawler.tokens.isEmpty)
-        #expect(crawler.diagnostics.map(\.description) == [
-            "/project/Sources/Store.swift:1:1: warning: cuckoo: 'Pipeline' has a generic parameter or associated type named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Pipeline'.",
-            "/project/Sources/Store.swift:5:1: warning: cuckoo: 'Box' has a generic parameter or associated type named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Box'.",
-        ])
-    }
-
-    /// One in an extension of the type, or in a class it inherits from, found by scope, clashes too.
-    @Test
-    func reservedNameInAnExtensionOrSuperclassSkipsTheMock() throws {
-        let source = """
-            class Foo {
-                init() {}
-                func a(_ s: Stubbing) -> Int { 0 }
-            }
-            extension Foo {
-                struct Stubbing {}
-            }
-            class Base {
-                struct Verification {}
-                init() {}
-            }
-            class Child: Base {
-                func b(_ v: Verification) -> Int { 0 }
-            }
-            // `X` here is `Other.X`, not the `X` that nests a `Stubbing`.
-            struct X {
-                struct Stubbing {}
-            }
-            enum Other {
-                protocol X {}
-                class Conforming: X {
-                    init() {}
-                }
-            }
-            """
-        let crawler = Crawler.crawl(source: source, url: url)
-        #expect(!crawler.tokens.contains { $0 is ClassDeclaration })
-        #expect(crawler.diagnostics.map(\.message) == [
-            "'Foo' has a nested type, typealias or associated type named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Foo'.",
-            "'Base' has a nested type, typealias or associated type named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Base'.",
-            "'Child' has a nested type, typealias or associated type named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Child'.",
-        ])
-        #expect(crawler.tokens.contains { ($0 as? NamespaceDeclaration)?.members.contains { $0 is ClassDeclaration } == true })
-    }
-
-    /// A nested type or typealias of such a name, under `#if` too, would clash with the mock's own as well.
-    @Test
-    func reservedNestedNameSkipsTheMockWithAWarning() throws {
-        let crawler = Crawler.crawl(source: """
-            class Crate {
-                struct Stubbing {}
-                init() {}
-                func make() -> Stubbing { Stubbing() }
-            }
-            protocol Shelf {
-                #if DEBUG
-                typealias Verification = Int
-                #endif
-                func count() -> Int
-            }
-            """, url: url)
-        #expect(crawler.tokens.isEmpty)
-        #expect(crawler.diagnostics.map(\.description) == [
-            "/project/Sources/Store.swift:1:1: warning: cuckoo: 'Crate' has a nested type, typealias or associated type named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Crate'.",
-            "/project/Sources/Store.swift:6:1: warning: cuckoo: 'Shelf' has a nested type, typealias or associated type named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Shelf'.",
-        ])
-    }
-
-    /// A protocol inheriting such a typealias or associated type clashes too.
-    @Test
-    func reservedNameInheritedByAProtocolSkipsTheMock() throws {
-        let crawler = Crawler.crawl(source: """
-            protocol Base { typealias Stubbing = Int }
-            protocol Refined: Base { func a() }
-            protocol Associated { associatedtype Verification }
-            protocol RefinedAssociated: Associated { func b() }
-            """, url: url)
-        #expect(!crawler.tokens.contains { $0 is ProtocolDeclaration })
-        #expect(crawler.diagnostics.map(\.message).map { String($0.prefix(while: { $0 != "," })) } == [
-            "'Base' has a nested type",
-            "'Refined' has a nested type",
-            "'Associated' has a generic parameter or associated type named 'Verification'",
-            "'RefinedAssociated' has a nested type",
-        ])
+        #expect(crawler.tokens.count == 2)
+        #expect(crawler.diagnostics.isEmpty)
     }
 
     /// Two types of the same qualified name, from two files, get mocks that clash: the warning names both files. One
