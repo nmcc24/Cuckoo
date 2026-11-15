@@ -13,14 +13,14 @@ enum VerificationProxyBuilder {
         var members = MemberList()
 
         try members.append("private let cuckoo_manager: Cuckoo.MockManager", of: name)
-        try members.append("private let callMatcher: Cuckoo.CallMatcher", of: name)
-        try members.append("private let sourceLocation: Cuckoo.SourceLocation", of: name)
+        try members.append("private let cuckoo_callMatcher: Cuckoo.CallMatcher", of: name)
+        try members.append("private let cuckoo_sourceLocation: Cuckoo.SourceLocation", of: name)
         members.separate()
         try members.append(lines([
             "\(access)init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {",
             "    self.cuckoo_manager = manager",
-            "    self.callMatcher = callMatcher",
-            "    self.sourceLocation = sourceLocation",
+            "    self.cuckoo_callMatcher = callMatcher",
+            "    self.cuckoo_sourceLocation = sourceLocation",
             "}",
         ]), of: name)
         // Every member is set off by a blank line, with or without a `#if`.
@@ -59,7 +59,7 @@ enum VerificationProxyBuilder {
         source.append(contentsOf: isolation(property.stubIsolation))
         let type = GeneratorHelper.genericSafeType(from: (property.isReadOnly ? property.type : property.type.unoptionaled).description)
         source.append("\(memberAccess.spaced)var \(property.name): Cuckoo.\(property.verifyType)<\(type)> {")
-        source.append("    return .init(manager: cuckoo_manager, name: \(Fragment.literal(property.name)), callMatcher: callMatcher, sourceLocation: sourceLocation)")
+        source.append("    return .init(manager: cuckoo_manager, name: \(Fragment.literal(property.name)), callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)")
         source.append("}")
         return lines(source)
     }
@@ -97,14 +97,14 @@ enum VerificationProxyBuilder {
         var accessor = attributes
         accessor.append("\(memberAccess.spaced)subscript\(generics)(\(parameters)) -> __Subscript\(number)\(subscriptDeclaration.genericArgumentsClause)\(whereClause) {")
         accessor.append("    \(GeneratorHelper.parameterMatchers(for: keys))")
-        accessor.append("    return .init(cuckoo_manager: cuckoo_manager, callMatcher: callMatcher, sourceLocation: sourceLocation, matchers: matchers)")
+        accessor.append("    return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)")
         accessor.append("}")
 
         var type = attributes
         type.append("\(memberAccess.spaced)nonisolated struct __Subscript\(number)\(subscriptDeclaration.genericParametersClause)\(subscriptDeclaration.whereClause) {")
         type.append("    fileprivate let cuckoo_manager: Cuckoo.MockManager")
-        type.append("    fileprivate let callMatcher: Cuckoo.CallMatcher")
-        type.append("    fileprivate let sourceLocation: Cuckoo.SourceLocation")
+        type.append("    fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher")
+        type.append("    fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation")
         type.append("    fileprivate let matchers: [Cuckoo.ParameterMatcher<(\(getterInput))>]")
         type.append("")
         type.append(contentsOf: actor)
@@ -139,9 +139,9 @@ enum VerificationProxyBuilder {
         [
             "    return cuckoo_manager.verify(",
             "        \(Fragment.literal(method.fullyQualifiedName)),",
-            "        callMatcher: callMatcher,",
+            "        callMatcher: cuckoo_callMatcher,",
             "        parameterMatchers: matchers,",
-            "        sourceLocation: sourceLocation",
+            "        sourceLocation: cuckoo_sourceLocation",
             "    )",
         ]
     }

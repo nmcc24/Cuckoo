@@ -70,13 +70,13 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
 
     nonisolated struct __VerificationProxy_Networking: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -88,9 +88,9 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
                 }]
             return cuckoo_manager.verify(
                 "get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -101,9 +101,9 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
                 }]
             return cuckoo_manager.verify(
                 "get(url p0: String) async throws -> String",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -214,17 +214,17 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
 
     nonisolated struct __VerificationProxy_KeyValueStore: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         var count: Cuckoo.VerifyReadOnlyProperty<Int> {
-            return .init(manager: cuckoo_manager, name: "count", callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return .init(manager: cuckoo_manager, name: "count", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
         }
 
         @discardableResult
@@ -234,9 +234,9 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
                 }]
             return cuckoo_manager.verify(
                 "value(for p0: Key) -> String?",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }

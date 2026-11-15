@@ -183,13 +183,13 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
 
     nonisolated struct __VerificationProxy_TypedAPI: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -197,9 +197,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "call() throws(NetErr) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -208,9 +208,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "callAsync() async throws(NetErr) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -219,9 +219,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "fetch() throws(Network.Failure) -> String",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -230,9 +230,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "decode() throws(Wrapped<Int>)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -244,9 +244,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 }]
             return cuckoo_manager.verify(
                 "retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -257,9 +257,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 }]
             return cuckoo_manager.verify(
                 "log(_ p0: (String...) -> Void)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }

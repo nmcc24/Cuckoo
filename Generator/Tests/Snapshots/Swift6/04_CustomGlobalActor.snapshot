@@ -74,13 +74,13 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated struct __VerificationProxy_Repository: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @DatabaseActor
@@ -91,9 +91,9 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
                 }]
             return cuckoo_manager.verify(
                 "save(_ p0: String)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -103,9 +103,9 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "all() -> [String]",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }

@@ -232,21 +232,21 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
 
     nonisolated struct __VerificationProxy_ParameterShapes: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         var value: Cuckoo.VerifyReadOnlyProperty<Int> {
-            return .init(manager: cuckoo_manager, name: "value", callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return .init(manager: cuckoo_manager, name: "value", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
         }
 
         var asyncValue: Cuckoo.VerifyReadOnlyProperty<String> {
-            return .init(manager: cuckoo_manager, name: "asyncValue", callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return .init(manager: cuckoo_manager, name: "asyncValue", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
         }
 
         @discardableResult
@@ -256,9 +256,9 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 }]
             return cuckoo_manager.verify(
                 "run(_ p0: sending @escaping () -> Void)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -270,9 +270,9 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 }]
             return cuckoo_manager.verify(
                 "spawn(_ p0: sending @escaping @isolated(any) () async -> Int)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -283,9 +283,9 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 }]
             return cuckoo_manager.verify(
                 "transform(_ p0: () -> Void) throws(ShapeError) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -296,9 +296,9 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 }]
             return cuckoo_manager.verify(
                 "handle(_ p0: (Int) -> Void)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -311,9 +311,9 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 }]
             return cuckoo_manager.verify(
                 "store(items p0: consuming [Int], name p1: borrowing String) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -324,9 +324,9 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 }]
             return cuckoo_manager.verify(
                 "reset(_ p0: Int)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -448,13 +448,13 @@ nonisolated final class MockTypedSequence<Element, Failure: Error>: TypedSequenc
 
     nonisolated struct __VerificationProxy_TypedSequence: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -462,9 +462,9 @@ nonisolated final class MockTypedSequence<Element, Failure: Error>: TypedSequenc
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "next() async throws(Failure) -> Element?",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }

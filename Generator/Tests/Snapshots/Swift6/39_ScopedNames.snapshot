@@ -112,13 +112,13 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_DefaultsPrinter: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -128,9 +128,9 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
                 }]
             return cuckoo_manager.verify(
                 "a(count p0: Int)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -141,9 +141,9 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
                 }]
             return cuckoo_manager.verify(
                 "b(prefix p0: String)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -153,22 +153,22 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, callMatcher: callMatcher, sourceLocation: sourceLocation, matchers: matchers)
+            return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
             fileprivate let cuckoo_manager: Cuckoo.MockManager
-            fileprivate let callMatcher: Cuckoo.CallMatcher
-            fileprivate let sourceLocation: Cuckoo.SourceLocation
+            fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>]
 
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(Int, Int), Int> {
                 return cuckoo_manager.verify(
                     "subscript(_ p0: Int, _ p1: Int = 0) -> Int#get",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -261,13 +261,13 @@ nonisolated final class MockScopedRouter<ScopedHandler>: ScopedRouter, nonisolat
 
     nonisolated struct __VerificationProxy_ScopedRouter: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -277,9 +277,9 @@ nonisolated final class MockScopedRouter<ScopedHandler>: ScopedRouter, nonisolat
                 }]
             return cuckoo_manager.verify(
                 "route(_ p0: ScopedHandler)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -340,13 +340,13 @@ nonisolated final class MockScopedGenericUser: ScopedGenericUser, nonisolated Cu
 
     nonisolated struct __VerificationProxy_ScopedGenericUser: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -356,9 +356,9 @@ nonisolated final class MockScopedGenericUser: ScopedGenericUser, nonisolated Cu
                 }]
             return cuckoo_manager.verify(
                 "use<ScopedHandler> (_ p0: ScopedHandler)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -424,13 +424,13 @@ final class MockScopedDownloader: ScopedDownloader, nonisolated Cuckoo.ClassMock
 
     nonisolated struct __VerificationProxy_ScopedDownloader: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -440,9 +440,9 @@ final class MockScopedDownloader: ScopedDownloader, nonisolated Cuckoo.ClassMock
                 }]
             return cuckoo_manager.verify(
                 "load(_ p0: (Bool) -> Void)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -508,13 +508,13 @@ final class MockScopedUploader: ScopedUploader, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_ScopedUploader: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -524,9 +524,9 @@ final class MockScopedUploader: ScopedUploader, nonisolated Cuckoo.ClassMock {
                 }]
             return cuckoo_manager.verify(
                 "send(_ p0: (Int, String) -> Void)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -591,13 +591,13 @@ nonisolated final class MockScopedSender: ScopedSender, nonisolated Cuckoo.Proto
 
     nonisolated struct __VerificationProxy_ScopedSender: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -607,9 +607,9 @@ nonisolated final class MockScopedSender: ScopedSender, nonisolated Cuckoo.Proto
                 }]
             return cuckoo_manager.verify(
                 "send(_ p0: (Int, String) -> Void)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -668,13 +668,13 @@ nonisolated final class MockPartC1: PartC1, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated struct __VerificationProxy_PartC1: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -682,9 +682,9 @@ nonisolated final class MockPartC1: PartC1, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "c1()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -743,13 +743,13 @@ nonisolated final class MockPartC2: PartC2, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated struct __VerificationProxy_PartC2: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -757,9 +757,9 @@ nonisolated final class MockPartC2: PartC2, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "c2()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -818,13 +818,13 @@ nonisolated final class MockPartC3: PartC3, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated struct __VerificationProxy_PartC3: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -832,9 +832,9 @@ nonisolated final class MockPartC3: PartC3, nonisolated Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "c3()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -956,13 +956,13 @@ nonisolated final class MockNestedComposed: NestedComposed, nonisolated Cuckoo.P
 
     nonisolated struct __VerificationProxy_NestedComposed: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -970,9 +970,9 @@ nonisolated final class MockNestedComposed: NestedComposed, nonisolated Cuckoo.P
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "composed()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -981,9 +981,9 @@ nonisolated final class MockNestedComposed: NestedComposed, nonisolated Cuckoo.P
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "c1()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -992,9 +992,9 @@ nonisolated final class MockNestedComposed: NestedComposed, nonisolated Cuckoo.P
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "c2()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -1003,9 +1003,9 @@ nonisolated final class MockNestedComposed: NestedComposed, nonisolated Cuckoo.P
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "c3()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -1118,13 +1118,13 @@ nonisolated final class MockQualifiedComposed: QualifiedComposed, nonisolated Cu
 
     nonisolated struct __VerificationProxy_QualifiedComposed: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -1132,9 +1132,9 @@ nonisolated final class MockQualifiedComposed: QualifiedComposed, nonisolated Cu
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "qualified()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -1143,9 +1143,9 @@ nonisolated final class MockQualifiedComposed: QualifiedComposed, nonisolated Cu
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "c1()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -1154,9 +1154,9 @@ nonisolated final class MockQualifiedComposed: QualifiedComposed, nonisolated Cu
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "c2()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -1224,13 +1224,13 @@ extension ScopedStore {
 
         nonisolated struct __VerificationProxy_Cache: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -1238,9 +1238,9 @@ extension ScopedStore {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "clear()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -1301,13 +1301,13 @@ extension ScopedStore {
 
         nonisolated struct __VerificationProxy_Loader: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -1315,9 +1315,9 @@ extension ScopedStore {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "load()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -1408,17 +1408,17 @@ final class MockDownloader: Downloader, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_Downloader: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         var state: Cuckoo.VerifyProperty<State> {
-            return .init(manager: cuckoo_manager, name: "state", callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return .init(manager: cuckoo_manager, name: "state", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
         }
 
         @discardableResult
@@ -1426,9 +1426,9 @@ final class MockDownloader: Downloader, nonisolated Cuckoo.ClassMock {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "start()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -1502,13 +1502,13 @@ extension API {
 
         nonisolated struct __VerificationProxy_Client: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -1518,9 +1518,9 @@ extension API {
                     }]
                 return cuckoo_manager.verify(
                     "fetch(_ p0: () -> Void)",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -1560,13 +1560,13 @@ final class MockBaseRunner: BaseRunner, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_BaseRunner: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
     }
 }
@@ -1628,13 +1628,13 @@ final class MockChildRunner: ChildRunner, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_ChildRunner: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -1644,9 +1644,9 @@ final class MockChildRunner: ChildRunner, nonisolated Cuckoo.ClassMock {
                 }]
             return cuckoo_manager.verify(
                 "run(_ p0: () -> Void)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -1685,13 +1685,13 @@ nonisolated final class MockBaseTask: BaseTask, nonisolated Cuckoo.ProtocolMock 
 
     nonisolated struct __VerificationProxy_BaseTask: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
     }
 }
@@ -1754,13 +1754,13 @@ nonisolated final class MockChildTask: ChildTask, nonisolated Cuckoo.ProtocolMoc
 
     nonisolated struct __VerificationProxy_ChildTask: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -1770,9 +1770,9 @@ nonisolated final class MockChildTask: ChildTask, nonisolated Cuckoo.ProtocolMoc
                 }]
             return cuckoo_manager.verify(
                 "go(_ p0: (Int) -> Void)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -1835,13 +1835,13 @@ final class MockSettingsStore: SettingsStore, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_SettingsStore: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -1851,9 +1851,9 @@ final class MockSettingsStore: SettingsStore, nonisolated Cuckoo.ClassMock {
                 }]
             return cuckoo_manager.verify(
                 "save(settings p0: Settings)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -1891,13 +1891,13 @@ final class MockBase: Base, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_Base: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
     }
 }
@@ -1953,13 +1953,13 @@ extension Base {
 
         nonisolated struct __VerificationProxy_Inner: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -1967,9 +1967,9 @@ extension Base {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "work()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -2030,13 +2030,13 @@ extension Base {
 
         nonisolated struct __VerificationProxy_Delegate: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -2044,9 +2044,9 @@ extension Base {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "notify()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -2085,13 +2085,13 @@ final class MockChild: Child, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_Child: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
     }
 }
@@ -2168,13 +2168,13 @@ extension Child {
 
         nonisolated struct __VerificationProxy_Sub: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -2182,9 +2182,9 @@ extension Child {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "extra()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
 
@@ -2193,9 +2193,9 @@ extension Child {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "work()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -2281,13 +2281,13 @@ extension Child {
 
         nonisolated struct __VerificationProxy_SubDelegate: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -2295,9 +2295,9 @@ extension Child {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "more()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
 
@@ -2306,9 +2306,9 @@ extension Child {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "notify()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -2373,13 +2373,13 @@ extension WorkerScope.Worker {
 
         nonisolated struct __VerificationProxy_Cache: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -2387,9 +2387,9 @@ extension WorkerScope.Worker {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "clear()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -2450,13 +2450,13 @@ extension WorkerScope.Worker {
 
         nonisolated struct __VerificationProxy_Loader: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -2464,9 +2464,9 @@ extension WorkerScope.Worker {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "load()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }
@@ -2532,13 +2532,13 @@ final class MockSwapRunner: SwapRunner, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_SwapRunner: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -2548,9 +2548,9 @@ final class MockSwapRunner: SwapRunner, nonisolated Cuckoo.ClassMock {
                 }]
             return cuckoo_manager.verify(
                 "swap(_ p0: inout SwapHandler)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -2589,13 +2589,13 @@ nonisolated final class MockConfigurable: Configurable, nonisolated Cuckoo.Proto
 
     nonisolated struct __VerificationProxy_Configurable: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
     }
 }
@@ -2657,13 +2657,13 @@ final class MockConfiguredClient: ConfiguredClient, nonisolated Cuckoo.ClassMock
 
     nonisolated struct __VerificationProxy_ConfiguredClient: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -2673,9 +2673,9 @@ final class MockConfiguredClient: ConfiguredClient, nonisolated Cuckoo.ClassMock
                 }]
             return cuckoo_manager.verify(
                 "load(_ p0: Model)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -2735,13 +2735,13 @@ extension Fix.QualifiedHost.Worker {
 
         nonisolated struct __VerificationProxy_Job: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -2749,9 +2749,9 @@ extension Fix.QualifiedHost.Worker {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "run()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }

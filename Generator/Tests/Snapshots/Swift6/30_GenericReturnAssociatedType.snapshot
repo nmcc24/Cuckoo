@@ -314,13 +314,13 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
     nonisolated struct __VerificationProxy_Converter: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -330,9 +330,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "convert<T> (value p0: T) -> Output",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -343,9 +343,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "convert(input p0: Input) -> Output",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -356,9 +356,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "wrap<T> (_ p0: T) -> [Output]",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -371,9 +371,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -386,9 +386,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "merge<T> (_ p0: T, into p1: Output) -> Output",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -399,9 +399,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "lookup<T> (_ p0: T) -> Output?",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -414,9 +414,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "collect<T> (_ p0: [Output], tag p1: T) -> [String: Output]",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -427,9 +427,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "result<T> (_ p0: T) -> Result<Output, any Error>",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -440,9 +440,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "nested<T> (_ p0: T) -> Wrapper.Output",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -623,13 +623,13 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
 
     nonisolated struct __VerificationProxy_Producer: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -639,9 +639,9 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
                 }]
             return cuckoo_manager.verify(
                 "produce<T> (from p0: T) -> Output",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -654,9 +654,9 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
                 }]
             return cuckoo_manager.verify(
                 "consume<T> (_ p0: Output, with p1: T)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -667,9 +667,9 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
                 }]
             return cuckoo_manager.verify(
                 "produceAll<T> (from p0: [T]) async throws -> [Output]",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }

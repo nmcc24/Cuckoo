@@ -167,18 +167,18 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
 
     nonisolated struct __VerificationProxy_Platformed: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         #if (DEBUG)
         var debugInfo: Cuckoo.VerifyReadOnlyProperty<String> {
-            return .init(manager: cuckoo_manager, name: "debugInfo", callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return .init(manager: cuckoo_manager, name: "debugInfo", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
         }
         #endif
 
@@ -188,9 +188,9 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "onLinux() -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -201,9 +201,9 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "onDarwin() -> String",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -214,9 +214,9 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "elsewhere()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -227,9 +227,9 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "debugOnLinux()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -239,9 +239,9 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "everywhere()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -422,18 +422,18 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
 
     nonisolated struct __VerificationProxy_PlatformedStore: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         #if (DEBUG)
         var debugItems: Cuckoo.VerifyReadOnlyProperty<[Item]> {
-            return .init(manager: cuckoo_manager, name: "debugItems", callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return .init(manager: cuckoo_manager, name: "debugItems", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
         }
         #endif
 
@@ -443,9 +443,9 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "dump() -> String",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -457,9 +457,9 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
                 }]
             return cuckoo_manager.verify(
                 "item(at p0: Int) -> Item",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -611,18 +611,18 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
 
     nonisolated struct __VerificationProxy_PlatformedService: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         #if (DEBUG)
         var verbose: Cuckoo.VerifyProperty<Bool> {
-            return .init(manager: cuckoo_manager, name: "verbose", callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return .init(manager: cuckoo_manager, name: "verbose", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
         }
         #endif
 
@@ -632,9 +632,9 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "debugDump() -> String",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -645,9 +645,9 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "releaseOnly()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -657,9 +657,9 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "run()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -740,13 +740,13 @@ nonisolated final class MockPublishing: Publishing, nonisolated Cuckoo.ProtocolM
 
     nonisolated struct __VerificationProxy_Publishing: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -754,9 +754,9 @@ nonisolated final class MockPublishing: Publishing, nonisolated Cuckoo.ProtocolM
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "publisher() -> AnyPublisher<Int, Never>",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -818,13 +818,13 @@ final class MockDebugTools: DebugTools, nonisolated Cuckoo.ClassMock {
 
     nonisolated struct __VerificationProxy_DebugTools: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -832,9 +832,9 @@ final class MockDebugTools: DebugTools, nonisolated Cuckoo.ClassMock {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "check()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -897,13 +897,13 @@ extension DebugTools {
 
         nonisolated struct __VerificationProxy_LinuxProbe: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -911,9 +911,9 @@ extension DebugTools {
                 let matchers: [Cuckoo.ParameterMatcher<Void>] = []
                 return cuckoo_manager.verify(
                     "probe()",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }

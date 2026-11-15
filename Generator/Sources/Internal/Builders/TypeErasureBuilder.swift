@@ -97,15 +97,15 @@ enum TypeErasureBuilder {
 
     private static func sources(of property: Variable, _ context: Context) -> [String] {
         let type = property.type.description
-        var sources = ["private let _getter_storage$$\(property.name): \(context.sendable)() -> \(type)"]
+        var sources = ["private let _getter_storage$$\(property.name.filter { $0 != "`" }): \(context.sendable)() -> \(type)"]
         if !property.isReadOnly {
-            sources.append("private let _setter_storage$$\(property.name): \(context.sendable)(\(type)) -> Void")
+            sources.append("private let _setter_storage$$\(property.name.filter { $0 != "`" }): \(context.sendable)(\(type)) -> Void")
         }
         var declaration = property.spiAttributes(at: property.accessibility).map(\.description)
         declaration.append("\(context.access)var \(property.name): \(type) {")
-        declaration.append("    get { return _getter_storage$$\(property.name)() }")
+        declaration.append("    get { return _getter_storage$$\(property.name.filter { $0 != "`" })() }")
         if !property.isReadOnly {
-            declaration.append("    set { _setter_storage$$\(property.name)(newValue) }")
+            declaration.append("    set { _setter_storage$$\(property.name.filter { $0 != "`" })(newValue) }")
         }
         declaration.append("}")
         sources.append(lines(declaration))
@@ -178,9 +178,9 @@ enum TypeErasureBuilder {
             token.hasCompilationCondition ? [token.compilationConditionCheck] + statements + ["#endif"] : statements
         }
         for property in properties {
-            var statements = ["_getter_storage$$\(property.name) = { box.value.\(property.name) }"]
+            var statements = ["_getter_storage$$\(property.name.filter { $0 != "`" }) = { box.value.\(property.name) }"]
             if !property.isReadOnly {
-                statements.append("_setter_storage$$\(property.name) = { box.value.\(property.name) = $0 }")
+                statements.append("_setter_storage$$\(property.name.filter { $0 != "`" }) = { box.value.\(property.name) = $0 }")
             }
             body.append(contentsOf: conditional(property, statements))
         }

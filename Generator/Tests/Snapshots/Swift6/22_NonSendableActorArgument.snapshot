@@ -148,17 +148,17 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
 
     nonisolated struct __VerificationProxy_BoxActor: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         var current: Cuckoo.VerifyProperty<Box> {
-            return .init(manager: cuckoo_manager, name: "current", callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return .init(manager: cuckoo_manager, name: "current", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
         }
 
         @discardableResult
@@ -168,9 +168,9 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
                 }]
             return cuckoo_manager.verify(
                 "take(_ p0: Box) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -183,9 +183,9 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
                 }]
             return cuckoo_manager.verify(
                 "swap(_ p0: Box, _ p1: Box) throws -> Box",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -196,9 +196,9 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
                 }]
             return cuckoo_manager.verify(
                 "load(_ p0: Box) async -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -206,22 +206,22 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.ParameterMatcher<(Box)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
-            return .init(cuckoo_manager: cuckoo_manager, callMatcher: callMatcher, sourceLocation: sourceLocation, matchers: matchers)
+            return .init(cuckoo_manager: cuckoo_manager, cuckoo_callMatcher: cuckoo_callMatcher, cuckoo_sourceLocation: cuckoo_sourceLocation, matchers: matchers)
         }
 
         nonisolated struct __Subscript1 {
             fileprivate let cuckoo_manager: Cuckoo.MockManager
-            fileprivate let callMatcher: Cuckoo.CallMatcher
-            fileprivate let sourceLocation: Cuckoo.SourceLocation
+            fileprivate let cuckoo_callMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckoo_sourceLocation: Cuckoo.SourceLocation
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(Box)>]
 
             @discardableResult
             func get() -> Cuckoo.__DoNotUse<(Box), Int> {
                 return cuckoo_manager.verify(
                     "subscript(_ p0: Box) -> Int#get",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }

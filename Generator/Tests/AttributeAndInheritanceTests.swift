@@ -139,4 +139,24 @@ struct AttributeAndInheritanceTests {
         #expect(output.contains("\nfinal class MockStore: Store,"))
         #expect(output.contains("// This mock is internal: Store's non-public members name 'Hidden', which the module declares"))
     }
+
+    /// A generic parameter or associated type named like one of the mock's own type names, such as `Stubbing`, would
+    /// make a mock that can't compile, so the type is left out with a warning that says what to rename.
+    @Test
+    func reservedGenericNameSkipsTheMockWithAWarning() throws {
+        let crawler = Crawler.crawl(source: """
+            protocol Pipeline {
+                associatedtype Stubbing
+                func run(_ stubbing: Stubbing)
+            }
+            class Box<Verification> {
+                init() {}
+            }
+            """, url: url)
+        #expect(crawler.tokens.isEmpty)
+        #expect(crawler.diagnostics.map(\.description) == [
+            "/project/Sources/Store.swift:1:1: warning: cuckoo: 'Pipeline' has a generic parameter or associated type named 'Stubbing', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Pipeline'.",
+            "/project/Sources/Store.swift:5:1: warning: cuckoo: 'Box' has a generic parameter or associated type named 'Verification', which its mock needs for itself, so it isn't mocked. Rename it to mock 'Box'.",
+        ])
+    }
 }

@@ -75,13 +75,13 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
 
     nonisolated struct __VerificationProxy_ProfileStore: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -93,9 +93,9 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
                 }]
             return cuckoo_manager.verify(
                 "save(_ p0: Profile, tags p1: [String]) -> Bool",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -106,9 +106,9 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
                 }]
             return cuckoo_manager.verify(
                 "open(_ p0: Session)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -192,13 +192,13 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
 
     nonisolated struct __VerificationProxy_ProfileCache: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -210,9 +210,9 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
                 }]
             return cuckoo_manager.verify(
                 "lookup(_ p0: String, limit p1: Int?) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -223,9 +223,9 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
                 }]
             return cuckoo_manager.verify(
                 "names(matching p0: [String]) -> [String]",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }

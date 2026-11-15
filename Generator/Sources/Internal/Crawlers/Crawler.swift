@@ -226,6 +226,7 @@ final class Crawler: SyntaxVisitor {
             token.accessibility = .internal
             token.internalMockReason = type
         }
+        guard !hasReservedGenericName(token.genericParameters.map(\.name), of: token.name, node) else { return .skipChildren }
         tokens.append(token)
         return .skipChildren
     }
@@ -266,6 +267,7 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
+        guard !hasReservedGenericName(token.genericParameters.map(\.name), of: token.name, node) else { return .skipChildren }
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
@@ -642,6 +644,18 @@ final class Crawler: SyntaxVisitor {
         let finder = Finder(viewMode: .sourceAccurate)
         finder.walk(type)
         return finder.found
+    }
+
+    /// The names a mock declares to conform to Cuckoo's `Mock`, which a generic parameter or associated type of the
+    /// same name would clash with.
+    private static let reservedMockNames: Set<String> = ["MocksType", "Stubbing", "Verification", "StaticStubbing", "StaticVerification"]
+
+    /// Whether the type has a generic parameter or associated type named like one of the mock's own type names. Its
+    /// mock couldn't compile, so it's left out with a warning that says what to rename.
+    private func hasReservedGenericName(_ names: [String], of declaration: String, _ node: some SyntaxProtocol) -> Bool {
+        guard let clash = names.first(where: Self.reservedMockNames.contains) else { return false }
+        warn(node, "'\(declaration)' has a generic parameter or associated type named '\(clash)', which its mock needs for itself, so it isn't mocked. Rename it to mock '\(declaration)'.")
+        return true
     }
 
     private func warn(_ node: some SyntaxProtocol, _ message: String) {
