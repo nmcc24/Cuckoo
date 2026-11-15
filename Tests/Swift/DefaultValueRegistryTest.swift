@@ -91,39 +91,16 @@ struct DefaultValueRegistryTest {
         #expect(DefaultValueRegistry.defaultValue(for: Optional<Marker>.self) == value)
     }
 
+    /// One parameter-pack overload serves every tuple, so the shortest and longest `Equatable` ones cover it.
     @Test
-    func registerTuple2() {
-        let value = (Marker(value: 1), Marker(value: 2))
-        DefaultValueRegistry.register(value, for: (Marker, Marker).self)
-        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker).self) == value)
-    }
+    func registerTuples() {
+        let pair = (Marker(value: 1), Marker(value: 2))
+        DefaultValueRegistry.register(pair, for: (Marker, Marker).self)
+        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker).self) == pair)
 
-    @Test
-    func registerTuple3() {
-        let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3))
-        DefaultValueRegistry.register(value, for: (Marker, Marker, Marker).self)
-        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker).self) == value)
-    }
-
-    @Test
-    func registerTuple4() {
-        let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4))
-        DefaultValueRegistry.register(value, for: (Marker, Marker, Marker, Marker).self)
-        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker).self) == value)
-    }
-
-    @Test
-    func registerTuple5() {
-        let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4), Marker(value: 5))
-        DefaultValueRegistry.register(value, for: (Marker, Marker, Marker, Marker, Marker).self)
-        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker, Marker).self) == value)
-    }
-
-    @Test
-    func registerTuple6() {
-        let value = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4), Marker(value: 5),
-                     Marker(value: 6))
-        DefaultValueRegistry.register(value, for: (Marker, Marker, Marker, Marker, Marker, Marker).self)
-        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker, Marker, Marker).self) == value)
+        let six = (Marker(value: 1), Marker(value: 2), Marker(value: 3), Marker(value: 4), Marker(value: 5),
+                   Marker(value: 6))
+        DefaultValueRegistry.register(six, for: (Marker, Marker, Marker, Marker, Marker, Marker).self)
+        #expect(DefaultValueRegistry.defaultValue(for: (Marker, Marker, Marker, Marker, Marker, Marker).self) == six)
     }
 }
