@@ -509,8 +509,8 @@ Done 2026-11-08. Items 5 and 6 were dropped.
 - Accepted risks (nmcc24, 2026-11-14), to revisit only if a user reports them:
   - The Linux prebuilt generator needs glibc 2.35 or newer (Ubuntu 22.04, Debian 12, RHEL 10 and later; not Amazon Linux 2023 or RHEL 9). Getting Started says so; a static musl build is the fix if needed.
   - The macOS generator's x86_64 slice is built but never run in CI: Intel Macs aren't supported. It goes with the Xcode 27 minimum.
-- Offer Brightify the independent fixes (#601, the swift-syntax range, the Linux Glob fix, `keepDocumentation`) as separate small PRs.
-- Propose the 3.0 branch upstream, or publish under a new name (D1).
+- Before 3.0.0, every finding of those reviews is fixed too (nmcc24, 2026-11-15), not left for later; only the accepted risks below stay. The `ArgumentCaptor` read inside `inOrder` is documented in Stubbing and Verification (filling it inside the block would undo the block's checking order), the release notes' link rewrite handles titles, angle brackets and reference definitions, and `InOrder`'s `Sendable` is by design: like `MockManager`'s, its state holds recorded arguments, which are only reached through `Locked`, the runtime's one `@unchecked Sendable` box.
+- No 2.x pull requests to Brightify (nmcc24, 2026-11-15): fixes there would make the fork answer for 2.x not breaking. The 3.0 offer was posted as Brightify/Cuckoo#605 (2026-11-15): a `3.0` branch upstream, or the fork linked from upstream's README.
 
 ### Later: Cuckoo 4.0
 - Hide `Matchable` from users (decided 2026-11-13). Rename `_Matchable`, `_OptionalMatchable` and their `Sendable` refinements back to `Matchable` and so on under `@_spi(CuckooGenerated)`, have the mocks `@_spi(CuckooGenerated) import Cuckoo`, and remove the deprecated aliases. The public API that takes the protocols today (property `set`, `or`/`and` on values) needs concrete overloads first, since public API can't mention an SPI type. A hard break, so only in a major release (M).
