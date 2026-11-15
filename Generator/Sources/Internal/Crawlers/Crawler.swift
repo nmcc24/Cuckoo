@@ -1392,7 +1392,7 @@ extension Crawler {
         var names = DeclaredNames()
 
         private func collectAccess(_ modifiers: DeclModifierListSyntax, name: TokenSyntax) {
-            collectPrivate(modifiers, names: [name])
+            collectPrivate(modifiers, names: [name], at: name)
             let isPublic = modifiers.contains { $0.name.tokenKind == .keyword(.public) || $0.name.tokenKind == .keyword(.open) }
             if isPublic {
                 names.publicTypes.insert(name.text)
@@ -1443,20 +1443,48 @@ extension Crawler {
             return components.joined(separator: ".")
         }
 
-        private func collectPrivate(_ modifiers: DeclModifierListSyntax, names: [TokenSyntax]) {
-            let isPrivate = modifiers.contains { $0.name.tokenKind == .keyword(.private) || $0.name.tokenKind == .keyword(.fileprivate) }
-            if isPrivate {
+        private static func isPrivate(_ modifiers: DeclModifierListSyntax) -> Bool {
+            modifiers.contains { $0.name.tokenKind == .keyword(.private) || $0.name.tokenKind == .keyword(.fileprivate) }
+        }
+
+        /// Whether a member is private: declared so, or in a `private` or `fileprivate` extension, whose members
+        /// state no access of their own.
+        private static func isPrivateMember(_ modifiers: DeclModifierListSyntax, at node: some SyntaxProtocol) -> Bool {
+            if isPrivate(modifiers) {
+                return true
+            }
+            let enclosingGroup = node.parent?.parent?.parent?.parent
+            return enclosingGroup?.as(ExtensionDeclSyntax.self).map { isPrivate($0.modifiers) } ?? false
+        }
+
+        private func collectPrivate(_ modifiers: DeclModifierListSyntax, names: [TokenSyntax], at node: some SyntaxProtocol) {
+            if Self.isPrivateMember(modifiers, at: node) {
                 self.names.privateNames.formUnion(names.map(\.text))
             }
         }
 
         override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
-            collectPrivate(node.modifiers, names: node.bindings.compactMap { $0.pattern.as(IdentifierPatternSyntax.self)?.identifier })
+            collectPrivate(node.modifiers, names: node.bindings.compactMap { $0.pattern.as(IdentifierPatternSyntax.self)?.identifier }, at: node)
             return .skipChildren
         }
 
         override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
-            collectPrivate(node.modifiers, names: [node.name])
+            collectPrivate(node.modifiers, names: [node.name], at: node)
+            return .skipChildren
+        }
+
+        /// A private initializer has no name a default could name, so its type counts as private: a default that
+        /// calls `Token(secret: 0)` may need it. Leaving such a default out is always safe.
+        override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
+            if Self.isPrivateMember(node.modifiers, at: node),
+               let group = node.parent?.parent?.parent?.parent {
+                if let named = group.asProtocol((any NamedDeclSyntax).self) {
+                    names.privateNames.insert(named.name.text)
+                } else if let extensionDeclaration = group.as(ExtensionDeclSyntax.self),
+                          let name = extensionDeclaration.extendedType.trimmedDescription.split(separator: ".").last {
+                    names.privateNames.insert(String(name))
+                }
+            }
             return .skipChildren
         }
 

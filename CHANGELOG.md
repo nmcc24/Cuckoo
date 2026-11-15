@@ -53,7 +53,7 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 - A typed-throws getter's `thenThrow` stub was never found: the getter looked its stub up with its own error type.
 - A class mock dropped the default argument values of its methods and subscripts, so a call through the mock's type
   had to pass every argument. A default that names a `private` or `fileprivate` declaration, which the mock can't
-  see, is still left out.
+  see, is still left out, as is one using a member of a `private extension` or a type's `fileprivate init`.
 - A class member whose type is opaque (`some P`) can't be overridden; it's now left out with a comment in the mock,
   instead of making the mock fail to compile. `some` nested in a protocol requirement's parameter is handled.
 - A non-escaping closure parameter written with `sending`, `borrowing` or `inout` made the generator fail for the
