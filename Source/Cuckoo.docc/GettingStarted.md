@@ -102,6 +102,9 @@ func welcomesTheUser() {
 }
 ```
 
+A mock declares names of its own for Cuckoo, which all start with `Cuckoo`, `cuckoo` or `__`, such as
+`CuckooStubbing` and `cuckooManager`. Don't give your own declarations such names: they would clash in the mock.
+
 The `.cuckoo()` trait is optional for instance members: it gives the test its own configuration and its own
 registry for static members' stubs. In XCTest, wrap code that uses static members in `withStaticStubs { }`.
 

@@ -3,6 +3,14 @@
 ## Unreleased
 
 ### Changed
+- The names a mock declares for Cuckoo carry its prefix, so they no longer hide yours: `Mock`'s `MocksType`,
+  `Stubbing` and `Verification`, `StaticMock`'s `StaticStubbing` and `StaticVerification`, and `Mocked`'s `MockType`
+  are `CuckooMocksType`, `CuckooStubbing`, `CuckooVerification`, `CuckooStaticStubbing`, `CuckooStaticVerification`
+  and `CuckooMockType`; `cuckoo_manager`, `cuckoo_staticManager`, `cuckoo_hasSuperclass` and `cuckoo_globalActor`
+  are `cuckooManager`, `cuckooStaticManager`, `cuckooHasSuperclass` and `cuckooGlobalActor`; `getStubbingProxy()`
+  and `getVerificationProxy(_:sourceLocation:)` are `cuckooStubbingProxy()` and
+  `cuckooVerificationProxy(_:sourceLocation:)`. Generated mocks spell them; code that names them changes, and the
+  migration guide lists each. Names starting with `Cuckoo`, `cuckoo` or `__` are reserved for mocks.
 - Inside `inOrder`, a call matcher counts as it does outside it. A `verify` took the fewest calls its matcher
   accepted, so `times(1)` passed on two calls in a row and `atLeast(2)` took two of three calls, leaving the third
   for `strict` to reject. It now takes all its matching calls after the previous `verify` if its matcher accepts
@@ -124,10 +132,9 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 
 - A property named `callMatcher` or `sourceLocation` clashed with the verification proxy's own, and a backticked
   property such as `` `default` `` in a protocol with an associated type stopped generation for the whole module.
-  A generic parameter or associated type named like one of the mock's own type names (`Stubbing`, `Verification`,
-  `MocksType`), or a nested type, typealias or associated type of such a name, in the type, an extension of it or
-  a protocol it inherits from (a class's superclass only when the class's members use the name), gave a mock that
-  couldn't compile; the type is now left out with a warning saying what to rename.
+  A generic parameter, associated type, nested type or typealias named like one of the mock's own (`Stubbing`,
+  `Verification`, `MocksType`, `DefaultImplCaller`, `M1`, a protocol property `reference`), declared, inherited or
+  used, gave a mock that couldn't compile. The mock's own names now carry Cuckoo's prefix, so these are mocked.
 
 - Two sources declaring the same type, such as `A/User.swift` and `B/User.swift`, gave two `MockUser` and only an
   info line. It's now a warning that names both files. A protocol bound to a class (`protocol P: Base`) is found by

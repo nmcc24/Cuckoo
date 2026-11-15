@@ -73,6 +73,16 @@ behaviour on top.
 - `hasLength(inRange:)` is deprecated in favour of ``hasLength(in:)``, whose range means what it says. With a
   half-open range, `inRange:` kept including the upper bound, as `inclusive: true` did by default: `inRange: 1..<3`
   matches 3, and so does `in: 1...3`, while `in: 1..<3` doesn't. Move each call to `in:` with the range you mean.
+- The names a mock declares for Cuckoo carry Cuckoo's prefix, so none of yours is hidden in a mock any more.
+  Code that names them changes, and the compiler points at each place:
+
+  | Cuckoo 2 | Cuckoo 3 |
+  | --- | --- |
+  | `MockX.Stubbing`, `MockX.Verification`, `MockX.MocksType` | `MockX.CuckooStubbing`, `MockX.CuckooVerification`, `MockX.CuckooMocksType` |
+  | `StaticStubbing`, `StaticVerification` | `CuckooStaticStubbing`, `CuckooStaticVerification` |
+  | `typealias MockType` in a `Mocked` conformance | `typealias CuckooMockType` |
+  | `cuckoo_manager` | `cuckooManager` |
+  | `getStubbingProxy()`, `getVerificationProxy(_:sourceLocation:)` | `cuckooStubbingProxy()`, `cuckooVerificationProxy(_:sourceLocation:)` |
 - `enableDefaultImplementation(mutating:)` is removed: it kept a pointer to your variable after the call returned.
   A `struct` default implementation is copied once and keeps the changes made through the mock; pass a class
   instance to share state with the test.
