@@ -124,13 +124,13 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
 
     nonisolated struct __VerificationProxy_Combiner: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -140,9 +140,9 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
                 }]
             return cuckoo_manager.verify(
                 "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -153,9 +153,9 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
                 }]
             return cuckoo_manager.verify(
                 "count<each T> (_ p0: repeat each T) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -168,9 +168,9 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
                 }]
             return cuckoo_manager.verify(
                 "log<each T: Sendable> (prefix p0: String, _ p1: repeat each T) async throws",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -183,9 +183,9 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
                 }]
             return cuckoo_manager.verify(
                 "pair<each T, each U> (_ p0: repeat each T, second p1: repeat each U) -> (repeat each U)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -261,13 +261,13 @@ final class MockMainActorCombiner: MainActorCombiner, nonisolated Cuckoo.Protoco
 
     nonisolated struct __VerificationProxy_MainActorCombiner: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @MainActor
@@ -278,9 +278,9 @@ final class MockMainActorCombiner: MainActorCombiner, nonisolated Cuckoo.Protoco
                 }]
             return cuckoo_manager.verify(
                 "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -336,13 +336,13 @@ actor MockActorCombiner: ActorCombiner, Cuckoo.ProtocolMock {
 
     nonisolated struct __VerificationProxy_ActorCombiner: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -352,9 +352,9 @@ actor MockActorCombiner: ActorCombiner, Cuckoo.ProtocolMock {
                 }]
             return cuckoo_manager.verify(
                 "count<each T> (_ p0: repeat each T) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }

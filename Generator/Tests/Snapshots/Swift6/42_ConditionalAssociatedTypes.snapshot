@@ -140,13 +140,13 @@ nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.Proto
 
     nonisolated struct __VerificationProxy_DebugFeed: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         #if (DEBUG)
@@ -155,9 +155,9 @@ nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "next() -> Item",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -168,9 +168,9 @@ nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "next() -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -376,13 +376,13 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
 
     nonisolated struct __VerificationProxy_EitherFeed: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         #if (DEBUG)
@@ -393,9 +393,9 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
                 }]
             return cuckoo_manager.verify(
                 "value(for p0: Key) -> Value",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -408,9 +408,9 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
                 }]
             return cuckoo_manager.verify(
                 "value(for p0: Key) -> String",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif
@@ -423,9 +423,9 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
                 }]
             return cuckoo_manager.verify(
                 "value(for p0: Key) -> Int",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
         #endif

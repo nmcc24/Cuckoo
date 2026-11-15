@@ -103,17 +103,17 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
 
     public nonisolated struct __VerificationProxy_Service: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         var token: Cuckoo.VerifyProperty<Token> {
-            return .init(manager: cuckoo_manager, name: "token", callMatcher: callMatcher, sourceLocation: sourceLocation)
+            return .init(manager: cuckoo_manager, name: "token", callMatcher: cuckoo_callMatcher, sourceLocation: cuckoo_sourceLocation)
         }
 
         @discardableResult
@@ -121,9 +121,9 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "open()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -134,9 +134,9 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
                 }]
             return cuckoo_manager.verify(
                 "secret(_ p0: Token) -> Token",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -214,13 +214,13 @@ public nonisolated final class MockAdminService: AdminService, nonisolated Cucko
 
     public nonisolated struct __VerificationProxy_AdminService: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -230,9 +230,9 @@ public nonisolated final class MockAdminService: AdminService, nonisolated Cucko
                 }]
             return cuckoo_manager.verify(
                 "reset(_ p0: Token)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -348,13 +348,13 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
 
     public nonisolated struct __VerificationProxy_Repository: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -362,9 +362,9 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "fetch() -> Item?",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -375,9 +375,9 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
                 }]
             return cuckoo_manager.verify(
                 "secret(_ p0: Token)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -465,13 +465,13 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
 
     public nonisolated struct __VerificationProxy_Session: Cuckoo.VerificationProxy {
         private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
+        private let cuckoo_callMatcher: Cuckoo.CallMatcher
+        private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
         public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
             self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
+            self.cuckoo_callMatcher = callMatcher
+            self.cuckoo_sourceLocation = sourceLocation
         }
 
         @discardableResult
@@ -479,9 +479,9 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
                 "start()",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
 
@@ -492,9 +492,9 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
                 }]
             return cuckoo_manager.verify(
                 "resume(with p0: Token)",
-                callMatcher: callMatcher,
+                callMatcher: cuckoo_callMatcher,
                 parameterMatchers: matchers,
-                sourceLocation: sourceLocation
+                sourceLocation: cuckoo_sourceLocation
             )
         }
     }
@@ -561,13 +561,13 @@ extension Admin {
 
         public nonisolated struct __VerificationProxy_Console: Cuckoo.VerificationProxy {
             private let cuckoo_manager: Cuckoo.MockManager
-            private let callMatcher: Cuckoo.CallMatcher
-            private let sourceLocation: Cuckoo.SourceLocation
+            private let cuckoo_callMatcher: Cuckoo.CallMatcher
+            private let cuckoo_sourceLocation: Cuckoo.SourceLocation
 
             public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
                 self.cuckoo_manager = manager
-                self.callMatcher = callMatcher
-                self.sourceLocation = sourceLocation
+                self.cuckoo_callMatcher = callMatcher
+                self.cuckoo_sourceLocation = sourceLocation
             }
 
             @discardableResult
@@ -577,9 +577,9 @@ extension Admin {
                     }]
                 return cuckoo_manager.verify(
                     "run(_ p0: Token)",
-                    callMatcher: callMatcher,
+                    callMatcher: cuckoo_callMatcher,
                     parameterMatchers: matchers,
-                    sourceLocation: sourceLocation
+                    sourceLocation: cuckoo_sourceLocation
                 )
             }
         }

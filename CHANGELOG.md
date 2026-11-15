@@ -87,6 +87,11 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 - An `associatedtype` declared under `#if` was missed, so the mock didn't compile in the build that declares it.
   The mock now takes it as a generic parameter, constrained only in that build.
 
+- A property named `callMatcher` or `sourceLocation` clashed with the verification proxy's own, and a backticked
+  property such as `` `default` `` in a protocol with an associated type stopped generation for the whole module.
+  A generic parameter or associated type named like one of the mock's own type names (`Stubbing`, `Verification`,
+  `MocksType`) gave a mock that couldn't compile; the type is now left out with a warning saying what to rename.
+
 Build plugin:
 - In an Xcode project, Getting Started's Cuckoofile generated no mocks, without a word: Xcode doesn't tell the
   plugin which of the project's own targets a test target depends on. An Xcode project's entry is named after the
