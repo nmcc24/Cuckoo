@@ -166,6 +166,9 @@ In XCTest, or anywhere else without the trait, wrap the code in ``withStaticStub
 version. Tasks started inside the scope see its stubs; a `Task.detached`, a dispatch queue or a notification
 doesn't, and its static calls fail as unstubbed.
 
+`reset`, `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mock types too, as in
+`verifyNoMoreInteractions(MockClock.self)`, and act on the current scope's stubs and calls.
+
 Operators are static members too. A Swift member can't be named `+`, so the proxies name each operator `operator`
 followed by a word for each of its characters: `+` is `operatorPlus`, `==` is `operatorEqualEqual` and `<~>` is
 `operatorLessTildeGreater`. A prefix or postfix operator starts with its fixity, as in `prefixOperatorMinus` and
@@ -262,10 +265,10 @@ another matcher rejected isn't captured.
 ### Reset a mock
 
 - ``reset(_:)-(HasMockManager...)`` clears a mock's stubs and recorded calls.
-- ``clearStubs(_:)`` clears only the stubs.
-- ``clearInvocations(_:)`` clears only the recorded calls.
+- ``clearStubs(_:)-(Mock...)`` clears only the stubs.
+- ``clearInvocations(_:)-(Mock...)`` clears only the recorded calls.
 
-``reset(_:)-f6hy`` does the same for a mock type's static members.
+Each takes mock types too, for their static members, as described in "Static members" above.
 
 ### Where failures go
 

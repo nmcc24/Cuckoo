@@ -48,6 +48,8 @@
   copies read their names in the mock's scope, so one naming a nested type didn't compile.
 
 ### Added
+- `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mock types, as `reset` does, for their static
+  members: `verifyNoMoreInteractions(MockClock.self, MockStore.self)`.
 - Operator requirements are mocked. A protocol with `static func + (lhs: Self, rhs: Self) -> Self` had a mock that
   didn't conform. The proxies name an operator `operator` and a word for each character, such as
   `stub.operatorPlus(any(), any())` and `stub.prefixOperatorMinus(any())`.
