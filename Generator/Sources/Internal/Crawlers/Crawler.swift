@@ -528,16 +528,50 @@ final class Crawler: SyntaxVisitor {
     private func parameterType(_ type: TypeSyntax) -> ComplexType {
         if let identifier = type.as(IdentifierTypeSyntax.self), identifier.genericArgumentClause == nil,
            let functionType = closureTypealias(named: identifier.name.text, from: Syntax(type)) {
-            var parser = Parser(functionType)
-            return ComplexType(syntax: TypeSyntax.parse(from: &parser))
+            return ComplexType(syntax: qualifying(functionType, in: closureTypealiasScope(named: identifier.name.text)))
         }
         // A qualified one, `Uploader.Completion`, by its full name.
         if let member = type.as(MemberTypeSyntax.self), member.genericArgumentClause == nil,
            let functionType = context.closureTypealiases[member.trimmedDescription] {
-            var parser = Parser(functionType)
-            return ComplexType(syntax: TypeSyntax.parse(from: &parser))
+            let scope = member.baseType.trimmedDescription.split(separator: ".").map(String.init)
+            return ComplexType(syntax: qualifying(functionType, in: scope))
         }
         return ComplexType(syntax: type)
+    }
+
+    /// The scope of the typealias `name` stands for when it's declared in a type: its only nested declaration of
+    /// that name, if there's one.
+    private func closureTypealiasScope(named name: String) -> [String] {
+        let nested = context.closureTypealiases.keys.filter { $0.hasSuffix("." + name) }
+        guard context.closureTypealiases[name] == nil, nested.count == 1, let key = nested.first else { return [] }
+        return key.split(separator: ".").dropLast().map(String.init)
+    }
+
+    /// `functionType`, written in `scope`, with each type it names from that scope written qualified, so it reads
+    /// the same where the mock uses it: `(Receipt) -> Void` in `Uploader` is `(Uploader.Receipt) -> Void`.
+    private func qualifying(_ functionType: String, in scope: [String]) -> TypeSyntax {
+        var parser = Parser(functionType)
+        let type = TypeSyntax.parse(from: &parser)
+        guard !scope.isEmpty else { return type }
+        final class Qualifier: SyntaxRewriter {
+            let scope: [String]
+            let types: Set<String>
+            init(scope: [String], types: Set<String>) {
+                self.scope = scope
+                self.types = types
+            }
+            override func visit(_ node: IdentifierTypeSyntax) -> TypeSyntax {
+                for length in stride(from: scope.count, through: 1, by: -1) {
+                    let qualified = (scope.prefix(length) + [node.name.text]).joined(separator: ".")
+                    if types.contains(qualified) {
+                        var parser = Parser(qualified + (node.genericArgumentClause?.trimmedDescription ?? ""))
+                        return TypeSyntax.parse(from: &parser).with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
+                    }
+                }
+                return super.visit(node)
+            }
+        }
+        return Qualifier(scope: scope, types: context.nominalTypes).rewrite(type).cast(TypeSyntax.self)
     }
 
     /// The function type `name` stands for where `node` uses it, found as Swift finds it: a generic parameter,
@@ -552,6 +586,12 @@ final class Crawler: SyntaxVisitor {
         case .found(let functionType):
             return functionType
         case .notFound:
+            // Declared in another extension of an enclosing type, or in one of its superclasses or parent protocols.
+            for scope in memberLookupScopes(from: node) {
+                if let functionType = context.closureTypealiases["\(scope).\(name)"] {
+                    return functionType
+                }
+            }
             if let topLevel = context.closureTypealiases[name] {
                 return topLevel
             }
@@ -560,6 +600,25 @@ final class Crawler: SyntaxVisitor {
             let nested = Set(context.closureTypealiases.filter { $0.key.hasSuffix("." + name) }.values)
             return nested.count == 1 ? nested.first : nil
         }
+    }
+
+    /// The qualified names a member lookup from `node` also searches, innermost first: each enclosing type,
+    /// written as its declaration or extension names it, and the types it inherits from, as written.
+    private func memberLookupScopes(from node: Syntax) -> [String] {
+        var scopes: [String] = []
+        var ancestor = node.parent
+        while let current = ancestor {
+            if let group = current.asProtocol((any DeclGroupSyntax).self) {
+                if let extensionDeclaration = current.as(ExtensionDeclSyntax.self) {
+                    scopes.append(DeclaredNameCollector.qualifiedName(of: extensionDeclaration.extendedType.trimmedDescription, at: current))
+                } else if let named = current.asProtocol((any NamedDeclSyntax).self) {
+                    scopes.append(DeclaredNameCollector.qualifiedName(of: named.name.text, at: current))
+                }
+                scopes += group.inheritanceClause?.inheritedTypes.map { $0.type.trimmedDescription } ?? []
+            }
+            ancestor = current.parent
+        }
+        return scopes
     }
 
     private enum ScopedTypealias {
@@ -1344,6 +1403,7 @@ extension Crawler {
 
         override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
             names.nominalTypes.insert(node.name.text)
+            names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collectAccess(node.modifiers, name: node.name)
             names.protocolsAndClasses.insert(node.name.text)
             // Its typealiases count, as `typealias Callback = …` does for the protocols that refine it.
@@ -1402,6 +1462,7 @@ extension Crawler {
 
         override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
             names.nominalTypes.insert(node.name.text)
+            names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             names.actors.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             collectAccess(node.modifiers, name: node.name)
@@ -1434,6 +1495,7 @@ extension Crawler {
 
         override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
             names.nominalTypes.insert(node.name.text)
+            names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             collectAccess(node.modifiers, name: node.name)
             names.protocolsAndClasses.insert(node.name.text)
@@ -1445,6 +1507,7 @@ extension Crawler {
 
         override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
             names.nominalTypes.insert(node.name.text)
+            names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             collectAccess(node.modifiers, name: node.name)
             if node.genericParameterClause != nil {
@@ -1455,6 +1518,7 @@ extension Crawler {
 
         override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
             names.nominalTypes.insert(node.name.text)
+            names.nominalTypes.insert(Self.qualifiedName(of: node.name.text, at: Syntax(node)))
             collect(node.attributes, inheritance: node.inheritanceClause, name: node.name)
             collectAccess(node.modifiers, name: node.name)
             if node.genericParameterClause != nil {
