@@ -4,14 +4,30 @@ public protocol Stub {
     var method: String { get }
 }
 
+/// A stub that can name the argument and return types it was made for, which tell apart the stubs of a generic
+/// member made with different type arguments.
+protocol TypedStub: Stub {
+    var types: String { get }
+}
+
 /// A stub of a member whose arguments are `IN`, which returns `OUT`, throws `ERROR` and runs `IMPL` closures.
 ///
 /// The stubbing proxies create it; tests reach it through `when(…)` and the `then…` calls.
-public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub {
+public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub, TypedStub {
     /// The stubbed member, as failure messages name it.
     public let method: String
     let parameterMatchers: [ParameterMatcher<IN>]
     private let actions = Locked<[StubAction<OUT, ERROR, IMPL>]>([])
+
+    var types: String {
+        ConcreteStub.types(in: IN.self, out: OUT.self)
+    }
+
+    /// Arguments `IN` and result `OUT` as failure messages show them, such as `(String) -> Int`.
+    static func types(in _: IN.Type, out _: OUT.Type) -> String {
+        let arguments = "\(IN.self)"
+        return (arguments.hasPrefix("(") ? arguments : "(\(arguments))") + " -> \(OUT.self)"
+    }
 
     init(method: String, parameterMatchers: [ParameterMatcher<IN>]) {
         self.method = method

@@ -21,16 +21,21 @@ struct MemberSignature {
 
     init(_ method: String) {
         let isSetter = method.hasSuffix("#set")
-        guard let open = method.firstIndex(of: "(") else {
-            name = String(method.prefix { $0 != "#" })
+        // A generic method's name is followed by its generic parameters, as in `parse<T: Decodable> (_ p0: String)`;
+        // an operator's `<` follows a space or another operator character: `static <(_ p0: Self, _ p1: Self)`.
+        let genericClause = Self.genericClauseStart(in: method)
+        let open = genericClause.map { Self.parameterListStart(in: method, after: $0) } ?? method.firstIndex(of: "(")
+        guard let open else {
+            name = String(method[..<(genericClause ?? method.endIndex)].prefix { $0 != "#" })
             labels = isSetter ? ["newValue"] : []
             return
         }
+        let baseName = String(method[..<(genericClause ?? open)])
         let parameters = Self.topLevelParameters(in: method[method.index(after: open)...])
         let declaredLabels = parameters.map { parameter in
             String(parameter.drop(while: \.isSpace).prefix { $0 != " " && $0 != ":" })
         }
-        name = String(method[..<open]) + "(" + declaredLabels.map { $0 + ":" }.joined() + ")"
+        name = baseName + "(" + declaredLabels.map { $0 + ":" }.joined() + ")"
         labels = declaredLabels + (isSetter ? ["newValue"] : [])
     }
 
@@ -47,6 +52,46 @@ struct MemberSignature {
         case let label:
             return "`\(label):`"
         }
+    }
+
+    /// The `<` that opens a generic method's generic parameters, right after its name, before any parenthesis.
+    private static func genericClauseStart(in method: String) -> String.Index? {
+        var previous: Character?
+        for index in method.indices {
+            let character = method[index]
+            if character == "(" || character == "#" {
+                return nil
+            }
+            if character == "<", let previous, previous.isLetter || previous.isNumber || previous == "_" || previous == "`" {
+                return index
+            }
+            previous = character
+        }
+        return nil
+    }
+
+    /// The parenthesis that opens the parameter list, after the generic parameters that may follow the name: a
+    /// constraint such as `<T: Collection<(Int, Int)>>` has parentheses of its own.
+    private static func parameterListStart(in method: String, after nameEnd: String.Index) -> String.Index? {
+        var depth = 0
+        var previous: Character?
+        for index in method[nameEnd...].indices {
+            let character = method[index]
+            defer { previous = character }
+            switch character {
+            case "<":
+                depth += 1
+            case ">" where previous != "-":
+                depth -= 1
+            case "(" where depth == 0:
+                return index
+            case "#" where depth == 0:
+                return nil
+            default:
+                break
+            }
+        }
+        return nil
     }
 
     /// The comma-separated parameters up to the parenthesis that closes the list. Commas inside a parameter's type,

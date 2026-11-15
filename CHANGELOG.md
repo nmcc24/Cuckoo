@@ -48,6 +48,11 @@
   `enableDefaultImplementation(_:)` on the mock once it exists.
 
 ### Fixed
+- A call to a generic member that had stubs only for other type arguments said the mock had no stub for it. The
+  failure now lists those stubs' types next to the call's, and names a generic member without its generic
+  parameters, as `parse(_:)`.
+- A `String` argument that started with "(" and held a comma, such as `"(a, b)"`, was shown without its quotes, as
+  if it were several arguments. One argument is now always quoted, and the "No stub" message quotes it too.
 - `createMock` handed its manager to every mock created in its closure, so a mock passed to the new one shared its
   stubs and calls. Only the requested mock type takes it now.
 - An `ArgumentCaptor` captured every argument its matcher saw: from calls another matcher of the same `verify`

@@ -80,9 +80,8 @@ public final class MockManager: Sendable {
         var sawUnfinishedStub = false
         // For each stub that didn't match, newest first, the first argument it rejected.
         var mismatches: [Int] = []
-        let candidates = stubs.lazy
-            .filter { $0.method == method }
-            .compactMap { $0 as? ConcreteStub<IN, OUT, ERROR, IMPL> }
+        let sameMember = stubs.filter { $0.method == method }
+        let candidates = sameMember.lazy.compactMap { $0 as? ConcreteStub<IN, OUT, ERROR, IMPL> }
         for stub in candidates {
             // A captor in the stub's matchers captures only if this stub answers the call.
             let (mismatch, captures) = PendingCaptures.collecting { stub.firstMismatch(in: parameters) }
@@ -109,21 +108,39 @@ public final class MockManager: Sendable {
         } else if fallback == .defaultImplementation {
             return .defaultImplementation
         } else if sawUnfinishedStub {
-            fail("Stubbing of method `\(method)` using parameters \(parameters) wasn't finished (missing thenReturn()).")
+            fail("Stubbing of method `\(method)` using parameters \(call.parametersAsString) wasn't finished (missing thenReturn()).")
             return .unstubbed
         } else {
-            fail("No stub for method `\(method)` using parameters \(parameters).\n" + describeStubs(of: method, mismatches: mismatches))
+            // A generic member's stubs made with other type arguments can't answer this call.
+            let callTypes = ConcreteStub<IN, OUT, ERROR, IMPL>.types(in: IN.self, out: OUT.self)
+            let otherTypes = sameMember.compactMap { ($0 as? any TypedStub)?.types }.filter { $0 != callTypes }
+            fail(
+                "No stub for method `\(method)` using parameters \(call.parametersAsString).\n"
+                    + describeStubs(of: method, mismatches: mismatches, otherTypes: otherTypes, callTypes: callTypes)
+            )
             return .unstubbed
         }
     }
 
     /// Why no stub of `method` answered a call: the argument each one rejected, or that there are none.
-    private func describeStubs(of method: String, mismatches: [Int]) -> String {
+    ///
+    /// `otherTypes` are the argument and return types of the member's stubs made for other type arguments, which a
+    /// generic member's call with `callTypes` can't use.
+    private func describeStubs(of method: String, mismatches: [Int], otherTypes: [String], callTypes: String) -> String {
         let member = MemberSignature(method)
-        guard !mismatches.isEmpty else {
-            return "The mock has no stub for \(member.name)."
+        var lines: [String] = []
+        if mismatches.isEmpty && otherTypes.isEmpty {
+            lines.append("The mock has no stub for \(member.name).")
+        } else if !mismatches.isEmpty {
+            lines.append("Stubs of \(member.name), newest first:\n" + numberedList(mismatches.map { "\(member.argument(at: $0)) doesn't match" }))
         }
-        return "Stubs of \(member.name), newest first:\n" + numberedList(mismatches.map { "\(member.argument(at: $0)) doesn't match" })
+        if !otherTypes.isEmpty {
+            lines.append(
+                "Stubs of \(member.name) made for other types, which can't answer a call with \(callTypes):\n"
+                    + numberedList(otherTypes)
+            )
+        }
+        return lines.joined(separator: "\n")
     }
 
     /// The default value an unstubbed call returns, or a crash if its type has none.
