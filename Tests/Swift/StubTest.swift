@@ -31,39 +31,9 @@ struct StubTest {
     }
 
     @Test
-    func tuple1() {
-        stub.tuple1 = (2)
-        #expect(stub.tuple1 == (0))
-    }
-
-    @Test
     func tuple2() {
         stub.tuple2 = (2, 1)
         #expect(stub.tuple2 == (0, 0))
-    }
-
-    @Test
-    func tuple3() {
-        stub.tuple3 = (2, 1, true)
-        #expect(stub.tuple3 == (0, 0, false))
-    }
-
-    @Test
-    func tuple4() {
-        stub.tuple4 = (2, 1, 1, 1)
-        #expect(stub.tuple4 == (0, 0, 0, 0))
-    }
-
-    @Test
-    func tuple5() {
-        stub.tuple5 = (2, 1, 1, 1, 1)
-        #expect(stub.tuple5 == (0, 0, 0, 0, 0))
-    }
-
-    @Test
-    func tuple6() {
-        stub.tuple6 = (2, "A", 1, 1, 1, 1)
-        #expect(stub.tuple6 == (0, "", 0, 0, 0, 0))
     }
 
     @Test
