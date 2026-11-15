@@ -83,3 +83,18 @@ enum OtherScope {
     protocol Bound { func other() }
 }
 protocol RefinesBound: BoundScope.Bound { func refined() }
+
+// A `where` clause on a parent outside the sources: the mock fixes `ID == String` with a typealias, since it has
+// no generic parameter to constrain, and leaves `ID: Hashable` for Swift to check on its own declarations.
+protocol NamedEntity: Identifiable where ID == String {
+    func name() -> String
+}
+extension NamedEntity {
+    nonisolated var id: String { "named" }
+}
+protocol KeyedEntity: Identifiable where ID: Hashable {
+    func key() -> Int
+}
+extension KeyedEntity {
+    nonisolated var id: Int { 0 }
+}

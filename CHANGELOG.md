@@ -96,6 +96,9 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   info line. It's now a warning that names both files. A protocol bound to a class (`protocol P: Base`) is found by
   scope, so a same-named protocol elsewhere no longer stands in for it.
 
+- `protocol P: Identifiable where ID == String` got a mock with a `where` clause on a non-generic class, which
+  doesn't compile. A same-type requirement on an outside parent's associated type becomes a typealias in the mock.
+
 Build plugin:
 - In an Xcode project, Getting Started's Cuckoofile generated no mocks, without a word: Xcode doesn't tell the
   plugin which of the project's own targets a test target depends on. An Xcode project's entry is named after the
