@@ -85,11 +85,17 @@ struct StaticMemberTests {
         stub(MockStaticFactory.self) { stub in
             when(stub.name.get).thenReturn("before")
         }
+        stub(MockStaticMembersClass.self) { stub in
+            when(stub.version.get).thenReturn(5)
+        }
         _ = MockStaticFactory.name
+        _ = MockStaticMembersClass.version
 
-        reset(MockStaticFactory.self)
+        reset(MockStaticFactory.self, MockStaticMembersClass.self)
 
         verify(MockStaticFactory.self, never()).name.get()
+        verify(MockStaticMembersClass.self, never()).version.get()
+        #expect(TestUtils.catchCuckooFail { _ = MockStaticMembersClass.version } != nil)
     }
 
     /// Cases run in parallel; each sees only its own stubs and calls.
