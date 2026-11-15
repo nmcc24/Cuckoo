@@ -101,7 +101,7 @@ struct GenerateCommand: AsyncParsableCommand {
             try (sourcesListPath.map(Self.sourcesList(at:)) ?? []) + sourceEntries.map(Self.pluginSource(fromLine:))
         }
 
-        for warning in Cuckoofile.warnings(for: configurationFile.contents) {
+        for warning in Cuckoofile.warnings(for: configurationFile.contents, module: requestedModuleName) {
             printToStandardError("warning: cuckoo: \(configurationFile.path): \(warning)\n")
         }
         let modules = try Cuckoofile.modules(

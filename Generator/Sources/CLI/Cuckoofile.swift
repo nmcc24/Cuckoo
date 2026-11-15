@@ -66,8 +66,9 @@ enum Cuckoofile {
 
     /// Warnings for keys the Cuckoofile has but Cuckoo doesn't read, such as a misspelled `testableImport` or a
     /// `[module.App]` table, which would otherwise be ignored without a word, and for a Cuckoofile that defines no
-    /// modules at all.
-    static func warnings(for contents: String) -> [String] {
+    /// modules at all. With `module`, a module's keys are checked only for that module: the plugins run the
+    /// generator once per module, and each run would repeat every other module's warnings.
+    static func warnings(for contents: String, module requestedModule: String? = nil) -> [String] {
         guard let file = try? TOMLTable(source: contents) else { return [] }
         func table(_ parent: TOMLTable, _ key: String) -> TOMLTable? {
             try? parent.table(forKey: key)
@@ -77,7 +78,7 @@ enum Cuckoofile {
             warnings.append(unknownKey(key, known: ["output", "modules"]))
         }
         let modules = table(file, "modules")
-        for moduleName in (modules?.keys ?? []).sorted() {
+        for moduleName in (modules?.keys ?? []).sorted() where requestedModule.map({ $0 == moduleName }) ?? true {
             guard let module = modules.flatMap({ table($0, moduleName) }) else { continue }
             for moduleKey in module.keys.sorted() where !moduleKeys.contains(moduleKey) {
                 warnings.append(optionKeys.contains(moduleKey)

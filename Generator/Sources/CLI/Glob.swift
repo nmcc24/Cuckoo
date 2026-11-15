@@ -108,19 +108,7 @@ final class Glob: Collection {
         }
 
         var results = [String]()
-        var directories: [String]
-        do {
-            // `**` doesn't descend into hidden directories, as a shell's globstar doesn't: `.build` holds the package's
-            // dependencies' sources, and `.git` and `.swiftpm` nothing to mock. A pattern can still name one itself.
-            directories = try FileManager.default.subpathsOfDirectory(atPath: firstPart).compactMap { subpath in
-                guard !subpath.split(separator: "/").contains(where: { $0.hasPrefix(".") }) else { return nil }
-                let fullPath = (Path(firstPart) + subpath).rawValue
-                return Path(fullPath).isDirectory ? fullPath : nil
-            }
-        } catch {
-            directories = []
-            printToStandardError("warning: Can't list the directory '\(firstPart)': \(error)\n")
-        }
+        var directories = Self.directories(under: firstPart)
 
         if behavior.includesFilesFromRootOfGlobstar {
             // Check the base directory for the glob star as well.
@@ -139,6 +127,26 @@ final class Glob: Collection {
         }
 
         return results
+    }
+
+    /// Every directory under `root`, at any depth. `**` doesn't descend into hidden directories, as a shell's
+    /// globstar doesn't: `.build` holds the package's dependencies' sources, and `.git` and `.swiftpm` nothing to mock,
+    /// so they aren't even listed. A pattern can still name one, before the `**` or after it.
+    private static func directories(under root: String) -> [String] {
+        let entries: [String]
+        do {
+            entries = try FileManager.default.contentsOfDirectory(atPath: root)
+        } catch {
+            printToStandardError("warning: Can't list the directory '\(root)': \(error)\n")
+            return []
+        }
+        return entries.sorted().flatMap { entry -> [String] in
+            let path = (Path(root) + entry).rawValue
+            // A symbolic link isn't followed, as `FileManager.subpathsOfDirectory` doesn't, so a cycle can't recurse.
+            guard !entry.hasPrefix("."), Path(path).isDirectory,
+                  (try? FileManager.default.destinationOfSymbolicLink(atPath: path)) == nil else { return [] }
+            return [path] + directories(under: path)
+        }
     }
 
     /// The directories a pattern without a globstar matches, each with a trailing slash.

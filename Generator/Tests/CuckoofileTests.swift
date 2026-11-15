@@ -159,6 +159,24 @@ struct CuckoofileTests {
         #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'modules.App.options.protocolOnly' isn't one Cuckoo reads") })
     }
 
+    /// A plugin's run for one module reports that module's keys, and the file's own, but not other modules'.
+    @Test
+    func aModuleRunWarnsOnlyAboutItsModule() {
+        let contents = """
+            unknown = 1
+
+            [modules.App]
+            testableImport = ["App"]
+
+            [modules.Kit]
+            importz = ["Foundation"]
+            """
+        let warnings = Cuckoofile.warnings(for: contents, module: "Kit")
+        #expect(warnings.count == 2)
+        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'unknown' isn't one Cuckoo reads") })
+        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'modules.Kit.importz' isn't one Cuckoo reads") })
+    }
+
     /// `[module.App]`, singular, defines no module: both the key and the missing modules are reported.
     @Test
     func misspelledModulesTableWarns() {
