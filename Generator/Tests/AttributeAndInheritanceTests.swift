@@ -28,6 +28,21 @@ struct AttributeAndInheritanceTests {
         ])
     }
 
+    /// An attribute the generator doesn't read is named in the verbose log, so a missing behaviour can be traced to it.
+    @Test
+    func unsupportedAttributeIsLoggedWhenVerbose() {
+        let source = """
+            @Tracked
+            protocol Logger {
+                func log()
+            }
+            """
+        let verbose = capturingOutput(level: .verbose) { _ = Crawler.crawl(source: source, url: url) }
+        #expect(verbose.contains("Ignoring unsupported attribute 'Tracked'"))
+        let quiet = capturingOutput { _ = Crawler.crawl(source: source, url: url) }
+        #expect(quiet.isEmpty)
+    }
+
     @Test
     func unknownAttributeIsNotedInTheMock() async throws {
         let output = try await generateMocks(source: """

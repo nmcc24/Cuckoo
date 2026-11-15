@@ -114,4 +114,29 @@ struct GlobTests {
             "The source '\(Path("\(root)/App/Gone.swift"))' of module App doesn't exist.",
         ])
     }
+
+    /// A directory a globstar can't list is reported and skipped, and the rest of the pattern still matches. Root
+    /// reads any directory, so the test checks nothing there (the Linux containers run as root).
+    @Test
+    func anUnreadableDirectoryIsReported() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooGlob-\(UUID().uuidString)")
+        let locked = directory.appending(path: "App/Locked")
+        try FileManager.default.createDirectory(at: locked, withIntermediateDirectories: true)
+        try "".write(to: directory.appending(path: "App/Model.swift"), atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0], ofItemAtPath: locked.path(percentEncoded: false))
+        defer {
+            try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: locked.path(percentEncoded: false))
+            try? FileManager.default.removeItem(at: directory)
+        }
+        guard (try? FileManager.default.contentsOfDirectory(atPath: locked.path(percentEncoded: false))) == nil else { return }
+
+        let root = directory.path(percentEncoded: false)
+        var matches: [String] = []
+        let printed = capturingOutput {
+            matches = Glob(pattern: "\(root)/App/**/*.swift").map { Path($0).standardRawValue }
+        }
+        #expect(matches == [Path("\(root)/App/Model.swift").standardRawValue])
+        #expect(printed.hasPrefix("warning: Can't list the directory '"))
+        #expect(printed.contains("Locked"))
+    }
 }

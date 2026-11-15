@@ -15,17 +15,29 @@ enum Logger {
     /// The lowest level that's printed. `GenerateCommand` binds it for the whole run, and the tasks that generate
     /// files concurrently inherit it.
     @TaskLocal static var level: LogLevel = .info
+
+    /// Where the messages go instead of standard output and standard error, so tests can read them. `nil` prints
+    /// them.
+    @TaskLocal static var capture: (@Sendable (String) -> Void)?
 }
 
 func log(_ level: Logger.LogLevel, message: Any...) {
-    if level >= Logger.level {
-        print(message.map(String.init(describing:)).joined(separator: " "))
+    guard level >= Logger.level else { return }
+    let text = message.map(String.init(describing:)).joined(separator: " ")
+    if let capture = Logger.capture {
+        capture(text + "\n")
+    } else {
+        print(text)
     }
 }
 
 /// Writes `text` to standard error. `FileHandle` would link swift-corelibs Foundation, and with it ICU's data, into
 /// the generator on Linux; the file descriptor needs only the C library.
 func printToStandardError(_ text: String) {
+    if let capture = Logger.capture {
+        capture(text)
+        return
+    }
     var text = text
     text.withUTF8 { bytes in
         var offset = 0
