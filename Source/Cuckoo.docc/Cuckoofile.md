@@ -22,6 +22,9 @@ keepDocumentation = false
 defaultIsolation = "MainActor"
 ```
 
+A key Cuckoo doesn't read, such as a misspelled `testableImport` or an option outside the `options` table, is a
+build warning that names the keys Cuckoo knows there.
+
 The name of a module matters with the build plugin. `CuckooPlugin` generates one file per dependency of the test
 target, from the entry with that dependency's name, plus one from the entry named after the test target. A
 dependency without an entry gets an empty file, and an entry named after neither isn't generated for that target.

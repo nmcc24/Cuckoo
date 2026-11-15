@@ -64,6 +64,51 @@ enum Cuckoofile {
         return allModules
     }
 
+    /// Warnings for keys the Cuckoofile has but Cuckoo doesn't read, such as a misspelled `testableImport` or a
+    /// `[module.App]` table, which would otherwise be ignored without a word, and for a Cuckoofile that defines no
+    /// modules at all.
+    static func warnings(for contents: String) -> [String] {
+        guard let file = try? TOMLTable(source: contents) else { return [] }
+        func table(_ parent: TOMLTable, _ key: String) -> TOMLTable? {
+            try? parent.table(forKey: key)
+        }
+        var warnings: [String] = []
+        for key in file.keys.sorted() where key != "output" && key != "modules" {
+            warnings.append(unknownKey(key, known: ["output", "modules"]))
+        }
+        let modules = table(file, "modules")
+        for moduleName in (modules?.keys ?? []).sorted() {
+            guard let module = modules.flatMap({ table($0, moduleName) }) else { continue }
+            for moduleKey in module.keys.sorted() where !moduleKeys.contains(moduleKey) {
+                warnings.append(optionKeys.contains(moduleKey)
+                    ? "The Cuckoofile key 'modules.\(moduleName).\(moduleKey)' is an option, so it's ignored here: "
+                        + "put it in the module's `[modules.\(moduleName).options]` table."
+                    : unknownKey("modules.\(moduleName).\(moduleKey)", known: moduleKeys))
+            }
+            for optionKey in (table(module, "options")?.keys ?? []).sorted() where !optionKeys.contains(optionKey) {
+                warnings.append(unknownKey("modules.\(moduleName).options.\(optionKey)", known: optionKeys))
+            }
+        }
+        if modules?.keys.isEmpty != false {
+            warnings.append("The Cuckoofile defines no modules: add a `[modules.<Name>]` table for each module to mock.")
+        }
+        return warnings
+    }
+
+    private static let moduleKeys: Set<String> = [
+        "imports", "publicImports", "testableImports", "sources", "exclude", "regex", "globalActors", "output",
+        "filenameFormat", "options", "xcodeproj",
+    ]
+    private static let optionKeys: Set<String> = [
+        "glob", "keepDocumentation", "enableInheritance", "protocolsOnly", "omitHeaders", "mockPrefix", "mockSuffix",
+        "defaultIsolation",
+    ]
+
+    private static func unknownKey(_ key: String, known: Set<String>) -> String {
+        "The Cuckoofile key '\(key)' isn't one Cuckoo reads, so it's ignored. Known keys here: "
+            + known.sorted().joined(separator: ", ") + "."
+    }
+
     enum ParseError: Error, CustomStringConvertible {
         case unreadable(any Error)
         case configurationErrors(details: [String])
