@@ -48,8 +48,8 @@
   `enableDefaultImplementation(_:)` on the mock once it exists.
 - `CuckooConfiguration.failureHandler`, `CuckooConfiguration.FailureHandler` and the `.cuckoo(failureHandler:)`
   trait argument. Failures go to the framework running the test, which has its own way to expect one:
-  `withKnownIssue` in Swift Testing and `XCTExpectFailure` in XCTest. The handler also couldn't give an unstubbed
-  call a location in the test, so it pointed into Cuckoo's own source.
+  `withKnownIssue` in Swift Testing and `XCTExpectFailure` in XCTest on Apple platforms. The handler also couldn't
+  give an unstubbed call a location in the test, so it pointed into Cuckoo's own source.
 
 ### Fixed
 - A failure that `eventually` reported after its timeout lost the test that created the mock, so from a task outside

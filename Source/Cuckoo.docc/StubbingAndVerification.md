@@ -265,4 +265,6 @@ another matcher rejected isn't captured.
 
 Failures go to the framework running the test: Swift Testing records an issue, and XCTest an `XCTFail`. A test
 that expects one, to check that a mock is misused as it should be, wraps the code in `withKnownIssue { … }` in
-Swift Testing, or `XCTExpectFailure { … }` in XCTest on Apple platforms.
+Swift Testing, or `XCTExpectFailure { … }` in XCTest on Apple platforms. The expectation catches only failures
+inside its own block: a failure in a task the block didn't wait for, such as a `Task.detached`, still reaches the
+test that created the mock, which Swift Testing then fails.
