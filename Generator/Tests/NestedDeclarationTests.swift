@@ -6,13 +6,16 @@ import Testing
 struct NestedDeclarationTests {
     @Test
     func valueGenericsKeepLet() async throws {
+        // Fixture 44 compiles the same declaration and its mock.
         let output = try await generateMocks(source: """
+            @available(macOS 26, iOS 26, tvOS 26, watchOS 26, *)
             class Buffer<let Count: Int> {
-                func first<let N: Int>(_ count: Int) -> Int { 0 }
+                init() {}
+                func first<let N: Int>(_ values: InlineArray<N, Int>) -> Int { 0 }
             }
             """)
         #expect(output.contains("class MockBuffer<let Count: Int>: Buffer<Count>"))
-        #expect(output.contains("override func first<let N: Int> (_ p0: Int) -> Int"))
+        #expect(output.contains("override func first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int"))
     }
 
     @Test
