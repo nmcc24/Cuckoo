@@ -27,4 +27,33 @@ struct PackageAccessTest {
         #expect(mock.work() == "stubbed")
         verify(mock).work()
     }
+
+    @Test
+    func publicActorProtocolIsMocked() async {
+        let mock = MockPublicActorService()
+        stub(mock) { stub in
+            when(stub.count()).thenReturn(3)
+        }
+
+        #expect(await mock.count() == 3)
+        verify(mock).count()
+    }
+
+    @Test
+    func publicClassBoundProtocolsAreMocked() {
+        let bound = MockPublicBoundService(id: 7)
+        let plain = MockPublicPlainBoundService()
+        stub(bound) { stub in
+            when(stub.describe()).thenReturn("bound")
+        }
+        stub(plain) { stub in
+            when(stub.ping()).thenReturn(true)
+        }
+
+        #expect(bound.id == 7)
+        #expect(bound.describe() == "bound")
+        #expect(plain.ping())
+        verify(bound).describe()
+        verify(plain).ping()
+    }
 }

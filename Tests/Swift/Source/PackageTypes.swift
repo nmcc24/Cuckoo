@@ -10,3 +10,29 @@ package class PackageWorker {
         "real"
     }
 }
+
+/// A public actor protocol: its mock is an actor whose `init()` can't be `nonisolated`.
+public protocol PublicActorService: Actor {
+    func count() -> Int
+}
+
+/// Public protocols bound to a class: their mocks subclass it and inherit its initializers.
+open class PublicServiceBase {
+    public let id: Int
+
+    public init(id: Int) {
+        self.id = id
+    }
+}
+
+public protocol PublicBoundService: PublicServiceBase {
+    func describe() -> String
+}
+
+open class PublicPlainBase {
+    public init() {}
+}
+
+public protocol PublicPlainBoundService: PublicPlainBase {
+    func ping() -> Bool
+}
