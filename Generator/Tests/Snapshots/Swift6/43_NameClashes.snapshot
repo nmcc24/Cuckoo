@@ -131,7 +131,7 @@ nonisolated final class VerificationNamesStub: VerificationNames {
 }
 
 nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_KeywordProperty
     typealias CuckooVerification = __VerificationProxy_KeywordProperty
 
@@ -139,8 +139,8 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeywordProperty.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: KeywordProperty, Sendable {
-        private let reference: @Sendable () -> any KeywordProperty
+    nonisolated final class __DefaultImplCaller: KeywordProperty, Sendable {
+        private let cuckooReference: @Sendable () -> any KeywordProperty
 
         private let _getter_storage$$default: @Sendable () -> Int
         var `default`: Int {
@@ -152,7 +152,7 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
         init<_CUCKOO$$GENERIC: KeywordProperty & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -170,10 +170,10 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeywordProperty & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -214,7 +214,7 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
             return .init(manager: cuckooManager, name: "`default`")
         }
 
-        func take<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Element), ((Element)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == Element {
+        func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Element), ((Element)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Element {
             let matchers: [Cuckoo.ParameterMatcher<(Element)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -241,7 +241,7 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
         }
 
         @discardableResult
-        func take<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(Element), Void> where M1.MatchedType == Element {
+        func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(Element), Void> where __M1.MatchedType == Element {
             let matchers: [Cuckoo.ParameterMatcher<(Element)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]

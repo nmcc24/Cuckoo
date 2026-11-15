@@ -128,7 +128,7 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
             self.cuckooManager = manager
         }
 
-        func take<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(NonSendableBox), ((NonSendableBox)) -> Void, Cuckoo.StubSharing.Confined> where M1.MatchedType == NonSendableBox {
+        func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(NonSendableBox), ((NonSendableBox)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == NonSendableBox {
             let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -159,7 +159,7 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
         }
 
         @discardableResult
-        func take<M1: Cuckoo._Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(NonSendableBox), Void> where M1.MatchedType == NonSendableBox {
+        func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.__DoNotUse<(NonSendableBox), Void> where __M1.MatchedType == NonSendableBox {
             let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -195,7 +195,7 @@ nonisolated final class TransferStub: Transfer {
 }
 
 nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_Converter
     typealias CuckooVerification = __VerificationProxy_Converter
 
@@ -203,13 +203,13 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConverter.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: Converter, Sendable {
-        private let reference: @Sendable () -> any Converter<Input>
+    nonisolated final class __DefaultImplCaller: Converter, Sendable {
+        private let cuckooReference: @Sendable () -> any Converter<Input>
 
         init<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
         }
@@ -224,14 +224,14 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 return await opened.convert(value: p0, input: p1, fallback: p2 as! _CUCKOO$$GENERIC.Output) as! Output
             }
             #endif
-            return await openExistential(reference(), p0, p1)
+            return await openExistential(cuckooReference(), p0, p1)
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -257,7 +257,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             self.cuckooManager = manager
         }
 
-        func convert<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable, M3: Cuckoo._Matchable, T>(value p0: M1, input p1: M2, fallback p2: M3) -> Cuckoo.ProtocolStubFunction<(T, Input, Output), Output, nonisolated(nonsending) ((T, Input, Output)) async -> Output, Cuckoo.StubSharing.Confined> where M1.MatchedType == T, M2.MatchedType == Input, M3.MatchedType == Output {
+        func convert<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable, T>(value p0: __M1, input p1: __M2, fallback p2: __M3) -> Cuckoo.ProtocolStubFunction<(T, Input, Output), Output, nonisolated(nonsending) ((T, Input, Output)) async -> Output, Cuckoo.StubSharing.Confined> where __M1.MatchedType == T, __M2.MatchedType == Input, __M3.MatchedType == Output {
             let matchers: [Cuckoo.ParameterMatcher<(T, Input, Output)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -284,7 +284,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         @discardableResult
-        func convert<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable, M3: Cuckoo._Matchable, T>(value p0: M1, input p1: M2, fallback p2: M3) -> Cuckoo.__DoNotUse<(T, Input, Output), Output> where M1.MatchedType == T, M2.MatchedType == Input, M3.MatchedType == Output {
+        func convert<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable, T>(value p0: __M1, input p1: __M2, fallback p2: __M3) -> Cuckoo.__DoNotUse<(T, Input, Output), Output> where __M1.MatchedType == T, __M2.MatchedType == Input, __M3.MatchedType == Output {
             let matchers: [Cuckoo.ParameterMatcher<(T, Input, Output)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {

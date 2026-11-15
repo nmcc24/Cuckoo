@@ -51,7 +51,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             self.cuckooManager = manager
         }
 
-        func get<M1: Cuckoo._SendableMatchable, M2: Cuckoo._SendableMatchable>(url p0: M1, completion p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, @Sendable (Result<String, any Error>) -> Void), @Sendable ((String, @Sendable (Result<String, any Error>) -> Void)) -> Void, Cuckoo.StubSharing.Shared> where M1.MatchedType == String, M2.MatchedType == @Sendable (Result<String, any Error>) -> Void {
+        func get<__M1: Cuckoo._SendableMatchable, __M2: Cuckoo._SendableMatchable>(url p0: __M1, completion p1: __M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, @Sendable (Result<String, any Error>) -> Void), @Sendable ((String, @Sendable (Result<String, any Error>) -> Void)) -> Void, Cuckoo.StubSharing.Shared> where __M1.MatchedType == String, __M2.MatchedType == @Sendable (Result<String, any Error>) -> Void {
             let matchers: [Cuckoo.SendableMatcher<(String, @Sendable (Result<String, any Error>) -> Void)>] = [Cuckoo.wrap(matchable: p0, at: \.0), Cuckoo.wrap(matchable: p1, at: \.1)]
             return .init(stub: cuckooManager.createStub(for: MockNetworking.self,
                 method: "get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void)",
@@ -59,7 +59,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             ))
         }
 
-        func get<M1: Cuckoo._SendableMatchable>(url p0: M1) -> Cuckoo.ProtocolStubThrowingFunction<(String), String, any Swift.Error, nonisolated(nonsending) @Sendable ((String)) async throws -> String, Cuckoo.StubSharing.Shared> where M1.MatchedType == String {
+        func get<__M1: Cuckoo._SendableMatchable>(url p0: __M1) -> Cuckoo.ProtocolStubThrowingFunction<(String), String, any Swift.Error, nonisolated(nonsending) @Sendable ((String)) async throws -> String, Cuckoo.StubSharing.Shared> where __M1.MatchedType == String {
             let matchers: [Cuckoo.SendableMatcher<(String)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
             return .init(stub: cuckooManager.createStub(for: MockNetworking.self,
                 method: "get(url p0: String) async throws -> String",
@@ -80,7 +80,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
         }
 
         @discardableResult
-        func get<M1: Cuckoo._Matchable, M2: Cuckoo._Matchable>(url p0: M1, completion p1: M2) -> Cuckoo.__DoNotUse<(String, @Sendable (Result<String, any Error>) -> Void), Void> where M1.MatchedType == String, M2.MatchedType == @Sendable (Result<String, any Error>) -> Void {
+        func get<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(url p0: __M1, completion p1: __M2) -> Cuckoo.__DoNotUse<(String, @Sendable (Result<String, any Error>) -> Void), Void> where __M1.MatchedType == String, __M2.MatchedType == @Sendable (Result<String, any Error>) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(String, @Sendable (Result<String, any Error>) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
@@ -95,7 +95,7 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
         }
 
         @discardableResult
-        func get<M1: Cuckoo._Matchable>(url p0: M1) -> Cuckoo.__DoNotUse<(String), String> where M1.MatchedType == String {
+        func get<__M1: Cuckoo._Matchable>(url p0: __M1) -> Cuckoo.__DoNotUse<(String), String> where __M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
@@ -120,7 +120,7 @@ nonisolated final class NetworkingStub: Networking {
 }
 
 nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueStore, nonisolated Cuckoo.ProtocolMock {
-    typealias CuckooMocksType = DefaultImplCaller
+    typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_KeyValueStore
     typealias CuckooVerification = __VerificationProxy_KeyValueStore
 
@@ -128,8 +128,8 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyValueStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated final class DefaultImplCaller: KeyValueStore, Sendable {
-        private let reference: @Sendable () -> any KeyValueStore
+    nonisolated final class __DefaultImplCaller: KeyValueStore, Sendable {
+        private let cuckooReference: @Sendable () -> any KeyValueStore
 
         private let _getter_storage$$count: @Sendable () -> Int
         var count: Int {
@@ -141,7 +141,7 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
         init<_CUCKOO$$GENERIC: KeyValueStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
-            reference = {
+            cuckooReference = {
                 box.value
             }
 
@@ -159,10 +159,10 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyValueStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
-        cuckooDefaultImplementation.value = DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
         cuckooManager.enableDefaultStubImplementation()
     }
 
@@ -203,7 +203,7 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
             return .init(manager: cuckooManager, name: "count")
         }
 
-        func value<M1: Cuckoo._SendableMatchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(Key), String?, @Sendable ((Key)) -> String?, Cuckoo.StubSharing.Shared> where M1.MatchedType == Key {
+        func value<__M1: Cuckoo._SendableMatchable>(for p0: __M1) -> Cuckoo.ProtocolStubFunction<(Key), String?, @Sendable ((Key)) -> String?, Cuckoo.StubSharing.Shared> where __M1.MatchedType == Key {
             let matchers: [Cuckoo.SendableMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
             return .init(stub: cuckooManager.createStub(for: MockKeyValueStore.self,
                 method: "value(for p0: Key) -> String?",
@@ -228,7 +228,7 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
         }
 
         @discardableResult
-        func value<M1: Cuckoo._Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(Key), String?> where M1.MatchedType == Key {
+        func value<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.__DoNotUse<(Key), String?> where __M1.MatchedType == Key {
             let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
