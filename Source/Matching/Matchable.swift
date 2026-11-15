@@ -171,75 +171,90 @@ extension _SendableOptionalMatchable where OptionalMatchedType == Self, Self: Eq
 
 extension Bool: _SendableMatchable {}
 extension Bool: _SendableOptionalMatchable {
+    /// An optional `Bool` argument matches it.
     public typealias OptionalMatchedType = Bool
 }
 
 extension String: _SendableMatchable {}
 extension String: _SendableOptionalMatchable {
+    /// An optional `String` argument matches it.
     public typealias OptionalMatchedType = String
 }
 
 extension Float: _SendableMatchable {}
 extension Float: _SendableOptionalMatchable {
+    /// An optional `Float` argument matches it.
     public typealias OptionalMatchedType = Float
 }
 
 extension Double: _SendableMatchable {}
 extension Double: _SendableOptionalMatchable {
+    /// An optional `Double` argument matches it.
     public typealias OptionalMatchedType = Double
 }
 
 extension Character: _SendableMatchable {}
 extension Character: _SendableOptionalMatchable {
+    /// An optional `Character` argument matches it.
     public typealias OptionalMatchedType = Character
 }
 
 extension Int: _SendableMatchable {}
 extension Int: _SendableOptionalMatchable {
+    /// An optional `Int` argument matches it.
     public typealias OptionalMatchedType = Int
 }
 
 extension Int8: _SendableMatchable {}
 extension Int8: _SendableOptionalMatchable {
+    /// An optional `Int8` argument matches it.
     public typealias OptionalMatchedType = Int8
 }
 
 extension Int16: _SendableMatchable {}
 extension Int16: _SendableOptionalMatchable {
+    /// An optional `Int16` argument matches it.
     public typealias OptionalMatchedType = Int16
 }
 
 extension Int32: _SendableMatchable {}
 extension Int32: _SendableOptionalMatchable {
+    /// An optional `Int32` argument matches it.
     public typealias OptionalMatchedType = Int32
 }
 
 extension Int64: _SendableMatchable {}
 extension Int64: _SendableOptionalMatchable {
+    /// An optional `Int64` argument matches it.
     public typealias OptionalMatchedType = Int64
 }
 
 extension UInt: _SendableMatchable {}
 extension UInt: _SendableOptionalMatchable {
+    /// An optional `UInt` argument matches it.
     public typealias OptionalMatchedType = UInt
 }
 
 extension UInt8: _SendableMatchable {}
 extension UInt8: _SendableOptionalMatchable {
+    /// An optional `UInt8` argument matches it.
     public typealias OptionalMatchedType = UInt8
 }
 
 extension UInt16: _SendableMatchable {}
 extension UInt16: _SendableOptionalMatchable {
+    /// An optional `UInt16` argument matches it.
     public typealias OptionalMatchedType = UInt16
 }
 
 extension UInt32: _SendableMatchable {}
 extension UInt32: _SendableOptionalMatchable {
+    /// An optional `UInt32` argument matches it.
     public typealias OptionalMatchedType = UInt32
 }
 
 extension UInt64: _SendableMatchable {}
 extension UInt64: _SendableOptionalMatchable {
+    /// An optional `UInt64` argument matches it.
     public typealias OptionalMatchedType = UInt64
 }

@@ -1,4 +1,5 @@
 extension Set: _Matchable where Element: _Matchable, Element == Element.MatchedType {
+    /// The arguments it matches: `Set<Element>`.
     public typealias MatchedType = Set<Element>
 
     /// Matches an equal set.

@@ -1,4 +1,5 @@
 extension Array: _Matchable where Element: _Matchable, Element == Element.MatchedType {
+    /// The arguments it matches: `[Element]`.
     public typealias MatchedType = [Element]
 
     /// Matches an array of the same length whose elements each match the element at the same index.
