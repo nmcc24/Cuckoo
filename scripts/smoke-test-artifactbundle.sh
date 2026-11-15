@@ -27,7 +27,10 @@ else
     # The package as committed plus the working tree's changes, without build products.
     mkdir "$work/Cuckoo"
     # A CI container's checkout belongs to another user, which git refuses unless the directory is marked safe.
-    git -c safe.directory="$repo" -C "$repo" ls-files -z --cached --others --exclude-standard > "$work/files"
+    # A file deleted from the working tree but not from the index is still listed: keep only what exists.
+    git -c safe.directory="$repo" -C "$repo" ls-files -z --cached --others --exclude-standard \
+        | (cd "$repo" && while IFS= read -r -d '' file; do [[ -e "$file" ]] && printf '%s\0' "$file"; done) \
+        > "$work/files"
     [[ -s "$work/files" ]] || { echo "No files listed in $repo" >&2; exit 1; }
     (cd "$repo" && tar -cf - --null -T "$work/files") | tar -xf - -C "$work/Cuckoo"
     cp -R "$bundle" "$work/Cuckoo/CuckooGenerator.artifactbundle"

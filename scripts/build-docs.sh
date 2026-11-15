@@ -12,10 +12,14 @@ output="${1:-.build/docs/Cuckoo.doccarchive}"
 # On Linux, Swift 6.2 and 6.3 exit 1 after writing the runtime's graph, because they can't emit one for the
 # test-discovery modules. Carry on, and fail below if the runtime's graph is missing.
 swift package dump-symbol-graph --minimum-access-level public >/dev/null || true
-graphs="$(find .build -type d -name symbolgraph -newer Package.swift | head -1)"
-if [ -z "$graphs" ]; then
-    graphs="$(find .build -type d -name symbolgraph | head -1)"
-fi
+# The newest graph this command wrote: .build can hold several, one per build system and configuration. (`find |
+# head` could pick an older one, and fail the script under pipefail when head closed the pipe early.)
+graphs=""
+while IFS= read -r -d '' graph; do
+    if [ -z "$graphs" ] || [ "$graph/Cuckoo.symbols.json" -nt "$graphs/Cuckoo.symbols.json" ]; then
+        graphs="$graph"
+    fi
+done < <(find .build -type d -name symbolgraph -print0)
 if [ -z "$graphs" ] || [ ! -f "$graphs/Cuckoo.symbols.json" ]; then
     echo "error: swift package dump-symbol-graph wrote no Cuckoo.symbols.json" >&2
     exit 1
