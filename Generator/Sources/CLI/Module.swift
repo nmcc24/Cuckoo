@@ -78,7 +78,6 @@ final class Module: Sendable {
         self.options = Options(
             glob: dto.options?.glob ?? true,
             keepDocumentation: dto.options?.keepDocumentation ?? true,
-            enableInheritance: dto.options?.enableInheritance ?? true,
             protocolsOnly: dto.options?.protocolsOnly ?? false,
             omitHeaders: dto.options?.omitHeaders ?? false,
             mockNaming: MockNaming(
@@ -127,7 +126,6 @@ final class Module: Sendable {
     struct Options {
         let glob: Bool
         let keepDocumentation: Bool
-        let enableInheritance: Bool
         let protocolsOnly: Bool
         let omitHeaders: Bool
         let mockNaming: MockNaming
@@ -204,7 +202,6 @@ extension Module {
         struct Options: Decodable {
             let glob: Bool?
             let keepDocumentation: Bool?
-            let enableInheritance: Bool?
             let protocolsOnly: Bool?
             let omitHeaders: Bool?
             let mockPrefix: String?
@@ -296,7 +293,6 @@ extension Module.Options: CustomDebugStringConvertible {
         [
             "glob: \(glob)",
             "keep documentation: \(keepDocumentation)",
-            "enable inheritance: \(enableInheritance)",
             "protocols only: \(protocolsOnly)",
             "omit headers: \(omitHeaders)",
             "mock prefix: \(mockNaming.prefix)",
