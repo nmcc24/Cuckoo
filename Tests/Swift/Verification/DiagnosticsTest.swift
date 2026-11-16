@@ -187,6 +187,7 @@ struct DiagnosticsTests {
         #expect(method.readableDescription == "count(\"b\")")
         #expect(method.memberAndArguments == "count(characters:) with (\"b\")")
         #expect(ConcreteStubCall(method: "noReturn()", parameters: ()).memberAndArguments == "noReturn()")
+        #expect(ConcreteStubCall(method: "resubscript(_ p0: Int)", parameters: 1).readableDescription == "resubscript(1)")
     }
 
     /// The failures `body` reports, without failing the test.
