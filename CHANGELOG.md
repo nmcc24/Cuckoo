@@ -65,6 +65,8 @@
   each call.
 
 ### Removed
+- The `equal(to:)` overloads for arrays, sets and dictionaries: the general `equal(to:)` matches them, since they're
+  `Equatable` when their elements are. Calls don't change.
 - The deprecated Cuckoo 2 names: `hasLength(inRange:)` and `hasLength(inRange:inclusive:)` (write `hasLength(in:)`
   with the range you mean: `inRange: 1..<3` matched 3, `in: 1..<3` doesn't), `register(value:forType:)` (write
   `register(_:for:)`), `equal(to:)` on a class that isn't `Equatable` (write `sameInstance(as:)`), and the
