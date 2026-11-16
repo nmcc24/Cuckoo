@@ -97,15 +97,27 @@ EOF
   # Only the mock's warnings: a fixture may keep a warning on purpose, such as a call to a deprecated member.
   mock_warnings="$(grep -F "$WORK/gen/$n.mock.swift:" "$WORK/logs/$n.tc.log" | grep -c ": warning:")"
   first="$(grep -m1 -E '^[^[:space:]|].*:[0-9]+:[0-9]+: error: ' "$WORK/logs/$n.tc.log" | sed -E 's/.*error: //' | cut -c1-90)"
-  if [[ "$errors" == "0" && "$exit_code" != "0" ]]; then
+  no_mock=0
+  if ! grep -qE '(^|[[:space:]])(class|actor|struct) Mock' "$WORK/gen/$n.mock.swift"; then
+    # A generator that silently emits nothing would otherwise pass every fixture that compiles on its own, and
+    # every listed one: it fails whatever the expected-failure lists say.
+    no_mock=1; errors="?"; first="the generated file declares no mock"
+  elif [[ "$errors" == "0" && "$exit_code" != "0" ]]; then
     errors="?"; first="swiftc exited with $exit_code and printed no error"
   elif [[ "$errors" == "0" && "$mock_warnings" != "0" ]]; then
     errors="?"; first="$mock_warnings warning(s) in the mock: $(grep -F "$WORK/gen/$n.mock.swift:" "$WORK/logs/$n.tc.log" | grep -m1 ": warning:" | sed -E 's/.*warning: //' | cut -c1-60)"
   fi
   expected_line="$(grep -E "^$n(:|$)" <<< "$EXPECTED_FAILURES" | head -1)"
-  if [[ -n "$expected_line" ]]; then
+  if [[ "$no_mock" == 1 ]]; then
+    result="FAIL"; status=1
+  elif [[ -n "$expected_line" ]]; then
     expected_message=""
     [[ "$expected_line" == *:* ]] && expected_message="$(sed -E 's/^[^:]*:[[:space:]]*//' <<< "$expected_line")"
+    # `name: [fixture] text`: a fixture that must fail fails in its own code, not in its mock.
+    in_fixture_only=0
+    if [[ "$expected_message" == "[fixture] "* ]]; then
+      in_fixture_only=1; expected_message="${expected_message#"[fixture] "}"
+    fi
     if [[ "$errors" == "0" ]]; then
       result="XPASS"; status=1
     elif [[ -n "$expected_message" ]]; then
@@ -114,16 +126,24 @@ EOF
       # matches its message against those warnings.
       kind="error"
       [[ "$errors" == "?" && "$mock_warnings" != "0" && "$exit_code" == "0" ]] && kind="warning"
-      located="$(awk -v fixture="$f:" -v mock="$WORK/gen/$n.mock.swift:" \
+      mock_path="$WORK/gen/$n.mock.swift:"
+      [[ "$in_fixture_only" == 1 ]] && mock_path="$f:"
+      located="$(awk -v fixture="$f:" -v mock="$mock_path" \
         'index($0, fixture) == 1 || index($0, mock) == 1' "$WORK/logs/$n.tc.log" | grep -E ":[0-9]+:[0-9]+: $kind: ")"
       located_count="$(grep -c . <<< "$located")"
       matching_count="$(grep -cF -- "$expected_message" <<< "$located")"
       expected_count="$errors"
       [[ "$kind" == "warning" ]] && expected_count="$mock_warnings"
-      if [[ "$located_count" == "$expected_count" && "$matching_count" == "$located_count" ]]; then
+      if [[ "$kind" == "error" && "$mock_warnings" != "0" ]]; then
+        result="FAIL"; status=1; first="$mock_warnings warning(s) in the mock besides the expected error"
+      elif [[ "$located_count" == "$expected_count" && "$matching_count" == "$located_count" ]]; then
         result="xfail"
       else
-        unexpected="$(grep -vF -- "$expected_message" <<< "$located" | head -1 | sed -E "s/.*$kind: //" | cut -c1-60)"
+        # In `[fixture]` mode the mock's errors aren't in `located`, and they're what made the counts differ.
+        unexpected="$( {
+          grep -vF -- "$expected_message" <<< "$located"
+          [[ "$in_fixture_only" == 1 ]] && grep -F "$WORK/gen/$n.mock.swift:" "$WORK/logs/$n.tc.log" | grep -E ":[0-9]+:[0-9]+: $kind: "
+        } | head -1 | sed -E "s/.*$kind: //" | cut -c1-60)"
         result="FAIL"; status=1; first="not only the expected error ($expected_message): ${unexpected:-$first}"
       fi
     else
