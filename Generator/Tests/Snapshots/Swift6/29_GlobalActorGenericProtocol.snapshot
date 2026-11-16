@@ -14,6 +14,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
     }
 
     @MainActor final class __DefaultImplCaller: Inventory {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: () -> any Inventory
 
         private let _getter_storage$$count: () -> Int
@@ -34,12 +35,13 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
             }
         }
 
-        init<_CUCKOO$$GENERIC: Inventory>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
+        init<_CUCKOO$$GENERIC: Inventory>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _getter_storage$$count = {
                 box.value.count
@@ -77,7 +79,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
     }
 
     @MainActor func enableDefaultImplementation<_CUCKOO$$GENERIC: Inventory>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -265,14 +267,16 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
     }
 
     @StorageActor final class __DefaultImplCaller: Ledger {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: () -> any Ledger<Entry>
 
-        init<_CUCKOO$$GENERIC: Ledger>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
+        init<_CUCKOO$$GENERIC: Ledger>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$entry = { p0 in
                 box.value.entry(for: p0)
@@ -301,7 +305,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
     }
 
     @StorageActor func enableDefaultImplementation<_CUCKOO$$GENERIC: Ledger>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

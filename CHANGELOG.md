@@ -86,7 +86,8 @@
 ### Fixed
 - An unstubbed member returning a tuple crashed unless the tuple type had a registered default: the manager's
   generic return type can't name its elements. Mocks now pass the tuple's element types, so it returns each
-  element's default, as `DefaultValueRegistry.defaultValue(for:)` does for a tuple.
+  element's default. A tuple behind a `typealias` still needs a registered default. The generated `Stub` classes
+  crashed on a labeled tuple, such as `(count: Int, name: String?)`, and now default it the same way.
 - An unstubbed call from a `Task.detached` or a dispatch queue ignored the `.cuckoo(defaultValues:)` of the test
   that created the mock. A mock now keeps the default values of the scope it was created in, for the types the
   call's own scope doesn't register.
@@ -137,8 +138,8 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   Swift 6.2 and 6.3 have no way to, so the warning stays there.
 - The type eraser of a protocol with associated types forwards async and throwing getters, and a member it can't
   forward (an `inout` or `sending` argument, `Self`, a member isolated otherwise than the protocol, a `where` clause
-  naming an associated type) records a failure saying to stub it and returns a default value, as an unstubbed call
-  does. Such a protocol's mock didn't compile. A `borrowing` or `consuming` argument of a non-`Sendable` type is
+  naming an associated type) records a failure saying to stub it, for the test that created the mock, and returns
+  the default value an unstubbed call would, even when the member throws. Such a protocol's mock didn't compile. A `borrowing` or `consuming` argument of a non-`Sendable` type is
   copied once in the mock, which also didn't compile, and a backticked method name no longer stops generation.
 - Protocols with associated types: an actor protocol's mock named a type eraser that actor mocks don't declare, a
   static method returning nothing didn't compile in the type eraser, and a generic subscript naming an associated

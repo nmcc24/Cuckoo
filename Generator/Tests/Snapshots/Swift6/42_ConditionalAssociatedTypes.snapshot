@@ -11,15 +11,17 @@ nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.Proto
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockDebugFeed.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: DebugFeed, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any DebugFeed
 
         #if ((DEBUG))
-        init<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             #if (DEBUG)
             _storage$1$next = {
@@ -33,12 +35,13 @@ nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.Proto
             #endif
         }
         #else
-        init<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) {
+        init<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             #if (DEBUG)
             _storage$1$next = {
@@ -72,12 +75,12 @@ nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.Proto
 
     #if ((DEBUG))
         nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+            cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
             cuckooManager.enableDefaultImplementation()
         }
     #else
         nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: DebugFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) {
-            cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+            cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
             cuckooManager.enableDefaultImplementation()
         }
     #endif
@@ -200,15 +203,17 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockEitherFeed.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: EitherFeed, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any EitherFeed
 
         #if ((DEBUG))
-        init<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
+        init<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             #if (DEBUG)
             _storage$1$value = { p0 in
@@ -227,12 +232,13 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
             #endif
         }
         #else
-        init<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+        init<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             #if (DEBUG)
             _storage$1$value = { p0 in
@@ -278,12 +284,12 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
 
     #if ((DEBUG))
         nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
-            cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+            cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
             cuckooManager.enableDefaultImplementation()
         }
     #else
         nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EitherFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
-            cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+            cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
             cuckooManager.enableDefaultImplementation()
         }
     #endif
@@ -460,15 +466,17 @@ nonisolated final class MockTwoConditionFeed<Item, Tag>: TwoConditionFeed, nonis
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockTwoConditionFeed.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: TwoConditionFeed, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any TwoConditionFeed
 
         #if ((CUCKOO_FIXTURE_FLAG)) && ((DEBUG))
-        init<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.Tag == Tag, Item: SendableMetatype, Tag: SendableMetatype {
+        init<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.Tag == Tag, Item: SendableMetatype, Tag: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             #if (DEBUG)
             _storage$1$item = {
@@ -482,12 +490,13 @@ nonisolated final class MockTwoConditionFeed<Item, Tag>: TwoConditionFeed, nonis
             #endif
         }
         #elseif !((CUCKOO_FIXTURE_FLAG)) && ((DEBUG))
-        init<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             #if (DEBUG)
             _storage$1$item = {
@@ -501,12 +510,13 @@ nonisolated final class MockTwoConditionFeed<Item, Tag>: TwoConditionFeed, nonis
             #endif
         }
         #elseif ((CUCKOO_FIXTURE_FLAG)) && !((DEBUG))
-        init<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Tag == Tag, Tag: SendableMetatype {
+        init<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Tag == Tag, Tag: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             #if (DEBUG)
             _storage$1$item = {
@@ -520,12 +530,13 @@ nonisolated final class MockTwoConditionFeed<Item, Tag>: TwoConditionFeed, nonis
             #endif
         }
         #else
-        init<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) {
+        init<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             #if (DEBUG)
             _storage$1$item = {
@@ -559,22 +570,22 @@ nonisolated final class MockTwoConditionFeed<Item, Tag>: TwoConditionFeed, nonis
 
     #if ((CUCKOO_FIXTURE_FLAG)) && ((DEBUG))
         nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, _CUCKOO$$GENERIC.Tag == Tag, Item: SendableMetatype, Tag: SendableMetatype {
-            cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+            cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
             cuckooManager.enableDefaultImplementation()
         }
     #elseif !((CUCKOO_FIXTURE_FLAG)) && ((DEBUG))
         nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+            cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
             cuckooManager.enableDefaultImplementation()
         }
     #elseif ((CUCKOO_FIXTURE_FLAG)) && !((DEBUG))
         nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Tag == Tag, Tag: SendableMetatype {
-            cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+            cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
             cuckooManager.enableDefaultImplementation()
         }
     #else
         nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: TwoConditionFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) {
-            cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+            cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
             cuckooManager.enableDefaultImplementation()
         }
     #endif
@@ -697,14 +708,16 @@ nonisolated final class MockBothClausesFeed<Element: Equatable>: BothClausesFeed
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockBothClausesFeed.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: BothClausesFeed, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any BothClausesFeed
 
-        init<_CUCKOO$$GENERIC: BothClausesFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
+        init<_CUCKOO$$GENERIC: BothClausesFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$element = {
                 box.value.element()
@@ -720,7 +733,7 @@ nonisolated final class MockBothClausesFeed<Element: Equatable>: BothClausesFeed
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: BothClausesFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

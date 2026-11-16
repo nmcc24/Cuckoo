@@ -292,6 +292,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockPlatformedStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: PlatformedStore, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any PlatformedStore
 
         #if (DEBUG)
@@ -303,12 +304,13 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
         }
         #endif
 
-        init<_CUCKOO$$GENERIC: PlatformedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: PlatformedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             #if (DEBUG)
             _getter_storage$$debugItems = {
@@ -341,7 +343,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

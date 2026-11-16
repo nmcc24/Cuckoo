@@ -75,7 +75,7 @@ enum NopImplStubBuilder {
         var source = attributes(of: property, at: property.accessibility, isolation: property.isolation)
         source.append("\(property.accessibility.spaced)\(modifiers)var \(property.name): \(property.type.description) {")
         source.append("    get \(effects){")
-        source.append("        return DefaultValueRegistry.defaultValue(for: (\(type)).self)")
+        source.append("        return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.unlabeledTupleType(type) ?? "(\(type))").self)")
         source.append("    }")
         if !property.isReadOnly {
             source.append("    set {}")
@@ -99,7 +99,7 @@ enum NopImplStubBuilder {
             source.append(execution)
         }
         source.append("\(method.accessibility.spaced)\(modifiers)\(method.declaration)\(method.signature.description) {")
-        source.append("    return DefaultValueRegistry.defaultValue(for: (\(type)).self)")
+        source.append("    return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.unlabeledTupleType(type) ?? "(\(type))").self)")
         source.append("}")
         return lines(source)
     }
@@ -111,7 +111,7 @@ enum NopImplStubBuilder {
         var source = attributes(of: subscriptDeclaration, at: subscriptDeclaration.accessibility, isolation: subscriptDeclaration.isolation)
         source.append("\(subscriptDeclaration.accessibility.spaced)\(modifiers)subscript\(subscriptDeclaration.signature) {")
         source.append("    get \(effects){")
-        source.append("        return DefaultValueRegistry.defaultValue(for: (\(type)).self)")
+        source.append("        return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.unlabeledTupleType(type) ?? "(\(type))").self)")
         source.append("    }")
         if !subscriptDeclaration.isReadOnly {
             source.append("    set {}")

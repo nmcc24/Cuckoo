@@ -28,6 +28,7 @@ enum TypeErasureBuilder {
         if container.declaresSelfTypealias {
             try members.append("\(context.access)typealias \(SelfResolution.typealiasName) = \(name)", of: name)
         }
+        try members.append("private let cuckooManager: Cuckoo.MockManager", of: name)
         try members.append("private let cuckooReference: \(context.sendable)() -> any \(container.name)\(context.primaryArguments)", of: name)
         if Self.storesThroughReference(subscripts) {
             // A generic setter changes the opened default implementation and stores it back, so a value type keeps it.
@@ -145,9 +146,9 @@ enum TypeErasureBuilder {
         var declaration = property.spiAttributes(at: property.accessibility).map(\.description)
         declaration.append("\(context.access)\(context.modifier(for: property.isolation))var \(property.name): \(type) {")
         if let reason = unforwardableReason(of: property, context) {
-            declaration.append("    get \(getterEffects){ return Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal("\(context.protocolName).\(property.name)")), reason: \(Fragment.literal(reason))) }")
+            declaration.append("    get \(getterEffects){ return \(unforwardableCall("\(context.protocolName).\(property.name)", reason: reason, returning: property.type)) }")
             if !property.isReadOnly {
-                declaration.append("    set { Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal("\(context.protocolName).\(property.name)")), reason: \(Fragment.literal(reason))) as Void }")
+                declaration.append("    set { \(unforwardableCall("\(context.protocolName).\(property.name)", reason: reason, returning: nil)) as Void }")
             }
             declaration.append("}")
             return [lines(declaration)]
@@ -176,6 +177,13 @@ enum TypeErasureBuilder {
         declaration.append("}")
         sources.append(lines(declaration))
         return sources
+    }
+
+    /// The manager call that stands in for forwarding `member`: it records a failure on the mock's manager and returns
+    /// the default an unstubbed call would.
+    private static func unforwardableCall(_ member: String, reason: String, returning type: ComplexType?) -> String {
+        let tuple = GeneratorHelper.unstubbedTupleArgument(for: type).map { ", \($0)" } ?? ""
+        return "cuckooManager.unforwardableDefaultImplementationCall(\(Fragment.literal(member)), reason: \(Fragment.literal(reason))\(tuple))"
     }
 
     private static func unforwardableReason(of property: Variable, _ context: Context) -> String? {
@@ -222,7 +230,7 @@ enum TypeErasureBuilder {
         declaration.append("\(context.access)subscript\(subscriptDeclaration.signature) {")
         declaration.append("    get \(effects){")
         let variadicCrash = "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(getter.fullyQualifiedName)))"
-        let unforwardable = "Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal(getter.fullyQualifiedName)), reason: \(Fragment.literal(getter.unforwardableWhereClauseReason)))"
+        let unforwardable = unforwardableCall(getter.fullyQualifiedName, reason: getter.unforwardableWhereClauseReason, returning: subscriptDeclaration.returnType)
         if isGeneric && getter.hasVariadicParams {
             declaration.append("        \(variadicCrash)")
         } else if isGeneric && !getter.associatedTypesInWhereClause.isEmpty {
@@ -299,6 +307,7 @@ enum TypeErasureBuilder {
             "let box = Cuckoo.DefaultImplementation<\(generic)>()",
             "box.value = defaultImpl",
             "cuckooReference = { box.value }",
+            "cuckooManager = manager",
         ]
         if storesThroughReference(subscripts) {
             body.append("cuckooStore = { box.value = $0 as! \(generic) }")
@@ -349,7 +358,7 @@ enum TypeErasureBuilder {
         }
         let source = container.conditionalOnGenericParameters { holding in
             let requirements = container.genericProtocolRequirements(metatypes: globalActor == nil, holding: holding)
-            return ["init<\(generic): \(container.name)\(metatype)>(_ defaultImpl: \(generic))\(MockBuilder.whereClause(requirements)) {"]
+            return ["init<\(generic): \(container.name)\(metatype)>(_ defaultImpl: \(generic), manager: Cuckoo.MockManager)\(MockBuilder.whereClause(requirements)) {"]
                 + body.map { $0.isEmpty ? "" : "    \($0)" } + ["}"]
         }
         return lines(source)
@@ -369,11 +378,11 @@ enum TypeErasureBuilder {
         var declaration = method.spiAttributes(at: method.accessibility).map(\.description)
         declaration.append("\(context.access)\(context.modifier(for: method.isolation))func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
         if let unforwardable {
-            declaration.append("    return Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal(method.fullyQualifiedName)), reason: \(Fragment.literal(unforwardable)))")
+            declaration.append("    return \(unforwardableCall(method.fullyQualifiedName, reason: unforwardable, returning: method.returnType))")
         } else if method.hasVariadicParams && method.hasGenericParams {
             declaration.append("    Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(method.fullyQualifiedName)))")
         } else if method.hasGenericParams && !method.associatedTypesInWhereClause.isEmpty {
-            declaration.append("    return Cuckoo.MockManager.unforwardableDefaultImplementationCall(\(Fragment.literal(method.fullyQualifiedName)), reason: \(Fragment.literal(method.unforwardableWhereClauseReason)))")
+            declaration.append("    return \(unforwardableCall(method.fullyQualifiedName, reason: method.unforwardableWhereClauseReason, returning: method.returnType))")
         } else if method.hasGenericParams && method.usesNonPrimaryAssociatedTypes {
             // A `sending` argument is passed in rather than captured: a captured value can't be sent on.
             let variants = method.localFunctionVariants

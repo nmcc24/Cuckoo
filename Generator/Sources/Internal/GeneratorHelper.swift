@@ -158,18 +158,29 @@ struct GeneratorHelper {
     }
 
     /// The argument that gives an unstubbed call returning a tuple its default value, or `nil` for any other return
-    /// type: the manager's generic return type can't name a tuple's elements. Labels are dropped, as the runtime looks
-    /// the tuple up by its element types and the value converts back to the labeled type.
+    /// type: the manager's generic return type can't name a tuple's elements.
     static func unstubbedTupleArgument(for type: ComplexType?) -> String? {
-        guard case .type(let description) = type,
-              let tuple = typeSyntax(description)?.as(TupleTypeSyntax.self),
+        guard case .type(let description) = type, let tuple = unlabeledTupleType(description) else { return nil }
+        return "unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: \(tuple).self)"
+    }
+
+    /// A tuple type of two or more elements without its labels, which the runtime's tuple defaults take: a labeled
+    /// tuple's metatype doesn't match their parameter pack, and the unlabeled value converts back to the labeled type.
+    /// `nil` for any other type, and for a tuple `(...).self` can't spell: one with a pack expansion, or with a
+    /// closure element whose parameter is `borrowing`, `consuming` or `isolated`, which an expression doesn't parse.
+    static func unlabeledTupleType(_ description: String) -> String? {
+        let expressionSpecifiers: Set<String> = ["borrowing", "consuming", "isolated"]
+        guard let tuple = typeSyntax(description)?.as(TupleTypeSyntax.self),
               tuple.elements.count >= 2,
-              tuple.elements.allSatisfy({ $0.ellipsis == nil && $0.type.as(PackExpansionTypeSyntax.self) == nil && !$0.type.trimmedDescription.hasPrefix("some ") })
+              tuple.elements.allSatisfy({ element in
+                  element.ellipsis == nil
+                      && element.type.as(PackExpansionTypeSyntax.self) == nil
+                      && !element.type.tokens(viewMode: .sourceAccurate).contains { expressionSpecifiers.contains($0.text) }
+              })
         else {
             return nil
         }
-        let elements = tuple.elements.map { $0.type.trimmedDescription }.joined(separator: ", ")
-        return "unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (\(elements)).self)"
+        return "(" + tuple.elements.map { $0.type.trimmedDescription }.joined(separator: ", ") + ")"
     }
 
     /// `description` parsed as a type, from a `typealias` that names it.

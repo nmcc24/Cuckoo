@@ -14,6 +14,7 @@ nonisolated final class MockLegacyFeed<Item>: LegacyFeed, nonisolated Cuckoo.Pro
     @diagnose(DeprecatedDeclaration, as: ignored)
     #endif
     nonisolated final class __DefaultImplCaller: LegacyFeed, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any LegacyFeed
 
         private let _getter_storage$$legacyCount: @Sendable () -> Int
@@ -23,12 +24,13 @@ nonisolated final class MockLegacyFeed<Item>: LegacyFeed, nonisolated Cuckoo.Pro
             }
         }
 
-        init<_CUCKOO$$GENERIC: LegacyFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: LegacyFeed & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _getter_storage$$legacyCount = {
                 box.value.legacyCount
@@ -55,7 +57,7 @@ nonisolated final class MockLegacyFeed<Item>: LegacyFeed, nonisolated Cuckoo.Pro
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: LegacyFeed & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

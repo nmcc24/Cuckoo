@@ -59,7 +59,7 @@ Run `scripts/swift6-matrix.sh` to reproduce. It generates mocks for each file in
 - An unstubbed call runs `failAndCrash`, which raises `NSException` and then `fatalError`. That kills the **whole test process**, including every other parallel test (upstream issue #105).
 - Rethrowing paths re-throw via `DispatchQueue(label: "No-care?").sync`. It's a workaround with no purpose under typed throws.
 - Stub actions are non-`@Sendable` closures stored in a shared object, and recorded arguments are stored without any isolation story.
-- `enableSuperclassSpy` / `enableDefaultStubImplementation` guard on `stubCalls.isEmpty` (calls already made), not on stubs, so the error message is misleading.
+- `enableSuperclassSpy` / `enableDefaultStubImplementation` (now `enableDefaultImplementation`) guard on `stubCalls.isEmpty` (calls already made), not on stubs, so the error message is misleading.
 
 ### 1.4 Generator audit (`Generator/Sources/`)
 - **Parser is outdated:** pinned to swift-syntax **601.0.1** (the Swift 6.1 grammar), and the allowed range `600.1.0..<603.0.0` excludes 603 (Swift 6.3) and 604 (Swift 6.4). Upstream #596. *(Fixed in Phase 1: the range is `600.0.0..<605.0.0`, pinned to 604.0.0.)*

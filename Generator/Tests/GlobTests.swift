@@ -116,8 +116,8 @@ struct GlobTests {
     }
 
     /// A directory a globstar can't list is reported and skipped, and the rest of the pattern still matches. Root
-    /// reads any directory, so the test checks nothing there (the Linux containers run as root).
-    @Test
+    /// reads any directory, so the test is skipped there (the Linux containers run as root).
+    @Test(.enabled(if: geteuid() != 0, "root can list any directory"))
     func anUnreadableDirectoryIsReported() throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooGlob-\(UUID().uuidString)")
         let locked = directory.appending(path: "App/Locked")
@@ -128,7 +128,7 @@ struct GlobTests {
             try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: locked.path(percentEncoded: false))
             try? FileManager.default.removeItem(at: directory)
         }
-        guard (try? FileManager.default.contentsOfDirectory(atPath: locked.path(percentEncoded: false))) == nil else { return }
+        #expect((try? FileManager.default.contentsOfDirectory(atPath: locked.path(percentEncoded: false))) == nil)
 
         let root = directory.path(percentEncoded: false)
         var matches: [String] = []
