@@ -3,16 +3,20 @@ extension MockManager {
     struct Preconfigured: Sendable {
         let manager: MockManager
         let mockType: ObjectIdentifier
+        /// Whether `createMock`'s closure is still running. A task the closure starts inherits the task-local, and
+        /// one that runs on after `createMock` returns must not pick up the manager.
+        let isOpen = Locked(true)
     }
 
-    /// Task-local, so a mock created in another task never sees it.
+    /// Task-local, so a mock created in a task `createMock` didn't start never sees it.
     @TaskLocal static var preconfigured: Preconfigured?
 
     /// The manager `createMock` prepared for a mock of `mockType`, if one is being created. A generated mock picks
     /// it up as its `cuckooManager`. Other mocks created inside `createMock`'s closure, such as the mock's
     /// arguments, get managers of their own.
     public static func preconfiguredManager(for mockType: Any.Type) -> MockManager? {
-        guard let preconfigured, preconfigured.mockType == ObjectIdentifier(mockType) else {
+        guard let preconfigured, preconfigured.mockType == ObjectIdentifier(mockType),
+              preconfigured.isOpen.withLock({ $0 }) else {
             return nil
         }
         return preconfigured.manager
