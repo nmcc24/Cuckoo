@@ -27,6 +27,22 @@ struct ParameterPackTests {
         verify(mock, never()).count(equal(to: 1))
     }
 
+    /// Values that aren't `Sendable` get the `ParameterMatcher` overload, which compares the same way.
+    @Test
+    func packOfNonSendableValues() {
+        final class Tag: Equatable {
+            let name: String
+            init(_ name: String) { self.name = name }
+            static func == (lhs: Tag, rhs: Tag) -> Bool { lhs.name == rhs.name }
+        }
+        let matcher: ParameterMatcher<ParameterPack> = equal(to: Tag("a"), 1)
+
+        #expect(matcher.matches(ParameterPack(Tag("a"), 1)))
+        #expect(!matcher.matches(ParameterPack(Tag("b"), 1)))
+        #expect(!matcher.matches(ParameterPack(1, Tag("a"))))
+        #expect(!matcher.matches(ParameterPack(Tag("a"))))
+    }
+
     @Test
     func packReturnedThroughThen() {
         let mock = MockParameterPackProtocol()
