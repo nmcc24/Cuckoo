@@ -117,14 +117,14 @@ final class Generator {
             typesByModule[swiftModule, default: []] += file.types
         }
 
-        let files: [FileRepresentation] = try await inputFiles.concurrentMap { file in
+        let crawled = try await inputFiles.concurrentMap { file -> (file: FileRepresentation, unmockedProtocols: Set<String>) in
             log(.verbose, message: "Processing file: \(file.path)")
             let crawler: Crawler
             do {
                 crawler = try Crawler.crawl(
                     url: file.path.url,
                     globalActors: declaredNames.globalActors.union(module.globalActors),
-                    noncopyableTypes: declaredNames.noncopyableTypes,
+                    noncopyableTypes: declaredNames.unconditionallyNoncopyableTypes,
                     closureTypealiases: declaredNames.closureTypealiases,
                     nonPublicTypes: declaredNames.nonPublicTypes,
                     genericTypes: declaredNames.genericTypes,
@@ -144,9 +144,12 @@ final class Generator {
                 printToStandardError("\(diagnostic)\n")
             }
             log(.verbose, message: "Successfully processed file: \(file.path)")
-            return FileRepresentation(file: file, imports: crawler.imports, tokens: crawler.tokens)
+            return (FileRepresentation(file: file, imports: crawler.imports, tokens: crawler.tokens), crawler.unmockedProtocols)
         }
-        let flatMappedFiles = files.map { $0.flatMappingMemberContainers() }
+        let flatMappedFiles = withoutDescendants(
+            of: crawled.reduce(into: Set<String>()) { $0.formUnion($1.unmockedProtocols) },
+            in: crawled.map { $0.file.flatMappingMemberContainers() }
+        )
         for warning in duplicateDeclarationWarnings(flatMappedFiles) {
             printToStandardError("warning: cuckoo: \(warning)\n")
         }
@@ -208,6 +211,25 @@ final class Generator {
     /// Two protocols or classes with the same qualified name, neither under `#if`, get two mocks of the same name,
     /// which don't compile together. That happens when an entry's sources span modules or folders that each declare
     /// the type. The warning names the files, so the build's "invalid redeclaration" has an explanation.
+    /// The files without the protocols that refine an unmocked one, directly or through others: their mocks would
+    /// have to implement the requirement that left it out. Each gets a warning naming the protocol it refines.
+    private static func withoutDescendants(of unmocked: Set<String>, in files: [FileRepresentation]) -> [FileRepresentation] {
+        var unmocked = unmocked
+        var changed = !unmocked.isEmpty
+        while changed {
+            changed = false
+            for protocolToken in files.flatMap(\.tokens).compactMap({ $0 as? ProtocolDeclaration }) where !unmocked.contains(protocolToken.name) {
+                guard let parent = protocolToken.inheritedTypes.map(\.withoutGenericArguments).first(where: unmocked.contains) else { continue }
+                unmocked.insert(protocolToken.name)
+                changed = true
+                printToStandardError("warning: cuckoo: '\(protocolToken.name)' isn't mocked: it refines '\(parent)', which isn't mocked.\n")
+            }
+        }
+        return files.map { file in
+            file.replacing(tokens: file.tokens.filter { ($0 as? ProtocolDeclaration).map { !unmocked.contains($0.name) } ?? true })
+        }
+    }
+
     static func duplicateDeclarationWarnings(_ files: [FileRepresentation]) -> [String] {
         var firstFiles: [String: Path] = [:]
         var warnings: [String] = []
