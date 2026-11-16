@@ -255,7 +255,6 @@ private func commandsPerModule(
             arguments: listing.arguments,
             environment: [
                 "PROJECT_DIR": projectDir.path(percentEncoded: false),
-                "DERIVED_SOURCES_DIR": derivedSourcesDir.path(percentEncoded: false),
                 "CUCKOO_OVERRIDE_OUTPUT": outputURL.path(percentEncoded: false),
                 "CUCKOO_MODULE_NAME": sourceModule.name,
                 // A generator built from source with code coverage (an Xcode scheme gathering it) writes its profile
