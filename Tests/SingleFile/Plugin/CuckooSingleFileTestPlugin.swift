@@ -52,7 +52,6 @@ func commands(
             arguments: listing.arguments,
             environment: [
                 "PROJECT_DIR": projectDir.path(percentEncoded: false),
-                "DERIVED_SOURCES_DIR": derivedSourcesDir.path(percentEncoded: false),
                 "CUCKOO_OVERRIDE_OUTPUT": outputURL.path(percentEncoded: false),
                 // A generator built from source with code coverage (an Xcode scheme gathering it) writes its profile
                 // here: the sandbox lets it write only in the plugin's work directory.
