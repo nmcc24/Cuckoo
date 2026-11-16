@@ -12,7 +12,7 @@ struct CuckoofileScanTests {
             sources = ["App/*.swift"]
 
             [modules.App.options]
-            glob = true
+            keepDocumentation = true
 
             [modules]
             Tools = { sources = ["Tools/*.swift"] }

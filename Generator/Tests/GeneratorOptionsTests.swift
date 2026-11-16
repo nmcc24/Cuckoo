@@ -31,17 +31,18 @@ struct GeneratorOptionsTests {
         #expect(occurrences(of: "func base()", in: output) == 2 * occurrences(of: "func derived()", in: output))
     }
 
-    /// `enableInheritance` is gone: a Cuckoofile that still sets it gets the unknown-key warning.
-    @Test
-    func enableInheritanceIsAnUnknownKey() {
+    /// A removed option gets the unknown-key warning, so a Cuckoofile that still sets one says so.
+    @Test(arguments: ["enableInheritance = false", "glob = false"])
+    func removedOptionsAreUnknownKeys(option: String) {
         let warnings = Cuckoofile.warnings(for: """
             [modules.App]
             sources = ["App.swift"]
 
             [modules.App.options]
-            enableInheritance = false
+            \(option)
             """)
-        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'modules.App.options.enableInheritance' isn't one Cuckoo reads") })
+        let key = String(option.prefix { $0 != " " })
+        #expect(warnings.contains { $0.hasPrefix("The Cuckoofile key 'modules.App.options.\(key)' isn't one Cuckoo reads") })
     }
 
     @Test

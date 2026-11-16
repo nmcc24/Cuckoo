@@ -41,9 +41,10 @@ the plugin with no entry it can generate fails with a message saying so, and so 
 
 ### Sources
 
-- term `sources`: The files to read, relative to the Cuckoofile. `*` matches within a folder, `**` matches any
-  number of folders except hidden ones such as `.build`, and `{A,B}` matches either name. A pattern that matches
-  no file is a warning:
+- term `sources`: The files to read, relative to the Cuckoofile, as globs. `*` matches within a folder, `**`
+  matches any number of folders except hidden ones such as `.build`, `{A,B}` matches either name, and `?` one
+  character, which also matches a file whose name has one of these characters. A pattern that matches no file is a
+  warning:
 
   ```toml
   [modules.App]
@@ -141,7 +142,6 @@ The generated file always imports `Cuckoo`.
 
 The `[modules.<Name>.options]` table:
 
-- term `glob`: Whether `sources` are globs, `true` by default. Set it to `false` to read the paths as they are.
 - term `keepDocumentation`: Whether mocks keep the mocked declarations' doc comments, `true` by default. Other
   comments are always left out.
 - term `protocolsOnly`: Mock protocols only, not classes. `false` by default.

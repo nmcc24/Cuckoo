@@ -17,6 +17,8 @@
   uses for what an unstubbed call forwards to. Generated mocks call it; code that calls it directly changes.
 - The Cuckoofile option `enableInheritance` is removed: set to `false`, it gave a mock of `protocol B: A` that didn't
   conform to `A`. Mocks always repeat inherited members, and a Cuckoofile that still sets it gets a warning.
+- The Cuckoofile option `glob` is removed: `sources` are always globs, its default, and `?` matches a file name's
+  glob character. A Cuckoofile that still sets it gets a warning.
 - `Mocked` and `createMock(for:configuration:)` are removed: call `createMock(MockPerson.self) { … }` with the mock's
   type instead, which is all they saved.
 - Inside `inOrder`, a call matcher counts as it does outside it. A `verify` took the fewest calls its matcher

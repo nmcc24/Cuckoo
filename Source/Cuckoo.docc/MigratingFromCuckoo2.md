@@ -29,6 +29,8 @@ tests, then the behaviour changes, which show up as test failures.
 ### The Cuckoofile
 
 - The `enableInheritance` option is removed: mocks always repeat inherited members, as its default did.
+- The `glob` option is removed: `sources` are always globs, as its default made them. Match a file whose name has
+  a glob character with `?` in its place.
 - The `xcodeproj` table is removed. List the target's files with `sources` globs. With the build plugin in an
   Xcode project, the entry is named after the test target, since that's the one the plugin generates; in a
   package, the plugin can leave `sources` out to mock the files of a dependency. A leftover `xcodeproj` table fails

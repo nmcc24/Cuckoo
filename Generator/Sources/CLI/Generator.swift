@@ -67,16 +67,15 @@ final class Generator {
         return contents.joinedByBlankLines()
     }
 
-    /// Each of the module's sources with the files it stands for, a glob's matches or the file itself, and a warning
-    /// for each source that stands for none: usually a typo or a moved directory, which would otherwise just leave
-    /// mocks out. The files a build plugin passes aren't checked.
+    /// Each of the module's sources with the files it stands for, a glob's matches, and a warning for each source that
+    /// matches none: usually a typo or a moved directory, which would otherwise just leave mocks out. The files a build
+    /// plugin passes are used as they are, and aren't checked.
     static func expandSources(of module: Module) -> (sources: [(source: Path, files: [Path])], warnings: [String]) {
-        let isGlob = module.options.glob && !module.sourcesAreFromPlugin
         let expanded = (module.sources ?? []).map { source in
-            (source: source, files: isGlob ? Glob(pattern: source.description).paths.map { Path($0) } : [source].filter(\.exists))
+            (source: source, files: module.sourcesAreFromPlugin ? [source].filter(\.exists) : Glob(pattern: source.description).paths.map { Path($0) })
         }
         let warnings = module.sourcesAreFromPlugin ? [] : expanded.filter(\.files.isEmpty).map { source, _ in
-            "The source '\(source)' of module \(module.name) \(isGlob ? "matches no files" : "doesn't exist")."
+            "The source '\(source)' of module \(module.name) matches no files."
         }
         return (expanded, warnings)
     }
