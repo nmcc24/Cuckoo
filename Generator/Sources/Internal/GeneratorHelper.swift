@@ -88,7 +88,7 @@ struct GeneratorHelper {
         let genericParameters = method.proxyGenerics(forVerification: forVerification).parameters
         guard !method.signature.parameters.isEmpty || !genericParameters.isEmpty else { return "" }
 
-        let prefix = matcherPrefix(for: method)
+        let prefix = matcherPrefix
         let matchableGenericParameters = method.signature.parameters.enumerated().map { index, parameter -> String in
             return "\(prefix)\(index + 1): Cuckoo.\(matcherProtocol(isOptional: parameter.matchedType.isOptional, sendable: sendable))"
         }
@@ -99,7 +99,7 @@ struct GeneratorHelper {
     static func matchableGenericsWhereClause(from method: Method, forVerification: Bool = false) -> String {
         guard method.signature.parameters.isEmpty == false else { return "" }
 
-        let prefix = matcherPrefix(for: method)
+        let prefix = matcherPrefix
         let matchableWhereConstraints = method.signature.parameters.enumerated().map { index, parameter -> String in
             let type = parameter.matchedType.isOptional ? "OptionalMatchedType" : "MatchedType"
             return "\(prefix)\(index + 1).\(type) == \(genericSafeType(from: parameter.matchedType.genericArgumentSafe.unoptionaled.description))"
@@ -111,7 +111,7 @@ struct GeneratorHelper {
     static func matchableParameterSignature(with parameters: [MethodParameter], of method: Method) -> String {
         guard !parameters.isEmpty else { return "" }
 
-        let prefix = matcherPrefix(for: method)
+        let prefix = matcherPrefix
         return parameters.enumerated()
             .map { "\($1.nameAndInnerName): \(prefix)\($0 + 1)" }
             .joined(separator: ", ")
@@ -119,9 +119,7 @@ struct GeneratorHelper {
 
     /// The name of a proxy member's matcher generics, `__M1`, `__M2` and so on, which no name of the mocked code
     /// shadows or is shadowed by, as `M1` could be: a generic parameter of the member or a type it names.
-    static func matcherPrefix(for method: Method) -> String {
-        "__M"
-    }
+    static let matcherPrefix = "__M"
 
     /// The protocol a proxy's matcher parameter conforms to.
     static func matcherProtocol(isOptional: Bool, sendable: Bool) -> String {
@@ -148,9 +146,8 @@ struct GeneratorHelper {
 
         let tupleType = parameters.map { $0.matchedType.genericArgumentSafe.description }.joined(separator: ", ")
         let matchers = parameters
-            // Enumeration is done after filtering out parameters without usable names.
             .enumerated()
-            .compactMap { index, parameter in
+            .map { index, parameter in
                 parameterMatcher(name: escapeReservedKeywords(for: parameter.usableName), index: index, count: parameters.count, sendable: sendable)
             }
             .joined(separator: ", ")

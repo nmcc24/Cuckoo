@@ -168,12 +168,12 @@ extension Subscript {
     }
 
     func newValueMatcherGeneric(sendable: Bool) -> String {
-        "\(GeneratorHelper.matcherPrefix(for: getter))\(newValueMatcherIndex): Cuckoo.\(GeneratorHelper.matcherProtocol(isOptional: matchedNewValueType.isOptional, sendable: sendable))"
+        "\(GeneratorHelper.matcherPrefix)\(newValueMatcherIndex): Cuckoo.\(GeneratorHelper.matcherProtocol(isOptional: matchedNewValueType.isOptional, sendable: sendable))"
     }
 
     var newValueMatcherConstraint: String {
         let type = matchedNewValueType
-        return "\(GeneratorHelper.matcherPrefix(for: getter))\(newValueMatcherIndex).\(type.isOptional ? "OptionalMatchedType" : "MatchedType") == \(type.unoptionaled.description.replacing("!", with: "?"))"
+        return "\(GeneratorHelper.matcherPrefix)\(newValueMatcherIndex).\(type.isOptional ? "OptionalMatchedType" : "MatchedType") == \(type.unoptionaled.description.replacing("!", with: "?"))"
     }
 
     func newValueMatcher(sendable: Bool) -> String {

@@ -125,7 +125,7 @@ enum StubbingProxyBuilder {
             ]
             let index = subscriptDeclaration.newValueMatcherIndex
             type.append("")
-            type.append("    \(memberAccess.spaced)func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: sendable))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix(for: subscriptDeclaration.getter))\(index)) -> \(setter.stubFunction)<\(setterArguments.joined(separator: ", "))> where \(subscriptDeclaration.newValueMatcherConstraint) {")
+            type.append("    \(memberAccess.spaced)func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: sendable))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix)\(index)) -> \(setter.stubFunction)<\(setterArguments.joined(separator: ", "))> where \(subscriptDeclaration.newValueMatcherConstraint) {")
             type.append("        let matchers: [\(GeneratorHelper.matcherType(sendable: sendable))<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers(sendable: sendable))[\(subscriptDeclaration.newValueMatcher(sendable: sendable))]")
             type.append(contentsOf: createStub(for: setter, mockName: mockName).map { "    \($0)" })
             type.append("    }")
