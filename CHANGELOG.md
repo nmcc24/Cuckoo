@@ -219,6 +219,9 @@ Build plugin:
 - A Cuckoofile key in quotes, such as `[modules."My App"]`, lost its spaces and dots, so it named no target, and a
   multi-line string closed by `\\"""` or `""""` hid the entries after it.
 - A test target's dependency on an executable target got no mocks.
+- A Cuckoofile entry for a module that the test target reaches only through another module generated nothing,
+  without a warning: the unused-entry warning counted every target's dependencies. It now counts the direct
+  dependencies of the targets that depend on Cuckoo, and says to make the module a direct dependency.
 - A missing Cuckoofile gave an unclear failure; the plugin now says where it looked and what to add.
 - The generator logged the Cuckoofile's path with a double slash.
 

@@ -3,15 +3,33 @@ import Foundation
 // The plugin's reading of a Cuckoofile, line by line: a plugin can't depend on a TOML parser. The generator's tests
 // link this file too (Generator/Tests/CuckoofileScan.swift), since a test target can't depend on a plugin.
 
+/// A target as the unused-entry check sees it: its name, whether it depends on Cuckoo, as a target compiling mocks
+/// does, and the modules it depends on directly.
+struct ScannedTarget {
+    var name: String
+    var dependsOnCuckoo: Bool
+    var dependencies: [String]
+}
+
+/// The names a Cuckoofile entry can generate for: every target's, and the direct dependencies of the targets that
+/// depend on Cuckoo. A module those reach only through another one isn't among them, as the plugin generates only for
+/// its target's direct dependencies.
+func usableEntryNames(of targets: [ScannedTarget]) -> Set<String> {
+    Set(targets.flatMap { [$0.name] + ($0.dependsOnCuckoo ? $0.dependencies : []) })
+}
+
 /// The warning for the Cuckoofile's entries that no target can use, as a misspelled `[modules.Netwrk]` is, or nil
-/// when every entry names a module some target depends on or a target itself. Every plugin run sees every target, so
-/// each warns about the same entries.
+/// when every entry names a target, or a module that a target depending on Cuckoo depends on directly: the plugin
+/// generates only for its target's direct dependencies. Every plugin run sees every target, so each warns about the
+/// same entries.
 func unusedCuckoofileEntriesWarning(entries: Set<String>, usableNames: Set<String>) -> String? {
     let unused = entries.subtracting(usableNames).sorted()
     guard !unused.isEmpty else { return nil }
     let list = unused.map { "'\($0)'" }.joined(separator: ", ")
-    return "The Cuckoofile's \(unused.count == 1 ? "entry" : "entries") \(list) \(unused.count == 1 ? "names" : "name") no target or module "
-        + "any target depends on, so \(unused.count == 1 ? "it generates" : "they generate") nothing. Rename \(unused.count == 1 ? "it" : "them") after one."
+    return "The Cuckoofile's \(unused.count == 1 ? "entry" : "entries") \(list) \(unused.count == 1 ? "names" : "name") no target, and no module "
+        + "that a target using Cuckoo depends on directly, so \(unused.count == 1 ? "it generates" : "they generate") nothing. "
+        + "Rename \(unused.count == 1 ? "it" : "them") after one, or make the module a direct dependency of the test target: "
+        + "one it reaches only through another module gets no mocks."
 }
 
 /// The names of the Cuckoofile's entries: `App` for `[modules.App]`, `[modules.App.options]`, a dotted

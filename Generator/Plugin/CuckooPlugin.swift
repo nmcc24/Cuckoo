@@ -36,9 +36,14 @@ struct CuckooPlugin: BuildToolPlugin {
         // An entry for none of them generates nothing, without an error: usually a misspelled or renamed module.
         let entries = cuckoofileModuleNames(in: configuration)
         let generated = Set(sourceModules.map(\.name) + [target.name])
-        // A module any target depends on, or a target itself, can have an entry.
-        let usableNames = Set(context.package.targets.flatMap { packageTarget in
-            [packageTarget.name] + moduleNames(of: packageTarget.dependencies)
+        // A target itself can have an entry, and so can a module that a target compiling mocks, which depends on
+        // Cuckoo, depends on directly: the plugin generates only for the direct dependencies of its target.
+        let usableNames = usableEntryNames(of: context.package.targets.map { packageTarget in
+            ScannedTarget(
+                name: packageTarget.name,
+                dependsOnCuckoo: dependsOnCuckoo(packageTarget.dependencies),
+                dependencies: moduleNames(of: packageTarget.dependencies)
+            )
         })
         if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames) {
             Diagnostics.warning(warning)
@@ -61,6 +66,17 @@ struct CuckooPlugin: BuildToolPlugin {
                 .compactMap { $0 as? SourceModuleTarget }
                 .flatMap { $0.sourceFiles.filter { $0.type == .source }.map(\.url) }
         )
+    }
+}
+
+/// Whether a target depends on Cuckoo, as one that compiles mocks does.
+private func dependsOnCuckoo(_ dependencies: [TargetDependency]) -> Bool {
+    dependencies.contains { dependency in
+        switch dependency {
+        case .product(let product): product.name == "Cuckoo"
+        case .target(let target): target.name == "Cuckoo"
+        @unknown default: false
+        }
     }
 }
 
@@ -110,14 +126,21 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
         // it finds no entry at all isn't an error here; an empty one, or one without `modules`, is.
         let entries = cuckoofileModuleNames(in: configuration)
         let generated = Set(sourceModules.map(\.name) + [target.displayName])
-        let usableNames = Set(context.xcodeProject.targets.flatMap { projectTarget in
-            [projectTarget.displayName] + projectTarget.dependencies.flatMap { dependency -> [String] in
-                switch dependency {
-                case .product(let product): product.targets.compactMap { ($0 as? SourceModuleTarget)?.moduleName }
-                case .target(let target): [target.displayName]
-                @unknown default: []
+        // As in a package, the direct dependencies of a target that compiles mocks, which depends on Cuckoo.
+        let usableNames = usableEntryNames(of: context.xcodeProject.targets.map { projectTarget in
+            ScannedTarget(
+                name: projectTarget.displayName,
+                dependsOnCuckoo: projectTarget.dependencies.contains { dependency in
+                    if case .product(let product) = dependency { product.name == "Cuckoo" } else { false }
+                },
+                dependencies: projectTarget.dependencies.flatMap { dependency -> [String] in
+                    switch dependency {
+                    case .product(let product): product.targets.compactMap { ($0 as? SourceModuleTarget)?.moduleName }
+                    case .target(let target): [target.displayName]
+                    @unknown default: []
+                    }
                 }
-            }
+            )
         })
         if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames) {
             Diagnostics.warning(warning)
