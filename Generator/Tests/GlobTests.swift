@@ -89,15 +89,12 @@ struct GlobTests {
         try FileManager.default.createDirectory(at: directory.appending(path: "App"), withIntermediateDirectories: true)
         try "".write(to: directory.appending(path: "App/Model.swift"), atomically: true, encoding: .utf8)
 
-        func warnings(sources: String, options: String = "") throws -> [String] {
+        func warnings(sources: String) throws -> [String] {
             let modules = try Cuckoofile.modules(
                 from: """
                     [modules.App]
                     sources = \(sources)
                     output = "Mocks.swift"
-
-                    [modules.App.options]
-                    \(options)
                     """,
                 configurationPath: Path(directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),
                 overriddenOutput: nil,
@@ -110,8 +107,8 @@ struct GlobTests {
         #expect(try warnings(sources: #"["App/*.swift", "Ap/*.swift"]"#) == [
             "The source '\(Path("\(root)/Ap/*.swift"))' of module App matches no files.",
         ])
-        #expect(try warnings(sources: #"["App/Model.swift", "App/Gone.swift"]"#, options: "glob = false") == [
-            "The source '\(Path("\(root)/App/Gone.swift"))' of module App doesn't exist.",
+        #expect(try warnings(sources: #"["App/Model.swift", "App/Gone.swift"]"#) == [
+            "The source '\(Path("\(root)/App/Gone.swift"))' of module App matches no files.",
         ])
     }
 
@@ -138,5 +135,17 @@ struct GlobTests {
         #expect(matches == [Path("\(root)/App/Model.swift").standardRawValue])
         #expect(printed.hasPrefix("warning: Can't list the directory '"))
         #expect(printed.contains("Locked"))
+    }
+
+    /// Sources are always globs: a file whose name has a glob character is matched with `?` in its place.
+    @Test
+    func aNameWithGlobCharactersIsMatchedWithAQuestionMark() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooGlob-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try "".write(to: directory.appending(path: "Odd[1].swift"), atomically: true, encoding: .utf8)
+        let root = directory.path(percentEncoded: false)
+        let matches = Glob(pattern: "\(root)/Odd?1?.swift").map { Path($0).standardRawValue }
+        #expect(matches == [Path("\(root)/Odd[1].swift").standardRawValue])
     }
 }

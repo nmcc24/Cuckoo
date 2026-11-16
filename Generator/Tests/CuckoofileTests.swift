@@ -44,7 +44,6 @@ struct CuckoofileTests {
             filenameFormat = "{}Mock"
 
             [modules.App.options]
-            glob = false
             keepDocumentation = false
             protocolsOnly = true
             omitHeaders = true
@@ -61,7 +60,6 @@ struct CuckoofileTests {
         #expect(module.regexes == ["^Service"])
         #expect(module.output == "Tests/Mocks")
         #expect(module.filenameFormat == "{}Mock")
-        #expect(module.options.glob == false)
         #expect(module.options.keepDocumentation == false)
         #expect(module.options.protocolsOnly == true)
         #expect(module.options.omitHeaders == true)
@@ -82,7 +80,6 @@ struct CuckoofileTests {
         #expect(module.exclude.isEmpty)
         #expect(module.regexes.isEmpty)
         #expect(module.filenameFormat == nil)
-        #expect(module.options.glob == true)
         #expect(module.options.keepDocumentation == true)
         #expect(module.options.protocolsOnly == false)
         #expect(module.options.omitHeaders == false)
@@ -215,7 +212,6 @@ struct CuckoofileTests {
             filenameFormat = "{}Mocks"
 
             [modules.App.options]
-            glob = true
             keepDocumentation = false
             protocolsOnly = false
             omitHeaders = true
@@ -329,7 +325,7 @@ struct CuckoofileTests {
         // A module isn't a table.
         "[modules]\nApp = \"Mocks.swift\"",
         // A value of the wrong type.
-        "[modules.App]\noutput = \"Mocks.swift\"\n[modules.App.options]\nglob = \"yes\"",
+        "[modules.App]\noutput = \"Mocks.swift\"\n[modules.App.options]\nkeepDocumentation = \"yes\"",
         "[modules.App]\noutput = \"Mocks.swift\"\nsources = \"Sources/*.swift\"",
         // A filename format without the `{}` placeholder.
         "[modules.App]\noutput = \"Mocks\"\nfilenameFormat = \"Mock\"",

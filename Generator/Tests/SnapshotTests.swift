@@ -137,7 +137,6 @@ struct SnapshotTests {
                 output: "unused.swift",
                 filenameFormat: nil,
                 options: Module.DTO.Options(
-                    glob: true,
                     keepDocumentation: keepDocumentation,
                     protocolsOnly: nil,
                     omitHeaders: true,

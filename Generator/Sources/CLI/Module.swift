@@ -76,7 +76,6 @@ final class Module: Sendable {
         self.output = (overriddenOutput ?? dto.output ?? output)!
         self.filenameFormat = dto.filenameFormat
         self.options = Options(
-            glob: dto.options?.glob ?? true,
             keepDocumentation: dto.options?.keepDocumentation ?? true,
             protocolsOnly: dto.options?.protocolsOnly ?? false,
             omitHeaders: dto.options?.omitHeaders ?? false,
@@ -124,7 +123,6 @@ final class Module: Sendable {
     }
 
     struct Options {
-        let glob: Bool
         let keepDocumentation: Bool
         let protocolsOnly: Bool
         let omitHeaders: Bool
@@ -200,7 +198,6 @@ extension Module {
         let xcodeproj: Xcodeproj?
 
         struct Options: Decodable {
-            let glob: Bool?
             let keepDocumentation: Bool?
             let protocolsOnly: Bool?
             let omitHeaders: Bool?
@@ -291,7 +288,6 @@ extension Module: CustomDebugStringConvertible {
 extension Module.Options: CustomDebugStringConvertible {
     var debugDescription: String {
         [
-            "glob: \(glob)",
             "keep documentation: \(keepDocumentation)",
             "protocols only: \(protocolsOnly)",
             "omit headers: \(omitHeaders)",
