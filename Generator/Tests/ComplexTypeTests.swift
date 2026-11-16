@@ -35,3 +35,18 @@ struct ComplexTypeTests {
         .type(source)
     }
 }
+
+/// A parent type's generic arguments, split where the type's syntax does, not at every comma or `>`.
+@Suite
+struct GenericArgumentsTests {
+    @Test(arguments: [
+        ("Parent<String, Int>", ["String", "Int"]),
+        ("Parent<String, [Int: Bool]>", ["String", "[Int: Bool]"]),
+        ("Parent<(Int) -> String, Int>", ["(Int) -> String", "Int"]),
+        ("Module.Parent<(Int, Int) -> Void>", ["(Int, Int) -> Void"]),
+        ("Parent", []),
+    ])
+    func genericArguments(type: String, expected: [String]) {
+        #expect(type.genericArguments == expected)
+    }
+}
