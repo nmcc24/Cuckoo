@@ -1,3 +1,6 @@
+import SwiftParser
+import SwiftSyntax
+
 extension String {
     var nilIfEmpty: String? {
         isEmpty ? nil : self
@@ -11,28 +14,12 @@ extension String {
         return self[..<openingBracket].trimmedSpaces
     }
 
-    /// A type's top-level generic arguments: `["String", "[Int: Bool]"]` for `Parent<String, [Int: Bool]>`.
+    /// A type's top-level generic arguments: `["String", "[Int: Bool]"]` for `Parent<String, [Int: Bool]>`, and
+    /// `["(Int) -> String", "Int"]` for `Parent<(Int) -> String, Int>`.
     var genericArguments: [String] {
-        guard let openingBracket = firstIndex(of: "<"), hasSuffix(">") else { return [] }
-        var arguments: [String] = []
-        var current = ""
-        var depth = 0
-        for character in self[index(after: openingBracket)..<index(before: endIndex)] {
-            switch character {
-            case "<", "[", "(":
-                depth += 1
-            case ">", "]", ")":
-                depth -= 1
-            case "," where depth == 0:
-                arguments.append(current.trimmedSpaces)
-                current = ""
-                continue
-            default:
-                break
-            }
-            current.append(character)
-        }
-        arguments.append(current.trimmedSpaces)
-        return arguments
+        let declaration = Parser.parse(source: "typealias __CuckooType = \(self)").statements.first?.item.as(TypeAliasDeclSyntax.self)
+        let type = declaration?.initializer.value
+        let clause = type?.as(IdentifierTypeSyntax.self)?.genericArgumentClause ?? type?.as(MemberTypeSyntax.self)?.genericArgumentClause
+        return clause?.arguments.map { $0.argument.trimmedDescription } ?? []
     }
 }
