@@ -26832,7 +26832,7 @@ nonisolated final class MockShape: Shape, nonisolated Cuckoo.ProtocolMock {
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("scaled(by p0: Int) -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("scaled(by p0: Int) -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -26845,7 +26845,7 @@ nonisolated final class MockShape: Shape, nonisolated Cuckoo.ProtocolMock {
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("overlaps(_ p0: Self) -> Bool")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("overlaps(_ p0: Self) -> Bool", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -26858,7 +26858,7 @@ nonisolated final class MockShape: Shape, nonisolated Cuckoo.ProtocolMock {
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("union(with p0: [Self]) -> Self?")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("union(with p0: [Self]) -> Self?", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -27009,7 +27009,7 @@ final class MockPolygon: Polygon, nonisolated Cuckoo.ClassMock {
                 implementation(arguments)
             },
             superclassCall: super.duplicate(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("duplicate() -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("duplicate() -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 

@@ -28,7 +28,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("parent")
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("parent", reason: "it names Self, which is another type in the default implementation")
             )
         }
     }
@@ -41,7 +41,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                     implementation(())
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("next")
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("next", reason: "it names Self, which is another type in the default implementation")
             )
         }
         set {
@@ -52,7 +52,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                     implementation(value)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("next")
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("next", reason: "it names Self, which is another type in the default implementation")
             )
         }
     }
@@ -66,7 +66,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("copy() -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("copy() -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -79,7 +79,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("merged(with p0: Self) -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("merged(with p0: Self) -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -92,7 +92,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("isSame(as p0: Self) -> Bool")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("isSame(as p0: Self) -> Bool", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -105,7 +105,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("sibling() -> Self?")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("sibling() -> Self?", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -118,7 +118,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("children() -> [Self]")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("children() -> [Self]", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -131,7 +131,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("indexed() -> [String: Self]")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("indexed() -> [String: Self]", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -147,7 +147,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                                 implementation(arguments)
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("visit(_ p0: (Self) -> Void)")
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("visit(_ p0: (Self) -> Void)", reason: "it names Self, which is another type in the default implementation")
             )
         })
     }
@@ -175,7 +175,7 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("subscript(_ p0: Int) -> Self#get")
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("subscript(_ p0: Int) -> Self#get", reason: "it names Self, which is another type in the default implementation")
             )
         }
     }
@@ -546,7 +546,7 @@ nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.Protoco
                 try await implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("clone() async throws -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("clone() async throws -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -559,7 +559,7 @@ nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.Protoco
                 await implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("compare(with p0: Self) async -> Bool")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("compare(with p0: Self) async -> Bool", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -667,7 +667,7 @@ final class MockMainActorPeer: MainActorPeer, nonisolated Cuckoo.ProtocolMock {
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("pair(with p0: Self) -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("pair(with p0: Self) -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -751,7 +751,7 @@ nonisolated final class MockStack<Element>: Stack, nonisolated Cuckoo.ProtocolMo
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("pushing(_ p0: Element) -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("pushing(_ p0: Element) -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -764,7 +764,7 @@ nonisolated final class MockStack<Element>: Stack, nonisolated Cuckoo.ProtocolMo
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("appending(_ p0: Self) -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("appending(_ p0: Self) -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 
@@ -945,7 +945,7 @@ final class MockNode: Node, nonisolated Cuckoo.ClassMock {
                 implementation(arguments)
             },
             superclassCall: super.copy(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("copy() -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("copy() -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 

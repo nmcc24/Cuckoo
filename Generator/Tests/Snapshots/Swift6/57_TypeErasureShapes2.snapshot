@@ -363,7 +363,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
                     implementation(arguments)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("subscript(same p0: Self) -> Item#get")
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("subscript(same p0: Self) -> Item#get", reason: "it names Self, which is another type in the default implementation")
             )
         }
     }
