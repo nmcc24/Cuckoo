@@ -46,7 +46,10 @@ public func clearInvocations(_ mocks: any Mock...) {
 /// Fails if `mocks`, which may be of different types, received any call that no earlier `verify` checked.
 ///
 /// A mock of a global-actor type, such as a `@MainActor` protocol, is checked only on that actor, where its
-/// calls' arguments live: called elsewhere, it records a failure instead of reading them. Leave `isolation` out.
+/// calls' arguments live: called elsewhere, it records a failure instead of reading them. Leave `isolation` out. A
+/// nonisolated helper function that calls it runs it as nonisolated, even when its caller is on the actor: isolate
+/// the helper to the mock's actor, or give it an `isolation: isolated (any Actor)? = #isolation` parameter and pass
+/// it on. The main actor is recognized on the main thread either way.
 public func verifyNoMoreInteractions(
     _ mocks: any Mock...,
     fileID: String = #fileID,
