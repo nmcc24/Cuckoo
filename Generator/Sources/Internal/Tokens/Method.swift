@@ -126,6 +126,10 @@ extension Method {
         if isStatic && isolation == nil && parent?.value.asProtocol?.isActor == true {
             return .nonisolated
         }
+        // `nonisolated(nonsending)` and `@concurrent` make a member nonisolated, whatever its type's isolation.
+        if isolation == nil, executionAttribute?.isEmpty == false {
+            return .nonisolated
+        }
         return isolation
     }
 
@@ -393,6 +397,8 @@ extension Method {
         let parameterCount = signature.parameters.count
         return signature.parameters.enumerated().filter { $0.element.isInout }.map { index, parameter in
             let value = parameterCount == 1 ? "arguments" : "arguments.\(index)"
+            // A `~Copyable` argument reaches the stub as a placeholder, which can't be written back to the caller's.
+            guard !parameter.isNoncopyable else { return "var __inout\(index) = \(value);" }
             return "var __inout\(index) = \(value); defer { \(escapeReservedKeywords(for: parameter.usableName)) = __inout\(index) };"
         }.joined(separator: " ")
     }

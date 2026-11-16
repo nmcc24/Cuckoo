@@ -30,7 +30,7 @@ nonisolated final class MockShapes<T>: Shapes, nonisolated Cuckoo.ProtocolMock {
             }
         }
 
-        var mainValue: T {
+        @MainActor var mainValue: T {
             get {
                 return cuckooManager.unforwardableDefaultImplementationCall("Shapes.mainValue", reason: "it's isolated differently from the protocol")
             }
@@ -65,7 +65,7 @@ nonisolated final class MockShapes<T>: Shapes, nonisolated Cuckoo.ProtocolMock {
             return cuckooManager.unforwardableDefaultImplementationCall("bump(_ p0: inout T)", reason: "it takes an inout argument")
         }
 
-        func onMain(_ p0: T) {
+        @MainActor func onMain(_ p0: T) {
             return cuckooManager.unforwardableDefaultImplementationCall("onMain(_ p0: T)", reason: "it's isolated differently from the protocol")
         }
 
