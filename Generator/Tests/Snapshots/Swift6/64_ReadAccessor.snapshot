@@ -1,0 +1,136 @@
+import Cuckoo
+import Foundation
+
+final class MockLibrary: Library, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = Library
+    typealias CuckooStubbing = __StubbingProxy_Library
+    typealias CuckooVerification = __VerificationProxy_Library
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLibrary.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Library>()
+
+    nonisolated func enableDefaultImplementation(_ stub: Library) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override var titles: [String] {
+        get {
+            return cuckooManager.getter(
+                "titles",
+                invoke: { (implementation: (()) -> [String]) in
+                    implementation(())
+                },
+                superclassCall: super.titles,
+                defaultCall: cuckooDefaultImplementation.value.titles
+            )
+        }
+    }
+
+    override var count: Int {
+        get {
+            return cuckooManager.getter(
+                "count",
+                invoke: { (implementation: (()) -> Int) in
+                    implementation(())
+                },
+                superclassCall: super.count,
+                defaultCall: cuckooDefaultImplementation.value.count
+            )
+        }
+    }
+
+    override var name: String {
+        get {
+            return cuckooManager.getter(
+                "name",
+                invoke: { (implementation: (()) -> String) in
+                    implementation(())
+                },
+                superclassCall: super.name,
+                defaultCall: cuckooDefaultImplementation.value.name
+            )
+        }
+        set {
+            cuckooManager.setter(
+                "name",
+                value: newValue,
+                invoke: { (implementation: (String) -> Void, value) in
+                    implementation(value)
+                },
+                superclassCall: super.name = newValue,
+                defaultCall: cuckooDefaultImplementation.value.name = newValue
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_Library: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        var titles: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockLibrary, [String], (()) -> [String], Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "titles")
+        }
+
+        var count: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockLibrary, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "count")
+        }
+
+        var name: Cuckoo.ClassToBeStubbedProperty<MockLibrary, String, (()) -> String, (String) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "name")
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Library: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        var titles: Cuckoo.VerifyReadOnlyProperty<[String]> {
+            return .init(manager: cuckooManager, name: "titles", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        var count: Cuckoo.VerifyReadOnlyProperty<Int> {
+            return .init(manager: cuckooManager, name: "count", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        var name: Cuckoo.VerifyProperty<String> {
+            return .init(manager: cuckooManager, name: "name", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+    }
+}
+
+final class LibraryStub: Library {
+    override var titles: [String] {
+        get {
+            typealias __CuckooDefault = [String]
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+
+    override var count: Int {
+        get {
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+
+    override var name: String {
+        get {
+            typealias __CuckooDefault = String
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+        set {
+        }
+    }
+}

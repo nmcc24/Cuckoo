@@ -105,4 +105,23 @@ struct CrawlerDiagnosticsTests {
         #expect(returnTypes == ["Array", "Dictionary"])
         #expect(crawler.diagnostics.isEmpty)
     }
+
+    /// A property is settable with a writing accessor or observers, and read-only with reading accessors only.
+    @Test
+    func propertiesAreReadOnlyWithOnlyReadingAccessors() throws {
+        let crawler = Crawler.crawl(source: """
+            class Store {
+                var a: Int { _read { yield 0 } }
+                var b: Int { unsafeAddress { fatalError() } }
+                var c: Int { get { 0 } _modify { fatalError() } }
+                var d: Int { get { 0 } mutate { fatalError() } }
+                var e: Int { unsafeAddress { fatalError() } mutableAddressWithOwner { fatalError() } }
+                var f: Int { unsafeAddress { fatalError() } mutableAddressWithNativeOwner { fatalError() } }
+                var g = 0 { didSet {} }
+            }
+            """, url: url)
+        let store = try #require(crawler.tokens.first as? ClassDeclaration)
+        let readOnly = store.members.compactMap { $0 as? Variable }.map { "\($0.name): \($0.isReadOnly)" }
+        #expect(readOnly == ["a: true", "b: true", "c: false", "d: false", "e: false", "f: false", "g: false"])
+    }
 }
