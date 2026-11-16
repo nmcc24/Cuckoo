@@ -119,7 +119,7 @@ enum VerificationProxyBuilder {
             type.append("")
             type.append(contentsOf: actor)
             type.append("    @discardableResult")
-            type.append("    \(memberAccess.spaced)func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: false))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix(for: subscriptDeclaration.getter))\(index)) -> Cuckoo.VerifiedCall<(\(setterInput)), Void> where \(subscriptDeclaration.newValueMatcherConstraint) {")
+            type.append("    \(memberAccess.spaced)func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: false))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix)\(index)) -> Cuckoo.VerifiedCall<(\(setterInput)), Void> where \(subscriptDeclaration.newValueMatcherConstraint) {")
             type.append("        let matchers: [Cuckoo.ParameterMatcher<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers(sendable: false))[\(subscriptDeclaration.newValueMatcher(sendable: false))]")
             type.append(contentsOf: verify(setter).map { "    \($0)" })
             type.append("    }")

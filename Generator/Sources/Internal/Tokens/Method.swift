@@ -106,7 +106,7 @@ extension Method {
     }
     
     var isAsync: Bool {
-        signature.asyncType.map { $0.isAsync || $0.isReasync } ?? false
+        signature.asyncType?.isAsync ?? false
     }
     
     var isThrowing: Bool {
