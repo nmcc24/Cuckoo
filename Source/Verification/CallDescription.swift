@@ -4,7 +4,7 @@ extension StubCall {
     var readableDescription: String {
         let arguments = (self as? any DescribedArguments)?.argumentDescriptions
         if let (baseName, _) = MemberSignature.baseNameAndParameterList(in: method) {
-            guard baseName.hasSuffix("subscript"), let arguments else {
+            guard baseName == "subscript" || baseName.hasSuffix(" subscript"), let arguments else {
                 return baseName + parametersAsString
             }
             let prefix = baseName.dropLast("subscript".count)
