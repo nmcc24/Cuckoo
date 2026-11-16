@@ -86,6 +86,8 @@
 ### Fixed
 - An unstubbed call whose return type has no default value reported its failure twice, once as a failure and once
   in the crash. It now crashes with one message, which lists the member's stubs as the failure did.
+- A mock that a task started in `createMock`'s closure created after `createMock` returned shared the new mock's
+  manager, stubs and calls. Only mocks created while the closure runs share it now.
 - Replacing a default implementation, or a value in `DefaultValueRegistry` (by `register` or `reset`), released the
   old one while holding the lock, so a `deinit` that read it back deadlocked, and for the registry every later
   unstubbed call hung too. The old value is now released after the lock.
