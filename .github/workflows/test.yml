@@ -231,11 +231,12 @@ jobs:
       # targets use the plugin, each with a Cuckoofile entry that lists its sources.
       - name: Test an Xcode project that uses the plugin
         run: |
-          set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme XApp \
+          # One framework and its tests alone: a test target given another target's mocks fails to build. First, while
+          # the project's DerivedData is empty, so the other targets' products can't satisfy those mocks' imports.
+          set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme ShopOnly \
             -skipPackagePluginValidation -destination "platform=macOS" \
             | xcbeautify --renderer github-actions
-          # One framework and its tests alone: a test target given another target's mocks fails to build.
-          set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme ShopOnly \
+          set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme XApp \
             -skipPackagePluginValidation -destination "platform=macOS" \
             | xcbeautify --renderer github-actions
 
