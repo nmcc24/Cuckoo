@@ -20,6 +20,8 @@ tests, then the behaviour changes, which show up as test failures.
 - SwiftPM only. The podspec and the `run` script, which downloaded or built the generator for build-phase
   scripts, are gone. Add the package and the build plugin as <doc:GettingStarted> shows. To run the
   generator from a script anyway, see "Running the generator yourself" in <doc:Cuckoofile>.
+- The `CuckooGenerator` executable product is removed too, so a package that depends on Cuckoo can no longer
+  `swift run CuckooGenerator`. Run it from a clone of Cuckoo, or from a release's `CuckooGenerator.artifactbundle.zip`.
 - The plugin of a release runs a prebuilt generator, so your build no longer compiles swift-syntax, and a release
   doesn't depend on swift-syntax at all: your macro packages can use any version. A dependency on a branch or a
   commit still builds the generator from source, with swift-syntax `602.0.0..<605.0.0`.
@@ -73,13 +75,18 @@ behaviour on top.
   applies to every test; for values only some tests need, register them in `DefaultValues` through
   `.cuckoo(defaultValues:)`, which tests running in parallel don't share.
 - The checks no longer take a `file:` argument: they take `filePath:`, which defaults to `#filePath`, the full path
-  Xcode needs.
+  Xcode needs. It's a `StaticString`, so a helper that forwards it declares `filePath: StaticString = #filePath`.
+- `verify`'s result, `__DoNotUse<IN, OUT>`, is ``VerifiedCall``. Code that names the type, such as a helper that
+  returns a verification, changes; `with(returnType:)` is unchanged. An optional property's verified getter
+  returns `VerifiedCall<Void, T?>`, not `VerifiedCall<Void, T>`, so `with(returnType:)` on it names the optional
+  type.
 - `hasLength(inRange:)` is removed in favour of ``hasLength(in:)``, whose range means what it says. With a
   half-open range, `inRange:` included the upper bound, as `inclusive: true` did by default: `inRange: 1..<3`
   matched 3, and so does `in: 1...3`, while `in: 1..<3` doesn't. Move each call to `in:` with the range you mean.
 - The names a mock declares for Cuckoo carry Cuckoo's prefix, so none of yours is hidden in a mock any more.
-  Code that names them changes, and the compiler points at each place (the 3.0 betas' `StaticStubbing` and
-  `StaticVerification`, for static members, are `CuckooStaticStubbing` and `CuckooStaticVerification` too):
+  Code that names them changes, and the compiler points at each place (the 3.0 betas' `StaticStubbing`,
+  `StaticVerification`, `cuckoo_staticManager` and `cuckoo_globalActor` are `CuckooStaticStubbing`,
+  `CuckooStaticVerification`, `cuckooStaticManager` and `cuckooGlobalActor` too):
 
   | Cuckoo 2 | Cuckoo 3 |
   | --- | --- |
@@ -132,7 +139,8 @@ behaviour on top.
   Cuckoo 2 reported each failure to both.
 - A failed `verify` leaves the calls it looked at unverified, so a later `verifyNoMoreInteractions` still reports
   them.
-- `enableSuperclassSpy()` on a protocol mock, which has no superclass, records a failure.
+- `MockBuilder.enableSuperclassSpy()` in `createMock` for a protocol mock, which has no superclass, records a
+  failure.
 - An ``ArgumentCaptor`` captures only from the calls a passing `verify` matched, or that its stub answered. Cuckoo 2
   captured every argument its matcher saw, also from a failing `verify` and from calls another matcher rejected, so
   a test that read `allValues` after those may see fewer values.
