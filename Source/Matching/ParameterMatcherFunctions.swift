@@ -64,12 +64,12 @@ public func equal<T>(
     }
 }
 
-/// Returns a matcher matching any T value or nil.
+/// Returns a matcher matching any `T` value.
 public func any<T>(_ type: T.Type = T.self) -> SendableMatcher<T> {
     SendableMatcher()
 }
 
-/// Returns a matcher matching any T value or nil.
+/// Returns a matcher matching any `T` value or `nil`.
 public func any<T>(_ type: T.Type = T.self) -> SendableMatcher<T?> {
     SendableMatcher()
 }

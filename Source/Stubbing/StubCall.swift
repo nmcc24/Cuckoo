@@ -1,6 +1,6 @@
 /// A call a mock recorded.
 public protocol StubCall {
-    /// The called member, as failure messages name it.
+    /// The called member's recorded signature, such as `count(characters p0: String) -> Int` or `name#get`.
     var method: String { get }
     /// The call's arguments, as failure messages show them.
     var parametersAsString: String { get }
@@ -8,7 +8,7 @@ public protocol StubCall {
 
 /// A recorded call to a member whose arguments are `IN`.
 public struct ConcreteStubCall<IN>: StubCall {
-    /// The called member, as failure messages name it.
+    /// The called member's recorded signature, such as `count(characters p0: String) -> Int` or `name#get`.
     public let method: String
     /// The call's arguments, as a tuple for several parameters.
     public let parameters: (IN)

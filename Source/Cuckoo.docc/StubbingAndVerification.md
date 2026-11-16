@@ -93,8 +93,8 @@ for a value that isn't, return a new one from `then { Token() }`.
 A call that no stub matches records a failure that lists the member's stubs and the argument each one rejected.
 Then it answers, so the test can go on: a member that throws `any Error` throws ``CuckooError/unstubbedCall(method:)``,
 and any other member, a `rethrows` one included, returns a default value from ``CuckooConfiguration/defaultValues`` or
-``DefaultValueRegistry``. Optionals and the standard collections default to empty, numbers, strings and `Bool`
-to zero, `""` and `false`, and a tuple the member spells out to its elements' defaults. Register a value for any
+``DefaultValueRegistry``. Optionals and the standard collections default to empty, the integer types, `Float`,
+`Double`, `String` and `Bool` to zero, `""` and `false`, and a tuple the member spells out to its elements' defaults. Register a value for any
 other type, a tuple behind a `typealias` included, or a call returning it crashes with a message naming it:
 
 ```swift
@@ -129,8 +129,10 @@ stub(greeter) { stub in
 ```
 
 A `struct` passed in is copied once: changes made through the mock stay in the mock's copy, and later changes to
-your own variable don't reach it. Pass a class instance to share state with the test. Actor mocks have no default
-implementation: forwarding a call's arguments to another actor would race. Stub their members instead.
+your own variable don't reach it. Pass a class instance to share state with the test. Enable it before the mock's
+first call, as the spy below; calling it again later only replaces the implementation. A mock has either a default
+implementation or a superclass spy, not both. Actor mocks have no default implementation: forwarding a call's
+arguments to another actor would race. Stub their members instead.
 
 The mock of a class can call the class itself. ``ClassMock/enableSuperclassSpy()``, or `withEnabledSuperclassSpy()`
 when creating it, makes every unstubbed member call the superclass, so the mock acts as a spy. Enable it before the
