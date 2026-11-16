@@ -101,7 +101,7 @@ enum Cuckoofile {
         "filenameFormat", "options", "xcodeproj",
     ]
     private static let optionKeys: Set<String> = [
-        "keepDocumentation", "protocolsOnly", "omitHeaders", "mockPrefix", "mockSuffix",
+        "keepDocumentation", "protocolsOnly", "mockPrefix", "mockSuffix",
         "defaultIsolation",
     ]
 

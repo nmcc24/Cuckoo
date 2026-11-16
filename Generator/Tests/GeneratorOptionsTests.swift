@@ -32,7 +32,7 @@ struct GeneratorOptionsTests {
     }
 
     /// A removed option gets the unknown-key warning, so a Cuckoofile that still sets one says so.
-    @Test(arguments: ["enableInheritance = false", "glob = false"])
+    @Test(arguments: ["enableInheritance = false", "glob = false", "omitHeaders = true"])
     func removedOptionsAreUnknownKeys(option: String) {
         let warnings = Cuckoofile.warnings(for: """
             [modules.App]

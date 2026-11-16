@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import CuckooGenerator
 
-/// Generates the mocks of `source`, as module `App` with headers omitted, and returns them as one text.
+/// Generates the mocks of `source`, as module `App`, and returns them as one text.
 func generateMocks(source: String, moduleKeys: String = "", options: String = "") async throws -> String {
     let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooOptions-\(UUID().uuidString)")
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -16,7 +16,6 @@ func generateMocks(source: String, moduleKeys: String = "", options: String = ""
             \(moduleKeys)
 
             [modules.App.options]
-            omitHeaders = true
             \(options)
             """,
         configurationPath: Path(directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),

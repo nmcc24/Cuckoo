@@ -78,7 +78,6 @@ final class Module: Sendable {
         self.options = Options(
             keepDocumentation: dto.options?.keepDocumentation ?? true,
             protocolsOnly: dto.options?.protocolsOnly ?? false,
-            omitHeaders: dto.options?.omitHeaders ?? false,
             mockNaming: MockNaming(
                 prefix: dto.options?.mockPrefix?.trimmed ?? MockNaming.default.prefix,
                 suffix: dto.options?.mockSuffix?.trimmed ?? MockNaming.default.suffix
@@ -125,7 +124,6 @@ final class Module: Sendable {
     struct Options {
         let keepDocumentation: Bool
         let protocolsOnly: Bool
-        let omitHeaders: Bool
         let mockNaming: MockNaming
         /// The isolation of the sources' types that don't state one, as the module's `defaultIsolation` setting
         /// gives them. `nil` is `nonisolated`, Swift's default.
@@ -200,7 +198,6 @@ extension Module {
         struct Options: Decodable {
             let keepDocumentation: Bool?
             let protocolsOnly: Bool?
-            let omitHeaders: Bool?
             let mockPrefix: String?
             let mockSuffix: String?
             let defaultIsolation: String?
@@ -290,7 +287,6 @@ extension Module.Options: CustomDebugStringConvertible {
         [
             "keep documentation: \(keepDocumentation)",
             "protocols only: \(protocolsOnly)",
-            "omit headers: \(omitHeaders)",
             "mock prefix: \(mockNaming.prefix)",
             "mock suffix: \(mockNaming.suffix)",
             "default isolation: \(defaultIsolation?.sourceDescription ?? "none")",
