@@ -109,12 +109,12 @@ jobs:
         uses: actions/checkout@v7
       - name: Build the documentation
         run: scripts/build-docs.sh
-      # The release workflow runs release-notes.sh, which no other job does, so a syntax error in a script would
-      # otherwise only show up on release day.
-      - name: Check the scripts
+      # The release workflow runs scripts no other job does, so a syntax error in one, or a version bump that misses
+      # a file, would otherwise only show up on release day.
+      - name: Check the scripts and the version
         run: |
           for script in scripts/*.sh; do bash -n "$script"; done
-          scripts/release-notes.sh "$(sed -nE 's/^let version = "(.*)"$/\1/p' Generator/Sources/CLI/Version.swift)" >/dev/null
+          scripts/check-version.sh
 
   # The release workflow's prebuilt generator, built and tested here so a change that breaks the release build
   # shows up in its PR rather than on release day. Linux only: the macOS bundle is built at release time, and a
