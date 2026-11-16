@@ -514,6 +514,7 @@ Done 2026-11-08. Items 5 and 6 were dropped.
 
 ### Later: Cuckoo 4.0
 - Hide `Matchable` from users (decided 2026-11-13). Rename `_Matchable`, `_OptionalMatchable` and their `Sendable` refinements back to `Matchable` and so on under `@_spi(CuckooGenerated)`, have the mocks `@_spi(CuckooGenerated) import Cuckoo`, and remove the deprecated aliases. The public API that takes the protocols today (property `set`, `or`/`and` on values) needs concrete overloads first, since public API can't mention an SPI type. A hard break, so only in a major release (M).
+- Reconsider running the generator by hand (raised 2026-11-16). The build plugin is the supported route; the command-line generator, with the Cuckoofile's `output` and `filenameFormat`, serves projects that check their mocks in or generate them from a script. nmcc24 leans towards dropping it: mocks generated outside the build go stale and race Xcode's own builds. 3.0 keeps it (S).
 
 ---
 
