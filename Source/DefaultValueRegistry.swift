@@ -24,13 +24,13 @@ public enum DefaultValueRegistry {
     
     /// Registers `value` as the default for `type`, replacing any earlier one, for every test.
     public static func register<T: Sendable>(_ value: T, for type: T.Type = T.self) {
-        registeredTypes.withLock { $0[ObjectIdentifier(type)] = DefaultValueFactory(value) }
+        replace(type, with: DefaultValueFactory(value))
     }
 
     /// Registers `factory` to make the default for `type`, replacing any earlier one, for every test. Each unstubbed
     /// call gets a new value, so `type` needn't be `Sendable`: a class, or a tuple that holds one.
     public static func register<T>(for type: T.Type = T.self, factory: @escaping @Sendable () -> T) {
-        registeredTypes.withLock { $0[ObjectIdentifier(type)] = DefaultValueFactory(factory) }
+        replace(type, with: DefaultValueFactory(factory))
     }
 
     
@@ -43,9 +43,19 @@ public enum DefaultValueRegistry {
         fatalError("Type \(T.self) does not have default return value registered.")
     }
     
+    /// Registers `factory` for `type`, releasing the one it replaces after the lock is, since that value's `deinit`
+    /// may query the registry.
+    private static func replace<T>(_ type: T.Type, with factory: DefaultValueFactory) {
+        _ = registeredTypes.withLock { $0.updateValue(factory, forKey: ObjectIdentifier(type)) }
+    }
+
     /// Removes every registered default except the built-in ones (numbers, `String`, `Bool`, `Void`).
     public static func reset() {
-        registeredTypes.withLock { $0 = defaultRegisteredTypes }
+        // The removed values are released after the lock is, since a value's `deinit` may query the registry.
+        _ = registeredTypes.withLock { types in
+            defer { types = defaultRegisteredTypes }
+            return types
+        }
     }
     
     /// The value the current configuration or the registry holds for exactly `type`.

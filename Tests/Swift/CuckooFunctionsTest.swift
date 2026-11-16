@@ -89,6 +89,31 @@ struct CuckooFunctionsTest {
         #expect(callReleased.withLock { $0 } == (clearing != .stubs))
     }
 
+    /// Replacing a default implementation releases the old one outside the holder's lock, so a `deinit` that reads
+    /// the holder doesn't deadlock.
+    @Test
+    func replacingADefaultImplementationReleasesTheOldOneOutsideTheLock() {
+        final class ReadsHolderOnDeinit {
+            weak var holder: DefaultImplementation<ReadsHolderOnDeinit>?
+            let released: Locked<Bool>
+            init(holder: DefaultImplementation<ReadsHolderOnDeinit>, released: Locked<Bool>) {
+                self.holder = holder
+                self.released = released
+            }
+            deinit {
+                _ = holder?.value
+                released.withLock { $0 = true }
+            }
+        }
+        let holder = DefaultImplementation<ReadsHolderOnDeinit>()
+        let released = Locked(false)
+        holder.value = ReadsHolderOnDeinit(holder: holder, released: released)
+
+        holder.value = ReadsHolderOnDeinit(holder: holder, released: Locked(false))
+
+        #expect(released.withLock { $0 })
+    }
+
     @Test
     func testVerifyNoMoreInteractions() {
         let mock = MockTestedClass()
