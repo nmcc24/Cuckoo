@@ -164,7 +164,8 @@ struct ClockTests {
 
 In XCTest, or anywhere else without the trait, wrap the code in ``withStaticStubs(_:)-9n6r1``, or its `async`
 version. Tasks started inside the scope see its stubs; a `Task.detached`, a dispatch queue or a notification
-doesn't, and its static calls fail as unstubbed.
+doesn't, and its static calls fail as unstubbed. Such a failure belongs to no test, so it goes to XCTest, and Swift
+Testing doesn't see it: make static calls inside the test's own tasks.
 
 `reset`, `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mock types too, as in
 `verifyNoMoreInteractions(MockClock.self)`, and act on the current scope's stubs and calls.
@@ -277,5 +278,8 @@ Each takes mock types too, for their static members, as described in "Static mem
 Failures go to the framework running the test: Swift Testing records an issue, and XCTest an `XCTFail`. A test
 that expects one, to check that a mock is misused as it should be, wraps the code in `withKnownIssue { … }` in
 Swift Testing, or `XCTExpectFailure { … }` in XCTest on Apple platforms. The expectation catches only failures
-inside its own block: a failure in a task the block didn't wait for, such as a `Task.detached`, still reaches the
-test that created the mock, which Swift Testing then fails.
+inside its own block: a failure in a task the block didn't wait for, such as a `Task.detached`, isn't caught.
+Swift Testing records it at its own location, such as a `verify` call's, or, for a failure inside the mock, such as
+an unstubbed call, at the test that created the mock. The issue is tied to no test: the run fails, while the test
+itself passes. A mock created in that task belongs to no test, so its failures go to XCTest, and Swift Testing
+doesn't see them: create mocks in the test.

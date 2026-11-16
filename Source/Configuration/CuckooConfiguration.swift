@@ -107,7 +107,9 @@ struct CreatingTest: Sendable {
 /// `creatingTest` is the Swift Testing test the mock was created in. A task the test doesn't run in, such as a
 /// `Task.detached` or a dispatch queue, has no current test, so its failure would go to XCTest, which ignores it;
 /// such a failure is recorded as a Swift Testing issue instead, at the failure's location or else at the test that
-/// created the mock. Swift Testing attributes it to that test while it runs.
+/// created the mock. Swift Testing ties that issue to no test: the run fails, while the test itself passes. A failure
+/// with no test at all, current or creating, goes to XCTest only: XCTest doesn't say which test is running, and
+/// Xcode's interop reports an issue recorded during an XCTest test as a second failure of that test.
 func reportFailure(_ message: String, at sourceLocation: SourceLocation?, creatingTest: CreatingTest? = nil) {
     let configuration = CuckooConfiguration.current
     if let handler = configuration.failureHandler {
