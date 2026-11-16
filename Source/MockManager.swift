@@ -35,7 +35,9 @@ public final class MockManager: Sendable {
         case stubbed(StubAction<OUT, ERROR, IMPL>)
         case superclass
         case defaultImplementation
-        case unstubbed
+        /// No stub answers the call, for the reason `failure` gives. It's reported once the call knows whether it
+        /// returns a default value or stops the process, so a crash reports it only once.
+        case unstubbed(failure: String)
     }
 
     // All mutable state sits behind one lock. User code (matchers, stub implementations, the superclass and
@@ -112,17 +114,15 @@ public final class MockManager: Sendable {
         } else if fallback == .defaultImplementation {
             return .defaultImplementation
         } else if sawUnfinishedStub {
-            fail("The stub that matches \(call.memberAndArguments) has no answer. Give it one, such as thenReturn(_:), after when(_:).")
-            return .unstubbed
+            return .unstubbed(failure: "The stub that matches \(call.memberAndArguments) has no answer. Give it one, such as thenReturn(_:), after when(_:).")
         } else {
             // A generic member's stubs made with other type arguments can't answer this call.
             let callTypes = ConcreteStub<IN, OUT, ERROR, IMPL>.types(in: IN.self, out: OUT.self)
             let otherTypes = sameMember.compactMap { ($0 as? any TypedStub)?.types }.filter { $0 != callTypes }
-            fail(
-                "No stub for \(call.memberAndArguments).\n"
+            return .unstubbed(
+                failure: "No stub for \(call.memberAndArguments).\n"
                     + describeStubs(of: method, mismatches: mismatches, otherTypes: otherTypes, callTypes: callTypes)
             )
-            return .unstubbed
         }
     }
 
@@ -147,17 +147,19 @@ public final class MockManager: Sendable {
         return lines.joined(separator: "\n")
     }
 
-    /// The default value an unstubbed call returns, or a crash if its type has none.
-    /// `tuple` is the generated mock's lookup when `OUT` is a tuple, whose elements a generic `OUT` can't name.
-    private func unstubbedValue<OUT>(_ method: String, tuple: () -> Any?) -> OUT {
+    /// Reports `failure` and returns the default value of an unstubbed call, or, if its type has none, reports it
+    /// and crashes. `tuple` is the generated mock's lookup when `OUT` is a tuple, whose elements a generic `OUT`
+    /// can't name.
+    private func unstubbedValue<OUT>(failure: String, tuple: () -> Any?) -> OUT {
         var configuration = CuckooConfiguration.current
         configuration.defaultValues = configuration.defaultValues.withFallback(creatingDefaultValues)
         let value = CuckooConfiguration.$current.withValue(configuration) {
             DefaultValueRegistry.unstubbedValue(for: OUT.self) ?? tuple() as? OUT
         }
         guard let value else {
-            failAndCrash("No stub for \(ConcreteStubCall(method: method, parameters: ()).memberAndArguments), and its return type \(OUT.self) has no default value. Stub it, or register one with `DefaultValueRegistry` or the `.cuckoo(defaultValues:)` trait.")
+            failAndCrash("\(failure)\nIts return type, \(OUT.self), has no default value. Stub it, or register one with `DefaultValueRegistry` or the `.cuckoo(defaultValues:)` trait.")
         }
+        fail(failure)
         return value
     }
 
@@ -166,8 +168,7 @@ public final class MockManager: Sendable {
     /// the test that created the mock, and returns the default value an unstubbed call would, even for a member that
     /// throws, so the test goes on. Generated mocks pass `unstubbedTuple` for a member returning a tuple.
     public func unforwardableDefaultImplementationCall<OUT>(_ member: String, reason: String, unstubbedTuple: @autoclosure () -> Any? = nil) -> OUT {
-        reportFailure("Cuckoo can't forward \(member) to the default implementation: \(reason). Stub it instead.", at: nil, creatingTest: creatingTest)
-        return unstubbedValue(member, tuple: unstubbedTuple)
+        unstubbedValue(failure: "Cuckoo can't forward \(member) to the default implementation: \(reason). Stub it instead.", tuple: unstubbedTuple)
     }
 
     /// The error an unstubbed throwing call throws, if its error type can hold `CuckooError`.
@@ -202,11 +203,12 @@ public final class MockManager: Sendable {
             return try superclassCall()
         case .defaultImplementation:
             return try defaultCall()
-        case .unstubbed:
+        case .unstubbed(let failure):
             if unstubbedThrows, let error = unstubbedError(method, as: ERROR.self) {
+                fail(failure)
                 throw error
             }
-            return unstubbedValue(method, tuple: unstubbedTuple)
+            return unstubbedValue(failure: failure, tuple: unstubbedTuple)
         }
     }
 
@@ -231,11 +233,12 @@ public final class MockManager: Sendable {
             return try await superclassCall()
         case .defaultImplementation:
             return try await defaultCall()
-        case .unstubbed:
+        case .unstubbed(let failure):
             if unstubbedThrows, let error = unstubbedError(method, as: ERROR.self) {
+                fail(failure)
                 throw error
             }
-            return unstubbedValue(method, tuple: unstubbedTuple)
+            return unstubbedValue(failure: failure, tuple: unstubbedTuple)
         }
     }
 

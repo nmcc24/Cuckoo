@@ -202,7 +202,7 @@ struct CuckooTraitTests {
 struct FailuresOutsideTheTestTaskTests {
     /// A detached task has no current test, so a failure there would go to XCTest, which ignores it under Swift
     /// Testing. The mock remembers the Swift Testing test it was created in, and the failure goes to Swift Testing
-    /// at that test, which Swift Testing attributes it to.
+    /// at that test's location, which fails the run.
     @Test
     func failureFromADetachedTaskGoesToSwiftTestingAtTheCreatingTest() async throws {
         let mock = MockTestedProtocol()
