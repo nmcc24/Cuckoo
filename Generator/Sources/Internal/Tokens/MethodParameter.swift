@@ -2,7 +2,8 @@ struct MethodParameter: Token {
     var parent: Reference<any Token>?
 
     var name: String
-    // FIXME: Is this needed?
+    /// The name the mock gives the parameter, `p0`, `p1` and so on, so a label that's a keyword or repeats another
+    /// parameter's name still works in the mock's body. `nil` as crawled.
     var innerName: String?
     var type: ComplexType
     /// A `~Copyable` argument, which the mock records as a `Cuckoo.NoncopyableArgument`.
