@@ -36,7 +36,8 @@ A dependency is a library or executable target the test target depends on direct
 it depends on: the dependencies of those dependencies aren't mocked unless an entry lists their `sources`. Xcode
 tells the plugin about a test target's package products, but not about the targets of its own project. So in an
 Xcode project, name the entry after the test target and list its `sources`, as in Cuckoo 2; a test target that uses
-the plugin with no entry of its own fails with a message saying so.
+the plugin with no entry it can generate fails with a message saying so, and so does one that depends on no package
+product and whose own entry lists no `sources`.
 
 ### Sources
 
@@ -67,7 +68,8 @@ the plugin with no entry of its own fails with a message saying so.
   `regex = ["Service$", "^Repository"]`. A single pattern needs no array: `regex = "Service$"`.
 - term `globalActors`: Global actors declared in other modules, such as `["DatabaseActor"]`. The generator
   knows `MainActor` and the global actors declared in `sources`; a type marked with another one, `@DatabaseActor`,
-  gets a mock that isn't isolated to it, with a warning, unless it's listed here.
+  gets a mock that isn't isolated to it, with a comment in the mock, and a warning when its name ends in `Actor`,
+  unless it's listed here.
 
 Cuckoo 2's `xcodeproj` table, which read a target's files from the project, is gone. A Cuckoofile that still has
 one fails with a message that says which `sources` to write instead. Replace it with globs that cover the
@@ -106,6 +108,12 @@ Globs select files by folder, not by target membership. If a folder also holds f
 narrow the glob or list those types in `exclude`. In a package, the build plugin can leave `sources` out instead,
 to mock the files of the target.
 
+A mock also overrides the members its type inherits from the other protocols and classes in `sources`. A parent is
+found as Swift finds it: in the type's own scope and the enclosing ones, written qualified or through a typealias in
+`sources`. A parent found nowhere in `sources`, such as Swift's `Error`, or one named through a typealias declared
+in another module, is declared outside them: the mock implements only the requirements that have default
+implementations, and says so in a comment.
+
 ### Imports
 
 - term `imports`: Modules the generated file imports, such as `["Foundation"]`.
@@ -126,12 +134,6 @@ The generated file always imports `Cuckoo`.
   directory.
 - term `filenameFormat`: For a directory `output`, the name of each file, with `{}` where the source file's name
   goes, such as `"{}Mocks"`. It must contain `{}`.
-
-A mock also overrides the members its type inherits from the other protocols and classes in `sources`. A parent is
-found as Swift finds it: in the type's own scope and the enclosing ones, written qualified or through a typealias in
-`sources`. A parent found nowhere in `sources`, such as Swift's `Error`, or one named through a typealias declared
-in another module, is declared outside them: the mock implements only the requirements that have default
-implementations, and says so in a comment.
 
 ### Options
 
