@@ -2,9 +2,9 @@ import Foundation
 import Testing
 @testable import CuckooGenerator
 
-/// The build plugins pass the files of the targets they generate for with `--sources-list`. A module without
-/// `sources` mocks the files of the target with its name, or all of them; one with `sources` keeps its own. The SwiftPM runtime suite runs it
-/// end to end through `CuckooPlugin` (`CuckooPluginTestSources`).
+/// The build plugins pass the files of the targets they generate for with `--source`, or `--sources-list` for a long
+/// list. A module without `sources` mocks the files of the target with its name, or all of them; one with `sources`
+/// keeps its own. The SwiftPM runtime suite runs it end to end through `CuckooPlugin` (`CuckooPluginTestSources`).
 @Suite
 struct SourcesListTests {
     @Test

@@ -1,7 +1,7 @@
 import Foundation
 
 // Shared by `CuckooPlugin` and the test-only `CuckooSingleFileTestPlugin`, which links this file: a plugin can't
-// depend on a library target.
+// depend on a library target. The generator's tests link it too (Generator/Tests/SourcesArguments.swift).
 
 /// A file for the generator's source listing, and the Swift module it belongs to where that's certain.
 struct ListedSource {
