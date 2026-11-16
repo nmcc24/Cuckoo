@@ -7476,6 +7476,20 @@ final class MockMainActorViewModel: MainActorViewModel, nonisolated Cuckoo.Class
         )
     }
 
+    nonisolated
+    override func label(for p0: Int) -> String {
+        return cuckooManager.call(
+            "label(for p0: Int) -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: @Sendable ((Int)) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.label(for: p0),
+            defaultCall: cuckooDefaultImplementation.value.label(for: p0)
+        )
+    }
+
     nonisolated struct __StubbingProxy_MainActorViewModel: Cuckoo.StubbingProxy {
         private let cuckooManager: Cuckoo.MockManager
 
@@ -7501,6 +7515,14 @@ final class MockMainActorViewModel: MainActorViewModel, nonisolated Cuckoo.Class
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckooManager.createStub(for: MockMainActorViewModel.self,
                 method: "reload() async",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func label<__M1: Cuckoo._SendableMatchable>(for p0: __M1) -> Cuckoo.ClassStubFunction<(Int), String, @Sendable ((Int)) -> String, Cuckoo.StubSharing.Shared> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.SendableMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckooManager.createStub(for: MockMainActorViewModel.self,
+                method: "label(for p0: Int) -> String",
                 parameterMatchers: matchers
             ))
         }
@@ -7547,6 +7569,19 @@ final class MockMainActorViewModel: MainActorViewModel, nonisolated Cuckoo.Class
                 sourceLocation: cuckooSourceLocation
             )
         }
+
+        @discardableResult
+        func label<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.VerifiedCall<(Int), String> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "label(for p0: Int) -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
     }
 }
 
@@ -7565,6 +7600,11 @@ final class MainActorViewModelStub: MainActorViewModel {
 
     override func reload() async {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    nonisolated
+    override func label(for p0: Int) -> String {
+        return DefaultValueRegistry.defaultValue(for: (String).self)
     }
 }
 

@@ -309,6 +309,36 @@ struct InOrderTests {
         #expect(reported.first?.contains("ran after its inOrder block ended") == true)
     }
 
+    @Test
+    func verifyNoMoreInteractionsFromATaskThatOutlivesTheBlockFails() async {
+        let service = MockSendableService()
+        let (blockEnded, ended) = AsyncStream<Void>.makeStream()
+
+        let messages = Locked<[String]>([])
+        var configuration = CuckooConfiguration.current
+        configuration.failureHandler = { failure in
+            messages.withLock { $0.append(failure.message) }
+        }
+        await CuckooConfiguration.$current.withValue(configuration) {
+            var late: Task<Void, Never>?
+            inOrder {
+                late = Task {
+                    for await _ in blockEnded {
+                        break
+                    }
+                    verifyNoMoreInteractions(service)
+                }
+            }
+            ended.yield()
+            await late?.value
+        }
+
+        let reported = messages.withLock { $0 }
+        #expect(reported.count == 1)
+        #expect(reported.first?.contains("verifyNoMoreInteractions") == true)
+        #expect(reported.first?.contains("ran after its inOrder block ended") == true)
+    }
+
     /// The failures `body` reports, without failing the test.
     private func collectingMessages(_ body: () -> Void) -> [String] {
         let messages = Locked<[String]>([])

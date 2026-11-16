@@ -24,6 +24,10 @@ class MainActorViewModel {
 
     func reload() async {
     }
+
+    nonisolated func label(for index: Int) -> String {
+        "item \(index)"
+    }
 }
 
 @globalActor

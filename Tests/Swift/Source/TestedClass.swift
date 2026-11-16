@@ -104,7 +104,7 @@ class TestedClass {
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func withAsync() async -> Int {
-        return 0
+        return 1
     }
     
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
@@ -113,7 +113,7 @@ class TestedClass {
     
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func withAsyncThrows() async throws -> Int {
-        return 0
+        return 2
     }
     
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
