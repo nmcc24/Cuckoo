@@ -69,6 +69,8 @@
   each call.
 
 ### Removed
+- `MockManager.crashOnSelfDefaultImplementationCall(_:)`: a member taking or returning `Self` now records a failure
+  through the mock's manager instead of crashing. Generated mocks call it; code that calls it directly changes.
 - `HasMockManager` and `HasSuperclass`: their requirements, `cuckooManager` and `cuckooHasSuperclass`, are `Mock`'s
   own. `reset` takes `any Mock`, as `clearStubs` does. `MockManager.callOrCrash`, which nothing called, is removed
   too.
@@ -101,6 +103,21 @@
 - Replacing a default implementation, or a value in `DefaultValueRegistry` (by `register` or `reset`), released the
   old one while holding the lock, so a `deinit` that read it back deadlocked, and for the registry every later
   unstubbed call hung too. The old value is now released after the lock.
+- A return or property type naming a closure with a `borrowing`, `consuming`, `isolated`, `sending`, `__owned` or
+  `__shared` parameter made the generated `Stub` class fail the whole module.
+- The type eraser of a protocol with associated types didn't compile for async members isolated otherwise than the
+  protocol (`@MainActor`, `nonisolated(nonsending)`, `@concurrent`), for isolated, `Self` or typed-throws
+  subscripts, or for members with `~Copyable` or `isolated` parameters: they record a failure saying to stub them.
+  `nonisolated(nonsending)` and `@concurrent` members of a `@MainActor` type are stubbed as nonisolated, which they
+  are, and an `inout` `~Copyable` argument compiles.
+- A member returning a `~Copyable` or `~Escapable` value gave a mock that didn't compile. A class's mock leaves it to
+  the real implementation, a protocol with one isn't mocked, and either gets a warning.
+- A parent protocol's generic arguments with a closure type, `Parent<(Int) -> String, Int>`, split at the wrong
+  comma, and the mock failed to generate.
+- A member taking or returning `Self` crashed when forwarded to a default implementation; it records a failure and
+  returns a default value, as the type eraser's members do.
+- `consuming sending` parameters, raw identifiers in a protocol with associated types, `throws(Never)` (which crashed
+  Swift 6.3) and a class property with only a `_read` accessor gave mocks that didn't compile.
 - An unstubbed member returning a tuple crashed unless the tuple type had a registered default: the manager's
   generic return type can't name its elements. Mocks now pass the tuple's element types, so it returns each
   element's default. A tuple behind a `typealias` still needs a registered default. The generated `Stub` classes
