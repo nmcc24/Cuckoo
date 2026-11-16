@@ -1,15 +1,3 @@
-/// A type that records its calls and stubs in a ``MockManager``. Every generated mock conforms.
-public protocol HasMockManager {
-    /// The manager holding this mock's stubs and recorded calls.
-    var cuckooManager: MockManager { get }
-}
-
-/// A type that says whether it has a real implementation to call, as a class mock's superclass.
-public protocol HasSuperclass {
-    /// Whether the mocked type is a class, whose real implementation the mock can call.
-    static var cuckooHasSuperclass: Bool { get }
-}
-
 /// A type that says which global actor its mock runs on, if any.
 public protocol HasGlobalActor {
     /// The global actor the mocked type is isolated to, such as `MainActor.shared`, or `nil`. A mock of a
@@ -26,13 +14,19 @@ public extension HasGlobalActor {
 ///
 /// The generator writes the conformance; tests use a mock through ``stub(_:block:)-(M,_)``, ``verify(_:_:fileID:filePath:line:column:)->M.CuckooVerification``
 /// and ``Mock/enableDefaultImplementation(_:)``.
-public protocol Mock: HasMockManager, HasSuperclass, HasGlobalActor {
+public protocol Mock: HasGlobalActor {
     /// The mocked protocol or class.
     associatedtype CuckooMocksType
     /// The proxy ``stub(_:block:)-(M,_)`` hands to its block, with one stubbing member per mocked member.
     associatedtype CuckooStubbing: StubbingProxy
     /// The proxy ``verify(_:_:fileID:filePath:line:column:)->M.CuckooVerification`` returns, with one verifying member per mocked member.
     associatedtype CuckooVerification: VerificationProxy
+
+    /// The manager holding this mock's stubs and recorded calls.
+    var cuckooManager: MockManager { get }
+
+    /// Whether the mocked type is a class, whose real implementation the mock can call.
+    static var cuckooHasSuperclass: Bool { get }
 
     /// Returns the proxy for stubbing this mock's members.
     func cuckooStubbingProxy() -> CuckooStubbing
