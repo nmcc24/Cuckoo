@@ -25,14 +25,10 @@ struct JoinedModulesTests {
                 [modules.App]
                 testableImports = ["Cuckoo", "App"]
                 sources = { App = ["App/*.swift"] }
-                [modules.App.options]
-                omitHeaders = true
 
                 [modules.Core]
                 testableImports = ["Cuckoo", "Core"]
                 sources = { Core = ["Core/*.swift"] }
-                [modules.Core.options]
-                omitHeaders = true
                 """,
             configurationPath: Path(directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),
             overriddenOutput: "/derived/GeneratedMocks.swift",

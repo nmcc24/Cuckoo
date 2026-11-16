@@ -46,7 +46,6 @@ struct CuckoofileTests {
             [modules.App.options]
             keepDocumentation = false
             protocolsOnly = true
-            omitHeaders = true
             mockPrefix = "Fake"
             mockSuffix = "Double"
             """)["App"])
@@ -62,7 +61,6 @@ struct CuckoofileTests {
         #expect(module.filenameFormat == "{}Mock")
         #expect(module.options.keepDocumentation == false)
         #expect(module.options.protocolsOnly == true)
-        #expect(module.options.omitHeaders == true)
         #expect(module.options.mockNaming == MockNaming(prefix: "Fake", suffix: "Double"))
     }
 
@@ -82,7 +80,6 @@ struct CuckoofileTests {
         #expect(module.filenameFormat == nil)
         #expect(module.options.keepDocumentation == true)
         #expect(module.options.protocolsOnly == false)
-        #expect(module.options.omitHeaders == false)
         #expect(module.options.mockNaming == MockNaming(prefix: "Mock", suffix: ""))
     }
 
@@ -214,7 +211,6 @@ struct CuckoofileTests {
             [modules.App.options]
             keepDocumentation = false
             protocolsOnly = false
-            omitHeaders = true
             mockPrefix = "Mock"
             mockSuffix = ""
             defaultIsolation = "MainActor"

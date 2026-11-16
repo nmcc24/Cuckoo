@@ -123,9 +123,6 @@ struct SourcesListTests {
                     output = "Mocks.swift"
                     testableImports = ["App", "Core"]
                     \(moduleKeys)
-
-                    [modules.\(moduleName).options]
-                    omitHeaders = true
                     """,
                 configurationPath: Path(directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),
                 overriddenOutput: nil,
