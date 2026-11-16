@@ -5,7 +5,8 @@ enum ThrowType: CustomStringConvertible, Equatable {
     case `rethrows`
 
     init?(syntax: ThrowsClauseSyntax?) {
-        guard let syntax else { return nil }
+        // `throws(Never)` doesn't throw, and Swift 6.3 crashes compiling some mocks of it, so it's left out.
+        guard let syntax, !Self.isNever(syntax) else { return nil }
         let keyword = syntax.throwsSpecifier.text
         let type: String? = syntax.type?.trimmedDescription
         if keyword.trimmed.hasPrefix("throws") {
@@ -15,6 +16,11 @@ enum ThrowType: CustomStringConvertible, Equatable {
         } else {
             return nil
         }
+    }
+
+    /// Whether the clause is `throws(Never)`.
+    static func isNever(_ syntax: ThrowsClauseSyntax?) -> Bool {
+        ["Never", "Swift.Never"].contains(syntax?.type?.trimmedDescription)
     }
 
     var isThrowing: Bool {

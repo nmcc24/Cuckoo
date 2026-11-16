@@ -939,15 +939,19 @@ extension Crawler {
         let effects: Variable.Effects
         switch binding.accessorBlock?.accessors {
         case .accessors(let accessors):
-            let accessorsContainGet = accessors.contains { $0.accessorSpecifier.tokenKind == .keyword(.get) }
-            let accessorsContainSet = accessors.contains { $0.accessorSpecifier.tokenKind == .keyword(.set) }
-            isReadOnly = accessorsContainGet && !accessorsContainSet
+            // Settable with a setter, or as a stored property with observers; read-only with only reading accessors,
+            // `get`, `_read` or `unsafeAddress`.
+            let writing: Set = [
+                "set", "_modify", "modify", "mutate", "unsafeMutableAddress", "mutableAddressWithOwner",
+                "mutableAddressWithNativeOwner", "willSet", "didSet",
+            ]
+            isReadOnly = !accessors.contains { writing.contains($0.accessorSpecifier.text) }
 
             let getAccessor = accessors.first { $0.accessorSpecifier.tokenKind == .keyword(.get) }
             effects = Variable.Effects(
-                isThrowing: getAccessor?.effectSpecifiers?.throwsClause != nil,
+                isThrowing: getAccessor?.effectSpecifiers?.throwsClause.map { !ThrowType.isNever($0) } ?? false,
                 isAsync: getAccessor?.effectSpecifiers?.asyncSpecifier?.isPresent == true,
-                typedError: getAccessor?.effectSpecifiers?.throwsClause?.type?.trimmedDescription
+                typedError: getAccessor?.effectSpecifiers?.throwsClause.flatMap { ThrowType.isNever($0) ? nil : $0.type?.trimmedDescription }
             )
         case .getter:
             isReadOnly = true
