@@ -30,7 +30,7 @@ enum TypeErasureBuilder {
         }
         try members.append("private let cuckooManager: Cuckoo.MockManager", of: name)
         try members.append("private let cuckooReference: \(context.sendable)() -> any \(container.name)\(context.primaryArguments)", of: name)
-        if Self.storesThroughReference(subscripts) {
+        if Self.storesThroughReference(subscripts, context) {
             // A generic setter changes the opened default implementation and stores it back, so a value type keeps it.
             try members.append("private let cuckooStore: \(context.sendable)(any \(container.name)\(context.primaryArguments)) -> Void", of: name)
         }
@@ -99,26 +99,56 @@ enum TypeErasureBuilder {
 
         /// Why a member can't be forwarded to the opened default implementation, or nil when it can: such a member
         /// records a failure saying to stub it and returns a default value, so the mock still compiles.
-        func unforwardableReason(isolation: Isolation?, mentionsSelf: Bool, hasInout: Bool, hasSending: Bool) -> String? {
+        func unforwardableReason(
+            isolation: Isolation?,
+            mentionsSelf: Bool,
+            hasInout: Bool = false,
+            hasSending: Bool = false,
+            hasNoncopyable: Bool = false,
+            hasIsolatedParameter: Bool = false,
+            execution: String? = nil,
+            hasTypedThrows: Bool = false
+        ) -> String? {
             if hasInout {
                 return "it takes an inout argument"
             }
             if hasSending {
                 return "it takes a sending argument, which a stored closure can't pass on"
             }
+            if hasNoncopyable {
+                return "it takes a ~Copyable argument, which a stored closure can't pass on"
+            }
+            if hasIsolatedParameter {
+                return "it takes an isolated parameter, which a stored closure can't pass on"
+            }
             if mentionsSelf {
                 return "it names Self, which the eraser isn't"
             }
-            let callerIsolation = globalActor.map(Isolation.globalActor) ?? .nonisolated
-            if let isolation, isolation != callerIsolation {
+            if isolatedDifferently(isolation) || execution?.isEmpty == false {
                 return "it's isolated differently from the protocol"
+            }
+            if hasTypedThrows {
+                return "it throws a typed error, which a stored closure can't pass on"
             }
             return nil
         }
 
-        /// `nonisolated `, for a member that opts out of the eraser's global actor, so it satisfies the requirement.
-        func modifier(for isolation: Isolation?) -> String {
-            isolation == .nonisolated && globalActor != nil ? "nonisolated " : ""
+        private func isolatedDifferently(_ isolation: Isolation?) -> Bool {
+            guard let isolation else { return false }
+            return isolation != globalActor.map(Isolation.globalActor) ?? .nonisolated
+        }
+
+        /// The isolation and execution attributes a member repeats where they differ from the eraser's, so it
+        /// satisfies the requirement: `nonisolated` in a global actor's eraser, `@MainActor` in a nonisolated one.
+        func modifier(for isolation: Isolation?, execution: String? = nil) -> String {
+            var attributes: [String] = []
+            if let isolation, isolatedDifferently(isolation) {
+                attributes.append(isolation.sourceDescription)
+            }
+            if let execution, !execution.isEmpty {
+                attributes.append(execution)
+            }
+            return attributes.map { "\($0) " }.joined()
         }
     }
 
@@ -187,7 +217,7 @@ enum TypeErasureBuilder {
     }
 
     private static func unforwardableReason(of property: Variable, _ context: Context) -> String? {
-        context.unforwardableReason(isolation: property.isolation, mentionsSelf: property.mentionsSelf, hasInout: false, hasSending: false)
+        context.unforwardableReason(isolation: property.isolation, mentionsSelf: property.mentionsSelf)
     }
 
     private static func unforwardableReason(of method: Method, _ context: Context) -> String? {
@@ -197,11 +227,35 @@ enum TypeErasureBuilder {
             hasInout: method.signature.parameters.contains(where: \.isInout),
             // A generic member calls the opened default implementation directly and passes a `sending` argument on;
             // only a stored closure can't.
-            hasSending: !method.hasGenericParams && method.signature.parameters.contains(where: \.isSending)
+            hasSending: !method.hasGenericParams && method.signature.parameters.contains(where: \.isSending),
+            hasNoncopyable: method.hasNoncopyableParams,
+            hasIsolatedParameter: method.signature.parameters.contains { $0.type.containsAttribute(named: "isolated") },
+            execution: method.executionAttribute
+        )
+    }
+
+    private static func unforwardableReason(of subscriptDeclaration: Subscript, _ context: Context) -> String? {
+        context.unforwardableReason(
+            isolation: subscriptDeclaration.isolation,
+            mentionsSelf: subscriptDeclaration.mentionsSelf,
+            hasNoncopyable: subscriptDeclaration.getter.hasNoncopyableParams,
+            hasTypedThrows: subscriptDeclaration.throwType?.isTyped == true
         )
     }
 
     private static func sources(of subscriptDeclaration: Subscript, number: Int, _ context: Context) -> [String] {
+        if let reason = unforwardableReason(of: subscriptDeclaration, context) {
+            let call = unforwardableCall(subscriptDeclaration.getter.fullyQualifiedName, reason: reason, returning: subscriptDeclaration.returnType)
+            var declaration = subscriptDeclaration.spiAttributes(at: subscriptDeclaration.accessibility).map(\.description)
+            declaration.append("\(context.access)\(context.modifier(for: subscriptDeclaration.isolation))subscript\(subscriptDeclaration.signature) {")
+            declaration.append("    get \(subscriptDeclaration.getterEffects){ return \(call) }")
+            if !subscriptDeclaration.isReadOnly {
+                let setterCall = unforwardableCall(subscriptDeclaration.setter.fullyQualifiedName, reason: reason, returning: nil)
+                declaration.append("    set { \(setterCall) as Void }")
+            }
+            declaration.append("}")
+            return [lines(declaration)]
+        }
         let isGeneric = !subscriptDeclaration.genericParameters.isEmpty
         let keyTypes = subscriptDeclaration.keyTypes
         let returnType = subscriptDeclaration.returnType.description
@@ -227,7 +281,7 @@ enum TypeErasureBuilder {
         }
         let castNewValue = subscriptDeclaration.returnType.replaceTypes(named: nonPrimary, with: opened).map { "newValue".forceCast(as: $0) } ?? "newValue"
         var declaration = subscriptDeclaration.spiAttributes(at: subscriptDeclaration.accessibility).map(\.description)
-        declaration.append("\(context.access)subscript\(subscriptDeclaration.signature) {")
+        declaration.append("\(context.access)\(context.modifier(for: subscriptDeclaration.isolation))subscript\(subscriptDeclaration.signature) {")
         declaration.append("    get \(effects){")
         let variadicCrash = "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(getter.fullyQualifiedName)))"
         let unforwardable = unforwardableCall(getter.fullyQualifiedName, reason: getter.unforwardableWhereClauseReason, returning: subscriptDeclaration.returnType)
@@ -287,8 +341,10 @@ enum TypeErasureBuilder {
 
     /// Whether a generic subscript has a setter, which can't be stored as a closure and stores the changed default
     /// implementation back instead.
-    private static func storesThroughReference(_ subscripts: [Subscript]) -> Bool {
-        subscripts.contains { !$0.genericParameters.isEmpty && !$0.isReadOnly && !$0.getter.hasVariadicParams }
+    private static func storesThroughReference(_ subscripts: [Subscript], _ context: Context) -> Bool {
+        subscripts.contains {
+            !$0.genericParameters.isEmpty && !$0.isReadOnly && !$0.getter.hasVariadicParams && unforwardableReason(of: $0, context) == nil
+        }
     }
 
     /// The initializer, which stores a closure for each requirement that reads the default implementation from the
@@ -309,7 +365,7 @@ enum TypeErasureBuilder {
             "cuckooReference = { box.value }",
             "cuckooManager = manager",
         ]
-        if storesThroughReference(subscripts) {
+        if storesThroughReference(subscripts, context) {
             body.append("cuckooStore = { box.value = $0 as! \(generic) }")
         }
         body.append("")
@@ -324,7 +380,8 @@ enum TypeErasureBuilder {
             }
             body.append(contentsOf: conditional(property, statements))
         }
-        for (index, subscriptDeclaration) in subscripts.enumerated() where subscriptDeclaration.genericParameters.isEmpty {
+        for (index, subscriptDeclaration) in subscripts.enumerated()
+            where subscriptDeclaration.genericParameters.isEmpty && unforwardableReason(of: subscriptDeclaration, context) == nil {
             let number = index + 1
             let tryAwait = (subscriptDeclaration.throwType != nil ? "try " : "") + (subscriptDeclaration.isAsync ? "await " : "")
             let keys = subscriptDeclaration.keyClosureParameters
@@ -376,7 +433,7 @@ enum TypeErasureBuilder {
             sources.append("private let \(storage): \(context.sendable)(\(method.inputTypes))\(effects) -> \(returnType)")
         }
         var declaration = method.spiAttributes(at: method.accessibility).map(\.description)
-        declaration.append("\(context.access)\(context.modifier(for: method.isolation))func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
+        declaration.append("\(context.access)\(context.modifier(for: method.isolation, execution: method.executionAttribute))func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
         if let unforwardable {
             declaration.append("    return \(unforwardableCall(method.fullyQualifiedName, reason: unforwardable, returning: method.returnType))")
         } else if method.hasVariadicParams && method.hasGenericParams {
