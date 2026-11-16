@@ -69,7 +69,7 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 - ``inOrder(strict:fileID:filePath:line:column:_:)``
 - ``eventually(timeout:pollingInterval:_:)``
 - ``ArgumentCaptor``
-- ``reset(_:)-(HasMockManager...)``
+- ``reset(_:)-(Mock...)``
 - ``reset(_:)-f6hy``
 - ``clearInvocations(_:)-(Mock...)``
 - ``clearInvocations(_:)-(StaticMock....)``
