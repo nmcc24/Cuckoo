@@ -11,11 +11,23 @@ struct ScannedTarget {
     var dependencies: [String]
 }
 
-/// The names a Cuckoofile entry can generate for: every target's, and the direct dependencies of the targets that
-/// depend on Cuckoo. A module those reach only through another one isn't among them, as the plugin generates only for
-/// its target's direct dependencies.
+/// The names a Cuckoofile entry can generate for: the targets that depend on Cuckoo, as the ones compiling mocks do,
+/// and their direct dependencies. A module those reach only through another one isn't among them, as the plugin
+/// generates only for its target's direct dependencies.
 func usableEntryNames(of targets: [ScannedTarget]) -> Set<String> {
-    Set(targets.flatMap { [$0.name] + ($0.dependsOnCuckoo ? $0.dependencies : []) })
+    Set(targets.filter(\.dependsOnCuckoo).flatMap { [$0.name] + $0.dependencies })
+}
+
+/// The warning for an entry named after the test target that lists no `sources` while the target depends on other
+/// packages' modules: the entry mocks only the package's own targets, so those get no mocks unless an entry of their
+/// own, or the entry's `sources`, names them. `nil` when nothing is left out.
+func selfEntryLeavesOutWarning(target: String, entries: Set<String>, listsSources: Bool, leftOut: [String]) -> String? {
+    let missing = leftOut.filter { !entries.contains($0) }.sorted()
+    guard entries.contains(target), !listsSources, !missing.isEmpty else { return nil }
+    let list = missing.map { "[modules.\($0)]" }.joined(separator: ", ")
+    return "The Cuckoofile entry [modules.\(target)] lists no sources, so it mocks only this package's targets, not "
+        + "\(missing.map { "'\($0)'" }.joined(separator: ", ")) from other packages. Add \(list) to mock "
+        + "\(missing.count == 1 ? "it" : "them"), or list \(missing.count == 1 ? "its" : "their") files in the entry's `sources`."
 }
 
 /// The warning for the Cuckoofile's entries that no target can use, as a misspelled `[modules.Netwrk]` is, or nil
