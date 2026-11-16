@@ -98,15 +98,23 @@ final class Generator {
             }
         ) { first, _ in first }
 
-        let inputFiles = sortedInputPathValues
+        // Each file is read once, for the names it declares and then for its mocks. One that can't be read fails the
+        // module, which would otherwise miss its mocks without a word.
+        let inputFiles = try await sortedInputPathValues
             .map { Path($0) }
             .filter { $0.exists }
             .map(TextFile.init(path:))
+            .concurrentMap { file -> (file: TextFile, source: String) in
+                do {
+                    return (file, try String(contentsOf: file.path.url, encoding: .utf8))
+                } catch {
+                    throw GeneratorError.unreadableSource(file.path.rawValue, error: error)
+                }
+            }
 
         // An attribute isolates a declaration only if it names a global actor, and an argument is recorded as a
         // placeholder if its type is `~Copyable`. Either may be declared in another file.
-        let scannedFiles = await inputFiles.concurrentCompactMap { file -> (names: Crawler.DeclaredNames, swiftModule: String?, types: [TopLevelType])? in
-            guard let source = try? String(contentsOf: file.path.url, encoding: .utf8) else { return nil }
+        let scannedFiles = await inputFiles.concurrentMap { file, source -> (names: Crawler.DeclaredNames, swiftModule: String?, types: [TopLevelType]) in
             let swiftModule = swiftModules[file.path.standardRawValue]
             return (Crawler.declaredNames(in: source), swiftModule, swiftModule.map { _ in Crawler.topLevelTypes(in: source) } ?? [])
         }
@@ -117,29 +125,25 @@ final class Generator {
             typesByModule[swiftModule, default: []] += file.types
         }
 
-        let crawled = try await inputFiles.concurrentMap { file -> (file: FileRepresentation, unmockedProtocols: Set<String>) in
+        let crawled = await inputFiles.concurrentMap { file, source -> (file: FileRepresentation, unmockedProtocols: Set<String>) in
             log(.verbose, message: "Processing file: \(file.path)")
-            let crawler: Crawler
-            do {
-                crawler = try Crawler.crawl(
-                    url: file.path.url,
-                    globalActors: declaredNames.globalActors.union(module.globalActors),
-                    noncopyableTypes: declaredNames.unconditionallyNoncopyableTypes,
-                    closureTypealiases: declaredNames.closureTypealiases,
-                    nonPublicTypes: declaredNames.nonPublicTypes,
-                    genericTypes: declaredNames.genericTypes,
-                    qualifiedGenericTypes: declaredNames.qualifiedGenericTypes,
-                    uncheckedSendableTypes: declaredNames.uncheckedSendableTypes,
-                    protocolsAndClasses: declaredNames.protocolsAndClasses,
-                    compositionTypealiases: declaredNames.compositionTypealiases,
-                    actors: declaredNames.actors,
-                    privateNames: declaredNames.privateNames,
-                    nominalTypes: declaredNames.nominalTypes,
-                    defaultIsolation: module.options.defaultIsolation
-                )
-            } catch {
-                throw GeneratorError.unreadableSource(file.path.rawValue, error: error)
-            }
+            let crawler = Crawler.crawl(
+                source: source,
+                url: file.path.url,
+                globalActors: declaredNames.globalActors.union(module.globalActors),
+                noncopyableTypes: declaredNames.unconditionallyNoncopyableTypes,
+                closureTypealiases: declaredNames.closureTypealiases,
+                nonPublicTypes: declaredNames.nonPublicTypes,
+                genericTypes: declaredNames.genericTypes,
+                qualifiedGenericTypes: declaredNames.qualifiedGenericTypes,
+                uncheckedSendableTypes: declaredNames.uncheckedSendableTypes,
+                protocolsAndClasses: declaredNames.protocolsAndClasses,
+                compositionTypealiases: declaredNames.compositionTypealiases,
+                actors: declaredNames.actors,
+                privateNames: declaredNames.privateNames,
+                nominalTypes: declaredNames.nominalTypes,
+                defaultIsolation: module.options.defaultIsolation
+            )
             for diagnostic in crawler.diagnostics {
                 printToStandardError("\(diagnostic)\n")
             }
