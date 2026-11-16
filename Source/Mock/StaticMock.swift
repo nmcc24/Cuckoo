@@ -22,7 +22,8 @@ public extension StaticMock {
 /// Static members have no instance to hold their stubs, and Swift Testing runs tests in parallel, so each test
 /// gets a registry of its own: the `.cuckoo()` trait starts one for every test it applies to, and
 /// `withStaticStubs { }` starts one for any other scope. Tasks started inside the scope see it too;
-/// a `Task.detached`, a GCD queue or a notification doesn't, and its static calls fail as unstubbed.
+/// a `Task.detached`, a GCD queue or a notification doesn't, and its static calls fail as unstubbed, with a failure
+/// that only XCTest sees.
 public final class StaticStubs: Sendable {
     private let managers = Locked<[ObjectIdentifier: MockManager]>([:])
 

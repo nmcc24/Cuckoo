@@ -84,6 +84,8 @@
   already left the product out. `swift run CuckooGenerator` from a clone still runs the generator.
 
 ### Fixed
+- An unstubbed call whose return type has no default value reported its failure twice, once as a failure and once
+  in the crash. It now crashes with one message, which lists the member's stubs as the failure did.
 - An unstubbed member returning a tuple crashed unless the tuple type had a registered default: the manager's
   generic return type can't name its elements. Mocks now pass the tuple's element types, so it returns each
   element's default. A tuple behind a `typealias` still needs a registered default. The generated `Stub` classes
