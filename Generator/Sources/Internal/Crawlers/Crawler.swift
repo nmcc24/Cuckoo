@@ -119,6 +119,9 @@ final class Crawler: SyntaxVisitor {
         /// The module's `defaultIsolation` option: the isolation of the protocols and classes that state none.
         let defaultIsolation: Isolation?
         var diagnostics: [Diagnostic] = []
+        /// The protocols left unmocked because of a requirement a mock can't implement, so the ones refining them
+        /// can be left out too.
+        var unmockedProtocols: Set<String> = []
 
         init(
             url: URL,
@@ -170,6 +173,10 @@ final class Crawler: SyntaxVisitor {
 
     var diagnostics: [Diagnostic] {
         context.diagnostics
+    }
+
+    var unmockedProtocols: Set<String> {
+        context.unmockedProtocols
     }
 
     var imports: [Import] = []
@@ -287,6 +294,12 @@ final class Crawler: SyntaxVisitor {
 
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
+        // A protocol's mock has to implement every requirement, so one it can't return leaves the protocol unmocked.
+        guard crawler.unmockedMembers.isEmpty else {
+            warn(node, "'\(token.name)' isn't mocked: " + crawler.unmockedMembers.joined(separator: " "))
+            context.unmockedProtocols.insert(token.name)
+            return .skipChildren
+        }
         token.members = crawler.tokens
         tokens.append(token)
         return .skipChildren
@@ -387,6 +400,11 @@ final class Crawler: SyntaxVisitor {
             unmockedMembers.append("'\(opaqueBinding.pattern.trimmedDescription)' has the opaque type '\(opaqueBinding.typeAnnotation?.type.trimmedDescription ?? "")', which an override can't repeat.")
             return .skipChildren
         }
+        for binding in node.bindings {
+            if let type = binding.typeAnnotation?.type, skipsUnreturnable(binding, member: binding.pattern.trimmedDescription, type: type) {
+                return .skipChildren
+            }
+        }
         tokens.append(contentsOf: parse(node))
         return .skipChildren
     }
@@ -407,6 +425,11 @@ final class Crawler: SyntaxVisitor {
             unmockedMembers.append("'\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)' returns the opaque type '\(returnType.trimmedDescription)', which an override can't repeat.")
             return .skipChildren
         }
+        let generics = noncopyableGenericNames(in: node.genericParameterClause?.parameters, where: node.genericWhereClause?.requirements)
+        if let returnType = node.signature.returnClause?.type,
+           skipsUnreturnable(node, member: "\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)", type: returnType, generics: generics) {
+            return .skipChildren
+        }
         if let method = parse(node) {
             tokens.append(method)
         }
@@ -418,6 +441,10 @@ final class Crawler: SyntaxVisitor {
 
         if container.isClass, Self.containsOpaqueType(node.returnClause.type) {
             unmockedMembers.append("'subscript\(node.parameterClause.trimmedDescription)' returns the opaque type '\(node.returnClause.type.trimmedDescription)', which an override can't repeat.")
+            return .skipChildren
+        }
+        let subscriptGenerics = noncopyableGenericNames(in: node.genericParameterClause?.parameters, where: node.genericWhereClause?.requirements)
+        if skipsUnreturnable(node, member: "subscript\(node.parameterClause.trimmedDescription)", type: node.returnClause.type, generics: subscriptGenerics) {
             return .skipChildren
         }
 
@@ -1232,6 +1259,62 @@ extension Crawler {
         return references.names.contains(where: context.privateNames.contains) ? nil : clause.value.trimmedDescription
     }
 
+    /// Skips a member whose type is `~Copyable` or `~Escapable`, which a mock can't return: it can't keep a stubbed
+    /// value to return it again. A class's mock leaves the member to the real implementation, with a warning; a
+    /// protocol isn't mocked at all, as its mock can't leave out a requirement.
+    private func skipsUnreturnable(_ node: some SyntaxProtocol, member: String, type: TypeSyntax, generics: Set<String> = []) -> Bool {
+        let generics = generics.union(enclosingNoncopyableGenerics(of: Syntax(node)))
+        let kind = if isNoncopyable(type, generics: generics) {
+            "~Copyable"
+        } else if isNonescapable(type) {
+            "~Escapable"
+        } else {
+            nil as String?
+        }
+        guard let kind else { return false }
+        let reason = "'\(member)' returns the \(kind) type '\(type.trimmedDescription)', which a mock can't return."
+        unmockedMembers.append(reason)
+        if container?.isClass == true {
+            warn(node, reason + " The mock keeps the real implementation.")
+        }
+        return true
+    }
+
+    /// The `~Copyable` generic parameters of the types enclosing `node`, such as `T` in `class Pool<T: ~Copyable>`.
+    private func enclosingNoncopyableGenerics(of node: Syntax) -> Set<String> {
+        var names: Set<String> = []
+        var ancestor = node.parent
+        while let current = ancestor {
+            if let generic = current.asProtocol((any WithGenericParametersSyntax).self) {
+                let requirements = current.as(ClassDeclSyntax.self)?.genericWhereClause?.requirements
+                    ?? current.as(StructDeclSyntax.self)?.genericWhereClause?.requirements
+                    ?? current.as(EnumDeclSyntax.self)?.genericWhereClause?.requirements
+                    ?? current.as(ActorDeclSyntax.self)?.genericWhereClause?.requirements
+                names.formUnion(noncopyableGenericNames(in: generic.genericParameterClause?.parameters, where: requirements))
+            }
+            ancestor = current.parent
+        }
+        return names
+    }
+
+    /// The standard library's `~Escapable` types.
+    private static let nonescapableTypes: Set = ["Span", "MutableSpan", "RawSpan", "MutableRawSpan", "OutputSpan", "OutputRawSpan", "UTF8Span"]
+
+    /// Whether a type is one of the standard library's `~Escapable` types, alone or optional.
+    private func isNonescapable(_ type: TypeSyntax) -> Bool {
+        if let attributed = type.as(AttributedTypeSyntax.self) {
+            return isNonescapable(attributed.baseType)
+        } else if let optional = type.as(OptionalTypeSyntax.self) {
+            return isNonescapable(optional.wrappedType)
+        } else if let identifier = type.as(IdentifierTypeSyntax.self) {
+            // A type of the module with the same name, such as a tracing `Span`, is the one meant.
+            return Self.nonescapableTypes.contains(identifier.name.text) && resolvedTypeName(identifier.name.text, from: Syntax(type)) == nil
+        } else if let member = type.as(MemberTypeSyntax.self) {
+            return member.baseType.trimmedDescription == "Swift" && Self.nonescapableTypes.contains(member.name.text)
+        }
+        return false
+    }
+
     /// Whether a parameter's type is one of the module's `~Copyable` types or a generic parameter that may be
     /// `~Copyable`, alone or optional. Other types that only mention one, such as a closure taking it, are copyable.
     private func isNoncopyable(_ type: TypeSyntax, generics: Set<String>) -> Bool {
@@ -1242,12 +1325,25 @@ extension Crawler {
         } else if let optional = type.as(ImplicitlyUnwrappedOptionalTypeSyntax.self) {
             return isNoncopyable(optional.wrappedType, generics: generics)
         } else if let identifier = type.as(IdentifierTypeSyntax.self) {
-            return generics.contains(identifier.name.text) || context.noncopyableTypes.contains(identifier.name.text)
+            if generics.contains(identifier.name.text) {
+                return true
+            }
+            // `Optional<Ticket>`, written out.
+            if identifier.name.text == "Optional", let wrapped = identifier.genericArgumentClause?.arguments.first?.argument.as(TypeSyntax.self) {
+                return isNoncopyable(wrapped, generics: generics)
+            }
+            return resolvedTypeName(identifier.name.text, from: Syntax(type)).map(context.noncopyableTypes.contains) ?? false
         } else if let member = type.as(MemberTypeSyntax.self) {
-            return context.noncopyableTypes.contains(member.name.text)
+            return context.noncopyableTypes.contains(member.with(\.genericArgumentClause, nil).trimmedDescription)
         } else {
             return false
         }
+    }
+
+    /// The qualified name of the module's type that `name`, written at `node`, names, as Swift finds it: in the
+    /// innermost enclosing scope that declares it, else at the top level. `nil` for a type the module doesn't declare.
+    private func resolvedTypeName(_ name: String, from node: Syntax) -> String? {
+        (memberLookupScopes(from: node).map { "\($0).\(name)" } + [name]).first { context.nominalTypes.contains($0) }
     }
 
     /// The generic parameters that suppress `Copyable`, in their declaration (`T: ~Copyable`) or a `where` clause.
@@ -1515,8 +1611,15 @@ extension Crawler {
         /// The global actors (`@globalActor actor X`, or a class, struct or enum), so attributes naming them can be
         /// told apart from macros and property wrappers.
         var globalActors: Set<String> = []
-        /// The `~Copyable` structs and enums, whose arguments mocks record as placeholders.
+        /// The `~Copyable` structs and enums, by qualified name, whose arguments mocks record as placeholders.
         var noncopyableTypes: Set<String> = []
+        /// The `~Copyable` generic types an extension makes `Copyable` for copyable arguments, by qualified name.
+        var conditionallyCopyableTypes: Set<String> = []
+
+        /// The types that are `~Copyable` wherever they're used: those without a conditional `Copyable` extension.
+        var unconditionallyNoncopyableTypes: Set<String> {
+            noncopyableTypes.subtracting(conditionallyCopyableTypes)
+        }
         /// The typealiases of function types, by qualified name, to the function type they stand for; a generic one's
         /// starts with its generic parameters, as in `<T> (T) -> Void`. See `Crawler.functionType(of:)`.
         var closureTypealiases: [String: String] = [:]
@@ -1557,6 +1660,7 @@ extension Crawler {
             nominalTypes.formUnion(other.nominalTypes)
             globalActors.formUnion(other.globalActors)
             noncopyableTypes.formUnion(other.noncopyableTypes)
+            conditionallyCopyableTypes.formUnion(other.conditionallyCopyableTypes)
             nonPublicTypes.formUnion(other.nonPublicTypes)
             publicTypes.formUnion(other.publicTypes)
             genericTypes.formUnion(other.genericTypes)
@@ -1598,6 +1702,12 @@ extension Crawler {
         }
 
         override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
+            // `extension Box: Copyable where T: Copyable` makes a `~Copyable` generic type copyable for copyable
+            // arguments, which is how it's almost always used.
+            if node.inheritanceClause?.inheritedTypes.contains(where: { $0.type.trimmedDescription == "Copyable" }) == true {
+                let extended = node.extendedType.as(IdentifierTypeSyntax.self)?.name.text ?? node.extendedType.trimmedDescription
+                names.conditionallyCopyableTypes.insert(Self.qualifiedName(of: extended, at: Syntax(node)))
+            }
             if node.inheritanceClause?.inheritedTypes.contains(where: { Crawler.isUncheckedSendable($0.type) }) == true {
                 names.uncheckedSendableTypes.insert(Self.qualifiedName(of: node.extendedType.trimmedDescription, at: Syntax(node)))
             }
@@ -1612,7 +1722,7 @@ extension Crawler {
                 names.globalActors.insert(name.text)
             }
             if inheritance?.inheritedTypes.contains(where: { Crawler.suppressesCopyable($0.type) }) == true {
-                names.noncopyableTypes.insert(name.text)
+                names.noncopyableTypes.insert(Self.qualifiedName(of: name.text, at: name.parent ?? Syntax(name)))
             }
         }
 
