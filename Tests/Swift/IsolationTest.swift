@@ -93,6 +93,20 @@ struct IsolationTests {
         verify(mock).reload()
     }
 
+    /// A nonisolated member of a main-actor class is called from any task, so its stubs match there.
+    @Test @MainActor
+    func mainActorClassNonisolatedMember() async {
+        let mock = MockMainActorViewModel()
+        stub(mock) { stub in
+            when(stub.label(for: 1)).thenReturn("one")
+        }
+
+        let label = await Task.detached { mock.label(for: 1) }.value
+
+        #expect(label == "one")
+        verify(mock).label(for: 1)
+    }
+
     @Test @MainActor
     func mainActorClassSpiesOnTheSuperclass() {
         let mock = MockMainActorViewModel().withEnabledSuperclassSpy()

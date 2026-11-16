@@ -192,8 +192,15 @@ struct StaticMemberTests {
             when(stub.count.get).thenReturn(3)
         }
 
-        #expect(failures.withLock { $0 } == ["Static members have no default implementation. Stub them instead."])
         #expect(MockStaticFactory.count == 3)
+        // Still unstubbed, rather than forwarded to a default implementation that doesn't exist.
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { failure in failures.withLock { $0.append(failure.message) } })) {
+            #expect(MockStaticFactory.name == "")
+        }
+        let reported = failures.withLock { $0 }
+        #expect(reported.count == 2)
+        #expect(reported.first == "Static members have no default implementation. Stub them instead.")
+        #expect(reported.last?.hasPrefix("No stub for the getter of name.") == true)
     }
 }
 
