@@ -65,6 +65,9 @@
   each call.
 
 ### Removed
+- `HasMockManager` and `HasSuperclass`: their requirements, `cuckooManager` and `cuckooHasSuperclass`, are `Mock`'s
+  own. `reset` takes `any Mock`, as `clearStubs` does. `MockManager.callOrCrash`, which nothing called, is removed
+  too.
 - The `equal(to:)` overloads for arrays, sets and dictionaries: the general `equal(to:)` matches them, since they're
   `Equatable` when their elements are. Calls don't change.
 - The deprecated Cuckoo 2 names: `hasLength(inRange:)` and `hasLength(inRange:inclusive:)` (write `hasLength(in:)`
