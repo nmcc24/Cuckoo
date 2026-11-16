@@ -12,42 +12,6 @@ final class Crawler: SyntaxVisitor {
     /// - Parameter noncopyableTypes: The `~Copyable` types declared in the module, whose arguments mocks record as
     ///   placeholders.
     static func crawl(
-        url: URL,
-        globalActors: Set<String> = [],
-        noncopyableTypes: Set<String> = [],
-        closureTypealiases: [String: String] = [:],
-        nonPublicTypes: Set<String> = [],
-        genericTypes: Set<String> = [],
-        qualifiedGenericTypes: Set<String> = [],
-        uncheckedSendableTypes: Set<String> = [],
-        protocolsAndClasses: Set<String>? = nil,
-        compositionTypealiases: [String: [String]] = [:],
-        actors: Set<String> = [],
-        privateNames: Set<String> = [],
-        nominalTypes: Set<String> = [],
-        defaultIsolation: Isolation? = nil
-    ) throws -> Crawler {
-        let file = try String(contentsOf: url, encoding: .utf8)
-        return crawl(
-            source: file,
-            url: url,
-            globalActors: globalActors,
-            noncopyableTypes: noncopyableTypes,
-            closureTypealiases: closureTypealiases,
-            nonPublicTypes: nonPublicTypes,
-            genericTypes: genericTypes,
-            qualifiedGenericTypes: qualifiedGenericTypes,
-            uncheckedSendableTypes: uncheckedSendableTypes,
-            protocolsAndClasses: protocolsAndClasses,
-            compositionTypealiases: compositionTypealiases,
-            actors: actors,
-            privateNames: privateNames,
-            nominalTypes: nominalTypes,
-            defaultIsolation: defaultIsolation
-        )
-    }
-
-    static func crawl(
         source: String,
         url: URL,
         globalActors: Set<String> = [],
