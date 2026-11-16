@@ -32,6 +32,22 @@ struct ArgumentCaptorTest {
         #expect(captor.allValues.isEmpty)
     }
 
+    /// A captor of a non-`Sendable` type gets the `ParameterMatcher` overload, which captures the same way.
+    @Test
+    func capturesValuesThatArentSendable() {
+        final class Box {}
+        let captor = ArgumentCaptor<Box>()
+        let first = Box()
+        let second = Box()
+
+        let matcher: ParameterMatcher<Box> = captor.capture()
+        #expect(matcher.matches(first))
+        #expect(matcher.matches(second))
+
+        #expect(captor.value === second)
+        #expect(captor.allValues.count == 2 && captor.allValues.first === first)
+    }
+
     /// Handing the captor to another task compiles only because it's `Sendable`.
     @Test
     func isSendableWhenItsValuesAre() async {
