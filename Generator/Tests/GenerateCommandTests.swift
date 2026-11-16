@@ -31,9 +31,10 @@ struct GenerateCommandTests {
     func missingNamedConfigurationIsAnError() async throws {
         try await withPackage(output: "GeneratedMocks.swift") { directory in
             let missing = directory.appending(path: "Other.toml").path(percentEncoded: false)
-            await #expect(throws: (any Error).self) {
+            let error = await #expect(throws: (any Error).self) {
                 try await GenerateCommand.parse(["--configuration", missing]).run()
             }
+            #expect(String(describing: error).contains("Failed to read the Cuckoofile at '\(missing)'"))
         }
     }
 
