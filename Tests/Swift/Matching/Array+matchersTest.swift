@@ -13,171 +13,186 @@ struct TestStructs {
     }
 }
 
+/// Both overloads of a matcher function, called with the same arguments: the `ParameterMatcher` one, which
+/// non-`Sendable` elements and closures get, and the `SendableMatcher` one. The result matches as the first does,
+/// and records an issue where the second disagrees, so one test line covers both implementations.
+func bothOverloads<T>(
+    _ parameterMatcher: ParameterMatcher<T>,
+    _ sendableMatcher: SendableMatcher<T>,
+    sourceLocation: Testing.SourceLocation = #_sourceLocation
+) -> ParameterMatcher<T> {
+    ParameterMatcher { input in
+        let matches = parameterMatcher.matches(input)
+        #expect(sendableMatcher.matches(input) == matches, "The overloads disagree", sourceLocation: sourceLocation)
+        return matches
+    }
+}
+
 struct ArrayMatcherTest {
     // MARK: - Contains ANY of the elements.
     @Test
     func testContainsAnyOf() {
         // Variadic parameters.
-        #expect(!containsAnyOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([2].map(TestStructs.N.init)))
-        #expect(containsAnyOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([1, 2, 3].map(TestStructs.N.init)))
-        #expect(containsAnyOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
-        #expect(!containsAnyOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([4, 5, 6, 0].map(TestStructs.N.init)))
-        #expect(!containsAnyOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([2].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([1, 2, 3].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([4, 5, 6, 0].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAnyOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([].map(TestStructs.N.init)))
 
         // Passed by array.
-        #expect(containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([2].map(TestStructs.N.init)))
-        #expect(containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([1, 2, 3].map(TestStructs.N.init)))
-        #expect(containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
-        #expect(!containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([4, 5, 6, 0].map(TestStructs.N.init)))
-        #expect(!containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([2].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([1, 2, 3].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([4, 5, 6, 0].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAnyOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([].map(TestStructs.N.init)))
     }
 
     @Test
     func containsAnyOfEquatable() {
-        #expect(!containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([2].map(TestStructs.E.init)))
-        #expect(containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3].map(TestStructs.E.init)))
-        #expect(containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
-        #expect(!containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([4, 5, 6, 0].map(TestStructs.E.init)))
-        #expect(!containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([2].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 2, 3].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([4, 5, 6, 0].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAnyOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([].map(TestStructs.E.init)))
 
-        #expect(containsAnyOf((1...3).map(TestStructs.E.init)).matches([2].map(TestStructs.E.init)))
-        #expect(containsAnyOf((1...3).map(TestStructs.E.init)).matches([1, 2, 3].map(TestStructs.E.init)))
-        #expect(containsAnyOf((1...3).map(TestStructs.E.init)).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
-        #expect(!containsAnyOf((1...3).map(TestStructs.E.init)).matches([4, 5, 6, 0].map(TestStructs.E.init)))
-        #expect(!containsAnyOf((1...3).map(TestStructs.E.init)).matches([].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsAnyOf((1...3).map(TestStructs.E.init)), containsAnyOf((1...3).map(TestStructs.E.init))).matches([2].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsAnyOf((1...3).map(TestStructs.E.init)), containsAnyOf((1...3).map(TestStructs.E.init))).matches([1, 2, 3].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsAnyOf((1...3).map(TestStructs.E.init)), containsAnyOf((1...3).map(TestStructs.E.init))).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAnyOf((1...3).map(TestStructs.E.init)), containsAnyOf((1...3).map(TestStructs.E.init))).matches([4, 5, 6, 0].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAnyOf((1...3).map(TestStructs.E.init)), containsAnyOf((1...3).map(TestStructs.E.init))).matches([].map(TestStructs.E.init)))
     }
 
     @Test
     func containsAnyOfHashable() {
-        #expect(!containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([2].map(TestStructs.H.init)))
-        #expect(containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3].map(TestStructs.H.init)))
-        #expect(containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
-        #expect(!containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([4, 5, 6, 0].map(TestStructs.H.init)))
-        #expect(!containsAnyOf(values: .init(g: 1), .init(g: 3)).matches([].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([2].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([1, 2, 3].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([4, 5, 6, 0].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAnyOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([].map(TestStructs.H.init)))
 
-        #expect(containsAnyOf((1...3).map(TestStructs.H.init)).matches([2].map(TestStructs.H.init)))
-        #expect(containsAnyOf((1...3).map(TestStructs.H.init)).matches([1, 2, 3].map(TestStructs.H.init)))
-        #expect(containsAnyOf((1...3).map(TestStructs.H.init)).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
-        #expect(!containsAnyOf((1...3).map(TestStructs.H.init)).matches([4, 5, 6, 0].map(TestStructs.H.init)))
-        #expect(!containsAnyOf((1...3).map(TestStructs.H.init)).matches([].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAnyOf((1...3).map(TestStructs.H.init)), containsAnyOf((1...3).map(TestStructs.H.init))).matches([2].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAnyOf((1...3).map(TestStructs.H.init)), containsAnyOf((1...3).map(TestStructs.H.init))).matches([1, 2, 3].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAnyOf((1...3).map(TestStructs.H.init)), containsAnyOf((1...3).map(TestStructs.H.init))).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAnyOf((1...3).map(TestStructs.H.init)), containsAnyOf((1...3).map(TestStructs.H.init))).matches([4, 5, 6, 0].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAnyOf((1...3).map(TestStructs.H.init)), containsAnyOf((1...3).map(TestStructs.H.init))).matches([].map(TestStructs.H.init)))
     }
 
     // MARK: - Contains ALL of the elements.
     @Test
     func testContainsAllOf() {
-        #expect(!containsAllOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([2].map(TestStructs.N.init)))
-        #expect(containsAllOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([1, 2, 3].map(TestStructs.N.init)))
-        #expect(containsAllOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
-        #expect(!containsAllOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([4, 5, 6, 0].map(TestStructs.N.init)))
-        #expect(!containsAllOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([3].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([2].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([1, 2, 3].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([4, 5, 6, 0].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAllOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([3].map(TestStructs.N.init)))
 
-        #expect(!containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([2].map(TestStructs.N.init)))
-        #expect(containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([1, 2, 3].map(TestStructs.N.init)))
-        #expect(containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
-        #expect(!containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([4, 5, 6, 0].map(TestStructs.N.init)))
-        #expect(!containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([3].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([2].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([1, 2, 3].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([4, 5, 6, 0].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsAllOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([3].map(TestStructs.N.init)))
     }
 
     @Test
     func containsAllOfEquatable() {
-        #expect(!containsAllOf(values: .init(g: 1), .init(g: 3)).matches([2].map(TestStructs.E.init)))
-        #expect(containsAllOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3].map(TestStructs.E.init)))
-        #expect(containsAllOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
-        #expect(!containsAllOf(values: .init(g: 1), .init(g: 3)).matches([4, 5, 6, 0].map(TestStructs.E.init)))
-        #expect(!containsAllOf(values: .init(g: 1), .init(g: 3)).matches([3].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([2].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 2, 3].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([4, 5, 6, 0].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAllOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([3].map(TestStructs.E.init)))
 
-        #expect(!containsAllOf((1...3).map(TestStructs.E.init)).matches([2].map(TestStructs.E.init)))
-        #expect(containsAllOf((1...3).map(TestStructs.E.init)).matches([1, 2, 3].map(TestStructs.E.init)))
-        #expect(containsAllOf((1...3).map(TestStructs.E.init)).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
-        #expect(!containsAllOf((1...3).map(TestStructs.E.init)).matches([4, 5, 6, 0].map(TestStructs.E.init)))
-        #expect(!containsAllOf((1...3).map(TestStructs.E.init)).matches([3].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAllOf((1...3).map(TestStructs.E.init)), containsAllOf((1...3).map(TestStructs.E.init))).matches([2].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsAllOf((1...3).map(TestStructs.E.init)), containsAllOf((1...3).map(TestStructs.E.init))).matches([1, 2, 3].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsAllOf((1...3).map(TestStructs.E.init)), containsAllOf((1...3).map(TestStructs.E.init))).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAllOf((1...3).map(TestStructs.E.init)), containsAllOf((1...3).map(TestStructs.E.init))).matches([4, 5, 6, 0].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAllOf((1...3).map(TestStructs.E.init)), containsAllOf((1...3).map(TestStructs.E.init))).matches([3].map(TestStructs.E.init)))
     }
 
     @Test
     func containsAllOfHashable() {
-        #expect(!containsAllOf(values: .init(g: 1), .init(g: 3)).matches([2].map(TestStructs.H.init)))
-        #expect(containsAllOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3].map(TestStructs.H.init)))
-        #expect(containsAllOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
-        #expect(!containsAllOf(values: .init(g: 1), .init(g: 3)).matches([4, 5, 6, 0].map(TestStructs.H.init)))
-        #expect(!containsAllOf(values: .init(g: 1), .init(g: 3)).matches([3].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([2].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([1, 2, 3].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([4, 5, 6, 0].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAllOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([3].map(TestStructs.H.init)))
 
-        #expect(!containsAllOf((1...3).map(TestStructs.H.init)).matches([2].map(TestStructs.H.init)))
-        #expect(containsAllOf((1...3).map(TestStructs.H.init)).matches([1, 2, 3].map(TestStructs.H.init)))
-        #expect(containsAllOf((1...3).map(TestStructs.H.init)).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
-        #expect(!containsAllOf((1...3).map(TestStructs.H.init)).matches([4, 5, 6, 0].map(TestStructs.H.init)))
-        #expect(!containsAllOf((1...3).map(TestStructs.H.init)).matches([3].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAllOf((1...3).map(TestStructs.H.init)), containsAllOf((1...3).map(TestStructs.H.init))).matches([2].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAllOf((1...3).map(TestStructs.H.init)), containsAllOf((1...3).map(TestStructs.H.init))).matches([1, 2, 3].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAllOf((1...3).map(TestStructs.H.init)), containsAllOf((1...3).map(TestStructs.H.init))).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAllOf((1...3).map(TestStructs.H.init)), containsAllOf((1...3).map(TestStructs.H.init))).matches([4, 5, 6, 0].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsAllOf((1...3).map(TestStructs.H.init)), containsAllOf((1...3).map(TestStructs.H.init))).matches([3].map(TestStructs.H.init)))
     }
 
     @Test
     func containsAllOfMultiple() {
-        #expect(!containsAllOf(values: 1, 3, 2, 2, 1).matches([2]))
-        #expect(!containsAllOf(values: 1, 3, 2, 2, 1).matches([1, 2, 3]))
-        #expect(!containsAllOf(values: 1, 3, 2, 2, 1).matches([1, 3, 2, 2]))
-        #expect(containsAllOf(values: 1, 3, 2, 2, 1).matches([1, 3, 2, 2, 1]))
+        #expect(!bothOverloads(containsAllOf(values: 1, 3, 2, 2, 1), containsAllOf(values: 1, 3, 2, 2, 1)).matches([2]))
+        #expect(!bothOverloads(containsAllOf(values: 1, 3, 2, 2, 1), containsAllOf(values: 1, 3, 2, 2, 1)).matches([1, 2, 3]))
+        #expect(!bothOverloads(containsAllOf(values: 1, 3, 2, 2, 1), containsAllOf(values: 1, 3, 2, 2, 1)).matches([1, 3, 2, 2]))
+        #expect(bothOverloads(containsAllOf(values: 1, 3, 2, 2, 1), containsAllOf(values: 1, 3, 2, 2, 1)).matches([1, 3, 2, 2, 1]))
 
-        #expect(!containsAllOf([1, 3, 2, 2, 1]).matches([2]))
-        #expect(!containsAllOf([1, 3, 2, 2, 1]).matches([1, 2, 3]))
-        #expect(!containsAllOf([1, 3, 2, 2, 1]).matches([1, 3, 2, 2]))
-        #expect(containsAllOf([1, 3, 2, 2, 1]).matches([1, 3, 2, 2, 1]))
+        #expect(!bothOverloads(containsAllOf([1, 3, 2, 2, 1]), containsAllOf([1, 3, 2, 2, 1])).matches([2]))
+        #expect(!bothOverloads(containsAllOf([1, 3, 2, 2, 1]), containsAllOf([1, 3, 2, 2, 1])).matches([1, 2, 3]))
+        #expect(!bothOverloads(containsAllOf([1, 3, 2, 2, 1]), containsAllOf([1, 3, 2, 2, 1])).matches([1, 3, 2, 2]))
+        #expect(bothOverloads(containsAllOf([1, 3, 2, 2, 1]), containsAllOf([1, 3, 2, 2, 1])).matches([1, 3, 2, 2, 1]))
     }
 
     /// The matched sequence may hold an element more often than the matcher asks for it, as with the `Equatable`
     /// overload.
     @Test
     func containsAllOfAllowsExtraCopies() {
-        #expect(containsAllOf(values: 1, 2).matches([1, 1, 2]))
-        #expect(containsAllOf([1, 2]).matches([2, 1, 2, 1]))
-        #expect(containsAllOf(values: TestStructs.H(g: 1)).matches([1, 1].map(TestStructs.H.init)))
-        #expect(containsAllOf(values: TestStructs.E(g: 1)).matches([1, 1].map(TestStructs.E.init)))
-        #expect(!containsAllOf(values: 1, 1, 2).matches([1, 2]))
+        #expect(bothOverloads(containsAllOf(values: 1, 2), containsAllOf(values: 1, 2)).matches([1, 1, 2]))
+        #expect(bothOverloads(containsAllOf([1, 2]), containsAllOf([1, 2])).matches([2, 1, 2, 1]))
+        #expect(bothOverloads(containsAllOf(values: TestStructs.H(g: 1)), containsAllOf(values: TestStructs.H(g: 1))).matches([1, 1].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsAllOf(values: TestStructs.E(g: 1)), containsAllOf(values: TestStructs.E(g: 1))).matches([1, 1].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsAllOf(values: 1, 1, 2), containsAllOf(values: 1, 1, 2)).matches([1, 2]))
     }
 
     // MARK: - Contains NONE of the elements.
     @Test
     func testContainsNoneOf() {
         // Variadic parameters.
-        #expect(containsNoneOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([2].map(TestStructs.N.init)))
-        #expect(!containsNoneOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([1, 2, 3].map(TestStructs.N.init)))
-        #expect(!containsNoneOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
-        #expect(containsNoneOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([4, 5, 6, 0].map(TestStructs.N.init)))
-        #expect(containsNoneOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([2].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([1, 2, 3].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([4, 5, 6, 0].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsNoneOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([].map(TestStructs.N.init)))
 
         // Passed by array.
-        #expect(!containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([2].map(TestStructs.N.init)))
-        #expect(!containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([1, 2, 3].map(TestStructs.N.init)))
-        #expect(!containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
-        #expect(containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([4, 5, 6, 0].map(TestStructs.N.init)))
-        #expect(containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }).matches([].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([2].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([1, 2, 3].map(TestStructs.N.init)))
+        #expect(!bothOverloads(containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([1, 2, 3, 4, 5].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([4, 5, 6, 0].map(TestStructs.N.init)))
+        #expect(bothOverloads(containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g }), containsNoneOf((1...3).map(TestStructs.N.init), where: { $0.g == $1.g })).matches([].map(TestStructs.N.init)))
     }
 
     @Test
     func containsNoneOfEquatable() {
-        #expect(containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([2].map(TestStructs.E.init)))
-        #expect(!containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3].map(TestStructs.E.init)))
-        #expect(!containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
-        #expect(containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([4, 5, 6, 0].map(TestStructs.E.init)))
-        #expect(containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([2].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 2, 3].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([4, 5, 6, 0].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsNoneOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([].map(TestStructs.E.init)))
 
-        #expect(!containsNoneOf((1...3).map(TestStructs.E.init)).matches([2].map(TestStructs.E.init)))
-        #expect(!containsNoneOf((1...3).map(TestStructs.E.init)).matches([1, 2, 3].map(TestStructs.E.init)))
-        #expect(!containsNoneOf((1...3).map(TestStructs.E.init)).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
-        #expect(containsNoneOf((1...3).map(TestStructs.E.init)).matches([4, 5, 6, 0].map(TestStructs.E.init)))
-        #expect(containsNoneOf((1...3).map(TestStructs.E.init)).matches([].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsNoneOf((1...3).map(TestStructs.E.init)), containsNoneOf((1...3).map(TestStructs.E.init))).matches([2].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsNoneOf((1...3).map(TestStructs.E.init)), containsNoneOf((1...3).map(TestStructs.E.init))).matches([1, 2, 3].map(TestStructs.E.init)))
+        #expect(!bothOverloads(containsNoneOf((1...3).map(TestStructs.E.init)), containsNoneOf((1...3).map(TestStructs.E.init))).matches([1, 2, 3, 4, 5].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsNoneOf((1...3).map(TestStructs.E.init)), containsNoneOf((1...3).map(TestStructs.E.init))).matches([4, 5, 6, 0].map(TestStructs.E.init)))
+        #expect(bothOverloads(containsNoneOf((1...3).map(TestStructs.E.init)), containsNoneOf((1...3).map(TestStructs.E.init))).matches([].map(TestStructs.E.init)))
     }
 
     @Test
     func containsNoneOfHashable() {
-        #expect(containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([2].map(TestStructs.H.init)))
-        #expect(!containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3].map(TestStructs.H.init)))
-        #expect(!containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
-        #expect(containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([4, 5, 6, 0].map(TestStructs.H.init)))
-        #expect(containsNoneOf(values: .init(g: 1), .init(g: 3)).matches([].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([2].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([1, 2, 3].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([4, 5, 6, 0].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsNoneOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([].map(TestStructs.H.init)))
 
-        #expect(!containsNoneOf((1...3).map(TestStructs.H.init)).matches([2].map(TestStructs.H.init)))
-        #expect(!containsNoneOf((1...3).map(TestStructs.H.init)).matches([1, 2, 3].map(TestStructs.H.init)))
-        #expect(!containsNoneOf((1...3).map(TestStructs.H.init)).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
-        #expect(containsNoneOf((1...3).map(TestStructs.H.init)).matches([4, 5, 6, 0].map(TestStructs.H.init)))
-        #expect(containsNoneOf((1...3).map(TestStructs.H.init)).matches([].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsNoneOf((1...3).map(TestStructs.H.init)), containsNoneOf((1...3).map(TestStructs.H.init))).matches([2].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsNoneOf((1...3).map(TestStructs.H.init)), containsNoneOf((1...3).map(TestStructs.H.init))).matches([1, 2, 3].map(TestStructs.H.init)))
+        #expect(!bothOverloads(containsNoneOf((1...3).map(TestStructs.H.init)), containsNoneOf((1...3).map(TestStructs.H.init))).matches([1, 2, 3, 4, 5].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsNoneOf((1...3).map(TestStructs.H.init)), containsNoneOf((1...3).map(TestStructs.H.init))).matches([4, 5, 6, 0].map(TestStructs.H.init)))
+        #expect(bothOverloads(containsNoneOf((1...3).map(TestStructs.H.init)), containsNoneOf((1...3).map(TestStructs.H.init))).matches([].map(TestStructs.H.init)))
     }
 
     // MARK: - Has length N (exact, at least, at most).
