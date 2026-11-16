@@ -158,25 +158,30 @@ struct GeneratorHelper {
     }
 
     /// The argument that gives an unstubbed call returning a tuple its default value, or `nil` for any other return
-    /// type: the manager's generic return type can't name a tuple's elements.
+    /// type: the manager's generic return type can't name a tuple's elements. The tuple is named by a local
+    /// `typealias`, as `(...).self` can't spell every type: a closure element with a `borrowing` parameter, say.
     static func unstubbedTupleArgument(for type: ComplexType?) -> String? {
         guard case .type(let description) = type, let tuple = unlabeledTupleType(description) else { return nil }
-        return "unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: \(tuple).self)"
+        return "unstubbedTuple: { \(defaultTypealias(tuple)); return Cuckoo.MockManager.unstubbedTupleValue(for: \(defaultTypealiasName).self) }()"
     }
 
-    /// A tuple type of two or more elements without its labels, which the runtime's tuple defaults take: a labeled
-    /// tuple's metatype doesn't match their parameter pack, and the unlabeled value converts back to the labeled type.
-    /// `nil` for any other type, and for a tuple `(...).self` can't spell: one with a pack expansion, or with a
-    /// closure element whose parameter is `borrowing`, `consuming` or `isolated`, which an expression doesn't parse.
+    /// The name `defaultTypealias(_:)` declares.
+    static let defaultTypealiasName = "__CuckooDefault"
+
+    /// A local `typealias` naming `type`, whose metatype an expression then takes: `(type).self` doesn't parse when
+    /// the type has a closure with a `borrowing`, `consuming`, `isolated`, `sending`, `__owned` or `__shared`
+    /// parameter. A tuple goes without its labels, which the runtime's tuple defaults take.
+    static func defaultTypealias(_ type: String) -> String {
+        "typealias \(defaultTypealiasName) = \(type.isEmpty ? "Void" : unlabeledTupleType(type) ?? type)"
+    }
+
+    /// A tuple type of two or more elements without its labels: a labeled tuple's metatype doesn't match the runtime's
+    /// parameter pack, and the unlabeled value converts back to the labeled type. `nil` for any other type, and for a
+    /// tuple with a pack expansion.
     static func unlabeledTupleType(_ description: String) -> String? {
-        let expressionSpecifiers: Set<String> = ["borrowing", "consuming", "isolated"]
         guard let tuple = typeSyntax(description)?.as(TupleTypeSyntax.self),
               tuple.elements.count >= 2,
-              tuple.elements.allSatisfy({ element in
-                  element.ellipsis == nil
-                      && element.type.as(PackExpansionTypeSyntax.self) == nil
-                      && !element.type.tokens(viewMode: .sourceAccurate).contains { expressionSpecifiers.contains($0.text) }
-              })
+              tuple.elements.allSatisfy({ $0.ellipsis == nil && $0.type.as(PackExpansionTypeSyntax.self) == nil })
         else {
             return nil
         }
@@ -272,10 +277,6 @@ struct GeneratorHelper {
             fatalError("Failed to find parent of method \(method.fullSignature). Please file a bug.")
         }
         return parent
-    }
-
-    static func removeClosureArgumentNames(for type: String) -> String {
-        type.replacing(/_\s+?[_a-zA-Z]\w*?\s*?:/, with: "")
     }
 }
 

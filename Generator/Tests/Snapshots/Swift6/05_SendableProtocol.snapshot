@@ -111,11 +111,13 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
 
 nonisolated final class NetworkingStub: Networking {
     func get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func get(url p0: String) async throws -> String {
-        return DefaultValueRegistry.defaultValue(for: (String).self)
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -247,11 +249,13 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
 nonisolated final class KeyValueStoreStub<Key: Hashable & Sendable>: KeyValueStore {
     var count: Int {
         get {
-            return DefaultValueRegistry.defaultValue(for: (Int).self)
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
     }
 
     func value(for p0: Key) -> String? {
-        return DefaultValueRegistry.defaultValue(for: (String?).self)
+        typealias __CuckooDefault = String?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

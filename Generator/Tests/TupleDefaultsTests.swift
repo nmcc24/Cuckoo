@@ -1,7 +1,7 @@
 import Testing
 @testable import CuckooGenerator
 
-/// The tuple a mock passes for an unstubbed call's default: unlabeled, and left out where `(...).self` can't spell it.
+/// The tuple a mock passes for an unstubbed call's default, without its labels, and none for any other type.
 @Suite
 struct TupleDefaultsTests {
     @Test(arguments: [
@@ -9,6 +9,8 @@ struct TupleDefaultsTests {
         ("(count: Int, name: String?)", "(Int, String?)"),
         ("(Int, (inout Int) -> Void)", "(Int, (inout Int) -> Void)"),
         ("(Int, @Sendable () -> Void)", "(Int, @Sendable () -> Void)"),
+        ("(Int, (borrowing Int) -> Void)", "(Int, (borrowing Int) -> Void)"),
+        ("(first: Int, (isolated any Actor) -> Void)", "(Int, (isolated any Actor) -> Void)"),
     ])
     func tupleTypesLoseTheirLabels(type: String, expected: String) {
         #expect(GeneratorHelper.unlabeledTupleType(type) == expected)
@@ -19,9 +21,7 @@ struct TupleDefaultsTests {
         "(Int)",
         "(Int, String)?",
         "(repeat each T)",
-        "(Int, (borrowing Int) -> Void)",
-        "(Int, (consuming String) -> Void)",
-        "(Int, (isolated any Actor) -> Void)",
+        "(Int, repeat each T)",
     ])
     func otherTypesGetNoTupleDefault(type: String) {
         #expect(GeneratorHelper.unlabeledTupleType(type) == nil)

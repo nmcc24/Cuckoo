@@ -99,7 +99,8 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
 
 nonisolated final class RepositoryStub<Item, ID: Hashable>: Repository {
     func fetch(id p0: ID) -> Item? {
-        return DefaultValueRegistry.defaultValue(for: (Item?).self)
+        typealias __CuckooDefault = Item?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -285,15 +286,18 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
 
 nonisolated final class CachedRepositoryStub<Item, ID: Hashable>: CachedRepository {
     func cached() -> [Item] {
-        return DefaultValueRegistry.defaultValue(for: ([Item]).self)
+        typealias __CuckooDefault = [Item]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func evict(id p0: ID) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func fetch(id p0: ID) -> Item? {
-        return DefaultValueRegistry.defaultValue(for: (Item?).self)
+        typealias __CuckooDefault = Item?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -368,7 +372,8 @@ nonisolated final class MockPrimaryRepository<Element>: PrimaryRepository, nonis
 
 nonisolated final class PrimaryRepositoryStub<Element>: PrimaryRepository {
     func all() -> [Element] {
-        return DefaultValueRegistry.defaultValue(for: ([Element]).self)
+        typealias __CuckooDefault = [Element]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -514,11 +519,13 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
 
 nonisolated final class SortedRepositoryStub<Element>: SortedRepository {
     func sorted(by p0: (Element, Element) -> Bool) -> [Element] {
-        return DefaultValueRegistry.defaultValue(for: ([Element]).self)
+        typealias __CuckooDefault = [Element]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func all() -> [Element] {
-        return DefaultValueRegistry.defaultValue(for: ([Element]).self)
+        typealias __CuckooDefault = [Element]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -663,11 +670,13 @@ nonisolated final class StringRepositoryStub<ID: Hashable>: StringRepository {
     typealias Item = String
 
     func joined() -> String {
-        return DefaultValueRegistry.defaultValue(for: (String).self)
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func fetch(id p0: ID) -> Item? {
-        return DefaultValueRegistry.defaultValue(for: (Item?).self)
+        typealias __CuckooDefault = Item?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -777,11 +786,13 @@ nonisolated final class IntRepositoryStub: IntRepository {
     typealias Element = Int
 
     func sum() -> Element {
-        return DefaultValueRegistry.defaultValue(for: (Element).self)
+        typealias __CuckooDefault = Element
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func all() -> [Element] {
-        return DefaultValueRegistry.defaultValue(for: ([Element]).self)
+        typealias __CuckooDefault = [Element]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -1007,19 +1018,23 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
 
 nonisolated final class HashedRepositoryStub<Item: Hashable, ID: Hashable>: HashedRepository {
     func uniqued() -> Set<Item> {
-        return DefaultValueRegistry.defaultValue(for: (Set<Item>).self)
+        typealias __CuckooDefault = Set<Item>
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func cached() -> [Item] {
-        return DefaultValueRegistry.defaultValue(for: ([Item]).self)
+        typealias __CuckooDefault = [Item]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func evict(id p0: ID) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func fetch(id p0: ID) -> Item? {
-        return DefaultValueRegistry.defaultValue(for: (Item?).self)
+        typealias __CuckooDefault = Item?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -1112,7 +1127,10 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.audit(),
-            unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Item?, [Element]).self)
+            unstubbedTuple: {
+                typealias __CuckooDefault = (Item?, [Element]);
+                return Cuckoo.MockManager.unstubbedTupleValue(for: __CuckooDefault.self)
+            }()
         )
     }
 
@@ -1334,26 +1352,32 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
 
 nonisolated final class AuditedRepositoryStub<Item, ID: Hashable, Element>: AuditedRepository {
     func audit() -> (Item?, [Element]) {
-        return DefaultValueRegistry.defaultValue(for: (Item?, [Element]).self)
+        typealias __CuckooDefault = (Item?, [Element])
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func cached() -> [Item] {
-        return DefaultValueRegistry.defaultValue(for: ([Item]).self)
+        typealias __CuckooDefault = [Item]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func evict(id p0: ID) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func fetch(id p0: ID) -> Item? {
-        return DefaultValueRegistry.defaultValue(for: (Item?).self)
+        typealias __CuckooDefault = Item?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func sorted(by p0: (Element, Element) -> Bool) -> [Element] {
-        return DefaultValueRegistry.defaultValue(for: ([Element]).self)
+        typealias __CuckooDefault = [Element]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func all() -> [Element] {
-        return DefaultValueRegistry.defaultValue(for: ([Element]).self)
+        typealias __CuckooDefault = [Element]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

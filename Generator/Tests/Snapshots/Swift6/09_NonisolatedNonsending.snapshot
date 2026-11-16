@@ -107,11 +107,13 @@ nonisolated final class MockLoader: Loader, nonisolated Cuckoo.ProtocolMock {
 nonisolated final class LoaderStub: Loader {
     nonisolated(nonsending)
     func load() async -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     @concurrent
     func compute() async -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

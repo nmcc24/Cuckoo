@@ -142,7 +142,10 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.pair(p0, input: p1),
-            unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Output, T).self)
+            unstubbedTuple: {
+                typealias __CuckooDefault = (Output, T);
+                return Cuckoo.MockManager.unstubbedTupleValue(for: __CuckooDefault.self)
+            }()
         )
     }
 
@@ -453,39 +456,48 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
 nonisolated final class ConverterStub<Input, Output>: Converter {
     func convert<T> (value p0: T) -> Output {
-        return DefaultValueRegistry.defaultValue(for: (Output).self)
+        typealias __CuckooDefault = Output
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func convert(input p0: Input) -> Output {
-        return DefaultValueRegistry.defaultValue(for: (Output).self)
+        typealias __CuckooDefault = Output
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func wrap<T> (_ p0: T) -> [Output] {
-        return DefaultValueRegistry.defaultValue(for: ([Output]).self)
+        typealias __CuckooDefault = [Output]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func pair<T> (_ p0: T, input p1: Input) -> (Output, T) {
-        return DefaultValueRegistry.defaultValue(for: (Output, T).self)
+        typealias __CuckooDefault = (Output, T)
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func merge<T> (_ p0: T, into p1: Output) -> Output {
-        return DefaultValueRegistry.defaultValue(for: (Output).self)
+        typealias __CuckooDefault = Output
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func lookup<T> (_ p0: T) -> Output? {
-        return DefaultValueRegistry.defaultValue(for: (Output?).self)
+        typealias __CuckooDefault = Output?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func collect<T> (_ p0: [Output], tag p1: T) -> [String: Output] {
-        return DefaultValueRegistry.defaultValue(for: ([String: Output]).self)
+        typealias __CuckooDefault = [String: Output]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func result<T> (_ p0: T) -> Result<Output, any Error> {
-        return DefaultValueRegistry.defaultValue(for: (Result<Output, any Error>).self)
+        typealias __CuckooDefault = Result<Output, any Error>
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func nested<T> (_ p0: T) -> Wrapper.Output {
-        return DefaultValueRegistry.defaultValue(for: (Wrapper.Output).self)
+        typealias __CuckooDefault = Wrapper.Output
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -682,14 +694,17 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
 
 nonisolated final class ProducerStub<Output>: Producer {
     func produce<T> (from p0: T) -> Output {
-        return DefaultValueRegistry.defaultValue(for: (Output).self)
+        typealias __CuckooDefault = Output
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func consume<T> (_ p0: Output, with p1: T) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func produceAll<T> (from p0: [T]) async throws -> [Output] {
-        return DefaultValueRegistry.defaultValue(for: ([Output]).self)
+        typealias __CuckooDefault = [Output]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

@@ -70,12 +70,13 @@ enum NopImplStubBuilder {
 
     private static func source(of property: Variable) -> String {
         let effects = property.effects.getterDeclaration
-        let type = GeneratorHelper.removeClosureArgumentNames(for: GeneratorHelper.genericSafeType(from: property.type.description))
+        let type = GeneratorHelper.genericSafeType(from: property.type.description)
         let modifiers = modifiers(of: property, isStatic: property.isStatic)
         var source = attributes(of: property, at: property.accessibility, isolation: property.isolation)
         source.append("\(property.accessibility.spaced)\(modifiers)var \(property.name): \(property.type.description) {")
         source.append("    get \(effects){")
-        source.append("        return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.unlabeledTupleType(type) ?? "(\(type))").self)")
+        source.append("        \(GeneratorHelper.defaultTypealias(type))")
+        source.append("        return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.defaultTypealiasName).self)")
         source.append("    }")
         if !property.isReadOnly {
             source.append("    set {}")
@@ -99,19 +100,21 @@ enum NopImplStubBuilder {
             source.append(execution)
         }
         source.append("\(method.accessibility.spaced)\(modifiers)\(method.declaration)\(method.signature.description) {")
-        source.append("    return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.unlabeledTupleType(type) ?? "(\(type))").self)")
+        source.append("    \(GeneratorHelper.defaultTypealias(type))")
+        source.append("    return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.defaultTypealiasName).self)")
         source.append("}")
         return lines(source)
     }
 
     private static func source(of subscriptDeclaration: Subscript) -> String {
         let effects = [subscriptDeclaration.isAsync ? "async" : nil, subscriptDeclaration.throwType?.description].compactMap { $0 }.map { "\($0) " }.joined()
-        let type = GeneratorHelper.removeClosureArgumentNames(for: GeneratorHelper.genericSafeType(from: subscriptDeclaration.getter.defaultValueType))
+        let type = GeneratorHelper.genericSafeType(from: subscriptDeclaration.getter.defaultValueType)
         let modifiers = modifiers(of: subscriptDeclaration, isStatic: subscriptDeclaration.isStatic)
         var source = attributes(of: subscriptDeclaration, at: subscriptDeclaration.accessibility, isolation: subscriptDeclaration.isolation)
         source.append("\(subscriptDeclaration.accessibility.spaced)\(modifiers)subscript\(subscriptDeclaration.signature) {")
         source.append("    get \(effects){")
-        source.append("        return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.unlabeledTupleType(type) ?? "(\(type))").self)")
+        source.append("        \(GeneratorHelper.defaultTypealias(type))")
+        source.append("        return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.defaultTypealiasName).self)")
         source.append("    }")
         if !subscriptDeclaration.isReadOnly {
             source.append("    set {}")

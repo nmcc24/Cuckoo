@@ -95,7 +95,8 @@ nonisolated final class MockConstrainedElement<Element: Equatable>: ConstrainedE
 
 nonisolated final class ConstrainedElementStub<Element: Equatable>: ConstrainedElement {
     func get() -> Element {
-        return DefaultValueRegistry.defaultValue(for: (Element).self)
+        typealias __CuckooDefault = Element
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -193,7 +194,8 @@ nonisolated final class MockConstrainedItems<Items: Collection>: ConstrainedItem
 
 nonisolated final class ConstrainedItemsStub<Items: Collection>: ConstrainedItems where Items.Element == Int {
     func items() -> Items {
-        return DefaultValueRegistry.defaultValue(for: (Items).self)
+        typealias __CuckooDefault = Items
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -298,7 +300,8 @@ nonisolated final class SameTypeAssociatedTypesStub<A>: SameTypeAssociatedTypes 
     typealias B = A
 
     func convert(_ p0: A) -> B {
-        return DefaultValueRegistry.defaultValue(for: (B).self)
+        typealias __CuckooDefault = B
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -396,7 +399,8 @@ nonisolated final class MockProtocolWhereOnNestedType<Items: Collection>: Protoc
 
 nonisolated final class ProtocolWhereOnNestedTypeStub<Items: Collection>: ProtocolWhereOnNestedType where Items.Element: Hashable {
     func items() -> Items {
-        return DefaultValueRegistry.defaultValue(for: (Items).self)
+        typealias __CuckooDefault = Items
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -534,10 +538,12 @@ nonisolated final class MockRefinesConstrainedItems<Items: Collection>: RefinesC
 
 nonisolated final class RefinesConstrainedItemsStub<Items: Collection>: RefinesConstrainedItems where Items.Element == Int {
     func count() -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func items() -> Items {
-        return DefaultValueRegistry.defaultValue(for: (Items).self)
+        typealias __CuckooDefault = Items
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

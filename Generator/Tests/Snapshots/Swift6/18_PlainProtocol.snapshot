@@ -109,13 +109,15 @@ nonisolated final class MockGreeter: Greeter, nonisolated Cuckoo.ProtocolMock {
 nonisolated final class GreeterStub: Greeter {
     var count: Int {
         get {
-            return DefaultValueRegistry.defaultValue(for: (Int).self)
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
         set {
         }
     }
 
     func greet(name p0: String) -> String {
-        return DefaultValueRegistry.defaultValue(for: (String).self)
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

@@ -71,7 +71,8 @@ final class MockNonSendableBox: NonSendableBox, nonisolated Cuckoo.ClassMock {
 final class NonSendableBoxStub: NonSendableBox {
     override var v: Int {
         get {
-            return DefaultValueRegistry.defaultValue(for: (Int).self)
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
         set {
         }
@@ -186,11 +187,13 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
 
 nonisolated final class TransferStub: Transfer {
     func take(_ p0: sending NonSendableBox) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func make() -> sending NonSendableBox {
-        return DefaultValueRegistry.defaultValue(for: (NonSendableBox).self)
+        typealias __CuckooDefault = NonSendableBox
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -306,6 +309,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 
 nonisolated final class ConverterStub<Input, Output>: Converter {
     func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
-        return DefaultValueRegistry.defaultValue(for: (Output).self)
+        typealias __CuckooDefault = Output
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

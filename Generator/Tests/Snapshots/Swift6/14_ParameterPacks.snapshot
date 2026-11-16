@@ -193,19 +193,23 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
 
 nonisolated final class CombinerStub: Combiner {
     func combine<each T> (_ p0: repeat each T) -> (repeat each T) {
-        return DefaultValueRegistry.defaultValue(for: ((repeat each T)).self)
+        typealias __CuckooDefault = (repeat each T)
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func count<each T> (_ p0: repeat each T) -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func log<each T: Sendable> (prefix p0: String, _ p1: repeat each T) async throws {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func pair<each T, each U> (_ p0: repeat each T, second p1: repeat each U) -> (repeat each U) {
-        return DefaultValueRegistry.defaultValue(for: ((repeat each U)).self)
+        typealias __CuckooDefault = (repeat each U)
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -288,7 +292,8 @@ final class MockMainActorCombiner: MainActorCombiner, nonisolated Cuckoo.Protoco
 
 final class MainActorCombinerStub: MainActorCombiner {
     func combine<each T> (_ p0: repeat each T) -> (repeat each T) {
-        return DefaultValueRegistry.defaultValue(for: ((repeat each T)).self)
+        typealias __CuckooDefault = (repeat each T)
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -362,6 +367,7 @@ actor MockActorCombiner: ActorCombiner, Cuckoo.ProtocolMock {
 
 actor ActorCombinerStub: ActorCombiner {
     func count<each T> (_ p0: repeat each T) -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

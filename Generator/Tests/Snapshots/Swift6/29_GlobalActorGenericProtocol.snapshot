@@ -233,24 +233,28 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
 final class InventoryStub<Item: Sendable>: Inventory {
     var count: Int {
         get {
-            return DefaultValueRegistry.defaultValue(for: (Int).self)
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
     }
 
     var items: [Item] {
         get {
-            return DefaultValueRegistry.defaultValue(for: ([Item]).self)
+            typealias __CuckooDefault = [Item]
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
         set {
         }
     }
 
     func item(at p0: Int) -> Item? {
-        return DefaultValueRegistry.defaultValue(for: (Item?).self)
+        typealias __CuckooDefault = Item?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func reload() async throws {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -410,10 +414,12 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
 
 final class LedgerStub<Entry, Key: Hashable>: Ledger {
     func entry(for p0: Key) -> Entry? {
-        return DefaultValueRegistry.defaultValue(for: (Entry?).self)
+        typealias __CuckooDefault = Entry?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func record(_ p0: Entry, for p1: Key) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

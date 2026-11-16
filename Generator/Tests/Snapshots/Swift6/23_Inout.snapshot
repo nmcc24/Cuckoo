@@ -280,23 +280,28 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
 
 nonisolated final class AccumulatorStub: Accumulator {
     func add(_ p0: inout Int) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func append(_ p0: inout String, _ p1: String, count p2: inout Int) -> Bool {
-        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        typealias __CuckooDefault = Bool
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func load(_ p0: inout [UInt8]) async throws -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func parse(_ p0: inout Int) throws(ParseError) -> String {
-        return DefaultValueRegistry.defaultValue(for: (String).self)
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     static func reset(_ p0: inout Int) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -414,11 +419,13 @@ actor MockAccumulatorActor: AccumulatorActor, Cuckoo.ProtocolMock {
 
 actor AccumulatorActorStub: AccumulatorActor {
     func add(_ p0: inout Int, step p1: Int) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func load(_ p0: inout [UInt8]) async -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -505,7 +512,8 @@ final class MockMainActorAccumulator: MainActorAccumulator, nonisolated Cuckoo.P
 
 final class MainActorAccumulatorStub: MainActorAccumulator {
     func add(_ p0: inout Int) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -634,10 +642,12 @@ final class MockDoubler: Doubler, nonisolated Cuckoo.ClassMock {
 
 final class DoublerStub: Doubler {
     override func double(_ p0: inout Int) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     override func apply(_ p0: inout Int, _ p1: (Int) -> Int) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

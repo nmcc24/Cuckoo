@@ -269,27 +269,33 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
 
 nonisolated final class ConsumerStub: Consumer {
     func consume(_ p0: consuming Token) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func inspect(_ p0: borrowing Token) -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func redeem(_ p0: consuming Ticket?, seat p1: Int) async throws -> String {
-        return DefaultValueRegistry.defaultValue(for: (String).self)
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func take<T: ~Copyable> (_ p0: consuming T) -> Bool {
-        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        typealias __CuckooDefault = Bool
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func check<T> (_ p0: borrowing T, label p1: String) -> Bool where T: ~Copyable {
-        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        typealias __CuckooDefault = Bool
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func visit(_ p0: (borrowing Token) -> Void) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -365,7 +371,8 @@ actor MockTokenVault: TokenVault, Cuckoo.ProtocolMock {
 
 actor TokenVaultStub: TokenVault {
     func deposit(_ p0: consuming Token, note p1: String) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -442,6 +449,7 @@ final class MockShredder: Shredder, nonisolated Cuckoo.ClassMock {
 
 final class ShredderStub: Shredder {
     override func shred(_ p0: consuming Token) -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
