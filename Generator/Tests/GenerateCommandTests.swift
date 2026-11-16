@@ -151,6 +151,23 @@ struct GenerateCommandTests {
         }
     }
 
+    /// A source that can't be read fails the run, rather than leaving its mocks out without a word. Root reads any
+    /// file, so the test is skipped there.
+    @Test(.enabled(if: geteuid() != 0, "root can read any file"))
+    func anUnreadableSourceFailsTheRun() async throws {
+        try await withPackage(output: "GeneratedMocks.swift") { directory in
+            let source = directory.appending(path: "App/Greeter.swift").path(percentEncoded: false)
+            try FileManager.default.setAttributes([.posixPermissions: 0], ofItemAtPath: source)
+            defer { try? FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: source) }
+            let printed = await capturingOutput {
+                await #expect(throws: ExitCode.failure) {
+                    try await GenerateCommand.parse(["--configuration", directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)]).run()
+                }
+            }
+            #expect(printed.contains("error: ") && printed.contains("Greeter.swift"))
+        }
+    }
+
     private func withPackage(output: String, extraKeys: String = "", _ body: (URL) async throws -> Void) async throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooCommand-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
