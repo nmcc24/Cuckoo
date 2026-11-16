@@ -52,14 +52,15 @@ struct CrashTest {
         #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("which isn't a"))
     }
 
+    /// A member returning `Self` can't reach the default implementation, and the mock's type has no default value.
     @Test
-    func defaultImplementationOfAMemberWithSelfStopsTheProcess() async throws {
+    func defaultImplementationOfAMemberReturningSelfStopsTheProcess() async throws {
         let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
             let mock = MockShape()
             mock.enableDefaultImplementation(ShapeStub())
             _ = mock.scaled(by: 2)
         })
-        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("because it takes or returns Self"))
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("has no default value"))
     }
 
     @Test

@@ -81,13 +81,13 @@ enum MockMembersBuilder {
         let isolated = property.stubIsolation.isolatedParameter != nil
         let manager = manager(isStatic: property.isStatic)
 
-        func defaultCall(_ forwarding: String) -> String {
+        func defaultCall(_ forwarding: String, returning type: ComplexType? = nil) -> String {
             if property.isStatic {
                 "Cuckoo.MockManager.crashOnStaticDefaultImplementationCall(\(literal))"
             } else if context.isActor {
                 "Cuckoo.MockManager.crashOnActorDefaultImplementationCall(\(literal))"
             } else if property.mentionsSelf {
-                "Cuckoo.MockManager.crashOnSelfDefaultImplementationCall(\(literal))"
+                selfUnforwardableCall(literal, returning: type)
             } else {
                 forwarding
             }
@@ -116,10 +116,10 @@ enum MockMembersBuilder {
         }
         source.append("            superclassCall: \(context.isClass ? "\(tryAwait)super.\(name)" : crashOnSuperclass),")
         if let unstubbedTuple = GeneratorHelper.unstubbedTupleArgument(for: property.type) {
-            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)")),")
+            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)", returning: property.type)),")
             source.append("            \(unstubbedTuple)")
         } else {
-            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)"))")
+            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)", returning: property.type))")
         }
         source.append("        )")
         source.append("    }")
@@ -174,6 +174,14 @@ enum MockMembersBuilder {
         return lines(source)
     }
 
+    /// The default call of a member that takes or returns `Self`, which is another type in the default implementation:
+    /// it records a failure saying to stub the member and returns a default value, as the type eraser does.
+    private static func selfUnforwardableCall(_ literal: String, returning type: ComplexType?) -> String {
+        let tuple = GeneratorHelper.unstubbedTupleArgument(for: type).map { ", \($0)" } ?? ""
+        let reason = Fragment.literal("it names Self, which is another type in the default implementation")
+        return "cuckooManager.unforwardableDefaultImplementationCall(\(literal), reason: \(reason)\(tuple))"
+    }
+
     /// The body of a mocked method or subscript accessor: it records the call and runs the stub.
     private static func body(of method: Method, _ context: Context) -> [String] {
         let literal = Fragment.literal(method.fullyQualifiedName)
@@ -203,7 +211,7 @@ enum MockMembersBuilder {
         let defaultCall = if context.isActor && !method.isStatic {
             "Cuckoo.MockManager.crashOnActorDefaultImplementationCall(\(literal))"
         } else if method.mentionsSelf && !method.isStatic {
-            "Cuckoo.MockManager.crashOnSelfDefaultImplementationCall(\(literal))"
+            selfUnforwardableCall(literal, returning: method.returnType)
         } else if method.hasNoncopyableParams && !method.isStatic {
             "Cuckoo.MockManager.crashOnNoncopyableArgumentForward(\(literal))"
         } else if method.hasVariadicParams && !method.isStatic {

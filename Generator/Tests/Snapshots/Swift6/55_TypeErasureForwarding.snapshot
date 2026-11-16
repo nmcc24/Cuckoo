@@ -180,7 +180,7 @@ nonisolated final class MockShapes<T>: Shapes, nonisolated Cuckoo.ProtocolMock {
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnSelfDefaultImplementationCall("copySelf(_ p0: Self) -> Self")
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("copySelf(_ p0: Self) -> Self", reason: "it names Self, which is another type in the default implementation")
         )
     }
 

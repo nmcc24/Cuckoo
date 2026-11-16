@@ -34,4 +34,18 @@ struct SelfTests {
 
         #expect(mock.duplicate() === mock)
     }
+
+    /// A member taking `Self` can't reach the default implementation, whose `Self` is another type: the call records
+    /// a failure saying to stub it and returns the default value, so the test goes on.
+    @Test
+    func defaultImplementationOfAMemberTakingSelfRecordsAFailure() {
+        let mock = MockShape()
+        mock.enableDefaultImplementation(ShapeStub())
+
+        withKnownIssue {
+            #expect(!mock.overlaps(mock))
+        } matching: { issue in
+            issue.description.contains("can't forward") && issue.description.contains("names Self")
+        }
+    }
 }
