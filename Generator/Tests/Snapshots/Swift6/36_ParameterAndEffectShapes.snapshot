@@ -383,14 +383,16 @@ nonisolated final class MockTypedSequence<Element, Failure: Error>: TypedSequenc
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockTypedSequence.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: TypedSequence, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any TypedSequence<Element>
 
-        init<_CUCKOO$$GENERIC: TypedSequence & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, _CUCKOO$$GENERIC.Failure == Failure, Element: SendableMetatype, Failure: SendableMetatype {
+        init<_CUCKOO$$GENERIC: TypedSequence & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Element == Element, _CUCKOO$$GENERIC.Failure == Failure, Element: SendableMetatype, Failure: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$next = {
                 try await box.value.next()
@@ -410,7 +412,7 @@ nonisolated final class MockTypedSequence<Element, Failure: Error>: TypedSequenc
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: TypedSequence & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, _CUCKOO$$GENERIC.Failure == Failure, Element: SendableMetatype, Failure: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

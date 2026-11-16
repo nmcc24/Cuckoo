@@ -199,14 +199,16 @@ nonisolated final class MockScopedRouter<ScopedHandler>: ScopedRouter, nonisolat
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockScopedRouter.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: ScopedRouter, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any ScopedRouter
 
-        init<_CUCKOO$$GENERIC: ScopedRouter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ScopedHandler == ScopedHandler, ScopedHandler: SendableMetatype {
+        init<_CUCKOO$$GENERIC: ScopedRouter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.ScopedHandler == ScopedHandler, ScopedHandler: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$route = { p0 in
                 box.value.route(p0)
@@ -222,7 +224,7 @@ nonisolated final class MockScopedRouter<ScopedHandler>: ScopedRouter, nonisolat
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ScopedRouter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.ScopedHandler == ScopedHandler, ScopedHandler: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

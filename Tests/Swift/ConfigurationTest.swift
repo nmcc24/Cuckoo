@@ -76,6 +76,11 @@ struct UnstubbedCallTests {
             #expect(generic.0 == nil && generic.1 == 0)
         }
         #expect(log.all.count == 4)
+
+        // The generated `Stub` class defaults them the same way.
+        let stub = DefaultValueSourceStub()
+        #expect(stub.pair() == (0, ""))
+        #expect(stub.labeledPair.count == 0 && stub.labeledPair.name == nil)
     }
 
     @Test

@@ -181,14 +181,14 @@ enum MockBuilder {
             lines.append(contentsOf: container.conditionalOnGenericParameters { holding in
                 let requirements = container.genericProtocolRequirements(metatypes: false, holding: holding)
                 return ["    @\(globalActor) \(access)func enableDefaultImplementation<\(generic): \(container.name)>(_ stub: \(generic))\(Self.whereClause(requirements)) {",
-                        "        cuckooDefaultImplementation.value = \(caller)(stub)"] + enable.dropFirst()
+                        "        cuckooDefaultImplementation.value = \(caller)(stub, manager: cuckooManager)"] + enable.dropFirst()
             })
         } else {
             lines.append("")
             lines.append(contentsOf: container.conditionalOnGenericParameters { holding in
                 let requirements = container.genericProtocolRequirements(metatypes: true, holding: holding)
                 return ["    \(access)nonisolated func enableDefaultImplementation<\(generic): \(container.name) & SendableMetatype>(_ stub: \(generic))\(Self.whereClause(requirements)) {",
-                        "        cuckooDefaultImplementation.value = \(caller)(stub)"] + enable.dropFirst()
+                        "        cuckooDefaultImplementation.value = \(caller)(stub, manager: cuckooManager)"] + enable.dropFirst()
             })
         }
         return lines

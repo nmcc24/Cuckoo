@@ -47,4 +47,18 @@ struct TypeErasureShapesTest {
         }
         #expect(value == 1)
     }
+
+    /// A member the eraser can't forward that returns a tuple records the failure and gets its elements' defaults.
+    @Test
+    func unforwardableMemberReturningATupleGetsItsDefault() {
+        let mock = MockEffectfulStore<Int>()
+        mock.enableDefaultImplementation(IntEffectfulStore())
+        var value = 1
+
+        withKnownIssue {
+            #expect(mock.split(&value) == (0, ""))
+        } matching: { issue in
+            issue.description.contains("can't forward") && issue.description.contains("split")
+        }
+    }
 }

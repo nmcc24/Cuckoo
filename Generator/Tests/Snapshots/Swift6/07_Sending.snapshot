@@ -204,14 +204,16 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConverter.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: Converter, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any Converter<Input>
 
-        init<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
+        init<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
         }
 
         func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
@@ -231,7 +233,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Converter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

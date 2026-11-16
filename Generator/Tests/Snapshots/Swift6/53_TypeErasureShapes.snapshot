@@ -85,14 +85,16 @@ nonisolated final class MockStaticResetting<Value>: StaticResetting, nonisolated
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockStaticResetting.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: StaticResetting, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any StaticResetting
 
-        init<_CUCKOO$$GENERIC: StaticResetting & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Value == Value, Value: SendableMetatype {
+        init<_CUCKOO$$GENERIC: StaticResetting & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Value == Value, Value: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$value = {
                 box.value.value()
@@ -112,7 +114,7 @@ nonisolated final class MockStaticResetting<Value>: StaticResetting, nonisolated
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: StaticResetting & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Value == Value, Value: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -241,6 +243,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyedItems.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: KeyedItems, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any KeyedItems
         private let cuckooStore: @Sendable (any KeyedItems) -> Void
 
@@ -270,12 +273,13 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
             }
         }
 
-        init<_CUCKOO$$GENERIC: KeyedItems & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: KeyedItems & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
             cuckooStore = {
                 box.value = $0 as! _CUCKOO$$GENERIC
             }
@@ -285,7 +289,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyedItems & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -495,6 +499,7 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockThrowingKeyedItems.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: ThrowingKeyedItems, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any ThrowingKeyedItems
 
         subscript <Key: Hashable>(_ p0: Key) -> Item {
@@ -512,19 +517,20 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
             }
         }
 
-        init<_CUCKOO$$GENERIC: ThrowingKeyedItems & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: ThrowingKeyedItems & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
         }
     }
 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ThrowingKeyedItems & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -626,31 +632,33 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyedCounter.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: KeyedCounter, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any KeyedCounter
 
         subscript <Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key {
             get {
-                return Cuckoo.MockManager.unforwardableDefaultImplementationCall("subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get", reason: "its where clause names the protocol's associated types Key, which Swift can't relate to the mock's")
+                return cuckooManager.unforwardableDefaultImplementationCall("subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get", reason: "its where clause names the protocol's associated types Key, which Swift can't relate to the mock's")
             }
         }
 
-        init<_CUCKOO$$GENERIC: KeyedCounter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+        init<_CUCKOO$$GENERIC: KeyedCounter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
         }
 
         func count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key", reason: "its where clause names the protocol's associated types Key, which Swift can't relate to the mock's")
+            return cuckooManager.unforwardableDefaultImplementationCall("count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key", reason: "its where clause names the protocol's associated types Key, which Swift can't relate to the mock's")
         }
     }
 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyedCounter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

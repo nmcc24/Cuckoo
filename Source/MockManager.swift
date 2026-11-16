@@ -161,6 +161,15 @@ public final class MockManager: Sendable {
         return value
     }
 
+    /// Stands in for forwarding `member` to a default implementation that a protocol mock's type eraser can't
+    /// forward it to, for `reason`, such as an `inout` parameter: it records a failure saying to stub the member, for
+    /// the test that created the mock, and returns the default value an unstubbed call would, even for a member that
+    /// throws, so the test goes on. Generated mocks pass `unstubbedTuple` for a member returning a tuple.
+    public func unforwardableDefaultImplementationCall<OUT>(_ member: String, reason: String, unstubbedTuple: @autoclosure () -> Any? = nil) -> OUT {
+        reportFailure("Cuckoo can't forward \(member) to the default implementation: \(reason). Stub it instead.", at: nil, creatingTest: creatingTest)
+        return unstubbedValue(member, tuple: unstubbedTuple)
+    }
+
     /// The error an unstubbed throwing call throws, if its error type can hold `CuckooError`.
     private func unstubbedError<ERROR: Error>(_ method: String, as _: ERROR.Type) -> ERROR? {
         CuckooError.unstubbedCall(method: method) as? ERROR
@@ -510,17 +519,6 @@ extension MockManager {
         fatalError("Cuckoo can't call the real or default implementation of \(member), because it takes a ~Copyable argument. Stub it instead.")
     }
 
-    /// Stands in for forwarding `member` to a default implementation that a protocol mock's type eraser can't
-    /// forward it to, for `reason`, such as an `inout` parameter: it records a failure saying to stub the member, and
-    /// returns the default value an unstubbed call would, so the test goes on.
-    public static func unforwardableDefaultImplementationCall<OUT>(_ member: String, reason: String) -> OUT {
-        let message = "Cuckoo can't forward \(member) to the default implementation: \(reason). Stub it instead."
-        reportFailure(message, at: nil)
-        guard let value = DefaultValueRegistry.unstubbedValue(for: OUT.self) else {
-            fatalError("\(message) Its return type \(OUT.self) has no default value either.")
-        }
-        return value
-    }
 
     /// A variadic argument is an array inside the mock, and Swift can't pass an array on as separate arguments, so
     /// the mock can't call the real or default implementation of a member that takes one.

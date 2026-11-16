@@ -13,6 +13,7 @@ nonisolated final class MockShapes<T>: Shapes, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated final class __DefaultImplCaller: Shapes, Sendable {
         typealias __CuckooSelf = __DefaultImplCaller
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any Shapes
 
         private let _getter_storage$$asyncValue: @Sendable () async -> T
@@ -31,16 +32,17 @@ nonisolated final class MockShapes<T>: Shapes, nonisolated Cuckoo.ProtocolMock {
 
         var mainValue: T {
             get {
-                return Cuckoo.MockManager.unforwardableDefaultImplementationCall("Shapes.mainValue", reason: "it's isolated differently from the protocol")
+                return cuckooManager.unforwardableDefaultImplementationCall("Shapes.mainValue", reason: "it's isolated differently from the protocol")
             }
         }
 
-        init<_CUCKOO$$GENERIC: Shapes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
+        init<_CUCKOO$$GENERIC: Shapes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _getter_storage$$asyncValue = {
                 await box.value.asyncValue
@@ -60,15 +62,15 @@ nonisolated final class MockShapes<T>: Shapes, nonisolated Cuckoo.ProtocolMock {
         }
 
         func bump(_ p0: inout T) {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("bump(_ p0: inout T)", reason: "it takes an inout argument")
+            return cuckooManager.unforwardableDefaultImplementationCall("bump(_ p0: inout T)", reason: "it takes an inout argument")
         }
 
         func onMain(_ p0: T) {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("onMain(_ p0: T)", reason: "it's isolated differently from the protocol")
+            return cuckooManager.unforwardableDefaultImplementationCall("onMain(_ p0: T)", reason: "it's isolated differently from the protocol")
         }
 
         func copySelf(_ p0: __CuckooSelf) -> __CuckooSelf {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("copySelf(_ p0: Self) -> Self", reason: "it names Self, which the eraser isn't")
+            return cuckooManager.unforwardableDefaultImplementationCall("copySelf(_ p0: Self) -> Self", reason: "it names Self, which the eraser isn't")
         }
 
         private let _storage$4$take: @Sendable (T) -> Void
@@ -82,7 +84,7 @@ nonisolated final class MockShapes<T>: Shapes, nonisolated Cuckoo.ProtocolMock {
         }
 
         func send(_ p0: sending T) async -> sending T {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("send(_ p0: sending T) async -> sending T", reason: "it takes a sending argument, which a stored closure can't pass on")
+            return cuckooManager.unforwardableDefaultImplementationCall("send(_ p0: sending T) async -> sending T", reason: "it takes a sending argument, which a stored closure can't pass on")
         }
 
         private let _storage$7$plain: @Sendable (T) -> T
@@ -94,7 +96,7 @@ nonisolated final class MockShapes<T>: Shapes, nonisolated Cuckoo.ProtocolMock {
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Shapes & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -507,14 +509,16 @@ nonisolated final class MockNonisolatedShapes<T>: NonisolatedShapes, nonisolated
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockNonisolatedShapes.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: NonisolatedShapes, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any NonisolatedShapes
 
-        init<_CUCKOO$$GENERIC: NonisolatedShapes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
+        init<_CUCKOO$$GENERIC: NonisolatedShapes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$free = { p0 in
                 box.value.free(p0)
@@ -530,7 +534,7 @@ nonisolated final class MockNonisolatedShapes<T>: NonisolatedShapes, nonisolated
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: NonisolatedShapes & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -609,14 +613,16 @@ nonisolated final class MockSendingShapes<T>: SendingShapes, nonisolated Cuckoo.
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSendingShapes.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: SendingShapes, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any SendingShapes
 
-        init<_CUCKOO$$GENERIC: SendingShapes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
+        init<_CUCKOO$$GENERIC: SendingShapes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$2$b = {
                 box.value.b()
@@ -627,7 +633,7 @@ nonisolated final class MockSendingShapes<T>: SendingShapes, nonisolated Cuckoo.
         }
 
         func a(_ p0: sending T) {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("a(_ p0: sending T)", reason: "it takes a sending argument, which a stored closure can't pass on")
+            return cuckooManager.unforwardableDefaultImplementationCall("a(_ p0: sending T)", reason: "it takes a sending argument, which a stored closure can't pass on")
         }
 
         private let _storage$2$b: @Sendable () -> sending T
@@ -636,7 +642,7 @@ nonisolated final class MockSendingShapes<T>: SendingShapes, nonisolated Cuckoo.
         }
 
         func c(_ p0: sending T) async {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("c(_ p0: sending T) async", reason: "it takes a sending argument, which a stored closure can't pass on")
+            return cuckooManager.unforwardableDefaultImplementationCall("c(_ p0: sending T) async", reason: "it takes a sending argument, which a stored closure can't pass on")
         }
 
         private let _storage$4$d: @Sendable () async -> sending T
@@ -645,14 +651,14 @@ nonisolated final class MockSendingShapes<T>: SendingShapes, nonisolated Cuckoo.
         }
 
         func e(_ p0: sending T) async -> sending T {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("e(_ p0: sending T) async -> sending T", reason: "it takes a sending argument, which a stored closure can't pass on")
+            return cuckooManager.unforwardableDefaultImplementationCall("e(_ p0: sending T) async -> sending T", reason: "it takes a sending argument, which a stored closure can't pass on")
         }
     }
 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: SendingShapes & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -884,18 +890,20 @@ nonisolated final class MockGenericInout<T>: GenericInout, nonisolated Cuckoo.Pr
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockGenericInout.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: GenericInout, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any GenericInout
 
-        init<_CUCKOO$$GENERIC: GenericInout & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
+        init<_CUCKOO$$GENERIC: GenericInout & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
         }
 
         func bump<U> (_ p0: inout T, by p1: U) {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("bump<U> (_ p0: inout T, by p1: U)", reason: "it takes an inout argument")
+            return cuckooManager.unforwardableDefaultImplementationCall("bump<U> (_ p0: inout T, by p1: U)", reason: "it takes an inout argument")
         }
 
         func send<U> (_ p0: sending T, _ p1: U) {
@@ -909,7 +917,7 @@ nonisolated final class MockGenericInout<T>: GenericInout, nonisolated Cuckoo.Pr
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: GenericInout & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

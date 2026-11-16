@@ -140,6 +140,7 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeywordProperty.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: KeywordProperty, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any KeywordProperty
 
         private let _getter_storage$$default: @Sendable () -> Int
@@ -149,12 +150,13 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
             }
         }
 
-        init<_CUCKOO$$GENERIC: KeywordProperty & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
+        init<_CUCKOO$$GENERIC: KeywordProperty & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _getter_storage$$default = {
                 box.value.`default`
@@ -173,7 +175,7 @@ nonisolated final class MockKeywordProperty<Element>: KeywordProperty, nonisolat
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeywordProperty & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -277,14 +279,16 @@ nonisolated final class MockStubbingSource<Stubbing>: StubbingSource, nonisolate
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockStubbingSource.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: StubbingSource, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any StubbingSource
 
-        init<_CUCKOO$$GENERIC: StubbingSource & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Stubbing == Stubbing, Stubbing: SendableMetatype {
+        init<_CUCKOO$$GENERIC: StubbingSource & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Stubbing == Stubbing, Stubbing: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$next = {
                 box.value.next()
@@ -300,7 +304,7 @@ nonisolated final class MockStubbingSource<Stubbing>: StubbingSource, nonisolate
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: StubbingSource & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Stubbing == Stubbing, Stubbing: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -373,14 +377,16 @@ nonisolated final class MockRefinedStubbingSource<Stubbing>: RefinedStubbingSour
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockRefinedStubbingSource.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: RefinedStubbingSource, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any RefinedStubbingSource
 
-        init<_CUCKOO$$GENERIC: RefinedStubbingSource & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Stubbing == Stubbing, Stubbing: SendableMetatype {
+        init<_CUCKOO$$GENERIC: RefinedStubbingSource & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Stubbing == Stubbing, Stubbing: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$refresh = {
                 box.value.refresh()
@@ -404,7 +410,7 @@ nonisolated final class MockRefinedStubbingSource<Stubbing>: RefinedStubbingSour
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: RefinedStubbingSource & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Stubbing == Stubbing, Stubbing: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -865,6 +871,7 @@ nonisolated final class MockReferenceHolder<Item>: ReferenceHolder, nonisolated 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReferenceHolder.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: ReferenceHolder, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any ReferenceHolder
 
         private let _getter_storage$$reference: @Sendable () -> Item
@@ -874,12 +881,13 @@ nonisolated final class MockReferenceHolder<Item>: ReferenceHolder, nonisolated 
             }
         }
 
-        init<_CUCKOO$$GENERIC: ReferenceHolder & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: ReferenceHolder & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _getter_storage$$reference = {
                 box.value.reference
@@ -890,7 +898,7 @@ nonisolated final class MockReferenceHolder<Item>: ReferenceHolder, nonisolated 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ReferenceHolder & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 

@@ -31,6 +31,7 @@ protocol EffectfulStore {
     associatedtype Item
     var latest: Item { get async throws }
     func adjust(_ item: inout Item)
+    func split(_ item: inout Item) -> (Int, String)
 }
 
 struct IntEffectfulStore: EffectfulStore {
@@ -40,5 +41,9 @@ struct IntEffectfulStore: EffectfulStore {
 
     func adjust(_ item: inout Int) {
         item += 1
+    }
+
+    func split(_ item: inout Int) -> (Int, String) {
+        (item, "\(item)")
     }
 }

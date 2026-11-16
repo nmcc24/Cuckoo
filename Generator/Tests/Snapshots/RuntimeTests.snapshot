@@ -1383,7 +1383,7 @@ final class ClassForStubTestingStub: ClassForStubTesting {
 
     override var tuple2: (Int8, UInt8) {
         get {
-            return DefaultValueRegistry.defaultValue(for: ((Int8, UInt8)).self)
+            return DefaultValueRegistry.defaultValue(for: (Int8, UInt8).self)
         }
         set {
         }
@@ -1391,7 +1391,7 @@ final class ClassForStubTestingStub: ClassForStubTesting {
 
     override var tuple3: (Int16, UInt16, Bool) {
         get {
-            return DefaultValueRegistry.defaultValue(for: ((Int16, UInt16, Bool)).self)
+            return DefaultValueRegistry.defaultValue(for: (Int16, UInt16, Bool).self)
         }
         set {
         }
@@ -1399,7 +1399,7 @@ final class ClassForStubTestingStub: ClassForStubTesting {
 
     override var tuple4: (Int32, UInt32, Double, Int) {
         get {
-            return DefaultValueRegistry.defaultValue(for: ((Int32, UInt32, Double, Int)).self)
+            return DefaultValueRegistry.defaultValue(for: (Int32, UInt32, Double, Int).self)
         }
         set {
         }
@@ -1407,7 +1407,7 @@ final class ClassForStubTestingStub: ClassForStubTesting {
 
     override var tuple5: (Int64, UInt64, Float, Int, Int) {
         get {
-            return DefaultValueRegistry.defaultValue(for: ((Int64, UInt64, Float, Int, Int)).self)
+            return DefaultValueRegistry.defaultValue(for: (Int64, UInt64, Float, Int, Int).self)
         }
         set {
         }
@@ -1415,7 +1415,7 @@ final class ClassForStubTestingStub: ClassForStubTesting {
 
     override var tuple6: (UInt, String, Int, Int, Int, Int) {
         get {
-            return DefaultValueRegistry.defaultValue(for: ((UInt, String, Int, Int, Int, Int)).self)
+            return DefaultValueRegistry.defaultValue(for: (UInt, String, Int, Int, Int, Int).self)
         }
         set {
         }
@@ -1423,7 +1423,7 @@ final class ClassForStubTestingStub: ClassForStubTesting {
 
     override var tuple7: (Int, Int, Int, Int, Int, Int, Int) {
         get {
-            return DefaultValueRegistry.defaultValue(for: ((Int, Int, Int, Int, Int, Int, Int)).self)
+            return DefaultValueRegistry.defaultValue(for: (Int, Int, Int, Int, Int, Int, Int).self)
         }
         set {
         }
@@ -1431,7 +1431,7 @@ final class ClassForStubTestingStub: ClassForStubTesting {
 
     override var tupleWithOptionalAndArray: (Int, String?, [Int]) {
         get {
-            return DefaultValueRegistry.defaultValue(for: ((Int, String?, [Int])).self)
+            return DefaultValueRegistry.defaultValue(for: (Int, String?, [Int]).self)
         }
         set {
         }
@@ -2867,14 +2867,16 @@ nonisolated final class MockConstrainedAssociatedTypes<Element: Equatable, Items
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConstrainedAssociatedTypes.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: ConstrainedAssociatedTypes, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any ConstrainedAssociatedTypes
 
-        init<_CUCKOO$$GENERIC: ConstrainedAssociatedTypes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, _CUCKOO$$GENERIC.Items == Items, Element: SendableMetatype, Items: SendableMetatype {
+        init<_CUCKOO$$GENERIC: ConstrainedAssociatedTypes & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Element == Element, _CUCKOO$$GENERIC.Items == Items, Element: SendableMetatype, Items: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$echo = { p0 in
                 box.value.echo(p0)
@@ -2898,7 +2900,7 @@ nonisolated final class MockConstrainedAssociatedTypes<Element: Equatable, Items
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ConstrainedAssociatedTypes & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, _CUCKOO$$GENERIC.Items == Items, Element: SendableMetatype, Items: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -3204,20 +3206,20 @@ nonisolated final class MockDefaultValueSource: DefaultValueSource, nonisolated 
 nonisolated final class DefaultValueSourceStub: DefaultValueSource {
     var labeledPair: (count: Int, name: String?) {
         get {
-            return DefaultValueRegistry.defaultValue(for: ((count: Int, name: String?)).self)
+            return DefaultValueRegistry.defaultValue(for: (Int, String?).self)
         }
     }
 
     func pair() -> (Int, String) {
-        return DefaultValueRegistry.defaultValue(for: ((Int, String)).self)
+        return DefaultValueRegistry.defaultValue(for: (Int, String).self)
     }
 
     func triple() async -> (Int, [String], Bool) {
-        return DefaultValueRegistry.defaultValue(for: ((Int, [String], Bool)).self)
+        return DefaultValueRegistry.defaultValue(for: (Int, [String], Bool).self)
     }
 
     func generic<T> (_ p0: T.Type) -> (T?, Int) {
-        return DefaultValueRegistry.defaultValue(for: ((T?, Int)).self)
+        return DefaultValueRegistry.defaultValue(for: (T?, Int).self)
     }
 
     func canvas() -> Canvas {
@@ -5025,6 +5027,7 @@ nonisolated final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, n
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockGenericProtocol.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: GenericProtocol, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any GenericProtocol<C>
 
         private let _getter_storage$$readOnlyPropertyC: @Sendable () -> C
@@ -5063,12 +5066,13 @@ nonisolated final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, n
             }
         }
 
-        init<_CUCKOO$$GENERIC: GenericProtocol & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.C == C, _CUCKOO$$GENERIC.V == V, C: SendableMetatype, V: SendableMetatype {
+        init<_CUCKOO$$GENERIC: GenericProtocol & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.C == C, _CUCKOO$$GENERIC.V == V, C: SendableMetatype, V: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _getter_storage$$readOnlyPropertyC = {
                 box.value.readOnlyPropertyC
@@ -5165,7 +5169,7 @@ nonisolated final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, n
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: GenericProtocol & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.C == C, _CUCKOO$$GENERIC.V == V, C: SendableMetatype, V: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -5681,7 +5685,7 @@ nonisolated final class GenericProtocolStub<C: AnyObject, V>: GenericProtocol {
     }
 
     func computeAsync(classy p0: C, value p1: V) async -> (C, V) {
-        return DefaultValueRegistry.defaultValue(for: ((C, V)).self)
+        return DefaultValueRegistry.defaultValue(for: (C, V).self)
     }
 
     func noReturnAsync() async {
@@ -5786,6 +5790,7 @@ nonisolated final class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable,
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMixedPrimaryAssociatedTypeProtocol.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: MixedPrimaryAssociatedTypeProtocol, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any MixedPrimaryAssociatedTypeProtocol<Input>
 
         private let _getter_storage$$defaultOutput: @Sendable () -> Output
@@ -5795,12 +5800,13 @@ nonisolated final class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable,
             }
         }
 
-        init<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
+        init<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _getter_storage$$defaultOutput = {
                 box.value.defaultOutput
@@ -5824,7 +5830,7 @@ nonisolated final class MockMixedPrimaryAssociatedTypeProtocol<Input: Equatable,
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: MixedPrimaryAssociatedTypeProtocol & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -5940,14 +5946,16 @@ nonisolated final class MockLabeler<Input, Output>: Labeler, nonisolated Cuckoo.
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLabeler.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: Labeler, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any Labeler<Input>
 
-        init<_CUCKOO$$GENERIC: Labeler & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
+        init<_CUCKOO$$GENERIC: Labeler & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
         }
 
         func label<T> (_ p0: T) -> Output {
@@ -5988,7 +5996,7 @@ nonisolated final class MockLabeler<Input, Output>: Labeler, nonisolated Cuckoo.
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Labeler & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Input == Input, _CUCKOO$$GENERIC.Output == Output, Input: SendableMetatype, Output: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -6173,7 +6181,7 @@ nonisolated final class LabelerStub<Input, Output>: Labeler {
     }
 
     func pair<T> (_ p0: T, input p1: Input) -> (Output, T) {
-        return DefaultValueRegistry.defaultValue(for: ((Output, T)).self)
+        return DefaultValueRegistry.defaultValue(for: (Output, T).self)
     }
 
     func lookup<T> (_ p0: T) async throws -> Output? {
@@ -6318,14 +6326,16 @@ nonisolated final class MockStore<Key: Hashable, Value>: Store, nonisolated Cuck
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: Store, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any Store
 
-        init<_CUCKOO$$GENERIC: Store & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
+        init<_CUCKOO$$GENERIC: Store & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$value = { p0 in
                 box.value.value(for: p0)
@@ -6341,7 +6351,7 @@ nonisolated final class MockStore<Key: Hashable, Value>: Store, nonisolated Cuck
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Store & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -6418,14 +6428,16 @@ nonisolated final class MockCachingStore<Key: Hashable, Value>: CachingStore, no
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockCachingStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: CachingStore, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any CachingStore
 
-        init<_CUCKOO$$GENERIC: CachingStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
+        init<_CUCKOO$$GENERIC: CachingStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$cachedKeys = {
                 box.value.cachedKeys()
@@ -6449,7 +6461,7 @@ nonisolated final class MockCachingStore<Key: Hashable, Value>: CachingStore, no
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: CachingStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, _CUCKOO$$GENERIC.Value == Value, Key: SendableMetatype, Value: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -6563,14 +6575,16 @@ nonisolated final class MockNamedStore<Key: Hashable>: NamedStore, nonisolated C
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockNamedStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: NamedStore, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any NamedStore
 
-        init<_CUCKOO$$GENERIC: NamedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
+        init<_CUCKOO$$GENERIC: NamedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$names = {
                 box.value.names()
@@ -6594,7 +6608,7 @@ nonisolated final class MockNamedStore<Key: Hashable>: NamedStore, nonisolated C
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: NamedStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -9173,14 +9187,16 @@ nonisolated final class MockLegacySource<Item>: LegacySource, nonisolated Cuckoo
     @diagnose(DeprecatedDeclaration, as: ignored)
     #endif
     nonisolated final class __DefaultImplCaller: LegacySource, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any LegacySource
 
-        init<_CUCKOO$$GENERIC: LegacySource & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: LegacySource & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$old = {
                 box.value.old()
@@ -9204,7 +9220,7 @@ nonisolated final class MockLegacySource<Item>: LegacySource, nonisolated Cuckoo
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: LegacySource & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -36503,14 +36519,16 @@ nonisolated final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, nonisolat
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockEmptyLabelProtocol.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: EmptyLabelProtocol, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any EmptyLabelProtocol
 
-        init<_CUCKOO$$GENERIC: EmptyLabelProtocol & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
+        init<_CUCKOO$$GENERIC: EmptyLabelProtocol & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _storage$1$empty = { p0 in
                 box.value.empty(p0)
@@ -36542,7 +36560,7 @@ nonisolated final class MockEmptyLabelProtocol<T>: EmptyLabelProtocol, nonisolat
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EmptyLabelProtocol & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T, T: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -37017,6 +37035,7 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
     }
 
     public nonisolated final class __DefaultImplCaller: PublicoProtocolo, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any PublicoProtocolo
 
         private let _getter_storage$$stringoStar: @Sendable () -> String
@@ -37030,12 +37049,13 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
             }
         }
 
-        init<_CUCKOO$$GENERIC: PublicoProtocolo & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo, InternaloTypo: SendableMetatype {
+        init<_CUCKOO$$GENERIC: PublicoProtocolo & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo, InternaloTypo: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _getter_storage$$stringoStar = {
                 box.value.stringoStar
@@ -37061,7 +37081,7 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     public nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PublicoProtocolo & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.InternaloTypo == InternaloTypo, InternaloTypo: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -44668,6 +44688,7 @@ nonisolated final class MockKeyedStore<Item>: KeyedStore, nonisolated Cuckoo.Pro
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockKeyedStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: KeyedStore, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any KeyedStore
 
         subscript <Key: Hashable>(_ p0: Key) -> Item {
@@ -44679,19 +44700,20 @@ nonisolated final class MockKeyedStore<Item>: KeyedStore, nonisolated Cuckoo.Pro
             }
         }
 
-        init<_CUCKOO$$GENERIC: KeyedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: KeyedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
         }
     }
 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyedStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -44792,6 +44814,7 @@ nonisolated final class MockMutableKeyedStore<Item>: MutableKeyedStore, nonisola
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMutableKeyedStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: MutableKeyedStore, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any MutableKeyedStore
         private let cuckooStore: @Sendable (any MutableKeyedStore) -> Void
 
@@ -44812,12 +44835,13 @@ nonisolated final class MockMutableKeyedStore<Item>: MutableKeyedStore, nonisola
             }
         }
 
-        init<_CUCKOO$$GENERIC: MutableKeyedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: MutableKeyedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
             cuckooStore = {
                 box.value = $0 as! _CUCKOO$$GENERIC
             }
@@ -44827,7 +44851,7 @@ nonisolated final class MockMutableKeyedStore<Item>: MutableKeyedStore, nonisola
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: MutableKeyedStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -44973,6 +44997,7 @@ nonisolated final class MockEffectfulStore<Item>: EffectfulStore, nonisolated Cu
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockEffectfulStore.self) ?? Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: EffectfulStore, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
         private let cuckooReference: @Sendable () -> any EffectfulStore
 
         private let _getter_storage$$latest: @Sendable () async throws -> Item
@@ -44982,12 +45007,13 @@ nonisolated final class MockEffectfulStore<Item>: EffectfulStore, nonisolated Cu
             }
         }
 
-        init<_CUCKOO$$GENERIC: EffectfulStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        init<_CUCKOO$$GENERIC: EffectfulStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
             let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
             }
+            cuckooManager = manager
 
             _getter_storage$$latest = {
                 try await box.value.latest
@@ -44995,14 +45021,18 @@ nonisolated final class MockEffectfulStore<Item>: EffectfulStore, nonisolated Cu
         }
 
         func adjust(_ p0: inout Item) {
-            return Cuckoo.MockManager.unforwardableDefaultImplementationCall("adjust(_ p0: inout Item)", reason: "it takes an inout argument")
+            return cuckooManager.unforwardableDefaultImplementationCall("adjust(_ p0: inout Item)", reason: "it takes an inout argument")
+        }
+
+        func split(_ p0: inout Item) -> (Int, String) {
+            return cuckooManager.unforwardableDefaultImplementationCall("split(_ p0: inout Item) -> (Int, String)", reason: "it takes an inout argument", unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int, String).self))
         }
     }
 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: EffectfulStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-        cuckooDefaultImplementation.value = __DefaultImplCaller(stub)
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
         cuckooManager.enableDefaultImplementation()
     }
 
@@ -45036,6 +45066,24 @@ nonisolated final class MockEffectfulStore<Item>: EffectfulStore, nonisolated Cu
         )
     }
 
+    func split(_ p0: inout Item) -> (Int, String) {
+        return cuckooManager.call(
+            "split(_ p0: inout Item) -> (Int, String)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: (inout Item) -> (Int, String), arguments) in
+                var __inout0 = arguments;
+                defer {
+                    p0 = __inout0
+                };
+                return implementation(&__inout0)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.split(&p0),
+            unstubbedTuple: Cuckoo.MockManager.unstubbedTupleValue(for: (Int, String).self)
+        )
+    }
+
     nonisolated struct __StubbingProxy_EffectfulStore: Cuckoo.StubbingProxy {
         private let cuckooManager: Cuckoo.MockManager
 
@@ -45053,6 +45101,16 @@ nonisolated final class MockEffectfulStore<Item>: EffectfulStore, nonisolated Cu
                 }]
             return .init(stub: cuckooManager.createStub(for: MockEffectfulStore.self,
                 method: "adjust(_ p0: inout Item)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func split<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Item), (Int, String), (inout Item) -> (Int, String), Cuckoo.StubSharing.Confined> where __M1.MatchedType == Item {
+            let matchers: [Cuckoo.ParameterMatcher<(Item)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockEffectfulStore.self,
+                method: "split(_ p0: inout Item) -> (Int, String)",
                 parameterMatchers: matchers
             ))
         }
@@ -45085,6 +45143,19 @@ nonisolated final class MockEffectfulStore<Item>: EffectfulStore, nonisolated Cu
                 sourceLocation: cuckooSourceLocation
             )
         }
+
+        @discardableResult
+        func split<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Item), (Int, String)> where __M1.MatchedType == Item {
+            let matchers: [Cuckoo.ParameterMatcher<(Item)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "split(_ p0: inout Item) -> (Int, String)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
     }
 }
 
@@ -45097,6 +45168,10 @@ nonisolated final class EffectfulStoreStub<Item>: EffectfulStore {
 
     func adjust(_ p0: inout Item) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    func split(_ p0: inout Item) -> (Int, String) {
+        return DefaultValueRegistry.defaultValue(for: (Int, String).self)
     }
 }
 
