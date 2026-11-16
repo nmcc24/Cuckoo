@@ -152,9 +152,12 @@ enum TypeErasureBuilder {
         }
     }
 
-    /// The name of a member's stored closure, without the backticks a keyword-named member is written with.
+    /// The name of a member's stored closure, without the backticks a keyword-named member is written with. A raw
+    /// identifier's characters that a plain identifier can't hold, such as a space, become `$` and their code point.
     static func storageName(_ name: String) -> String {
-        name.filter { $0 != "`" }
+        name.filter { $0 != "`" }.unicodeScalars.map { scalar in
+            scalar == "_" || scalar.properties.isAlphabetic || ("0"..."9").contains(scalar) ? String(scalar) : "$\(scalar.value)"
+        }.joined()
     }
 
     /// A member's declarations, after a blank line: inside its `#if` as one member, or each on its own line.

@@ -1,0 +1,184 @@
+import Cuckoo
+import Foundation
+
+nonisolated final class MockSpelled<Item>: Spelled, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = __DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_Spelled
+    typealias CuckooVerification = __VerificationProxy_Spelled
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSpelled.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class __DefaultImplCaller: Spelled, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooReference: @Sendable () -> any Spelled
+
+        private let _getter_storage$$item$32count: @Sendable () -> Int
+        var `item count`: Int {
+            get {
+                return _getter_storage$$item$32count()
+            }
+        }
+
+        init<_CUCKOO$$GENERIC: Spelled & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            cuckooReference = {
+                box.value
+            }
+            cuckooManager = manager
+
+            _getter_storage$$item$32count = {
+                box.value.`item count`
+            }
+            _storage$1$load$32all = {
+                box.value.`load all`()
+            }
+            _storage$2$default = {
+                box.value.`default`()
+            }
+        }
+
+        private let _storage$1$load$32all: @Sendable () -> [Item]
+        func `load all`() -> [Item] {
+            return _storage$1$load$32all()
+        }
+
+        private let _storage$2$default: @Sendable () -> Item
+        func `default`() -> Item {
+            return _storage$2$default()
+        }
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Spelled & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    var `item count`: Int {
+        get {
+            return cuckooManager.getter(
+                "`item count`",
+                invoke: { (implementation: (()) -> Int) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.`item count`
+            )
+        }
+    }
+
+    func `load all`() -> [Item] {
+        return cuckooManager.call(
+            "`load all`() -> [Item]",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> [Item], arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.`load all`()
+        )
+    }
+
+    func `default`() -> Item {
+        return cuckooManager.call(
+            "`default`() -> Item",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Item, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.`default`()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Spelled: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        var `item count`: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockSpelled, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "`item count`")
+        }
+
+        func `load all`() -> Cuckoo.ProtocolStubFunction<(), [Item], (()) -> [Item], Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockSpelled.self,
+                method: "`load all`() -> [Item]",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func `default`() -> Cuckoo.ProtocolStubFunction<(), Item, (()) -> Item, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockSpelled.self,
+                method: "`default`() -> Item",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Spelled: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        var `item count`: Cuckoo.VerifyReadOnlyProperty<Int> {
+            return .init(manager: cuckooManager, name: "`item count`", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        @discardableResult
+        func `load all`() -> Cuckoo.VerifiedCall<(), [Item]> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "`load all`() -> [Item]",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func `default`() -> Cuckoo.VerifiedCall<(), Item> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "`default`() -> Item",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class SpelledStub<Item>: Spelled {
+    var `item count`: Int {
+        get {
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+
+    func `load all`() -> [Item] {
+        typealias __CuckooDefault = [Item]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func `default`() -> Item {
+        typealias __CuckooDefault = Item
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
