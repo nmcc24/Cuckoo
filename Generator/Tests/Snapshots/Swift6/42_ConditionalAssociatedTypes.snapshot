@@ -183,12 +183,14 @@ nonisolated final class MockDebugFeed<Item>: DebugFeed, nonisolated Cuckoo.Proto
 nonisolated final class DebugFeedStub<Item>: DebugFeed {
     #if (DEBUG)
     func next() -> Item {
-        return DefaultValueRegistry.defaultValue(for: (Item).self)
+        typealias __CuckooDefault = Item
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
     #endif
     #if !(DEBUG)
     func next() -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
     #endif
 }
@@ -441,17 +443,20 @@ nonisolated final class MockEitherFeed<Key, Value>: EitherFeed, nonisolated Cuck
 nonisolated final class EitherFeedStub<Key, Value>: EitherFeed {
     #if (DEBUG)
     func value(for p0: Key) -> Value {
-        return DefaultValueRegistry.defaultValue(for: (Value).self)
+        typealias __CuckooDefault = Value
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
     #endif
     #if !(DEBUG) && (os(Linux))
     func value(for p0: Key) -> String {
-        return DefaultValueRegistry.defaultValue(for: (String).self)
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
     #endif
     #if !(DEBUG) && !(os(Linux))
     func value(for p0: Key) -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
     #endif
 }
@@ -688,12 +693,14 @@ nonisolated final class MockTwoConditionFeed<Item, Tag>: TwoConditionFeed, nonis
 nonisolated final class TwoConditionFeedStub<Item, Tag>: TwoConditionFeed {
     #if (DEBUG)
     func item() -> Item {
-        return DefaultValueRegistry.defaultValue(for: (Item).self)
+        typealias __CuckooDefault = Item
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
     #endif
     #if (CUCKOO_FIXTURE_FLAG)
     func tag() -> Tag {
-        return DefaultValueRegistry.defaultValue(for: (Tag).self)
+        typealias __CuckooDefault = Tag
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
     #endif
 }
@@ -792,6 +799,7 @@ nonisolated final class MockBothClausesFeed<Element: Equatable>: BothClausesFeed
 
 nonisolated final class BothClausesFeedStub<Element: Equatable>: BothClausesFeed {
     func element() -> Element {
-        return DefaultValueRegistry.defaultValue(for: (Element).self)
+        typealias __CuckooDefault = Element
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

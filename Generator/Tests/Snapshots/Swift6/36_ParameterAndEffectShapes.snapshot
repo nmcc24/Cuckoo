@@ -337,39 +337,47 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
 nonisolated final class ParameterShapesStub: ParameterShapes {
     var value: Int {
         get throws(ShapeError) {
-            return DefaultValueRegistry.defaultValue(for: (Int).self)
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
     }
 
     var asyncValue: String {
         get async throws(ShapeError) {
-            return DefaultValueRegistry.defaultValue(for: (String).self)
+            typealias __CuckooDefault = String
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
     }
 
     func run(_ p0: sending @escaping () -> Void) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
     func spawn(_ p0: sending @escaping @isolated(any) () async -> Int) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func transform(_ p0: () -> Void) throws(ShapeError) -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func handle(_ p0: (Int) -> Void) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func store(items p0: consuming [Int], name p1: borrowing String) -> Int {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func reset(_ p0: Int) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -476,6 +484,7 @@ nonisolated final class MockTypedSequence<Element, Failure: Error>: TypedSequenc
 
 nonisolated final class TypedSequenceStub<Element, Failure: Error>: TypedSequence {
     func next() async throws(Failure) -> Element? {
-        return DefaultValueRegistry.defaultValue(for: (Element?).self)
+        typealias __CuckooDefault = Element?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

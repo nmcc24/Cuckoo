@@ -96,11 +96,13 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
 nonisolated final class EventsStub: Events {
     var stream: AsyncStream<Int> {
         get {
-            return DefaultValueRegistry.defaultValue(for: (AsyncStream<Int>).self)
+            typealias __CuckooDefault = AsyncStream<Int>
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
     }
 
     func updates() -> any AsyncSequence<Int, Never> {
-        return DefaultValueRegistry.defaultValue(for: (any AsyncSequence<Int, Never>).self)
+        typealias __CuckooDefault = any AsyncSequence<Int, Never>
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

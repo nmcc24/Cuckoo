@@ -1,0 +1,466 @@
+import Cuckoo
+import Foundation
+
+nonisolated final class MockSpecifierClosures: SpecifierClosures, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any SpecifierClosures
+    typealias CuckooStubbing = __StubbingProxy_SpecifierClosures
+    typealias CuckooVerification = __VerificationProxy_SpecifierClosures
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSpecifierClosures.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any SpecifierClosures>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any SpecifierClosures) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    var borrowingHandler: (borrowing Token) -> Void {
+        get {
+            return cuckooManager.getter(
+                "borrowingHandler",
+                invoke: { (implementation: (()) -> (borrowing Token) -> Void) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.borrowingHandler
+            )
+        }
+    }
+
+    func consumingHandler() -> (consuming Token) -> Void {
+        return cuckooManager.call(
+            "consumingHandler() -> (consuming Token) -> Void",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> (consuming Token) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.consumingHandler()
+        )
+    }
+
+    func isolatedHandler() -> (isolated any Actor) -> Void {
+        return cuckooManager.call(
+            "isolatedHandler() -> (isolated any Actor) -> Void",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> (isolated any Actor) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.isolatedHandler()
+        )
+    }
+
+    func sendingHandler() -> (sending Token) -> sending Token {
+        return cuckooManager.call(
+            "sendingHandler() -> (sending Token) -> sending Token",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> (sending Token) -> sending Token, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.sendingHandler()
+        )
+    }
+
+    func ownedHandler() -> (__owned Token, __shared Token) -> Void {
+        return cuckooManager.call(
+            "ownedHandler() -> (__owned Token, __shared Token) -> Void",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> (__owned Token, __shared Token) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.ownedHandler()
+        )
+    }
+
+    func pair() -> (count: Int, handler: (borrowing Token) -> Void) {
+        return cuckooManager.call(
+            "pair() -> (count: Int, handler: (borrowing Token) -> Void)",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> (count: Int, handler: (borrowing Token) -> Void), arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.pair(),
+            unstubbedTuple: {
+                typealias __CuckooDefault = (Int, (borrowing Token) -> Void);
+                return Cuckoo.MockManager.unstubbedTupleValue(for: __CuckooDefault.self)
+            }()
+        )
+    }
+
+    func made() -> sending Token {
+        return Cuckoo.__SendingArgument(cuckooManager.call(
+            "made() -> sending Token",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Token, arguments) in
+                            implementation(arguments)
+                        },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.made()
+        )).value
+    }
+
+    subscript(_ p0: Int) -> (consuming Token) -> Int {
+        get {
+            return cuckooManager.call(
+                "subscript(_ p0: Int) -> (consuming Token) -> Int#get",
+                parameters: (p0),
+                escapingParameters: (p0),
+                invoke: { (implementation: ((Int)) -> (consuming Token) -> Int, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value[p0]
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_SpecifierClosures: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        var borrowingHandler: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockSpecifierClosures, (borrowing Token) -> Void, (()) -> (borrowing Token) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "borrowingHandler")
+        }
+
+        func consumingHandler() -> Cuckoo.ProtocolStubFunction<(), (consuming Token) -> Void, (()) -> (consuming Token) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockSpecifierClosures.self,
+                method: "consumingHandler() -> (consuming Token) -> Void",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func isolatedHandler() -> Cuckoo.ProtocolStubFunction<(), (isolated any Actor) -> Void, (()) -> (isolated any Actor) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockSpecifierClosures.self,
+                method: "isolatedHandler() -> (isolated any Actor) -> Void",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func sendingHandler() -> Cuckoo.ProtocolStubFunction<(), (sending Token) -> sending Token, (()) -> (sending Token) -> sending Token, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockSpecifierClosures.self,
+                method: "sendingHandler() -> (sending Token) -> sending Token",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func ownedHandler() -> Cuckoo.ProtocolStubFunction<(), (__owned Token, __shared Token) -> Void, (()) -> (__owned Token, __shared Token) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockSpecifierClosures.self,
+                method: "ownedHandler() -> (__owned Token, __shared Token) -> Void",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func pair() -> Cuckoo.ProtocolStubFunction<(), (count: Int, handler: (borrowing Token) -> Void), (()) -> (count: Int, handler: (borrowing Token) -> Void), Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockSpecifierClosures.self,
+                method: "pair() -> (count: Int, handler: (borrowing Token) -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func made() -> Cuckoo.ProtocolStubFunction<(), Token, (()) -> Token, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockSpecifierClosures.self,
+                method: "made() -> sending Token",
+                parameterMatchers: matchers
+            ))
+        }
+
+        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int)>]
+
+            var get: Cuckoo.ProtocolStubFunction<(Int), (consuming Token) -> Int, ((Int)) -> (consuming Token) -> Int, Cuckoo.StubSharing.Confined> {
+                return .init(stub: cuckooManager.createStub(for: MockSpecifierClosures.self,
+                    method: "subscript(_ p0: Int) -> (consuming Token) -> Int#get",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+    }
+
+    nonisolated struct __VerificationProxy_SpecifierClosures: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        var borrowingHandler: Cuckoo.VerifyReadOnlyProperty<(borrowing Token) -> Void> {
+            return .init(manager: cuckooManager, name: "borrowingHandler", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        @discardableResult
+        func consumingHandler() -> Cuckoo.VerifiedCall<(), (consuming Token) -> Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "consumingHandler() -> (consuming Token) -> Void",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func isolatedHandler() -> Cuckoo.VerifiedCall<(), (isolated any Actor) -> Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "isolatedHandler() -> (isolated any Actor) -> Void",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func sendingHandler() -> Cuckoo.VerifiedCall<(), (sending Token) -> sending Token> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "sendingHandler() -> (sending Token) -> sending Token",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func ownedHandler() -> Cuckoo.VerifiedCall<(), (__owned Token, __shared Token) -> Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "ownedHandler() -> (__owned Token, __shared Token) -> Void",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func pair() -> Cuckoo.VerifiedCall<(), (count: Int, handler: (borrowing Token) -> Void)> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "pair() -> (count: Int, handler: (borrowing Token) -> Void)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func made() -> Cuckoo.VerifiedCall<(), Token> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "made() -> sending Token",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int)>]
+
+            @discardableResult
+            func get() -> Cuckoo.VerifiedCall<(Int), (consuming Token) -> Int> {
+                return cuckooManager.verify(
+                    "subscript(_ p0: Int) -> (consuming Token) -> Int#get",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+}
+
+nonisolated final class SpecifierClosuresStub: SpecifierClosures {
+    var borrowingHandler: (borrowing Token) -> Void {
+        get {
+            typealias __CuckooDefault = (borrowing Token) -> Void
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+
+    func consumingHandler() -> (consuming Token) -> Void {
+        typealias __CuckooDefault = (consuming Token) -> Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func isolatedHandler() -> (isolated any Actor) -> Void {
+        typealias __CuckooDefault = (isolated any Actor) -> Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func sendingHandler() -> (sending Token) -> sending Token {
+        typealias __CuckooDefault = (sending Token) -> sending Token
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func ownedHandler() -> (__owned Token, __shared Token) -> Void {
+        typealias __CuckooDefault = (__owned Token, __shared Token) -> Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func pair() -> (count: Int, handler: (borrowing Token) -> Void) {
+        typealias __CuckooDefault = (Int, (borrowing Token) -> Void)
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func made() -> sending Token {
+        typealias __CuckooDefault = Token
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    subscript(_ p0: Int) -> (consuming Token) -> Int {
+        get {
+            typealias __CuckooDefault = (consuming Token) -> Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+}
+
+final class MockSpecifierClosureService: SpecifierClosureService, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = SpecifierClosureService
+    typealias CuckooStubbing = __StubbingProxy_SpecifierClosureService
+    typealias CuckooVerification = __VerificationProxy_SpecifierClosureService
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSpecifierClosureService.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<SpecifierClosureService>()
+
+    nonisolated func enableDefaultImplementation(_ stub: SpecifierClosureService) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override var pair: (Int, (consuming Token) -> Void) {
+        get {
+            return cuckooManager.getter(
+                "pair",
+                invoke: { (implementation: (()) -> (Int, (consuming Token) -> Void)) in
+                    implementation(())
+                },
+                superclassCall: super.pair,
+                defaultCall: cuckooDefaultImplementation.value.pair,
+                unstubbedTuple: {
+                    typealias __CuckooDefault = (Int, (consuming Token) -> Void);
+                    return Cuckoo.MockManager.unstubbedTupleValue(for: __CuckooDefault.self)
+                }()
+            )
+        }
+    }
+
+    override func handler() -> (borrowing Token) -> Void {
+        return cuckooManager.call(
+            "handler() -> (borrowing Token) -> Void",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> (borrowing Token) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.handler(),
+            defaultCall: cuckooDefaultImplementation.value.handler()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_SpecifierClosureService: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        var pair: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockSpecifierClosureService, (Int, (consuming Token) -> Void), (()) -> (Int, (consuming Token) -> Void), Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "pair")
+        }
+
+        func handler() -> Cuckoo.ClassStubFunction<(), (borrowing Token) -> Void, (()) -> (borrowing Token) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockSpecifierClosureService.self,
+                method: "handler() -> (borrowing Token) -> Void",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_SpecifierClosureService: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        var pair: Cuckoo.VerifyReadOnlyProperty<(Int, (consuming Token) -> Void)> {
+            return .init(manager: cuckooManager, name: "pair", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        @discardableResult
+        func handler() -> Cuckoo.VerifiedCall<(), (borrowing Token) -> Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "handler() -> (borrowing Token) -> Void",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class SpecifierClosureServiceStub: SpecifierClosureService {
+    override var pair: (Int, (consuming Token) -> Void) {
+        get {
+            typealias __CuckooDefault = (Int, (consuming Token) -> Void)
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+
+    override func handler() -> (borrowing Token) -> Void {
+        typealias __CuckooDefault = (borrowing Token) -> Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}

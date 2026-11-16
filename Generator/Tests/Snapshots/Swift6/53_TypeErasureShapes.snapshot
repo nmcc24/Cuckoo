@@ -69,7 +69,8 @@ actor MockItemActor<Item>: ItemActor, Cuckoo.ProtocolMock {
 
 actor ItemActorStub<Item>: ItemActor {
     func item() -> Item {
-        return DefaultValueRegistry.defaultValue(for: (Item).self)
+        typealias __CuckooDefault = Item
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -225,11 +226,13 @@ nonisolated final class MockStaticResetting<Value>: StaticResetting, nonisolated
 
 nonisolated final class StaticResettingStub<Value>: StaticResetting {
     func value() -> Value {
-        return DefaultValueRegistry.defaultValue(for: (Value).self)
+        typealias __CuckooDefault = Value
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     static func reset() {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
@@ -476,7 +479,8 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
 nonisolated final class KeyedItemsStub<Item>: KeyedItems {
     subscript <Key: Hashable>(_ p0: Key) -> Item {
         get {
-            return DefaultValueRegistry.defaultValue(for: (Item).self)
+            typealias __CuckooDefault = Item
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
         set {
         }
@@ -484,7 +488,8 @@ nonisolated final class KeyedItemsStub<Item>: KeyedItems {
 
     subscript <Key: Hashable>(lookup p0: Key) -> Item? {
         get {
-            return DefaultValueRegistry.defaultValue(for: (Item?).self)
+            typealias __CuckooDefault = Item?
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
     }
 }
@@ -617,7 +622,8 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
 nonisolated final class ThrowingKeyedItemsStub<Item>: ThrowingKeyedItems {
     subscript <Key: Hashable>(_ p0: Key) -> Item {
         get async throws {
-            return DefaultValueRegistry.defaultValue(for: (Item).self)
+            typealias __CuckooDefault = Item
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
     }
 }
@@ -779,12 +785,14 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
 
 nonisolated final class KeyedCounterStub<Key>: KeyedCounter {
     func count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key {
-        return DefaultValueRegistry.defaultValue(for: (Int).self)
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     subscript <Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key {
         get {
-            return DefaultValueRegistry.defaultValue(for: (Int).self)
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
     }
 }
