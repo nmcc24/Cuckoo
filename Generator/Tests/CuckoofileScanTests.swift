@@ -84,4 +84,18 @@ struct CuckoofileScanTests {
         let warning = unusedCuckoofileEntriesWarning(entries: ["App", "Netwrk"], usableNames: ["App", "AppTests", "Network"])
         #expect(warning?.hasPrefix("The Cuckoofile's entry 'Netwrk' names no target") == true)
     }
+
+    /// A module that the target using Cuckoo reaches only through another module gets no mocks, so its entry warns;
+    /// one a target without Cuckoo depends on isn't generated for either.
+    @Test
+    func onlyDirectDependenciesOfTargetsUsingCuckooAreUsable() {
+        let names = usableEntryNames(of: [
+            ScannedTarget(name: "App", dependsOnCuckoo: false, dependencies: ["Kit"]),
+            ScannedTarget(name: "AppTests", dependsOnCuckoo: true, dependencies: ["App", "Cuckoo"]),
+        ])
+        #expect(names == ["App", "AppTests", "Cuckoo"])
+        let warning = unusedCuckoofileEntriesWarning(entries: ["App", "Kit"], usableNames: names)
+        #expect(warning?.contains("'Kit'") == true)
+        #expect(warning?.contains("direct dependency of the test target") == true)
+    }
 }
