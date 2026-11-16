@@ -23,7 +23,7 @@ public func verify<M: Mock>(_ mock: M, _ callMatcher: CallMatcher = times(1), fi
 }
 
 /// Clears the stubs and the recorded calls of `mocks`.
-public func reset(_ mocks: any HasMockManager...) {
+public func reset(_ mocks: any Mock...) {
     mocks.forEach { mock in
         mock.cuckooManager.reset()
     }

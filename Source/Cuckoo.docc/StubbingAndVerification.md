@@ -267,7 +267,7 @@ each call twice, once when the stub answers it and once when the `verify` matche
 
 ### Reset a mock
 
-- ``reset(_:)-(HasMockManager...)`` clears a mock's stubs and recorded calls.
+- ``reset(_:)-(Mock...)`` clears a mock's stubs and recorded calls.
 - ``clearStubs(_:)-(Mock...)`` clears only the stubs.
 - ``clearInvocations(_:)-(Mock...)`` clears only the recorded calls.
 
