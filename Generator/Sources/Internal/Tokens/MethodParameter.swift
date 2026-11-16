@@ -76,11 +76,13 @@ struct MethodParameter: Token {
     /// Like `call`, but a `sending` argument is read from the `Cuckoo.__SendingArgument`
     /// the mock wraps it in, because the mock has already recorded it.
     var forwardingCall: String {
-        isSending ? call(value: "__\(usableName).value") : call
+        // `copy` takes a variable; reading the wrapper's `value` gives a copy already.
+        isSending ? call(value: "__\(usableName).value", copies: false) : call
     }
 
-    private func call(value name: String) -> String {
-        let value = isPack ? "repeat each \(name)" : "\(isInout ? "&" : "")\(needsExplicitCopy ? "copy " : "")\(name)\(type.containsAttribute(named: "@autoclosure") ? "()" : "")"
+    private func call(value name: String, copies: Bool = true) -> String {
+        let copy = needsExplicitCopy && copies ? "copy " : ""
+        let value = isPack ? "repeat each \(name)" : "\(isInout ? "&" : "")\(copy)\(name)\(type.containsAttribute(named: "@autoclosure") ? "()" : "")"
         if self.name == "_" {
             return value
         } else {
