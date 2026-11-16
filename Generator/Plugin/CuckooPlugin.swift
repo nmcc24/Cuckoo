@@ -4,7 +4,7 @@ import PackagePlugin
 @main
 struct CuckooPlugin: BuildToolPlugin {
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
-        let sourceModules: [SourceModule] = target.dependencies
+        let dependencyModules = target.dependencies
             .flatMap { dependency in
                 switch dependency {
                 case .product(let product):
@@ -17,25 +17,38 @@ struct CuckooPlugin: BuildToolPlugin {
             }
             .compactMap { $0 as? SourceModuleTarget }
             .filter { isMockable($0.kind) && $0.moduleName != "Cuckoo" }
-            .map { module in
-                SourceModule(
-                    name: module.moduleName,
-                    sources: module.sourceFiles.filter { $0.type == .source }.map(\.url),
-                    swiftModule: (module.moduleName, module.directoryURL)
-                )
-            }
+        let sourceModules = dependencyModules.map { module in
+            SourceModule(
+                name: module.moduleName,
+                sources: module.sourceFiles.filter { $0.type == .source }.map(\.url),
+                swiftModule: (module.moduleName, module.directoryURL)
+            )
+        }
 
         // Also a build command keyed by the target's own name, as in an Xcode project, so the Cuckoofile can have a
-        // `[modules.TargetName]` entry that mocks files of any dependency, or lists its own `sources`.
+        // `[modules.TargetName]` entry that mocks files of the package's own dependencies, or lists its own
+        // `sources`. Another package's products aren't passed to it: an entry lists their files to mock them. The
+        // command still depends on every dependency's files, which a `sources` entry may name.
+        let rootTargets = Set(context.package.targets.map(\.id))
+        let ownModules = zip(dependencyModules, sourceModules).filter { rootTargets.contains($0.0.id) }.map(\.1)
+        let otherPackagesModules = zip(dependencyModules, sourceModules).filter { !rootTargets.contains($0.0.id) }.map(\.1.name)
         let selfModule = SourceModule(
             name: target.name,
             sources: sourceModules.flatMap(\.sources),
-            listedSources: sourceModules.flatMap(\.listedSources)
+            listedSources: ownModules.flatMap(\.listedSources)
         )
         let configuration = try readCuckoofile(in: context.package.directoryURL)
         // An entry for none of them generates nothing, without an error: usually a misspelled or renamed module.
         let entries = cuckoofileModuleNames(in: configuration)
         let generated = Set(sourceModules.map(\.name) + [target.name])
+        if let warning = selfEntryLeavesOutWarning(
+            target: target.name,
+            entries: entries,
+            listsSources: cuckoofileEntry(named: target.name, listsSourcesIn: configuration),
+            leftOut: otherPackagesModules
+        ) {
+            Diagnostics.warning(warning)
+        }
         // A target itself can have an entry, and so can a module that a target compiling mocks, which depends on
         // Cuckoo, depends on directly: the plugin generates only for the direct dependencies of its target.
         let usableNames = usableEntryNames(of: context.package.targets.map { packageTarget in
@@ -45,7 +58,7 @@ struct CuckooPlugin: BuildToolPlugin {
                 dependencies: moduleNames(of: packageTarget.dependencies)
             )
         })
-        if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames) {
+        if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames.union(generated)) {
             Diagnostics.warning(warning)
         }
         if !entries.isEmpty, entries.isDisjoint(with: generated) {
@@ -142,26 +155,26 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
                 }
             )
         })
-        if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames) {
+        if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames.union(generated)) {
             Diagnostics.warning(warning)
         }
         let readerMayHaveMissedEntries = entries.isEmpty && configuration.contains("modules")
         if !readerMayHaveMissedEntries, entries.isDisjoint(with: generated) {
             throw XcodeTestTargetWithoutEntryError(testTarget: target.displayName, entries: entries.sorted(), listsNoSources: false)
         }
-        if sourceModules.isEmpty, entries.contains(target.displayName),
-           !cuckoofileEntry(named: target.displayName, listsSourcesIn: configuration) {
+        // The entry named after the test target mocks the project's targets it lists, never a package product's.
+        if entries.contains(target.displayName), !cuckoofileEntry(named: target.displayName, listsSourcesIn: configuration) {
             throw XcodeTestTargetWithoutEntryError(testTarget: target.displayName, entries: entries.sorted(), listsNoSources: true)
         }
 
-        // For test targets, also emit a build command keyed by the test target's own name.
-        // This allows Cuckoofile.toml to have a [modules.TestTargetName] entry that mocks
-        // specific files from any dependency, independently of per-dependency mock generation.
+        // Also a build command keyed by the test target's own name, whose entry lists the files to mock. It gets the
+        // project's own targets it depends on, never a package product's sources; only those have a Swift module.
         var allSourceModules = sourceModules
+        let ownModules = sourceModules.filter { $0.swiftModule == nil }
         let selfModule = SourceModule(
             name: target.displayName,
             sources: sourceModules.flatMap(\.sources),
-            listedSources: sourceModules.flatMap(\.listedSources)
+            listedSources: ownModules.flatMap(\.listedSources)
         )
         allSourceModules.append(selfModule)
 

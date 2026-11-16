@@ -85,17 +85,34 @@ struct CuckoofileScanTests {
         #expect(warning?.hasPrefix("The Cuckoofile's entry 'Netwrk' names no target") == true)
     }
 
-    /// A module that the target using Cuckoo reaches only through another module gets no mocks, so its entry warns;
-    /// one a target without Cuckoo depends on isn't generated for either.
+    /// A module that the target using Cuckoo reaches only through another module gets no mocks, so its entry warns,
+    /// even when it's a target of the same package; so does a target that doesn't depend on Cuckoo.
     @Test
     func onlyDirectDependenciesOfTargetsUsingCuckooAreUsable() {
         let names = usableEntryNames(of: [
-            ScannedTarget(name: "App", dependsOnCuckoo: false, dependencies: ["Kit"]),
-            ScannedTarget(name: "AppTests", dependsOnCuckoo: true, dependencies: ["App", "Cuckoo"]),
+            ScannedTarget(name: "Core", dependsOnCuckoo: false, dependencies: []),
+            ScannedTarget(name: "Feature", dependsOnCuckoo: false, dependencies: ["Core"]),
+            ScannedTarget(name: "FeatureTests", dependsOnCuckoo: true, dependencies: ["Feature", "Cuckoo"]),
+            ScannedTarget(name: "Mocks", dependsOnCuckoo: true, dependencies: ["Cuckoo"]),
         ])
-        #expect(names == ["App", "AppTests", "Cuckoo"])
-        let warning = unusedCuckoofileEntriesWarning(entries: ["App", "Kit"], usableNames: names)
-        #expect(warning?.contains("'Kit'") == true)
+        #expect(names == ["Feature", "FeatureTests", "Mocks", "Cuckoo"])
+        let warning = unusedCuckoofileEntriesWarning(entries: ["Feature", "Core", "FeatureTests"], usableNames: names)
+        #expect(warning?.contains("'Core'") == true)
+        #expect(warning?.contains("'Feature'") == false)
         #expect(warning?.contains("direct dependency of the test target") == true)
+    }
+
+    /// The test target's own entry without `sources` mocks only its package's targets: the other packages' modules
+    /// it leaves out are named, unless they have entries of their own.
+    @Test
+    func selfEntryWithoutSourcesNamesTheModulesItLeavesOut() {
+        let warning = selfEntryLeavesOutWarning(target: "AppTests", entries: ["AppTests", "Kit"], listsSources: false, leftOut: ["Kit", "Network"])
+        #expect(warning?.contains("[modules.AppTests] lists no sources") == true)
+        #expect(warning?.contains("'Network'") == true)
+        #expect(warning?.contains("'Kit'") == false)
+        #expect(warning?.contains("[modules.Network]") == true)
+        #expect(selfEntryLeavesOutWarning(target: "AppTests", entries: ["AppTests"], listsSources: true, leftOut: ["Network"]) == nil)
+        #expect(selfEntryLeavesOutWarning(target: "AppTests", entries: ["Network"], listsSources: false, leftOut: ["Network"]) == nil)
+        #expect(selfEntryLeavesOutWarning(target: "AppTests", entries: ["AppTests"], listsSources: false, leftOut: []) == nil)
     }
 }

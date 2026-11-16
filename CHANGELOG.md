@@ -219,9 +219,13 @@ Build plugin:
 - A Cuckoofile key in quotes, such as `[modules."My App"]`, lost its spaces and dots, so it named no target, and a
   multi-line string closed by `\\"""` or `""""` hid the entries after it.
 - A test target's dependency on an executable target got no mocks.
+- An entry named after the test target, without `sources`, also mocked the package products of other packages the
+  test target depends on. It mocks the package's own targets; an entry lists another package's files to mock them.
+  A build warning names the modules it leaves out. In an Xcode project, such an entry fails with the message saying
+  to list `sources`, even when the test target depends on package products.
 - A Cuckoofile entry for a module that the test target reaches only through another module generated nothing,
-  without a warning: the unused-entry warning counted every target's dependencies. It now counts the direct
-  dependencies of the targets that depend on Cuckoo, and says to make the module a direct dependency.
+  without a warning: the unused-entry warning counted every target's name and dependencies. It now counts the
+  targets that depend on Cuckoo and their direct dependencies, and says to make the module a direct dependency.
 - A missing Cuckoofile gave an unclear failure; the plugin now says where it looked and what to add.
 - The generator logged the Cuckoofile's path with a double slash.
 

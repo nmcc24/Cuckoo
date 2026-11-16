@@ -36,8 +36,8 @@ A dependency is a library or executable target the test target depends on direct
 it depends on: the dependencies of those dependencies aren't mocked unless an entry lists their `sources`. Xcode
 tells the plugin about a test target's package products, but not about the targets of its own project. So in an
 Xcode project, name the entry after the test target and list its `sources`, as in Cuckoo 2; a test target that uses
-the plugin with no entry it can generate fails with a message saying so, and so does one that depends on no package
-product and whose own entry lists no `sources`.
+the plugin with no entry it can generate fails with a message saying so, and so does one whose own entry lists no
+`sources`.
 
 ### Sources
 
@@ -59,10 +59,12 @@ product and whose own entry lists no `sources`.
   ```
 
   In a package, the build plugin lets you leave `sources` out to mock the files of the test target's dependency
-  that has the entry's name, or of every dependency if none has it. The plugin lists the target's own files, so
-  this follows the target's membership, and tells the generator which module the files belong to, as the table
-  form does. An Xcode project's entries list their `sources`. An entry that sets `sources` is regenerated when any
-  source file of the package or Xcode project changes, since its patterns may match any of them.
+  that has the entry's name. The entry named after the test target mocks its dependencies among the package's own
+  targets; another package's modules get an entry of their own, or are listed in `sources`, and a build warning
+  names the ones left out. The plugin lists the target's own files, so this follows the target's membership, and
+  tells the generator which module the files belong to, as the table form does. An Xcode project's entries list
+  their `sources`. An entry that sets `sources` is regenerated when any source file of the package or Xcode
+  project, or of the test target's dependencies, changes, since its patterns may match any of them.
 - term `exclude`: Names of types not to mock, such as `["AppDelegate", "LegacyService"]`.
 - term `regex`: Mock only the protocols and classes whose name matches one of these regular expressions:
   `regex = ["Service$", "^Repository"]`. A single pattern needs no array: `regex = "Service$"`.
