@@ -487,12 +487,6 @@ public final class MockManager: Sendable {
 }
 
 extension MockManager {
-    /// Calls `call` with `value`, which a generated mock knows isn't `nil`.
-    public static func callOrCrash<T, OUT>(_ value: T?, call: (T) throws -> OUT) rethrows -> OUT {
-        guard let value = value else { return crashOnProtocolSuperclassCall() }
-        return try call(value)
-    }
-
     /// Stands in for a protocol mock's superclass call, which can't happen.
     public static func crashOnProtocolSuperclassCall<OUT>() -> OUT {
         fatalError("This should never get called. If it does, please report an issue to Cuckoo repository.")
