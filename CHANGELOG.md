@@ -11,7 +11,8 @@
   `cuckooVerificationProxy(_:sourceLocation:)`. Generated mocks spell them; code that names them changes, and the
   migration guide lists each. Names starting with `Cuckoo`, `cuckoo` or `__` are reserved for mocks.
 - `verify`'s result, `__DoNotUse`, is `VerifiedCall`, documented: its `with(returnType:)` names a generic member's
-  return type. Code rarely names the type itself.
+  return type. Code rarely names the type itself. An optional property's verified getter is
+  `VerifiedCall<Void, T?>`, typed with the property's value, not `VerifiedCall<Void, T>`.
 - `MockManager.enableDefaultStubImplementation()` is `enableDefaultImplementation()`, the name the rest of the API
   uses for what an unstubbed call forwards to. Generated mocks call it; code that calls it directly changes.
 - The Cuckoofile option `enableInheritance` is removed: set to `false`, it gave a mock of `protocol B: A` that didn't
