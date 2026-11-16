@@ -139,7 +139,6 @@ struct SnapshotTests {
                 options: Module.DTO.Options(
                     keepDocumentation: keepDocumentation,
                     protocolsOnly: nil,
-                    omitHeaders: true,
                     mockPrefix: nil,
                     mockSuffix: nil,
                     defaultIsolation: nil

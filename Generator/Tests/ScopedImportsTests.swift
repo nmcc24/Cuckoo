@@ -182,9 +182,6 @@ struct ScopedImportsTests {
                 [modules.Mocks]
                 output = "Mocks.swift"
                 \(moduleKeys)
-
-                [modules.Mocks.options]
-                omitHeaders = true
                 """,
             configurationPath: Path(directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)),
             overriddenOutput: nil,

@@ -145,8 +145,6 @@ The `[modules.<Name>.options]` table:
 - term `keepDocumentation`: Whether mocks keep the mocked declarations' doc comments, `true` by default. Other
   comments are always left out.
 - term `protocolsOnly`: Mock protocols only, not classes. `false` by default.
-- term `omitHeaders`: Leave out the comment at the top of each source file's mocks, which names the file. `false`
-  by default.
 - term `mockPrefix`, `mockSuffix`: Mocks are named `<mockPrefix><Type><mockSuffix>`, `MockGreeter` by default
   (`"Mock"` and `""`). Each may hold letters, digits and underscores; they can't both be empty, and the prefix
   can't start with a digit. `mockSuffix = "Stub"` with no prefix is refused, because the generated
