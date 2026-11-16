@@ -6,193 +6,178 @@ struct DictionaryParameterMatcherTest {
     @Test
     func testContainsAnyOf() {
         // With keys identical to values.
-        #expect(!containsAnyOf([1, 3].toDictionaryAsKeysWithHashable()).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable()).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAnyOf([1, 3].toDictionaryAsKeysWithNonEquatable(), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable()).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAnyOf([1, 3].toDictionaryAsKeysWithHashable()).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithHashable()), containsAnyOf([1, 3].toDictionaryAsKeysWithHashable())).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable()), containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable())).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithNonEquatable(), where: { $0.g == $1.g }), containsAnyOf([1, 3].toDictionaryAsKeysWithNonEquatable(), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable()), containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable())).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithHashable()), containsAnyOf([1, 3].toDictionaryAsKeysWithHashable())).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
         // With keys different from values.
-        #expect(!containsAnyOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, .init(g: $0 - 1)) })).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })).matches([1, 2].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })))
-        #expect(!containsAnyOf([1, 3].toDictionaryAsKeysWithNonEquatable({ ($0, .init(g: $0 - 1)) }), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })).matches([1, 3].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })))
-        #expect(containsAnyOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, .init(g: $0 - 1)) })).matches([1, 2, 3].toDictionaryAsKeysWithHashable({ ($0, .init(g: $0 - 1)) })))
+        #expect(!bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) })), containsAnyOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) }))).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })), containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) }))).matches([1, 2].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })))
+        #expect(!bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithNonEquatable({ ($0, TestStructs.N(g: $0 - 1)) }), where: { $0.g == $1.g }), containsAnyOf([1, 3].toDictionaryAsKeysWithNonEquatable({ ($0, TestStructs.N(g: $0 - 1)) }), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })), containsAnyOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) }))).matches([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })))
+        #expect(bothOverloads(containsAnyOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) })), containsAnyOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) }))).matches([1, 2, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) })))
     }
 
     // MARK: - Contains ALL of the elements as key-value pairs.
     @Test
     func testContainsAllOf() {
-        #expect(!containsAllOf([1, 3].toDictionaryAsKeysWithHashable()).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsAllOf([1, 3].toDictionaryAsKeysWithEquatable()).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAllOf([1, 3].toDictionaryAsKeysWithNonEquatable(), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAllOf([1, 3].toDictionaryAsKeysWithEquatable()).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAllOf([1, 3].toDictionaryAsKeysWithHashable()).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithHashable()), containsAllOf([1, 3].toDictionaryAsKeysWithHashable())).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithEquatable()), containsAllOf([1, 3].toDictionaryAsKeysWithEquatable())).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithNonEquatable(), where: { $0.g == $1.g }), containsAllOf([1, 3].toDictionaryAsKeysWithNonEquatable(), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithEquatable()), containsAllOf([1, 3].toDictionaryAsKeysWithEquatable())).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithHashable()), containsAllOf([1, 3].toDictionaryAsKeysWithHashable())).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
-        #expect(!containsAllOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, .init(g: $0 - 1)) })).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsAllOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })).matches([1, 2].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })))
-        #expect(!containsAllOf([1, 3].toDictionaryAsKeysWithNonEquatable({ ($0, .init(g: $0 - 1)) }), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAllOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })).matches([1, 3].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })))
-        #expect(containsAllOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, .init(g: $0 - 1)) })).matches([1, 2, 3].toDictionaryAsKeysWithHashable({ ($0, .init(g: $0 - 1)) })))
+        #expect(!bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) })), containsAllOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) }))).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })), containsAllOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) }))).matches([1, 2].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })))
+        #expect(!bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithNonEquatable({ ($0, TestStructs.N(g: $0 - 1)) }), where: { $0.g == $1.g }), containsAllOf([1, 3].toDictionaryAsKeysWithNonEquatable({ ($0, TestStructs.N(g: $0 - 1)) }), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })), containsAllOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) }))).matches([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })))
+        #expect(bothOverloads(containsAllOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) })), containsAllOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) }))).matches([1, 2, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) })))
     }
 
     // MARK: - Contains NONE of the elements as key-value pairs.
     @Test
     func testContainsNoneOf() {
         // With keys identical to values.
-        #expect(containsNoneOf([1, 3].toDictionaryAsKeysWithHashable()).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable()).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(containsNoneOf([1, 3].toDictionaryAsKeysWithNonEquatable(), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(!containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable()).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsNoneOf([1, 3].toDictionaryAsKeysWithHashable()).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithHashable()), containsNoneOf([1, 3].toDictionaryAsKeysWithHashable())).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable()), containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable())).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithNonEquatable(), where: { $0.g == $1.g }), containsNoneOf([1, 3].toDictionaryAsKeysWithNonEquatable(), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(!bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable()), containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable())).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithHashable()), containsNoneOf([1, 3].toDictionaryAsKeysWithHashable())).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
         // With keys different from values.
-        #expect(containsNoneOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, .init(g: $0 - 1)) })).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })).matches([1, 2].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })))
-        #expect(containsNoneOf([1, 3].toDictionaryAsKeysWithNonEquatable({ ($0, .init(g: $0 - 1)) }), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(!containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })).matches([1, 3].toDictionaryAsKeysWithEquatable({ ($0, .init(g: $0 - 1)) })))
-        #expect(!containsNoneOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, .init(g: $0 - 1)) })).matches([1, 2, 3].toDictionaryAsKeysWithHashable({ ($0, .init(g: $0 - 1)) })))
+        #expect(bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) })), containsNoneOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) }))).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })), containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) }))).matches([1, 2].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })))
+        #expect(bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithNonEquatable({ ($0, TestStructs.N(g: $0 - 1)) }), where: { $0.g == $1.g }), containsNoneOf([1, 3].toDictionaryAsKeysWithNonEquatable({ ($0, TestStructs.N(g: $0 - 1)) }), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(!bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })), containsNoneOf([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) }))).matches([1, 3].toDictionaryAsKeysWithEquatable({ ($0, TestStructs.E(g: $0 - 1)) })))
+        #expect(!bothOverloads(containsNoneOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) })), containsNoneOf([1, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) }))).matches([1, 2, 3].toDictionaryAsKeysWithHashable({ ($0, TestStructs.H(g: $0 - 1)) })))
     }
 
     // MARK: - Contains ANY of the elements as keys.
     @Test
     func testContainsAnyKeysOf() {
         // Variadic parameters.
-        #expect(!containsAnyKeysOf(values: 1, 3).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(containsAnyKeysOf(values: 1, 3).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAnyKeysOf(values: 1, 3).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAnyKeysOf(values: 1, 3).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAnyKeysOf(values: 1, 3).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAnyKeysOf(values: 1, 3), containsAnyKeysOf(values: 1, 3)).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsAnyKeysOf(values: 1, 3), containsAnyKeysOf(values: 1, 3)).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAnyKeysOf(values: 1, 3), containsAnyKeysOf(values: 1, 3)).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAnyKeysOf(values: 1, 3), containsAnyKeysOf(values: 1, 3)).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAnyKeysOf(values: 1, 3), containsAnyKeysOf(values: 1, 3)).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
         // Passed by array.
-        #expect(!containsAnyKeysOf([1, 3]).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(containsAnyKeysOf([1, 3]).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAnyKeysOf([1, 3]).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAnyKeysOf([1, 3]).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAnyKeysOf([1, 3]).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAnyKeysOf([1, 3]), containsAnyKeysOf([1, 3])).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsAnyKeysOf([1, 3]), containsAnyKeysOf([1, 3])).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAnyKeysOf([1, 3]), containsAnyKeysOf([1, 3])).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAnyKeysOf([1, 3]), containsAnyKeysOf([1, 3])).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAnyKeysOf([1, 3]), containsAnyKeysOf([1, 3])).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
     }
 
     // MARK: - Contains ALL of the elements as keys.
     @Test
     func testContainsAllKeysOf() {
         // Variadic parameters.
-        #expect(!containsAllKeysOf(values: 1, 3).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsAllKeysOf(values: 1, 3).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAllKeysOf(values: 1, 3).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAllKeysOf(values: 1, 3).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAllKeysOf(values: 1, 3).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllKeysOf(values: 1, 3), containsAllKeysOf(values: 1, 3)).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllKeysOf(values: 1, 3), containsAllKeysOf(values: 1, 3)).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAllKeysOf(values: 1, 3), containsAllKeysOf(values: 1, 3)).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAllKeysOf(values: 1, 3), containsAllKeysOf(values: 1, 3)).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAllKeysOf(values: 1, 3), containsAllKeysOf(values: 1, 3)).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
         // Passed by array.
-        #expect(!containsAllKeysOf([1, 3]).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsAllKeysOf([1, 3]).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAllKeysOf([1, 3]).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAllKeysOf([1, 3]).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAllKeysOf([1, 3]).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllKeysOf([1, 3]), containsAllKeysOf([1, 3])).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllKeysOf([1, 3]), containsAllKeysOf([1, 3])).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAllKeysOf([1, 3]), containsAllKeysOf([1, 3])).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAllKeysOf([1, 3]), containsAllKeysOf([1, 3])).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAllKeysOf([1, 3]), containsAllKeysOf([1, 3])).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
     }
 
     // MARK: - Contains NONE of the elements as keys.
     @Test
     func testContainsNoKeysOf() {
         // Variadic parameters.
-        #expect(containsNoKeysOf(values: 1, 3).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsNoKeysOf(values: 1, 3).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(containsNoKeysOf(values: 1, 3).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(!containsNoKeysOf(values: 1, 3).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsNoKeysOf(values: 1, 3).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsNoKeysOf(values: 1, 3), containsNoKeysOf(values: 1, 3)).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsNoKeysOf(values: 1, 3), containsNoKeysOf(values: 1, 3)).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsNoKeysOf(values: 1, 3), containsNoKeysOf(values: 1, 3)).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(!bothOverloads(containsNoKeysOf(values: 1, 3), containsNoKeysOf(values: 1, 3)).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsNoKeysOf(values: 1, 3), containsNoKeysOf(values: 1, 3)).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
         // Passed by array.
-        #expect(containsNoKeysOf([1, 3]).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsNoKeysOf([1, 3]).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(containsNoKeysOf([1, 3]).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(!containsNoKeysOf([1, 3]).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsNoKeysOf([1, 3]).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsNoKeysOf([1, 3]), containsNoKeysOf([1, 3])).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsNoKeysOf([1, 3]), containsNoKeysOf([1, 3])).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsNoKeysOf([1, 3]), containsNoKeysOf([1, 3])).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(!bothOverloads(containsNoKeysOf([1, 3]), containsNoKeysOf([1, 3])).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsNoKeysOf([1, 3]), containsNoKeysOf([1, 3])).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
     }
 
     // MARK: - Contains ANY of the elements as values.
     @Test
     func testContainsAnyValuesOf() {
         // Variadic parameters.
-        #expect(!containsAnyValuesOf(values: .init(g: 1), .init(g: 3)).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(containsAnyValuesOf(values: .init(g: 1), .init(g: 3)).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAnyValuesOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAnyValuesOf(values: .init(g: 1), .init(g: 3)).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAnyValuesOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAnyValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAnyValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsAnyValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAnyValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAnyValuesOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAnyValuesOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAnyValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAnyValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAnyValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAnyValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
         // Passed by array.
-        #expect(!containsAnyValuesOf([1, 3].map(TestStructs.H.init)).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(containsAnyValuesOf([1, 3].map(TestStructs.E.init)).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAnyValuesOf([1, 3].map(TestStructs.N.init), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAnyValuesOf([1, 3].map(TestStructs.E.init)).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAnyValuesOf([1, 3].map(TestStructs.H.init)).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAnyValuesOf([1, 3].map(TestStructs.H.init)), containsAnyValuesOf([1, 3].map(TestStructs.H.init))).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsAnyValuesOf([1, 3].map(TestStructs.E.init)), containsAnyValuesOf([1, 3].map(TestStructs.E.init))).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAnyValuesOf([1, 3].map(TestStructs.N.init), where: { $0.g == $1.g }), containsAnyValuesOf([1, 3].map(TestStructs.N.init), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAnyValuesOf([1, 3].map(TestStructs.E.init)), containsAnyValuesOf([1, 3].map(TestStructs.E.init))).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAnyValuesOf([1, 3].map(TestStructs.H.init)), containsAnyValuesOf([1, 3].map(TestStructs.H.init))).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
-        #expect(containsAnyValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([2: TestStructs.H(g: 3), 3: .init(g: 1)]))
-        #expect(containsAnyValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([2: TestStructs.H(g: 3), 3: .init(g: 4)]))
-        #expect(containsAnyValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([1: TestStructs.H(g: 3)]))
-        #expect(containsAnyValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([1: TestStructs.H(g: 1)]))
-        #expect(!containsAnyValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([2: TestStructs.H(g: -3)]))
+        #expect(bothOverloads(containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([2: TestStructs.H(g: 3), 3: TestStructs.H(g: 1)]))
+        #expect(bothOverloads(containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([2: TestStructs.H(g: 3), 3: TestStructs.H(g: 4)]))
+        #expect(bothOverloads(containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([1: TestStructs.H(g: 3)]))
+        #expect(bothOverloads(containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([1: TestStructs.H(g: 1)]))
+        #expect(!bothOverloads(containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAnyValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([2: TestStructs.H(g: -3)]))
     }
 
     // MARK: - Contains ALL of the elements as values.
     @Test
     func testContainsAllValuesOf() {
         // Variadic parameters.
-        #expect(!containsAllValuesOf(values: .init(g: 1), .init(g: 3)).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsAllValuesOf(values: .init(g: 1), .init(g: 3)).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAllValuesOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAllValuesOf(values: .init(g: 1), .init(g: 3)).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAllValuesOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAllValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAllValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAllValuesOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsAllValuesOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAllValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsAllValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAllValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsAllValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
         // Passed by array.
-        #expect(!containsAllValuesOf([1, 3].map(TestStructs.H.init)).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsAllValuesOf([1, 3].map(TestStructs.E.init)).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsAllValuesOf([1, 3].map(TestStructs.N.init), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(containsAllValuesOf([1, 3].map(TestStructs.E.init)).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(containsAllValuesOf([1, 3].map(TestStructs.H.init)).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllValuesOf([1, 3].map(TestStructs.H.init)), containsAllValuesOf([1, 3].map(TestStructs.H.init))).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsAllValuesOf([1, 3].map(TestStructs.E.init)), containsAllValuesOf([1, 3].map(TestStructs.E.init))).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsAllValuesOf([1, 3].map(TestStructs.N.init), where: { $0.g == $1.g }), containsAllValuesOf([1, 3].map(TestStructs.N.init), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(bothOverloads(containsAllValuesOf([1, 3].map(TestStructs.E.init)), containsAllValuesOf([1, 3].map(TestStructs.E.init))).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsAllValuesOf([1, 3].map(TestStructs.H.init)), containsAllValuesOf([1, 3].map(TestStructs.H.init))).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
-        #expect(containsAllValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([2: TestStructs.H(g: 3), 3: .init(g: 1)]))
-        #expect(!containsAllValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([2: TestStructs.H(g: 3), 3: .init(g: 4)]))
-        #expect(containsAllValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([1: TestStructs.H(g: 3), 3: .init(g: 1)]))
-        #expect(!containsAllValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([1: TestStructs.H(g: 3), 2: TestStructs.H(g: 3), 3: TestStructs.H(g: 3)]))
-        #expect(!containsAllValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([2: TestStructs.H(g: -3)]))
+        #expect(bothOverloads(containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([2: TestStructs.H(g: 3), 3: TestStructs.H(g: 1)]))
+        #expect(!bothOverloads(containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([2: TestStructs.H(g: 3), 3: TestStructs.H(g: 4)]))
+        #expect(bothOverloads(containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([1: TestStructs.H(g: 3), 3: TestStructs.H(g: 1)]))
+        #expect(!bothOverloads(containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([1: TestStructs.H(g: 3), 2: TestStructs.H(g: 3), 3: TestStructs.H(g: 3)]))
+        #expect(!bothOverloads(containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsAllValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([2: TestStructs.H(g: -3)]))
     }
 
     // MARK: - Contains NONE of the elements as values.
     @Test
     func testContainsNoValuesOf() {
         // Variadic parameters.
-        #expect(containsNoValuesOf(values: .init(g: 1), .init(g: 3)).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsNoValuesOf(values: .init(g: 1), .init(g: 3)).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(containsNoValuesOf(values: .init(g: 1), .init(g: 3), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(!containsNoValuesOf(values: .init(g: 1), .init(g: 3)).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsNoValuesOf(values: .init(g: 1), .init(g: 3)).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsNoValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsNoValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsNoValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsNoValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsNoValuesOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g }), containsNoValuesOf(values: TestStructs.N(g: 1), TestStructs.N(g: 3), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(!bothOverloads(containsNoValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3)), containsNoValuesOf(values: TestStructs.E(g: 1), TestStructs.E(g: 3))).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsNoValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3)), containsNoValuesOf(values: TestStructs.H(g: 1), TestStructs.H(g: 3))).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
         // Passed by array.
-        #expect(containsNoValuesOf([1, 3].map(TestStructs.H.init)).matches([2].toDictionaryAsKeysWithHashable()))
-        #expect(!containsNoValuesOf([1, 3].map(TestStructs.E.init)).matches([1, 2].toDictionaryAsKeysWithEquatable()))
-        #expect(containsNoValuesOf([1, 3].map(TestStructs.N.init), where: { $0.g == $1.g }).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
-        #expect(!containsNoValuesOf([1, 3].map(TestStructs.E.init)).matches([1, 3].toDictionaryAsKeysWithEquatable()))
-        #expect(!containsNoValuesOf([1, 3].map(TestStructs.H.init)).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
+        #expect(bothOverloads(containsNoValuesOf([1, 3].map(TestStructs.H.init)), containsNoValuesOf([1, 3].map(TestStructs.H.init))).matches([2].toDictionaryAsKeysWithHashable()))
+        #expect(!bothOverloads(containsNoValuesOf([1, 3].map(TestStructs.E.init)), containsNoValuesOf([1, 3].map(TestStructs.E.init))).matches([1, 2].toDictionaryAsKeysWithEquatable()))
+        #expect(bothOverloads(containsNoValuesOf([1, 3].map(TestStructs.N.init), where: { $0.g == $1.g }), containsNoValuesOf([1, 3].map(TestStructs.N.init), where: { $0.g == $1.g })).matches([0, 2].toDictionaryAsKeysWithNonEquatable()))
+        #expect(!bothOverloads(containsNoValuesOf([1, 3].map(TestStructs.E.init)), containsNoValuesOf([1, 3].map(TestStructs.E.init))).matches([1, 3].toDictionaryAsKeysWithEquatable()))
+        #expect(!bothOverloads(containsNoValuesOf([1, 3].map(TestStructs.H.init)), containsNoValuesOf([1, 3].map(TestStructs.H.init))).matches([1, 2, 3].toDictionaryAsKeysWithHashable()))
 
-        #expect(!containsNoValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([2: TestStructs.H(g: 3), 3: .init(g: 1)]))
-        #expect(!containsNoValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([2: TestStructs.H(g: 3), 3: .init(g: 4)]))
-        #expect(!containsNoValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([1: TestStructs.H(g: 3)]))
-        #expect(!containsNoValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([1: TestStructs.H(g: 1)]))
-        #expect(containsNoValuesOf([.init(g: 1), .init(g: 3)])
-                .matches([2: TestStructs.H(g: -3)]))
+        #expect(!bothOverloads(containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([2: TestStructs.H(g: 3), 3: TestStructs.H(g: 1)]))
+        #expect(!bothOverloads(containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([2: TestStructs.H(g: 3), 3: TestStructs.H(g: 4)]))
+        #expect(!bothOverloads(containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([1: TestStructs.H(g: 3)]))
+        #expect(!bothOverloads(containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([1: TestStructs.H(g: 1)]))
+        #expect(bothOverloads(containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)]), containsNoValuesOf([TestStructs.H(g: 1), TestStructs.H(g: 3)])).matches([2: TestStructs.H(g: -3)]))
     }
 
     // MARK: - Has length N (exact, at least, at most).
