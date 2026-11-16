@@ -1,8 +1,8 @@
-import Cuckoo
+@testable import Cuckoo
 import Testing
 
-/// The registry is global, so these tests register defaults for `Marker` only, which no other test uses, and run
-/// one at a time because `reset()` clears what the others register.
+/// The registry is global, so these tests register defaults only for types of their own, which no other test uses,
+/// and run one at a time because `reset()` clears what the others register.
 @Suite(.serialized)
 struct DefaultValueRegistryTest {
     private struct Marker: Sendable, Hashable {
@@ -26,6 +26,31 @@ struct DefaultValueRegistryTest {
         #expect(DefaultValueRegistry.defaultValue(for: Int.self) == 0)
         #expect(DefaultValueRegistry.defaultValue(for: String.self) == "")
         #expect(DefaultValueRegistry.defaultValue(for: Bool.self) == false)
+    }
+
+    /// A replaced or reset value is released outside the registry's lock, so a `deinit` that queries the registry
+    /// doesn't deadlock.
+    @Test
+    func replacedAndResetValuesAreReleasedOutsideTheLock() {
+        final class QueriesRegistryOnDeinit: Sendable {
+            let released: Locked<Bool>
+            init(released: Locked<Bool>) {
+                self.released = released
+            }
+            deinit {
+                _ = DefaultValueRegistry.defaultValue(for: Int.self)
+                released.withLock { $0 = true }
+            }
+        }
+        let replaced = Locked(false)
+        let removed = Locked(false)
+        DefaultValueRegistry.register(QueriesRegistryOnDeinit(released: replaced))
+
+        DefaultValueRegistry.register(QueriesRegistryOnDeinit(released: removed))
+        #expect(replaced.withLock { $0 })
+
+        DefaultValueRegistry.reset()
+        #expect(removed.withLock { $0 })
     }
 
     @Test

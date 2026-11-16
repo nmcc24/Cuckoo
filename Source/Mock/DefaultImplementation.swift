@@ -22,7 +22,11 @@ public final class DefaultImplementation<Stub>: Sendable {
             return stub
         }
         set {
-            stub.withLock { $0 = newValue }
+            // The old value is released after the lock is, since its `deinit` may read `value`.
+            _ = stub.withLock { stub in
+                defer { stub = newValue }
+                return stub
+            }
         }
     }
 }

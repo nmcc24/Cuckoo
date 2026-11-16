@@ -86,6 +86,9 @@
 ### Fixed
 - An unstubbed call whose return type has no default value reported its failure twice, once as a failure and once
   in the crash. It now crashes with one message, which lists the member's stubs as the failure did.
+- Replacing a default implementation, or a value in `DefaultValueRegistry` (by `register` or `reset`), released the
+  old one while holding the lock, so a `deinit` that read it back deadlocked, and for the registry every later
+  unstubbed call hung too. The old value is now released after the lock.
 - An unstubbed member returning a tuple crashed unless the tuple type had a registered default: the manager's
   generic return type can't name its elements. Mocks now pass the tuple's element types, so it returns each
   element's default. A tuple behind a `typealias` still needs a registered default. The generated `Stub` classes
