@@ -87,9 +87,6 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 
 - ``any(_:)->SendableMatcher<T>``
 - ``any(_:)->SendableMatcher<T?>``
-- ``equal(to:)->ParameterMatcher<[K:V]>``
-- ``equal(to:)->ParameterMatcher<[T]>``
-- ``equal(to:)->ParameterMatcher<Set<T>>``
 - ``equal(to:)-9r6we``
 - ``equal(to:)-6c043``
 - ``equal(to:)->ParameterMatcher<ParameterPack>``
@@ -104,11 +101,8 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 - ``ParameterMatcher``
 - ``SendableMatcher``
 - ``equal(to:)-15xi2``
-- ``equal(to:)-1x32e``
 - ``equal(to:)-35lvn``
-- ``equal(to:)-4j92q``
 - ``equal(to:)-6g87p``
-- ``equal(to:)-9hv7``
 - ``equal(to:equalWhen:)-15lez``
 - ``equal(to:equalWhen:)-4y5uy``
 
@@ -235,8 +229,6 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 These are public because generated mocks use them. Tests don't need them directly.
 
 - ``MockManager``
-- ``HasMockManager``
-- ``HasSuperclass``
 - ``HasGlobalActor``
 - ``StubbingProxy``
 - ``VerificationProxy``

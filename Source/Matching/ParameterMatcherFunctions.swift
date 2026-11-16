@@ -13,36 +13,6 @@ public func equal<T: Equatable>(to value: T) -> ParameterMatcher<T> {
     ParameterMatcher { $0 == value }
 }
 
-/// Returns an equality matcher for Array<Equatable> (ordered)
-public func equal<T: Equatable & Sendable>(to array: [T]) -> SendableMatcher<[T]> {
-    SendableMatcher { $0 == array }
-}
-
-/// Returns an equality matcher for Array<Equatable> (ordered)
-public func equal<T: Equatable>(to array: [T]) -> ParameterMatcher<[T]> {
-    ParameterMatcher { $0 == array }
-}
-
-/// Returns an equality matcher for Set<Equatable>
-public func equal<T: Sendable>(to set: Set<T>) -> SendableMatcher<Set<T>> {
-    SendableMatcher { $0 == set }
-}
-
-/// Returns an equality matcher for Set<Equatable>
-public func equal<T>(to set: Set<T>) -> ParameterMatcher<Set<T>> {
-    ParameterMatcher { $0 == set }
-}
-
-/// Returns an equality matcher for Dictionary<Hashable, Equatable>
-public func equal<K: Hashable & Sendable, V: Equatable & Sendable>(to dictionary: [K: V]) -> SendableMatcher<[K: V]> {
-    SendableMatcher { $0 == dictionary }
-}
-
-/// Returns an equality matcher for Dictionary<Hashable, Equatable>
-public func equal<K: Hashable, V: Equatable>(to dictionary: [K: V]) -> ParameterMatcher<[K: V]> {
-    ParameterMatcher { $0 == dictionary }
-}
-
 /// Returns a matcher using the supplied function.
 @_disfavoredOverload
 public func equal<T: Sendable>(
