@@ -113,6 +113,43 @@ struct GenerateCommandTests {
         }
     }
 
+    /// What the run tells the user: the Cuckoofile's unknown keys, a source that matches nothing, what the crawler
+    /// skips, a type declared twice, and the failures that fail the run.
+    @Test
+    func reportsWarningsAndErrors() async throws {
+        try await withPackage(output: "GeneratedMocks.swift", extraKeys: "testableImport = []") { directory in
+            try "protocol Greeter {\n    func wave()\n}\n\nclass Settings {\n    var store = makeStore()\n}\n"
+                .write(to: directory.appending(path: "App/Duplicate.swift"), atomically: true, encoding: .utf8)
+            let configuration = directory.appending(path: "Cuckoofile.toml")
+            let contents = try String(contentsOf: configuration, encoding: .utf8)
+            try contents.replacing(#"sources = ["App/*.swift"]"#, with: #"sources = ["App/*.swift", "Ap/*.swift"]"#)
+                .write(to: configuration, atomically: true, encoding: .utf8)
+
+            let printed = try await capturingOutput {
+                try await GenerateCommand.parse(["--configuration", configuration.path(percentEncoded: false)]).run()
+            }
+            #expect(printed.contains("warning: cuckoo: \(configuration.path(percentEncoded: false)): "))
+            #expect(printed.contains("testableImport"))
+            #expect(printed.contains("warning: cuckoo: The source '") && printed.contains("matches no files"))
+            #expect(printed.contains("Can't infer the type of property 'store'"))
+            #expect(printed.contains("warning: cuckoo: 'Greeter' is declared in "))
+        }
+    }
+
+    /// A run that fails says why on standard error before it exits.
+    @Test
+    func reportsTheFailure() async throws {
+        try await withPackage(output: "Blocker/GeneratedMocks.swift") { directory in
+            try "".write(to: directory.appending(path: "Blocker"), atomically: true, encoding: .utf8)
+            let printed = await capturingOutput {
+                await #expect(throws: ExitCode.failure) {
+                    try await GenerateCommand.parse(["--configuration", directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)]).run()
+                }
+            }
+            #expect(printed.contains("error: Failed to generate mocks for module App"))
+        }
+    }
+
     private func withPackage(output: String, extraKeys: String = "", _ body: (URL) async throws -> Void) async throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooCommand-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
