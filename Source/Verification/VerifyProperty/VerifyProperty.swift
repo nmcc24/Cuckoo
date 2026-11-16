@@ -36,7 +36,7 @@ public struct VerifyOptionalProperty<T> {
 
     /// Checks the property's reads against the call matcher `verify` was given.
     @discardableResult
-    public func get() -> VerifiedCall<Void, T> {
+    public func get() -> VerifiedCall<Void, T?> {
         return manager.verify(getterName(name), callMatcher: callMatcher, parameterMatchers: [] as [ParameterMatcher<Void>], sourceLocation: sourceLocation)
     }
 
