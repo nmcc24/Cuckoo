@@ -34,23 +34,38 @@ struct ClassTest {
         verifyNoMoreInteractions(otherMock)
     }
 
+    @Test
+    func asyncMembersCallTheRealImplementation() async throws {
+        let spy = MockTestedClass().withEnabledSuperclassSpy()
+        #expect(await spy.withAsync() == 1)
+        #expect(try await spy.withAsyncThrows() == 2)
+
+        let mock = MockTestedClass()
+        stub(mock) { stub in
+            when(stub.withAsync()).thenCallRealImplementation()
+            when(stub.withAsyncThrows()).thenCallRealImplementation()
+        }
+        #expect(await mock.withAsync() == 1)
+        #expect(try await mock.withAsyncThrows() == 2)
+    }
+
     /// A task the closure starts inherits its task-locals, but a mock it creates after `createMock` returns gets a
     /// manager of its own.
     @Test
     func mockCreatorKeepsMocksALaterTaskCreatesSeparate() async {
         let (gate, open) = AsyncStream.makeStream(of: Void.self)
-        var task: Task<MockTestedClass, Never>?
+        var task: Task<MockManager, Never>?
         let mock = createMock(MockTestedClass.self) { builder, stub in
             task = Task {
                 for await _ in gate {}
-                return MockTestedClass()
+                return MockTestedClass().cuckooManager
             }
             return MockTestedClass()
         }
         open.finish()
         let later = await task?.value
 
-        #expect(later.map { $0.cuckooManager !== mock.cuckooManager } == true)
+        #expect(later.map { $0 !== mock.cuckooManager } == true)
     }
 
     @Test

@@ -84,6 +84,19 @@ struct UnstubbedCallTests {
     }
 
     @Test
+    func asyncThrowingMembersThrowUnstubbedCall() async {
+        let log = FailureLog()
+        let mock = MockTestedClass()
+
+        await CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
+            await #expect(throws: CuckooError.unstubbedCall(method: "withAsyncThrows() async throws -> Int")) {
+                try await mock.withAsyncThrows()
+            }
+        }
+        #expect(log.all.count == 1)
+    }
+
+    @Test
     func throwingMembersThrowUnstubbedCall() {
         let log = FailureLog()
         let mock = MockTestedProtocol()
@@ -108,6 +121,21 @@ struct UnstubbedCallTests {
             #expect(mock.count(characters: "a") == 0)
         }
         #expect(log.all.first?.hasPrefix("The stub that matches count(characters:) with (\"a\") has no answer.") == true)
+    }
+
+    @Test
+    func anOlderStubAnswersPastAnUnfinishedOne() {
+        let log = FailureLog()
+        let mock = MockTestedProtocol()
+        stub(mock) { stub in
+            when(stub.count(characters: any())).thenReturn(1)
+            _ = when(stub.count(characters: "a"))
+        }
+
+        CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: log.handler)) {
+            #expect(mock.count(characters: "a") == 1)
+        }
+        #expect(log.all.isEmpty)
     }
 
     @Test
