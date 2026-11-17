@@ -204,25 +204,42 @@ jobs:
           # Boot it now, so its system finishes starting up while the package builds.
           xcrun simctl boot "$SIMULATOR_ID"
       # The CuckooTests scheme (scripts/install-scheme.sh) builds only the runtime side for the simulator; the
-      # generator is built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
-      # Swift, so what can break there is compile-time (APIs, availability, imports).
-      # Xcode 26.6 also builds the generator's dependencies for the destination, so they all have to build
-      # for tvOS and watchOS too. They build the arm64 slice only: the runners are Apple Silicon, and Xcode
-      # 27.2's linker warns on x86_64 objects that prelink an @objc protocol with a Swift protocol inheriting
-      # an Objective-C one (roadmap item 11).
+      # generator is built for macOS, as the mock plugin's tool, for arm64 only (ARCHS), not as a universal
+      # binary. tvOS and watchOS are build-only: the runtime is plain Swift, so what can break there is
+      # compile-time (APIs, availability, imports). Xcode 26.6 also builds the generator's dependencies for the
+      # destination, so they all have to build for tvOS and watchOS too. They build the arm64 slice only: the
+      # runners are Apple Silicon, and Xcode 27.2's linker warns on x86_64 objects that prelink an @objc protocol
+      # with a Swift protocol inheriting an Objective-C one (roadmap item 11).
+      # The package's dependencies, as xcodebuild clones them, are kept between runs: cloning swift-syntax took about
+      # five minutes. Only sources are cached, under a key naming Package.resolved, so a cached copy can't go stale.
+      # Pull requests only restore them, so they can't fill the cache with copies of their own.
+      - name: Restore the package dependencies
+        id: source-packages
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/SourcePackages
+          key: source-packages-${{ matrix.runner }}-${{ hashFiles('Package.resolved') }}
       - name: Install the CuckooTests scheme
         run: scripts/install-scheme.sh
       - name: Test the package on iOS
         run: |
           set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" \
+            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" ARCHS=arm64 \
+            -clonedSourcePackagesDirPath ~/SourcePackages -skipPackageUpdates \
             | xcbeautify --renderer github-actions
+      - name: Save the package dependencies
+        if: github.event_name != 'pull_request' && steps.source-packages.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/SourcePackages
+          key: ${{ steps.source-packages.outputs.cache-primary-key }}
       # One invocation builds both platforms, so their builds run side by side.
       - name: Build the package tests for tvOS and watchOS
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
             -destination "generic/platform=tvOS Simulator" -destination "generic/platform=watchOS Simulator" \
-            ARCHS=arm64 | xcbeautify --renderer github-actions
+            ARCHS=arm64 -clonedSourcePackagesDirPath ~/SourcePackages -skipPackageUpdates \
+            | xcbeautify --renderer github-actions
       # The plugin's Xcode entry point, which the package's own schemes never run: an Xcode project whose two test
       # targets use the plugin, each with a Cuckoofile entry that lists its sources.
       - name: Test an Xcode project that uses the plugin
