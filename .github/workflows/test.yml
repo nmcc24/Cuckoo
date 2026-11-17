@@ -28,6 +28,30 @@ permissions:
 # Package.swift allows, so each one the generator can build with stays tested.
 # Each job's timeout is about three times its usual run, so a hung job fails rather than running for six hours.
 jobs:
+  # Whether the change can affect the code: a pull request that touches only the CHANGELOG, the README or docs/
+  # skips the macOS jobs and the TSan job, which take longest and test nothing such a change can break. The Linux
+  # jobs still run (their tests parse the DocC articles' Cuckoofile examples), and every other event runs everything.
+  changes:
+    name: What the change touches
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      code: ${{ steps.files.outputs.code }}
+    steps:
+      - id: files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          other="$(gh api --paginate "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --jq '.[].filename' | grep -vE '^(CHANGELOG\.md|README\.md|docs/)' || true)"
+          if [ -n "$other" ]; then echo "code=true"; else echo "code=false"; fi >> "$GITHUB_OUTPUT"
+
   generator_linux:
     name: SwiftPM tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }}${{ matrix.swift-syntax && format(', swift-syntax {0}', matrix.swift-syntax) || '' }})
     runs-on: ubuntu-latest
@@ -139,6 +163,8 @@ jobs:
 
   tsan_linux:
     name: Runtime tests under the Thread Sanitizer on Linux (Swift 6.3)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -156,6 +182,8 @@ jobs:
 
   generator_macOS:
     name: SwiftPM tests and Swift 6 matrix on ${{ matrix.runner }} (${{ matrix.build-system }})
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ${{ matrix.runner }}
     # Master's runs also build the generator bundle (below), which takes about as long again.
     timeout-minutes: ${{ github.event_name == 'pull_request' && 30 || 60 }}
@@ -194,6 +222,8 @@ jobs:
 
   test_iOS:
     name: Build and Test on Apple simulators (${{ matrix.runner }})
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
@@ -223,12 +253,15 @@ jobs:
       # The package's dependencies, as xcodebuild clones them, are kept between runs: cloning swift-syntax took about
       # five minutes. Only sources are cached, under a key naming Package.resolved, so a cached copy can't go stale.
       # Pull requests only restore them, so they can't fill the cache with copies of their own.
+      # hashFiles('Package.resolved') timed out after 120 s on a busy runner, so the key's hash comes from shasum.
+      - name: Hash Package.resolved
+        run: echo "PACKAGE_RESOLVED_HASH=$(shasum -a 256 Package.resolved | cut -c1-16)" >> "$GITHUB_ENV"
       - name: Restore the package dependencies
         id: source-packages
         uses: actions/cache/restore@v6
         with:
           path: ~/SourcePackages
-          key: source-packages-${{ matrix.runner }}-${{ hashFiles('Package.resolved') }}
+          key: source-packages-${{ matrix.runner }}-${{ env.PACKAGE_RESOLVED_HASH }}
       - name: Install the CuckooTests scheme
         run: scripts/install-scheme.sh
       - name: Test the package on iOS
@@ -243,12 +276,17 @@ jobs:
         with:
           path: ~/SourcePackages
           key: ${{ steps.source-packages.outputs.cache-primary-key }}
-      # One invocation builds both platforms, so their builds run side by side.
-      - name: Build the package tests for tvOS and watchOS
+      - name: Build the package tests for tvOS
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "generic/platform=tvOS Simulator" -destination "generic/platform=watchOS Simulator" \
-            ARCHS=arm64 -clonedSourcePackagesDirPath ~/SourcePackages -skipPackageUpdates \
+            -destination "generic/platform=tvOS Simulator" ARCHS=arm64 \
+            -clonedSourcePackagesDirPath ~/SourcePackages -skipPackageUpdates \
+            | xcbeautify --renderer github-actions
+      - name: Build the package tests for watchOS
+        run: |
+          set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
+            -destination "generic/platform=watchOS Simulator" ARCHS=arm64 \
+            -clonedSourcePackagesDirPath ~/SourcePackages -skipPackageUpdates \
             | xcbeautify --renderer github-actions
       # The plugin's Xcode entry point, which the package's own schemes never run: an Xcode project whose two test
       # targets use the plugin, each with a Cuckoofile entry that lists its sources.
@@ -268,14 +306,17 @@ jobs:
   ci_passed:
     name: CI passed
     if: always()
-    needs: [generator_linux, swift7_linux, docs_linux, bundle_linux, tsan_linux, generator_macOS, test_iOS]
+    needs: [changes, generator_linux, swift7_linux, docs_linux, bundle_linux, tsan_linux, generator_macOS, test_iOS]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       actions: read
     steps:
+      # A job skips only when the change touches no code (the changes job); any other skip is a failure.
       - name: Fail unless every job succeeded
-        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
+        if: >-
+          contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') ||
+          (needs.changes.outputs.code != 'false' && contains(needs.*.result, 'skipped'))
         run: |
           echo '${{ toJSON(needs) }}'
           exit 1
@@ -284,9 +325,11 @@ jobs:
       - name: Fail unless every matrix leg succeeded
         env:
           GH_TOKEN: ${{ github.token }}
+          SKIPS_ALLOWED: ${{ needs.changes.outputs.code == 'false' }}
         run: |
           not_passed="$(gh api --paginate "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs?filter=latest" \
-            --jq '.jobs[] | select(.name != "CI passed" and .conclusion != "success") | "\(.name): \(.conclusion // .status)"')"
+            --jq '.jobs[] | select(.name != "CI passed" and .conclusion != "success")
+              | select(.conclusion != "skipped" or env.SKIPS_ALLOWED != "true") | "\(.name): \(.conclusion // .status)"')"
           if [ -n "$not_passed" ]; then
             echo "$not_passed"
             exit 1
