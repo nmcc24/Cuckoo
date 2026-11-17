@@ -91,15 +91,15 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
         })
     }
 
-    func generic(_ p0: borrowing ((any Sendable)) -> Void) {
-        return withoutActuallyEscaping(copy p0, do: { (p0: @escaping ((any Sendable)) -> Void) in
+    func generic(_ p0: borrowing (any Sendable) -> Void) {
+        return withoutActuallyEscaping(copy p0, do: { (p0: @escaping (any Sendable) -> Void) in
             return cuckooManager.call(
-                "generic(_ p0: borrowing ((any Sendable)) -> Void)",
+                "generic(_ p0: borrowing (any Sendable) -> Void)",
                 parameters: ((copy p0)),
                 escapingParameters: (({ _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
-                                    } as ((any Sendable)) -> Void)),
-                invoke: { (implementation: ((@escaping ((any Sendable)) -> Void)) -> Void, arguments) in
+                                    } as (any Sendable) -> Void)),
+                invoke: { (implementation: ((@escaping (any Sendable) -> Void)) -> Void, arguments) in
                                 implementation(arguments)
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -174,12 +174,12 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
             ))
         }
 
-        func generic<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(((any Sendable)) -> Void), ((@escaping ((any Sendable)) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ((any Sendable)) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<(((any Sendable)) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+        func generic<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<((any Sendable) -> Void), ((@escaping (any Sendable) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (any Sendable) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((any Sendable) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockClosureSpecifierService.self,
-                method: "generic(_ p0: borrowing ((any Sendable)) -> Void)",
+                method: "generic(_ p0: borrowing (any Sendable) -> Void)",
                 parameterMatchers: matchers
             ))
         }
@@ -259,12 +259,12 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
         }
 
         @discardableResult
-        func generic<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(((any Sendable)) -> Void), Void> where __M1.MatchedType == ((any Sendable)) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<(((any Sendable)) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+        func generic<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<((any Sendable) -> Void), Void> where __M1.MatchedType == (any Sendable) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((any Sendable) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
-                "generic(_ p0: borrowing ((any Sendable)) -> Void)",
+                "generic(_ p0: borrowing (any Sendable) -> Void)",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -307,7 +307,7 @@ nonisolated final class ClosureSpecifierServiceStub: ClosureSpecifierService {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
-    func generic(_ p0: borrowing ((any Sendable)) -> Void) {
+    func generic(_ p0: borrowing (any Sendable) -> Void) {
         typealias __CuckooDefault = Void
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }

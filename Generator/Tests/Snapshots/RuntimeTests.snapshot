@@ -872,11 +872,11 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
         }
     }
 
-    override var tuple1: (Int) {
+    override var tuple1: Int {
         get {
             return cuckooManager.getter(
                 "tuple1",
-                invoke: { (implementation: (()) -> (Int)) in
+                invoke: { (implementation: (()) -> Int) in
                     implementation(())
                 },
                 superclassCall: super.tuple1,
@@ -887,7 +887,7 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
             cuckooManager.setter(
                 "tuple1",
                 value: newValue,
-                invoke: { (implementation: ((Int)) -> Void, value) in
+                invoke: { (implementation: (Int) -> Void, value) in
                     implementation(value)
                 },
                 superclassCall: super.tuple1 = newValue,
@@ -1180,7 +1180,7 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
             return .init(manager: cuckooManager, name: "dictionaryProperty")
         }
 
-        var tuple1: Cuckoo.ClassToBeStubbedProperty<MockClassForStubTesting, (Int), (()) -> (Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> {
+        var tuple1: Cuckoo.ClassToBeStubbedProperty<MockClassForStubTesting, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckooManager, name: "tuple1")
         }
 
@@ -1280,7 +1280,7 @@ final class MockClassForStubTesting: ClassForStubTesting, nonisolated Cuckoo.Cla
             return .init(manager: cuckooManager, name: "dictionaryProperty", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
-        var tuple1: Cuckoo.VerifyProperty<(Int)> {
+        var tuple1: Cuckoo.VerifyProperty<Int> {
             return .init(manager: cuckooManager, name: "tuple1", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
@@ -1406,9 +1406,9 @@ final class ClassForStubTestingStub: ClassForStubTesting {
         }
     }
 
-    override var tuple1: (Int) {
+    override var tuple1: Int {
         get {
-            typealias __CuckooDefault = (Int)
+            typealias __CuckooDefault = Int
             return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
         set {
@@ -4807,12 +4807,12 @@ final class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMet
         )
     }
 
-    override func noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> (UwU) {
+    override func noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> UwU {
         return try cuckooManager.callRethrows(
-            "noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> (UwU)",
+            "noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> UwU",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((@escaping () throws -> UwU)) throws -> (ClassyT) -> (UwU), arguments) in
+            invoke: { (implementation: ((@escaping () throws -> UwU)) throws -> (ClassyT) -> UwU, arguments) in
                 try implementation(arguments)
             },
             superclassCall: super.noticeMe(param: p0),
@@ -4916,12 +4916,12 @@ final class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMet
             ))
         }
 
-        func noticeMe<__M1: Cuckoo._Matchable, UwU>(param p0: __M1) -> Cuckoo.ClassStubThrowingFunction<(() throws -> UwU), (ClassyT) -> (UwU), any Swift.Error, ((@escaping () throws -> UwU)) throws -> (ClassyT) -> (UwU), Cuckoo.StubSharing.Confined> where __M1.MatchedType == () throws -> UwU {
+        func noticeMe<__M1: Cuckoo._Matchable, UwU>(param p0: __M1) -> Cuckoo.ClassStubThrowingFunction<(() throws -> UwU), (ClassyT) -> UwU, any Swift.Error, ((@escaping () throws -> UwU)) throws -> (ClassyT) -> UwU, Cuckoo.StubSharing.Confined> where __M1.MatchedType == () throws -> UwU {
             let matchers: [Cuckoo.ParameterMatcher<(() throws -> UwU)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockGenericMethodClass.self,
-                method: "noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> (UwU)",
+                method: "noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> UwU",
                 parameterMatchers: matchers
             ))
         }
@@ -5010,12 +5010,12 @@ final class MockGenericMethodClass<ClassyT: CustomStringConvertible>: GenericMet
         }
 
         @discardableResult
-        func noticeMe<__M1: Cuckoo._Matchable, UwU>(param p0: __M1) -> Cuckoo.VerifiedCall<(() throws -> UwU), (ClassyT) -> (UwU)> where __M1.MatchedType == () throws -> UwU {
+        func noticeMe<__M1: Cuckoo._Matchable, UwU>(param p0: __M1) -> Cuckoo.VerifiedCall<(() throws -> UwU), (ClassyT) -> UwU> where __M1.MatchedType == () throws -> UwU {
             let matchers: [Cuckoo.ParameterMatcher<(() throws -> UwU)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
-                "noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> (UwU)",
+                "noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> UwU",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -5106,8 +5106,8 @@ final class GenericMethodClassStub<ClassyT: CustomStringConvertible>: GenericMet
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
-    override func noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> (UwU) {
-        typealias __CuckooDefault = (ClassyT) -> (UwU)
+    override func noticeMe<UwU> (param p0: @escaping () throws -> UwU) rethrows -> (ClassyT) -> UwU {
+        typealias __CuckooDefault = (ClassyT) -> UwU
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
@@ -40191,21 +40191,21 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
         })
     }
 
-    override func withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int {
-        return withoutActuallyEscaping(p0, do: { (p0: @escaping ((String)) -> Int) -> Int in
+    override func withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int {
+        return withoutActuallyEscaping(p0, do: { (p0: @escaping (String) -> Int) -> Int in
             return withoutActuallyEscaping(p1, do: { (p1: @escaping (String) -> Int) -> Int in
                 return withoutActuallyEscaping(p2, do: { (p2: @escaping (String) -> Int) -> Int in
                     return cuckooManager.call(
-                        "withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
+                        "withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
                         parameters: (p0, p1, p2),
                         escapingParameters: (({ _ in
                                                                                     fatalError("This is a stub! It's not supposed to be called!")
-                                                                                } as ((String)) -> Int), ({ _ in
+                                                                                } as (String) -> Int), ({ _ in
                                                                                     fatalError("This is a stub! It's not supposed to be called!")
                                                                                 } as (String) -> Int), ({ _ in
                                                                                     fatalError("This is a stub! It's not supposed to be called!")
                                                                                 } as (String) -> Int)),
-                        invoke: { (implementation: ((((String)) -> Int, (String) -> Int, (String) -> Int)) -> Int, arguments) in
+                        invoke: { (implementation: (((String) -> Int, (String) -> Int, (String) -> Int)) -> Int, arguments) in
                                                                             implementation(arguments)
                                                                         },
                         superclassCall: super.withMultClosures(closure: p0, closureB: p1, closureC: p2),
@@ -41026,8 +41026,8 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func withMultClosures<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(closure p0: __M1, closureB p1: __M2, closureC p2: __M3) -> Cuckoo.ClassStubFunction<(((String)) -> Int, (String) -> Int, (String) -> Int), Int, ((((String)) -> Int, (String) -> Int, (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ((String)) -> Int, __M2.MatchedType == (String) -> Int, __M3.MatchedType == (String) -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<(((String)) -> Int, (String) -> Int, (String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+        func withMultClosures<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(closure p0: __M1, closureB p1: __M2, closureC p2: __M3) -> Cuckoo.ClassStubFunction<((String) -> Int, (String) -> Int, (String) -> Int), Int, (((String) -> Int, (String) -> Int, (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (String) -> Int, __M2.MatchedType == (String) -> Int, __M3.MatchedType == (String) -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<((String) -> Int, (String) -> Int, (String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
@@ -41035,7 +41035,7 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
                     $0.2
                 }]
             return .init(stub: cuckooManager.createStub(for: MockTestedSubclass.self,
-                method: "withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
+                method: "withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
                 parameterMatchers: matchers
             ))
         }
@@ -41668,8 +41668,8 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func withMultClosures<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(closure p0: __M1, closureB p1: __M2, closureC p2: __M3) -> Cuckoo.VerifiedCall<(((String)) -> Int, (String) -> Int, (String) -> Int), Int> where __M1.MatchedType == ((String)) -> Int, __M2.MatchedType == (String) -> Int, __M3.MatchedType == (String) -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<(((String)) -> Int, (String) -> Int, (String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+        func withMultClosures<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(closure p0: __M1, closureB p1: __M2, closureC p2: __M3) -> Cuckoo.VerifiedCall<((String) -> Int, (String) -> Int, (String) -> Int), Int> where __M1.MatchedType == (String) -> Int, __M2.MatchedType == (String) -> Int, __M3.MatchedType == (String) -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<((String) -> Int, (String) -> Int, (String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
@@ -41677,7 +41677,7 @@ final class MockTestedSubclass: TestedSubclass, nonisolated Cuckoo.ClassMock {
                     $0.2
                 }]
             return cuckooManager.verify(
-                "withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
+                "withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -42457,7 +42457,7 @@ final class TestedSubclassStub: TestedSubclass {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
-    override func withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int {
+    override func withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int {
         typealias __CuckooDefault = Int
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
@@ -43173,21 +43173,21 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
         })
     }
 
-    override func withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int {
-        return withoutActuallyEscaping(p0, do: { (p0: @escaping ((String)) -> Int) -> Int in
+    override func withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int {
+        return withoutActuallyEscaping(p0, do: { (p0: @escaping (String) -> Int) -> Int in
             return withoutActuallyEscaping(p1, do: { (p1: @escaping (String) -> Int) -> Int in
                 return withoutActuallyEscaping(p2, do: { (p2: @escaping (String) -> Int) -> Int in
                     return cuckooManager.call(
-                        "withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
+                        "withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
                         parameters: (p0, p1, p2),
                         escapingParameters: (({ _ in
                                                                                     fatalError("This is a stub! It's not supposed to be called!")
-                                                                                } as ((String)) -> Int), ({ _ in
+                                                                                } as (String) -> Int), ({ _ in
                                                                                     fatalError("This is a stub! It's not supposed to be called!")
                                                                                 } as (String) -> Int), ({ _ in
                                                                                     fatalError("This is a stub! It's not supposed to be called!")
                                                                                 } as (String) -> Int)),
-                        invoke: { (implementation: ((((String)) -> Int, (String) -> Int, (String) -> Int)) -> Int, arguments) in
+                        invoke: { (implementation: (((String) -> Int, (String) -> Int, (String) -> Int)) -> Int, arguments) in
                                                                             implementation(arguments)
                                                                         },
                         superclassCall: super.withMultClosures(closure: p0, closureB: p1, closureC: p2),
@@ -44016,8 +44016,8 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
             ))
         }
 
-        func withMultClosures<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(closure p0: __M1, closureB p1: __M2, closureC p2: __M3) -> Cuckoo.ClassStubFunction<(((String)) -> Int, (String) -> Int, (String) -> Int), Int, ((((String)) -> Int, (String) -> Int, (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ((String)) -> Int, __M2.MatchedType == (String) -> Int, __M3.MatchedType == (String) -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<(((String)) -> Int, (String) -> Int, (String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+        func withMultClosures<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(closure p0: __M1, closureB p1: __M2, closureC p2: __M3) -> Cuckoo.ClassStubFunction<((String) -> Int, (String) -> Int, (String) -> Int), Int, (((String) -> Int, (String) -> Int, (String) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (String) -> Int, __M2.MatchedType == (String) -> Int, __M3.MatchedType == (String) -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<((String) -> Int, (String) -> Int, (String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
@@ -44025,7 +44025,7 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
                     $0.2
                 }]
             return .init(stub: cuckooManager.createStub(for: MockTestedSubSubClass.self,
-                method: "withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
+                method: "withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
                 parameterMatchers: matchers
             ))
         }
@@ -44669,8 +44669,8 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
         }
 
         @discardableResult
-        func withMultClosures<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(closure p0: __M1, closureB p1: __M2, closureC p2: __M3) -> Cuckoo.VerifiedCall<(((String)) -> Int, (String) -> Int, (String) -> Int), Int> where __M1.MatchedType == ((String)) -> Int, __M2.MatchedType == (String) -> Int, __M3.MatchedType == (String) -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<(((String)) -> Int, (String) -> Int, (String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+        func withMultClosures<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(closure p0: __M1, closureB p1: __M2, closureC p2: __M3) -> Cuckoo.VerifiedCall<((String) -> Int, (String) -> Int, (String) -> Int), Int> where __M1.MatchedType == (String) -> Int, __M2.MatchedType == (String) -> Int, __M3.MatchedType == (String) -> Int {
+            let matchers: [Cuckoo.ParameterMatcher<((String) -> Int, (String) -> Int, (String) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
                     $0.0
                 }, Cuckoo.wrap(matchable: p1) {
                     $0.1
@@ -44678,7 +44678,7 @@ final class MockTestedSubSubClass: TestedSubSubClass, nonisolated Cuckoo.ClassMo
                     $0.2
                 }]
             return cuckooManager.verify(
-                "withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
+                "withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -45463,7 +45463,7 @@ final class TestedSubSubClassStub: TestedSubSubClass {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
-    override func withMultClosures(closure p0: ((String)) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int {
+    override func withMultClosures(closure p0: (String) -> Int, closureB p1: (String) -> Int, closureC p2: (String) -> Int) -> Int {
         typealias __CuckooDefault = Int
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
