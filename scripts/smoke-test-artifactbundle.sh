@@ -41,7 +41,7 @@ fi
 consumer="$work/Consumer"
 mkdir -p "$consumer/Sources/App" "$consumer/Tests/AppTests"
 cat > "$consumer/Package.swift" <<SWIFT
-// swift-tools-version:6.2
+// swift-tools-version:6.3
 import PackageDescription
 
 let package = Package(
@@ -49,7 +49,7 @@ let package = Package(
     platforms: [.macOS("14.0")],
     dependencies: [
         $dependency,
-        .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"602.0.0"),
+        .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"603.0.0"),
     ],
     targets: [
         .target(name: "App"),
@@ -98,8 +98,8 @@ cd "$consumer"
 swift test ${SWIFT_BUILD_FLAGS:-}
 # The release declares no swift-syntax dependency, so the package's own older range resolved.
 syntax_version="$(sed -nE '/"identity" : "swift-syntax"/,/"version"/s/.*"version" : "([0-9.]+)".*/\1/p' Package.resolved)"
-if [[ ! "$syntax_version" =~ ^60[01]\. ]]; then
-    echo "swift-syntax resolved to '$syntax_version', not below 602.0.0: Cuckoo still constrains it." >&2
+if [[ ! "$syntax_version" =~ ^60[0-2]\. ]]; then
+    echo "swift-syntax resolved to '$syntax_version', not below 603.0.0: Cuckoo still constrains it." >&2
     exit 1
 fi
 # The package's swift-syntax dependency, which no target uses, isn't built either. SwiftPM on macOS downloads its
