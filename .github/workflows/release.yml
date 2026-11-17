@@ -2,8 +2,8 @@ name: Release
 # Releases a version with the prebuilt generator (roadmap Phase 5 item 2, option B). Run it by hand on master, with
 # the version that Generator/Sources/CLI/Version.swift already holds (bump it in a PR first).
 #
-# It builds the generator's `artifactbundle` for macOS (universal) and Linux (x86_64 and arm64), zips it once, tests
-# that zip the way a user gets it on macOS and on Linux with every supported Swift version (6.2 to 6.4), then tags
+# It builds the generator's `artifactbundle` for macOS (arm64) and Linux (x86_64 and arm64), zips it once, tests
+# that zip the way a user gets it on macOS and on Linux with every supported Swift version (6.3 and 6.4), then tags
 # one commit off master that points the plugins at the bundle, and publishes the release with the bundle attached.
 # Master keeps building the generator from source; only the tag carries the binary.
 #
@@ -97,7 +97,7 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - { name: macOS, runner: macos-26 }
+          - { name: macOS, runner: xcode-27 }
           - { name: Linux x86_64, runner: ubuntu-latest, container: "swift:6.3-jammy" }
           - { name: Linux arm64, runner: ubuntu-26.04-arm, container: "swift:6.3-jammy" }
     runs-on: ${{ matrix.runner }}
@@ -118,7 +118,7 @@ jobs:
   bundle:
     name: Bundle and smoke-test (macOS)
     needs: build
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 45
     steps:
       - name: Checkout
@@ -173,8 +173,6 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - { name: Linux x86_64 Swift 6.2, runner: ubuntu-latest, container: "swift:6.2" }
-          - { name: Linux arm64 Swift 6.2, runner: ubuntu-26.04-arm, container: "swift:6.2" }
           - { name: Linux x86_64 Swift 6.3, runner: ubuntu-latest, container: "swift:6.3" }
           - { name: Linux arm64 Swift 6.3, runner: ubuntu-26.04-arm, container: "swift:6.3" }
           - { name: Linux x86_64 Swift 6.4, runner: ubuntu-latest, container: "swift:6.4" }
@@ -319,9 +317,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: macOS, runner: macos-26 }
-          - { name: Linux x86_64 Swift 6.2, runner: ubuntu-latest, container: "swift:6.2" }
-          - { name: Linux arm64 Swift 6.2, runner: ubuntu-26.04-arm, container: "swift:6.2" }
+          - { name: macOS, runner: xcode-27 }
           - { name: Linux x86_64 Swift 6.3, runner: ubuntu-latest, container: "swift:6.3" }
           - { name: Linux arm64 Swift 6.3, runner: ubuntu-26.04-arm, container: "swift:6.3" }
           - { name: Linux x86_64 Swift 6.4, runner: ubuntu-latest, container: "swift:6.4" }

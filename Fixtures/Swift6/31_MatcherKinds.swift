@@ -1,6 +1,6 @@
 import Cuckoo
 
-// Stubbing with matchers, compiled in every mode. With the Xcode 26 defaults (-default-isolation MainActor),
+// Stubbing with matchers, compiled in every mode. With a new Xcode project's defaults (-default-isolation MainActor),
 // `Profile`'s `==` is isolated to the main actor, so `equal(to: profile)` must take the non-Sendable matcher, which a
 // mock that isn't Sendable accepts.
 struct Profile: Equatable {
