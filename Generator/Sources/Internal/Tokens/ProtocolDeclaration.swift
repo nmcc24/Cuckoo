@@ -180,7 +180,7 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// `Input`, written out in their parameters: such a parameter is a non-escaping closure, which the mock has to
     /// make escaping to record, and it only knows a closure written as one. Inside a closure's own parameters the
     /// function type is `@escaping`, as the associated type's witness is. A member's generic parameter of the same
-    /// name shadows it. A function type the parent's argument names through a typealias isn't recognised.
+    /// name shadows it. The crawler has already written a function typealias in the parent's argument out.
     private static func expandingFunctionTypes(_ fixedTypes: [(name: String, type: String)], in members: [any Token]) -> [any Token] {
         let functionTypes = fixedTypes.filter { _, type in
             var parser = Parser(type)

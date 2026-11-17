@@ -10,9 +10,9 @@
 - A parameter whose type is a parent's associated type bound to a function type, as `Input` in
   `protocol Formatter: Transforming<(Int) -> String>`, is a non-escaping closure, which the mock recorded as it was
   and didn't compile. The mock now makes it escaping to record it, as it does any closure parameter, in methods and
-  subscripts, with `sending`, and inside a closure's own parameters. A function type the parent's argument names
-  through a typealias still isn't recognised: write it out. A parenthesized closure parameter, `((Int) -> String)`,
-  is a closure parameter too.
+  subscripts, with `sending`, and inside a closure's own parameters, whether the parent's argument writes the
+  function type out or names it through a typealias, found as a parameter's is. A parenthesized closure parameter,
+  `((Int) -> String)`, is a closure parameter too.
 - A member with an `isolated` parameter didn't compile in a `@MainActor` protocol when it returned a non-`Sendable`
   value, or in an `Actor` protocol: its stubs ran on the protocol's actor, while the member runs on the actor its
   parameter names. Its stubs are nonisolated and shared now, so they take `Sendable` values: return a non-`Sendable`
