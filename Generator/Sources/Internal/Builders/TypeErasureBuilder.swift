@@ -293,20 +293,10 @@ enum TypeErasureBuilder {
         } else if isGeneric && !getter.associatedTypesInWhereClause.isEmpty {
             declaration.append("        return \(unforwardable)")
         } else if isGeneric && getter.usesNonPrimaryAssociatedTypes {
-            // Through `any P` an associated type reads as `Any`: the opened type gives it back, as for methods, with
-            // the same copies of the local function for Swift 6.2.
-            let variants = getter.localFunctionVariants
-            for variant in variants {
-                if !variant.directive.isEmpty {
-                    declaration.append("        \(variant.directive)")
-                }
-                declaration.append("        \(variant.modifier)func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic))\(effects.trimmedSpaces.isEmpty ? "" : " \(effects.trimmedSpaces)") -> \(returnType) {")
-                declaration.append("            return \(tryAwait)\(castResult("opened[\(castArguments)]"))")
-                declaration.append("        }")
-            }
-            if variants.count > 1 {
-                declaration.append("        #endif")
-            }
+            // Through `any P` an associated type reads as `Any`: the opened type gives it back, as for methods.
+            declaration.append("        func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic))\(effects.trimmedSpaces.isEmpty ? "" : " \(effects.trimmedSpaces)") -> \(returnType) {")
+            declaration.append("            return \(tryAwait)\(castResult("opened[\(castArguments)]"))")
+            declaration.append("        }")
             declaration.append("        return \(tryAwait)openExistential(cuckooReference())")
         } else if isGeneric {
             declaration.append("        return \(tryAwait)cuckooReference()[\(forwardingCall)]")
@@ -445,19 +435,10 @@ enum TypeErasureBuilder {
             declaration.append("    return \(unforwardableCall(method.fullyQualifiedName, reason: method.unforwardableWhereClauseReason, returning: method.returnType))")
         } else if method.hasGenericParams && method.usesNonPrimaryAssociatedTypes {
             // A `sending` argument is passed in rather than captured: a captured value can't be sent on.
-            let variants = method.localFunctionVariants
             let sendingDeclarations = method.sendingParameterDeclarations.map { ", \($0)" }.joined()
-            for variant in variants {
-                if !variant.directive.isEmpty {
-                    declaration.append("    \(variant.directive)")
-                }
-                declaration.append("    \(variant.modifier)func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic)\(sendingDeclarations))\(effects) -> \(returnType) {")
-                declaration.append("        return \(tryAwait)opened.\(method.name)\(method.staticGenericCall)")
-                declaration.append("    }")
-            }
-            if variants.count > 1 {
-                declaration.append("    #endif")
-            }
+            declaration.append("    func openExistential<\(generic): \(context.protocolName)\(context.primaryArguments)>(_ opened: \(generic)\(sendingDeclarations))\(effects) -> \(returnType) {")
+            declaration.append("        return \(tryAwait)opened.\(method.name)\(method.staticGenericCall)")
+            declaration.append("    }")
             let sendingNames = method.sendingParameterNames.map { ", \($0)" }.joined()
             declaration.append("    return \(tryAwait)openExistential(cuckooReference()\(sendingNames))")
         } else if method.hasGenericParams {

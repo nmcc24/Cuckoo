@@ -202,11 +202,6 @@ extension Method {
         )
     }
     
-    /// Whether the member runs on a global actor, its own or its protocol's.
-    private var isGlobalActorIsolated: Bool {
-        if case .globalActor? = isolation ?? parent?.asProtocol?.isolation { true } else { false }
-    }
-
     /// The type a stub asks `DefaultValueRegistry` for, as the stub's generic arguments name it; empty for no return type.
     var defaultValueType: String {
         returnType.map { $0.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe.description } ?? ""
@@ -348,21 +343,6 @@ extension Method {
             return "(\(staticGenericCallableParameters))".forceCast(as: returnType)
         }
         return "(\(staticGenericCallableParameters))"
-    }
-
-    /// The `#if` directive and modifier of each copy of a local function the mock declares.
-    ///
-    /// Under NonisolatedNonsendingByDefault, Swift 6.2 treats an async local function as `@concurrent`, so it
-    /// gets `nonisolated(nonsending)` there. Spelled out on 6.2 without the feature, it fails instead.
-    /// A global actor's member needs neither: its local function is isolated to the actor, and
-    /// `nonisolated(nonsending)` would run the actor-isolated call from a nonisolated context.
-    /// Drop the first variant when Swift 6.2 support ends.
-    var localFunctionVariants: [(directive: String, modifier: String)] {
-        guard isAsync && !isGlobalActorIsolated else { return [("", "")] }
-        return [
-            ("#if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)", "nonisolated(nonsending) "),
-            ("#else", ""),
-        ]
     }
 
     /// The parameters as the mock manager records them.
