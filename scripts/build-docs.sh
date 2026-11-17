@@ -9,7 +9,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 output="${1:-.build/docs/Cuckoo.doccarchive}"
 
-# On Linux, Swift 6.2 and 6.3 exit 1 after writing the runtime's graph, because they can't emit one for the
+# On Linux, Swift 6.3 exits 1 after writing the runtime's graph, because they can't emit one for the
 # test-discovery modules. Carry on, and fail below if the runtime's graph is missing.
 # A marker older than this run's graph, so a graph left in .build by an earlier run doesn't count.
 mkdir -p .build

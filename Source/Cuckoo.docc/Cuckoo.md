@@ -51,7 +51,7 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 - ``stub(_:block:)-(M.Type,_)``
 - ``when(_:)``
 - ``clearStubs(_:)-(Mock...)``
-- ``clearStubs(_:)-(StaticMock....)``
+- ``clearStubs(_:)-(StaticMock.Type...)``
 - ``StubFunctionThenReturnTrait``
 - ``StubFunctionThenThrowTrait``
 - ``StubFunctionThenTrait``
@@ -65,14 +65,14 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 - ``verify(_:_:fileID:filePath:line:column:)->M.CuckooStaticVerification``
 - ``VerifiedCall``
 - ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)``
-- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(StaticMock....,_,_,_,_,_)``
+- ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(StaticMock.Type...,_,_,_,_,_)``
 - ``inOrder(strict:fileID:filePath:line:column:_:)``
 - ``eventually(timeout:pollingInterval:_:)``
 - ``ArgumentCaptor``
 - ``reset(_:)-(Mock...)``
 - ``reset(_:)-f6hy``
 - ``clearInvocations(_:)-(Mock...)``
-- ``clearInvocations(_:)-(StaticMock....)``
+- ``clearInvocations(_:)-(StaticMock.Type...)``
 
 ### Call matchers
 
