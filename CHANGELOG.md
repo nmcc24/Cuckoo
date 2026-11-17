@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- A requirement naming its associated type through `Self`, as `func first() -> Self.Item?` or
+  `Self.Item.Element`, in a parameter, a result, an initializer, a variadic parameter or a constraint, gave a mock
+  that didn't compile: inside the mock, which is generic over `Item`, `Self.Item` names nothing. It's written `Item`
+  there.
+- A parameter whose type is a parent's associated type bound to a function type, as `Input` in
+  `protocol Formatter: Transforming<(Int) -> String>`, is a non-escaping closure, which the mock recorded as it was
+  and didn't compile. The mock now makes it escaping to record it, as it does any closure parameter, in methods and
+  subscripts, with `sending`, and inside a closure's own parameters. A function type the parent's argument names
+  through a typealias still isn't recognised: write it out. A parenthesized closure parameter, `((Int) -> String)`,
+  is a closure parameter too.
+- A member with an `isolated` parameter didn't compile in a `@MainActor` protocol when it returned a non-`Sendable`
+  value, or in an `Actor` protocol: its stubs ran on the protocol's actor, while the member runs on the actor its
+  parameter names. Its stubs are nonisolated and shared now, so they take `Sendable` values: return a non-`Sendable`
+  one from `then { … }` rather than `thenReturn`.
+- The matcher of an optional parameter written with a specifier, such as `isolated (any Actor)?`,
+  `sending Ticket?` or `inout Int?`, was constrained to the optional type rather than its wrapped type: a `Sendable`
+  mock's stubbing proxy didn't compile, and neither did a value matcher such as `when(stub.update(1))`. It's matched as any
+  optional parameter is now, so `nil` is matched with `isNil()`, as for a plain `Int?` parameter.
+
 ## 3.0.0-beta.5
 
 Fixes and removals from two independent reviews of beta.4: failure messages name calls as a test writes them,
