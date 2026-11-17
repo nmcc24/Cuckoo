@@ -14,8 +14,9 @@ tests, then the behaviour changes, which show up as test failures.
 
 ### Requirements and installation
 
-- Swift 6.2 or later (Xcode 26 or later). The Swift 6 language mode is recommended, and it's what brings the
-  isolation checks below; the mocks also compile in the Swift 5 mode, which CI doesn't test.
+- Xcode 27 or later on an Apple silicon Mac, or Swift 6.3 or later on Linux. The Swift 6 language mode is
+  recommended, and it's what brings the isolation checks below; the mocks also compile in the Swift 5 mode, which
+  CI doesn't test.
 - iOS 17, macOS 14, tvOS 17 or watchOS 10, up from iOS 13, macOS 11, tvOS 13 and watchOS 8.
 - SwiftPM only. The podspec and the `run` script, which downloaded or built the generator for build-phase
   scripts, are gone. Add the package and the build plugin as <doc:GettingStarted> shows. To run the
@@ -24,7 +25,7 @@ tests, then the behaviour changes, which show up as test failures.
   `swift run CuckooGenerator`. Run it from a clone of Cuckoo, or from a release's `CuckooGenerator.artifactbundle.zip`.
 - The plugin of a release runs a prebuilt generator, so your build no longer compiles swift-syntax, and a release
   doesn't depend on swift-syntax at all: your macro packages can use any version. A dependency on a branch or a
-  commit still builds the generator from source, with swift-syntax `602.0.0..<605.0.0`.
+  commit still builds the generator from source, with swift-syntax `603.0.0..<605.0.0`.
 
 ### The Cuckoofile
 
