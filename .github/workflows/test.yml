@@ -28,6 +28,36 @@ permissions:
 # Package.swift allows, so each one the generator can build with stays tested.
 # Each job's timeout is about three times its usual run, so a hung job fails rather than running for six hours.
 jobs:
+  # Whether the change can affect the code: a pull request that touches only the CHANGELOG, the README or docs/
+  # skips the macOS jobs and the TSan job, which take longest and test nothing such a change can break. The Linux
+  # jobs still run (their tests parse the DocC articles' Cuckoofile examples), and every other event runs everything.
+  changes:
+    name: What the change touches
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      code: ${{ steps.files.outputs.code }}
+    steps:
+      - id: files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Fetched on its own, so a failed call fails the job (and CI passed) rather than reading as no files. A
+          # renamed file counts by both its paths, and a list with no files runs everything.
+          files="$(gh api --paginate "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --jq '.[] | .filename, (.previous_filename // empty)')"
+          if [ -z "$files" ] || grep -qvE '^(CHANGELOG\.md$|README\.md$|docs/)' <<<"$files"; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
+
   generator_linux:
     name: SwiftPM tests and Swift 6 matrix on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }}${{ matrix.swift-syntax && format(', swift-syntax {0}', matrix.swift-syntax) || '' }})
     runs-on: ubuntu-latest
@@ -139,6 +169,8 @@ jobs:
 
   tsan_linux:
     name: Runtime tests under the Thread Sanitizer on Linux (Swift 6.3)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -156,6 +188,8 @@ jobs:
 
   generator_macOS:
     name: SwiftPM tests and Swift 6 matrix on ${{ matrix.runner }} (${{ matrix.build-system }})
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ${{ matrix.runner }}
     # Master's runs also build the generator bundle (below), which takes about as long again.
     timeout-minutes: ${{ github.event_name == 'pull_request' && 30 || 60 }}
@@ -194,6 +228,8 @@ jobs:
 
   test_iOS:
     name: Build and Test on Apple simulators (${{ matrix.runner }})
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
@@ -256,14 +292,17 @@ jobs:
   ci_passed:
     name: CI passed
     if: always()
-    needs: [generator_linux, swift7_linux, docs_linux, bundle_linux, tsan_linux, generator_macOS, test_iOS]
+    needs: [changes, generator_linux, swift7_linux, docs_linux, bundle_linux, tsan_linux, generator_macOS, test_iOS]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       actions: read
     steps:
+      # A job skips only when the change touches no code (the changes job); any other skip is a failure.
       - name: Fail unless every job succeeded
-        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
+        if: >-
+          contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') ||
+          (needs.changes.outputs.code != 'false' && contains(needs.*.result, 'skipped'))
         run: |
           echo '${{ toJSON(needs) }}'
           exit 1
@@ -272,9 +311,11 @@ jobs:
       - name: Fail unless every matrix leg succeeded
         env:
           GH_TOKEN: ${{ github.token }}
+          SKIPS_ALLOWED: ${{ needs.changes.outputs.code == 'false' }}
         run: |
           not_passed="$(gh api --paginate "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs?filter=latest" \
-            --jq '.jobs[] | select(.name != "CI passed" and .conclusion != "success") | "\(.name): \(.conclusion // .status)"')"
+            --jq '.jobs[] | select(.name != "CI passed" and .conclusion != "success")
+              | select(.conclusion != "skipped" or env.SKIPS_ALLOWED != "true") | "\(.name): \(.conclusion // .status)"')"
           if [ -n "$not_passed" ]; then
             echo "$not_passed"
             exit 1
