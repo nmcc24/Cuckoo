@@ -350,21 +350,6 @@ extension Method {
         return "(\(staticGenericCallableParameters))"
     }
 
-    /// The `#if` directive and modifier of each copy of a local function the mock declares.
-    ///
-    /// Under NonisolatedNonsendingByDefault, Swift 6.2 treats an async local function as `@concurrent`, so it
-    /// gets `nonisolated(nonsending)` there. Spelled out on 6.2 without the feature, it fails instead.
-    /// A global actor's member needs neither: its local function is isolated to the actor, and
-    /// `nonisolated(nonsending)` would run the actor-isolated call from a nonisolated context.
-    /// Drop the first variant when Swift 6.2 support ends.
-    var localFunctionVariants: [(directive: String, modifier: String)] {
-        guard isAsync && !isGlobalActorIsolated else { return [("", "")] }
-        return [
-            ("#if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)", "nonisolated(nonsending) "),
-            ("#else", ""),
-        ]
-    }
-
     /// The parameters as the mock manager records them.
     var recordedParameters: String {
         signature.parameters.map(\.recordedValue).joined(separator: ", ")
