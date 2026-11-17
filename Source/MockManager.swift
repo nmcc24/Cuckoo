@@ -179,8 +179,8 @@ public final class MockManager: Sendable {
     // The `call` variants below differ only in effects. `invoke` runs a `then` closure: the generated mock
     // passes it, so the closure runs in the mock's isolation and the manager never calls user code itself.
     // The manager hands `invoke` the call's arguments, so the closure captures none of them. Capturing a
-    // non-Sendable argument in an actor mock's closure is a "sending ... risks causing data races" error on
-    // Swift 6.2.
+    // non-Sendable argument in an actor mock's closure was a "sending ... risks causing data races" error on
+    // Swift 6.2, and passing them in keeps the closures free of captured arguments.
 
     private func callInternal<IN, OUT, ERROR, IMPL>(
         _ method: String,

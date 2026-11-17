@@ -10,8 +10,8 @@ the mocks always match the code.
 
 ### Requirements
 
-- Swift 6.2 or later (Xcode 26 or later). The Swift 6 language mode is recommended; the mocks also compile in
-  the Swift 5 mode, which CI doesn't test.
+- Xcode 27 or later on an Apple silicon Mac, or Swift 6.3 or later on Linux. The Swift 6 language mode is
+  recommended; the mocks also compile in the Swift 5 mode, which CI doesn't test.
 - iOS 17, macOS 14, tvOS 17 or watchOS 10, or Linux.
 
 ### Add the package
@@ -47,10 +47,10 @@ the plugin the first time it runs; on CI, pass `-skipPackagePluginValidation` to
 that module's name, plus one from the entry named after the test target itself. Each file is its own build step, so
 a change in one module regenerates and recompiles only that module's mocks, and the steps run in parallel.
 
-A release's plugin runs a prebuilt generator, on macOS and on Linux (x86_64 and arm64), so your build doesn't compile
-swift-syntax: a release doesn't even declare the generator's dependencies, so its swift-syntax doesn't constrain the
-version your other packages, such as macro packages, resolve. A dependency on a branch or a commit instead builds
-the generator from source with the plugin, with swift-syntax `602.0.0..<605.0.0`.
+A release's plugin runs a prebuilt generator, on macOS (arm64) and on Linux (x86_64 and arm64), so your build
+doesn't compile swift-syntax: a release doesn't even declare the generator's dependencies, so its swift-syntax
+doesn't constrain the version your other packages, such as macro packages, resolve. A dependency on a branch or a
+commit instead builds the generator from source with the plugin, with swift-syntax `603.0.0..<605.0.0`.
 
 On Linux the prebuilt generator needs glibc 2.35 or newer: Ubuntu 22.04, Debian 12, RHEL 10 or later. On an older
 distribution, such as Amazon Linux 2023, it fails to start with "version `GLIBC_2.35' not found"; depend on a

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Breaking changes
+- Cuckoo needs Xcode 27 or later, on an Apple silicon Mac, or Swift 6.3 or later on Linux. Swift 6.2 and Xcode 26 are
+  no longer supported.
+- The generator built from source needs swift-syntax `603.0.0..<605.0.0`, raised from 602.0.0, Swift 6.2's release.
+  A release's prebuilt generator declares no swift-syntax dependency, so this constrains only a dependency on a branch
+  or a commit.
+- The prebuilt macOS generator is arm64 only: Xcode 27 doesn't run on Intel Macs.
+
 ### Fixed
 - A requirement naming its associated type through `Self`, as `func first() -> Self.Item?` or
   `Self.Item.Element`, in a parameter, a result, an initializer, a variadic parameter or a constraint, gave a mock
