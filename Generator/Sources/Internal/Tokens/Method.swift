@@ -126,8 +126,10 @@ extension Method {
         if isStatic && isolation == nil && parent?.value.asProtocol?.isActor == true {
             return .nonisolated
         }
-        // `nonisolated(nonsending)` and `@concurrent` make a member nonisolated, whatever its type's isolation.
-        if isolation == nil, executionAttribute?.isEmpty == false {
+        // `nonisolated(nonsending)`, `@concurrent` and an `isolated` parameter make a member nonisolated to its
+        // type's isolation: it runs on the caller's actor, or on the one the parameter names.
+        if isolation == nil,
+           executionAttribute?.isEmpty == false || signature.parameters.contains(where: { $0.type.containsAttribute(named: "isolated") }) {
             return .nonisolated
         }
         return isolation
