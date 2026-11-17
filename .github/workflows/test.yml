@@ -117,8 +117,8 @@ jobs:
           scripts/check-version.sh
 
   # The release workflow's prebuilt generator, built and tested here so a change that breaks the release build
-  # shows up in its PR rather than on release day. Linux only: the macOS bundle is built at release time, and a
-  # `dry_run` of the Release workflow builds and tests it without publishing.
+  # shows up in its PR rather than on release day. Linux only here: master's runs build the macOS bundle in the
+  # generator_macOS job, and a `dry_run` of the Release workflow builds and tests every part without publishing.
   bundle_linux:
     name: Prebuilt generator bundle on Linux (Swift 6.3)
     runs-on: ubuntu-latest
@@ -157,7 +157,8 @@ jobs:
   generator_macOS:
     name: SwiftPM tests and Swift 6 matrix on ${{ matrix.runner }} (${{ matrix.build-system }})
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 30
+    # Master's runs also build the generator bundle (below), which takes about as long again.
+    timeout-minutes: ${{ github.event_name == 'pull_request' && 30 || 60 }}
     strategy:
       fail-fast: false
       matrix:
@@ -181,6 +182,15 @@ jobs:
         run: scripts/swift6-matrix.sh -default-isolation MainActor
         env:
           SWIFT6_MATRIX_EXPECTED: Fixtures/Swift6/expected-failures-default-mainactor.txt
+      # The macOS generator bundle, built as Release builds it: universal, so the Intel slice users on Intel Macs get
+      # is built somewhere before release day. It's slow, so only master's runs and manual ones build it; a pull
+      # request that breaks it shows up on master right after it merges.
+      - name: Build and smoke-test the generator bundle
+        if: github.event_name != 'pull_request' && matrix.runner == 'macos-26'
+        run: |
+          scripts/build-artifactbundle.sh build parts
+          scripts/build-artifactbundle.sh merge "$(sed -nE 's/^let version = "(.*)"$/\1/p' Generator/Sources/CLI/Version.swift)" bundle/CuckooGenerator.artifactbundle parts
+          scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
 
   test_iOS:
     name: Build and Test on Apple simulators (${{ matrix.runner }})
