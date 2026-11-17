@@ -1,26 +1,34 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-beta.5
 
-### Changed
-- The names a mock declares for Cuckoo carry its prefix, so they no longer hide yours: `Mock`'s `MocksType`,
-  `Stubbing` and `Verification`, and `StaticMock`'s `StaticStubbing` and `StaticVerification` are `CuckooMocksType`,
-  `CuckooStubbing`, `CuckooVerification`, `CuckooStaticStubbing` and `CuckooStaticVerification`; `cuckoo_manager`, `cuckoo_staticManager`, `cuckoo_hasSuperclass` and `cuckoo_globalActor`
-  are `cuckooManager`, `cuckooStaticManager`, `cuckooHasSuperclass` and `cuckooGlobalActor`; `getStubbingProxy()`
-  and `getVerificationProxy(_:sourceLocation:)` are `cuckooStubbingProxy()` and
-  `cuckooVerificationProxy(_:sourceLocation:)`. Generated mocks spell them; code that names them changes, and the
-  migration guide lists each. Names starting with `Cuckoo`, `cuckoo` or `__` are reserved for mocks.
+Fixes and removals from two independent reviews of beta.4: failure messages name calls as a test writes them,
+`inOrder` counts calls as Mockito does, `eventually` and the reset functions no longer lose failures or deadlock, a
+mock keeps its test's default values from any task, and members a mock can't return are skipped with a warning
+instead of breaking the build. The Cuckoo 2 shims, the `any*`-typed matchers and the Cuckoofile options `glob`,
+`omitHeaders` and `enableInheritance` are gone. Breaking changes are listed first; the
+[migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md) covers each.
+
+To try it:
+
+```swift
+.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.5"),
+```
+
+### Breaking changes
+- The names a mock declares for Cuckoo carry its prefix, so they no longer hide yours: `Mock`'s `MocksType`, `Stubbing`
+  and `Verification`, and `StaticMock`'s `StaticStubbing` and `StaticVerification` are `CuckooMocksType`,
+  `CuckooStubbing`, `CuckooVerification`, `CuckooStaticStubbing` and `CuckooStaticVerification`; `cuckoo_manager`,
+  `cuckoo_staticManager`, `cuckoo_hasSuperclass` and `cuckoo_globalActor` are `cuckooManager`, `cuckooStaticManager`,
+  `cuckooHasSuperclass` and `cuckooGlobalActor`; `getStubbingProxy()` and `getVerificationProxy(_:sourceLocation:)` are
+  `cuckooStubbingProxy()` and `cuckooVerificationProxy(_:sourceLocation:)`. Generated mocks spell them; code that names
+  them changes, and the migration guide lists each. Names starting with `Cuckoo`, `cuckoo` or `__` are reserved for
+  mocks.
 - `verify`'s result, `__DoNotUse`, is `VerifiedCall`, documented: its `with(returnType:)` names a generic member's
   return type. Code rarely names the type itself. An optional property's verified getter is
   `VerifiedCall<Void, T?>`, typed with the property's value, not `VerifiedCall<Void, T>`.
 - `MockManager.enableDefaultStubImplementation()` is `enableDefaultImplementation()`, the name the rest of the API
   uses for what an unstubbed call forwards to. Generated mocks call it; code that calls it directly changes.
-- The Cuckoofile option `enableInheritance` is removed: set to `false`, it gave a mock of `protocol B: A` that didn't
-  conform to `A`. Mocks always repeat inherited members, and a Cuckoofile that still sets it gets a warning.
-- The Cuckoofile option `glob` is removed: `sources` are always globs, its default, and `?` matches a file name's
-  glob character. A Cuckoofile that still sets it gets a warning.
-- The Cuckoofile option `omitHeaders` is removed: each source file's mocks start with the comment that names the
-  file, as by default. A Cuckoofile that still sets it gets a warning.
 - `Mocked` and `createMock(for:configuration:)` are removed: call `createMock(MockPerson.self) { … }` with the mock's
   type instead, which is all they saved.
 - Inside `inOrder`, a call matcher counts as it does outside it. A `verify` took the fewest calls its matcher
@@ -31,27 +39,34 @@
   it, which sees the calls the `verify` calls before it took. A `verify` in a `Task` the block starts that runs after
   it ends records a failure; a `Task.detached` or a dispatch queue isn't part of the block. A captor in the block
   fills when it ends.
-- `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mocks of different types:
-  `verifyNoMoreInteractions(database, cache)` compiles.
-- Failure messages name a call as a test writes it: `No stub for count(characters:) with ("b")`, not
-  `No stub for method \`count(characters p0: String) -> Int\` using parameters ("b")`, and `No stub for the getter
-  of name`. The lists of a mock's calls show a property's as `name` and `name = 1`, not `name#get` and
-  `name#set(1)`. A stub that has no answer yet says to give it one, such as `thenReturn(_:)`.
 - `MockManager.preconfiguredManager`, which only generated mocks used, is now `preconfiguredManager(for:)`.
 - `verify` on the mock of a `@MainActor` type, or of another global actor's, needs that actor: the verification
   proxy takes the mock's isolation. A test off the actor could read a recorded argument while the actor still
   changed it, which Swift 6's checking didn't catch. `verifyNoMoreInteractions` records a failure off a mock's
   global actor instead of reading its calls. It takes a new last parameter, `isolation`, which defaults to the
   caller's, and mocks conform to the new `HasGlobalActor`, which names their actor.
-- `verify`'s result is `Sendable`.
 - A `nonisolated` member of a `@MainActor` or other global-actor type gets `Sendable` stubs, since it can be called
   from any task at once: `thenReturn` and `equal(to:)` take only `Sendable` values there. For a value that isn't,
   return a new one from `then { Token() }`.
 - A throwing property's stubbing handles, `ProtocolToBeStubbedThrowingProperty` and
   `ClassToBeStubbedThrowingProperty`, take the getter's error type: `<MOCK, T, ERROR, GET, SHARING>`. Generated
   mocks spell it; only code that names these types itself changes.
-- A Cuckoofile module can list the global actors its types use from other modules, in `globalActors`.
 
+### Changed
+- The Cuckoofile option `enableInheritance` is removed: set to `false`, it gave a mock of `protocol B: A` that didn't
+  conform to `A`. Mocks always repeat inherited members, and a Cuckoofile that still sets it gets a warning.
+- The Cuckoofile option `glob` is removed: `sources` are always globs, its default, and `?` matches a file name's
+  glob character. A Cuckoofile that still sets it gets a warning.
+- The Cuckoofile option `omitHeaders` is removed: each source file's mocks start with the comment that names the
+  file, as by default. A Cuckoofile that still sets it gets a warning.
+- `clearStubs`, `clearInvocations` and `verifyNoMoreInteractions` take mocks of different types:
+  `verifyNoMoreInteractions(database, cache)` compiles.
+- Failure messages name a call as a test writes it: `No stub for count(characters:) with ("b")`, not
+  `No stub for method \`count(characters p0: String) -> Int\` using parameters ("b")`, and `No stub for the getter
+  of name`. The lists of a mock's calls show a property's as `name` and `name = 1`, not `name#get` and
+  `name#set(1)`. A stub that has no answer yet says to give it one, such as `thenReturn(_:)`.
+- `verify`'s result is `Sendable`.
+- A Cuckoofile module can list the global actors its types use from other modules, in `globalActors`.
 - The comment above each file's mocks names the mocked file by its path from the Cuckoofile, not from wherever
   the generator ran, so a build plugin's mocks no longer show `../../../..` paths. `--help` names the command
   `CuckooGenerator`, and a build log shows "Generate Cuckoo mocks for …" instead of "Run Cuckoonator for …".
@@ -151,12 +166,12 @@ Mocks that didn't compile, or that differed from the mocked declaration:
   through a non-escaping closure, a closure parameter written through a typealias, `consuming` and `borrowing`
   parameters, and a `-> ()` result.
 - A typed-throws getter's `thenThrow` stub was never found: the getter looked its stub up with its own error type.
-- A class mock dropped the default argument values of its methods and subscripts, so a call through the mock's type
-  had to pass every argument. A default that names a `private` or `fileprivate` declaration, which the mock can't
-  see, is still left out, as is one using a member of a `private extension`, a type nested in one, or a call of a
-  type whose init is `private` or `fileprivate`, written `Token(…)`, `Box<Int>(…)`, `Token.init(…)` or `.init(…)`
-  (one whose type isn't known, inside an array or an argument, counts whenever the module has such an init). A
-  default that only names such a type, as in `Config.shared`, stays.
+- A class mock dropped the default argument values of its methods and subscripts, so a call through the mock's type had
+  to pass every argument. A default that names a `private` or `fileprivate` declaration, which the mock can't see, is
+  still left out, as is one using a member of a `private extension`, a type nested in one, or a call of a type whose
+  init is `private` or `fileprivate`, written `Token(…)`, `Box<Int>(…)`, `Token.init(…)` or `.init(…)` (one whose type
+  isn't known, inside an array or an argument, counts whenever the module has such an init). A default that only names
+  such a type, as in `Config.shared`, stays.
 - A class member whose type is opaque (`some P`) can't be overridden; it's now left out with a comment in the mock,
   instead of making the mock fail to compile. `some` nested in a protocol requirement's parameter is handled.
 - A non-escaping closure parameter written with `sending`, `borrowing` or `inout` made the generator fail for the
@@ -170,11 +185,12 @@ Mocks that didn't compile, or that differed from the mocked declaration:
 - The mock of a protocol with associated types warned that the protocol's deprecated requirements were deprecated:
   its type eraser forwards to them. With Swift 6.4 the eraser says so with `@diagnose`, and the mock has no warning;
   Swift 6.2 and 6.3 have no way to, so the warning stays there.
-- The type eraser of a protocol with associated types forwards async and throwing getters, and a member it can't
-  forward (an `inout` or `sending` argument, `Self`, a member isolated otherwise than the protocol, a `where` clause
-  naming an associated type) records a failure saying to stub it, for the test that created the mock, and returns
-  the default value an unstubbed call would, even when the member throws. Such a protocol's mock didn't compile. A `borrowing` or `consuming` argument of a non-`Sendable` type is
-  copied once in the mock, which also didn't compile, and a backticked method name no longer stops generation.
+- The type eraser of a protocol with associated types forwards async and throwing getters, and a member it can't forward
+  (an `inout` or `sending` argument, `Self`, a member isolated otherwise than the protocol, a `where` clause naming an
+  associated type) records a failure saying to stub it, for the test that created the mock, and returns the default
+  value an unstubbed call would, even when the member throws. Such a protocol's mock didn't compile. A `borrowing` or
+  `consuming` argument of a non-`Sendable` type is copied once in the mock, which also didn't compile, and a backticked
+  method name no longer stops generation.
 - Protocols with associated types: an actor protocol's mock named a type eraser that actor mocks don't declare, a
   static method returning nothing didn't compile in the type eraser, and a generic subscript naming an associated
   type couldn't be forwarded to the default implementation; its setter now keeps a value-type default
