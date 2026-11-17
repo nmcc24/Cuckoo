@@ -31,6 +31,12 @@ let store = createMock(MockSettingsStore.self) { builder, stub in
 
 Only mocks of the requested type pick up those stubs; other mocks created in the closure are separate.
 
+The mock of a protocol with associated types is generic over them, as `MockStore<String>` for
+`protocol Store { associatedtype Item }`. So a method, subscript or initializer that declares a generic parameter
+named like one of those associated types, as `func convert<Item>(_ value: Item)` in `Store`, can't be mocked: Swift
+accepts it in the protocol but not in the generic mock, which already declares `Item`. Rename the member's generic
+parameter.
+
 Mocks keep the isolation of the type they mock. The mock of a `@MainActor` protocol is `@MainActor`, the mock of
 an `actor` protocol is an actor, and the mock of a `Sendable` type is `Sendable`, so the compiler checks how the
 test shares it. A protocol that states no isolation of its own takes its parents', as Swift does: the mock of a
