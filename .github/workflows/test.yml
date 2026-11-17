@@ -194,7 +194,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Show toolchain
-        run: echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1)"
+        run: |
+          echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1)"
+          echo "XCODE_BUILD=$(xcodebuild -version | tail -1 | awk '{print $NF}')" >> "$GITHUB_ENV"
+      # The package's DerivedData, mostly swift-syntax built for each platform, is cached from master's last run.
+      # Its key names the image's Xcode build and Package.resolved, so a new Xcode or a dependency update starts
+      # cold. Only runs on master save it, so pull requests can't fill the cache with their own copies.
+      - name: Restore the DerivedData
+        id: derived-data
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/DerivedData
+          key: derived-data-${{ matrix.runner }}-${{ env.XCODE_BUILD }}-${{ hashFiles('Package.resolved') }}-${{ github.sha }}
+          restore-keys: derived-data-${{ matrix.runner }}-${{ env.XCODE_BUILD }}-${{ hashFiles('Package.resolved') }}-
       - name: Pick a simulator
         run: |
           # Use whichever iPhone simulator the image ships, rather than pinning a model and OS.
@@ -215,18 +227,24 @@ jobs:
       - name: Test the package on iOS
         run: |
           set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" \
+            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" -derivedDataPath ~/DerivedData \
             | xcbeautify --renderer github-actions
       - name: Build the package tests for tvOS
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "generic/platform=tvOS Simulator" ARCHS=arm64 \
+            -destination "generic/platform=tvOS Simulator" ARCHS=arm64 -derivedDataPath ~/DerivedData \
             | xcbeautify --renderer github-actions
       - name: Build the package tests for watchOS
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "generic/platform=watchOS Simulator" ARCHS=arm64 \
+            -destination "generic/platform=watchOS Simulator" ARCHS=arm64 -derivedDataPath ~/DerivedData \
             | xcbeautify --renderer github-actions
+      - name: Save the DerivedData
+        if: github.ref == 'refs/heads/master' && steps.derived-data.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/DerivedData
+          key: ${{ steps.derived-data.outputs.cache-primary-key }}
       # The plugin's Xcode entry point, which the package's own schemes never run: an Xcode project whose two test
       # targets use the plugin, each with a Cuckoofile entry that lists its sources.
       - name: Test an Xcode project that uses the plugin
