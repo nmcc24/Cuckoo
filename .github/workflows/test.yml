@@ -250,9 +250,11 @@ jobs:
       # destination, so they all have to build for tvOS and watchOS too. They build the arm64 slice only: the
       # runners are Apple Silicon, and Xcode 27.2's linker warns on x86_64 objects that prelink an @objc protocol
       # with a Swift protocol inheriting an Objective-C one (roadmap item 11).
-      # The package's dependencies, as xcodebuild clones them, are kept between runs: cloning swift-syntax took about
-      # five minutes. Only sources are cached, under a key naming Package.resolved, so a cached copy can't go stale.
-      # Pull requests only restore them, so they can't fill the cache with copies of their own.
+      # The package's dependencies, as xcodebuild clones them into its DerivedData, are kept between runs: cloning
+      # swift-syntax took about five minutes. Only the clones are cached, not build products, under a key naming
+      # Package.resolved, so a cached copy can't go stale. Pull requests only restore them, so they can't fill the
+      # cache with copies of their own. (-clonedSourcePackagesDirPath would be the direct way, but Xcode 26.6's
+      # xcodebuild crashes with it for tvOS.)
       # hashFiles('Package.resolved') timed out after 120 s on a busy runner, so the key's hash comes from shasum.
       - name: Hash Package.resolved
         run: echo "PACKAGE_RESOLVED_HASH=$(shasum -a 256 Package.resolved | cut -c1-16)" >> "$GITHUB_ENV"
@@ -260,7 +262,7 @@ jobs:
         id: source-packages
         uses: actions/cache/restore@v6
         with:
-          path: ~/SourcePackages
+          path: ~/DerivedData/SourcePackages
           key: source-packages-${{ matrix.runner }}-${{ env.PACKAGE_RESOLVED_HASH }}
       - name: Install the CuckooTests scheme
         run: scripts/install-scheme.sh
@@ -268,25 +270,25 @@ jobs:
         run: |
           set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
             -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" ARCHS=arm64 \
-            -clonedSourcePackagesDirPath ~/SourcePackages -skipPackageUpdates \
+            -derivedDataPath ~/DerivedData \
             | xcbeautify --renderer github-actions
       - name: Save the package dependencies
         if: github.event_name != 'pull_request' && steps.source-packages.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
-          path: ~/SourcePackages
+          path: ~/DerivedData/SourcePackages
           key: ${{ steps.source-packages.outputs.cache-primary-key }}
       - name: Build the package tests for tvOS
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
             -destination "generic/platform=tvOS Simulator" ARCHS=arm64 \
-            -clonedSourcePackagesDirPath ~/SourcePackages -skipPackageUpdates \
+            -derivedDataPath ~/DerivedData \
             | xcbeautify --renderer github-actions
       - name: Build the package tests for watchOS
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
             -destination "generic/platform=watchOS Simulator" ARCHS=arm64 \
-            -clonedSourcePackagesDirPath ~/SourcePackages -skipPackageUpdates \
+            -derivedDataPath ~/DerivedData \
             | xcbeautify --renderer github-actions
       # The plugin's Xcode entry point, which the package's own schemes never run: an Xcode project whose two test
       # targets use the plugin, each with a Cuckoofile entry that lists its sources.
