@@ -207,15 +207,16 @@ jobs:
       # generator is built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
       # Swift, so what can break there is compile-time (APIs, availability, imports).
       # Xcode 26.6 also builds the generator's dependencies for the destination, so they all have to build
-      # for tvOS and watchOS too. They build the arm64 slice only: the runners are Apple Silicon, and Xcode
-      # 27.2's linker warns on x86_64 objects that prelink an @objc protocol with a Swift protocol inheriting
-      # an Objective-C one (roadmap item 11).
+      # for tvOS and watchOS too. Every step builds the arm64 slice only, the plugin's tool included, which would
+      # otherwise build universal: the runners are Apple Silicon, and Xcode 27.2's linker warns on x86_64 objects
+      # that prelink an @objc protocol with a Swift protocol inheriting an Objective-C one (roadmap item 11). The
+      # Intel slice users get is built by the generator bundle step, on master.
       - name: Install the CuckooTests scheme
         run: scripts/install-scheme.sh
       - name: Test the package on iOS
         run: |
           set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" \
+            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" ARCHS=arm64 \
             | xcbeautify --renderer github-actions
       - name: Build the package tests for tvOS
         run: |
@@ -234,10 +235,10 @@ jobs:
           # One framework and its tests alone: a test target given another target's mocks fails to build. First, while
           # the project's DerivedData is empty, so the other targets' products can't satisfy those mocks' imports.
           set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme ShopOnly \
-            -skipPackagePluginValidation -destination "platform=macOS" \
+            -skipPackagePluginValidation -destination "platform=macOS" ARCHS=arm64 \
             | xcbeautify --renderer github-actions
           set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme XApp \
-            -skipPackagePluginValidation -destination "platform=macOS" \
+            -skipPackagePluginValidation -destination "platform=macOS" ARCHS=arm64 \
             | xcbeautify --renderer github-actions
 
   # The single check that master's ruleset requires. It depends on every other job, so
