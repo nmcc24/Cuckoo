@@ -217,16 +217,12 @@ jobs:
           set -o pipefail && xcodebuild test -scheme CuckooTests -skipPackagePluginValidation \
             -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID" \
             | xcbeautify --renderer github-actions
-      - name: Build the package tests for tvOS
+      # One invocation builds both platforms, so their builds run side by side.
+      - name: Build the package tests for tvOS and watchOS
         run: |
           set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "generic/platform=tvOS Simulator" ARCHS=arm64 \
-            | xcbeautify --renderer github-actions
-      - name: Build the package tests for watchOS
-        run: |
-          set -o pipefail && xcodebuild build-for-testing -scheme CuckooTests -skipPackagePluginValidation \
-            -destination "generic/platform=watchOS Simulator" ARCHS=arm64 \
-            | xcbeautify --renderer github-actions
+            -destination "generic/platform=tvOS Simulator" -destination "generic/platform=watchOS Simulator" \
+            ARCHS=arm64 | xcbeautify --renderer github-actions
       # The plugin's Xcode entry point, which the package's own schemes never run: an Xcode project whose two test
       # targets use the plugin, each with a Cuckoofile entry that lists its sources.
       - name: Test an Xcode project that uses the plugin
