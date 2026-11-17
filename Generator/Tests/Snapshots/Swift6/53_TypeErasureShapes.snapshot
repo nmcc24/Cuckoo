@@ -511,15 +511,9 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
 
         subscript <Key: Hashable>(_ p0: Key) -> Item {
             get async throws {
-                #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
-                nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: ThrowingKeyedItems>(_ opened: _CUCKOO$$GENERIC) async throws -> Item {
-                    return try await opened[p0] as! Item
-                }
-                #else
                 func openExistential<_CUCKOO$$GENERIC: ThrowingKeyedItems>(_ opened: _CUCKOO$$GENERIC) async throws -> Item {
                     return try await opened[p0] as! Item
                 }
-                #endif
                 return try await openExistential(cuckooReference())
             }
         }

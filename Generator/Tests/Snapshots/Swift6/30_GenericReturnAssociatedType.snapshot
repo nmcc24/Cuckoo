@@ -541,15 +541,9 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
         }
 
         func produceAll<T> (from p0: [T]) async throws -> [Output] {
-            #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
-            nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: Producer>(_ opened: _CUCKOO$$GENERIC) async throws -> [Output] {
-                return try await opened.produceAll(from: p0) as! [Output]
-            }
-            #else
             func openExistential<_CUCKOO$$GENERIC: Producer>(_ opened: _CUCKOO$$GENERIC) async throws -> [Output] {
                 return try await opened.produceAll(from: p0) as! [Output]
             }
-            #endif
             return try await openExistential(cuckooReference())
         }
     }

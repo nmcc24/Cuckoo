@@ -2763,19 +2763,11 @@ nonisolated final class MockReviewLoading<Value>: ReviewLoading, nonisolated Cuc
         }
 
         func mapped<U> (_ p0: (Value) async throws -> U) async rethrows -> [U] {
-            #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
-            nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: ReviewLoading>(_ opened: _CUCKOO$$GENERIC) async throws -> [U] {
-                return try await opened.mapped({ (__a0: _CUCKOO$$GENERIC.Value) async throws in
-                        try await p0(__a0 as! Value)
-                    })
-            }
-            #else
             func openExistential<_CUCKOO$$GENERIC: ReviewLoading>(_ opened: _CUCKOO$$GENERIC) async throws -> [U] {
                 return try await opened.mapped({ (__a0: _CUCKOO$$GENERIC.Value) async throws in
                         try await p0(__a0 as! Value)
                     })
             }
-            #endif
             return try await openExistential(cuckooReference())
         }
     }
