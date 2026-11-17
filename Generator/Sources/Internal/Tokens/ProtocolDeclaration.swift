@@ -1,3 +1,6 @@
+import SwiftParser
+import SwiftSyntax
+
 struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var parent: Reference<any Token>?
 
@@ -132,12 +135,147 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         protocolDeclaration.primaryAssociatedTypes = primaryAssociatedTypes.filter { !fixedNames.contains($0.name) }
         // A parent's typealiases arrive with its members; keep one of each.
         var aliases: Set<String> = []
-        protocolDeclaration.members = (members + fixedTypes.map { Typealias(alias: $0.name, original: $0.type) as any Token })
+        let ownMembers = Self.unqualifyingSelf(associatedTypeNames, in: members)
+        protocolDeclaration.members = Self.expandingFunctionTypes(fixedTypes, in: ownMembers + fixedTypes.map { Typealias(alias: $0.name, original: $0.type) as any Token })
             .filter { member in
                 guard let typealiasToken = member as? Typealias else { return true }
                 return aliases.insert(typealiasToken.alias).inserted
             }
         return protocolDeclaration
+    }
+
+    /// The members with `Self.Item` written as `Item` for each of the protocol's associated types, `Self.Item.Element`
+    /// included: inside the mock, a class generic over them, `Self.Item` names no member type.
+    private static func unqualifyingSelf(_ associatedTypes: Set<String>, in members: [any Token]) -> [any Token] {
+        guard !associatedTypes.isEmpty else { return members }
+        final class Unqualifier: SyntaxRewriter {
+            let names: Set<String>
+            init(_ names: Set<String>) { self.names = names }
+            override func visit(_ node: MemberTypeSyntax) -> TypeSyntax {
+                guard node.baseType.as(IdentifierTypeSyntax.self)?.name.text == "Self", names.contains(node.name.text) else {
+                    return super.visit(node)
+                }
+                let identifier = IdentifierTypeSyntax(name: node.name, genericArgumentClause: node.genericArgumentClause)
+                return TypeSyntax(identifier.with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia))
+            }
+        }
+        let unqualifier = Unqualifier(associatedTypes)
+        // Constraints are text, as in `T.Element == Self.Item.Element`: each side is a type.
+        func text(_ text: String) -> String {
+            guard text.contains("Self.") else { return text }
+            guard let declaration = Parser.parse(source: "typealias __CuckooType<T> = T where \(text)").statements.first?.item.as(TypeAliasDeclSyntax.self),
+                  let clause = declaration.genericWhereClause,
+                  !declaration.hasError else { return text }
+            return unqualifier.rewrite(clause.requirements).trimmedDescription
+        }
+        return rewritingTypes(in: members, text: text) { type, _ in
+            var parser = Parser(type.description)
+            let syntax = TypeSyntax.parse(from: &parser)
+            let rewritten = unqualifier.rewrite(syntax).cast(TypeSyntax.self)
+            return rewritten.trimmedDescription == syntax.trimmedDescription ? type : ComplexType(syntax: rewritten)
+        }
+    }
+
+    /// The members with each associated type fixed to a function type, as `Transforming<(Int) -> String>` fixes
+    /// `Input`, written out in their parameters: such a parameter is a non-escaping closure, which the mock has to
+    /// make escaping to record, and it only knows a closure written as one. Inside a closure's own parameters the
+    /// function type is `@escaping`, as the associated type's witness is. A member's generic parameter of the same
+    /// name shadows it. A function type the parent's argument names through a typealias isn't recognised.
+    private static func expandingFunctionTypes(_ fixedTypes: [(name: String, type: String)], in members: [any Token]) -> [any Token] {
+        let functionTypes = fixedTypes.filter { _, type in
+            var parser = Parser(type)
+            return ComplexType(syntax: TypeSyntax.parse(from: &parser)).withoutAttributes().isClosure
+        }
+        guard !functionTypes.isEmpty else { return members }
+        final class Expander: SyntaxRewriter {
+            let replacements: [String: String]
+            init(_ replacements: [String: String]) { self.replacements = replacements }
+            override func visit(_ node: IdentifierTypeSyntax) -> TypeSyntax {
+                guard node.genericArgumentClause == nil, let functionType = replacements[node.name.text] else {
+                    return super.visit(node)
+                }
+                // A closure's parameter: the witness of the associated type is an escaping function.
+                let isClosureParameter = node.parent?.as(TupleTypeElementSyntax.self)?.parent?.parent?.is(FunctionTypeSyntax.self) == true
+                // The base of `sending Input` or `inout Input` takes the function type as written; a parenthesized one
+                // elsewhere keeps `[Input]` or `Input?` meaning what they did.
+                let isAttributedBase = node.parent?.is(AttributedTypeSyntax.self) == true
+                let source = isClosureParameter ? "@escaping \(functionType)" : isAttributedBase ? functionType : "(\(functionType))"
+                var parser = Parser(source)
+                return TypeSyntax.parse(from: &parser).with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
+            }
+        }
+        let replacements = Dictionary(functionTypes.map { ($0.name, $0.type) }) { first, _ in first }
+        return rewritingTypes(in: members, results: false, text: { $0 }) { type, shadowed in
+            let visible = replacements.filter { !shadowed.contains($0.key) }
+            guard !visible.isEmpty else { return type }
+            var parser = Parser(type.description)
+            let syntax = TypeSyntax.parse(from: &parser)
+            // A parameter that is the associated type itself takes the function type as written.
+            if let identifier = syntax.as(IdentifierTypeSyntax.self), identifier.genericArgumentClause == nil,
+               let functionType = visible[identifier.name.text] {
+                var functionParser = Parser(functionType)
+                return ComplexType(syntax: TypeSyntax.parse(from: &functionParser))
+            }
+            let rewritten = Expander(visible).rewrite(syntax).cast(TypeSyntax.self)
+            return rewritten.trimmedDescription == syntax.trimmedDescription ? type : ComplexType(syntax: rewritten)
+        }
+    }
+
+    /// The members with `transform` applied to every parameter type of their methods, initializers and subscripts,
+    /// given the names their own generic parameters shadow, and `text` to their constraints. With `results`, also to
+    /// result and property types, which a function type expansion leaves alone: those compile through the typealias.
+    private static func rewritingTypes(
+        in members: [any Token],
+        results: Bool = true,
+        text: @escaping (String) -> String,
+        types transform: @escaping (ComplexType, Set<String>) -> ComplexType
+    ) -> [any Token] {
+        func parameters(_ parameters: [MethodParameter], shadowing shadowed: Set<String>) -> [MethodParameter] {
+            parameters.map { parameter in
+                var parameter = parameter
+                parameter.type = transform(parameter.type, shadowed)
+                parameter.variadicElement = parameter.variadicElement.map { transform($0, shadowed) }
+                return parameter
+            }
+        }
+        func signature(_ signature: Method.Signature, results: Bool) -> Method.Signature {
+            let shadowed = Set(signature.genericParameters.map(\.name))
+            return Method.Signature(
+                genericParameters: signature.genericParameters.map { generic in
+                    var rewritten = GenericParameter(name: generic.name, inheritedTypes: generic.inheritedTypes.map(text), kind: generic.kind)
+                    rewritten.condition = generic.condition
+                    return rewritten
+                },
+                parameters: parameters(signature.parameters, shadowing: shadowed),
+                asyncType: signature.asyncType,
+                throwType: signature.throwType,
+                returnType: results ? signature.returnType.map { transform($0, shadowed) } : signature.returnType,
+                whereConstraints: signature.whereConstraints.map(text)
+            )
+        }
+        return members.map { member in
+            switch member {
+            case var method as Method:
+                method.signature = signature(method.signature, results: results)
+                return method
+            case var initializer as Initializer:
+                initializer.signature = signature(initializer.signature, results: results)
+                return initializer
+            case var variable as Variable where results:
+                variable.type = transform(variable.type, [])
+                return variable
+            case var subscriptDeclaration as Subscript:
+                let shadowed = Set(subscriptDeclaration.genericParameters.map(\.name))
+                subscriptDeclaration.parameters = parameters(subscriptDeclaration.parameters, shadowing: shadowed)
+                if results {
+                    subscriptDeclaration.returnType = transform(subscriptDeclaration.returnType, shadowed)
+                }
+                subscriptDeclaration.whereConstraints = subscriptDeclaration.whereConstraints.map(text)
+                return subscriptDeclaration
+            default:
+                return member
+            }
+        }
     }
 
     /// The protocol with what its parents make it: an actor protocol if one refines `Actor`, `Sendable` if one is,

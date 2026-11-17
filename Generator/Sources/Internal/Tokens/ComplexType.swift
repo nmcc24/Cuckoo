@@ -7,13 +7,15 @@ enum ComplexType: Sendable {
     case closure(Closure)
     case type(String)
 
-    init(syntax: TypeSyntax) {
+    /// - Parameter unwrapsParentheses: Whether `(T)` reads as `T`. An optional's wrapped type keeps its parentheses:
+    ///   `((Int) -> Void)?` is an escaping optional closure, which the generator records as a value.
+    init(syntax: TypeSyntax, unwrapsParentheses: Bool = true) {
         let normalizedSyntax = syntax.recursivelyNormalizingTrivia()
 
         if let implicitOptionalType = normalizedSyntax.as(ImplicitlyUnwrappedOptionalTypeSyntax.self) {
-            self = .optional(wrappedType: ComplexType(syntax: implicitOptionalType.wrappedType), isImplicit: true)
+            self = .optional(wrappedType: ComplexType(syntax: implicitOptionalType.wrappedType, unwrapsParentheses: false), isImplicit: true)
         } else if let optionalType = normalizedSyntax.as(OptionalTypeSyntax.self) {
-            self = .optional(wrappedType: ComplexType(syntax: optionalType.wrappedType), isImplicit: false)
+            self = .optional(wrappedType: ComplexType(syntax: optionalType.wrappedType, unwrapsParentheses: false), isImplicit: false)
         } else if let attributedType = normalizedSyntax.as(AttributedTypeSyntax.self) {
             // Swift requires specifiers such as `sending` or `inout` before attributes such as `@escaping`.
             self = .attributed(
@@ -40,6 +42,12 @@ enum ComplexType: Sendable {
         } else if let tupleType = normalizedSyntax.as(TupleTypeSyntax.self), tupleType.elements.isEmpty {
             // `()` is `Void`, which the generator recognises by that name, as in `-> ()`.
             self = .type("Void")
+        } else if unwrapsParentheses, let tupleType = normalizedSyntax.as(TupleTypeSyntax.self), tupleType.elements.count == 1,
+                  let element = tupleType.elements.first, element.firstName == nil, element.ellipsis == nil,
+                  !element.type.is(PackExpansionTypeSyntax.self) {
+            // `(T)` is `T`, so a parenthesized closure, `((Int) -> String)`, is a closure parameter like one written
+            // without the parentheses.
+            self = ComplexType(syntax: element.type)
         } else {
             self = .type(normalizedSyntax.description)
         }

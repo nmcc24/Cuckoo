@@ -74,16 +74,16 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
         )
     }
 
-    func handlers(_ p0: (() -> Void)...) {
+    func handlers(_ p0: () -> Void...) {
         return cuckooManager.call(
-            "handlers(_ p0: (() -> Void)...)",
+            "handlers(_ p0: () -> Void...)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (([(() -> Void)])) -> Void, arguments) in
+            invoke: { (implementation: (([() -> Void])) -> Void, arguments) in
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("handlers(_ p0: (() -> Void)...)")
+            defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("handlers(_ p0: () -> Void...)")
         )
     }
 
@@ -178,12 +178,12 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
             ))
         }
 
-        func handlers<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<([(() -> Void)]), (([(() -> Void)])) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == [(() -> Void)] {
-            let matchers: [Cuckoo.ParameterMatcher<([(() -> Void)])>] = [Cuckoo.wrap(matchable: p0) {
+        func handlers<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<([() -> Void]), (([() -> Void])) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == [() -> Void] {
+            let matchers: [Cuckoo.ParameterMatcher<([() -> Void])>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockLogger.self,
-                method: "handlers(_ p0: (() -> Void)...)",
+                method: "handlers(_ p0: () -> Void...)",
                 parameterMatchers: matchers
             ))
         }
@@ -290,12 +290,12 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
         }
 
         @discardableResult
-        func handlers<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<([(() -> Void)]), Void> where __M1.MatchedType == [(() -> Void)] {
-            let matchers: [Cuckoo.ParameterMatcher<([(() -> Void)])>] = [Cuckoo.wrap(matchable: p0) {
+        func handlers<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<([() -> Void]), Void> where __M1.MatchedType == [() -> Void] {
+            let matchers: [Cuckoo.ParameterMatcher<([() -> Void])>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
-                "handlers(_ p0: (() -> Void)...)",
+                "handlers(_ p0: () -> Void...)",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -409,7 +409,7 @@ nonisolated final class LoggerStub: Logger {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
-    func handlers(_ p0: (() -> Void)...) {
+    func handlers(_ p0: () -> Void...) {
         typealias __CuckooDefault = Void
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
