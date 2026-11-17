@@ -160,9 +160,14 @@ extension ComplexType {
     }
 
     var unoptionaled: ComplexType {
-        if case .optional(let wrappedType, _) = self {
+        switch self {
+        case .optional(let wrappedType, _):
             wrappedType
-        } else {
+        // A parameter's specifiers, as in `isolated (any Actor)?` or `sending Ticket?`, sit on the optional: what's left
+        // of them (none, once a matcher's type drops them) stays on the wrapped type, as `isOptional` sees through them.
+        case .attributed(let attributes, let baseType) where baseType.isOptional:
+            attributes.isEmpty ? baseType.unoptionaled : .attributed(attributes: attributes, baseType: baseType.unoptionaled)
+        default:
             self
         }
     }
