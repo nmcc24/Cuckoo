@@ -81,7 +81,7 @@ func even() -> SendableMatcher<Int> {
 }
 ```
 
-In a project that isolates code to the main actor by default, as new Xcode 26 projects do, a type's `Equatable`
+In a project that isolates code to the main actor by default, as new Xcode projects do, a type's `Equatable`
 conformance is isolated to the main actor too, so `equal(to:)` returns a ``ParameterMatcher`` for it. That suits
 the mocks of main-actor and other non-`Sendable` types. For a `Sendable` mock, make the conformance
 `nonisolated`: `struct User: nonisolated Equatable`.

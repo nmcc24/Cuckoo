@@ -1,7 +1,7 @@
 # Cuckoo
 ## Mock your Swift objects!
 
-[![Swift 6.2+](https://img.shields.io/badge/Swift-6.2%2B-orange?style=flat)](https://swift.org)
+[![Swift 6.3+](https://img.shields.io/badge/Swift-6.3%2B-orange?style=flat)](https://swift.org)
 [![SwiftPM](https://img.shields.io/badge/SwiftPM-ready-brightgreen?style=flat)](https://swift.org/package-manager)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat)](LICENSE)
 
@@ -42,8 +42,8 @@ put a protocol in front of them.
 - Failure messages that show each call a member received and the argument that didn't match.
 
 ## Requirements
-- Swift 6.2 or later (Xcode 26 or later). The Swift 6 language mode is recommended; the mocks also compile in
-  the Swift 5 mode, which CI doesn't test.
+- Xcode 27 or later on an Apple silicon Mac, or Swift 6.3 or later on Linux. The Swift 6 language mode is
+  recommended; the mocks also compile in the Swift 5 mode, which CI doesn't test.
 - iOS 17, macOS 14, tvOS 17 or watchOS 10, or Linux.
 
 ## Documentation
