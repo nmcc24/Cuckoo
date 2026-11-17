@@ -14,3 +14,41 @@ protocol Transforming<Input> {
 protocol Formatter: Transforming<(Int) -> String> {
     func reset()
 }
+
+// The same through a typealias, and through a qualified one.
+typealias Formatting = (Int) -> String
+
+protocol AliasedFormatter: Transforming<Formatting> {}
+
+enum Formats {
+    typealias Parse = (String) -> Int
+}
+
+protocol QualifiedFormatter: Transforming<Formats.Parse> {}
+
+struct Box {
+    typealias Handler = (Int) -> Void
+
+    // Found in the enclosing scope, as a parameter's typealias is.
+    protocol NestedFormatter: Transforming<Handler> {}
+}
+
+// A generic constraint isn't a parent: a method's own or the type's generic parameter, or a nearer typealias, still
+// shadows the top-level `Callback` there.
+typealias Callback = (Int) -> Void
+
+class Runner<Callback> {
+    init() {}
+    func run<T: Transforming<Callback>>(_ value: T) {}
+}
+
+class Service {
+    typealias Callback = (String) -> Void
+    init() {}
+    func run<T: Transforming<Callback>>(_ value: T) {}
+}
+
+// From its inheritance clause, a protocol's own typealias isn't in scope: the top-level `Callback` binds `Input`.
+protocol OwnShadow: Transforming<Callback> {
+    typealias Callback = (String) -> Void
+}

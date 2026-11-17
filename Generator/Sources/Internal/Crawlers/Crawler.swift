@@ -223,11 +223,13 @@ final class Crawler: SyntaxVisitor {
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
         debug(node)
         // `where Self: Base` binds conforming types as `: Base` does.
-        let inheritedTypes = expandingCompositions(inheritedTypes(from: node.inheritanceClause?.inheritedTypes))
+        // A parent's function typealias arguments are found as Swift finds them from the inheritance clause: in the
+        // scopes around the protocol, not among its own members.
+        let inheritedTypes = expandingCompositions(inheritedTypes(from: node.inheritanceClause?.inheritedTypes, expandingFrom: Syntax(node)))
             + (node.genericWhereClause?.requirements ?? []).flatMap { requirement -> [String] in
                 guard let conformance = requirement.requirement.as(ConformanceRequirementSyntax.self),
                       conformance.leftType.trimmedDescription == "Self" else { return [] }
-                return self.inheritedTypes(from: conformance.rightType)
+                return self.inheritedTypes(from: conformance.rightType, expandingFrom: Syntax(conformance.rightType))
             }
         var token = ProtocolDeclaration(
             parent: container,
@@ -545,9 +547,10 @@ final class Crawler: SyntaxVisitor {
     }
 
     /// The function type a typealias written as `type` stands for, qualified to read the same in the mock, or nil.
-    private func expandedClosureTypealias(_ type: TypeSyntax) -> TypeSyntax? {
+    /// - Parameter lookup: Where an unqualified name is looked up from, `type` itself by default.
+    private func expandedClosureTypealias(_ type: TypeSyntax, lookingUpFrom lookup: Syntax? = nil) -> TypeSyntax? {
         if let identifier = type.as(IdentifierTypeSyntax.self),
-           let (functionType, scope) = closureTypealias(named: identifier.name.text, from: Syntax(type)) {
+           let (functionType, scope) = closureTypealias(named: identifier.name.text, from: lookup ?? Syntax(type)) {
             return instance(of: functionType, in: scope, with: identifier.genericArgumentClause)
         }
         // A qualified one, `Uploader.Completion`, by its full name.
@@ -1557,19 +1560,44 @@ extension Crawler {
         genericRequirementList?.map { $0.requirement.filteredDescription } ?? []
     }
 
-    private func inheritedTypes(from inheritedTypesList: InheritedTypeListSyntax?) -> [String] {
+    /// - Parameter lookup: For a protocol's parents, where their function typealias arguments are looked up from;
+    ///   `nil` leaves every type as written.
+    private func inheritedTypes(from inheritedTypesList: InheritedTypeListSyntax?, expandingFrom lookup: Syntax? = nil) -> [String] {
         inheritedTypesList?.flatMap { inheritedType -> [String] in
-            inheritedTypes(from: inheritedType.type)
+            inheritedTypes(from: inheritedType.type, expandingFrom: lookup)
         } ?? []
     }
 
-    private func inheritedTypes(from inheritedType: TypeSyntax?) -> [String] {
+    private func inheritedTypes(from inheritedType: TypeSyntax?, expandingFrom lookup: Syntax? = nil) -> [String] {
         guard let inheritedType else { return [] }
-        if let compositeType = inheritedType.as(CompositionTypeSyntax.self) {
-            return compositeType.elements.compactMap { $0.type.trimmedDescription }
-        } else {
-            return [inheritedType.trimmedDescription]
+        func written(_ type: TypeSyntax) -> String {
+            lookup.map { expandingFunctionTypealiasArguments(type, lookingUpFrom: $0) } ?? type.trimmedDescription
         }
+        if let compositeType = inheritedType.as(CompositionTypeSyntax.self) {
+            return compositeType.elements.compactMap { written($0.type) }
+        } else {
+            return [written(inheritedType)]
+        }
+    }
+
+    /// A parent as written, with each generic argument that names a function typealias written as its function
+    /// type, `Transforming<Formatting>` as `Transforming<(Int) -> String>`: the associated type it binds then makes
+    /// the mock's parameters closures, which it has to make escaping. The typealias is found as a parameter's is.
+    private func expandingFunctionTypealiasArguments(_ type: TypeSyntax, lookingUpFrom lookup: Syntax) -> String {
+        let clause = type.as(IdentifierTypeSyntax.self)?.genericArgumentClause ?? type.as(MemberTypeSyntax.self)?.genericArgumentClause
+        guard let clause else { return type.trimmedDescription }
+        var changed = false
+        let arguments = clause.arguments.map { argument -> String in
+            if let argumentType = argument.argument.as(TypeSyntax.self), let expanded = expandedClosureTypealias(argumentType, lookingUpFrom: lookup) {
+                changed = true
+                return expanded.trimmedDescription
+            }
+            return argument.argument.trimmedDescription
+        }
+        guard changed else { return type.trimmedDescription }
+        let base = type.as(IdentifierTypeSyntax.self).map { $0.name.text }
+            ?? type.as(MemberTypeSyntax.self).map { "\($0.baseType.trimmedDescription).\($0.name.text)" } ?? ""
+        return "\(base)<\(arguments.joined(separator: ", "))>"
     }
 }
 
