@@ -257,10 +257,10 @@ jobs:
           # One framework and its tests alone: a test target given another target's mocks fails to build. First, while
           # the project's DerivedData is empty, so the other targets' products can't satisfy those mocks' imports.
           set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme ShopOnly \
-            -skipPackagePluginValidation -destination "platform=macOS" \
+            -skipPackagePluginValidation -destination "platform=macOS" ARCHS=arm64 \
             | xcbeautify --renderer github-actions
           set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme XApp \
-            -skipPackagePluginValidation -destination "platform=macOS" \
+            -skipPackagePluginValidation -destination "platform=macOS" ARCHS=arm64 \
             | xcbeautify --renderer github-actions
 
   # The single check that master's ruleset requires. It depends on every other job, so
