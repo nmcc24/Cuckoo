@@ -179,7 +179,8 @@ public final class MockManager: Sendable {
     // The `call` variants below differ only in effects. `invoke` runs a `then` closure: the generated mock
     // passes it, so the closure runs in the mock's isolation and the manager never calls user code itself.
     // The closure captures the member's parameters and passes them to the implementation itself; it doesn't
-    // escape, so it can capture an `inout`, `borrowing` or `consuming` one too.
+    // escape, so it can capture an `inout` one, or a `~Copyable` `borrowing` or `consuming` one (copyable ones are
+    // copied into locals first).
 
     private func callInternal<IN, OUT, ERROR, IMPL>(
         _ method: String,
