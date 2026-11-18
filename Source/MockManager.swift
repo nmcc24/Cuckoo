@@ -396,10 +396,12 @@ public final class MockManager: Sendable {
     }
 
     // The removed stubs and calls are released after the lock is, since releasing them can run user code (a
-    // recorded argument's or a stub closure's captured value's `deinit`), which may call the mock.
+    // recorded argument's or a stub closure's captured value's `deinit`), which may call the mock. Each function keeps
+    // them alive past the lock with `withExtendedLifetime`: a discarded result (`_ = withLock { … }`) lets the
+    // optimizer release them inside it.
 
     func reset() {
-        _ = state.withLock { state in
+        let removed = state.withLock { state in
             defer {
                 state.stubs = []
                 state.calls = []
@@ -407,23 +409,26 @@ public final class MockManager: Sendable {
             }
             return (state.stubs, state.calls)
         }
+        withExtendedLifetime(removed) {}
     }
 
     func clearStubs() {
-        _ = state.withLock { state in
+        let removed = state.withLock { state in
             defer { state.stubs = [] }
             return state.stubs
         }
+        withExtendedLifetime(removed) {}
     }
 
     func clearInvocations() {
-        _ = state.withLock { state in
+        let removed = state.withLock { state in
             defer {
                 state.calls = []
                 state.unverifiedCallIDs.removeAll()
             }
             return state.calls
         }
+        withExtendedLifetime(removed) {}
     }
     
     /// - Parameters:
