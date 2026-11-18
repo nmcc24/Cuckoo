@@ -107,8 +107,9 @@ class HandlingClass {
     func handle(_ handler: Chained) {}
 }
 
-// Isolation inherited from a superclass, a parent protocol or the type a class is nested in, which the module's
-// default isolation doesn't replace.
+// Isolation inherited from a superclass or the type a class is nested in, which the module's default isolation
+// doesn't replace. A protocol refining a `nonisolated` one takes the default itself: only the requirements it
+// inherits are nonisolated (fixture 97).
 nonisolated class Plain {
     init() {}
     func c() {}

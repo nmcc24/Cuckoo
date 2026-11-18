@@ -63,9 +63,10 @@
 - A requirement of a parent with no global actor became isolated to a refining protocol's global actor, so the
   mock's conformance to the parent crossed into that actor. It's `nonisolated` in the mock now, as a conforming
   type's witness has to be.
-- With `defaultIsolation = "MainActor"`, a class whose superclass is `nonisolated`, a protocol refining a
-  `nonisolated` one, and a type nested in a `nonisolated` type took the default isolation instead of Swift's
-  inferred `nonisolated`, and their mocks didn't compile.
+- With `defaultIsolation = "MainActor"`, a class whose superclass is `nonisolated` and a type nested in a
+  `nonisolated` type took the default isolation instead of Swift's inferred `nonisolated`, and their mocks didn't
+  compile. A protocol refining a `nonisolated` one does take the default, as Swift gives it: only the requirements
+  it inherits are `nonisolated`, in its mock and in the mock of a `nonisolated` class that conforms to it.
 - A protocol fixing a parent's associated type, as `where Item == String` or `Store<String, Int>`, left that name
   in the other associated types' constraints, as `Keys: Collection<Key>`, which the mock couldn't name.
 - A subclass of a generic class in the sources, `class Child: Base<Int>`, got a mock that silently didn't override

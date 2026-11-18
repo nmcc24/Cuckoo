@@ -180,4 +180,30 @@ struct MemberShapeTests {
         #expect(!mock.contains("func increment()"))
         #expect(!mock.contains("var count: Int"))
     }
+
+    /// With a default isolation, a protocol refining a `nonisolated` one takes the default itself: its own
+    /// requirements are isolated, and the ones it inherits aren't. Stated, `nonisolated` covers its own too.
+    @Test
+    func aProtocolRefiningANonisolatedOneTakesTheDefaultIsolation() async throws {
+        let source = """
+            nonisolated protocol Anywhere {
+                func anywhere()
+            }
+            protocol Refining: Anywhere {
+                func refined()
+            }
+            nonisolated protocol StatedRefining: Anywhere {
+                func stated()
+            }
+            """
+        let output = try await generateMocks(source: source, options: Self.mainActor)
+        let start = try #require(output.firstRange(of: "class MockRefining"))
+        let end = try #require(output.firstRange(of: "class MockStatedRefining"))
+        let mock = String(output[start.lowerBound..<end.lowerBound])
+        #expect(!output.contains("nonisolated final class MockRefining"))
+        #expect(mock.contains("    nonisolated\n    func anywhere()"))
+        #expect(mock.contains("\n\n    func refined()"))
+        #expect(mock.contains("@MainActor\n        @discardableResult\n        func refined() -> Cuckoo.VerifiedCall"))
+        #expect(output.contains("nonisolated final class MockStatedRefining"))
+    }
 }
