@@ -146,6 +146,9 @@
 - A settable `@objc optional` property, or an `@objc optional` subscript, gave a mock that didn't compile: read
   through its protocol, an optional requirement is an immutable optional value. The getter of a subscript unwraps
   it, as a property's does, and a setter forwarded to a default implementation records a failure saying to stub it.
+- A class that implements a protocol's requirement with a `static` or `final` member, as `static func reset()`
+  for `static func reset()` of a protocol in the sources, got a mock that declared the requirement again and didn't
+  compile. The mock leaves such a member to the class.
 
 ### Changed
 - The argument a generated mock passes its manager for an unstubbed call's default is `unstubbedDefault`, renamed

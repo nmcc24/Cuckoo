@@ -129,4 +129,31 @@ struct MemberShapeTests {
         // Different parameters tell these apart already.
         #expect(!output.contains("(_ p0: __M1) async ->"))
     }
+
+    /// A class's `static` or `final` member that implements a protocol's requirement hides the requirement, which
+    /// the mock would otherwise declare next to it.
+    @Test
+    func aRequirementImplementedByAnUnoverridableMemberIsNotMocked() async throws {
+        let source = """
+            protocol Counting {
+                static func reset()
+                var count: Int { get }
+                func increment()
+                func decrement()
+            }
+            class Counter: Counting {
+                init() {}
+                static func reset() {}
+                final var count: Int { 0 }
+                final func increment() {}
+                func decrement() {}
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let mock = try #require(output.firstRange(of: "class MockCounter").map { String(output[$0.lowerBound...]) })
+        #expect(mock.contains("override func decrement()"))
+        #expect(!mock.contains("func reset()"))
+        #expect(!mock.contains("func increment()"))
+        #expect(!mock.contains("var count: Int"))
+    }
 }
