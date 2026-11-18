@@ -164,3 +164,79 @@ nonisolated final class SinkStub: Sink {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+actor MockSinkActor: SinkActor, Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any SinkActor
+    typealias CuckooStubbing = __StubbingProxy_SinkActor
+    typealias CuckooVerification = __VerificationProxy_SinkActor
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
+
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
+        cuckooManager.refuseActorDefaultImplementation()
+    }
+
+    func put(_ p0: consuming sending Payload) {
+        let p0 = copy p0
+        return cuckooManager.call(
+            "put(_ p0: consuming sending Payload)",
+            parameters: ((copy p0)),
+            escapingParameters: ((copy p0)),
+            invoke: { (implementation: @Sendable (isolated MockSinkActor, Payload) -> Void, arguments) in
+                implementation(self, arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("put(_ p0: consuming sending Payload)")
+        )
+    }
+
+    nonisolated struct __StubbingProxy_SinkActor: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func put<__M1: Cuckoo._SendableMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Payload), @Sendable (isolated MockSinkActor, Payload) -> Void, Cuckoo.StubSharing.Shared> where __M1.MatchedType == Payload {
+            let matchers: [Cuckoo.SendableMatcher<(Payload)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckooManager.createStub(for: MockSinkActor.self,
+                method: "put(_ p0: consuming sending Payload)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_SinkActor: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.CuckooSourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.CuckooSourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func put<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Payload), Void> where __M1.MatchedType == Payload {
+            let matchers: [Cuckoo.ParameterMatcher<(Payload)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "put(_ p0: consuming sending Payload)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+actor SinkActorStub: SinkActor {
+    func put(_ p0: consuming sending Payload) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}

@@ -10,6 +10,10 @@
   or a commit.
 - The prebuilt macOS generator is arm64 only: Xcode 27 doesn't run on Intel Macs.
 
+### Fixed
+- A `sending` parameter gave the mock an "initialization of immutable value '__p0' was never used" warning when the
+  member forwards no call: in an `Actor` protocol, or with a `~Copyable` or variadic parameter alongside it.
+
 ## 3.0.0-beta.6
 
 Fixes from three independent reviews of the whole codebase, and the last API decisions before 3.0.0: an unstubbed
