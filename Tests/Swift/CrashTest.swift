@@ -52,6 +52,22 @@ struct CrashTest {
         #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("which isn't a"))
     }
 
+    /// A non-escaping closure can't outlive its call, so a `verify` gets a stand-in for it, which says so when called.
+    @Test
+    func callingANonEscapingClosureAVerifyCapturedStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let mock = MockTestedClass()
+            stub(mock) { stub in
+                when(stub.withClosure(any())).thenReturn(0)
+            }
+            _ = mock.withClosure { _ in 1 }
+            let closure = ArgumentCaptor<(String) -> Int>()
+            verify(mock).withClosure(closure.capture())
+            _ = closure.value?("a")
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("A non-escaping closure can't be called after the call it was passed to"))
+    }
+
     /// A member returning `Self` can't reach the default implementation, and the mock's type has no default value.
     @Test
     func defaultImplementationOfAMemberReturningSelfStopsTheProcess() async throws {
