@@ -75,8 +75,13 @@ final class Generator {
         let expanded = (module.sources ?? []).map { source in
             (source: source, files: module.sourcesAreFromPlugin ? [source].filter(\.exists) : Glob(pattern: source.description).paths.map { Path($0) })
         }
-        let warnings = module.sourcesAreFromPlugin ? [] : expanded.filter(\.files.isEmpty).map { source, _ in
-            "The source '\(source)' of module \(module.name) matches no files."
+        var warnings = module.sourcesAreFromPlugin ? [] : expanded.filter(\.files.isEmpty).map { source, _ in
+            // As written, without the escapes the Cuckoofile's folder got when the source was joined to it.
+            "The source '\(Glob.unescaped(source.rawValue))' of module \(module.name) matches no files."
+        }
+        // Run by hand, an entry has only its own `sources`: without any it generates an empty file.
+        if !module.sourcesAreFromPlugin, module.sources?.isEmpty ?? true {
+            warnings.append("Module \(module.name) lists no sources, so it generates no mocks. List the files to mock in its `sources`, as `sources = [\"Sources/App/**/*.swift\"]`.")
         }
         return (expanded, warnings)
     }
