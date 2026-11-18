@@ -5,9 +5,14 @@ import Testing
 @Suite
 struct GeneratedDefaultsTests {
     /// The defaults the mocks of `source` pass, in order.
-    private func defaults(in source: String, moduleKeys: String = "", options: String = "") async throws -> [String] {
+    private func defaults(
+        in source: String,
+        sources: String = #"["Source.swift"]"#,
+        moduleKeys: String = "",
+        options: String = ""
+    ) async throws -> [String] {
         let argument = "unstubbedTuple: "
-        return try await generateMocks(source: source, moduleKeys: moduleKeys, options: options).lines
+        return try await generateMocks(source: source, sources: sources, moduleKeys: moduleKeys, options: options).lines
             .map(\.trimmed)
             .filter { $0.hasPrefix(argument) && !$0.hasSuffix("{") }
             .map { String($0.dropFirst(argument.count)) }
@@ -120,7 +125,114 @@ struct GeneratedDefaultsTests {
             """
         #expect(try await defaults(in: source) == [
             "Feature.EngineStub()", "EngineStub()", "Feature.EngineStub()", "Feature.EngineStub()",
+            // The struct nearest to the member, not a protocol further out.
+            "Engine()",
             "EngineStub()", "EngineStub()", "Feature.EngineStub()",
         ])
+    }
+
+    @Test
+    func aTypeOfTheSourcesGetsAValue() async throws {
+        let source = """
+            struct Settings { var volume = 5 }
+            final class Canvas {}
+            enum Direction { case north, south }
+            enum Feature {
+                struct Flags {}
+            }
+            struct Token { let value: String }
+            protocol Desk {
+                var settings: Settings { get }
+                func canvas() -> Canvas
+                func direction() -> Direction
+                func flags() -> Feature.Flags
+                func qualified() -> App.Settings
+                func token() -> Token
+                func optional() -> Settings?
+                func list() -> [Direction]
+                func existential() -> any Settings
+                func generic<Canvas>(_ canvas: Canvas) -> Canvas
+                func foreign() -> Data
+            }
+            class Studio {
+                func settings() -> Settings { Settings() }
+            }
+            """
+        #expect(try await defaults(in: source) == [
+            "Settings()", "Canvas()", "Direction.north", "Feature.Flags()", "App.Settings()", "Settings()",
+        ])
+    }
+
+    /// An internal initializer, an implicit one included, is the mocks' to call only with the module's internals in
+    /// sight: in the mock of an internal type, or when the Cuckoofile imports the sources' module with `@testable`.
+    @Test
+    func anInternalInitializerNeedsTheModulesInternals() async throws {
+        let source = """
+            public struct Summary { public var total = 0 }
+            public struct Report { public init() {} }
+            public enum Level { case low }
+            public protocol Kiosk {
+                func summary() -> Summary
+                func report() -> Report
+                func level() -> Level
+            }
+            protocol Desk {
+                func summary() -> Summary
+            }
+            """
+        #expect(try await defaults(in: source) == ["Report()", "Level.low", "Summary()"])
+
+        // The table form of `sources` names the file's Swift module.
+        let inApp = #"{ App = ["Source.swift"] }"#
+        #expect(try await defaults(in: source, sources: inApp, moduleKeys: #"testableImports = ["App"]"#) == ["Summary()", "Report()", "Level.low", "Summary()"])
+        #expect(try await defaults(in: source, sources: inApp, moduleKeys: #"imports = ["App"]"#) == ["Report()", "Level.low"])
+    }
+
+    /// Under a default isolation, a type's initializer runs on that actor, which a mock's member may not.
+    @Test
+    func aDefaultIsolationLeavesOnlyEnumCases() async throws {
+        let source = """
+            struct Settings {}
+            enum Direction { case north }
+            protocol Desk {
+                func settings() -> Settings
+                func direction() -> Direction
+            }
+            """
+        #expect(try await defaults(in: source, options: #"defaultIsolation = "MainActor""#) == ["Direction.north"])
+        #expect(try await defaults(in: source, options: #"defaultIsolation = "nonisolated""#) == ["Settings()", "Direction.north"])
+    }
+
+    /// A type gets a value only when its name is one declaration, nested in the sources' own non-generic types.
+    @Test
+    func anAmbiguousTypeGetsNone() async throws {
+        let source = """
+            #if os(macOS)
+            struct Settings {}
+            #endif
+            struct Settings { var volume: Int }
+            struct Box<Value> {}
+            extension Box {
+                struct Lid {}
+            }
+            extension Array {
+                struct Slot {}
+            }
+            struct Outer {
+                struct Settings {}
+            }
+            extension Outer {
+                protocol Desk {
+                    func settings() -> Settings
+                }
+            }
+            protocol Desk {
+                func settings() -> Settings
+                func lid() -> Box<Int>.Lid
+                func slot() -> Array<Int>.Slot
+                func nested() -> Outer.Settings
+            }
+            """
+        #expect(try await defaults(in: source) == ["Settings()", "Outer.Settings()"])
     }
 }
