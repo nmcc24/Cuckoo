@@ -19,10 +19,23 @@ enum MockBuilder {
         if !enclosingConditions.isEmpty {
             lines.append("#if \(enclosingConditions.joined(separator: " && "))")
         }
-        lines.append(contentsOf: container.repeatedAttributes.map(\.description))
+        // The enclosing types' and extensions' availability, which the extension of the type the mock is nested in
+        // needs as their members do, and the `where` clauses of the extensions it's declared in.
+        var enclosingAttributes: [Attribute] = []
+        var enclosingRequirements: [String] = []
+        var ancestor = container.parent?.value
+        while let current = ancestor {
+            enclosingAttributes.insert(contentsOf: (current as? any HasAttributes)?.repeatedAttributes ?? [], at: 0)
+            // On an extension of a type nested deeper, `Self` names the extension's own type.
+            let requirements = (current as? NamespaceDeclaration)?.genericRequirements ?? []
+            let name = (current as? any HasName)?.fullyQualifiedName
+            enclosingRequirements.insert(contentsOf: name == parentName ? requirements : requirements.map { $0.replacing(/\bSelf\b/.wordBoundaryKind(.simple), with: name ?? "Self") }, at: 0)
+            ancestor = current.parent?.value
+        }
+        lines.append(contentsOf: (enclosingAttributes + container.repeatedAttributes).uniquing().map(\.description))
         lines.append(contentsOf: container.spiAttributes(at: container.accessibility).map(\.description))
         if let parentName {
-            lines.append("extension \(parentName) {")
+            lines.append("extension \(parentName)\(enclosingRequirements.isEmpty ? "" : " where " + enclosingRequirements.joined(separator: ", ")) {")
         }
         lines.append(header(of: container, isActor: isActor, hasStaticMembers: hasStaticMembers))
 
@@ -35,14 +48,14 @@ enum MockBuilder {
             "any \(container.name)\(container.genericPrimaryAssociatedTypeArguments ?? "")"
         }
         lines.append("    \(access)typealias CuckooMocksType = \(mocksType)")
-        lines.append("    \(access)typealias CuckooStubbing = __StubbingProxy_\(container.name)")
-        lines.append("    \(access)typealias CuckooVerification = __VerificationProxy_\(container.name)")
+        lines.append("    \(access)typealias CuckooStubbing = \(container.derivedName("__StubbingProxy_"))")
+        lines.append("    \(access)typealias CuckooVerification = \(container.derivedName("__VerificationProxy_"))")
         if container.declaresSelfTypealias {
             lines.append("    \(access)typealias \(SelfResolution.typealiasName) = \(container.mockName)")
         }
         if hasStaticMembers {
-            lines.append("    \(access)typealias CuckooStaticStubbing = __StaticStubbingProxy_\(container.name)")
-            lines.append("    \(access)typealias CuckooStaticVerification = __StaticVerificationProxy_\(container.name)")
+            lines.append("    \(access)typealias CuckooStaticStubbing = \(container.derivedName("__StaticStubbingProxy_"))")
+            lines.append("    \(access)typealias CuckooStaticVerification = \(container.derivedName("__StaticVerificationProxy_"))")
         }
         lines.append("")
         let unknownAttributes = container.asClass?.unknownAttributes ?? container.asProtocol?.unknownAttributes ?? []
@@ -122,9 +135,12 @@ enum MockBuilder {
             !protocolDeclaration.isActor && (protocolDeclaration.isolation == nil || protocolDeclaration.isolation == .nonisolated)
                 && !protocolDeclaration.isSuperclassDeclared
         } ?? false
+        // A class nonisolated because the type it's nested in is: the mock, in an extension of that type, wouldn't
+        // infer it from the class.
+        let isNonisolatedClass = container.asClass?.isolation == .nonisolated
         let nonisolated = isActor ? "" : " nonisolated"
         var header = container.accessibility.spaced
-        header += isNonisolatedProtocol ? "nonisolated " : ""
+        header += isNonisolatedProtocol || isNonisolatedClass ? "nonisolated " : ""
         header += isActor ? "actor" : "final class"
         header += " \(container.mockName)\(container.genericParametersString):"
         if let superclass = container.asProtocol?.superclass, !superclass.isEmpty {

@@ -7,7 +7,7 @@ import SwiftSyntax
 /// right indentation.
 enum NopImplStubBuilder {
     static func build(_ container: any ContainerToken) throws -> String {
-        let name = "\(container.name)Stub"
+        let name = container.derivedName("", "Stub")
         var members = MemberList()
 
         if container.declaresSelfTypealias {
@@ -53,7 +53,11 @@ enum NopImplStubBuilder {
     }
 
     private static func keyword(of container: any ContainerToken) -> String {
-        guard let protocolDeclaration = container.asProtocol else { return "final class" }
+        // A class nonisolated because the type it's nested in is: the stub, in an extension of that type, wouldn't
+        // infer it from the class.
+        guard let protocolDeclaration = container.asProtocol else {
+            return container.asClass?.isolation == .nonisolated ? "nonisolated final class" : "final class"
+        }
         if protocolDeclaration.isActor { return "actor" }
         // The stub is explicitly `nonisolated`, so it doesn't take on the module's default isolation, unless it
         // takes on its declared superclass's.
