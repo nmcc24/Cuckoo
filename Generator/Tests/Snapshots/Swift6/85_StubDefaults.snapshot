@@ -377,6 +377,200 @@ extension Garage {
     }
 }
 
+extension Depot {
+    nonisolated final class MockEngine: Engine, nonisolated Cuckoo.ProtocolMock {
+        typealias CuckooMocksType = any Engine
+        typealias CuckooStubbing = __StubbingProxy_Engine
+        typealias CuckooVerification = __VerificationProxy_Engine
+
+        // Original typealiases
+
+        nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockEngine.self) ?? Cuckoo.MockManager(hasParent: false)
+
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Engine>()
+
+        nonisolated func enableDefaultImplementation(_ stub: any Engine) {
+            cuckooDefaultImplementation.value = stub
+            cuckooManager.enableDefaultImplementation()
+        }
+
+        func idle() {
+            return cuckooManager.call(
+                "idle()",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> Void, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.idle()
+            )
+        }
+
+        nonisolated struct __StubbingProxy_Engine: Cuckoo.StubbingProxy {
+            private let cuckooManager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckooManager = manager
+            }
+
+            func idle() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckooManager.createStub(for: MockEngine.self,
+                    method: "idle()",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+
+        nonisolated struct __VerificationProxy_Engine: Cuckoo.VerificationProxy {
+            private let cuckooManager: Cuckoo.MockManager
+            private let cuckooCallMatcher: Cuckoo.CallMatcher
+            private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckooManager = manager
+                self.cuckooCallMatcher = callMatcher
+                self.cuckooSourceLocation = sourceLocation
+            }
+
+            @discardableResult
+            func idle() -> Cuckoo.VerifiedCall<(), Void> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckooManager.verify(
+                    "idle()",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+
+    nonisolated final class EngineStub: Engine {
+        func idle() {
+            typealias __CuckooDefault = Void
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+}
+
+extension Depot {
+    nonisolated final class MockBay: Bay, nonisolated Cuckoo.ProtocolMock {
+        typealias CuckooMocksType = any Bay
+        typealias CuckooStubbing = __StubbingProxy_Bay
+        typealias CuckooVerification = __VerificationProxy_Bay
+
+        // Original typealiases
+
+        nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockBay.self) ?? Cuckoo.MockManager(hasParent: false)
+
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Bay>()
+
+        nonisolated func enableDefaultImplementation(_ stub: any Bay) {
+            cuckooDefaultImplementation.value = stub
+            cuckooManager.enableDefaultImplementation()
+        }
+
+        func nearest() -> any Engine {
+            return cuckooManager.call(
+                "nearest() -> any Engine",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> any Engine, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.nearest(),
+                unstubbedDefault: Depot.EngineStub()
+            )
+        }
+
+        func aliased() -> any Motor {
+            return cuckooManager.call(
+                "aliased() -> any Motor",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> any Motor, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.aliased()
+            )
+        }
+
+        nonisolated struct __StubbingProxy_Bay: Cuckoo.StubbingProxy {
+            private let cuckooManager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckooManager = manager
+            }
+
+            func nearest() -> Cuckoo.ProtocolStubFunction<(), any Engine, (()) -> any Engine, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckooManager.createStub(for: MockBay.self,
+                    method: "nearest() -> any Engine",
+                    parameterMatchers: matchers
+                ))
+            }
+
+            func aliased() -> Cuckoo.ProtocolStubFunction<(), any Motor, (()) -> any Motor, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckooManager.createStub(for: MockBay.self,
+                    method: "aliased() -> any Motor",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+
+        nonisolated struct __VerificationProxy_Bay: Cuckoo.VerificationProxy {
+            private let cuckooManager: Cuckoo.MockManager
+            private let cuckooCallMatcher: Cuckoo.CallMatcher
+            private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckooManager = manager
+                self.cuckooCallMatcher = callMatcher
+                self.cuckooSourceLocation = sourceLocation
+            }
+
+            @discardableResult
+            func nearest() -> Cuckoo.VerifiedCall<(), any Engine> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckooManager.verify(
+                    "nearest() -> any Engine",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+
+            @discardableResult
+            func aliased() -> Cuckoo.VerifiedCall<(), any Motor> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckooManager.verify(
+                    "aliased() -> any Motor",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+
+    nonisolated final class BayStub: Bay {
+        func nearest() -> any Engine {
+            typealias __CuckooDefault = any Engine
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Depot.EngineStub())
+        }
+
+        func aliased() -> any Motor {
+            typealias __CuckooDefault = any Motor
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+}
+
 nonisolated final class MockShelf<Item>: Shelf, nonisolated Cuckoo.ProtocolMock {
     typealias CuckooMocksType = any Shelf<Item>
     typealias CuckooStubbing = __StubbingProxy_Shelf
@@ -657,8 +851,7 @@ nonisolated final class MockCar: Car, nonisolated Cuckoo.ProtocolMock, nonisolat
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.qualified(),
-            unstubbedDefault: EngineStub()
+            defaultCall: cuckooDefaultImplementation.value.qualified()
         )
     }
 
@@ -1374,7 +1567,7 @@ nonisolated final class CarStub: Car {
 
     func qualified() -> any Fix.Engine {
         typealias __CuckooDefault = any Fix.Engine
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: EngineStub())
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func nested() -> any Garage.Door {

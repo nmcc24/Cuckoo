@@ -139,6 +139,36 @@ struct StubDefaultTest {
         #expect(mock.spare().name == "stubbed")
     }
 
+    private struct IntCrate: Crate {
+        func first() -> Int? { 1 }
+
+        func unpack(_ count: inout Int) -> any Part {
+            count += 1
+            return NamedPart(name: "real")
+        }
+    }
+
+    /// A member the mock can't forward to its default implementation records the failure and answers with the stub:
+    /// one taking `Self`, and an `inout` one a type eraser stands in for.
+    @Test
+    func anUnforwardableMemberReturnsItToo() {
+        let log = FailureLog()
+        let fitting = MockFitting()
+        fitting.enableDefaultImplementation(FittingStub())
+        let crate = MockCrate<Int>()
+        crate.enableDefaultImplementation(IntCrate())
+        var count = 1
+
+        CuckooConfiguration.$current.withValue(log.configuration) {
+            #expect(fitting.adapter(to: fitting) is PartStub)
+            #expect(crate.first() == 1)
+            #expect(crate.unpack(&count) is PartStub)
+        }
+        #expect(count == 1)
+        #expect(log.all.count == 2)
+        #expect(log.all.allSatisfy { $0.contains("can't forward") })
+    }
+
     /// A generated stub's own members answer the same way, so a stub an unstubbed call returned can be used further.
     @Test
     func aStubsMembersReturnStubsToo() {

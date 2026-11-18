@@ -1,9 +1,10 @@
 import SwiftParser
 import SwiftSyntax
 
-/// How a mock builds a value of one of the sources' own structs, classes, actors or enums.
+/// How a mock builds a value of one of the sources' own structs or enums. A class or an actor has none: creating
+/// one may do anything, and a test shouldn't run that without asking.
 enum ValueDefault: Sendable, Equatable {
-    /// `Type()`, through an initializer of the given access that takes no arguments.
+    /// `Type()`, through a struct's initializer of the given access that takes no arguments.
     case initializer(access: Accessibility)
     /// `Type.name`: the enum's first case without associated values.
     case enumCase(String)
@@ -17,10 +18,14 @@ extension Crawler {
         /// The qualified name of every struct, class, actor and enum, with how many times it's declared: a name
         /// declared twice, in two files or two `#if` branches, is no single type.
         var declarations: [String: Int] = [:]
+        /// The types an extension declares an initializer for, as the extension names them: `Type()` may then be
+        /// ambiguous, or call that initializer.
+        var typesWithExtensionInitializers: Set<String> = []
 
         mutating func formUnion(_ other: ValueDefaults) {
             defaults.merge(other.defaults) { first, _ in first }
             declarations.merge(other.declarations, uniquingKeysWith: +)
+            typesWithExtensionInitializers.formUnion(other.typesWithExtensionInitializers)
         }
     }
 
@@ -41,14 +46,26 @@ extension Crawler {
             return .visitChildren
         }
 
+        // A class or an actor, `distributed` ones included, only takes its name.
         override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
-            collect(node, name: node.name) { Self.initializer(of: node.memberBlock, inheritance: node.inheritanceClause) }
+            collect(node, name: node.name) { nil }
             return .visitChildren
         }
 
         override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
-            collect(node, name: node.name) { Self.initializer(of: node.memberBlock, inheritance: node.inheritanceClause) }
+            collect(node, name: node.name) { nil }
             return .visitChildren
+        }
+
+        override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
+            var ancestor = node.parent
+            while let current = ancestor, !current.isProtocol((any DeclGroupSyntax).self) {
+                ancestor = current.parent
+            }
+            if let extensionDeclaration = ancestor?.as(ExtensionDeclSyntax.self) {
+                result.typesWithExtensionInitializers.insert(extensionDeclaration.extendedType.trimmedDescription.filter { !$0.isWhitespace })
+            }
+            return .skipChildren
         }
 
         override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
@@ -104,17 +121,17 @@ extension Crawler {
             return attributesArePlain && !hasGenerics && !suppressesAConformance && !node.is(ProtocolDeclSyntax.self)
         }
 
-        /// What a type may inherit and still have an initializer that runs from any isolation: a superclass or a
-        /// protocol of the sources may isolate the type, or give it its initializers.
+        /// What a struct may conform to and still have an initializer that runs from any isolation: a protocol of the
+        /// sources may isolate it.
         private static let plainInheritedTypes: Set<String> = [
             "Sendable", "Equatable", "Hashable", "Comparable", "Codable", "Encodable", "Decodable", "Identifiable",
-            "CustomStringConvertible", "CustomDebugStringConvertible", "Error", "AnyObject", "NSObject",
-            "BitwiseCopyable", "SendableMetatype",
+            "CustomStringConvertible", "CustomDebugStringConvertible", "Error", "BitwiseCopyable", "SendableMetatype",
         ]
 
-        /// The initializer `Type()` calls, when it's sure to exist and to run anywhere without failing: an `init()`
-        /// the type declares, its only initializer whose parameters all have defaults, or, when it declares none,
-        /// the implicit one of a type whose stored properties all have defaults.
+        /// The initializer `Type()` calls on a struct, when it's sure to exist and to run anywhere without failing: an
+        /// `init()` the struct declares, its only initializer whose parameters all have defaults, or, when it
+        /// declares none, the implicit one of a struct whose stored properties all have defaults. An initializer in
+        /// an extension isn't seen here: see ``ValueDefaults/typesWithExtensionInitializers``.
         private static func initializer(of members: MemberBlockSyntax, inheritance: InheritanceClauseSyntax?) -> ValueDefault? {
             let inheritsOnlyPlainTypes = inheritance?.inheritedTypes.allSatisfy { inherited in
                 let type = inherited.type.as(AttributedTypeSyntax.self)?.baseType ?? inherited.type

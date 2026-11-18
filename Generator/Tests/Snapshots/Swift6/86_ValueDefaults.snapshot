@@ -81,84 +81,6 @@ final class DocumentStub: Document {
     }
 }
 
-final class MockSheet: Sheet, nonisolated Cuckoo.ClassMock {
-    typealias CuckooMocksType = Sheet
-    typealias CuckooStubbing = __StubbingProxy_Sheet
-    typealias CuckooVerification = __VerificationProxy_Sheet
-
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSheet.self) ?? Cuckoo.MockManager(hasParent: true)
-
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Sheet>()
-
-    nonisolated func enableDefaultImplementation(_ stub: Sheet) {
-        cuckooDefaultImplementation.value = stub
-        cuckooManager.enableDefaultImplementation()
-    }
-
-    override var title: String {
-        get {
-            return cuckooManager.getter(
-                "title",
-                invoke: { (implementation: (()) -> String) in
-                    implementation(())
-                },
-                superclassCall: super.title,
-                defaultCall: cuckooDefaultImplementation.value.title
-            )
-        }
-        set {
-            cuckooManager.setter(
-                "title",
-                value: newValue,
-                invoke: { (implementation: (String) -> Void, value) in
-                    implementation(value)
-                },
-                superclassCall: super.title = newValue,
-                defaultCall: cuckooDefaultImplementation.value.title = newValue
-            )
-        }
-    }
-
-    nonisolated struct __StubbingProxy_Sheet: Cuckoo.StubbingProxy {
-        private let cuckooManager: Cuckoo.MockManager
-
-        init(manager: Cuckoo.MockManager) {
-            self.cuckooManager = manager
-        }
-
-        var title: Cuckoo.ClassToBeStubbedProperty<MockSheet, String, (()) -> String, (String) -> Void, Cuckoo.StubSharing.Confined> {
-            return .init(manager: cuckooManager, name: "title")
-        }
-    }
-
-    nonisolated struct __VerificationProxy_Sheet: Cuckoo.VerificationProxy {
-        private let cuckooManager: Cuckoo.MockManager
-        private let cuckooCallMatcher: Cuckoo.CallMatcher
-        private let cuckooSourceLocation: Cuckoo.SourceLocation
-
-        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckooManager = manager
-            self.cuckooCallMatcher = callMatcher
-            self.cuckooSourceLocation = sourceLocation
-        }
-
-        var title: Cuckoo.VerifyProperty<String> {
-            return .init(manager: cuckooManager, name: "title", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
-        }
-    }
-}
-
-final class SheetStub: Sheet {
-    override var title: String {
-        get {
-            typealias __CuckooDefault = String
-            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
-        }
-        set {
-        }
-    }
-}
-
 nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
     typealias CuckooMocksType = any Desk
     typealias CuckooStubbing = __StubbingProxy_Desk
@@ -244,48 +166,6 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
         )
     }
 
-    func canvas() -> Canvas {
-        return cuckooManager.call(
-            "canvas() -> Canvas",
-            parameters: (),
-            escapingParameters: (),
-            invoke: { (implementation: (()) -> Canvas, arguments) in
-                implementation(arguments)
-            },
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.canvas(),
-            unstubbedDefault: Canvas()
-        )
-    }
-
-    func document() -> Document {
-        return cuckooManager.call(
-            "document() -> Document",
-            parameters: (),
-            escapingParameters: (),
-            invoke: { (implementation: (()) -> Document, arguments) in
-                implementation(arguments)
-            },
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.document(),
-            unstubbedDefault: Document()
-        )
-    }
-
-    func counter() -> Counter {
-        return cuckooManager.call(
-            "counter() -> Counter",
-            parameters: (),
-            escapingParameters: (),
-            invoke: { (implementation: (()) -> Counter, arguments) in
-                implementation(arguments)
-            },
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.counter(),
-            unstubbedDefault: Counter()
-        )
-    }
-
     func outcome() -> Outcome {
         return cuckooManager.call(
             "outcome() -> Outcome",
@@ -351,8 +231,7 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.qualified(),
-            unstubbedDefault: Fix.Settings()
+            defaultCall: cuckooDefaultImplementation.value.qualified()
         )
     }
 
@@ -519,6 +398,19 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
         )
     }
 
+    func range() -> Range {
+        return cuckooManager.call(
+            "range() -> Range",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Range, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.range()
+        )
+    }
+
     func modern() -> Modern {
         return cuckooManager.call(
             "modern() -> Modern",
@@ -532,16 +424,69 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
         )
     }
 
-    func sheet() -> Sheet {
+    func canvas() -> Canvas {
         return cuckooManager.call(
-            "sheet() -> Sheet",
+            "canvas() -> Canvas",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Sheet, arguments) in
+            invoke: { (implementation: (()) -> Canvas, arguments) in
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.sheet()
+            defaultCall: cuckooDefaultImplementation.value.canvas()
+        )
+    }
+
+    func document() -> Document {
+        return cuckooManager.call(
+            "document() -> Document",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Document, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.document()
+        )
+    }
+
+    func counter() -> Counter {
+        return cuckooManager.call(
+            "counter() -> Counter",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Counter, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.counter()
+        )
+    }
+
+    func locale() -> Locale {
+        return cuckooManager.call(
+            "locale() -> Locale",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Locale, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.locale(),
+            unstubbedDefault: Locale()
+        )
+    }
+
+    func foreignLocale() -> Foundation.Locale {
+        return cuckooManager.call(
+            "foreignLocale() -> Foundation.Locale",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Foundation.Locale, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.foreignLocale()
         )
     }
 
@@ -656,30 +601,6 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckooManager.createStub(for: MockDesk.self,
                 method: "report() -> Report",
-                parameterMatchers: matchers
-            ))
-        }
-
-        func canvas() -> Cuckoo.ProtocolStubFunction<(), Canvas, (()) -> Canvas, Cuckoo.StubSharing.Confined> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckooManager.createStub(for: MockDesk.self,
-                method: "canvas() -> Canvas",
-                parameterMatchers: matchers
-            ))
-        }
-
-        func document() -> Cuckoo.ProtocolStubFunction<(), Document, (()) -> Document, Cuckoo.StubSharing.Confined> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckooManager.createStub(for: MockDesk.self,
-                method: "document() -> Document",
-                parameterMatchers: matchers
-            ))
-        }
-
-        func counter() -> Cuckoo.ProtocolStubFunction<(), Counter, (()) -> Counter, Cuckoo.StubSharing.Confined> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckooManager.createStub(for: MockDesk.self,
-                method: "counter() -> Counter",
                 parameterMatchers: matchers
             ))
         }
@@ -820,6 +741,14 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
             ))
         }
 
+        func range() -> Cuckoo.ProtocolStubFunction<(), Range, (()) -> Range, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockDesk.self,
+                method: "range() -> Range",
+                parameterMatchers: matchers
+            ))
+        }
+
         func modern() -> Cuckoo.ProtocolStubFunction<(), Modern, (()) -> Modern, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckooManager.createStub(for: MockDesk.self,
@@ -828,10 +757,42 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
             ))
         }
 
-        func sheet() -> Cuckoo.ProtocolStubFunction<(), Sheet, (()) -> Sheet, Cuckoo.StubSharing.Confined> {
+        func canvas() -> Cuckoo.ProtocolStubFunction<(), Canvas, (()) -> Canvas, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckooManager.createStub(for: MockDesk.self,
-                method: "sheet() -> Sheet",
+                method: "canvas() -> Canvas",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func document() -> Cuckoo.ProtocolStubFunction<(), Document, (()) -> Document, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockDesk.self,
+                method: "document() -> Document",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func counter() -> Cuckoo.ProtocolStubFunction<(), Counter, (()) -> Counter, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockDesk.self,
+                method: "counter() -> Counter",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func locale() -> Cuckoo.ProtocolStubFunction<(), Locale, (()) -> Locale, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockDesk.self,
+                method: "locale() -> Locale",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func foreignLocale() -> Cuckoo.ProtocolStubFunction<(), Foundation.Locale, (()) -> Foundation.Locale, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockDesk.self,
+                method: "foreignLocale() -> Foundation.Locale",
                 parameterMatchers: matchers
             ))
         }
@@ -926,39 +887,6 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "report() -> Report",
-                callMatcher: cuckooCallMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: cuckooSourceLocation
-            )
-        }
-
-        @discardableResult
-        func canvas() -> Cuckoo.VerifiedCall<(), Canvas> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckooManager.verify(
-                "canvas() -> Canvas",
-                callMatcher: cuckooCallMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: cuckooSourceLocation
-            )
-        }
-
-        @discardableResult
-        func document() -> Cuckoo.VerifiedCall<(), Document> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckooManager.verify(
-                "document() -> Document",
-                callMatcher: cuckooCallMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: cuckooSourceLocation
-            )
-        }
-
-        @discardableResult
-        func counter() -> Cuckoo.VerifiedCall<(), Counter> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckooManager.verify(
-                "counter() -> Counter",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -1153,6 +1081,17 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
         }
 
         @discardableResult
+        func range() -> Cuckoo.VerifiedCall<(), Range> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "range() -> Range",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
         func modern() -> Cuckoo.VerifiedCall<(), Modern> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
@@ -1164,10 +1103,54 @@ nonisolated final class MockDesk: Desk, nonisolated Cuckoo.ProtocolMock, nonisol
         }
 
         @discardableResult
-        func sheet() -> Cuckoo.VerifiedCall<(), Sheet> {
+        func canvas() -> Cuckoo.VerifiedCall<(), Canvas> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
-                "sheet() -> Sheet",
+                "canvas() -> Canvas",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func document() -> Cuckoo.VerifiedCall<(), Document> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "document() -> Document",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func counter() -> Cuckoo.VerifiedCall<(), Counter> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "counter() -> Counter",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func locale() -> Cuckoo.VerifiedCall<(), Locale> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "locale() -> Locale",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func foreignLocale() -> Cuckoo.VerifiedCall<(), Foundation.Locale> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "foreignLocale() -> Foundation.Locale",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -1314,21 +1297,6 @@ nonisolated final class DeskStub: Desk {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Report())
     }
 
-    func canvas() -> Canvas {
-        typealias __CuckooDefault = Canvas
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Canvas())
-    }
-
-    func document() -> Document {
-        typealias __CuckooDefault = Document
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Document())
-    }
-
-    func counter() -> Counter {
-        typealias __CuckooDefault = Counter
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Counter())
-    }
-
     func outcome() -> Outcome {
         typealias __CuckooDefault = Outcome
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Outcome.pending)
@@ -1351,7 +1319,7 @@ nonisolated final class DeskStub: Desk {
 
     func qualified() -> Fix.Settings {
         typealias __CuckooDefault = Fix.Settings
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Fix.Settings())
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
     func later() async -> Settings {
@@ -1414,13 +1382,38 @@ nonisolated final class DeskStub: Desk {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
+    func range() -> Range {
+        typealias __CuckooDefault = Range
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
     func modern() -> Modern {
         typealias __CuckooDefault = Modern
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
-    func sheet() -> Sheet {
-        typealias __CuckooDefault = Sheet
+    func canvas() -> Canvas {
+        typealias __CuckooDefault = Canvas
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func document() -> Document {
+        typealias __CuckooDefault = Document
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func counter() -> Counter {
+        typealias __CuckooDefault = Counter
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func locale() -> Locale {
+        typealias __CuckooDefault = Locale
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Locale())
+    }
+
+    func foreignLocale() -> Foundation.Locale {
+        typealias __CuckooDefault = Foundation.Locale
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 
@@ -1610,17 +1603,17 @@ final class MockPanel: Panel, nonisolated Cuckoo.ProtocolMock {
         }
     }
 
-    func canvas() -> Canvas {
+    func options() -> Options {
         return cuckooManager.call(
-            "canvas() -> Canvas",
+            "options() -> Options",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @MainActor @Sendable (()) -> Canvas, arguments) in
+            invoke: { (implementation: @MainActor @Sendable (()) -> Options, arguments) in
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.canvas(),
-            unstubbedDefault: Canvas()
+            defaultCall: cuckooDefaultImplementation.value.options(),
+            unstubbedDefault: Options()
         )
     }
 
@@ -1649,10 +1642,10 @@ final class MockPanel: Panel, nonisolated Cuckoo.ProtocolMock {
             return .init(manager: cuckooManager, name: "settings")
         }
 
-        func canvas() -> Cuckoo.ProtocolStubFunction<(), Canvas, @MainActor @Sendable (()) -> Canvas, Cuckoo.StubSharing.Isolated> {
+        func options() -> Cuckoo.ProtocolStubFunction<(), Options, @MainActor @Sendable (()) -> Options, Cuckoo.StubSharing.Isolated> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckooManager.createStub(for: MockPanel.self,
-                method: "canvas() -> Canvas",
+                method: "options() -> Options",
                 parameterMatchers: matchers
             ))
         }
@@ -1684,10 +1677,10 @@ final class MockPanel: Panel, nonisolated Cuckoo.ProtocolMock {
 
         @MainActor
         @discardableResult
-        func canvas() -> Cuckoo.VerifiedCall<(), Canvas> {
+        func options() -> Cuckoo.VerifiedCall<(), Options> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
-                "canvas() -> Canvas",
+                "options() -> Options",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -1716,9 +1709,9 @@ final class PanelStub: Panel {
         }
     }
 
-    func canvas() -> Canvas {
-        typealias __CuckooDefault = Canvas
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Canvas())
+    func options() -> Options {
+        typealias __CuckooDefault = Options
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Options())
     }
 
     func direction() async -> Direction {
@@ -1754,20 +1747,6 @@ actor MockVault: Vault, Cuckoo.ProtocolMock {
         )
     }
 
-    func canvas() -> Canvas {
-        return cuckooManager.call(
-            "canvas() -> Canvas",
-            parameters: (),
-            escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockVault) -> Canvas, arguments) in
-                implementation(self)
-            },
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("canvas() -> Canvas"),
-            unstubbedDefault: Canvas()
-        )
-    }
-
     func outcome() -> Outcome {
         return cuckooManager.call(
             "outcome() -> Outcome",
@@ -1793,14 +1772,6 @@ actor MockVault: Vault, Cuckoo.ProtocolMock {
             let matchers: [Cuckoo.SendableMatcher<Void>] = []
             return .init(stub: cuckooManager.createStub(for: MockVault.self,
                 method: "settings() -> Settings",
-                parameterMatchers: matchers
-            ))
-        }
-
-        func canvas() -> Cuckoo.ProtocolStubFunction<(), Canvas, @Sendable (isolated MockVault) -> Canvas, Cuckoo.StubSharing.Shared> {
-            let matchers: [Cuckoo.SendableMatcher<Void>] = []
-            return .init(stub: cuckooManager.createStub(for: MockVault.self,
-                method: "canvas() -> Canvas",
                 parameterMatchers: matchers
             ))
         }
@@ -1837,17 +1808,6 @@ actor MockVault: Vault, Cuckoo.ProtocolMock {
         }
 
         @discardableResult
-        func canvas() -> Cuckoo.VerifiedCall<(), Canvas> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckooManager.verify(
-                "canvas() -> Canvas",
-                callMatcher: cuckooCallMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: cuckooSourceLocation
-            )
-        }
-
-        @discardableResult
         func outcome() -> Cuckoo.VerifiedCall<(), Outcome> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
@@ -1864,11 +1824,6 @@ actor VaultStub: Vault {
     func settings() -> Settings {
         typealias __CuckooDefault = Settings
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Settings())
-    }
-
-    func canvas() -> Canvas {
-        typealias __CuckooDefault = Canvas
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Canvas())
     }
 
     func outcome() -> Outcome {
@@ -1919,17 +1874,17 @@ final class MockStudio: Studio, nonisolated Cuckoo.ClassMock {
         )
     }
 
-    override func canvas(named p0: String) -> Canvas {
+    override func limits(named p0: String) -> Feature.Limits {
         return cuckooManager.call(
-            "canvas(named p0: String) -> Canvas",
+            "limits(named p0: String) -> Feature.Limits",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((String)) -> Canvas, arguments) in
+            invoke: { (implementation: ((String)) -> Feature.Limits, arguments) in
                 implementation(arguments)
             },
-            superclassCall: super.canvas(named: p0),
-            defaultCall: cuckooDefaultImplementation.value.canvas(named: p0),
-            unstubbedDefault: Canvas()
+            superclassCall: super.limits(named: p0),
+            defaultCall: cuckooDefaultImplementation.value.limits(named: p0),
+            unstubbedDefault: Feature.Limits()
         )
     }
 
@@ -1952,12 +1907,12 @@ final class MockStudio: Studio, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func canvas<__M1: Cuckoo._Matchable>(named p0: __M1) -> Cuckoo.ClassStubFunction<(String), Canvas, ((String)) -> Canvas, Cuckoo.StubSharing.Confined> where __M1.MatchedType == String {
+        func limits<__M1: Cuckoo._Matchable>(named p0: __M1) -> Cuckoo.ClassStubFunction<(String), Feature.Limits, ((String)) -> Feature.Limits, Cuckoo.StubSharing.Confined> where __M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockStudio.self,
-                method: "canvas(named p0: String) -> Canvas",
+                method: "limits(named p0: String) -> Feature.Limits",
                 parameterMatchers: matchers
             ))
         }
@@ -1990,12 +1945,12 @@ final class MockStudio: Studio, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func canvas<__M1: Cuckoo._Matchable>(named p0: __M1) -> Cuckoo.VerifiedCall<(String), Canvas> where __M1.MatchedType == String {
+        func limits<__M1: Cuckoo._Matchable>(named p0: __M1) -> Cuckoo.VerifiedCall<(String), Feature.Limits> where __M1.MatchedType == String {
             let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
-                "canvas(named p0: String) -> Canvas",
+                "limits(named p0: String) -> Feature.Limits",
                 callMatcher: cuckooCallMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: cuckooSourceLocation
@@ -2017,8 +1972,8 @@ final class StudioStub: Studio {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Settings())
     }
 
-    override func canvas(named p0: String) -> Canvas {
-        typealias __CuckooDefault = Canvas
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Canvas())
+    override func limits(named p0: String) -> Feature.Limits {
+        typealias __CuckooDefault = Feature.Limits
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Feature.Limits())
     }
 }

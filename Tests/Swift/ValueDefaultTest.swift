@@ -3,8 +3,8 @@ import Testing
 @testable import CuckooMocks
 @testable import CuckooTestSources
 
-/// An unstubbed call returning one of the sources' own types records its failure and answers with a value the mock
-/// builds: `Type()`, or an enum's first case without associated values.
+/// An unstubbed call returning one of the sources' own structs or enums records its failure and answers with a
+/// value the mock builds: `Type()`, or an enum's first case without associated values.
 struct ValueDefaultTest {
     /// Collects the failures reported in its scope, so a test can check them without failing.
     private final class FailureLog: Sendable {
@@ -29,14 +29,10 @@ struct ValueDefaultTest {
 
         CuckooConfiguration.$current.withValue(log.configuration) {
             #expect(mock.preferences == Preferences(volume: 5, label: nil))
-            let sketch = mock.sketch()
-            sketch.strokes.append("line")
-            // Each call gets a new value.
-            #expect(mock.sketch().strokes.isEmpty)
         }
-        #expect(log.all.count == 3)
+        #expect(log.all.count == 1)
         #expect(log.all.first?.hasPrefix("No stub for the getter of preferences.") == true)
-        verify(mock, times(2)).sketch()
+        verify(mock).preferences.get()
     }
 
     @Test
@@ -115,12 +111,26 @@ struct ValueDefaultTest {
         #expect(mock.heading() == .south)
     }
 
+    /// A member the mock can't forward to its default implementation, here for taking `Self`, records the failure
+    /// and answers with the same value.
+    @Test
+    func anUnforwardableMemberReturnsItToo() {
+        let log = FailureLog()
+        let mock = MockDial()
+        mock.enableDefaultImplementation(DialStub())
+
+        CuckooConfiguration.$current.withValue(log.configuration) {
+            #expect(mock.heading(relativeTo: mock) == .north)
+        }
+        #expect(log.all.count == 1)
+        #expect(log.all.first?.contains("can't forward") == true)
+    }
+
     /// A generated stub's own members answer the same way.
     @Test
     func aStubsMembersReturnTheValuesToo() async {
         let console = ConsoleStub()
         #expect(console.preferences == Preferences())
-        #expect(console.sketch().strokes.isEmpty)
         #expect(console.heading() == .north)
         #expect(await console.progress() == .idle)
         #expect(CabinetStub().heading() == .north)
