@@ -41,6 +41,8 @@ struct TypeNames: Sendable {
     /// What the sources' extensions declare for each type, by its canonical qualified name; see
     /// `NamespaceDeclaration.extensionMembers`.
     private var extensionMembers: [String: [any Token]] = [:]
+    /// See `NamespaceDeclaration.overridableExtensionMembers`.
+    private var overridableExtensionMembers: [String: [any Token]] = [:]
 
     /// The names, with the classes and protocols of `files`, flattened so nested ones are listed, indexed for
     /// ``declaration(named:)`` and ``resolve(_:from:)``.
@@ -66,14 +68,33 @@ struct TypeNames: Sendable {
                 declarations[name] = named
             }
         }
-        for case let namespace as NamespaceDeclaration in files.flatMap(\.tokens) where !namespace.extensionMembers.isEmpty {
+        for case let namespace as NamespaceDeclaration in files.flatMap(\.tokens) {
             extensionMembers[canonical(namespace.fullyQualifiedName), default: []] += namespace.extensionMembers
+            // A member keeps the isolation its extension states, which the class it moves to doesn't have.
+            overridableExtensionMembers[canonical(namespace.fullyQualifiedName), default: []] += namespace.overridableExtensionMembers.map { member in
+                namespace.memberIsolation.map { member.withDefaultIsolation($0) } ?? member
+            }
         }
     }
 
     /// The members the sources' extensions declare for the type with the qualified name.
     func extensionMembers(of qualifiedName: String) -> [any Token] {
         extensionMembers[canonical(qualifiedName)] ?? []
+    }
+
+    /// The `@objc` members the extensions of a class and of its superclasses in the sources declare,
+    /// which a mock overrides. A superclass outside the sources ends the chain.
+    func overridableExtensionMembers(of classDeclaration: ClassDeclaration) -> [any Token] {
+        var members: [any Token] = []
+        var seen: Set<String> = []
+        var current: ClassDeclaration? = classDeclaration
+        while let declaration = current, seen.insert(declaration.fullyQualifiedName).inserted {
+            members += overridableExtensionMembers[canonical(declaration.fullyQualifiedName)] ?? []
+            current = declaration.inheritedTypes.first.flatMap {
+                resolve($0.withoutGenericArguments, from: declaration.fullyQualifiedName) as? ClassDeclaration
+            }
+        }
+        return members
     }
 
     /// The members of a class and of its superclasses in the sources that no mock can override: the `static` and
@@ -180,6 +201,9 @@ extension Token {
             .map { $0.mergingInheritance(with: files, names: names, defaultIsolation: defaultIsolation, merging: merging) }
 
         let hidingMembers = (token as? ClassDeclaration).map { names.hidingMembers(of: $0) } ?? []
+        // A requirement an `@objc` extension member implements is that member, which the class's mock overrides.
+        let classReference = (token as? ClassDeclaration).map { Reference<any Token>($0.replacing(members: [])) }
+        let overridableMembers = (token as? ClassDeclaration).map { names.overridableExtensionMembers(of: $0) } ?? []
         let mergedTokens = inheritedRepresentations
             .compactMap { $0 as? any HasMembers }
             .flatMap { $0.members }
@@ -195,7 +219,12 @@ extension Token {
                     .compactMap({ $0 as? any Inheritable })
                     .contains(where: { $0.isEqual(to: inheritedInheritable) })
 
-                return isAlreadyPresent || !inheritedInheritable.isInheritable ? tokens : tokens + [inheritedToken]
+                guard !isAlreadyPresent, inheritedInheritable.isInheritable else { return tokens }
+                if var overridable = overridableMembers.first(where: { ($0 as? any Inheritable)?.isEqual(to: inheritedInheritable) == true }) {
+                    overridable.parent = classReference
+                    return tokens + [overridable]
+                }
+                return tokens + [inheritedToken]
             }
 
         switch token {

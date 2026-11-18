@@ -20,6 +20,12 @@ struct NamespaceDeclaration: Token, HasAttributes, HasAccessibility, HasName, Ha
     /// The methods, properties and subscripts an extension declares for the type it extends. A class's mock can't
     /// override them, and they hide the requirements of the class's protocols that they implement.
     var extensionMembers: [any Token] = []
+    /// The `@objc` instance members an extension declares for the class it extends: the Objective-C
+    /// runtime dispatches them, so a subclass, the mock, can override them, and they implement the requirements of the
+    /// class's protocols they match as the class's own members do.
+    var overridableExtensionMembers: [any Token] = []
+    /// The isolation an extension states, as `nonisolated extension`, which its members take unless they state one.
+    var memberIsolation: Isolation?
 
     func replacing(members: [any Token]) -> NamespaceDeclaration {
         NamespaceDeclaration(
@@ -33,7 +39,9 @@ struct NamespaceDeclaration: Token, HasAttributes, HasAccessibility, HasName, Ha
             isActor: isActor,
             statedIsolation: statedIsolation,
             genericRequirements: genericRequirements,
-            extensionMembers: extensionMembers
+            extensionMembers: extensionMembers,
+            overridableExtensionMembers: overridableExtensionMembers,
+            memberIsolation: memberIsolation
         )
     }
 }

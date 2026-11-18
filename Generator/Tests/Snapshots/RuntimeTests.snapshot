@@ -109,6 +109,15 @@ import Combine
 #if (canImport(ObjectiveC))
 @testable public import class CuckooTestSources.ObjcOptionalPropertiesImplementation
 #endif
+#if (canImport(ObjectiveC))
+@testable public import class CuckooTestSources.ObjcExtensionGreeterBase
+#endif
+#if (canImport(ObjectiveC))
+@testable public import protocol CuckooTestSources.ObjcExtensionGreeting
+#endif
+#if (canImport(ObjectiveC))
+@testable public import class CuckooTestSources.ObjcExtensionGreeter
+#endif
 @testable public import class CuckooTestSources.OpenClass
 @testable public import protocol CuckooTestSources.Amount
 @testable public import protocol CuckooTestSources.AliasedLookup
@@ -25733,6 +25742,203 @@ nonisolated final class ObjcOptionalPropertiesStub: ObjcOptionalProperties {
         }
         set {
         }
+    }
+}
+
+#endif
+
+#if (canImport(ObjectiveC))
+final class MockObjcExtensionGreeterBase: ObjcExtensionGreeterBase, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ObjcExtensionGreeterBase
+    typealias CuckooStubbing = __StubbingProxy_ObjcExtensionGreeterBase
+    typealias CuckooVerification = __VerificationProxy_ObjcExtensionGreeterBase
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockObjcExtensionGreeterBase.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ObjcExtensionGreeterBase>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ObjcExtensionGreeterBase) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    nonisolated struct __StubbingProxy_ObjcExtensionGreeterBase: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ObjcExtensionGreeterBase: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+    }
+}
+
+final class ObjcExtensionGreeterBaseStub: ObjcExtensionGreeterBase {
+}
+
+#endif
+
+#if (canImport(ObjectiveC))
+nonisolated final class MockObjcExtensionGreeting: ObjcExtensionGreeting, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any ObjcExtensionGreeting
+    typealias CuckooStubbing = __StubbingProxy_ObjcExtensionGreeting
+    typealias CuckooVerification = __VerificationProxy_ObjcExtensionGreeting
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockObjcExtensionGreeting.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ObjcExtensionGreeting>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ObjcExtensionGreeting) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func greeting() -> String {
+        return cuckooManager.call(
+            "greeting() -> String",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.greeting()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ObjcExtensionGreeting: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func greeting() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockObjcExtensionGreeting.self,
+                method: "greeting() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ObjcExtensionGreeting: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func greeting() -> Cuckoo.VerifiedCall<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "greeting() -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ObjcExtensionGreetingStub: ObjcExtensionGreeting {
+    func greeting() -> String {
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+#endif
+
+#if (canImport(ObjectiveC))
+final class MockObjcExtensionGreeter: ObjcExtensionGreeter, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ObjcExtensionGreeter
+    typealias CuckooStubbing = __StubbingProxy_ObjcExtensionGreeter
+    typealias CuckooVerification = __VerificationProxy_ObjcExtensionGreeter
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockObjcExtensionGreeter.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ObjcExtensionGreeter>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ObjcExtensionGreeter) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func greeting() -> String {
+        return cuckooManager.call(
+            "greeting() -> String",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.greeting(),
+            defaultCall: cuckooDefaultImplementation.value.greeting()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ObjcExtensionGreeter: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func greeting() -> Cuckoo.ClassStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockObjcExtensionGreeter.self,
+                method: "greeting() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ObjcExtensionGreeter: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func greeting() -> Cuckoo.VerifiedCall<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "greeting() -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ObjcExtensionGreeterStub: ObjcExtensionGreeter {
+    override func greeting() -> String {
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 

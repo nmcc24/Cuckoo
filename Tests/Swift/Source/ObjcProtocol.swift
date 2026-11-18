@@ -38,3 +38,18 @@ final class ObjcOptionalPropertiesImplementation: NSObject, ObjcOptionalProperti
     }
 }
 #endif
+
+#if canImport(ObjectiveC)
+/// A plain `@objc` member an extension declares, which implements a protocol's requirement for a subclass.
+class ObjcExtensionGreeterBase: NSObject {}
+
+extension ObjcExtensionGreeterBase {
+    @objc func greeting() -> String { "base" }
+}
+
+protocol ObjcExtensionGreeting {
+    func greeting() -> String
+}
+
+class ObjcExtensionGreeter: ObjcExtensionGreeterBase, ObjcExtensionGreeting {}
+#endif

@@ -157,6 +157,8 @@ final class Crawler: SyntaxVisitor {
     /// `ClassDeclaration.shadowedMembers`. In an extension, every member it declares for the extended type but an
     /// `override`.
     var shadowedMembers: [any Token] = []
+    /// An extension's `@objc` instance members; see `NamespaceDeclaration.overridableExtensionMembers`.
+    var overridableExtensionMembers: [any Token] = []
     /// Whether `parse` reads a member the mock can't override, to record it in `shadowedMembers`.
     private var parsesShadowedMember = false
     /// The conditions of the `#if` clauses the crawler is currently inside.
@@ -349,6 +351,10 @@ final class Crawler: SyntaxVisitor {
         crawler.walk(members: members)
         token.members = crawler.tokens
         token.extensionMembers = crawler.shadowedMembers
+        token.overridableExtensionMembers = crawler.overridableExtensionMembers
+        if isExtension {
+            token.memberIsolation = isolation(attributes: node.attributes, modifiers: node.modifiers)
+        }
         tokens.append(token)
         return .skipChildren
     }
@@ -361,9 +367,19 @@ final class Crawler: SyntaxVisitor {
 
     /// Whether an extension's member hides what the extended class inherits. An `override` doesn't: only an
     /// `@objc dynamic` member can be overridden in an extension, and a subclass, the mock, can override it again,
-    /// as the superclass's member it is.
-    private func hidesInheritedMember(inExtension modifiers: DeclModifierListSyntax) -> Bool {
-        isInExtension && !modifiers.contains { $0.name.tokenKind == .keyword(.override) }
+    /// as the superclass's member it is. Nor does an `@objc` one: it's dispatched through the
+    /// Objective-C runtime, so the mock can override it, and implements a requirement it witnesses as any member.
+    private func hidesInheritedMember(inExtension modifiers: DeclModifierListSyntax, attributes: AttributeListSyntax) -> Bool {
+        isInExtension && !isOverridableExtensionMember(modifiers, attributes: attributes) && !modifiers.contains { $0.name.tokenKind == .keyword(.override) }
+    }
+
+    /// Whether an extension's member is one a subclass can override: an `@objc` instance member, not
+    /// an `override` (see `hidesInheritedMember`) nor a `static` or `final` one.
+    private func isOverridableExtensionMember(_ modifiers: DeclModifierListSyntax, attributes: AttributeListSyntax) -> Bool {
+        // `dynamic` alone allows dynamic replacement, not an override.
+        let isObjectiveCDispatched = attributes.contains { $0.as(AttributeSyntax.self)?.attributeName.trimmedDescription == "objc" }
+        return isInExtension && isObjectiveCDispatched && !modifiers.isStatic && !modifiers.isFinal
+            && !modifiers.contains { $0.name.tokenKind == .keyword(.override) }
     }
 
     // A type declared in a body, a closure or a macro's arguments, such as `#Preview { … }`, is local to it, so no
@@ -375,8 +391,10 @@ final class Crawler: SyntaxVisitor {
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind { .skipChildren }
 
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
-        if hidesInheritedMember(inExtension: node.modifiers) {
+        if hidesInheritedMember(inExtension: node.modifiers, attributes: node.attributes) {
             shadowedMembers.append(contentsOf: parsingShadowedMember { parse(node) })
+        } else if isOverridableExtensionMember(node.modifiers, attributes: node.attributes) {
+            overridableExtensionMembers.append(contentsOf: parsingShadowedMember { parse(node) })
         }
         guard let container, container.isMockable else { return .skipChildren }
 
@@ -408,8 +426,10 @@ final class Crawler: SyntaxVisitor {
     }
 
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
-        if hidesInheritedMember(inExtension: node.modifiers), let method = parsingShadowedMember({ parse(node) }) {
+        if hidesInheritedMember(inExtension: node.modifiers, attributes: node.attributes), let method = parsingShadowedMember({ parse(node) }) {
             shadowedMembers.append(method)
+        } else if isOverridableExtensionMember(node.modifiers, attributes: node.attributes), let method = parsingShadowedMember({ parse(node) }) {
+            overridableExtensionMembers.append(method)
         }
         guard let container, container.isMockable else { return .skipChildren }
 
@@ -437,8 +457,10 @@ final class Crawler: SyntaxVisitor {
     }
 
     override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
-        if hidesInheritedMember(inExtension: node.modifiers), let item = parsingShadowedMember({ parse(node) }) {
+        if hidesInheritedMember(inExtension: node.modifiers, attributes: node.attributes), let item = parsingShadowedMember({ parse(node) }) {
             shadowedMembers.append(item)
+        } else if isOverridableExtensionMember(node.modifiers, attributes: node.attributes), let item = parsingShadowedMember({ parse(node) }) {
+            overridableExtensionMembers.append(item)
         }
         guard let container, container.isMockable else { return .skipChildren }
 
