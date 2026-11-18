@@ -105,4 +105,80 @@ struct OverloadAndAliasShapesTests {
         verify(mock).decrement()
         verifyNoMoreInteractions(mock)
     }
+
+    /// Members an extension of the class declares can't be overridden: the mock leaves them, and the requirements
+    /// they implement, to the class.
+    @Test
+    func aClassesWitnessesInAnExtensionAreNotMocked() {
+        let mock = MockExtensionWitnessFeed()
+        stub(mock) { stub in
+            when(stub.reload()).thenReturn(5)
+        }
+
+        #expect(mock.reload() == 5)
+        #expect(mock.refresh() == 2)
+        #expect(mock.stamp == 3)
+        verify(mock).reload()
+        verifyNoMoreInteractions(mock)
+    }
+
+    /// `Self.Key` next to a generic parameter `Key` is the protocol's typealias, in the mock too.
+    @Test
+    func aTypealiasShadowedByAGenericParameterKeepsItsType() {
+        let mock = MockShadowedAliasStore()
+        stub(mock) { stub in
+            when(stub.key(for: 1)).thenReturn("one")
+        }
+
+        let stubbed: String = mock.key(for: 1)
+        #expect(stubbed == "one")
+        verify(mock).key(for: 1)
+
+        let forwarding = MockShadowedAliasStore()
+        forwarding.enableDefaultImplementation(ShadowedAliasStoreImplementation())
+        #expect(forwarding.key(for: 2.5) == "2.5")
+    }
+}
+
+/// The async overload's stubbing and verification members run on their caller's actor. A public protocol's proxies
+/// aren't `Sendable`, so a test on the main actor couldn't send them to a nonisolated async member.
+@Suite(.cuckoo())
+@MainActor
+struct AsyncOverloadOnTheMainActorTests {
+    @Test
+    func anAsyncOverloadIsStubbedAndVerifiedFromTheMainActor() async {
+        let mock = MockPublicOverloadedLoader()
+        stub(mock) { stub in
+            when(stub.value()).thenReturn(1)
+        }
+        when(await mock.cuckooStubbingProxy().value()).thenReturn(2)
+
+        let synchronous = { mock.value() }()
+        let asynchronous = await mock.value()
+        #expect(synchronous == 1)
+        #expect(asynchronous == 2)
+
+        await verify(mock).value()
+        _ = { verify(mock).value() }()
+        verifyNoMoreInteractions(mock)
+    }
+
+    /// A static member's proxies take `await` the same way; the stubbing one is made from the type's manager.
+    @Test
+    func aStaticAsyncOverloadIsStubbedAndVerifiedFromTheMainActor() async {
+        stub(MockPublicOverloadedLoader.self) { stub in
+            when(stub.shared()).thenReturn(1)
+        }
+        let stubbing = MockPublicOverloadedLoader.CuckooStaticStubbing(manager: MockPublicOverloadedLoader.cuckooStaticManager)
+        when(await stubbing.shared()).thenReturn(2)
+
+        let synchronous = { MockPublicOverloadedLoader.shared() }()
+        let asynchronous = await MockPublicOverloadedLoader.shared()
+        #expect(synchronous == 1)
+        #expect(asynchronous == 2)
+
+        await verify(MockPublicOverloadedLoader.self).shared()
+        _ = { verify(MockPublicOverloadedLoader.self).shared() }()
+        verifyNoMoreInteractions(MockPublicOverloadedLoader.self)
+    }
 }
