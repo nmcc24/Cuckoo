@@ -27,4 +27,23 @@ struct MemberShapeTests {
         // `Self.Type` is still the mock's own metatype.
         #expect(output.contains("func shadowing<ID> (_ p0: ID) -> __CuckooSelf.Type {"))
     }
+
+    /// The type eraser's stored setters take the new value `inout`, and name an implicitly unwrapped optional as the
+    /// optional it is.
+    @Test
+    func theTypeEraserStoresSettersOfAnyValue() async throws {
+        let source = """
+            typealias Handler = (Int) -> Void
+            protocol Observed {
+                associatedtype Value
+                var handler: Handler { get set }
+                var implicit: Value! { get set }
+            }
+            """
+        let output = try await generateMocks(source: source)
+        #expect(output.contains("private let _setter_storage$$handler: @Sendable (inout Handler) -> Void"))
+        #expect(output.contains("private let _getter_storage$$implicit: @Sendable () -> Value?"))
+        #expect(output.contains("private let _setter_storage$$implicit: @Sendable (inout Value?) -> Void"))
+        #expect(output.contains("var implicit: Value! {"))
+    }
 }

@@ -32,4 +32,25 @@ struct OverloadAndAliasShapesTests {
         #expect(mock.find(1) == 2)
         #expect(seen == [7])
     }
+
+    /// The type eraser's setters take function values spelled through a typealias, and an implicitly unwrapped one.
+    @Test
+    func theTypeEraserSetsFunctionAndImplicitlyUnwrappedValues() {
+        let implementation = ObservedStoreImplementation()
+        let mock = MockObservedStore<String>()
+        mock.enableDefaultImplementation(implementation)
+
+        mock.handler = { $0 * 2 }
+        #expect(implementation.handler(2) == 4)
+        #expect(mock.handler(3) == 6)
+
+        mock[0] = { $0 + 1 }
+        #expect(implementation.handler(2) == 3)
+        #expect(mock[0](3) == 4)
+
+        #expect(mock.implicit == nil)
+        mock.implicit = "set"
+        #expect(implementation.implicit == "set")
+        #expect(mock.implicit == "set")
+    }
 }

@@ -107,6 +107,9 @@ import Combine
 @testable public import protocol CuckooTestSources.Amount
 @testable public import protocol CuckooTestSources.AliasedLookup
 @testable public import struct CuckooTestSources.AliasedLookupImplementation
+@testable public import typealias CuckooTestSources.ObservedHandler
+@testable public import protocol CuckooTestSources.ObservedStore
+@testable public import class CuckooTestSources.ObservedStoreImplementation
 @testable public import protocol CuckooTestSources.PackageService
 @testable public import class CuckooTestSources.PackageWorker
 @testable public import protocol CuckooTestSources.PublicActorService
@@ -5180,13 +5183,14 @@ nonisolated final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, n
         }
 
         private let _getter_storage$$readWritePropertyV: @Sendable () -> V
-        private let _setter_storage$$readWritePropertyV: @Sendable (V) -> Void
+        private let _setter_storage$$readWritePropertyV: @Sendable (inout V) -> Void
         var readWritePropertyV: V {
             get {
                 return _getter_storage$$readWritePropertyV()
             }
             set {
-                _setter_storage$$readWritePropertyV(newValue)
+                var cuckooNewValue = newValue
+                _setter_storage$$readWritePropertyV(&cuckooNewValue)
             }
         }
 
@@ -5198,13 +5202,14 @@ nonisolated final class MockGenericProtocol<C: AnyObject, V>: GenericProtocol, n
         }
 
         private let _getter_storage$$optionalProperty: @Sendable () -> V?
-        private let _setter_storage$$optionalProperty: @Sendable (V?) -> Void
+        private let _setter_storage$$optionalProperty: @Sendable (inout V?) -> Void
         var optionalProperty: V? {
             get {
                 return _getter_storage$$optionalProperty()
             }
             set {
-                _setter_storage$$optionalProperty(newValue)
+                var cuckooNewValue = newValue
+                _setter_storage$$optionalProperty(&cuckooNewValue)
             }
         }
 
@@ -25928,6 +25933,351 @@ nonisolated final class AliasedLookupStub: AliasedLookup {
     }
 }
 
+nonisolated final class MockObservedStore<Value>: ObservedStore, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = __DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_ObservedStore
+    typealias CuckooVerification = __VerificationProxy_ObservedStore
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockObservedStore.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class __DefaultImplCaller: ObservedStore, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooReference: @Sendable () -> any ObservedStore
+
+        private let _getter_storage$$handler: @Sendable () -> ObservedHandler
+        private let _setter_storage$$handler: @Sendable (inout ObservedHandler) -> Void
+        var handler: ObservedHandler {
+            get {
+                return _getter_storage$$handler()
+            }
+            set {
+                var cuckooNewValue = newValue
+                _setter_storage$$handler(&cuckooNewValue)
+            }
+        }
+
+        private let _getter_storage$$implicit: @Sendable () -> Value?
+        private let _setter_storage$$implicit: @Sendable (inout Value?) -> Void
+        var implicit: Value! {
+            get {
+                return _getter_storage$$implicit()
+            }
+            set {
+                var cuckooNewValue = newValue
+                _setter_storage$$implicit(&cuckooNewValue)
+            }
+        }
+
+        private let _subscript_getter_storage$$1: @Sendable (Int) -> ObservedHandler
+        private let _subscript_setter_storage$$1: @Sendable (Int, inout ObservedHandler) -> Void
+        subscript(_ p0: Int) -> ObservedHandler {
+            get {
+                return _subscript_getter_storage$$1(p0)
+            }
+            set {
+                var cuckooNewValue = newValue
+                _subscript_setter_storage$$1(p0, &cuckooNewValue)
+            }
+        }
+
+        init<_CUCKOO$$GENERIC: ObservedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Value == Value, Value: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            cuckooReference = {
+                box.value
+            }
+            cuckooManager = manager
+
+            _getter_storage$$handler = {
+                box.value.handler
+            }
+            _setter_storage$$handler = {
+                box.value.handler = $0
+            }
+            _getter_storage$$implicit = {
+                box.value.implicit
+            }
+            _setter_storage$$implicit = {
+                box.value.implicit = $0
+            }
+            _subscript_getter_storage$$1 = {
+                box.value[$0]
+            }
+            _subscript_setter_storage$$1 = {
+                box.value[$0] = $1
+            }
+            _storage$1$value = {
+                box.value.value()
+            }
+        }
+
+        private let _storage$1$value: @Sendable () -> Value
+        func value() -> Value {
+            return _storage$1$value()
+        }
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ObservedStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Value == Value, Value: SendableMetatype {
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    var handler: ObservedHandler {
+        get {
+            return cuckooManager.getter(
+                "handler",
+                invoke: { (implementation: (()) -> ObservedHandler) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.handler
+            )
+        }
+        set {
+            cuckooManager.setter(
+                "handler",
+                value: newValue,
+                invoke: { (implementation: (ObservedHandler) -> Void, value) in
+                    implementation(value)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.handler = newValue
+            )
+        }
+    }
+
+    var implicit: Value! {
+        get {
+            return cuckooManager.getter(
+                "implicit",
+                invoke: { (implementation: (()) -> Value?) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.implicit
+            )
+        }
+        set {
+            cuckooManager.setter(
+                "implicit",
+                value: newValue,
+                invoke: { (implementation: (Value?) -> Void, value) in
+                    implementation(value)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.implicit = newValue
+            )
+        }
+    }
+
+    func value() -> Value {
+        return cuckooManager.call(
+            "value() -> Value",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Value, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.value()
+        )
+    }
+
+    subscript(_ p0: Int) -> ObservedHandler {
+        get {
+            return cuckooManager.call(
+                "subscript(_ p0: Int) -> ObservedHandler#get",
+                parameters: (p0),
+                escapingParameters: (p0),
+                invoke: { (implementation: ((Int)) -> ObservedHandler, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value[p0]
+            )
+        }
+        set(p1) {
+            return cuckooManager.call(
+                "subscript(_ p0: Int) -> ObservedHandler#set",
+                parameters: (p0, p1),
+                escapingParameters: (p0, p1),
+                invoke: { (implementation: ((Int, ObservedHandler)) -> Void, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value[p0] = p1
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_ObservedStore: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        var handler: Cuckoo.ProtocolToBeStubbedProperty<MockObservedStore, ObservedHandler, (()) -> ObservedHandler, (ObservedHandler) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "handler")
+        }
+
+        var implicit: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockObservedStore, Value, (()) -> Value?, (Value?) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "implicit")
+        }
+
+        func value() -> Cuckoo.ProtocolStubFunction<(), Value, (()) -> Value, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockObservedStore.self,
+                method: "value() -> Value",
+                parameterMatchers: matchers
+            ))
+        }
+
+        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int)>]
+
+            var get: Cuckoo.ProtocolStubFunction<(Int), ObservedHandler, ((Int)) -> ObservedHandler, Cuckoo.StubSharing.Confined> {
+                return .init(stub: cuckooManager.createStub(for: MockObservedStore.self,
+                    method: "subscript(_ p0: Int) -> ObservedHandler#get",
+                    parameterMatchers: matchers
+                ))
+            }
+
+            func set<__M2: Cuckoo._Matchable>(_ p1: __M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Int, ObservedHandler), ((Int, ObservedHandler)) -> Void, Cuckoo.StubSharing.Confined> where __M2.MatchedType == ObservedHandler {
+                let matchers: [Cuckoo.ParameterMatcher<(Int, ObservedHandler)>] = self.matchers.map { matcher in
+                    Cuckoo.ParameterMatcher {
+                        matcher.matches($0.0)
+                    }
+                } + [Cuckoo.wrap(matchable: p1) {
+                        $0.1
+                    }]
+                return .init(stub: cuckooManager.createStub(for: MockObservedStore.self,
+                    method: "subscript(_ p0: Int) -> ObservedHandler#set",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ObservedStore: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        var handler: Cuckoo.VerifyProperty<ObservedHandler> {
+            return .init(manager: cuckooManager, name: "handler", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        var implicit: Cuckoo.VerifyOptionalProperty<Value> {
+            return .init(manager: cuckooManager, name: "implicit", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        @discardableResult
+        func value() -> Cuckoo.VerifiedCall<(), Value> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "value() -> Value",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(Int)>]
+
+            @discardableResult
+            func get() -> Cuckoo.VerifiedCall<(Int), ObservedHandler> {
+                return cuckooManager.verify(
+                    "subscript(_ p0: Int) -> ObservedHandler#get",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+
+            @discardableResult
+            func set<__M2: Cuckoo._Matchable>(_ p1: __M2) -> Cuckoo.VerifiedCall<(Int, ObservedHandler), Void> where __M2.MatchedType == ObservedHandler {
+                let matchers: [Cuckoo.ParameterMatcher<(Int, ObservedHandler)>] = self.matchers.map { matcher in
+                    Cuckoo.ParameterMatcher {
+                        matcher.matches($0.0)
+                    }
+                } + [Cuckoo.wrap(matchable: p1) {
+                        $0.1
+                    }]
+                return cuckooManager.verify(
+                    "subscript(_ p0: Int) -> ObservedHandler#set",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+}
+
+nonisolated final class ObservedStoreStub<Value>: ObservedStore {
+    var handler: ObservedHandler {
+        get {
+            typealias __CuckooDefault = ObservedHandler
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+        set {
+        }
+    }
+
+    var implicit: Value! {
+        get {
+            typealias __CuckooDefault = Value?
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+        set {
+        }
+    }
+
+    func value() -> Value {
+        typealias __CuckooDefault = Value
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    subscript(_ p0: Int) -> ObservedHandler {
+        get {
+            typealias __CuckooDefault = ObservedHandler
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+        set {
+        }
+    }
+}
+
 // MARK: - Mocks generated from file: 'Tests/Swift/Source/PackageTypes.swift'
 
 package nonisolated final class MockPackageService: PackageService, nonisolated Cuckoo.ProtocolMock {
@@ -38835,13 +39185,14 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
         private let cuckooReference: @Sendable () -> any PublicoProtocolo
 
         private let _getter_storage$$stringoStar: @Sendable () -> String
-        private let _setter_storage$$stringoStar: @Sendable (String) -> Void
+        private let _setter_storage$$stringoStar: @Sendable (inout String) -> Void
         public var stringoStar: String {
             get {
                 return _getter_storage$$stringoStar()
             }
             set {
-                _setter_storage$$stringoStar(newValue)
+                var cuckooNewValue = newValue
+                _setter_storage$$stringoStar(&cuckooNewValue)
             }
         }
 
