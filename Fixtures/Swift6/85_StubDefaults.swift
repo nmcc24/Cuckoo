@@ -1,5 +1,6 @@
 // An unstubbed call returning a protocol mocked in the same module answers with a new `…Stub` of it, which the mock
-// hands the manager: the call's return type, an existential, has no default value of its own.
+// hands the manager: the call's return type, an existential, has no default value of its own. `Fix`, the module the
+// fixture matrix compiles this as, qualifies a type only there.
 
 protocol Engine {
     func start() -> Bool
@@ -21,6 +22,19 @@ protocol Storage: Sendable {
 enum Garage {
     protocol Door {
         func open()
+    }
+}
+
+// Inside `Depot`, `EngineStub` is `Depot.Engine`'s stub, so a member there that names the top-level `Engine` through
+// `Motor` has no default: the mock can't name that stub.
+enum Depot {
+    protocol Engine {
+        func idle()
+    }
+
+    protocol Bay {
+        func nearest() -> any Engine
+        func aliased() -> any Motor
     }
 }
 

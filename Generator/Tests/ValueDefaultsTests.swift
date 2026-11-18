@@ -14,16 +14,13 @@ struct ValueDefaultsTests {
         "struct Value { static let shared = Value(); var isEmpty: Bool { true }; var count = 0 { didSet {} } }",
         "struct Value { lazy var cache = [Int](); @Clamped var level = 1 }",
         "struct Value: Sendable, Hashable { var count = 0 }",
-        "final class Value { var count = 0 }",
-        "class Value: NSObject, @unchecked Sendable { var count = 0 }",
-        "actor Value { var count = 0 }",
+        "struct Value: @unchecked Sendable, Codable { var count = 0 }",
         "@frozen struct Value { var count = 0 }",
         "struct Value { var count: Int\n init() { count = 0 } }",
         "struct Value { var count: Int\n nonisolated init() { count = 0 }\n init(count: Int) { self.count = count } }",
         "struct Value { var count: Int\n init(count: Int = 0) { self.count = count } }",
-        "class Value { let count: Int\n required convenience init() { self.init(count: 0) }\n init(count: Int) { self.count = count } }",
     ])
-    func aTypeWithAnInitializerWithoutArgumentsIsBuiltWithIt(source: String) {
+    func aStructWithAnInitializerWithoutArgumentsIsBuiltWithIt(source: String) {
         #expect(value(in: source) == .initializer(access: .internal))
     }
 
@@ -46,7 +43,7 @@ struct ValueDefaultsTests {
         "struct Value { fileprivate init() {} }",
         "struct Value { init?() {} }",
         "struct Value { init() throws {} }",
-        "actor Value { init() async {} }",
+        "struct Value { init() async {} }",
         "struct Value { @MainActor init() {} }",
         "struct Value { @available(*, deprecated) init() {} }",
         "struct Value { init(count: Int = 0) {}\n init(name: String = \"\") {} }",
@@ -54,11 +51,16 @@ struct ValueDefaultsTests {
         // The type may be isolated, unavailable or absent, or get its initializers elsewhere.
         "@MainActor struct Value {}",
         "@available(macOS 99, *) struct Value {}",
-        "@Observable final class Value {}",
+        "@Observable struct Value {}",
         "struct Value<Element> {}",
         "struct Value: ~Copyable {}",
-        "class Value: Base {}",
         "struct Value: Service {}",
+        // A class's or an actor's initializer may do anything, so a mock doesn't run it.
+        "final class Value { var count = 0 }",
+        "class Value { init() {} }",
+        "class Value: NSObject { override init() {} }",
+        "actor Value { var count = 0 }",
+        "distributed actor Value { typealias ActorSystem = LocalTestingDistributedActorSystem }",
         "struct Value {\n #if DEBUG\n var count: Int\n #endif\n }",
         "struct Value { #Preview }",
         "#if DEBUG\nstruct Value {}\n#endif",
@@ -67,7 +69,7 @@ struct ValueDefaultsTests {
         "let make = { struct Value {} }",
         "protocol Value {}",
     ])
-    func aTypeWithoutASureInitializerHasNoDefault(source: String) {
+    func aTypeWithoutASureStructInitializerHasNoDefault(source: String) {
         #expect(value(in: source) == nil)
     }
 
@@ -118,16 +120,39 @@ struct ValueDefaultsTests {
             @MainActor final class Screen {
                 struct Layout {}
             }
+            final class Canvas {
+                struct Stroke {}
+            }
             """
         let values = Crawler.valueDefaults(in: source)
         #expect(values.defaults == [
             "Feature.Flags": .initializer(access: .internal),
             "Feature.Stage": .enumCase("alpha"),
             "Feature.Stage.Detail": .initializer(access: .internal),
+            "Canvas.Stroke": .initializer(access: .internal),
         ])
         #expect(values.declarations.keys.sorted() == [
-            "Box", "Box.Label", "Box.Lid", "Feature", "Feature.Flags", "Feature.Stage", "Feature.Stage.Detail", "Screen", "Screen.Layout",
+            "Box", "Box.Label", "Box.Lid", "Canvas", "Canvas.Stroke", "Feature", "Feature.Flags", "Feature.Stage", "Feature.Stage.Detail", "Screen", "Screen.Layout",
         ])
+    }
+
+    /// An initializer in an extension isn't the type's to judge: with another one, `Type()` can be ambiguous.
+    @Test
+    func extensionInitializersAreListedByTheTypeTheExtensionNames() {
+        let source = """
+            struct Range { init(maximum: Int = 3) {} }
+            extension Range { init(minimum: Int = 0) {} }
+            extension Feature.Limits {
+                #if DEBUG
+                init(debug: Bool) {}
+                #endif
+            }
+            extension Settings { func reset() {} }
+            struct Plain { init() {} }
+            """
+        let values = Crawler.valueDefaults(in: source)
+        #expect(values.typesWithExtensionInitializers == ["Range", "Feature.Limits"])
+        #expect(values.defaults["Range"] == .initializer(access: .internal))
     }
 
     @Test

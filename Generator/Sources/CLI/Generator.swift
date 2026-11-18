@@ -178,6 +178,7 @@ final class Generator {
             files: mockableFiles,
             names: TypeNames(typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), files: mockableFiles),
             declaredTypes: declaredNames.nominalTypes.union(declaredNames.typealiases.keys),
+            moduleNames: Set(swiftModules.values).union([module.name]),
             genericTypes: declaredNames.qualifiedGenericTypes,
             fileValues: scannedFiles.map { file in (file.values, file.swiftModule.map(module.testableImports.contains)) },
             defaultIsolation: module.options.defaultIsolation

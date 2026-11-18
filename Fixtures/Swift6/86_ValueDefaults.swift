@@ -1,5 +1,8 @@
-// An unstubbed call returning one of the sources' own types answers with a value the mock builds: `Type()` where
-// an initializer takes no arguments, or an enum's first case without associated values.
+// An unstubbed call returning one of the sources' own structs or enums answers with a value the mock builds:
+// `Type()` where a struct's initializer takes no arguments, or an enum's first case without associated values.
+// `Fix`, the module the fixture matrix compiles this as, qualifies a type only there.
+
+import Foundation
 
 struct Settings {
     var volume = 5
@@ -22,22 +25,6 @@ public struct Report {
     public init() {
         lines = []
     }
-}
-
-final class Canvas {
-    var strokes: [String] = []
-}
-
-class Document {
-    var title: String
-
-    init() {
-        title = ""
-    }
-}
-
-actor Counter {
-    var count = 0
 }
 
 enum Direction {
@@ -64,6 +51,28 @@ extension Feature {
     struct Limits {
         var maximum = 10
     }
+}
+
+// The sources' own `Locale` has a default; `Foundation.Locale`, which a member names with its module, isn't it.
+struct Locale {
+    var code = ""
+}
+
+// No default: a class's or an actor's initializer may do anything, so a mock doesn't run it.
+final class Canvas {
+    var strokes: [String] = []
+}
+
+class Document {
+    var title: String
+
+    init() {
+        title = ""
+    }
+}
+
+actor Counter {
+    var count = 0
 }
 
 // No default: nothing says `Type()` compiles, or runs from any isolation, wherever the mock does.
@@ -99,16 +108,32 @@ struct Box<Value> {
 }
 
 @MainActor
-final class Screen {
+struct Screen {
     var title = ""
+}
+
+// An initializer in an extension can make `Type()` ambiguous.
+struct Range {
+    let minimum: Int
+    let maximum: Int
+
+    init(maximum: Int = 3) {
+        minimum = 0
+        self.maximum = maximum
+    }
+}
+
+extension Range {
+    init(minimum: Int = 0) {
+        self.minimum = minimum
+        maximum = 3
+    }
 }
 
 @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
 struct Modern {
     var value = 0
 }
-
-class Sheet: Document {}
 
 struct Wrapped {
     @Clamped var level: Int
@@ -138,9 +163,6 @@ protocol Desk {
     var direction: Direction { get set }
     func options() -> Options
     func report() -> Report
-    func canvas() -> Canvas
-    func document() -> Document
-    func counter() -> Counter
     func outcome() -> Outcome
     func flags() -> Feature.Flags
     func stage() -> Feature.Stage
@@ -162,8 +184,13 @@ protocol Desk {
     func loaded() -> Loaded
     func box() -> Box<Int>
     func screen() -> Screen
+    func range() -> Range
     func modern() -> Modern
-    func sheet() -> Sheet
+    func canvas() -> Canvas
+    func document() -> Document
+    func counter() -> Counter
+    func locale() -> Locale
+    func foreignLocale() -> Foundation.Locale
     func wrapped() -> Wrapped
     func payload() -> Payload
     func generic<Settings>(_ value: Settings) -> Settings
@@ -186,13 +213,12 @@ public protocol Kiosk {
 @MainActor
 protocol Panel {
     var settings: Settings { get }
-    func canvas() -> Canvas
+    func options() -> Options
     func direction() async -> Direction
 }
 
 protocol Vault: Actor {
     func settings() -> Settings
-    func canvas() -> Canvas
     func outcome() -> Outcome
 }
 
@@ -202,5 +228,5 @@ class Studio {
     var direction: Direction { fatalError() }
 
     func settings() -> Settings { fatalError() }
-    func canvas(named name: String) -> Canvas { fatalError() }
+    func limits(named name: String) -> Feature.Limits { fatalError() }
 }

@@ -28,8 +28,7 @@ nonisolated final class MockTracer: Tracer, nonisolated Cuckoo.ProtocolMock {
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.startSpan(p0),
-            unstubbedDefault: Span()
+            defaultCall: cuckooDefaultImplementation.value.startSpan(p0)
         )
     }
 
@@ -80,7 +79,7 @@ nonisolated final class MockTracer: Tracer, nonisolated Cuckoo.ProtocolMock {
 nonisolated final class TracerStub: Tracer {
     func startSpan(_ p0: String) -> Span {
         typealias __CuckooDefault = Span
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Span())
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
 
