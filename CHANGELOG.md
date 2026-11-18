@@ -127,6 +127,9 @@
   its end, and took three quotes inside a one-line string, as `'"""'`, for the start of a multi-line one.
 
 ### Changed
+- The argument a generated mock passes its manager for an unstubbed call's default is `unstubbedDefault`, renamed
+  from `unstubbedTuple`: it carries a stub or a value as well as a tuple's default. Regenerate the mocks with this
+  version's generator, as for any release.
 - The stand-in a `verify` or an `ArgumentCaptor` gets for a closure parameter that isn't `@escaping` says, when
   called, that such a closure can't be called after its call, and to call it from a `then` closure. The
   documentation says so too.
