@@ -46,4 +46,24 @@ struct MemberShapeTests {
         #expect(output.contains("private let _setter_storage$$implicit: @Sendable (inout Value?) -> Void"))
         #expect(output.contains("var implicit: Value! {"))
     }
+
+    /// An async method's stubbing and verification members are `async` when a sync overload would otherwise be
+    /// called the same way, and only then.
+    @Test
+    func anAsyncOverloadOfASyncMethodIsStubbedWithAwait() async throws {
+        let source = """
+            protocol Loading {
+                func value() -> Int
+                func value() async -> Int
+                func load(_ id: Int) async -> Int
+                func load(_ id: String) -> Int
+            }
+            """
+        let output = try await generateMocks(source: source)
+        #expect(output.contains("func value() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int,"))
+        #expect(output.contains("func value() async -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int,"))
+        #expect(output.contains("func value() async -> Cuckoo.VerifiedCall<(), Int>"))
+        // Different parameters tell these apart already.
+        #expect(!output.contains("(_ p0: __M1) async ->"))
+    }
 }

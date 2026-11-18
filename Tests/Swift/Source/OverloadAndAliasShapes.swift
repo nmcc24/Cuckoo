@@ -1,5 +1,5 @@
-// Shapes whose mocks didn't compile before 3.0: a typealias named through `Self` and function values the type eraser
-// sets.
+// Shapes whose mocks didn't compile before 3.0: a typealias named through `Self`, function values the type eraser
+// sets and a sync and an async overload of one signature.
 protocol AliasedLookup {
     typealias ID = Int
     typealias Callback = (Self.ID) -> Void
@@ -32,4 +32,9 @@ final class ObservedStoreImplementation: ObservedStore {
         set { handler = newValue }
     }
     func value() -> String { "" }
+}
+
+protocol OverloadedLoader {
+    func value() -> Int
+    func value() async -> Int
 }

@@ -53,4 +53,40 @@ struct OverloadAndAliasShapesTests {
         #expect(implementation.implicit == "set")
         #expect(mock.implicit == "set")
     }
+
+    /// A call picks the overload as Swift does: the sync one in a synchronous context, the async one with `await`.
+    @Test
+    func aSyncAndAnAsyncOverloadAreStubbedAndVerifiedApart() async {
+        let mock = MockOverloadedLoader()
+        stub(mock) { stub in
+            when(stub.value()).thenReturn(1)
+        }
+        when(await mock.cuckooStubbingProxy().value()).thenReturn(2)
+
+        let synchronous = { mock.value() }()
+        let asynchronous = await mock.value()
+        #expect(synchronous == 1)
+        #expect(asynchronous == 2)
+
+        await verify(mock).value()
+        inOrder {
+            verify(mock).value()
+        }
+        verifyNoMoreInteractions(mock)
+    }
+
+    /// Stubbing one overload leaves the other unstubbed.
+    @Test
+    func stubbingTheSyncOverloadLeavesTheAsyncOneUnstubbed() async {
+        let mock = MockOverloadedLoader()
+        stub(mock) { stub in
+            when(stub.value()).thenReturn(1)
+        }
+
+        await withKnownIssue {
+            _ = await mock.value()
+        } matching: { issue in
+            issue.description.contains("No stub for value()")
+        }
+    }
 }
