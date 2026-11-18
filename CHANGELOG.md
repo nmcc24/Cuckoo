@@ -73,6 +73,30 @@
 - A member taking an `inout sending` or `inout some P` parameter, or a closure over a parameter pack, gave a mock
   that didn't compile. Its protocol isn't mocked, and a class's mock keeps the real implementation, with a warning
   either way.
+- A release build could deadlock in `reset`, `clearStubs`, `clearInvocations`, `DefaultValueRegistry.register` and
+  `reset`, and when replacing a default implementation: the optimizer released the removed values inside the lock,
+  where a `deinit` that uses the mock waits for it. They're released after the lock in every build now.
+- `verify` of a generic member counted its calls with every return type, so
+  `verify(cache).value(forKey: "a").with(returnType: Int?.self)` passed for a call returning `String?`, and
+  `never()` failed. It counts only the calls with the verified return type, as a stub answers only those. A test
+  from Cuckoo 2 that named a supertype or an existential there verifies no calls now: name the call's return type.
+- A generated `…Stub` used as a default implementation ignored the default values of the scope its mock was created
+  in, when called from a task outside it, such as a `Task.detached`. A default implementation runs with them now, as
+  an unstubbed call does.
+- In an XCTest test on Apple platforms, a failure the mock can't go on from, such as an unstubbed call whose return
+  type has no default value, was reported twice: as an `XCTFail` and as the exception XCTest catches. Only the
+  exception is reported now. XCTest catches it only in a synchronous test on the main thread: anywhere else, such
+  as in an `async` test, the failure is reported and the process stops. Inside `inOrder`, `withStaticStubs`,
+  `createMock` or a scope that sets default values, the exception left that scope open for the thread's next tests:
+  there the process stops instead, as it does in Swift Testing.
+
+### Changed
+- The stand-in a `verify` or an `ArgumentCaptor` gets for a closure parameter that isn't `@escaping` says, when
+  called, that such a closure can't be called after its call, and to call it from a `then` closure. The
+  documentation says so too.
+- Documentation: an optional collection parameter is matched with `equal(to:)`, not a plain value; a literal such
+  as `1.5` doesn't match a `Float` parameter; only a flat tuple has a default value; and `reset`, `clearStubs` and
+  `clearInvocations` run from any isolation.
 
 ## 3.0.0-beta.5
 
