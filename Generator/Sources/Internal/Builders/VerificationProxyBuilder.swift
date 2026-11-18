@@ -28,9 +28,15 @@ enum VerificationProxyBuilder {
             members.separate()
             try members.append(members.conditional(property, source(of: property, access: GeneratorHelper.proxyAccess(of: property, in: container))), of: "\(container.name).\(property.name)")
         }
-        for method in container.mockedMethods where method.isStatic == isStatic {
+        let methods = container.mockedMethods.filter { $0.isStatic == isStatic }
+        // An async method with a sync overload of the same signature would get the same verification member, so its
+        // member is `async` too: `await verify(mock).load()` verifies the async one, as Swift picks a call's overload.
+        let syncDeclarations = Set(methods.filter { !$0.isAsync }.map { declaration(of: $0, access: GeneratorHelper.proxyAccess(of: $0, in: container)) })
+        for method in methods {
+            let access = GeneratorHelper.proxyAccess(of: method, in: container)
+            let isAsync = method.isAsync && syncDeclarations.contains(declaration(of: method, access: access))
             members.separate()
-            try members.append(members.conditional(method, source(of: method, access: GeneratorHelper.proxyAccess(of: method, in: container))), of: "\(container.name).\(method.name)")
+            try members.append(members.conditional(method, source(of: method, access: access, isAsync: isAsync)), of: "\(container.name).\(method.name)")
         }
         let subscripts = container.mockedSubscripts.filter { $0.isStatic == isStatic }
         for (index, subscriptDeclaration) in subscripts.enumerated() {
@@ -64,16 +70,21 @@ enum VerificationProxyBuilder {
         return lines(source)
     }
 
-    private static func source(of method: Method, access memberAccess: Accessibility) -> String {
+    /// The verification member's declaration, without the `async` it may take.
+    private static func declaration(of method: Method, access memberAccess: Accessibility, isAsync: Bool = false) -> String {
         let input = GeneratorHelper.genericSafeType(from: method.proxyStubTypes.input)
         let output = GeneratorHelper.genericSafeType(from: method.verificationReturnType)
         let generics = GeneratorHelper.matchableGenericTypes(from: method, forVerification: true)
         let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method, forVerification: true)
+        return "\(memberAccess.spaced)func \(method.proxyName)\(generics)(\(parameters))\(isAsync ? " async" : "") -> Cuckoo.VerifiedCall<(\(input)), \(output)>\(whereClause) {"
+    }
+
+    private static func source(of method: Method, access memberAccess: Accessibility, isAsync: Bool) -> String {
         var source = method.repeatedAttributes.map(\.description)
         source.append(contentsOf: isolation(method.stubIsolation))
         source.append("@discardableResult")
-        source.append("\(memberAccess.spaced)func \(method.proxyName)\(generics)(\(parameters)) -> Cuckoo.VerifiedCall<(\(input)), \(output)>\(whereClause) {")
+        source.append(declaration(of: method, access: memberAccess, isAsync: isAsync))
         source.append("    \(GeneratorHelper.parameterMatchers(for: method.signature.parameters))")
         source.append(contentsOf: verify(method))
         source.append("}")
