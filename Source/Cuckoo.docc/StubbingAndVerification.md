@@ -101,13 +101,35 @@ Then it answers, so the test can go on: a member that throws `any Error` throws 
 and any other member, a `rethrows` one included, returns a default value from ``CuckooConfiguration/defaultValues`` or
 ``DefaultValueRegistry``. Optionals and the standard collections default to empty, the integer types, `Float`,
 `Double`, `String` and `Bool` to zero, `""` and `false`, and a flat tuple the member spells out to its elements'
-defaults. A member returning a protocol that the same Cuckoofile module mocks, as `any Engine` does, answers with a
-new `EngineStub`, the generated type whose members do nothing and return default values; `(any Engine)?` stays `nil`
-and `[any Engine]` empty. A generic protocol, one with associated types, an initializer requirement or a required
-superclass, and one declared under `#if` or an attribute such as `@available` have no such default, and neither has
-a composition such as `any Engine & Sendable`. Register a value for any other type, a tuple behind a `typealias` or
-nested in another tuple included, or a call returning it crashes with a message naming it. A registered value also
-replaces a protocol's stub, under the type the member returns, `(any Engine).self`:
+defaults.
+
+A mock also builds a default itself for some types that the same Cuckoofile module's sources declare:
+
+- A protocol the module mocks: `any Engine` answers with a new `EngineStub`, the generated type whose members do
+  nothing and return default values.
+- A struct, class or actor with an initializer that takes no arguments: `Settings()`. That's an `init()` it declares,
+  its only initializer whose parameters all have default values, or the implicit one when every stored property has
+  a default value.
+- An enum: its first case without associated values.
+
+An optional of such a type stays `nil` and a collection empty. Only a type the generator can be sure of gets such
+a default, so these have none:
+
+- a generic type, a protocol with associated types, and a composition such as `any Engine & Sendable`;
+- a type declared under `#if` or with an attribute that isolates it or limits where it's available, such as
+  `@MainActor` or `@available`, and one nested in such a type;
+- a protocol with an initializer requirement or a required superclass;
+- a struct, class or actor with a superclass, or a conformance other than the standard library's common ones
+  (`Sendable`, `Equatable`, `Hashable`, `Codable` and the like), which may isolate it, and one whose initializer is
+  failable, throwing, `async`, `private` or carries an attribute;
+- a type whose initializer is internal, an implicit one included, in the mock of a `public` type, unless the
+  Cuckoofile's `sources` name the type's module and `testableImports` lists it;
+- every struct, class and actor of a module with `defaultIsolation = "MainActor"`, whose initializers run on the
+  main actor.
+
+Register a value for any other type, a tuple behind a `typealias` or nested in another tuple included, or a call
+returning it crashes with a message naming it. A registered value also replaces a default the mock builds, under
+the type the member returns: `(any Engine).self` for a protocol.
 
 ```swift
 @Test(.cuckoo(defaultValues: {
