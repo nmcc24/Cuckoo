@@ -116,10 +116,10 @@ enum MockMembersBuilder {
         }
         source.append("            superclassCall: \(context.isClass ? "\(tryAwait)super.\(name)" : crashOnSuperclass),")
         if let unstubbedTuple = GeneratorHelper.unstubbedTupleArgument(for: property.type) {
-            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)", returning: property.type)),")
+            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)\(property.isOptional ? "!" : "")", returning: property.type)),")
             source.append("            \(unstubbedTuple)")
         } else {
-            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)", returning: property.type))")
+            source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)\(property.isOptional ? "!" : "")", returning: property.type))")
         }
         source.append("        )")
         source.append("    }")
