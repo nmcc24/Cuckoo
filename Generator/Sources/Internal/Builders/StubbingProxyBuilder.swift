@@ -8,7 +8,7 @@ enum StubbingProxyBuilder {
     /// - Parameter isStatic: whether the proxy is for the mock type's static members (`stub(MockX.self)`), or its
     ///   instance members.
     static func build(_ container: any ContainerToken, isStatic: Bool) throws -> String {
-        let name = "\(isStatic ? "__StaticStubbingProxy_" : "__StubbingProxy_")\(container.name)"
+        let name = container.derivedName(isStatic ? "__StaticStubbingProxy_" : "__StubbingProxy_")
         let mockName = container.mockName
         let access = container.accessibility.spaced
         var members = MemberList()
