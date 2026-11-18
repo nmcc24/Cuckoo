@@ -434,4 +434,22 @@ struct CuckoofileTests {
         #expect(xcodePlugin.sources?.map(\.rawValue) == ["/project/MyApp/**/*.swift", "/project/Shared/**/*.swift"])
         #expect(xcodePlugin.testableImports == ["MyApp"])
     }
+
+    /// A value of the wrong type names its key and the type it takes, not the file's syntax.
+    @Test(arguments: [
+        (#"sources = "Sources/App/*.swift""#, "`modules.App.sources` has a value of the wrong type. Write a list of paths"),
+        (#"exclude = "A""#, "`modules.App.exclude` has a value of the wrong type. Write a list of strings"),
+        (#"sources = { App = "x" }"#, "`modules.App.sources` has a value of the wrong type."),
+    ])
+    func mistypedValuesNameTheirKey(line: String, message: String) throws {
+        let contents = """
+            [modules.App]
+            output = "Mocks.swift"
+            \(line)
+            """
+        let thrown = try #require(throws: Cuckoofile.ParseError.self) { try parse(contents) }
+        #expect(String(describing: thrown).contains(message))
+        #expect(!String(describing: thrown).contains("Define modules as"))
+    }
+
 }
