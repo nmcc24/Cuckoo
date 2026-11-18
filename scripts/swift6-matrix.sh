@@ -86,7 +86,8 @@ EOF
   fi
   # A fixture that must fail keeps its failing code under `#if CUCKOO_MUST_FAIL`. Without it, the fixture and its
   # mock must compile cleanly first: a type error stops swiftc before its SIL passes, so the mock's region-isolation
-  # errors would otherwise never be checked.
+  # errors would otherwise never be checked. (That pass skips the `-D DEBUG` one and the per-version expected-failure
+  # lists: no must-fail fixture needs them.)
   must_fail=()
   if grep -qE '^[[:space:]]*#if CUCKOO_MUST_FAIL' "$f"; then
     must_fail=(-D CUCKOO_MUST_FAIL)
