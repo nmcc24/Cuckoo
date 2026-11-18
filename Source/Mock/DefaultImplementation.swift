@@ -23,10 +23,11 @@ public final class DefaultImplementation<Stub>: Sendable {
         }
         set {
             // The old value is released after the lock is, since its `deinit` may read `value`.
-            _ = stub.withLock { stub in
+            let replaced = stub.withLock { stub in
                 defer { stub = newValue }
                 return stub
             }
+            withExtendedLifetime(replaced) {}
         }
     }
 }
