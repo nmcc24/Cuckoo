@@ -303,4 +303,34 @@ struct MemberShapeTests {
         #expect(output.contains("func get<Key> (_ p0: Key) -> [MockStoring.Key] {"))
         #expect(output.contains("func get<Key> (_ p0: Key) -> ([Int]).Element {"))
     }
+
+    /// The stubbing and the verification proxy agree on which overloads are a pair: the ones a call of the proxy's
+    /// member can't tell apart, whatever they return and whatever their access or isolation.
+    @Test
+    func theProxiesPairTheSameOverloads() async throws {
+        let source = """
+            public class Loader {
+                public init() {}
+                public func value() -> Int { 0 }
+                func value() async -> String { "" }
+                func shared() -> Int { 0 }
+                @MainActor public func shared() async -> Int { 0 }
+                func load(_ id: Int) -> Int { 0 }
+                func load(_ id: String) async -> Int { 0 }
+            }
+            """
+        let output = try await generateMocks(source: source)
+        #expect(output.split(separator: "public var async: __Async {").count == 3)
+        // In each proxy's `async`: `value()` and `shared()`, and not `load(_:)`, whose overloads take different types.
+        let stubbing = try #require(output.firstRange(of: "struct __StubbingProxy_Loader"))
+        let verification = try #require(output.firstRange(of: "struct __VerificationProxy_Loader"))
+        let stub = try #require(output.firstRange(of: "class LoaderStub"))
+        for proxy in [String(output[stubbing.lowerBound..<verification.lowerBound]), String(output[verification.lowerBound..<stub.lowerBound])] {
+            let namespace = try #require(proxy.firstRange(of: "struct __Async {").map { String(proxy[$0.lowerBound...]) })
+            #expect(namespace.contains("func value() -> Cuckoo."))
+            #expect(namespace.contains("func shared() -> Cuckoo."))
+            #expect(!namespace.contains("func load"))
+            #expect(!proxy.contains("async -> Cuckoo."))
+        }
+    }
 }

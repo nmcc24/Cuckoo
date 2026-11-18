@@ -124,6 +124,22 @@ struct GeneratorHelper {
             .joined(separator: ", ")
     }
 
+    /// What a call tells one method's proxy member from another's by: its name, labels, generic parameters and the
+    /// types its matchers match. Not its result, its access or the matchers' `Sendable` flavour, which a call
+    /// such as `stub.value()` doesn't state.
+    static func proxyCallKey(of method: Method) -> String {
+        let generics = matchableGenericTypes(from: method, forVerification: true)
+        let parameters = matchableParameterSignature(with: method.signature.parameters, of: method)
+        return "\(method.proxyName)\(generics)(\(parameters))\(matchableGenericsWhereClause(from: method, forVerification: true))"
+    }
+
+    /// The async methods among `methods` that a sync one overloads with the same call, as `value() async` next to
+    /// `value()`, by their place in `methods`. Both proxies name them through `async`, so both ask here.
+    static func asyncOverloads(among methods: [Method]) -> Set<Int> {
+        let syncKeys = Set(methods.filter { !$0.isAsync }.map(proxyCallKey))
+        return Set(methods.indices.filter { methods[$0].isAsync && syncKeys.contains(proxyCallKey(of: methods[$0])) })
+    }
+
     /// The type of a proxy's `async` member, which holds the async overloads of the methods with a sync one too.
     static let asyncNamespaceType = "__Async"
 

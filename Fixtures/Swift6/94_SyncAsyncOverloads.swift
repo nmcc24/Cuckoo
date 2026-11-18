@@ -26,6 +26,27 @@ protocol GenericLoading {
     func convert<T>(_ value: T) async -> Item
 }
 
+// The overloads are a pair whatever they return, however their matchers differ and whatever their access: a call
+// of the proxy's member states none of those.
+protocol ResultLoading {
+    func value() -> Int
+    func value() async -> String
+}
+
+class IsolationLoader {
+    init() {}
+    func value() -> Int { 0 }
+    @MainActor func value() async -> Int { 0 }
+}
+
+public class AccessLoader {
+    public init() {}
+    public func first() -> Int { 0 }
+    func first() async -> Int { 0 }
+    func second() -> Int { 0 }
+    public func second() async -> Int { 0 }
+}
+
 // A member named `async` takes the name: the async overload's own members are then `async`, named with `await`.
 protocol AsyncNamed {
     func async() -> Int
@@ -101,6 +122,40 @@ func useOverloads() {
         when(stub.async.convert(any(String.self))).thenReturn(2)
     }
     verify(generic, never()).async.convert(any(String.self))
+}
+
+func useUnlikeOverloads() {
+    let result = MockResultLoading()
+    stub(result) { stub in
+        when(stub.value()).thenReturn(1)
+        when(stub.async.value()).thenReturn("async")
+    }
+    verify(result, never()).value()
+    verify(result, never()).async.value()
+
+    let access = MockAccessLoader()
+    stub(access) { stub in
+        when(stub.first()).thenReturn(1)
+        when(stub.async.first()).thenReturn(2)
+        when(stub.second()).thenReturn(1)
+        when(stub.async.second()).thenReturn(2)
+    }
+    inOrder {
+        verify(access, never()).async.first()
+        verify(access, never()).async.second()
+    }
+}
+
+@MainActor
+func useIsolationOverloads() async {
+    let mock = MockIsolationLoader()
+    stub(mock) { stub in
+        when(stub.value()).thenReturn(1)
+        when(stub.async.value()).thenReturn(2)
+    }
+    _ = await mock.value()
+    verify(mock, never()).value()
+    verify(mock).async.value()
 }
 
 // In async code the proxies' members mean the same: no `await`, and the sync overload without a closure around it.
