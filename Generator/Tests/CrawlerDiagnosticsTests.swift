@@ -138,3 +138,35 @@ struct CrawlerDiagnosticsTests {
     }
     #endif
 }
+
+/// Invalid or unusual source the generator reads without crashing, and declarations it leaves alone.
+struct InvalidSourceTests {
+    /// Swift rejects a type that inherits from itself, and a protocol without a name; the generator still finishes,
+    /// so the compiler's own error is what the build reports.
+    @Test(arguments: [
+        "class A: A { init() {}; func a() {} }",
+        "protocol X: Y { func x() }\nprotocol Y: X { func y() }",
+        "protocol P { func p() }\nprotocol : P { func q() }",
+    ])
+    func invalidInheritanceDoesNotCrash(source: String) async throws {
+        _ = try await capturingOutput {
+            _ = try await generateMocks(source: source)
+        }
+    }
+
+    /// A type declared in a macro's closure, such as `#Preview`'s, is local to it.
+    @Test
+    func typesInAMacroClosureAreNotMocked() async throws {
+        let mocks = try await generateMocks(source: """
+            protocol Service {
+                func load() -> Int
+            }
+            #Preview {
+                class FakeService: Service { func load() -> Int { 1 } }
+                return FakeService()
+            }
+            """)
+        #expect(mocks.contains("class MockService"))
+        #expect(!mocks.contains("FakeService"))
+    }
+}

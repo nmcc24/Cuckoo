@@ -21,6 +21,41 @@
   `sending Ticket?` or `inout Int?`, was constrained to the optional type rather than its wrapped type: a `Sendable`
   mock's stubbing proxy didn't compile, and neither did a value matcher such as `when(stub.update(1))`. It's matched as any
   optional parameter is now, so `nil` is matched with `isNil()`, as for a plain `Int?` parameter.
+- A type whose parent names a module, as `protocol Error: Swift.Error` or `class Thread: Foundation.Thread`,
+  crashed the generator with a stack overflow, and so did invalid source such as `class A: A` or a protocol without a
+  name. A module-qualified parent is declared outside the sources, and the generator now stops at a cycle.
+- Types nested in a `final` class weren't mocked, and types declared in a body, a closure, a `deinit` or a macro's
+  closure, such as `#Preview { … }`, were, giving mocks of types nothing else can name.
+- A mock nested in an extension didn't repeat the extension's `@available` or `where` clause, and didn't compile
+  where it needed them.
+- A mock of a backticked type, such as `` class `Type` ``, didn't parse: its mock, stub and proxies are now named
+  without the backticks.
+- An `@available` message with a comma in it, as in `message: "old, unavailable soon"`, was read as several
+  arguments, so a deprecated requirement could be taken for an unavailable one and left out of the mock.
+- A protocol that isn't mocked, because a requirement returns a `~Copyable` type, also left out every protocol with
+  its name elsewhere, and those refining them; it's known by its qualified name now.
+- A subclass's `final` or unavailable override was dropped, so the mock overrode the superclass's member and didn't
+  compile. The mock now leaves it alone.
+- A requirement of a parent with no global actor became isolated to a refining protocol's global actor, so the
+  mock's conformance to the parent crossed into that actor. It's `nonisolated` in the mock now, as a conforming
+  type's witness has to be.
+- With `defaultIsolation = "MainActor"`, a class whose superclass is `nonisolated`, a protocol refining a
+  `nonisolated` one, and a type nested in a `nonisolated` type took the default isolation instead of Swift's
+  inferred `nonisolated`, and their mocks didn't compile.
+- A protocol fixing a parent's associated type, as `where Item == String` or `Store<String, Int>`, left that name
+  in the other associated types' constraints, as `Keys: Collection<Key>`, which the mock couldn't name.
+- A subclass of a generic class in the sources, `class Child: Base<Int>`, got a mock that silently didn't override
+  the superclass's members. The mock now lists them as not mocked, and the generator warns.
+- A requirement a child protocol restates with other spellings, such as another generic parameter name, a `where`
+  clause instead of an inline constraint, or `Swift.Int` for `Int`, was declared twice in the mock.
+- A typealias of a closure typealias, `typealias Chained = Handler`, wasn't seen as a closure, and a generic closure
+  typealias applied to itself, `Transform<Transform<Int>>`, gave the wrong parameter type; neither mock compiled.
+- `Self.Type` in a requirement wasn't rewritten in the mock, which didn't compile.
+- A property initialized with a capitalized function's or static method's call, as `var kind = Kind.Make()`, got
+  that call's name as its type. It now gets the "add a type annotation" warning, as any type the generator can't
+  infer does.
+- A subscript with a `_modify` accessor was read as read-only, and an `@objc optional var` requirement's default
+  implementation was read without unwrapping it; neither mock compiled.
 
 ## 3.0.0-beta.5
 
