@@ -1084,7 +1084,8 @@ extension Crawler {
             throwType: ThrowType(syntax: getter?.effectSpecifiers?.throwsClause),
             compilationConditions: compilationConditions,
             isolation: isolation(attributes: node.attributes, modifiers: node.modifiers),
-            isStatic: isStatic
+            isStatic: isStatic,
+            isOptional: node.modifiers.contains { $0.name.tokenKind == .keyword(.optional) }
         )
     }
 }

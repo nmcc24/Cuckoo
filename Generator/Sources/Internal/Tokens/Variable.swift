@@ -37,6 +37,10 @@ struct Variable: Token, HasAccessibility, HasAttributes {
     /// An `@objc optional` requirement, which a default implementation may not implement.
     var isOptional = false
 
+    /// Why the setter of an `@objc optional` property or subscript isn't forwarded to a default implementation: read
+    /// through the protocol, an optional requirement is an immutable optional value, `value.count!`.
+    static let optionalSetterReason = "Swift can't assign to an '@objc optional' requirement through its protocol"
+
     /// The stub type the stubbing proxy returns, such as `ProtocolToBeStubbedReadOnlyProperty`.
     var stubType: String {
         let readOnlyStubString = effects.isThrowing || !isReadOnly ? "" : "ReadOnly"

@@ -24,6 +24,8 @@ struct Method: Token, HasAttributes, HasAccessibility, HasName {
     /// What a subscript's accessor forwards to instead of a method call: `super[...]` and the default implementation's.
     var superclassCallOverride: String?
     var defaultCallOverride: String?
+    /// Why the mock can't forward the call to a default implementation, when Swift has no way to write it.
+    var unforwardableDefaultCallReason: String?
     /// An operator's fixity; `nil` for a named method. ``name`` is then the operator itself, such as `+`.
     var operatorFixity: OperatorFixity?
 
