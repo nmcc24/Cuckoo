@@ -401,6 +401,12 @@ final class Crawler: SyntaxVisitor {
            skipsUnreturnable(node, member: "\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)", type: returnType, generics: generics) {
             return .skipChildren
         }
+        // Only for a member the mock would override: not a private, `final` or class `static` one.
+        let isOverridable = accessibility(from: node.modifiers)?.isAccessible != false
+            && !(container.isClass && (node.modifiers.isFinal || node.modifiers.isStatic))
+        if isOverridable, skipsUnrecordable(node, member: "\(node.name.trimmedDescription)\(node.signature.parameterClause.trimmedDescription)") {
+            return .skipChildren
+        }
         if let method = parse(node) {
             tokens.append(method)
         } else if node.modifiers.isOverride, let method = parsingShadowedMember({ parse(node) }) {
@@ -1062,7 +1068,8 @@ extension Crawler {
                     innerName: nil,
                     type: isVariadic ? .type("[\(type)]") : type,
                     variadicElement: isVariadic ? type : nil,
-                    defaultValue: parameter.defaultValue.flatMap { mockableDefaultValue($0, of: parameter.type) }
+                    defaultValue: parameter.defaultValue.flatMap { mockableDefaultValue($0, of: parameter.type) },
+                    isSubscriptKey: true
                 )
             },
             returnType: ComplexType(syntax: node.returnClause.type),
@@ -1292,6 +1299,78 @@ extension Crawler {
             warn(node, reason + " The mock keeps the real implementation.")
         }
         return true
+    }
+
+    /// Whether a method takes an argument the mock can't record and hand back: an `inout sending` one, which
+    /// recording would share past the call, an `inout some P` one, which a stub's `then` closure, typed `any P`,
+    /// couldn't write back, or a closure over a parameter pack, `(repeat each T) -> Void`, which Swift can't store.
+    /// As for an unreturnable type, a class's mock keeps the real implementation, and a protocol with one isn't
+    /// mocked, with a warning either way.
+    private func skipsUnrecordable(_ node: FunctionDeclSyntax, member: String) -> Bool {
+        let parameters = node.signature.parameterClause.parameters
+        // An async class member's mock forwards to `super` from a local function the closure is made escaping in,
+        // which isn't isolated to the parameter's actor. A protocol's mock only can't forward it to a default
+        // implementation.
+        if container?.isClass == true, node.signature.effectSpecifiers?.asyncSpecifier?.isPresent == true,
+           parameters.contains(where: { $0.type.as(AttributedTypeSyntax.self)?.specifiers.contains { $0.trimmedDescription == "isolated" } == true }),
+           let closure = parameters.first(where: { Self.isNonEscapingClosure($0.type) }) {
+            let description = "'\(member)' takes an isolated parameter and the non-escaping closure '\(closure.firstName.text)', which the mock can't forward to the parameter's actor."
+            unmockedMembers.append(description)
+            warn(node, description + " The mock keeps the real implementation.")
+            return true
+        }
+        let parameter = parameters.lazy.compactMap { parameter -> (FunctionParameterSyntax, String)? in
+            if Self.isPackClosure(parameter.type) {
+                return (parameter, "a closure over a parameter pack, which Swift can't store")
+            }
+            guard let attributed = parameter.type.as(AttributedTypeSyntax.self) else { return nil }
+            let specifiers = attributed.specifiers.map(\.trimmedDescription)
+            guard specifiers.contains("inout") else { return nil }
+            if specifiers.contains("sending") { return (parameter, "an 'inout sending' parameter, which a mock can't record without sharing it") }
+            if attributed.baseType.as(SomeOrAnyTypeSyntax.self)?.someOrAnySpecifier.tokenKind == .keyword(.some) {
+                return (parameter, "an 'inout some' parameter, which a stub can't write back to")
+            }
+            return nil
+        }.first
+        guard let (_, reason) = parameter else { return false }
+        let description = "'\(member)' takes \(reason)."
+        unmockedMembers.append(description)
+        if container?.isClass == true {
+            warn(node, description + " The mock keeps the real implementation.")
+        }
+        return true
+    }
+
+    /// Whether `type` is a function type, parenthesized or attributed but not `@escaping`.
+    private static func isNonEscapingClosure(_ type: TypeSyntax) -> Bool {
+        var type = type
+        while true {
+            if let attributed = type.as(AttributedTypeSyntax.self) {
+                guard !attributed.attributes.contains(where: { $0.trimmedDescription == "@escaping" }),
+                      !attributed.specifiers.contains(where: { $0.trimmedDescription == "inout" }) else { return false }
+                type = attributed.baseType
+            } else if let tuple = type.as(TupleTypeSyntax.self), tuple.elements.count == 1, let element = tuple.elements.first, element.firstName == nil {
+                type = element.type
+            } else {
+                break
+            }
+        }
+        return type.is(FunctionTypeSyntax.self)
+    }
+
+    /// Whether `type` is a function type, attributed or parenthesized, with a pack expansion among its parameters.
+    private static func isPackClosure(_ type: TypeSyntax) -> Bool {
+        var type = type
+        while true {
+            if let attributed = type.as(AttributedTypeSyntax.self) {
+                type = attributed.baseType
+            } else if let tuple = type.as(TupleTypeSyntax.self), tuple.elements.count == 1, let element = tuple.elements.first, element.firstName == nil {
+                type = element.type
+            } else {
+                break
+            }
+        }
+        return type.as(FunctionTypeSyntax.self)?.parameters.contains { $0.type.is(PackExpansionTypeSyntax.self) } == true
     }
 
     /// The `~Copyable` generic parameters of the types enclosing `node`, such as `T` in `class Pool<T: ~Copyable>`.

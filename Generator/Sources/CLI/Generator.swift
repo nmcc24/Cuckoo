@@ -1,3 +1,4 @@
+import RegexBuilder
 #if canImport(FoundationEssentials)
 import FoundationEssentials
 #else
@@ -172,13 +173,102 @@ final class Generator {
             typeFilters.append(ignoreExcluded(in: module.exclude))
         }
         let parsedFiles = removeTypes(from: finalFiles, using: typeFilters)
-        let mockableFiles = parsedFiles.map { $0.replacing(tokens: $0.tokens.filter { $0.isMockable }) }
+        let declaredTypes = declaredNames.nominalTypes.union(declaredNames.typealiases.keys).union(declaredNames.closureTypealiases.keys)
+        let allTokens = finalFiles.flatMap(\.tokens)
+        // Declared under `#if`: their typealiases go under the same conditions.
+        let conditionalTypes = Dictionary(allTokens.compactMap { token -> (String, [String])? in
+            guard let named = token as? any HasName & HasEnclosingCompilationConditions, !named.enclosingCompilationConditions.isEmpty else { return nil }
+            return (named.fullyQualifiedName, named.enclosingCompilationConditions)
+        }) { first, _ in first }
+        let containers = Dictionary(allTokens.compactMap { token in (token as? any ContainerToken).map { ($0.fullyQualifiedName, $0) } }) { first, _ in first }
+        let mockableFiles = parsedFiles.map { file in
+            file.replacing(tokens: file.tokens.filter { $0.isMockable }.map { token in
+                withOuterScopeTypealiases(token, declaredTypes: declaredTypes, conditionalTypes: conditionalTypes, genericTypes: declaredNames.qualifiedGenericTypes, containers: containers)
+            })
+        }
         // Only for the classes the settings keep.
         for case let classToken as ClassDeclaration in mockableFiles.flatMap(\.tokens) {
             guard let superclass = classToken.unmockedGenericSuperclass else { continue }
             printToStandardError("warning: cuckoo: '\(classToken.fullyQualifiedName)' inherits from the generic class '\(superclass.name)', so its mock doesn't override what it inherits, which runs the real implementation: \(superclass.members.map { "'\($0)'" }.joined(separator: ", ")).\n")
         }
         return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule)
+    }
+
+    /// The container with a typealias for each type its parent's enclosing scopes declare, `Model = Feature.Model`
+    /// for a type nested in `Feature.Screen`: its mock and stub are declared in `extension Feature.Screen`, where
+    /// Swift finds `Screen`'s members but not `Feature`'s. A name a nearer scope or the type itself declares hides
+    /// an outer one, as it does in the source; a generic scope's types can't be named without its arguments.
+    /// - Parameters:
+    ///   - conditionalTypes: the `#if` conditions of the types declared under one, which their typealiases repeat.
+    ///   - containers: the sources' classes and protocols by qualified name, whose nested names a type inherits.
+    private static func withOuterScopeTypealiases(_ token: any Token, declaredTypes: Set<String>, conditionalTypes: [String: [String]], genericTypes: Set<String>, containers: [String: any ContainerToken]) -> any Token {
+        guard let container = token as? any ContainerToken, let parent = container.parent?.value as? any HasName else { return token }
+        let scopes = parent.fullyQualifiedName.split(separator: ".").map(String.init)
+        guard scopes.count > 1 else { return token }
+        // The names visible without a typealias: the type's own members and generic parameters, and the parent's.
+        func names(in scope: String) -> Set<String> {
+            Set(declaredTypes.compactMap { name in
+                guard name.hasPrefix(scope + "."), !name.dropFirst(scope.count + 1).contains(".") else { return nil }
+                return String(name.dropFirst(scope.count + 1))
+            })
+        }
+        // Only the names the members use.
+        let used = container.members.map { member -> String in
+            switch member {
+            case let method as Method: method.signature.description
+            case let initializer as Initializer: initializer.signature.description
+            case let variable as Variable: variable.type.description
+            case let subscriptDeclaration as Subscript: subscriptDeclaration.signature
+            case let typealiasDeclaration as Typealias: typealiasDeclaration.description
+            default: ""
+            }
+        }.joined(separator: " ") + " " + (container.inheritedTypes + container.genericRequirements).joined(separator: " ")
+        // Used as a type: not as another type's member, `Other.Model`, nor as a label, `Model:`.
+        func isUsed(_ name: String) -> Bool {
+            used.matches(of: Regex { Anchor.wordBoundary; name; Anchor.wordBoundary }.wordBoundaryKind(.simple)).contains { match in
+                let before = used[..<match.range.lowerBound].last
+                let after = used[match.range.upperBound...].first
+                return before != "." && after != ":"
+            }
+        }
+        // The names the type sees from what it inherits: a superclass's or parent protocol's nested types and
+        // typealiases, found from the scope it's declared in outwards, and theirs in turn.
+        func inheritedNames(of type: any ContainerToken, depth: Int = 0) -> Set<String> {
+            guard depth < 16 else { return [] }
+            let scope = type.fullyQualifiedName.split(separator: ".").map(String.init).dropLast()
+            return type.inheritedTypes.reduce(into: Set<String>()) { result, inherited in
+                let name = String(inherited.prefix { $0 != "<" })
+                let candidates = stride(from: scope.count, through: 0, by: -1).map { (scope.prefix($0) + [name]).joined(separator: ".") }
+                guard let found = candidates.lazy.compactMap({ containers[$0] }).first else { return }
+                result.formUnion(names(in: found.fullyQualifiedName))
+                result.formUnion(found.members.compactMap { ($0 as? Typealias)?.alias })
+                result.formUnion(inheritedNames(of: found, depth: depth + 1))
+            }
+        }
+        var hidden = names(in: parent.fullyQualifiedName).union(names(in: container.fullyQualifiedName))
+            .union(container.genericParameters.map(\.name)).union([container.name]).union(inheritedNames(of: container))
+        var aliases: [OuterScopeTypealias] = []
+        for length in stride(from: scopes.count - 1, through: 1, by: -1) {
+            let scope = scopes.prefix(length).joined(separator: ".")
+            let declared = names(in: scope)
+            if !(1...length).contains(where: { genericTypes.contains(scopes.prefix($0).joined(separator: ".")) }) {
+                aliases += declared.subtracting(hidden).filter(isUsed).sorted().map { name in
+                    OuterScopeTypealias(declaration: "\(name) = \(scope).\(name)", conditions: conditionalTypes["\(scope).\(name)"] ?? [])
+                }
+            }
+            hidden.formUnion(declared)
+        }
+        guard !aliases.isEmpty else { return token }
+        switch container {
+        case var classToken as ClassDeclaration:
+            classToken.outerScopeTypealiases = aliases
+            return classToken
+        case var protocolToken as ProtocolDeclaration:
+            protocolToken.outerScopeTypealiases = aliases
+            return protocolToken
+        default:
+            return token
+        }
     }
 
     /// - Parameter sharedImports: the imports of a single output file, which go at the top of its first file; without

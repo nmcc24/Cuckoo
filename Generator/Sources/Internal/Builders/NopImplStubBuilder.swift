@@ -13,6 +13,9 @@ enum NopImplStubBuilder {
         if container.declaresSelfTypealias {
             try members.append("\(container.accessibility.spaced)typealias \(SelfResolution.typealiasName) = \(name)", of: name)
         }
+        for alias in container.outerScopeTypealiases {
+            try members.append(alias.source(access: container.accessibility.spaced), of: name)
+        }
         if !container.isClass {
             for typealiasDeclaration in container.members.compactMap({ $0 as? Typealias }) {
                 try members.append("\(container.accessibility.spaced)\(typealiasDeclaration.description)", of: "\(container.name).\(typealiasDeclaration.alias)")

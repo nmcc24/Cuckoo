@@ -1,4 +1,19 @@
-protocol ContainerToken: Token, HasAttributes, HasAccessibility, HasName, HasGenerics, HasMembers, HasInheritance {}
+protocol ContainerToken: Token, HasAttributes, HasAccessibility, HasName, HasGenerics, HasMembers, HasInheritance {
+    var outerScopeTypealiases: [OuterScopeTypealias] { get }
+}
+
+/// A typealias a mock and its stub declare for a type of an outer scope, `Model = Feature.Model`, under the `#if`
+/// conditions the type is declared in.
+struct OuterScopeTypealias: Sendable {
+    let declaration: String
+    let conditions: [String]
+
+    /// The declaration at `access`, inside its `#if` when it has one.
+    func source(access: String) -> String {
+        let alias = "\(access)typealias \(declaration)"
+        return conditions.isEmpty ? alias : "#if \(conditions.joined(separator: " && "))\n\(alias)\n#endif"
+    }
+}
 
 extension ContainerToken {
     /// The members, with the access level of each accessible one raised to the type's when it's lower.
