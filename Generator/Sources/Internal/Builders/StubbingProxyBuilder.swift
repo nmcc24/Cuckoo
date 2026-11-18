@@ -25,13 +25,40 @@ enum StubbingProxyBuilder {
         }
         let methods = container.mockedMethods.filter { $0.isStatic == isStatic }
         // An async method with a sync overload of the same signature would make `when(stub.load())` ambiguous: the
-        // two members differ only in the stub they return. Its member is `async`, as its verification member is, so
-        // a call picks one as Swift picks a call's overload: `stub.load()` in the synchronous `stub` block is the
-        // sync one, and `await` names the async one.
+        // two members differ only in the stub they return. `stub.load()` is the sync one, and the async one is a
+        // member of `stub.async`, which a synchronous block can name. Where a mocked member has taken that name, the
+        // async one's member is `async` instead, so a call picks one as Swift picks a call's overload.
         let syncSignatures = Set(methods.filter { !$0.isAsync }.map { signature(of: $0) })
+        let hasNamespace = GeneratorHelper.canDeclareAsyncNamespace(in: container, isStatic: isStatic)
+        var asyncOverloads: [Method] = []
         for method in methods {
-            let isAsync = method.isAsync && syncSignatures.contains(signature(of: method))
-            try members.append(method, source: source(of: method, mockName: mockName, access: GeneratorHelper.proxyAccess(of: method, in: container), isAsync: isAsync), of: "\(container.name).\(method.name)")
+            let isOverload = method.isAsync && syncSignatures.contains(signature(of: method))
+            if isOverload, hasNamespace {
+                asyncOverloads.append(method)
+                continue
+            }
+            try members.append(method, source: source(of: method, mockName: mockName, access: GeneratorHelper.proxyAccess(of: method, in: container), isAsync: isOverload), of: "\(container.name).\(method.name)")
+        }
+        if !asyncOverloads.isEmpty {
+            var overloads = MemberList()
+            try overloads.append("fileprivate let cuckooManager: Cuckoo.MockManager", of: name)
+            for method in asyncOverloads {
+                try overloads.append(method, source: source(of: method, mockName: mockName, access: GeneratorHelper.proxyAccess(of: method, in: container), isAsync: false), of: "\(container.name).\(method.name)")
+            }
+            let namespace = "\(access)nonisolated struct \(GeneratorHelper.asyncNamespaceType) {\n}"
+            guard var namespaceDeclaration = try Fragment.declaration(namespace, of: name).as(StructDeclSyntax.self) else {
+                throw FragmentError.unparsable(declaration: name, source: namespace)
+            }
+            namespaceDeclaration.memberBlock.members = overloads.list
+            members.separate()
+            try members.append(lines([
+                "/// The async overloads of the methods that have a sync one too, for a synchronous block.",
+                "\(access)var async: \(GeneratorHelper.asyncNamespaceType) {",
+                "    return .init(cuckooManager: cuckooManager)",
+                "}",
+            ]), of: name)
+            members.separate()
+            try members.append(namespaceDeclaration.description, of: name)
         }
         let subscripts = container.mockedSubscripts.filter { $0.isStatic == isStatic }
         for (index, subscriptDeclaration) in subscripts.enumerated() {
