@@ -105,6 +105,8 @@ import Combine
 #endif
 @testable public import class CuckooTestSources.OpenClass
 @testable public import protocol CuckooTestSources.Amount
+@testable public import protocol CuckooTestSources.AliasedLookup
+@testable public import struct CuckooTestSources.AliasedLookupImplementation
 @testable public import protocol CuckooTestSources.PackageService
 @testable public import class CuckooTestSources.PackageWorker
 @testable public import protocol CuckooTestSources.PublicActorService
@@ -25790,6 +25792,138 @@ nonisolated final class AmountStub: Amount {
 
     static func <~> (_ p0: __CuckooSelf, _ p1: Int) -> Bool {
         typealias __CuckooDefault = Bool
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+// MARK: - Mocks generated from file: 'Tests/Swift/Source/OverloadAndAliasShapes.swift'
+
+nonisolated final class MockAliasedLookup: AliasedLookup, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any AliasedLookup
+    typealias CuckooStubbing = __StubbingProxy_AliasedLookup
+    typealias CuckooVerification = __VerificationProxy_AliasedLookup
+
+    // Original typealiases
+    typealias ID = Int
+    typealias Callback = (ID) -> Void
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockAliasedLookup.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any AliasedLookup>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any AliasedLookup) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func find(_ p0: ID) -> ID? {
+        return cuckooManager.call(
+            "find(_ p0: ID) -> ID?",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((ID)) -> ID?, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.find(p0)
+        )
+    }
+
+    func each(_ p0: (ID) -> Void) {
+        return withoutActuallyEscaping(p0, do: { (p0: @escaping (ID) -> Void) in
+            return cuckooManager.call(
+                "each(_ p0: (ID) -> Void)",
+                parameters: (p0),
+                escapingParameters: (({ _ in
+                                        fatalError("This is a stub! It's not supposed to be called!")
+                                    } as (ID) -> Void)),
+                invoke: { (implementation: ((@escaping (ID) -> Void)) -> Void, arguments) in
+                                implementation(arguments)
+                            },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.each(p0)
+            )
+        })
+    }
+
+    nonisolated struct __StubbingProxy_AliasedLookup: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func find<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(ID), ID?, ((ID)) -> ID?, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ID {
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockAliasedLookup.self,
+                method: "find(_ p0: ID) -> ID?",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func each<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<((ID) -> Void), ((@escaping (ID) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (ID) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((ID) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockAliasedLookup.self,
+                method: "each(_ p0: (ID) -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_AliasedLookup: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func find<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(ID), ID?> where __M1.MatchedType == ID {
+            let matchers: [Cuckoo.ParameterMatcher<(ID)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "find(_ p0: ID) -> ID?",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func each<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<((ID) -> Void), Void> where __M1.MatchedType == (ID) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((ID) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "each(_ p0: (ID) -> Void)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class AliasedLookupStub: AliasedLookup {
+    typealias ID = Int
+    typealias Callback = (ID) -> Void
+
+    func find(_ p0: ID) -> ID? {
+        typealias __CuckooDefault = ID?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func each(_ p0: (ID) -> Void) {
+        typealias __CuckooDefault = Void
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
