@@ -76,7 +76,7 @@ enum NopImplStubBuilder {
         source.append("\(property.accessibility.spaced)\(modifiers)var \(property.name): \(property.type.description) {")
         source.append("    get \(effects){")
         source.append("        \(GeneratorHelper.defaultTypealias(type))")
-        source.append("        return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.defaultTypealiasName).self)")
+        source.append("        \(defaultReturn(of: property.type, for: property))")
         source.append("    }")
         if !property.isReadOnly {
             source.append("    set {}")
@@ -101,7 +101,7 @@ enum NopImplStubBuilder {
         }
         source.append("\(method.accessibility.spaced)\(modifiers)\(method.declaration)\(method.signature.description) {")
         source.append("    \(GeneratorHelper.defaultTypealias(type))")
-        source.append("    return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.defaultTypealiasName).self)")
+        source.append("    \(defaultReturn(of: method.returnType, for: method))")
         source.append("}")
         return lines(source)
     }
@@ -114,13 +114,20 @@ enum NopImplStubBuilder {
         source.append("\(subscriptDeclaration.accessibility.spaced)\(modifiers)subscript\(subscriptDeclaration.signature) {")
         source.append("    get \(effects){")
         source.append("        \(GeneratorHelper.defaultTypealias(type))")
-        source.append("        return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.defaultTypealiasName).self)")
+        source.append("        \(defaultReturn(of: subscriptDeclaration.returnType, for: subscriptDeclaration))")
         source.append("    }")
         if !subscriptDeclaration.isReadOnly {
             source.append("    set {}")
         }
         source.append("}")
         return lines(source)
+    }
+
+    /// The statement that returns the default value of `member`'s return type `type`, named by the local typealias:
+    /// the registered one, else the one the generated code builds itself, as a mock's unstubbed call does.
+    private static func defaultReturn(of type: ComplexType?, for member: any Token) -> String {
+        let generated = GeneratedDefaults.current.expression(for: type, of: member).map { ", generated: \($0)" } ?? ""
+        return "return DefaultValueRegistry.defaultValue(for: \(GeneratorHelper.defaultTypealiasName).self\(generated))"
     }
 
     /// The attributes every copy of the member repeats, its `@_spi` attributes at its access level, and its isolation.

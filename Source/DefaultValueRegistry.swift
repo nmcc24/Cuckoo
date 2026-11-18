@@ -43,6 +43,16 @@ public enum DefaultValueRegistry {
         fatalError("Type \(T.self) does not have default return value registered.")
     }
     
+    /// The registered default for `type`, else an empty value for optionals and the standard collections, else
+    /// `generated`: the value a generated `…Stub` builds itself for a type of the mocked sources, as a mock's
+    /// unstubbed call does. Crashes when none of them gives a `T`, with a message naming the type.
+    public static func defaultValue<T>(for type: T.Type, generated: @autoclosure () -> Any?) -> T {
+        if let value = unstubbedValue(for: type) ?? generated() as? T {
+            return value
+        }
+        fatalError("Type \(T.self) does not have default return value registered.")
+    }
+
     /// Registers `factory` for `type`, releasing the one it replaces after the lock is, since that value's `deinit`
     /// may query the registry.
     private static func replace<T>(_ type: T.Type, with factory: DefaultValueFactory) {

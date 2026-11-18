@@ -138,4 +138,20 @@ struct StubDefaultTest {
 
         #expect(mock.spare().name == "stubbed")
     }
+
+    /// A generated stub's own members answer the same way, so a stub an unstubbed call returned can be used further.
+    @Test
+    func aStubsMembersReturnStubsToo() {
+        let assembly = AssemblyStub()
+        #expect(assembly.spare() is PartStub)
+        #expect(assembly.part is PartStub)
+        #expect(assembly.optionalPart() == nil)
+        #expect(WorkbenchStub().part() is PartStub)
+
+        var configuration = CuckooConfiguration.current
+        configuration.defaultValues.register(for: (any Part).self) { NamedPart(name: "registered") }
+        CuckooConfiguration.$current.withValue(configuration) {
+            #expect(assembly.spare().name == "registered")
+        }
+    }
 }
