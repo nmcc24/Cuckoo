@@ -33,12 +33,12 @@ enum VerificationProxyBuilder {
         // `verify(mock).load()` is the sync one, and the async one is a member of `verify(mock).async`, which a
         // synchronous block, `inOrder`'s for one, can name. Where a mocked member has taken that name, the async one's
         // member is `async` instead: `await verify(mock).load()`, as Swift picks a call's overload.
-        let syncDeclarations = Set(methods.filter { !$0.isAsync }.map { declaration(of: $0, access: GeneratorHelper.proxyAccess(of: $0, in: container)) })
+        let overloads = GeneratorHelper.asyncOverloads(among: methods)
         let hasNamespace = GeneratorHelper.canDeclareAsyncNamespace(in: container, isStatic: isStatic)
         var asyncOverloads: [Method] = []
-        for method in methods {
+        for (index, method) in methods.enumerated() {
             let access = GeneratorHelper.proxyAccess(of: method, in: container)
-            let isOverload = method.isAsync && syncDeclarations.contains(declaration(of: method, access: access))
+            let isOverload = overloads.contains(index)
             if isOverload, hasNamespace {
                 asyncOverloads.append(method)
                 continue
@@ -102,8 +102,7 @@ enum VerificationProxyBuilder {
         return lines(source)
     }
 
-    /// The verification member's declaration, without the `async` it may take.
-    private static func declaration(of method: Method, access memberAccess: Accessibility, isAsync: Bool = false) -> String {
+    private static func declaration(of method: Method, access memberAccess: Accessibility, isAsync: Bool) -> String {
         let input = GeneratorHelper.genericSafeType(from: method.proxyStubTypes.input)
         let output = GeneratorHelper.genericSafeType(from: method.verificationReturnType)
         let generics = GeneratorHelper.matchableGenericTypes(from: method, forVerification: true)
