@@ -7,6 +7,8 @@
 /// ```swift
 /// verify(cache).value(forKey: "a").with(returnType: Int?.self)
 /// ```
+///
+/// The `verify` counts only the calls made with that return type: `value(forKey: "a") as String?` is another call.
 public struct VerifiedCall<IN, OUT>: Sendable { }
 
 public extension VerifiedCall {

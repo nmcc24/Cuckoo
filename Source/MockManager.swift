@@ -10,6 +10,8 @@ public final class MockManager: Sendable {
         /// The call's place among the calls to every mock, for `inOrder`.
         let sequence: Int
         let call: any StubCall
+        /// The call's return type, which tells a generic member's calls apart when only it differs.
+        let returnType: Any.Type
     }
 
     private struct State {
@@ -76,7 +78,7 @@ public final class MockManager: Sendable {
         let (stubs, fallback) = state.withLock { state in
             let id = state.nextCallID
             state.nextCallID += 1
-            state.calls.append(RecordedCall(id: id, sequence: CallSequence.next(), call: call))
+            state.calls.append(RecordedCall(id: id, sequence: CallSequence.next(), call: call, returnType: OUT.self))
             state.unverifiedCallIDs.insert(id)
             return (state.stubs, state.fallback)
         }
@@ -270,12 +272,17 @@ public final class MockManager: Sendable {
 
     /// Checks the recorded calls of `method` whose arguments match `parameterMatchers` against `callMatcher`, and
     /// reports a failure at `sourceLocation` when they don't match.
+    ///
+    /// Only the calls that returned `OUT` count, as only the stubs returning it answer them: a generic member called
+    /// with another return type is another call. A verification proxy names the same `OUT` as the stubbing proxy,
+    /// or `Any`, which counts every call, for a member whose return type names a generic parameter the proxy omits.
     public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> VerifiedCall<IN, OUT> {
         let recordedCalls = state.withLock { $0.calls }
         // Each call to this member with the first argument its matcher rejected, or `nil` if the call matches. Like
         // stub matching, it stops at that argument. A captor's captures wait until the `verify` passes.
         let callsToMember = recordedCalls.compactMap { recorded -> (recorded: RecordedCall, mismatch: Int?, captures: PendingCaptures)? in
-            guard recorded.call.method == method, let call = recorded.call as? ConcreteStubCall<IN> else { return nil }
+            guard recorded.call.method == method, OUT.self == Any.self || recorded.returnType == OUT.self,
+                  let call = recorded.call as? ConcreteStubCall<IN> else { return nil }
             let (mismatch, captures) = PendingCaptures.collecting { parameterMatchers.firstIndex { !$0.matches(call.parameters) } }
             return (recorded, mismatch, captures)
         }
@@ -302,7 +309,10 @@ public final class MockManager: Sendable {
         guard callMatcher.matches(calls) else {
             // The calls stay unverified, so `verifyNoMoreInteractions` still reports them.
             let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(timesDescription(calls.count))")."
-            let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, among: recordedCalls)
+            let otherReturnTypes = callsToMember.isEmpty
+                ? recordedCalls.filter { $0.call.method == method }.map { "\($0.returnType)" }
+                : []
+            let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, otherReturnTypes: otherReturnTypes, among: recordedCalls)
             reportFailure(message + "\n" + described, at: sourceLocation, creatingTest: creatingTest)
             return VerifiedCall()
         }
@@ -314,12 +324,20 @@ public final class MockManager: Sendable {
     }
 
     /// What a failed `verify` of `method` saw: its calls and the argument each one that didn't match got wrong, or
-    /// else every call the mock received.
-    private func describeCalls(of method: String, callsToMember: [(recorded: RecordedCall, mismatch: Int?)], among recordedCalls: [RecordedCall]) -> String {
+    /// else the return types it was called with instead, or else every call the mock received.
+    private func describeCalls(of method: String, callsToMember: [(recorded: RecordedCall, mismatch: Int?)], otherReturnTypes: [String], among recordedCalls: [RecordedCall]) -> String {
         let member = MemberSignature(method)
         guard !callsToMember.isEmpty else {
             guard !recordedCalls.isEmpty else {
                 return "The mock received no calls."
+            }
+            if !otherReturnTypes.isEmpty {
+                var unique: [String] = []
+                for type in otherReturnTypes where !unique.contains(type) {
+                    unique.append(type)
+                }
+                return "\(member.name) was called only with other return types, which this `verify` doesn't count:\n"
+                    + numberedList(unique)
             }
             return "\(member.name) wasn't called. The mock received:\n" + numberedList(recordedCalls.map(\.call.readableDescription))
         }
