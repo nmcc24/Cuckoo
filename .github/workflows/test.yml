@@ -187,6 +187,19 @@ jobs:
           docker run --rm -v "$PWD:/src" -w /src swift:6.3 \
             swift test --sanitize=thread --filter CuckooTests
 
+  # The runtime as users' release builds compile it: the optimizer can shorten values' lifetimes, which once released
+  # a mock's removed stubs inside its lock and deadlocked a deinit that read the mock.
+  release_linux:
+    name: Runtime tests in release mode on Linux (Swift 6.4, swiftbuild)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: swift:6.4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Runtime tests with -c release
+        run: swift test -c release --build-system swiftbuild --filter CuckooTests
+
   generator_macOS:
     name: SwiftPM tests and Swift 6 matrix on ${{ matrix.runner }} (${{ matrix.build-system }})
     needs: changes
@@ -293,7 +306,7 @@ jobs:
   ci_passed:
     name: CI passed
     if: always()
-    needs: [changes, generator_linux, swift7_linux, docs_linux, bundle_linux, tsan_linux, generator_macOS, test_iOS]
+    needs: [changes, generator_linux, swift7_linux, docs_linux, bundle_linux, tsan_linux, release_linux, generator_macOS, test_iOS]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
