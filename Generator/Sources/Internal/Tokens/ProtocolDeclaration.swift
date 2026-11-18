@@ -37,6 +37,9 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var unknownAttributes: [String] = []
     /// Parent protocols declared outside the mocked sources, whose requirements the mock doesn't implement.
     var parentsOutsideSources: [String] = []
+    /// Typealiases, as `Model = Feature.Model`, for the types the scopes around the one this is nested in declare:
+    /// the mock and stub sit in an extension of that type, which doesn't see them. See `Generator.outerScopeTypealiases`.
+    var outerScopeTypealiases: [OuterScopeTypealias] = []
 
     /// The global actor the protocol is isolated to, if any.
     var globalActor: String? {

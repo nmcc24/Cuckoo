@@ -76,6 +76,11 @@ enum MockBuilder {
             lines.append(contentsOf: container.members.compactMap { ($0 as? Typealias).map { "    \(access)\($0.description)" } })
             lines.append("")
         }
+        if !container.outerScopeTypealiases.isEmpty {
+            lines.append("    // The types of the scopes around \((container.parent?.value as? any HasName)?.name ?? ""), which this extension doesn't see")
+            lines.append(contentsOf: container.outerScopeTypealiases.flatMap { $0.source(access: access).split(separator: "\n").map { "    \($0)" } })
+            lines.append("")
+        }
         lines.append("    \(access)nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
         if let initializer = container.crossModuleInitializer(isActor: isActor) {
             lines.append("    \(initializer)")

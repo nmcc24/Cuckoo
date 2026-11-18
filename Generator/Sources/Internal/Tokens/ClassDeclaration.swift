@@ -20,6 +20,9 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// Whether the class, or an extension of it, is declared `@unchecked Sendable`, which a subclass, its mock and
     /// stub, has to restate.
     var isUncheckedSendable = false
+    /// Typealiases, as `Model = Feature.Model`, for the types the scopes around the one this is nested in declare:
+    /// the mock and stub sit in an extension of that type, which doesn't see them. See `Generator.outerScopeTypealiases`.
+    var outerScopeTypealiases: [OuterScopeTypealias] = []
 
     func replacing(members: [any Token]) -> ClassDeclaration {
         ClassDeclaration(
