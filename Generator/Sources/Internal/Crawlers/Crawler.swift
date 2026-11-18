@@ -590,6 +590,12 @@ final class Crawler: SyntaxVisitor {
            let (functionType, scope) = closureTypealias(named: identifier.name.text, from: lookup ?? Syntax(type)) {
             return instance(of: functionType, in: scope, with: identifier.genericArgumentClause)
         }
+        // `Self.Completion` in a protocol: a member of the enclosing type, found as the unqualified name is.
+        if let member = type.as(MemberTypeSyntax.self), member.baseType.as(IdentifierTypeSyntax.self)?.name.text == "Self" {
+            return closureTypealias(named: member.name.text, from: lookup ?? Syntax(type)).flatMap { functionType, scope in
+                instance(of: functionType, in: scope, with: member.genericArgumentClause)
+            }
+        }
         // A qualified one, `Uploader.Completion`, by its full name.
         if let member = type.as(MemberTypeSyntax.self),
            let functionType = context.closureTypealiases[member.with(\.genericArgumentClause, nil).trimmedDescription] {

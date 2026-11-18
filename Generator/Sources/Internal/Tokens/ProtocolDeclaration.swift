@@ -159,7 +159,7 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         }
         // A parent's typealiases arrive with its members; keep one of each.
         var aliases: Set<String> = []
-        let ownMembers = Self.unqualifyingSelf(associatedTypeNames, in: members)
+        let ownMembers = Self.unqualifyingSelf(in: members)
         protocolDeclaration.members = Self.expandingFunctionTypes(fixedTypes, in: ownMembers + fixedTypes.map { Typealias(alias: $0.name, original: $0.type) as any Token })
             .filter { member in
                 guard let typealiasToken = member as? Typealias else { return true }
@@ -168,35 +168,51 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         return protocolDeclaration
     }
 
-    /// The members with `Self.Item` written as `Item` for each of the protocol's associated types, `Self.Item.Element`
-    /// included: inside the mock, a class generic over them, `Self.Item` names no member type.
-    private static func unqualifyingSelf(_ associatedTypes: Set<String>, in members: [any Token]) -> [any Token] {
-        guard !associatedTypes.isEmpty else { return members }
+    /// The members with `Self.Item` written as `Item`, `Self.Item.Element` included, whatever `Item` is: an associated
+    /// type, a typealias of the protocol, of a parent or of an extension. Inside the mock, a class, `Self.Item` names
+    /// no member type, and the unqualified name finds what the protocol's `Self` has: the mock's generic parameter
+    /// for an associated type, its copy of a typealias, or the typealias through its conformance. `Self.Type` and
+    /// `Self.Protocol` are `Self`'s metatypes, and a name a member's own generic parameter shadows stays as written.
+    private static func unqualifyingSelf(in members: [any Token]) -> [any Token] {
         final class Unqualifier: SyntaxRewriter {
-            let names: Set<String>
-            init(_ names: Set<String>) { self.names = names }
+            let shadowed: Set<String>
+            init(shadowing shadowed: Set<String> = []) { self.shadowed = shadowed }
             override func visit(_ node: MemberTypeSyntax) -> TypeSyntax {
-                guard node.baseType.as(IdentifierTypeSyntax.self)?.name.text == "Self", names.contains(node.name.text) else {
+                let name = node.name.text
+                guard node.baseType.as(IdentifierTypeSyntax.self)?.name.text == "Self",
+                      name != "Type", name != "Protocol", !shadowed.contains(name) else {
                     return super.visit(node)
                 }
-                let identifier = IdentifierTypeSyntax(name: node.name, genericArgumentClause: node.genericArgumentClause)
+                // The arguments can name `Self`'s types too, as in `Self.Box<Self.Item>`.
+                let arguments = node.genericArgumentClause.map { rewrite($0).cast(GenericArgumentClauseSyntax.self) }
+                let identifier = IdentifierTypeSyntax(name: node.name, genericArgumentClause: arguments)
                 return TypeSyntax(identifier.with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia))
             }
         }
-        let unqualifier = Unqualifier(associatedTypes)
+        func unqualified(_ type: String, shadowing shadowed: Set<String> = []) -> String? {
+            guard type.contains("Self.") else { return nil }
+            var parser = Parser(type)
+            let syntax = TypeSyntax.parse(from: &parser)
+            let rewritten = Unqualifier(shadowing: shadowed).rewrite(syntax).trimmedDescription
+            return rewritten == syntax.trimmedDescription ? nil : rewritten
+        }
         // Constraints are text, as in `T.Element == Self.Item.Element`: each side is a type.
         func text(_ text: String) -> String {
             guard text.contains("Self.") else { return text }
             guard let declaration = Parser.parse(source: "typealias __CuckooType<T> = T where \(text)").statements.first?.item.as(TypeAliasDeclSyntax.self),
                   let clause = declaration.genericWhereClause,
                   !declaration.hasError else { return text }
-            return unqualifier.rewrite(clause.requirements).trimmedDescription
+            return Unqualifier().rewrite(clause.requirements).trimmedDescription
         }
-        return rewritingTypes(in: members, text: text) { type, _ in
-            var parser = Parser(type.description)
-            let syntax = TypeSyntax.parse(from: &parser)
-            let rewritten = unqualifier.rewrite(syntax).cast(TypeSyntax.self)
-            return rewritten.trimmedDescription == syntax.trimmedDescription ? type : ComplexType(syntax: rewritten)
+        // The mock declares the protocol's typealiases again, where `Self` can't be written either.
+        let members = members.map { member -> any Token in
+            guard let alias = member as? Typealias, let original = unqualified(alias.original) else { return member }
+            return Typealias(parent: alias.parent, alias: alias.alias, original: original)
+        }
+        return rewritingTypes(in: members, text: text) { type, shadowed in
+            guard let rewritten = unqualified(type.description, shadowing: shadowed) else { return type }
+            var parser = Parser(rewritten)
+            return ComplexType(syntax: TypeSyntax.parse(from: &parser))
         }
     }
 
