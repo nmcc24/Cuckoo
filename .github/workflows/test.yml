@@ -10,10 +10,11 @@ on:
   pull_request:
     branches: [master]
   workflow_dispatch:
-# One run per pull request (or per branch for the other events). A new push to a pull request
-# cancels its run in progress; runs on master always finish.
+# One run per pull request (or per branch for workflow_dispatch). A new push to a pull request
+# cancels its run in progress. Each push to master gets its own group, so every merge's run starts and
+# finishes: in a shared group, a pending run is replaced by the next one queued.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || (github.event_name == 'push' && github.sha) || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 # The jobs only read the repository; a job that needs more asks for it.
 permissions:
