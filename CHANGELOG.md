@@ -127,6 +127,10 @@
   warning now.
 - The build plugin missed the entries of a `modules` table written on one line, read a `\"` in a quoted key as
   its end, and took three quotes inside a one-line string, as `'"""'`, for the start of a multi-line one.
+- A requirement naming a typealias through `Self`, as `func find(_ id: Self.ID) -> Self.ID?` with
+  `typealias ID = Int` in the protocol, a parent or an extension, gave a mock that didn't compile, as `Self.Item`
+  did for an associated type. Any `Self.Name` but `Self`'s metatype is written `Name` in the mock now, in the
+  typealiases it repeats too, and a function typealias named through `Self` is the closure parameter it stands for.
 
 ### Changed
 - The argument a generated mock passes its manager for an unstubbed call's default is `unstubbedDefault`, renamed
