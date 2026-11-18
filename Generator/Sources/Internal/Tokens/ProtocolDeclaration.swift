@@ -159,7 +159,7 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         }
         // A parent's typealiases arrive with its members; keep one of each.
         var aliases: Set<String> = []
-        let ownMembers = Self.unqualifyingSelf(in: members)
+        let ownMembers = Self.unqualifyingSelf(in: members, mockType: protocolDeclaration.mockTypeName, associatedTypes: associatedTypeNames)
         protocolDeclaration.members = Self.expandingFunctionTypes(fixedTypes, in: ownMembers + fixedTypes.map { Typealias(alias: $0.name, original: $0.type) as any Token })
             .filter { member in
                 guard let typealiasToken = member as? Typealias else { return true }
@@ -172,28 +172,64 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// type, a typealias of the protocol, of a parent or of an extension. Inside the mock, a class, `Self.Item` names
     /// no member type, and the unqualified name finds what the protocol's `Self` has: the mock's generic parameter
     /// for an associated type, its copy of a typealias, or the typealias through its conformance. `Self.Type` and
-    /// `Self.Protocol` are `Self`'s metatypes, and a name a member's own generic parameter shadows stays as written.
-    private static func unqualifyingSelf(in members: [any Token]) -> [any Token] {
+    /// `Self.Protocol` are `Self`'s metatypes. A name a member's own generic parameter shadows, `Self.Key` in
+    /// `func get<Key>(_ key: Key) -> Self.Key`, is written through `mockType`, `MockStore.Key`, which names the same
+    /// typealias. A generic mock's type would bring its associated types into the member's types, which the type
+    /// eraser reads as a use of them, so there the typealias is written out. An associated type of that name is the
+    /// mock's generic parameter, which nothing can name there, and stays as written.
+    private static func unqualifyingSelf(in members: [any Token], mockType: String?, associatedTypes: Set<String>) -> [any Token] {
         final class Unqualifier: SyntaxRewriter {
             let shadowed: Set<String>
-            init(shadowing shadowed: Set<String> = []) { self.shadowed = shadowed }
+            /// The mock's type, for the shadowed names it can qualify.
+            let mockType: String?
+            /// The protocol's typealiases to write out instead, for a generic mock.
+            let aliases: [String: String]
+            init(shadowing shadowed: Set<String> = [], mockType: String? = nil, aliases: [String: String] = [:]) {
+                self.shadowed = shadowed
+                self.mockType = mockType
+                self.aliases = aliases
+            }
             override func visit(_ node: MemberTypeSyntax) -> TypeSyntax {
                 let name = node.name.text
-                guard node.baseType.as(IdentifierTypeSyntax.self)?.name.text == "Self",
-                      name != "Type", name != "Protocol", !shadowed.contains(name) else {
+                guard node.baseType.as(IdentifierTypeSyntax.self)?.name.text == "Self", name != "Type", name != "Protocol" else {
                     return super.visit(node)
                 }
                 // The arguments can name `Self`'s types too, as in `Self.Box<Self.Item>`.
                 let arguments = node.genericArgumentClause.map { rewrite($0).cast(GenericArgumentClauseSyntax.self) }
-                let identifier = IdentifierTypeSyntax(name: node.name, genericArgumentClause: arguments)
-                return TypeSyntax(identifier.with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia))
+                let type: TypeSyntax
+                if !shadowed.contains(name) {
+                    type = TypeSyntax(IdentifierTypeSyntax(name: node.name, genericArgumentClause: arguments))
+                } else if let mockType, aliases.isEmpty {
+                    var parser = Parser("\(mockType).\(name)\(arguments?.trimmedDescription ?? "")")
+                    type = TypeSyntax.parse(from: &parser)
+                } else if mockType != nil, arguments == nil, let original = aliases[name] {
+                    // Parenthesized, `Self.Key.Element` and `Self.Key?` keep their meaning for any type.
+                    var parser = Parser("(\(original))")
+                    type = TypeSyntax.parse(from: &parser)
+                } else {
+                    return super.visit(node)
+                }
+                return type.with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
             }
         }
+        // Only the typealiases whose type names nothing else of the protocol's, which a parameter could shadow too.
+        let aliases = Dictionary(
+            members.compactMap { $0 as? Typealias }
+                .filter { alias in
+                    let words = Set(alias.original.split { !($0.isLetter || $0.isNumber || $0 == "_") }.map(String.init))
+                    return !words.contains("Self") && words.isDisjoint(with: associatedTypes)
+                }
+                .map { ($0.alias, $0.original) },
+            uniquingKeysWith: { first, _ in first }
+        )
         func unqualified(_ type: String, shadowing shadowed: Set<String> = []) -> String? {
             guard type.contains("Self.") else { return nil }
             var parser = Parser(type)
             let syntax = TypeSyntax.parse(from: &parser)
-            let rewritten = Unqualifier(shadowing: shadowed).rewrite(syntax).trimmedDescription
+            // A shadowed associated type stays as written: the mock has no member type of that name.
+            let qualifiable = shadowed.isDisjoint(with: associatedTypes) ? mockType : nil
+            let unqualifier = Unqualifier(shadowing: shadowed, mockType: qualifiable, aliases: associatedTypes.isEmpty ? [:] : aliases)
+            let rewritten = unqualifier.rewrite(syntax).trimmedDescription
             return rewritten == syntax.trimmedDescription ? nil : rewritten
         }
         // Constraints are text, as in `T.Element == Self.Item.Element`: each side is a type.

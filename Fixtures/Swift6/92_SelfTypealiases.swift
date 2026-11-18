@@ -39,6 +39,32 @@ protocol Listing {
     var keys: [Self.Key] { get set }
 }
 
+// A member's own generic parameter of the typealias's name: `Self.Key` is then the only way to name the typealias,
+// and the mock names it through its own type, `MockStoring.Key`. A generic mock's type would bring its associated
+// types into the member's types, so there the typealias is written out.
+protocol Storing {
+    typealias Key = String
+    func get<Key>(_ key: Key) -> Self.Key
+    func put<Key>(_ value: Key, as key: Self.Key, all keys: [Self.Key])
+}
+
+protocol Caching {
+    associatedtype Item
+    typealias Key = [Int]
+    typealias Handler = (Item) -> Void
+    func get<Key>(_ key: Key) -> Self.Key.Element
+    func run<Handler>(_ value: Handler, with handler: Self.Key?) -> Self.Key
+    func item() -> Item
+}
+
+struct Storage: Storing, Caching {
+    func get<Key>(_ key: Key) -> String { "" }
+    func put<Key>(_ value: Key, as key: String, all keys: [String]) {}
+    func get<Key>(_ key: Key) -> Int { 0 }
+    func run<Handler>(_ value: Handler, with handler: [Int]?) -> [Int] { [] }
+    func item() -> Int { 0 }
+}
+
 struct Identifier: Labelling {
     var current = 0
     func find(_ id: Int) -> Int? { id }
@@ -73,4 +99,17 @@ func useSelfTypealiases() {
     let listing = MockListing<Int>()
     listing.enableDefaultImplementation(Names())
     _ = listing.items()
+
+    let storing = MockStoring()
+    stub(storing) { stub in
+        when(stub.get(any(Int.self))).thenReturn("one")
+    }
+    let key: String = storing.get(1)
+    storing.enableDefaultImplementation(Storage())
+    storing.put(1, as: key, all: [key])
+
+    let caching = MockCaching<Int>()
+    caching.enableDefaultImplementation(Storage())
+    let element: Int = caching.get("")
+    _ = caching.run(element, with: nil)
 }
