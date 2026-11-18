@@ -25,6 +25,8 @@ struct Subscript: Token, HasAccessibility, HasAttributes {
     var mentionsSelf = false
     /// The signature the accessors are recorded under, when it differs from the declared one: as written with `Self`.
     var recordedSignature: String?
+    /// An `@objc optional` requirement, which a default implementation may not implement.
+    var isOptional = false
 
     var isReadOnly: Bool {
         setterAccessibility?.isAccessible != true
@@ -123,7 +125,7 @@ extension Subscript {
         var getter = getter
         let keyArguments = forwardedKeys
         getter.superclassCallOverride = "super[\(keyArguments)]"
-        getter.defaultCallOverride = "cuckooDefaultImplementation.value[\(keyArguments)]"
+        getter.defaultCallOverride = "cuckooDefaultImplementation.value[\(keyArguments)]\(isOptional ? "!" : "")"
         getter.mentionsSelf = mentionsSelf
         return getter
     }
@@ -135,6 +137,7 @@ extension Subscript {
         let keyArguments = forwardedKeys
         setter.superclassCallOverride = "super[\(keyArguments)] = \(newValueName)"
         setter.defaultCallOverride = "cuckooDefaultImplementation.value[\(keyArguments)] = \(newValueName)"
+        setter.unforwardableDefaultCallReason = isOptional ? Variable.optionalSetterReason : nil
         setter.mentionsSelf = mentionsSelf
         return setter
     }

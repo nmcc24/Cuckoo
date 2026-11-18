@@ -89,6 +89,9 @@
   global-actor protocol, as `show()` of a default-isolated `Showing` in `class Screen: Plain, Showing` with a
   `nonisolated` superclass, was mocked as nonisolated. Swift gives it the requirement's actor, and so does the mock,
   which didn't compile before.
+- A settable `@objc optional` property, or an `@objc optional` subscript, gave a mock that didn't compile: read
+  through its protocol, an optional requirement is an immutable optional value. The getter of a subscript unwraps
+  it, as a property's does, and a setter forwarded to a default implementation records a failure saying to stub it.
 
 ## 3.0.0-beta.5
 

@@ -103,6 +103,12 @@ import Combine
 #if (canImport(ObjectiveC))
 @testable public import class CuckooTestSources.ObjcMembersClass
 #endif
+#if (canImport(ObjectiveC))
+@testable public import protocol CuckooTestSources.ObjcOptionalProperties
+#endif
+#if (canImport(ObjectiveC))
+@testable public import class CuckooTestSources.ObjcOptionalPropertiesImplementation
+#endif
 @testable public import class CuckooTestSources.OpenClass
 @testable public import protocol CuckooTestSources.Amount
 @testable public import protocol CuckooTestSources.AliasedLookup
@@ -25466,6 +25472,130 @@ final class ObjcMembersClassStub: ObjcMembersClass {
     override func objcMethod() {
         typealias __CuckooDefault = Void
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+#endif
+
+#if (canImport(ObjectiveC))
+nonisolated final class MockObjcOptionalProperties: ObjcOptionalProperties, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any ObjcOptionalProperties
+    typealias CuckooStubbing = __StubbingProxy_ObjcOptionalProperties
+    typealias CuckooVerification = __VerificationProxy_ObjcOptionalProperties
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockObjcOptionalProperties.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ObjcOptionalProperties>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ObjcOptionalProperties) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    var count: Int {
+        get {
+            return cuckooManager.getter(
+                "count",
+                invoke: { (implementation: (()) -> Int) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.count!
+            )
+        }
+        set {
+            cuckooManager.setter(
+                "count",
+                value: newValue,
+                invoke: { (implementation: (Int) -> Void, value) in
+                    implementation(value)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("count", reason: "Swift can't assign to an '@objc optional' requirement through its protocol")
+            )
+        }
+    }
+
+    var title: String {
+        get {
+            return cuckooManager.getter(
+                "title",
+                invoke: { (implementation: (()) -> String) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.title!
+            )
+        }
+        set {
+            cuckooManager.setter(
+                "title",
+                value: newValue,
+                invoke: { (implementation: (String) -> Void, value) in
+                    implementation(value)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("title", reason: "Swift can't assign to an '@objc optional' requirement through its protocol")
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_ObjcOptionalProperties: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        var count: Cuckoo.ProtocolToBeStubbedProperty<MockObjcOptionalProperties, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "count")
+        }
+
+        var title: Cuckoo.ProtocolToBeStubbedProperty<MockObjcOptionalProperties, String, (()) -> String, (String) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "title")
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ObjcOptionalProperties: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        var count: Cuckoo.VerifyProperty<Int> {
+            return .init(manager: cuckooManager, name: "count", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        var title: Cuckoo.VerifyProperty<String> {
+            return .init(manager: cuckooManager, name: "title", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+    }
+}
+
+nonisolated final class ObjcOptionalPropertiesStub: ObjcOptionalProperties {
+    var count: Int {
+        get {
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+        set {
+        }
+    }
+
+    var title: String {
+        get {
+            typealias __CuckooDefault = String
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+        set {
+        }
     }
 }
 

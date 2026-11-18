@@ -130,7 +130,10 @@ enum MockMembersBuilder {
             source.append("            value: newValue,")
             source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.setter)), value) in implementation(\(isolated ? "self, value" : "value")) },")
             source.append("            superclassCall: \(context.isClass ? "super.\(name) = newValue" : crashOnSuperclass),")
-            source.append("            defaultCall: \(defaultCall("cuckooDefaultImplementation.value.\(name) = newValue"))")
+            let forwarding = property.isOptional
+                ? unforwardableCall(literal, reason: Variable.optionalSetterReason, returning: nil)
+                : "cuckooDefaultImplementation.value.\(name) = newValue"
+            source.append("            defaultCall: \(defaultCall(forwarding))")
             source.append("        )")
             source.append("    }")
         }
@@ -219,6 +222,8 @@ enum MockMembersBuilder {
             selfUnforwardableCall(literal, returning: method.returnType)
         } else if GeneratorHelper.forwardsAcrossIsolation(method) && !method.isStatic {
             unforwardableCall(literal, reason: "it takes an isolated parameter and a non-escaping closure, which the mock can't forward to the parameter's actor", returning: method.returnType)
+        } else if let reason = method.unforwardableDefaultCallReason, !method.isStatic {
+            unforwardableCall(literal, reason: reason, returning: method.returnType)
         } else if method.hasNoncopyableParams && !method.isStatic {
             "Cuckoo.MockManager.crashOnNoncopyableArgumentForward(\(literal))"
         } else if method.hasVariadicParams && !method.isStatic {
