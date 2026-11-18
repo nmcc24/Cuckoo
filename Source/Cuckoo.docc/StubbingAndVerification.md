@@ -88,27 +88,29 @@ when(stub.greet(name: any())).thenReturn("Hi")
 when(stub.greet(name: "Ann")).thenReturn("Hello, Ann") // Ann gets this one; anyone else gets "Hi".
 ```
 
-A method with a sync and an async overload of the same signature has two stubs. As in a call of the method, the
-synchronous `stub` block names the sync one, and `await` names the async one, on the proxy the block would get:
+A method with a sync and an async overload of the same signature has two stubs. The proxies name the sync one
+as usual and the async one through their `async` member, in the `stub` block, in `verify` and in
+``inOrder(strict:fileID:filePath:line:column:_:)``:
 
 ```swift
 stub(loader) { stub in
-    when(stub.value()).thenReturn(1)                         // func value() -> Int
+    when(stub.value()).thenReturn(1)       // func value() -> Int
+    when(stub.async.value()).thenReturn(2) // func value() async -> Int
 }
-when(await loader.cuckooStubbingProxy().value()).thenReturn(2) // func value() async -> Int
+
+inOrder {
+    verify(loader).value()
+    verify(loader).async.value()
+}
 ```
 
-`await verify(loader).value()` verifies the async overload likewise, and a `verify` in a synchronous closure the
-sync one. ``inOrder(strict:fileID:filePath:line:column:_:)``'s block is synchronous, so it verifies the sync one.
-The async members run on their caller's actor, so a test on the main actor can use them too.
+`stub.value()` and `verify(loader).value()` are always the sync overload, in async code too, and the `async`
+member exists only where a method has both. Static overloads work the same way, as
+`stub(MockLoader.self) { stub in when(stub.async.shared())… }` and `verify(MockLoader.self).async.shared()`.
 
-Static overloads work the same way: `await verify(MockLoader.self).shared()` verifies the async one, and its
-stubbing proxy is made from the type's manager:
-
-```swift
-let stubbing = MockLoader.CuckooStaticStubbing(manager: MockLoader.cuckooStaticManager)
-when(await stubbing.shared()).thenReturn(2)                    // static func shared() async -> Int
-```
+A mocked type with a member named `async` of its own keeps that name. Its proxies name the async overload with
+`await` instead, as a call of the method does: `when(await loader.cuckooStubbingProxy().value())` and
+`await verify(loader).value()`.
 
 What `thenReturn` accepts follows from the mocked type's isolation, which ``StubSharing`` describes. The mock of a
 `Sendable` type can be called from any task, so its stubs return `Sendable` values; a `@MainActor` mock's
