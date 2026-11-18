@@ -121,9 +121,9 @@ final class Generator {
 
         // An attribute isolates a declaration only if it names a global actor, and an argument is recorded as a
         // placeholder if its type is `~Copyable`. Either may be declared in another file.
-        let scannedFiles = await inputFiles.concurrentMap { file, source -> (names: Crawler.DeclaredNames, swiftModule: String?, types: [TopLevelType]) in
+        let scannedFiles = await inputFiles.concurrentMap { file, source -> (names: Crawler.DeclaredNames, swiftModule: String?, types: [TopLevelType], values: Crawler.ValueDefaults) in
             let swiftModule = swiftModules[file.path.standardRawValue]
-            return (Crawler.declaredNames(in: source), swiftModule, swiftModule.map { _ in Crawler.topLevelTypes(in: source) } ?? [])
+            return (Crawler.declaredNames(in: source), swiftModule, swiftModule.map { _ in Crawler.topLevelTypes(in: source) } ?? [], Crawler.valueDefaults(in: source))
         }
         let declaredNames = scannedFiles.reduce(into: Crawler.DeclaredNames()) { $0.formUnion($1.names) }
         // Every type the sources of a known module declare, which the generated files import by name.
@@ -201,7 +201,10 @@ final class Generator {
         let defaults = GeneratedDefaults(
             files: mockableFiles,
             names: TypeNames(typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), files: mockableFiles),
-            declaredTypes: declaredNames.nominalTypes.union(declaredNames.typealiases.keys)
+            declaredTypes: declaredNames.nominalTypes.union(declaredNames.typealiases.keys),
+            genericTypes: declaredNames.qualifiedGenericTypes,
+            fileValues: scannedFiles.map { file in (file.values, file.swiftModule.map(module.testableImports.contains)) },
+            defaultIsolation: module.options.defaultIsolation
         )
         return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule, defaults: defaults)
     }

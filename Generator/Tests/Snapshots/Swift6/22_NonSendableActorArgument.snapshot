@@ -24,7 +24,8 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
                     implementation(self)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("current")
+                defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("current"),
+                unstubbedTuple: Box()
             )
         }
         set {
@@ -63,7 +64,8 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
                 try implementation(self, arguments.0, arguments.1)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("swap(_ p0: Box, _ p1: Box) throws -> Box")
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("swap(_ p0: Box, _ p1: Box) throws -> Box"),
+            unstubbedTuple: Box()
         )
     }
 
