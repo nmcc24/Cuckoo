@@ -45,6 +45,29 @@ struct MemberShapeTests {
         #expect(!plain.contains("@Background\n    override var synced"))
     }
 
+    /// An `@objc optional` property or subscript reads as an optional through its protocol and can't be assigned:
+    /// the getter unwraps the default implementation's value, and the setter records a failure.
+    @Test
+    func anObjcOptionalSetterIsNotForwarded() async throws {
+        let source = """
+            import Foundation
+            @objc protocol Configurable {
+                @objc optional var count: Int { get set }
+                @objc optional subscript(index: Int) -> String { get set }
+                var required: Int { get set }
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let unforwardable = #"reason: "Swift can't assign to an '@objc optional' requirement through its protocol")"#
+        #expect(output.contains("defaultCall: cuckooDefaultImplementation.value.count!"))
+        #expect(output.contains(#"defaultCall: cuckooManager.unforwardableDefaultImplementationCall("count", \#(unforwardable)"#))
+        #expect(!output.contains("cuckooDefaultImplementation.value.count = newValue"))
+        #expect(output.contains("defaultCall: cuckooDefaultImplementation.value[p0]!"))
+        #expect(output.contains(#"defaultCall: cuckooManager.unforwardableDefaultImplementationCall("subscript(_ p0: Int) -> String#set", \#(unforwardable)"#))
+        #expect(!output.contains("cuckooDefaultImplementation.value[p0] = "))
+        #expect(output.contains("defaultCall: cuckooDefaultImplementation.value.required = newValue"))
+    }
+
     /// `Self.ID` is written `ID` in the mock, whatever `ID` is, and a function typealias named through `Self` is
     /// the closure it stands for.
     @Test

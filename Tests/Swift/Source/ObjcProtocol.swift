@@ -17,4 +17,17 @@ class ObjcClass: NSObject {
 class ObjcMembersClass {
     func objcMethod() {}
 }
+
+// Settable optional requirements: Swift reads them through the protocol as immutable optional values.
+@objc
+protocol ObjcOptionalProperties {
+    @objc
+    optional var count: Int { get set }
+    @objc
+    optional var title: String { get set }
+}
+
+final class ObjcOptionalPropertiesImplementation: NSObject, ObjcOptionalProperties {
+    var count = 5
+}
 #endif
