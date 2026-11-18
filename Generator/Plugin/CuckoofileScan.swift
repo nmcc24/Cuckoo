@@ -18,30 +18,28 @@ func usableEntryNames(of targets: [ScannedTarget]) -> Set<String> {
     Set(targets.filter(\.dependsOnCuckoo).flatMap { [$0.name] + $0.dependencies })
 }
 
-/// The warning for an entry named after the test target that lists no `sources` while the target depends on other
-/// packages' modules: the entry mocks only the package's own targets, so those get no mocks unless an entry of their
-/// own, or the entry's `sources`, names them. `nil` when nothing is left out.
-func selfEntryLeavesOutWarning(target: String, entries: Set<String>, listsSources: Bool, leftOut: [String]) -> String? {
-    let missing = leftOut.filter { !entries.contains($0) }.sorted()
-    guard entries.contains(target), !listsSources, !missing.isEmpty else { return nil }
-    let list = missing.map { "[modules.\($0)]" }.joined(separator: ", ")
-    return "The Cuckoofile entry [modules.\(target)] lists no sources, so it mocks only this package's targets, not "
-        + "\(missing.map { "'\($0)'" }.joined(separator: ", ")) from other packages. Add \(list) to mock "
-        + "\(missing.count == 1 ? "it" : "them"), or list \(missing.count == 1 ? "its" : "their") files in the entry's `sources`."
-}
-
 /// The warning for the Cuckoofile's entries that no target can use, as a misspelled `[modules.Netwrk]` is, or nil
 /// when every entry names a target, or a module that a target depending on Cuckoo depends on directly: the plugin
 /// generates only for its target's direct dependencies. Every plugin run sees every target, so each warns about the
 /// same entries.
-func unusedCuckoofileEntriesWarning(entries: Set<String>, usableNames: Set<String>) -> String? {
+///
+/// - Parameter moduleNames: the module name of each target whose module is named otherwise, as `My-Core`'s is
+///   `My_Core`: an entry is named after the module, so one named after such a target is told which name to use.
+func unusedCuckoofileEntriesWarning(entries: Set<String>, usableNames: Set<String>, moduleNames: [String: String] = [:]) -> String? {
     let unused = entries.subtracting(usableNames).sorted()
     guard !unused.isEmpty else { return nil }
-    let list = unused.map { "'\($0)'" }.joined(separator: ", ")
-    return "The Cuckoofile's \(unused.count == 1 ? "entry" : "entries") \(list) \(unused.count == 1 ? "names" : "name") no target, and no module "
-        + "that a target using Cuckoo depends on directly, so \(unused.count == 1 ? "it generates" : "they generate") nothing. "
-        + "Rename \(unused.count == 1 ? "it" : "them") after one, or make the module a direct dependency of the test target: "
+    let renamed = unused.compactMap { entry in moduleNames[entry].map { (entry, $0) } }.filter { usableNames.contains($0.1) }
+    let named = unused.filter { moduleNames[$0].map(usableNames.contains) != true }
+    let renames = renamed.map { entry, module in
+        "The entry '\(entry)' names a target whose module is '\(module)': an entry is named after the module, [modules.\(module)]."
+    }
+    guard !named.isEmpty else { return renames.joined(separator: " ") }
+    let list = named.map { "'\($0)'" }.joined(separator: ", ")
+    let warning = "The Cuckoofile's \(named.count == 1 ? "entry" : "entries") \(list) \(named.count == 1 ? "names" : "name") no target, and no module "
+        + "that a target using Cuckoo depends on directly, so \(named.count == 1 ? "it generates" : "they generate") nothing. "
+        + "Rename \(named.count == 1 ? "it" : "them") after one, or make the module a direct dependency of the test target: "
         + "one it reaches only through another module gets no mocks."
+    return ([warning] + renames).joined(separator: " ")
 }
 
 /// The names of the Cuckoofile's entries: `App` for `[modules.App]`, `[modules.App.options]`, a dotted
@@ -49,10 +47,56 @@ func unusedCuckoofileEntriesWarning(entries: Set<String>, usableNames: Set<Strin
 /// ``cuckoofileEntry(named:listsSourcesIn:)``, it reads the lines rather than the TOML.
 func cuckoofileModuleNames(in configuration: String) -> Set<String> {
     var names: Set<String> = []
-    for line in cuckoofileKeyLines(configuration) where line.key.count >= 2 && line.key[0] == "modules" {
-        names.insert(line.key[1])
+    for line in cuckoofileKeyLines(configuration) where line.key.first == "modules" {
+        if line.key.count >= 2 {
+            names.insert(line.key[1])
+        } else if line.key.count == 1 {
+            // The whole table on one line, `modules = { App = { … }, Core = { … } }`.
+            names.formUnion(inlineTableKeys(withoutComment(line.value)))
+        }
     }
     return names
+}
+
+/// The keys at the top level of an inline table, `{ App = { … }, "My App" = { … } }`: `App` and `My App`.
+func inlineTableKeys(_ value: Substring) -> [String] {
+    var keys: [String] = []
+    var depth = 0
+    var quote: Character?
+    var isEscaped = false
+    var keyStart: Substring.Index?
+    for index in value.indices {
+        let character = value[index]
+        if let open = quote {
+            if isEscaped {
+                isEscaped = false
+            } else if open == "\"", character == "\\" {
+                isEscaped = true
+            } else if character == open {
+                quote = nil
+            }
+            continue
+        }
+        switch character {
+        case "\"", "'":
+            quote = character
+        case "{", "[":
+            depth += 1
+            if depth == 1, character == "{" { keyStart = value.index(after: index) }
+        case "}", "]":
+            depth -= 1
+        case ",":
+            if depth == 1 { keyStart = value.index(after: index) }
+        case "=":
+            if depth == 1, let start = keyStart {
+                keys.append(tomlKeySegments(value[start..<index], endingAt: "=").first ?? "")
+                keyStart = nil
+            }
+        default:
+            break
+        }
+    }
+    return keys.filter { !$0.isEmpty }
 }
 
 /// Whether the Cuckoofile entry `name` lists its own `sources`, in a `[modules.name]` table, a
@@ -62,8 +106,9 @@ func cuckoofileModuleNames(in configuration: String) -> Set<String> {
 func cuckoofileEntry(named name: String, listsSourcesIn configuration: String) -> Bool {
     let sources = ["modules", name, "sources"]
     return cuckoofileKeyLines(configuration).contains { line in
-        // An inline table, `App = { sources = [...] }`, counts if it mentions `sources` at all.
-        line.key.starts(with: sources) || (line.key == ["modules", name] && line.value.contains("sources"))
+        // An inline table, `App = { sources = [...] }`, or the whole `modules` table on one line, counts if it
+        // mentions `sources` at all.
+        line.key.starts(with: sources) || ((line.key == ["modules", name] || line.key == ["modules"]) && withoutComment(line.value).contains("sources"))
     }
 }
 
@@ -105,11 +150,8 @@ func cuckoofileKeyLines(_ configuration: String) -> [(key: [String], value: Subs
             }
             continue
         }
-        // Only a delimiter in the line's TOML counts, not one in a comment.
-        let code = withoutComment(line)
-        for delimiter in [String(repeating: "\"", count: 3), "'''"] where code.ranges(of: delimiter).count == 1 {
-            multilineDelimiter = delimiter
-        }
+        // Only a delimiter in the line's TOML counts, not one in a comment or a one-line string.
+        multilineDelimiter = openMultilineDelimiter(in: line)
         let line = line.drop { $0 == " " || $0 == "\t" }
         if line.first == "[" {
             table = tomlKeySegments(line.drop { $0 == "[" }, endingAt: "]")
@@ -119,6 +161,46 @@ func cuckoofileKeyLines(_ configuration: String) -> [(key: [String], value: Subs
         }
     }
     return lines
+}
+
+/// The delimiter of a multi-line string the line opens and doesn't close, `\"\"\"` or `'''`, or nil: three quotes
+/// inside a one-line string, as in `'\"\"\"'`, are its text, and so is a `#` inside a string; one outside every
+/// string starts a comment.
+private func openMultilineDelimiter(in code: Substring) -> String? {
+    var index = code.startIndex
+    var open: String?
+    while index < code.endIndex {
+        let rest = code[index...]
+        if let delimiter = open {
+            // Inside a multi-line string, a basic one's backslash escapes what follows.
+            if delimiter == "\"\"\"", rest.first == "\\" {
+                index = code.index(index, offsetBy: 2, limitedBy: code.endIndex) ?? code.endIndex
+            } else if rest.hasPrefix(delimiter) {
+                open = nil
+                index = code.index(index, offsetBy: 3)
+            } else {
+                index = code.index(after: index)
+            }
+            continue
+        }
+        if rest.first == "#" {
+            break
+        } else if rest.hasPrefix("\"\"\"") || rest.hasPrefix("'''") {
+            open = String(rest.prefix(3))
+            index = code.index(index, offsetBy: 3)
+        } else if let quote = rest.first, quote == "\"" || quote == "'" {
+            // A one-line string, to its closing quote.
+            index = code.index(after: index)
+            while index < code.endIndex, code[index] != quote {
+                if quote == "\"", code[index] == "\\" { index = code.index(index, offsetBy: 2, limitedBy: code.endIndex) ?? code.endIndex; continue }
+                index = code.index(after: index)
+            }
+            index = index < code.endIndex ? code.index(after: index) : index
+        } else {
+            index = code.index(after: index)
+        }
+    }
+    return open
 }
 
 /// A line up to its `#` comment, if it has one outside quotes.
@@ -152,9 +234,16 @@ func tomlKeySegments(_ text: Substring, endingAt terminator: Character) -> [Stri
     var segments: [String] = []
     var current = ""
     var quote: Character?
+    var isEscaped = false
     for character in text {
         if let open = quote {
-            if character == open {
+            // A basic string's backslash escapes the character after it, as in `"Shop \"Tests\""`.
+            if isEscaped {
+                current.append(character)
+                isEscaped = false
+            } else if open == "\"", character == "\\" {
+                isEscaped = true
+            } else if character == open {
                 quote = nil
             } else {
                 current.append(character)

@@ -15,7 +15,8 @@ struct CuckooPlugin: BuildToolPlugin {
                     return []
                 }
             }
-            .compactMap { $0 as? SourceModuleTarget }
+            // Only Swift targets: a C, C++ or Objective-C target's files aren't Swift for the generator to read.
+            .compactMap { $0 as? SwiftSourceModuleTarget }
             .filter { isMockable($0.kind) && $0.moduleName != "Cuckoo" }
         let sourceModules = dependencyModules.map { module in
             SourceModule(
@@ -31,7 +32,6 @@ struct CuckooPlugin: BuildToolPlugin {
         // command still depends on every dependency's files, which a `sources` entry may name.
         let rootTargets = Set(context.package.targets.map(\.id))
         let ownModules = zip(dependencyModules, sourceModules).filter { rootTargets.contains($0.0.id) }.map(\.1)
-        let otherPackagesModules = zip(dependencyModules, sourceModules).filter { !rootTargets.contains($0.0.id) }.map(\.1.name)
         let selfModule = SourceModule(
             name: target.name,
             sources: sourceModules.flatMap(\.sources),
@@ -41,14 +41,6 @@ struct CuckooPlugin: BuildToolPlugin {
         // An entry for none of them generates nothing, without an error: usually a misspelled or renamed module.
         let entries = cuckoofileModuleNames(in: configuration)
         let generated = Set(sourceModules.map(\.name) + [target.name])
-        if let warning = selfEntryLeavesOutWarning(
-            target: target.name,
-            entries: entries,
-            listsSources: cuckoofileEntry(named: target.name, listsSourcesIn: configuration),
-            leftOut: otherPackagesModules
-        ) {
-            Diagnostics.warning(warning)
-        }
         // A target itself can have an entry, and so can a module that a target compiling mocks, which depends on
         // Cuckoo, depends on directly: the plugin generates only for the direct dependencies of its target.
         let usableNames = usableEntryNames(of: context.package.targets.map { packageTarget in
@@ -58,7 +50,10 @@ struct CuckooPlugin: BuildToolPlugin {
                 dependencies: moduleNames(of: packageTarget.dependencies)
             )
         })
-        if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames.union(generated)) {
+        let targetModuleNames = Dictionary(context.package.targets.compactMap { packageTarget in
+            (packageTarget as? SourceModuleTarget).flatMap { $0.moduleName == packageTarget.name ? nil : (packageTarget.name, $0.moduleName) }
+        }) { first, _ in first }
+        if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames.union(generated), moduleNames: targetModuleNames) {
             Diagnostics.warning(warning)
         }
         if !entries.isEmpty, entries.isDisjoint(with: generated) {
@@ -76,7 +71,7 @@ struct CuckooPlugin: BuildToolPlugin {
             configuration: configuration,
             derivedSourcesDir: context.pluginWorkDirectoryURL,
             projectSources: context.package.targets
-                .compactMap { $0 as? SourceModuleTarget }
+                .compactMap { $0 as? SwiftSourceModuleTarget }
                 .flatMap { $0.sourceFiles.filter { $0.type == .source }.map(\.url) }
         )
     }
@@ -107,6 +102,11 @@ private func moduleNames(of dependencies: [TargetDependency]) -> [String] {
 #if canImport(XcodeProjectPlugin)
 import XcodeProjectPlugin
 
+/// An Xcode target's Swift source file: its other sources, C, C++ or Objective-C, aren't the generator's to read.
+private func isSwiftSource(_ file: File) -> Bool {
+    file.type == .source && file.url.pathExtension == "swift"
+}
+
 extension CuckooPlugin: XcodeBuildToolPlugin {
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
         let projectDir = context.xcodeProject.directoryURL
@@ -129,7 +129,7 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
                     }
             case .target(let target):
                 guard target.displayName != "Cuckoo" else { return [] }
-                return [SourceModule(name: target.displayName, sources: target.inputFiles.filter { $0.type == .source }.map(\.url))]
+                return [SourceModule(name: target.displayName, sources: target.inputFiles.filter(isSwiftSource).map(\.url))]
             @unknown default:
                 return []
             }
@@ -139,8 +139,10 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
         // it finds no entry at all isn't an error here; an empty one, or one without `modules`, is.
         let entries = cuckoofileModuleNames(in: configuration)
         let generated = Set(sourceModules.map(\.name) + [target.displayName])
-        // As in a package, the direct dependencies of a target that compiles mocks, which depends on Cuckoo.
-        let usableNames = usableEntryNames(of: context.xcodeProject.targets.map { projectTarget in
+        // As in a package, the direct dependencies of a target that compiles mocks, which depends on Cuckoo, and,
+        // since Xcode doesn't say which of the project's targets use Cuckoo, every one of them: each test target's
+        // entry is named after it.
+        let usableNames = Set(context.xcodeProject.targets.map(\.displayName)).union(usableEntryNames(of: context.xcodeProject.targets.map { projectTarget in
             ScannedTarget(
                 name: projectTarget.displayName,
                 dependsOnCuckoo: projectTarget.dependencies.contains { dependency in
@@ -154,7 +156,7 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
                     }
                 }
             )
-        })
+        }))
         if let warning = unusedCuckoofileEntriesWarning(entries: entries, usableNames: usableNames.union(generated)) {
             Diagnostics.warning(warning)
         }
@@ -185,7 +187,7 @@ extension CuckooPlugin: XcodeBuildToolPlugin {
             projectDir: projectDir,
             configuration: configuration,
             derivedSourcesDir: context.pluginWorkDirectoryURL,
-            projectSources: context.xcodeProject.targets.flatMap { $0.inputFiles.filter { $0.type == .source }.map(\.url) }
+            projectSources: context.xcodeProject.targets.flatMap { $0.inputFiles.filter(isSwiftSource).map(\.url) }
         )
     }
 }
