@@ -215,12 +215,25 @@ extension Token {
                 // A `final` or unavailable override hides the superclass's member as an override the mock has does,
                 // and a `static` or `final` member, or one an extension declares, the requirement it implements,
                 // whether the class or a superclass has it.
+                // In a class, a member implements a protocol's requirement with more effects too, as a non-throwing
+                // one a throwing one, and the class's own override a superclass's member; a superclass's `async`
+                // overload of a sync member stays its own. Among protocols, each is a requirement of its own.
+                let isRequirement = inheritedToken.parent?.value is ProtocolDeclaration
+                let ownMembers = token.members.compactMap { $0 as? any Inheritable }
                 let isAlreadyPresent = (tokens + hidingMembers)
                     .compactMap({ $0 as? any Inheritable })
-                    .contains(where: { $0.isEqual(to: inheritedInheritable) })
+                    .contains(where: { candidate in
+                        if candidate.isEqual(to: inheritedInheritable) { return true }
+                        guard token is ClassDeclaration, candidate.implements(inheritedInheritable) else { return false }
+                        let candidateIsRequirement = (candidate as? any Token)?.parent?.value is ProtocolDeclaration
+                        if isRequirement { return !candidateIsRequirement }
+                        return ownMembers.contains { $0.isEqual(to: candidate) }
+                            && !inheritedRepresentations.compactMap({ $0 as? any HasMembers }).flatMap(\.members)
+                                .contains { ($0 as? any Inheritable)?.isEqual(to: candidate) == true }
+                    })
 
                 guard !isAlreadyPresent, inheritedInheritable.isInheritable else { return tokens }
-                if var overridable = overridableMembers.first(where: { ($0 as? any Inheritable)?.isEqual(to: inheritedInheritable) == true }) {
+                if var overridable = overridableMembers.first(where: { ($0 as? any Inheritable)?.implements(inheritedInheritable) == true }) {
                     overridable.parent = classReference
                     return tokens + [overridable]
                 }
@@ -282,7 +295,7 @@ extension Token {
                     guard (member.parent?.value as? any HasName)?.fullyQualifiedName == classToken.fullyQualifiedName,
                           member.memberIsolation == nil,
                           let inheritable = member as? any Inheritable,
-                          let witnessed = requirements.first(where: { $0.requirement.isEqual(to: inheritable) }) else { return member }
+                          let witnessed = requirements.first(where: { inheritable.implements($0.requirement) }) else { return member }
                     return member.withDefaultIsolation(witnessed.isolation)
                 })
             }
