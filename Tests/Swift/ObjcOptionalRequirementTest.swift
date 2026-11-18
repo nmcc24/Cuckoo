@@ -80,5 +80,23 @@ struct ObjcOptionalRequirementTests {
         }
         #expect(implementation.names == ["zero", "one"])
     }
+
+    /// The mock overrides a plain `@objc` member an extension declares: the Objective-C runtime dispatches a call
+    /// through the protocol or the superclass to the stub, and an unstubbed one runs the extension's member.
+    @Test
+    func anObjcExtensionMemberIsOverridden() {
+        let mock = MockObjcExtensionGreeter()
+        stub(mock) { stub in
+            when(stub.greeting()).thenReturn("stubbed")
+        }
+
+        #expect((mock as any ObjcExtensionGreeting).greeting() == "stubbed")
+        #expect((mock as ObjcExtensionGreeterBase).greeting() == "stubbed")
+        verify(mock, times(2)).greeting()
+
+        let spy = MockObjcExtensionGreeter().withEnabledSuperclassSpy()
+        #expect(spy.greeting() == "base")
+    }
+
 }
 #endif

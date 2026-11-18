@@ -145,4 +145,58 @@ func useDynamicOverride() {
     mock.refresh()
     verify(mock).refresh()
 }
+
+// A plain `@objc` member an extension declares is dispatched through the Objective-C runtime too, so it hides
+// nothing either: it implements the requirement it matches, and the mock overrides it, calling it through `super`.
+class GreeterBase: NSObject {}
+
+extension GreeterBase {
+    @objc func hello() {}
+    @objc var name: String { "" }
+}
+
+protocol Greeting {
+    func hello()
+    var name: String { get }
+}
+
+class Greeter: GreeterBase, Greeting {}
+
+// `dynamic` alone allows dynamic replacement, not an override, so it still hides the requirement it implements.
+class ReplaceableBase: NSObject {}
+
+extension ReplaceableBase {
+    dynamic func hello() {}
+}
+
+protocol Replaceable {
+    func hello()
+}
+
+class Replaced: ReplaceableBase, Replaceable {}
+
+// The isolation an extension states stays with its `@objc` member in the mock.
+@MainActor
+class IsolatedGreeterBase: NSObject {}
+
+nonisolated extension IsolatedGreeterBase {
+    @objc func wave() {}
+}
+
+protocol Waving {
+    nonisolated func wave()
+}
+
+class IsolatedGreeter: IsolatedGreeterBase, Waving {}
+
+func useObjcExtensionWitness() {
+    let mock = MockGreeter()
+    stub(mock) { stub in
+        when(stub.hello()).thenDoNothing()
+        when(stub.name.get).thenReturn("stubbed")
+    }
+    mock.hello()
+    _ = (mock as any Greeting).name
+    verify(mock).hello()
+}
 #endif
