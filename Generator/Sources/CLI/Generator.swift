@@ -156,7 +156,7 @@ final class Generator {
         for warning in duplicateDeclarationWarnings(flatMappedFiles) {
             printToStandardError("warning: cuckoo: \(warning)\n")
         }
-        let inheritedFiles = mergingAndBinding(flatMappedFiles, typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), nominalTypes: declaredNames.nominalTypes)
+        let inheritedFiles = mergingAndBinding(flatMappedFiles, typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), nominalTypes: declaredNames.nominalTypes, sourceModules: Set(swiftModules.values))
         let finalFiles = inheritedFiles.map { file in file.replacing(tokens: file.tokens.map { $0.resolvingSelf() }) }
 
         // filter classes/protocols based on the settings passed to the generator
@@ -172,6 +172,11 @@ final class Generator {
         }
         let parsedFiles = removeTypes(from: finalFiles, using: typeFilters)
         let mockableFiles = parsedFiles.map { $0.replacing(tokens: $0.tokens.filter { $0.isMockable }) }
+        // Only for the classes the settings keep.
+        for case let classToken as ClassDeclaration in mockableFiles.flatMap(\.tokens) {
+            guard let superclass = classToken.unmockedGenericSuperclass else { continue }
+            printToStandardError("warning: cuckoo: '\(classToken.fullyQualifiedName)' inherits from the generic class '\(superclass.name)', so its mock doesn't override what it inherits, which runs the real implementation: \(superclass.members.map { "'\($0)'" }.joined(separator: ", ")).\n")
+        }
         return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule)
     }
 
@@ -253,9 +258,12 @@ final class Generator {
 
     /// The files with each protocol and class merged with what it inherits, then each protocol bound to the class
     /// it requires, both resolved by scope as Swift does.
-    private static func mergingAndBinding(_ files: [FileRepresentation], typealiases: [String: String], types: Set<String>, nominalTypes: Set<String>) -> [FileRepresentation] {
-        let merged = files.map { $0.mergingInheritance(with: files, names: TypeNames(typealiases: typealiases, types: types, files: files)) }
-        return bindingSuperclasses(merged, names: TypeNames(typealiases: typealiases, types: types, files: merged), nominalTypes: nominalTypes)
+    private static func mergingAndBinding(_ files: [FileRepresentation], typealiases: [String: String], types: Set<String>, nominalTypes: Set<String>, sourceModules: Set<String>) -> [FileRepresentation] {
+        let names = TypeNames(typealiases: typealiases, types: types, files: files, sourceModules: sourceModules)
+        let merged = Method.Signature.$declaredTypes.withValue(nominalTypes) {
+            files.map { $0.mergingInheritance(with: files, names: names) }
+        }
+        return bindingSuperclasses(merged, names: TypeNames(typealiases: typealiases, types: types, files: merged, sourceModules: sourceModules), nominalTypes: nominalTypes)
     }
 
     /// Binds every protocol that requires a superclass to it: a class declared in the sources that the protocol

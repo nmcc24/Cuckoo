@@ -303,6 +303,14 @@ extension ComplexType {
     }
 }
 
+/// `type` with each of `replacements`' names, where it's used as a type, replaced by its type: `Collection<Key>`
+/// with `Key` fixed as `Int` is `Collection<Int>`.
+func replacingTypeReferences(_ replacements: [(name: String, type: String)], in type: String) -> String {
+    replacements.reduce(type) { type, replacement in
+        TypeReferenceRewriter.replacing(replacement.name, with: replacement.type, in: type)?.trimmedSpaces ?? type
+    }
+}
+
 /// Finds a type by name where it's used as a type anywhere inside another, such as `[Output]`, `(Output, T)`,
 /// `Result<Output, Error>` or `Self.Output`, but not a nested type of another type, such as `Wrapper.Output`.
 private final class TypeReferenceRewriter: SyntaxRewriter {
