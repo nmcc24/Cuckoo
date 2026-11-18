@@ -101,7 +101,8 @@
   it, as a property's does, and a setter forwarded to a default implementation records a failure saying to stub it.
 - A class that implements a protocol's requirement with a `static` or `final` member, as `static func reset()`
   for `static func reset()` of a protocol in the sources, got a mock that declared the requirement again and didn't
-  compile. The mock leaves such a member to the class.
+  compile. The mock leaves such a member to the class, and one declared in an extension of the class likewise,
+  which no subclass can override.
 
 ## 3.0.0-beta.5
 

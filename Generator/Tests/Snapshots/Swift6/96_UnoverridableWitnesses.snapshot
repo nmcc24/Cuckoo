@@ -369,3 +369,495 @@ final class CounterStub: Counter {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+nonisolated final class MockRefreshing: Refreshing, nonisolated Cuckoo.ProtocolMock, nonisolated Cuckoo.StaticMock {
+    typealias CuckooMocksType = any Refreshing
+    typealias CuckooStubbing = __StubbingProxy_Refreshing
+    typealias CuckooVerification = __VerificationProxy_Refreshing
+    typealias __CuckooSelf = MockRefreshing
+    typealias CuckooStaticStubbing = __StaticStubbingProxy_Refreshing
+    typealias CuckooStaticVerification = __StaticVerificationProxy_Refreshing
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockRefreshing.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Refreshing>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any Refreshing) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    var stamp: Int {
+        get {
+            return cuckooManager.getter(
+                "stamp",
+                invoke: { (implementation: (()) -> Int) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.stamp
+            )
+        }
+    }
+
+    func refresh() {
+        return cuckooManager.call(
+            "refresh()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.refresh()
+        )
+    }
+
+    func reload() {
+        return cuckooManager.call(
+            "reload()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.reload()
+        )
+    }
+
+    static func make() -> __CuckooSelf {
+        return cuckooStaticManager.call(
+            "static make() -> Self",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> __CuckooSelf, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static make() -> Self")
+        )
+    }
+
+    subscript(_ p0: String) -> Int {
+        get {
+            return cuckooManager.call(
+                "subscript(_ p0: String) -> Int#get",
+                parameters: (p0),
+                escapingParameters: (p0),
+                invoke: { (implementation: ((String)) -> Int, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value[p0]
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_Refreshing: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        var stamp: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockRefreshing, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "stamp")
+        }
+
+        func refresh() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockRefreshing.self,
+                method: "refresh()",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func reload() -> Cuckoo.ProtocolStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockRefreshing.self,
+                method: "reload()",
+                parameterMatchers: matchers
+            ))
+        }
+
+        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
+
+            var get: Cuckoo.ProtocolStubFunction<(String), Int, ((String)) -> Int, Cuckoo.StubSharing.Confined> {
+                return .init(stub: cuckooManager.createStub(for: MockRefreshing.self,
+                    method: "subscript(_ p0: String) -> Int#get",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Refreshing: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        var stamp: Cuckoo.VerifyReadOnlyProperty<Int> {
+            return .init(manager: cuckooManager, name: "stamp", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        @discardableResult
+        func refresh() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "refresh()",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func reload() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "reload()",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
+
+            @discardableResult
+            func get() -> Cuckoo.VerifiedCall<(String), Int> {
+                return cuckooManager.verify(
+                    "subscript(_ p0: String) -> Int#get",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+
+    nonisolated struct __StaticStubbingProxy_Refreshing: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func make() -> Cuckoo.ProtocolStubFunction<(), __CuckooSelf, (()) -> __CuckooSelf, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockRefreshing.self,
+                method: "static make() -> Self",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __StaticVerificationProxy_Refreshing: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func make() -> Cuckoo.VerifiedCall<(), __CuckooSelf> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "static make() -> Self",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class RefreshingStub: Refreshing {
+    typealias __CuckooSelf = RefreshingStub
+
+    var stamp: Int {
+        get {
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+
+    func refresh() {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func reload() {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    static func make() -> __CuckooSelf {
+        typealias __CuckooDefault = __CuckooSelf
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    subscript(_ p0: String) -> Int {
+        get {
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+}
+
+final class MockFeed: Feed, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = Feed
+    typealias CuckooStubbing = __StubbingProxy_Feed
+    typealias CuckooVerification = __VerificationProxy_Feed
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockFeed.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Feed>()
+
+    nonisolated func enableDefaultImplementation(_ stub: Feed) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func reload() {
+        return cuckooManager.call(
+            "reload()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.reload(),
+            defaultCall: cuckooDefaultImplementation.value.reload()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Feed: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func reload() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockFeed.self,
+                method: "reload()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Feed: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func reload() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "reload()",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class FeedStub: Feed {
+    override func reload() {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockLiveFeed: LiveFeed, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = LiveFeed
+    typealias CuckooStubbing = __StubbingProxy_LiveFeed
+    typealias CuckooVerification = __VerificationProxy_LiveFeed
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLiveFeed.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<LiveFeed>()
+
+    nonisolated func enableDefaultImplementation(_ stub: LiveFeed) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func reload() {
+        return cuckooManager.call(
+            "reload()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.reload(),
+            defaultCall: cuckooDefaultImplementation.value.reload()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_LiveFeed: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func reload() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockLiveFeed.self,
+                method: "reload()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_LiveFeed: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func reload() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "reload()",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class LiveFeedStub: LiveFeed {
+    override func reload() {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+extension Feeds {
+    final class MockCached: Cached, nonisolated Cuckoo.ClassMock {
+        typealias CuckooMocksType = Cached
+        typealias CuckooStubbing = __StubbingProxy_Cached
+        typealias CuckooVerification = __VerificationProxy_Cached
+
+        nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockCached.self) ?? Cuckoo.MockManager(hasParent: true)
+
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Cached>()
+
+        nonisolated func enableDefaultImplementation(_ stub: Cached) {
+            cuckooDefaultImplementation.value = stub
+            cuckooManager.enableDefaultImplementation()
+        }
+
+        override func reload() {
+            return cuckooManager.call(
+                "reload()",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> Void, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: super.reload(),
+                defaultCall: cuckooDefaultImplementation.value.reload()
+            )
+        }
+
+        nonisolated struct __StubbingProxy_Cached: Cuckoo.StubbingProxy {
+            private let cuckooManager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckooManager = manager
+            }
+
+            func reload() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckooManager.createStub(for: MockCached.self,
+                    method: "reload()",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+
+        nonisolated struct __VerificationProxy_Cached: Cuckoo.VerificationProxy {
+            private let cuckooManager: Cuckoo.MockManager
+            private let cuckooCallMatcher: Cuckoo.CallMatcher
+            private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckooManager = manager
+                self.cuckooCallMatcher = callMatcher
+                self.cuckooSourceLocation = sourceLocation
+            }
+
+            @discardableResult
+            func reload() -> Cuckoo.VerifiedCall<(), Void> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckooManager.verify(
+                    "reload()",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+
+    final class CachedStub: Cached {
+        override func reload() {
+            typealias __CuckooDefault = Void
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+}
