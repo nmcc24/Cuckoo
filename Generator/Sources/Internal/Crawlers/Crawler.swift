@@ -153,7 +153,7 @@ final class Crawler: SyntaxVisitor {
     var tokens: [any Token] = []
     /// Members of a class that its mock can't override, each with the reason, which the mock states in a comment.
     var unmockedMembers: [String] = []
-    /// A class's `final` and unavailable overrides, which hide the superclass's members; see
+    /// A class's members the mock can't override that hide the ones it inherits; see
     /// `ClassDeclaration.shadowedMembers`.
     var shadowedMembers: [any Token] = []
     /// Whether `parse` reads a member the mock can't override, to record it in `shadowedMembers`.
@@ -374,7 +374,7 @@ final class Crawler: SyntaxVisitor {
         }
         let variables = parse(node)
         tokens.append(contentsOf: variables)
-        if variables.isEmpty, node.modifiers.isOverride {
+        if variables.isEmpty, hidesInheritedMember(node.modifiers) {
             shadowedMembers.append(contentsOf: parsingShadowedMember { parse(node) })
         }
         return .skipChildren
@@ -409,7 +409,7 @@ final class Crawler: SyntaxVisitor {
         }
         if let method = parse(node) {
             tokens.append(method)
-        } else if node.modifiers.isOverride, let method = parsingShadowedMember({ parse(node) }) {
+        } else if hidesInheritedMember(node.modifiers), let method = parsingShadowedMember({ parse(node) }) {
             shadowedMembers.append(method)
         }
         return .skipChildren
@@ -429,14 +429,21 @@ final class Crawler: SyntaxVisitor {
 
         if let item = parse(node) {
             tokens.append(item)
-        } else if node.modifiers.isOverride, let item = parsingShadowedMember({ parse(node) }) {
+        } else if hidesInheritedMember(node.modifiers), let item = parsingShadowedMember({ parse(node) }) {
             shadowedMembers.append(item)
         }
         return .skipChildren
     }
 
-    /// `parse` reading a `final` or unavailable override, which the mock doesn't override but which hides the
-    /// superclass's member.
+    /// Whether a class's member the mock doesn't override may hide one the class inherits: an override, of the
+    /// superclass's member, or a `final` or `static` member, which can implement a protocol's requirement. The mock
+    /// would otherwise override the superclass's member, or declare the requirement next to the class's.
+    private func hidesInheritedMember(_ modifiers: DeclModifierListSyntax) -> Bool {
+        container?.isClass == true && (modifiers.isOverride || modifiers.isFinal || modifiers.isStatic)
+    }
+
+    /// `parse` reading a member the mock doesn't override, `final`, `static` or unavailable, which hides the
+    /// member the class inherits.
     private func parsingShadowedMember<T>(_ parse: () -> T) -> T {
         parsesShadowedMember = true
         defer { parsesShadowedMember = false }

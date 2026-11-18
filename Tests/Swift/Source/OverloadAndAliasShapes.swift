@@ -1,5 +1,6 @@
 // Shapes whose mocks didn't compile before 3.0: a typealias named through `Self`, function values the type eraser
-// sets and a sync and an async overload of one signature.
+// sets, a sync and an async overload of one signature and requirements a class implements with `final` or `static`
+// members.
 protocol AliasedLookup {
     typealias ID = Int
     typealias Callback = (Self.ID) -> Void
@@ -37,4 +38,18 @@ final class ObservedStoreImplementation: ObservedStore {
 protocol OverloadedLoader {
     func value() -> Int
     func value() async -> Int
+}
+
+protocol CountingRequirements {
+    static func reset()
+    func increment() -> Int
+    func decrement() -> Int
+}
+
+class FinalWitnessCounter: CountingRequirements {
+    init() {}
+
+    static func reset() {}
+    final func increment() -> Int { 1 }
+    func decrement() -> Int { -1 }
 }
