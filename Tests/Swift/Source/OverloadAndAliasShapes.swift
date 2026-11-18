@@ -40,8 +40,8 @@ protocol OverloadedLoader {
     func value() async -> Int
 }
 
-/// Public, so its mock's proxies aren't implicitly `Sendable`: stubbing and verifying the async overloads from an
-/// actor mustn't send them off it.
+/// Public, so its mock's proxies aren't implicitly `Sendable`: stubbing and verifying the overloads from an actor
+/// mustn't send them off it.
 public protocol PublicOverloadedLoader {
     func value() -> Int
     nonisolated(nonsending) func value() async -> Int
@@ -57,6 +57,13 @@ protocol ShadowedAliasStore {
 
 struct ShadowedAliasStoreImplementation: ShadowedAliasStore {
     func key<Key>(for value: Key) -> String { "\(value)" }
+}
+
+/// A member named `async` takes the proxies' name for the async overloads, which `await` names instead.
+protocol AsyncNamedLoader {
+    var async: Bool { get }
+    func value() -> Int
+    func value() async -> Int
 }
 
 protocol CountingRequirements {
