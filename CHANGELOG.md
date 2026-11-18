@@ -88,6 +88,21 @@
   unwound past Swift's cleanup, leaving `inOrder`, `withStaticStubs`, `createMock` or a default-values scope open for
   the thread's next tests. Cuckoo raises no exception now: the failure is reported once and the process stops, as it
   does in Swift Testing. Xcode relaunches the test runner for the remaining tests.
+- In an Xcode project with several test targets, each one's build warned that the others' Cuckoofile entries named
+  no target. Every target of the project counts now.
+- The build plugin passed a C, C++ or Objective-C target's files to the generator, which mocked a C++ class and
+  broke the build. It passes Swift files only.
+- A folder whose name has a pattern character, as `glob [v2]` or `Feat{A}`, made a `sources` pattern match nothing
+  in it, without a warning when other files matched: the Cuckoofile's own folder and the folders a `**` walks into
+  are matched as they are now. A `**` that isn't a whole folder name, as in `Sources/**.swift`, is a `*`.
+- An entry named after a target whose module is named otherwise, `[modules.My-Core]` for the module `My_Core`, was
+  said to name no target: the warning says to name it after the module.
+- A value of the wrong type in the Cuckoofile, as `sources = "Sources/*.swift"`, was reported as a syntax error. The
+  error names the key and the type it takes.
+- Run by hand, an entry without `sources`, or with an empty list, generated an empty file without a word: it's a
+  warning now.
+- The build plugin missed the entries of a `modules` table written on one line, read a `\"` in a quoted key as
+  its end, and took three quotes inside a one-line string, as `'"""'`, for the start of a multi-line one.
 
 ### Changed
 - The stand-in a `verify` or an `ArgumentCaptor` gets for a closure parameter that isn't `@escaping` says, when
@@ -96,6 +111,10 @@
 - Documentation: an optional collection parameter is matched with `equal(to:)`, not a plain value; a literal such
   as `1.5` doesn't match a `Float` parameter; only a flat tuple has a default value; and `reset`, `clearStubs` and
   `clearInvocations` run from any isolation.
+
+### Removed
+- The build warning that the test target's entry without `sources` mocks only its own package's targets: every
+  test that depended on another package's library got it. The documentation says how to mock those.
 
 ## 3.0.0-beta.5
 

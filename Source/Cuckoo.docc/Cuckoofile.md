@@ -26,7 +26,8 @@ A key Cuckoo doesn't read, such as a misspelled `testableImport` or an option ou
 build warning that names the keys Cuckoo knows there.
 
 The name of a module matters with the build plugin. `CuckooPlugin` generates one file per dependency of the test
-target, from the entry with that dependency's name, plus one from the entry named after the test target. A
+target, from the entry with that dependency's module name, plus one from the entry named after the test target.
+A target `My-Core` has the module `My_Core`, so its entry is `[modules.My_Core]`. A
 dependency without an entry gets an empty file, and an entry named after neither isn't generated for that target. A
 target that gets no entry at all is a build warning. To mock files from several modules in one entry, name it after
 the test target and list its `sources`. (The plugin works the same on a regular target, such as a module of mocks
@@ -43,8 +44,10 @@ the plugin with no entry it can generate fails with a message saying so, and so 
 
 - term `sources`: The files to read, relative to the Cuckoofile, as globs. `*` matches within a folder, `**`
   matches any number of folders except hidden ones such as `.build`, `{A,B}` matches either name, and `?` one
-  character, which also matches a file whose name has one of these characters. A pattern that matches no file is a
-  warning:
+  character. A folder whose name has one of these characters, such as the Cuckoofile's own folder or one a `**`
+  walks into, is matched as it is; in a pattern, write the character with a backslash before it, `\\[Legacy\\]` in
+  TOML's basic string, or `?` in its place. A `**` that isn't a whole folder name, as in `Sources/**.swift`, is a
+  `*`. A pattern that matches no file is a warning:
 
   ```toml
   [modules.App]
@@ -61,8 +64,7 @@ the plugin with no entry it can generate fails with a message saying so, and so 
 
   In a package, the build plugin lets you leave `sources` out to mock the files of the test target's dependency
   that has the entry's name. The entry named after the test target mocks its dependencies among the package's own
-  targets; another package's modules get an entry of their own, or are listed in `sources`, and a build warning
-  names the ones left out. The plugin lists the target's own files, so this follows the target's membership, and
+  targets; another package's modules get an entry of their own, or are listed in `sources`. The plugin lists the target's own files, so this follows the target's membership, and
   tells the generator which module the files belong to, as the table form does. An Xcode project's entries list
   their `sources`. An entry that sets `sources` is regenerated when any source file of the package or Xcode
   project, or of the test target's dependencies, changes, since its patterns may match any of them.
