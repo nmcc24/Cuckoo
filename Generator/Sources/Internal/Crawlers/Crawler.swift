@@ -347,14 +347,16 @@ final class Crawler: SyntaxVisitor {
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
+        // Before its members are crawled, which read them.
+        if isExtension {
+            token.memberIsolation = isolation(attributes: node.attributes, modifiers: node.modifiers)
+            token.isObjcExtension = node.attributes.contains { $0.as(AttributeSyntax.self)?.attributeName.trimmedDescription == "objc" }
+        }
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: members)
         token.members = crawler.tokens
         token.extensionMembers = crawler.shadowedMembers
         token.overridableExtensionMembers = crawler.overridableExtensionMembers
-        if isExtension {
-            token.memberIsolation = isolation(attributes: node.attributes, modifiers: node.modifiers)
-        }
         tokens.append(token)
         return .skipChildren
     }
@@ -376,8 +378,14 @@ final class Crawler: SyntaxVisitor {
     /// Whether an extension's member is one a subclass can override: an `@objc` instance member, not
     /// an `override` (see `hidesInheritedMember`) nor a `static` or `final` one.
     private func isOverridableExtensionMember(_ modifiers: DeclModifierListSyntax, attributes: AttributeListSyntax) -> Bool {
-        // `dynamic` alone allows dynamic replacement, not an override.
-        let isObjectiveCDispatched = attributes.contains { $0.as(AttributeSyntax.self)?.attributeName.trimmedDescription == "objc" }
+        // `dynamic` alone allows dynamic replacement, not an override. Every member of an `@objc extension` is
+        // `@objc`, which Swift checks, unless it's `@nonobjc`. An `@objcMembers` class's extension members are
+        // `@objc` only when Objective-C can represent them, which the sources don't say, so they need `@objc` written.
+        func hasAttribute(_ name: String) -> Bool {
+            attributes.contains { $0.as(AttributeSyntax.self)?.attributeName.trimmedDescription == name }
+        }
+        let isObjcExtension = (container?.value as? NamespaceDeclaration)?.isObjcExtension == true
+        let isObjectiveCDispatched = hasAttribute("objc") || (isObjcExtension && !hasAttribute("nonobjc"))
         return isInExtension && isObjectiveCDispatched && !modifiers.isStatic && !modifiers.isFinal
             && !modifiers.contains { $0.name.tokenKind == .keyword(.override) }
     }

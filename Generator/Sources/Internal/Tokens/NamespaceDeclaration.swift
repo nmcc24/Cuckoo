@@ -26,6 +26,8 @@ struct NamespaceDeclaration: Token, HasAttributes, HasAccessibility, HasName, Ha
     var overridableExtensionMembers: [any Token] = []
     /// The isolation an extension states, as `nonisolated extension`, which its members take unless they state one.
     var memberIsolation: Isolation?
+    /// An `@objc extension`, whose members are all `@objc`.
+    var isObjcExtension = false
 
     func replacing(members: [any Token]) -> NamespaceDeclaration {
         NamespaceDeclaration(
@@ -41,7 +43,8 @@ struct NamespaceDeclaration: Token, HasAttributes, HasAccessibility, HasName, Ha
             genericRequirements: genericRequirements,
             extensionMembers: extensionMembers,
             overridableExtensionMembers: overridableExtensionMembers,
-            memberIsolation: memberIsolation
+            memberIsolation: memberIsolation,
+            isObjcExtension: isObjcExtension
         )
     }
 }

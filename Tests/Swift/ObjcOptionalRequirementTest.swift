@@ -98,5 +98,24 @@ struct ObjcOptionalRequirementTests {
         #expect(spy.greeting() == "base")
     }
 
+
+    /// An `@objc extension`'s members are overridden, and so is a plain `@objc` member implementing a throwing
+    /// requirement: calls through the protocol reach the stubs.
+    @Test
+    func objcExtensionMembersAreOverridden() throws {
+        let mock = MockObjcExtensionRinger()
+        stub(mock) { stub in
+            when(stub.ring()).thenReturn("stubbed")
+            when(stub.fetch()).thenReturn("fetched")
+        }
+
+        let ringing: any ObjcExtensionRinging = mock
+        #expect(ringing.ring() == "stubbed")
+        #expect(try ringing.fetch() == "fetched")
+        #expect((mock as ObjcExtensionRingerBase).ring() == "stubbed")
+        verify(mock, times(2)).ring()
+        verify(mock).fetch()
+    }
+
 }
 #endif

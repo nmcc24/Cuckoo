@@ -122,6 +122,56 @@ func useSuperclassWitnesses() {
     verify(mock).open()
 }
 
+// A member with fewer effects than the requirement it implements, as Swift allows: a `func load()` that doesn't
+// throw implements `func load() throws`, and a synchronous one an `async` requirement. The mock overrides the
+// class's member, not the requirement.
+protocol Loading {
+    func load() throws -> Int
+    func later() async -> Int
+    subscript(index: Int) -> Int { get throws }
+}
+
+class Loader: Loading {
+    init() {}
+    func load() -> Int { 0 }
+    func later() -> Int { 0 }
+    subscript(index: Int) -> Int { index }
+}
+
+// A superclass's sync and `async` overloads are two members: the sync one doesn't implement the other, so the
+// mock overrides both.
+class Overloaded {
+    init() {}
+    func value() -> Int { 0 }
+    func value() async -> Int { 1 }
+}
+
+class OverloadedChild: Overloaded {}
+
+// With a default isolation, a member with fewer effects takes the actor of the requirement it implements, as one
+// with the same effects does.
+@MainActor
+protocol Showing {
+    func show() async throws
+}
+
+nonisolated class PlainShower {
+    init() {}
+}
+
+class Shower: PlainShower, Showing {
+    func show() {}
+}
+
+func useFewerEffects() throws {
+    let mock = MockLoader()
+    stub(mock) { stub in
+        when(stub.load()).thenReturn(1)
+    }
+    _ = mock.load() + mock.later() + mock[0]
+    verify(mock).load()
+}
+
 #if canImport(ObjectiveC)
 import Foundation
 
@@ -189,6 +239,57 @@ protocol Waving {
 
 class IsolatedGreeter: IsolatedGreeterBase, Waving {}
 
+// The same for a plain `@objc` member an extension declares.
+class LoaderBase: NSObject {}
+
+extension LoaderBase {
+    @objc func fetch() {}
+    @objc func refresh() {}
+}
+
+protocol Fetching {
+    func fetch() throws
+    func refresh() async
+}
+
+class Fetcher: LoaderBase, Fetching {}
+
+// Every member of an `@objc extension` is `@objc`, so the mock overrides the requirement it implements, unless it's
+// `@nonobjc`, which the mock leaves alone, as any extension member.
+class ObjcExtensionBase: NSObject {}
+
+@objc extension ObjcExtensionBase {
+    func ring() {}
+    var tone: String { "" }
+    @nonobjc func mute() {}
+}
+
+protocol Ringing {
+    func ring()
+    var tone: String { get }
+    func mute()
+}
+
+class Ringer: ObjcExtensionBase, Ringing {}
+
+// An `@objcMembers` class's extension members are `@objc` only when Objective-C can represent their types, which
+// the generator can't tell from the sources: one implementing a requirement stays the class's, unmocked, unless it
+// says `@objc` itself.
+@objcMembers
+class MembersBase: NSObject {}
+
+extension MembersBase {
+    func greet() {}
+    @objc func wave() {}
+}
+
+protocol Greeting2 {
+    func greet()
+    func wave()
+}
+
+class MembersGreeter: MembersBase, Greeting2 {}
+
 func useObjcExtensionWitness() {
     let mock = MockGreeter()
     stub(mock) { stub in
@@ -198,5 +299,17 @@ func useObjcExtensionWitness() {
     mock.hello()
     _ = (mock as any Greeting).name
     verify(mock).hello()
+
+    let fetcher = MockFetcher()
+    stub(fetcher) { stub in
+        when(stub.fetch()).thenDoNothing()
+    }
+    fetcher.fetch()
+    fetcher.refresh()
+    MockRinger().ring()
+    _ = MockRinger().tone
+    MockRinger().mute()
+    MockMembersGreeter().greet()
+    MockMembersGreeter().wave()
 }
 #endif
