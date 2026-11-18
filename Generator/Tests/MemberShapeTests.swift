@@ -134,25 +134,56 @@ struct MemberShapeTests {
         #expect(output.contains("var implicit: Value! {"))
     }
 
-    /// An async method's stubbing and verification members are `async` when a sync overload would otherwise be
-    /// called the same way, and only then.
+    /// The async overload of a sync and async pair is a member of each proxy's `async`, not `async` itself, and
+    /// the proxy's own member is the sync one. Only such overloads are there.
     @Test
-    func anAsyncOverloadOfASyncMethodIsStubbedWithAwait() async throws {
+    func anAsyncOverloadOfASyncMethodIsNamedThroughAsync() async throws {
         let source = """
             protocol Loading {
                 func value() -> Int
                 func value() async -> Int
                 func load(_ id: Int) async -> Int
                 func load(_ id: String) -> Int
+                func refresh() async
+                static func shared() -> Int
+            }
+            protocol Plain {
+                func refresh() async
             }
             """
         let output = try await generateMocks(source: source)
+        let plainStart = try #require(output.firstRange(of: "class MockPlain"))
+        let loading = String(output[..<plainStart.lowerBound])
+        // The stubbing and the verification proxy of the instance members, not the static ones'.
+        #expect(loading.split(separator: "var async: __Async {").count == 3)
+        #expect(loading.split(separator: "nonisolated struct __Async {").count == 3)
+        #expect(loading.contains("return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation)"))
+        #expect(loading.contains("\n        func value() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int,"))
+        #expect(loading.contains("\n            func value() -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int,"))
+        #expect(loading.split(separator: "func value() -> Cuckoo.VerifiedCall<(), Int>").count == 3)
+        // No proxy member is `async`: different parameters tell `load` apart already.
+        #expect(!loading.contains("async -> Cuckoo."))
+        // Mock, stubbing, verification and stub class: `refresh()` has no sync overload, and no member in `async`.
+        #expect(loading.split(separator: "func refresh()").count == 5)
+        #expect(!output[plainStart.lowerBound...].contains("__Async"))
+    }
+
+    /// A mocked member named `async` takes the name. The async overload's proxy members are then `async`
+    /// themselves, on their caller's actor, which keeps a proxy that isn't `Sendable` there.
+    @Test
+    func anAsyncOverloadNextToAMemberNamedAsyncIsNamedWithAwait() async throws {
+        let source = """
+            protocol Named {
+                var async: Bool { get }
+                func value() -> Int
+                func value() async -> Int
+            }
+            """
+        let output = try await generateMocks(source: source)
+        #expect(!output.contains("__Async"))
         #expect(output.contains("func value() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int,"))
-        // On the caller's actor, which keeps a proxy that isn't `Sendable` there.
         #expect(output.contains("nonisolated(nonsending) func value() async -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int,"))
         #expect(output.contains("nonisolated(nonsending) func value() async -> Cuckoo.VerifiedCall<(), Int>"))
-        // Different parameters tell these apart already.
-        #expect(!output.contains("(_ p0: __M1) async ->"))
     }
 
     /// A class's `static` or `final` member that implements a protocol's requirement hides the requirement, which

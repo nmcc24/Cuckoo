@@ -1,3 +1,5 @@
+import Cuckoo
+
 // Members the builders write as Swift needs them.
 final class Box {}
 
@@ -28,11 +30,42 @@ protocol Keyed {
     subscript<T>(t: T) -> Int where T: Sendable { get }
 }
 
-// A sync and an async overload of the same signature: `await verify(mock).value()` verifies the async one.
+// A sync and an async overload of the same signature: `verify(mock).value()` verifies the sync one and
+// `verify(mock).async.value()` the async one, as `stub.value()` and `stub.async.value()` stub them. A method with
+// one of the two has no member in `async`.
 class Overloads {
     init() {}
     func value() -> Int { 0 }
     func value() async -> Int { 0 }
+    func load(_ id: Int, as name: String) throws -> String { name }
+    func load(_ id: Int, as name: String) async throws -> String { name }
+    func only() async -> Int { 0 }
+    class func shared() -> Int { 0 }
+    class func shared() async -> Int { 0 }
+}
+
+func useOverloadTwins() async throws {
+    let mock = MockOverloads()
+    stub(mock) { stub in
+        when(stub.value()).thenReturn(1)
+        when(stub.async.value()).thenReturn(2)
+        when(stub.load(any(), as: any())).thenReturn("sync")
+        when(stub.async.load(any(), as: any())).thenReturn("async")
+        when(stub.only()).thenReturn(3)
+    }
+    stub(MockOverloads.self) { stub in
+        when(stub.shared()).thenReturn(1)
+        when(stub.async.shared()).thenReturn(2)
+    }
+    _ = try await mock.load(1, as: "a")
+    verify(mock, never()).value()
+    verify(mock, never()).async.value()
+    verify(mock, never()).load(any(), as: any())
+    inOrder {
+        verify(mock).async.load(1, as: "a")
+        verify(mock, never()).only()
+        verify(MockOverloads.self, never()).async.shared()
+    }
 }
 
 // An `isolated` parameter with a non-escaping closure: the protocol's mock can't forward it to a default
