@@ -158,8 +158,8 @@ public final class MockManager: Sendable {
     }
 
     /// Reports `failure` and returns the default value of an unstubbed call, or, if its type has none, reports it
-    /// and crashes. `tuple` is the generated mock's lookup when `OUT` is a tuple, whose elements a generic `OUT`
-    /// can't name.
+    /// and crashes. `tuple` is the generated mock's own default, for a type with no registered one: the lookup of a
+    /// tuple's elements, which a generic `OUT` can't name, or a new `…Stub` of a mocked protocol.
     private func unstubbedValue<OUT>(failure: String, tuple: () -> Any?) -> OUT {
         let value = CuckooConfiguration.$current.withValue(configurationWithCreatingDefaults) {
             DefaultValueRegistry.unstubbedValue(for: OUT.self) ?? tuple() as? OUT
@@ -174,7 +174,8 @@ public final class MockManager: Sendable {
     /// Stands in for forwarding `member` to a default implementation that a protocol mock's type eraser can't
     /// forward it to, for `reason`, such as an `inout` parameter: it records a failure saying to stub the member, for
     /// the test that created the mock, and returns the default value an unstubbed call would, even for a member that
-    /// throws, so the test goes on. Generated mocks pass `unstubbedTuple` for a member returning a tuple.
+    /// throws, so the test goes on. Generated mocks pass `unstubbedTuple` for a member returning a tuple, or a mocked
+    /// protocol, whose default is a new stub.
     public func unforwardableDefaultImplementationCall<OUT>(_ member: String, reason: String, unstubbedTuple: @autoclosure () -> Any? = nil) -> OUT {
         unstubbedValue(failure: "Cuckoo can't forward \(member) to the default implementation: \(reason). Stub it instead.", tuple: unstubbedTuple)
     }
@@ -189,6 +190,9 @@ public final class MockManager: Sendable {
     // The manager hands `invoke` the call's arguments, so the closure captures none of them. Capturing a
     // non-Sendable argument in an actor mock's closure is a "sending ... risks causing data races" error on
     // Swift 6.2.
+    // `unstubbedTuple` is the default the mock builds for a return type the registry has none for: a tuple's, from
+    // its elements' defaults, or a new `…Stub` of a protocol the module mocks. It runs in the mock's isolation too,
+    // and only for a call that nothing else answers.
 
     private func callInternal<IN, OUT, ERROR, IMPL>(
         _ method: String,

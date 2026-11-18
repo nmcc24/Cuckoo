@@ -101,8 +101,13 @@ Then it answers, so the test can go on: a member that throws `any Error` throws 
 and any other member, a `rethrows` one included, returns a default value from ``CuckooConfiguration/defaultValues`` or
 ``DefaultValueRegistry``. Optionals and the standard collections default to empty, the integer types, `Float`,
 `Double`, `String` and `Bool` to zero, `""` and `false`, and a flat tuple the member spells out to its elements'
-defaults. Register a value for any other type, a tuple behind a `typealias` or nested in another tuple included, or
-a call returning it crashes with a message naming it:
+defaults. A member returning a protocol that the same Cuckoofile module mocks, as `any Engine` does, answers with a
+new `EngineStub`, the generated type whose members do nothing and return default values; `(any Engine)?` stays `nil`
+and `[any Engine]` empty. A generic protocol, one with associated types, an initializer requirement or a required
+superclass, and one declared under `#if` or an attribute such as `@available` have no such default, and neither has
+a composition such as `any Engine & Sendable`. Register a value for any other type, a tuple behind a `typealias` or
+nested in another tuple included, or a call returning it crashes with a message naming it. A registered value also
+replaces a protocol's stub, under the type the member returns, `(any Engine).self`:
 
 ```swift
 @Test(.cuckoo(defaultValues: {

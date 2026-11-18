@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+- An unstubbed call returning a protocol that the same Cuckoofile module mocks, `any Engine` or a bare `Engine`,
+  records its failure and answers with a new `EngineStub`, the generated do-nothing implementation, so the test goes
+  on; it used to stop the process, as a call whose return type has no default value does. A default registered for
+  `(any Engine).self`, with `DefaultValueRegistry` or `.cuckoo(defaultValues:)`, still wins, and `(any Engine)?`
+  and `[any Engine]` keep `nil` and the empty array. Protocols whose stub a plain `init()` can't always create have
+  no such default: a generic one or one with associated types, one with an initializer requirement or a required
+  superclass, and one declared under `#if` or an attribute such as `@available`.
+
 ### Fixed
 - A requirement naming its associated type through `Self`, as `func first() -> Self.Item?` or
   `Self.Item.Element`, in a parameter, a result, an initializer, a variadic parameter or a constraint, gave a mock
