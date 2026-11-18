@@ -107,26 +107,31 @@ A mock also builds a default itself for some types that the same Cuckoofile modu
 
 - A protocol the module mocks: `any Engine` answers with a new `EngineStub`, the generated type whose members do
   nothing and return default values.
-- A struct, class or actor with an initializer that takes no arguments: `Settings()`. That's an `init()` it declares,
-  its only initializer whose parameters all have default values, or the implicit one when every stored property has
-  a default value.
+- A struct with an initializer that takes no arguments: `Settings()`. That's an `init()` it declares, its only
+  initializer whose parameters all have default values, or the implicit one when every stored property has a
+  default value. The call runs that initializer, and the default expressions of the stored properties with it.
 - An enum: its first case without associated values.
+
+A class or an actor has no such default, since creating one can do anything: stub the member, or register a
+factory for the type.
 
 The members of a generated `…Stub` return the same defaults, so a stub that an unstubbed call returned can be used
 further. An optional of such a type stays `nil` and a collection empty. Only a type the generator can be sure of gets such
 a default, so these have none:
 
 - a generic type, a protocol with associated types, and a composition such as `any Engine & Sendable`;
-- a type declared under `#if` or with an attribute that isolates it or limits where it's available, such as
-  `@MainActor` or `@available`, and one nested in such a type;
-- a protocol with an initializer requirement or a required superclass;
-- a struct, class or actor with a superclass, or a conformance other than the standard library's common ones
-  (`Sendable`, `Equatable`, `Hashable`, `Codable` and the like), which may isolate it, and one whose initializer is
-  failable, throwing, `async`, `private` or carries an attribute;
-- a type whose initializer is internal, an implicit one included, in the mock of a `public` type, unless the
-  Cuckoofile's `sources` name the type's module and `testableImports` lists it;
-- every struct, class and actor of a module with `defaultIsolation = "MainActor"`, whose initializers run on the
-  main actor.
+- a type declared under `#if` or `@available`, and a type of another module, such as `Foundation.Locale`;
+- a protocol with an initializer requirement or a required superclass, and one whose stub the mock can't name,
+  because a type nested nearer to the mock has the stub's name;
+- a struct or an enum with an attribute that may isolate it, such as `@MainActor`, or nested in such a type (a
+  `@MainActor` protocol does get its stub);
+- a struct with a conformance other than the standard library's common ones (`Sendable`, `Equatable`, `Hashable`,
+  `Codable` and the like), which may isolate it;
+- a struct whose initializer is failable, throwing, `async`, `private` or carries an attribute, and one with an
+  initializer declared in an extension, which can make `Settings()` ambiguous;
+- a struct whose initializer is internal, an implicit one included, in the mock of a `public` type, unless the
+  Cuckoofile's `sources` name the struct's module and `testableImports` lists it;
+- every struct of a module with `defaultIsolation = "MainActor"`, whose initializers run on the main actor.
 
 Register a value for any other type, a tuple behind a `typealias` or nested in another tuple included, or a call
 returning it crashes with a message naming it. A registered value also replaces a default the mock builds, under

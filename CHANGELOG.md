@@ -10,16 +10,18 @@
   and `[any Engine]` keep `nil` and the empty array. Protocols whose stub a plain `init()` can't always create have
   no such default: a generic one or one with associated types, one with an initializer requirement or a required
   superclass, and one declared under `#if` or an attribute such as `@available`.
-- An unstubbed call returning a struct, class, actor or enum that the same Cuckoofile module's sources declare
-  records its failure and answers with a value the mock builds, instead of stopping the process: `Type()` where an
-  initializer takes no arguments (a declared `init()`, the only initializer whose parameters all have defaults, or
-  the implicit one of a type whose stored properties all have defaults), and an enum's first case without
-  associated values. A registered default still wins. Types the generator can't be sure of keep having none: a
-  generic type, one under `#if` or an attribute such as `@MainActor` or `@available`, one with a superclass or a
-  conformance outside the standard library's common ones, one whose initializer is failable, throwing, `async`,
-  `private` or attributed, and every initializer of a module with `defaultIsolation = "MainActor"`. An internal
-  initializer counts in the mock of an internal type, or when `sources` names the type's module and
-  `testableImports` lists it. See "Calls with no stub" in the stubbing guide.
+- An unstubbed call returning a struct or an enum that the same Cuckoofile module's sources declare records its
+  failure and answers with a value the mock builds, instead of stopping the process: `Type()` for a struct with an
+  initializer that takes no arguments (a declared `init()`, the only initializer whose parameters all have
+  defaults, or the implicit one of a struct whose stored properties all have defaults), and an enum's first case
+  without associated values. That runs the struct's initializer and its stored properties' default expressions. A
+  class or an actor gets no such default: no real class or actor initializer runs unasked. A registered default
+  still wins. Types the generator can't be sure of keep having none: a generic type, one under `#if` or an attribute
+  such as `@MainActor` or `@available`, a struct with a conformance outside the standard library's common ones, one
+  whose initializer is failable, throwing, `async`, `private` or attributed, one with an initializer declared in an
+  extension, and every struct of a module with `defaultIsolation = "MainActor"`. An internal initializer counts in
+  the mock of an internal type, or when `sources` names the type's module and `testableImports` lists it. See
+  "Calls with no stub" in the stubbing guide.
 - The members of a generated `…Stub` return those defaults too, where they used to stop the process: a stub's
   member returning a mocked protocol answers with that protocol's stub, and one returning a type of the sources
   with a value of it. `DefaultValueRegistry.defaultValue(for:generated:)` is what they call.
