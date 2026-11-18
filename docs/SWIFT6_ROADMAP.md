@@ -527,6 +527,9 @@ Done 2026-11-08. Items 5 and 6 were dropped.
   - 3.0.0-beta.6 is cut before the Xcode 27 minimum, https://github.com/nmcc24/Cuckoo/pull/96, so the release workflow's new steps (the draft before the tag, the attestation, the Xcode project with the prebuilt bundle) run once before 3.0.0.
 - No 2.x pull requests to Brightify (nmcc24, 2026-11-15): fixes there would make the fork answer for 2.x not breaking. The 3.0 offer was posted as Brightify/Cuckoo#605 (2026-11-15): a `3.0` branch upstream, or the fork linked from upstream's README.
 
+### Later: Cuckoo 3.x
+- Swift 6.4 minimum (raised 2026-11-18, kept at 6.3 by nmcc24): revisit after Swift 6.5 ships, or when a 6.4-only feature is needed. Raising it would drop Linux users on 6.3 for the removal of a few small guards: `#if hasAttribute(diagnose)` in the type eraser, `expected-failures-swift-6.3.txt`, `build-docs.sh`'s 6.3 workaround, a `SwiftSyntax604` test guard and the 6.3 CI legs, with the swift-syntax floor moving to 604 (S).
+
 ### Later: Cuckoo 4.0
 - Hide `Matchable` from users (decided 2026-11-13). Rename `_Matchable`, `_OptionalMatchable` and their `Sendable` refinements back to `Matchable` and so on under `@_spi(CuckooGenerated)`, have the mocks `@_spi(CuckooGenerated) import Cuckoo`, and remove the deprecated aliases. The public API that takes the protocols today (property `set`, `or`/`and` on values) needs concrete overloads first, since public API can't mention an SPI type. A hard break, so only in a major release (M).
 - Remove `thenReturn(inOrder:)`, deprecated in 3.0 for `thenReturn(contentsOf:)` (decided by nmcc24, 2026-11-20) (S).
