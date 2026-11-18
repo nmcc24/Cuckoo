@@ -333,10 +333,6 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
                   let parentIsolation = parents.first(where: { $0.globalActor != nil && !$0.isIsolationDefault })?.isolation {
             protocolDeclaration.isolation = parentIsolation
             protocolDeclaration.isIsolationDefault = false
-        } else if isIsolationDefault, parents.contains(where: { $0.isolation == .nonisolated }) {
-            // A parent's stated `nonisolated` replaces the module's default isolation, as a global actor does.
-            protocolDeclaration.isolation = .nonisolated
-            protocolDeclaration.isIsolationDefault = false
         }
         return protocolDeclaration
     }
