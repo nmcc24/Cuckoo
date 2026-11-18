@@ -508,13 +508,18 @@ public final class MockManager: Sendable {
         reportFailure(message, at: sourceLocation, creatingTest: creatingTest)
     }
 
-    private func failAndCrash(_ message: String, at sourceLocation: SourceLocation? = nil) -> Never {
-        reportFailure(message, at: sourceLocation, creatingTest: creatingTest)
-
+    /// Reports a failure the mock can't go on from, and stops.
+    ///
+    /// In an XCTest test on Apple platforms it raises an exception instead, where XCTest can record it as the test's
+    /// failure and run the next test: reporting the failure as well would fail the test twice. Anywhere else the
+    /// failure is reported and the process stops.
+    private func failAndCrash(_ message: String) -> Never {
         #if _runtime(_ObjC)
-        NSException(name: .internalInconsistencyException, reason: message, userInfo: nil).raise()
+        if xctestCanRecordCrash(creatingTest: creatingTest) {
+            NSException(name: .internalInconsistencyException, reason: message, userInfo: nil).raise()
+        }
         #endif
-
+        reportFailure(message, at: nil, creatingTest: creatingTest)
         fatalError(message)
     }
 }

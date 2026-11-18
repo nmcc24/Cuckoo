@@ -324,4 +324,33 @@ struct FailuresOutsideTheTestTaskTests {
 
         #expect(location == nil)
     }
+
+    /// A failure the mock can't go on from is raised as an exception only where XCTest records it: outside Swift
+    /// Testing, a failure handler, and the task-local scopes the exception would leave open for the next test.
+    @Test
+    func crashIsRaisedOnlyForXCTestAndOutsideTaskLocalScopes() async {
+        #expect(!xctestCanRecordCrash(creatingTest: nil))
+
+        let raised = await Task.detached {
+            var defaultValues = DefaultValues()
+            defaultValues.register(1)
+            var insideInOrder = true
+            inOrder {
+                insideInOrder = xctestCanRecordCrash(creatingTest: nil)
+            }
+            return [
+                xctestCanRecordCrash(creatingTest: nil),
+                xctestCanRecordCrash(creatingTest: MockTestedProtocol().cuckooManager.creatingTest),
+                CuckooConfiguration.$current.withValue(CuckooConfiguration(defaultValues: defaultValues)) {
+                    xctestCanRecordCrash(creatingTest: nil)
+                },
+                CuckooConfiguration.$current.withValue(CuckooConfiguration(failureHandler: { _ in })) {
+                    xctestCanRecordCrash(creatingTest: nil)
+                },
+                withStaticStubs { xctestCanRecordCrash(creatingTest: nil) },
+                insideInOrder,
+            ]
+        }.value
+        #expect(raised == [true, true, false, false, false, false])
+    }
 }
