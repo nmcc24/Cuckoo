@@ -185,9 +185,9 @@ enum TypeErasureBuilder {
         var declaration = property.spiAttributes(at: property.accessibility).map(\.description)
         declaration.append("\(context.access)\(context.modifier(for: property.isolation))var \(property.name): \(type) {")
         if let reason = unforwardableReason(of: property, context) {
-            declaration.append("    get \(getterEffects){ return \(unforwardableCall("\(context.protocolName).\(property.name)", reason: reason, returning: property.type)) }")
+            declaration.append("    get \(getterEffects){ return \(unforwardableCall("\(context.protocolName).\(property.name)", reason: reason, returning: property.type, of: property)) }")
             if !property.isReadOnly {
-                declaration.append("    set { \(unforwardableCall("\(context.protocolName).\(property.name)", reason: reason, returning: nil)) as Void }")
+                declaration.append("    set { \(unforwardableCall("\(context.protocolName).\(property.name)", reason: reason, returning: nil, of: property)) as Void }")
             }
             declaration.append("}")
             return [lines(declaration)]
@@ -220,8 +220,8 @@ enum TypeErasureBuilder {
 
     /// The manager call that stands in for forwarding `member`: it records a failure on the mock's manager and returns
     /// the default an unstubbed call would.
-    private static func unforwardableCall(_ member: String, reason: String, returning type: ComplexType?) -> String {
-        let tuple = GeneratorHelper.unstubbedTupleArgument(for: type).map { ", \($0)" } ?? ""
+    private static func unforwardableCall(_ member: String, reason: String, returning type: ComplexType?, of token: any Token) -> String {
+        let tuple = GeneratorHelper.unstubbedDefaultArgument(for: type, of: token).map { ", \($0)" } ?? ""
         return "cuckooManager.unforwardableDefaultImplementationCall(\(Fragment.literal(member)), reason: \(Fragment.literal(reason))\(tuple))"
     }
 
@@ -254,12 +254,12 @@ enum TypeErasureBuilder {
 
     private static func sources(of subscriptDeclaration: Subscript, number: Int, _ context: Context) -> [String] {
         if let reason = unforwardableReason(of: subscriptDeclaration, context) {
-            let call = unforwardableCall(subscriptDeclaration.getter.fullyQualifiedName, reason: reason, returning: subscriptDeclaration.returnType)
+            let call = unforwardableCall(subscriptDeclaration.getter.fullyQualifiedName, reason: reason, returning: subscriptDeclaration.returnType, of: subscriptDeclaration)
             var declaration = subscriptDeclaration.spiAttributes(at: subscriptDeclaration.accessibility).map(\.description)
             declaration.append("\(context.access)\(context.modifier(for: subscriptDeclaration.isolation))subscript\(subscriptDeclaration.signature) {")
             declaration.append("    get \(subscriptDeclaration.getterEffects){ return \(call) }")
             if !subscriptDeclaration.isReadOnly {
-                let setterCall = unforwardableCall(subscriptDeclaration.setter.fullyQualifiedName, reason: reason, returning: nil)
+                let setterCall = unforwardableCall(subscriptDeclaration.setter.fullyQualifiedName, reason: reason, returning: nil, of: subscriptDeclaration)
                 declaration.append("    set { \(setterCall) as Void }")
             }
             declaration.append("}")
@@ -293,7 +293,7 @@ enum TypeErasureBuilder {
         declaration.append("\(context.access)\(context.modifier(for: subscriptDeclaration.isolation))subscript\(subscriptDeclaration.signature) {")
         declaration.append("    get \(effects){")
         let variadicCrash = "Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(getter.fullyQualifiedName)))"
-        let unforwardable = unforwardableCall(getter.fullyQualifiedName, reason: getter.unforwardableWhereClauseReason, returning: subscriptDeclaration.returnType)
+        let unforwardable = unforwardableCall(getter.fullyQualifiedName, reason: getter.unforwardableWhereClauseReason, returning: subscriptDeclaration.returnType, of: subscriptDeclaration)
         if isGeneric && getter.hasVariadicParams {
             declaration.append("        \(variadicCrash)")
         } else if isGeneric && !getter.associatedTypesInWhereClause.isEmpty {
@@ -444,11 +444,11 @@ enum TypeErasureBuilder {
         var declaration = method.spiAttributes(at: method.accessibility).map(\.description)
         declaration.append("\(context.access)\(context.modifier(for: method.isolation, execution: method.executionAttribute))func \(escapeReservedKeywords(for: method.name))\(method.signature.description) {")
         if let unforwardable {
-            declaration.append("    return \(unforwardableCall(method.fullyQualifiedName, reason: unforwardable, returning: method.returnType))")
+            declaration.append("    return \(unforwardableCall(method.fullyQualifiedName, reason: unforwardable, returning: method.returnType, of: method))")
         } else if method.hasVariadicParams && method.hasGenericParams {
             declaration.append("    Cuckoo.MockManager.crashOnVariadicArgumentForward(\(Fragment.literal(method.fullyQualifiedName)))")
         } else if method.hasGenericParams && !method.associatedTypesInWhereClause.isEmpty {
-            declaration.append("    return \(unforwardableCall(method.fullyQualifiedName, reason: method.unforwardableWhereClauseReason, returning: method.returnType))")
+            declaration.append("    return \(unforwardableCall(method.fullyQualifiedName, reason: method.unforwardableWhereClauseReason, returning: method.returnType, of: method))")
         } else if method.hasGenericParams && method.usesNonPrimaryAssociatedTypes {
             // A `sending` argument is passed in rather than captured: a captured value can't be sent on.
             let variants = method.localFunctionVariants
