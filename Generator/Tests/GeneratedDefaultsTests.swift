@@ -124,7 +124,8 @@ struct GeneratedDefaultsTests {
             }
             """
         #expect(try await defaults(in: source) == [
-            "Feature.EngineStub()", "EngineStub()", "Feature.EngineStub()", "Feature.EngineStub()",
+            // `aliased()` has none: inside `Feature`, `EngineStub` is the stub of `Feature.Engine`.
+            "Feature.EngineStub()", "Feature.EngineStub()", "Feature.EngineStub()",
             // The struct nearest to the member, not a protocol further out.
             "Engine()",
             "EngineStub()", "EngineStub()", "Feature.EngineStub()",
@@ -135,7 +136,9 @@ struct GeneratedDefaultsTests {
     func aTypeOfTheSourcesGetsAValue() async throws {
         let source = """
             struct Settings { var volume = 5 }
-            final class Canvas {}
+            struct Canvas {}
+            final class Sheet {}
+            actor Counter {}
             enum Direction { case north, south }
             enum Feature {
                 struct Flags {}
@@ -153,6 +156,8 @@ struct GeneratedDefaultsTests {
                 func existential() -> any Settings
                 func generic<Canvas>(_ canvas: Canvas) -> Canvas
                 func foreign() -> Data
+                func sheet() -> Sheet
+                func counter() -> Counter
             }
             class Studio {
                 func settings() -> Settings { Settings() }
@@ -161,6 +166,92 @@ struct GeneratedDefaultsTests {
         #expect(try await defaults(in: source) == [
             "Settings()", "Canvas()", "Direction.north", "Feature.Flags()", "App.Settings()", "Settings()",
         ])
+    }
+
+    /// With an initializer in an extension, `Type()` may be ambiguous, or not the initializer the type declares.
+    @Test
+    func aStructWithAnExtensionInitializerGetsNone() async throws {
+        let source = """
+            struct Range {
+                init(maximum: Int = 3) {}
+            }
+            extension Range {
+                init(minimum: Int = 0) {}
+            }
+            enum Feature {
+                struct Limits {}
+                struct Flags {}
+            }
+            extension App.Feature.Limits {
+                init(maximum: Int) {}
+            }
+            protocol Desk {
+                func range() -> Range
+                func limits() -> Feature.Limits
+                func flags() -> Feature.Flags
+            }
+            """
+        #expect(try await defaults(in: source) == ["Feature.Flags()"])
+    }
+
+    /// A name qualified with a module that isn't the sources' is that module's type, whatever the sources declare.
+    @Test
+    func aTypeOfAnotherModuleIsNotTheSourcesTypeOfThatName() async throws {
+        let source = """
+            import Foundation
+            struct Notification {}
+            enum Locale { case english }
+            protocol Engine {}
+            enum Feature {
+                struct Flags {}
+            }
+            protocol Desk {
+                func foreign() -> Foundation.Notification
+                func foreignLocale() -> Foundation.Locale
+                func foreignEngine() -> any Vendor.Engine
+                func foreignNested() -> Vendor.Feature.Flags
+                func own() -> Notification
+                func ownLocale() -> App.Locale
+                func ownEngine() -> any App.Engine
+                func ownNested() -> App.Feature.Flags
+            }
+            """
+        #expect(try await defaults(in: source) == ["Notification()", "App.Locale.english", "EngineStub()", "App.Feature.Flags()"])
+        // The Swift module of the sources, where the Cuckoofile names it, qualifies them too.
+        let inCore = #"{ Core = ["Source.swift"] }"#
+        let core = source.replacing("Vendor.", with: "Core.")
+        #expect(try await defaults(in: core, sources: inCore, moduleKeys: #"testableImports = ["Core"]"#) == [
+            "EngineStub()", "Core.Feature.Flags()", "Notification()", "App.Locale.english", "EngineStub()", "App.Feature.Flags()",
+        ])
+    }
+
+    /// A stub is named from the top level, so a declaration of that name nearer to the mock would be found instead.
+    @Test
+    func aShadowedStubIsLeftOut() async throws {
+        let source = """
+            protocol Engine {}
+            protocol Wheel {}
+            typealias Motor = Engine
+            enum Feature {
+                protocol Engine {}
+                struct WheelStub {}
+                protocol Car {
+                    func aliased() -> any Motor
+                    func qualified() -> any App.Engine
+                    func wheel() -> any Wheel
+                    func nearest() -> any Engine
+                }
+            }
+            class Workshop {
+                protocol Engine {}
+                func aliased() -> any Motor { fatalError() }
+            }
+            protocol Car {
+                func engine() -> any Motor
+                func wheel() -> any Wheel
+            }
+            """
+        #expect(try await defaults(in: source) == ["Feature.EngineStub()", "EngineStub()", "WheelStub()"])
     }
 
     /// An internal initializer, an implicit one included, is the mocks' to call only with the module's internals in

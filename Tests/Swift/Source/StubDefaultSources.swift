@@ -20,6 +20,19 @@ protocol Assembly {
     func checked() throws -> any Part
 }
 
+/// A member taking `Self` isn't forwarded to a default implementation, and answers with the default value instead.
+protocol Fitting {
+    func adapter(to other: Self) -> any Part
+}
+
+/// A protocol with an associated type, whose mock forwards through a type eraser, which can't forward an `inout`
+/// member and answers with the default value instead.
+protocol Crate {
+    associatedtype Item
+    func first() -> Item?
+    func unpack(_ count: inout Int) -> any Part
+}
+
 class Workbench {
     func part() -> any Part {
         fatalError("Mocked in the tests.")
