@@ -300,7 +300,7 @@ itself passes. A mock created in that task belongs to no test, so its failures g
 doesn't see them: create mocks in the test.
 
 A failure the mock can't go on from, such as an unstubbed call whose return type has no default value, is reported
-and then stops the process. An XCTest test on Apple platforms fails with an exception instead, and the next test
-runs, unless the call is inside `inOrder`, `withStaticStubs`, `createMock` or a scope that sets
+and then stops the process. A synchronous XCTest test on Apple platforms fails with an exception instead, and the
+next test runs, unless the call is on another thread or in a task, or inside `inOrder`, `withStaticStubs`, `createMock` or a scope that sets
 ``CuckooConfiguration/defaultValues``: the exception would leave that scope open for the next test, so the process
 stops there too.

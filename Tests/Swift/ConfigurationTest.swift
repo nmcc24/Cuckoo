@@ -330,6 +330,8 @@ struct FailuresOutsideTheTestTaskTests {
     @Test
     func crashIsRaisedOnlyForXCTestAndOutsideTaskLocalScopes() async {
         #expect(!xctestCanRecordCrash(creatingTest: nil))
+        // A mock created in this test reports to it from any task.
+        let creatingTest = MockTestedProtocol().cuckooManager.creatingTest
 
         let raised = await Task.detached {
             var defaultValues = DefaultValues()
@@ -338,9 +340,14 @@ struct FailuresOutsideTheTestTaskTests {
             inOrder {
                 insideInOrder = xctestCanRecordCrash(creatingTest: nil)
             }
+            var insideCreateMock = true
+            _ = createMock(MockTestedProtocol.self) { _, _ in
+                insideCreateMock = xctestCanRecordCrash(creatingTest: nil)
+                return MockTestedProtocol()
+            }
             return [
                 xctestCanRecordCrash(creatingTest: nil),
-                xctestCanRecordCrash(creatingTest: MockTestedProtocol().cuckooManager.creatingTest),
+                xctestCanRecordCrash(creatingTest: creatingTest),
                 CuckooConfiguration.$current.withValue(CuckooConfiguration(defaultValues: defaultValues)) {
                     xctestCanRecordCrash(creatingTest: nil)
                 },
@@ -349,8 +356,9 @@ struct FailuresOutsideTheTestTaskTests {
                 },
                 withStaticStubs { xctestCanRecordCrash(creatingTest: nil) },
                 insideInOrder,
+                insideCreateMock,
             ]
         }.value
-        #expect(raised == [true, true, false, false, false, false])
+        #expect(raised == [true, false, false, false, false, false, false])
     }
 }

@@ -210,7 +210,11 @@ public final class MockManager: Sendable {
         case .stubbed(.callRealImplementation), .superclass:
             return try superclassCall()
         case .defaultImplementation:
-            // The default implementation sees the mock's default values too: a generated `…Stub` returns them.
+            // The default implementation sees the mock's default values too: a generated `…Stub` returns them. With
+            // none, it runs in the current scope, so a crash inside it raises from no scope of Cuckoo's.
+            guard !creatingDefaultValues.isEmpty else {
+                return try defaultCall()
+            }
             let result: Result<OUT, ERROR> = CuckooConfiguration.$current.withValue(configurationWithCreatingDefaults) {
                 do throws(ERROR) {
                     return .success(try defaultCall())
@@ -248,6 +252,9 @@ public final class MockManager: Sendable {
         case .stubbed(.callRealImplementation), .superclass:
             return try await superclassCall()
         case .defaultImplementation:
+            guard !creatingDefaultValues.isEmpty else {
+                return try await defaultCall()
+            }
             let result: Result<OUT, ERROR> = await CuckooConfiguration.$current.withValue(configurationWithCreatingDefaults) {
                 do throws(ERROR) {
                     return .success(try await defaultCall())
@@ -330,7 +337,10 @@ public final class MockManager: Sendable {
         guard callMatcher.matches(calls) else {
             // The calls stay unverified, so `verifyNoMoreInteractions` still reports them.
             let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(timesDescription(calls.count))")."
-            let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, among: recordedCalls)
+            let otherReturnTypes = callsToMember.isEmpty
+                ? recordedCalls.filter { $0.call.method == method }.map { "\($0.returnType)" }
+                : []
+            let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, otherReturnTypes: otherReturnTypes, among: recordedCalls)
             reportFailure(message + "\n" + described, at: sourceLocation, creatingTest: creatingTest)
             return VerifiedCall()
         }
@@ -342,12 +352,20 @@ public final class MockManager: Sendable {
     }
 
     /// What a failed `verify` of `method` saw: its calls and the argument each one that didn't match got wrong, or
-    /// else every call the mock received.
-    private func describeCalls(of method: String, callsToMember: [(recorded: RecordedCall, mismatch: Int?)], among recordedCalls: [RecordedCall]) -> String {
+    /// else the return types it was called with instead, or else every call the mock received.
+    private func describeCalls(of method: String, callsToMember: [(recorded: RecordedCall, mismatch: Int?)], otherReturnTypes: [String], among recordedCalls: [RecordedCall]) -> String {
         let member = MemberSignature(method)
         guard !callsToMember.isEmpty else {
             guard !recordedCalls.isEmpty else {
                 return "The mock received no calls."
+            }
+            if !otherReturnTypes.isEmpty {
+                var unique: [String] = []
+                for type in otherReturnTypes where !unique.contains(type) {
+                    unique.append(type)
+                }
+                return "\(member.name) was called only with other return types, which this `verify` doesn't count:\n"
+                    + numberedList(unique)
             }
             return "\(member.name) wasn't called. The mock received:\n" + numberedList(recordedCalls.map(\.call.readableDescription))
         }
@@ -510,12 +528,13 @@ public final class MockManager: Sendable {
 
     /// Reports a failure the mock can't go on from, and stops.
     ///
-    /// In an XCTest test on Apple platforms it raises an exception instead, where XCTest can record it as the test's
-    /// failure and run the next test: reporting the failure as well would fail the test twice. Anywhere else the
-    /// failure is reported and the process stops.
+    /// In a synchronous XCTest test on Apple platforms it raises an exception instead, where XCTest can record it as
+    /// the test's failure and run the next test: reporting the failure as well would fail the test twice. XCTest
+    /// catches it only in the test method itself, on the main thread outside any task, not in an `async` test or on
+    /// another thread. Anywhere else the failure is reported and the process stops.
     private func failAndCrash(_ message: String) -> Never {
         #if _runtime(_ObjC)
-        if xctestCanRecordCrash(creatingTest: creatingTest) {
+        if Thread.isMainThread, withUnsafeCurrentTask(body: { $0 == nil }), xctestCanRecordCrash(creatingTest: creatingTest) {
             NSException(name: .internalInconsistencyException, reason: message, userInfo: nil).raise()
         }
         #endif

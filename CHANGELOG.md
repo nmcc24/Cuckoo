@@ -26,15 +26,17 @@
   where a `deinit` that uses the mock waits for it. They're released after the lock in every build now.
 - `verify` of a generic member counted its calls with every return type, so
   `verify(cache).value(forKey: "a").with(returnType: Int?.self)` passed for a call returning `String?`, and
-  `never()` failed. It counts only the calls with the verified return type, as a stub answers only those.
+  `never()` failed. It counts only the calls with the verified return type, as a stub answers only those. A test
+  from Cuckoo 2 that named a supertype or an existential there verifies no calls now: name the call's return type.
 - A generated `…Stub` used as a default implementation ignored the default values of the scope its mock was created
   in, when called from a task outside it, such as a `Task.detached`. A default implementation runs with them now, as
   an unstubbed call does.
 - In an XCTest test on Apple platforms, a failure the mock can't go on from, such as an unstubbed call whose return
   type has no default value, was reported twice: as an `XCTFail` and as the exception XCTest catches. Only the
-  exception is reported now. Inside `inOrder`, `withStaticStubs`, `createMock` or a scope that sets default values,
-  the exception left that scope open for the thread's next tests: there the process stops instead, as it does in
-  Swift Testing.
+  exception is reported now. XCTest catches it only in a synchronous test on the main thread: anywhere else, such
+  as in an `async` test, the failure is reported and the process stops. Inside `inOrder`, `withStaticStubs`,
+  `createMock` or a scope that sets default values, the exception left that scope open for the thread's next tests:
+  there the process stops instead, as it does in Swift Testing.
 
 ### Changed
 - The stand-in a `verify` or an `ArgumentCaptor` gets for a closure parameter that isn't `@escaping` says, when

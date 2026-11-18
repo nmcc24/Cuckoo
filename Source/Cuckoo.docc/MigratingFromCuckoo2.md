@@ -80,9 +80,11 @@ behaviour on top.
 - The checks no longer take a `file:` argument: they take `filePath:`, which defaults to `#filePath`, the full path
   Xcode needs. It's a `StaticString`, so a helper that forwards it declares `filePath: StaticString = #filePath`.
 - `verify`'s result, `__DoNotUse<IN, OUT>`, is ``VerifiedCall``. Code that names the type, such as a helper that
-  returns a verification, changes; `with(returnType:)` is unchanged. An optional property's verified getter
-  returns `VerifiedCall<Void, T?>`, not `VerifiedCall<Void, T>`, so `with(returnType:)` on it names the optional
-  type.
+  returns a verification, changes. `with(returnType:)` now counts only the calls that returned exactly that type, as
+  a stub answers only those: a test that named a supertype or an existential there, such as
+  `with(returnType: Animal.self)` for a call returning `Dog`, verifies no calls now. An optional property's
+  verified getter returns `VerifiedCall<Void, T?>`, not `VerifiedCall<Void, T>`, so `with(returnType:)` on it names
+  the optional type.
 - `hasLength(inRange:)` is removed in favour of ``hasLength(in:)``, whose range means what it says. With a
   half-open range, `inRange:` included the upper bound, as `inclusive: true` did by default: `inRange: 1..<3`
   matched 3, and so does `in: 1...3`, while `in: 1..<3` doesn't. Move each call to `in:` with the range you mean.
