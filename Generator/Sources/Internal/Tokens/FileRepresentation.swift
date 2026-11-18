@@ -15,8 +15,10 @@ struct FileRepresentation: Sendable {
 }
 
 extension FileRepresentation {
-    func mergingInheritance(with files: [FileRepresentation], names: TypeNames) -> FileRepresentation {
-        replacing(tokens: tokens.map { $0.mergingInheritance(with: files, names: names, merging: []) })
+    /// - Parameter defaultIsolation: The module's default isolation, under which Swift infers a witness's isolation
+    ///   in a `nonisolated` class.
+    func mergingInheritance(with files: [FileRepresentation], names: TypeNames, defaultIsolation: Isolation? = nil) -> FileRepresentation {
+        replacing(tokens: tokens.map { $0.mergingInheritance(with: files, names: names, defaultIsolation: defaultIsolation, merging: []) })
     }
 
     func flatMappingMemberContainers() -> FileRepresentation {
@@ -138,7 +140,7 @@ struct TypeNames: Sendable {
 extension Token {
     /// `merging` holds the types whose inheritance is being merged, outermost first: a cycle, which Swift rejects,
     /// ends at the type that closes it.
-    fileprivate func mergingInheritance(with files: [FileRepresentation], names: TypeNames, merging: Set<String>) -> any Token {
+    fileprivate func mergingInheritance(with files: [FileRepresentation], names: TypeNames, defaultIsolation: Isolation?, merging: Set<String>) -> any Token {
         guard let token = self as? any Token & HasMembers & HasInheritance & HasName,
               !merging.contains(token.fullyQualifiedName) else { return self }
         let merging = merging.union([token.fullyQualifiedName])
@@ -148,7 +150,7 @@ extension Token {
         let inheritedRepresentations = token.inheritedTypes
             .compactMap { names.resolve(token.isProtocol ? $0.withoutGenericArguments : $0, from: token.fullyQualifiedName) }
             .filter { !(token.isProtocol && $0.isClass) }
-            .map { $0.mergingInheritance(with: files, names: names, merging: merging) }
+            .map { $0.mergingInheritance(with: files, names: names, defaultIsolation: defaultIsolation, merging: merging) }
 
         let mergedTokens = inheritedRepresentations
             .compactMap { $0 as? any HasMembers }
@@ -200,6 +202,29 @@ extension Token {
                     var member = member
                     member.parent = reference
                     return member
+                })
+            }
+            // With a default isolation, Swift gives a member of a `nonisolated` class the global actor of the
+            // requirement it implements, for a protocol the class itself states: `show()` of a default-isolated
+            // `Showing` is on the main actor in `class Child: Plain, Showing`, whatever `Plain` makes of the class.
+            // A member that states its isolation keeps it, and so does one of a `nonisolated` requirement.
+            if defaultIsolation != nil, merged.isolation == .nonisolated {
+                let requirements = inheritedRepresentations
+                    .compactMap { $0 as? ProtocolDeclaration }
+                    .flatMap { parent in
+                        parent.members.compactMap { member -> (requirement: any Inheritable, isolation: Isolation)? in
+                            guard let requirement = member as? any Inheritable,
+                                  let isolation = member.memberIsolation ?? parent.isolation,
+                                  case .globalActor = isolation else { return nil }
+                            return (requirement, isolation)
+                        }
+                    }
+                merged = merged.replacing(members: merged.members.map { member in
+                    guard (member.parent?.value as? any HasName)?.fullyQualifiedName == classToken.fullyQualifiedName,
+                          member.memberIsolation == nil,
+                          let inheritable = member as? any Inheritable,
+                          let witnessed = requirements.first(where: { $0.requirement.isEqual(to: inheritable) }) else { return member }
+                    return member.withDefaultIsolation(witnessed.isolation)
                 })
             }
             return merged
@@ -256,6 +281,17 @@ extension Token {
 }
 
 extension Token {
+    /// The isolation a member states: its own, or `nonisolated` for a method that runs on its caller's actor or on
+    /// the one a parameter names.
+    fileprivate var memberIsolation: Isolation? {
+        switch self {
+        case let method as Method: method.stubbedIsolation
+        case let variable as Variable: variable.isolation
+        case let subscriptDeclaration as Subscript: subscriptDeclaration.isolation
+        default: nil
+        }
+    }
+
     /// The member with `isolation` if it states none of its own.
     fileprivate func withDefaultIsolation(_ isolation: Isolation) -> any Token {
         switch self {

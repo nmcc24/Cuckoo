@@ -5,6 +5,46 @@ import Testing
 /// and the runtime tests compile the results; these pin the generated text, on Linux too for the Objective-C ones.
 @Suite
 struct MemberShapeTests {
+    private static let mainActor = #"defaultIsolation = "MainActor""#
+
+    /// With a default isolation, a `nonisolated` class's member takes the global actor of the requirement it
+    /// implements, as Swift infers it.
+    @Test
+    func aWitnessInANonisolatedClassTakesItsRequirementsActor() async throws {
+        let source = """
+            @globalActor actor Background { static let shared = Background() }
+            nonisolated class Plain {
+                init() {}
+            }
+            protocol Showing {
+                func show()
+                nonisolated func describe()
+            }
+            @Background protocol Syncing {
+                var synced: Bool { get }
+            }
+            class Screen: Plain, Showing, Syncing {
+                func show() {}
+                func describe() {}
+                var synced: Bool { true }
+                func own() {}
+            }
+            """
+        let isolated = try await generateMocks(source: source, options: Self.mainActor)
+        let mock = try #require(isolated.firstRange(of: "class MockScreen").map { String(isolated[$0.lowerBound...]) })
+        #expect(mock.contains("@MainActor\n    override func show()"))
+        #expect(mock.contains("@Background\n    override var synced: Bool"))
+        #expect(mock.contains("\n    override func describe()"))
+        #expect(mock.contains("\n    override func own()"))
+        #expect(!mock.contains("@MainActor\n    override func describe()"))
+        #expect(!mock.contains("@MainActor\n    override func own()"))
+
+        // Without a default isolation Swift infers nothing for a `nonisolated` class's members.
+        let plain = try await generateMocks(source: source)
+        #expect(!plain.contains("@MainActor\n    override func show()"))
+        #expect(!plain.contains("@Background\n    override var synced"))
+    }
+
     /// `Self.ID` is written `ID` in the mock, whatever `ID` is, and a function typealias named through `Self` is
     /// the closure it stands for.
     @Test

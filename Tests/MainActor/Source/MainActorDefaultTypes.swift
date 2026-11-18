@@ -19,3 +19,20 @@ class DefaultIsolatedCounter {
 nonisolated protocol NonisolatedClock: Sendable {
     func now() -> Int
 }
+
+// A class nonisolated through its superclass: Swift still gives the members that implement a default-isolated
+// protocol's requirements the main actor, and leaves the others nonisolated.
+nonisolated class NonisolatedBase {
+    init() {}
+}
+
+protocol DefaultIsolatedShowing {
+    func show() -> String
+    nonisolated func describe() -> String
+}
+
+class WitnessingScreen: NonisolatedBase, DefaultIsolatedShowing {
+    func show() -> String { "shown" }
+    func describe() -> String { "screen" }
+    func own() -> Int { 1 }
+}
