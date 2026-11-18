@@ -148,8 +148,9 @@ struct MemberShapeTests {
             """
         let output = try await generateMocks(source: source)
         #expect(output.contains("func value() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int,"))
-        #expect(output.contains("func value() async -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int,"))
-        #expect(output.contains("func value() async -> Cuckoo.VerifiedCall<(), Int>"))
+        // On the caller's actor, which keeps a proxy that isn't `Sendable` there.
+        #expect(output.contains("nonisolated(nonsending) func value() async -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int,"))
+        #expect(output.contains("nonisolated(nonsending) func value() async -> Cuckoo.VerifiedCall<(), Int>"))
         // Different parameters tell these apart already.
         #expect(!output.contains("(_ p0: __M1) async ->"))
     }

@@ -100,6 +100,15 @@ when(await loader.cuckooStubbingProxy().value()).thenReturn(2) // func value() a
 
 `await verify(loader).value()` verifies the async overload likewise, and a `verify` in a synchronous closure the
 sync one. ``inOrder(strict:fileID:filePath:line:column:_:)``'s block is synchronous, so it verifies the sync one.
+The async members run on their caller's actor, so a test on the main actor can use them too.
+
+Static overloads work the same way: `await verify(MockLoader.self).shared()` verifies the async one, and its
+stubbing proxy is made from the type's manager:
+
+```swift
+let stubbing = MockLoader.CuckooStaticStubbing(manager: MockLoader.cuckooStaticManager)
+when(await stubbing.shared()).thenReturn(2)                    // static func shared() async -> Int
+```
 
 What `thenReturn` accepts follows from the mocked type's isolation, which ``StubSharing`` describes. The mock of a
 `Sendable` type can be called from any task, so its stubs return `Sendable` values; a `@MainActor` mock's

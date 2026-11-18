@@ -802,7 +802,7 @@ final class MockOverloads: Overloads, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func value() async -> Cuckoo.ClassStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
+        nonisolated(nonsending) func value() async -> Cuckoo.ClassStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckooManager.createStub(for: MockOverloads.self,
                 method: "value() async -> Int",
@@ -834,7 +834,7 @@ final class MockOverloads: Overloads, nonisolated Cuckoo.ClassMock {
         }
 
         @discardableResult
-        func value() async -> Cuckoo.VerifiedCall<(), Int> {
+        nonisolated(nonsending) func value() async -> Cuckoo.VerifiedCall<(), Int> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckooManager.verify(
                 "value() async -> Int",

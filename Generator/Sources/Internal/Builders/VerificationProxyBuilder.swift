@@ -77,7 +77,10 @@ enum VerificationProxyBuilder {
         let generics = GeneratorHelper.matchableGenericTypes(from: method, forVerification: true)
         let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method, forVerification: true)
-        return "\(memberAccess.spaced)func \(method.proxyName)\(generics)(\(parameters))\(isAsync ? " async" : "") -> Cuckoo.VerifiedCall<(\(input)), \(output)>\(whereClause) {"
+        // An async member that no global actor isolates runs on its caller's actor: a plain `async` one would send
+        // the proxy, which isn't `Sendable`, off a caller on the main actor.
+        let execution = isAsync && method.stubIsolation.globalActor == nil ? "nonisolated(nonsending) " : ""
+        return "\(memberAccess.spaced)\(execution)func \(method.proxyName)\(generics)(\(parameters))\(isAsync ? " async" : "") -> Cuckoo.VerifiedCall<(\(input)), \(output)>\(whereClause) {"
     }
 
     private static func source(of method: Method, access memberAccess: Accessibility, isAsync: Bool) -> String {
