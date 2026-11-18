@@ -3,7 +3,7 @@ import Cuckoo
 // A class implementing a protocol's requirements with members its mock can't override: `static` or `final` ones.
 // The mock leaves them alone, as it does the class's other `static` and `final` members, and doesn't declare the
 // protocol's requirement next to them. The same goes for members an extension of the class declares, whatever
-// they are.
+// they are, and for such members of a superclass, whose subclass states the protocol.
 protocol Counting {
     static var shared: Int { get }
     static func reset()
@@ -70,3 +70,79 @@ func useExtensionWitnesses() {
     _ = mock.stamp + mock["a"] + MockLiveFeed().stamp + Feeds.MockCached().stamp
     verify(mock).reload()
 }
+
+// The requirements a superclass implements that way, in its body or in an extension, for a subclass that states
+// the protocol. A generic superclass is found without its arguments.
+protocol Resetting {
+    static func reset()
+    func ping()
+    func hello()
+    func open()
+}
+
+class ResetBase {
+    init() {}
+    static func reset() {}
+    final func ping() {}
+    func open() {}
+}
+
+extension ResetBase {
+    func hello() {}
+}
+
+class ResetChild: ResetBase, Resetting {}
+
+class ResetGrandchild: ResetChild {}
+
+class GenericResetBase<Value> {
+    init() {}
+    static func reset() {}
+    final func ping() {}
+    final func open() {}
+}
+
+extension GenericResetBase {
+    func hello() {}
+}
+
+class GenericResetChild: GenericResetBase<Int>, Resetting {}
+
+func useSuperclassWitnesses() {
+    let mock = MockResetChild()
+    stub(mock) { stub in
+        when(stub.open()).thenDoNothing()
+    }
+    mock.open()
+    mock.ping()
+    mock.hello()
+    MockResetChild.reset()
+    MockResetGrandchild().hello()
+    MockGenericResetChild().ping()
+    verify(mock).open()
+}
+
+#if canImport(ObjectiveC)
+import Foundation
+
+// An `override` in an extension, which only an `@objc dynamic` member allows, hides nothing: the mock overrides the
+// superclass's member again.
+class DynamicBase: NSObject {
+    @objc dynamic func refresh() {}
+}
+
+class DynamicChild: DynamicBase {}
+
+extension DynamicChild {
+    override func refresh() {}
+}
+
+func useDynamicOverride() {
+    let mock = MockDynamicChild()
+    stub(mock) { stub in
+        when(stub.refresh()).thenDoNothing()
+    }
+    mock.refresh()
+    verify(mock).refresh()
+}
+#endif
