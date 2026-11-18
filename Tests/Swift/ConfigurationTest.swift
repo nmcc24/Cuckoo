@@ -205,6 +205,20 @@ struct CuckooTraitTests {
         #expect(log.all.count == 1)
     }
 
+    /// The generated `…Stub` returns default values too, so as a default implementation it gets the mock's, sync
+    /// and async, as an unstubbed call does.
+    @Test
+    func aDefaultImplementationGetsTheDefaultsTheMockWasCreatedWith() async {
+        let mock = MockTestedProtocol()
+        mock.enableDefaultImplementation(TestedProtocolStub())
+
+        let (count, asyncCount) = await Task.detached {
+            (mock.count(characters: "a"), await mock.asyncProperty)
+        }.value
+        #expect(count == 42)
+        #expect(asyncCount == 42)
+    }
+
     /// Runs `body` with the configuration the traits set, plus `failureHandler`, so the unstubbed calls these tests
     /// make on purpose don't fail them.
     private func withTraitConfiguration(failureHandler: @escaping @Sendable (ReportedFailure) -> Void, _ body: () -> Void) {
