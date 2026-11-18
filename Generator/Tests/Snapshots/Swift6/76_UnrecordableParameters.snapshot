@@ -1,0 +1,83 @@
+import Cuckoo
+import Foundation
+
+// MARK: - Mocks generated from file: 'Fixtures/Swift6/76_UnrecordableParameters.swift'
+
+final class MockMixed: Mixed, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = Mixed
+    typealias CuckooStubbing = __StubbingProxy_Mixed
+    typealias CuckooVerification = __VerificationProxy_Mixed
+
+    // Not mocked, so calls run the class's own implementation:
+    // - 'fill(_ value: inout some Sendable)' takes an 'inout some' parameter, which a stub can't write back to.
+    // - 'apply(_ values: repeat each T, to body: (repeat each T) -> Void)' takes a closure over a parameter pack, which Swift can't store.
+    // - 'isolated(_ actor: isolated (any Actor)?, body: () -> Void)' takes an isolated parameter and the non-escaping closure 'body', which the mock can't forward to the parameter's actor.
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMixed.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Mixed>()
+
+    nonisolated func enableDefaultImplementation(_ stub: Mixed) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func keep() {
+        return cuckooManager.call(
+            "keep()",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.keep(),
+            defaultCall: cuckooDefaultImplementation.value.keep()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Mixed: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func keep() -> Cuckoo.ClassStubNoReturnFunction<(), (()) -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockMixed.self,
+                method: "keep()",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Mixed: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func keep() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "keep()",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class MixedStub: Mixed {
+    override func keep() {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
