@@ -16,7 +16,7 @@ struct FileRepresentation: Sendable {
 
 extension FileRepresentation {
     func mergingInheritance(with files: [FileRepresentation], names: TypeNames) -> FileRepresentation {
-        replacing(tokens: tokens.map { $0.mergingInheritance(with: files, names: names) })
+        replacing(tokens: tokens.map { $0.mergingInheritance(with: files, names: names, merging: []) })
     }
 
     func flatMappingMemberContainers() -> FileRepresentation {
@@ -33,13 +33,27 @@ struct TypeNames: Sendable {
     private var declarations: [String: any Token & HasName] = [:]
     /// The sources' classes and protocols by the qualified name they're declared with.
     private var qualifiedDeclarations: Set<String> = []
+    /// The modules the sources import, and Swift's own, but not the sources' own modules: a name qualified with one,
+    /// as `Swift.Error`, is declared outside the sources, even when the sources declare a type of the same name.
+    private var importedModules: Set<String> = ["Swift", "_Concurrency"]
 
     /// The names, with the classes and protocols of `files`, flattened so nested ones are listed, indexed for
     /// ``declaration(named:)`` and ``resolve(_:from:)``.
-    init(typealiases: [String: String] = [:], types: Set<String> = [], files: [FileRepresentation]) {
+    /// - Parameter sourceModules: the Swift modules the sources belong to, which one source file can import from
+    ///   another, as `import Core` in an entry with `Core` and `App` sources.
+    init(typealiases: [String: String] = [:], types: Set<String> = [], files: [FileRepresentation], sourceModules: Set<String> = []) {
         self.typealiases = typealiases
         self.types = types
         qualifiedDeclarations = Set(files.flatMap(\.tokens).compactMap { ($0 as? any Token & HasName)?.fullyQualifiedName })
+        for file in files {
+            for module in file.imports {
+                switch module.target {
+                case .library(let name): importedModules.insert(name)
+                case .component(_, let name): importedModules.insert(String(name.split(separator: ".").first ?? ""))
+                }
+            }
+        }
+        importedModules.subtract(sourceModules)
         for token in files.flatMap(\.tokens) where token.isClass || token.isProtocol {
             guard let named = token as? any Token & HasName else { continue }
             let name = canonical(named.fullyQualifiedName)
@@ -55,11 +69,12 @@ struct TypeNames: Sendable {
     }
 
     /// `name` as Swift reads it: a typealias of a type replaced by the type, and a leading component that names
-    /// no declared type, a module's name as in `extension App.Outer`, left out.
+    /// no declared type, the sources' module's name as in `extension App.Outer`, left out. An imported module's
+    /// name stays, so `Swift.Error` names no declaration.
     func canonical(_ name: String) -> String {
         var components = name.split(separator: ".").map(String.init)
         for _ in 0..<8 {
-            if components.count > 1, !types.contains(components[0]), types.contains(components[1]) {
+            if components.count > 1, !types.contains(components[0]), !importedModules.contains(components[0]), types.contains(components[1]) {
                 components.removeFirst()
                 continue
             }
@@ -81,11 +96,16 @@ struct TypeNames: Sendable {
     /// Swift would: in the type's enclosing scopes from the innermost outwards, through typealiases. A name written
     /// qualified, `Outer.Service`, matches that declaration. Nil means it's declared outside the sources, as
     /// Swift's own `Error` is, even when a protocol nested elsewhere has the same name.
+    /// A type never inherits from itself: a name that would resolve to `scope`'s own declaration, which Swift
+    /// rejects or reads as an outside type of the same name, resolves to nil.
     func resolve(_ name: String, from scope: String, depth: Int = 0) -> (any Token)? {
-        var enclosingScopes = canonical(scope).split(separator: ".").map(String.init)
+        let ownName = canonical(scope)
+        var enclosingScopes = ownName.split(separator: ".").map(String.init)
+        // Invalid source can declare a type without a name.
+        guard !enclosingScopes.isEmpty else { return nil }
         while true {
             enclosingScopes.removeLast()
-            if let match = declaration(named: (enclosingScopes + [name]).joined(separator: ".")) {
+            if let match = declaration(named: (enclosingScopes + [name]).joined(separator: ".")), canonical(match.fullyQualifiedName) != ownName {
                 return match
             }
             // A class's scope also holds what its superclasses declare: `class Child: Base` sees `Base.Delegate`.
@@ -116,15 +136,19 @@ struct TypeNames: Sendable {
 }
 
 extension Token {
-    fileprivate func mergingInheritance(with files: [FileRepresentation], names: TypeNames) -> any Token {
-        guard let token = self as? any Token & HasMembers & HasInheritance & HasName else { return self }
+    /// `merging` holds the types whose inheritance is being merged, outermost first: a cycle, which Swift rejects,
+    /// ends at the type that closes it.
+    fileprivate func mergingInheritance(with files: [FileRepresentation], names: TypeNames, merging: Set<String>) -> any Token {
+        guard let token = self as? any Token & HasMembers & HasInheritance & HasName,
+              !merging.contains(token.fullyQualifiedName) else { return self }
+        let merging = merging.union([token.fullyQualifiedName])
 
         // A protocol bound to a class doesn't take the class's members: the mock subclasses the class instead.
         // A protocol's parent can be written with its primary associated types, as `Parent<String>`.
         let inheritedRepresentations = token.inheritedTypes
             .compactMap { names.resolve(token.isProtocol ? $0.withoutGenericArguments : $0, from: token.fullyQualifiedName) }
             .filter { !(token.isProtocol && $0.isClass) }
-            .map { $0.mergingInheritance(with: files, names: names) }
+            .map { $0.mergingInheritance(with: files, names: names, merging: merging) }
 
         let mergedTokens = inheritedRepresentations
             .compactMap { $0 as? any HasMembers }
@@ -134,14 +158,51 @@ extension Token {
                     return tokens + [inheritedToken]
                 }
 
-                let isAlreadyPresent = tokens.compactMap({ $0 as? any Inheritable }).contains(where: { $0.isEqual(to: inheritedInheritable) })
+                // A `final` or unavailable override hides the superclass's member as an override the mock has does.
+                let isAlreadyPresent = (tokens + ((token as? ClassDeclaration)?.shadowedMembers ?? []))
+                    .compactMap({ $0 as? any Inheritable })
+                    .contains(where: { $0.isEqual(to: inheritedInheritable) })
 
                 return isAlreadyPresent || !inheritedInheritable.isInheritable ? tokens : tokens + [inheritedToken]
             }
 
         switch token {
         case let classToken as ClassDeclaration:
-            return classToken.replacing(members: mergedTokens)
+            var merged = classToken.replacing(members: mergedTokens)
+            // A generic superclass's members name its generic parameters, which the mock would have to replace with
+            // the arguments the class gives them: they're left to the real implementation, and the mock says so.
+            if let superclassName = classToken.inheritedTypes.first(where: { $0.contains("<") }),
+               names.resolve(superclassName, from: classToken.fullyQualifiedName) == nil,
+               let superclass = names.resolve(superclassName.withoutGenericArguments, from: classToken.fullyQualifiedName) as? ClassDeclaration {
+                let members = superclass.members.compactMap { member -> String? in
+                    switch member {
+                    case let method as Method: "\(method.name)(\(method.signature.parameters.map { "\($0.name):" }.joined()))"
+                    case let variable as Variable: variable.name
+                    case is Subscript: "subscript"
+                    default: nil
+                    }
+                }
+                if !members.isEmpty {
+                    merged.unmockedGenericSuperclass = (superclassName, members)
+                    merged.unmockedMembers.append("\(members.map { "'\($0)'" }.joined(separator: ", ")), inherited from the generic superclass '\(superclassName)'.")
+                }
+            }
+            // A subclass takes its superclass's stated isolation, as Swift infers it, over the module's default.
+            if classToken.isIsolationDefault,
+               let superclass = inheritedRepresentations.lazy.compactMap({ $0 as? ClassDeclaration }).first,
+               !superclass.isIsolationDefault {
+                merged.isolation = superclass.isolation
+                merged.isIsolationDefault = false
+                // The class's own members read its isolation through their parent.
+                let reference = Reference<any Token>(merged.replacing(members: []))
+                merged = merged.replacing(members: merged.members.map { member in
+                    guard (member.parent?.value as? any HasName)?.fullyQualifiedName == classToken.fullyQualifiedName else { return member }
+                    var member = member
+                    member.parent = reference
+                    return member
+                })
+            }
+            return merged
         case let protocolToken as ProtocolDeclaration:
             let parents = inheritedRepresentations.compactMap { $0 as? ProtocolDeclaration }.map { parent in
                 (declaration: parent, arguments: protocolToken.inheritedTypes.first { $0.withoutGenericArguments == parent.name }?.genericArguments ?? [])
@@ -154,11 +215,23 @@ extension Token {
                 return !Crawler.parentsWithoutRequirements.contains(String(name.split(separator: ".").last ?? ""))
                     && names.resolve(name, from: protocolToken.fullyQualifiedName) == nil
             }
+            // A requirement of a parent with no global actor is nonisolated in a protocol that has one, as a
+            // conforming type's witness must be: Swift doesn't isolate it to the refining protocol's actor.
+            let nonisolatedRequirements = merged.globalActor == nil ? [] : inheritedRepresentations
+                .compactMap { $0 as? ProtocolDeclaration }
+                .filter { $0.globalActor == nil && !$0.isActor }
+                .flatMap(\.members)
+                .compactMap { $0 as? any Inheritable }
+            let ownRequirements = protocolToken.members.compactMap { $0 as? any Inheritable }
+            func isNonisolatedRequirement(_ member: any Token) -> Bool {
+                guard let member = member as? any Inheritable else { return false }
+                return nonisolatedRequirements.contains { $0.isEqual(to: member) } && !ownRequirements.contains { $0.isEqual(to: member) }
+            }
             // Every member, inherited ones included, belongs to this protocol now: its mock is the one they're
             // generated into, and its isolation, which may come from a parent, is the one they take.
             let reference = Reference<any Token>(merged.replacing(members: []))
             return merged.replacing(members: merged.members.map { member in
-                var member = member
+                var member = isNonisolatedRequirement(member) ? member.withDefaultIsolation(.nonisolated) : member
                 member.parent = reference
                 return member
             })
@@ -178,6 +251,25 @@ extension Token {
             } else {
                 return []
             }
+        }
+    }
+}
+
+extension Token {
+    /// The member with `isolation` if it states none of its own.
+    fileprivate func withDefaultIsolation(_ isolation: Isolation) -> any Token {
+        switch self {
+        case var method as Method where method.isolation == nil:
+            method.isolation = isolation
+            return method
+        case var variable as Variable where variable.isolation == nil:
+            variable.isolation = isolation
+            return variable
+        case var subscriptDeclaration as Subscript where subscriptDeclaration.isolation == nil:
+            subscriptDeclaration.isolation = isolation
+            return subscriptDeclaration
+        default:
+            return self
         }
     }
 }

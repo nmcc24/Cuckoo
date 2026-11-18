@@ -1,3 +1,4 @@
+import RegexBuilder
 import SwiftParser
 import SwiftSyntax
 
@@ -126,13 +127,33 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         let fixedNames = Set(fixedTypes.map(\.name))
         let inheritedAssociatedTypes = parents.flatMap(\.declaration.genericParameters)
 
+        // A fixed associated type is a typealias in the mock, so the mock's own declaration, where the remaining
+        // ones are its generic parameters, names its type instead: `Keys: Collection<Key>` is `Collection<Int>`.
+        func fixingType(_ type: String) -> String {
+            replacingTypeReferences(fixedTypes, in: type)
+        }
+        func fixingRequirement(_ requirement: String) -> String {
+            let isSameType = requirement.contains("==")
+            let parts = requirement.split(separator: isSameType ? "==" : ":", maxSplits: 1)
+            guard parts.count == 2 else { return requirement }
+            let left = fixingType(String(parts[0].trimmedSpaces))
+            let right = fixingType(String(parts[1].trimmedSpaces))
+            return isSameType ? "\(left) == \(right)" : "\(left): \(right)"
+        }
+
         var protocolDeclaration = self.inheritingIsolation(from: parents.map(\.declaration))
-        protocolDeclaration.whereRequirements = (whereRequirements + parents.flatMap(\.declaration.whereRequirements)).uniquing()
+        protocolDeclaration.whereRequirements = (whereRequirements + parents.flatMap(\.declaration.whereRequirements)).map(fixingRequirement).uniquing()
         protocolDeclaration.associatedTypes = (associatedTypes + inheritedAssociatedTypes)
             .merged()
             .filter { !fixedNames.contains($0.name) }
-            .map { GenericParameter(name: $0.name, inheritedTypes: ($0.inheritedTypes + constraints[$0.name, default: []]).uniquing(), kind: $0.kind, condition: $0.condition) }
+            .map { GenericParameter(name: $0.name, inheritedTypes: ($0.inheritedTypes + constraints[$0.name, default: []]).map(fixingType).uniquing(), kind: $0.kind, condition: $0.condition) }
         protocolDeclaration.primaryAssociatedTypes = primaryAssociatedTypes.filter { !fixedNames.contains($0.name) }
+        // A requirement on fixed types only, as `[String].Element: Hashable`, holds already, and a mock left with no
+        // generic parameters can't state it.
+        let remaining = protocolDeclaration.associatedTypes.map(\.name)
+        protocolDeclaration.whereRequirements = protocolDeclaration.whereRequirements.filter { requirement in
+            remaining.contains { name in requirement.contains(Regex { Anchor.wordBoundary; name; Anchor.wordBoundary }.wordBoundaryKind(.simple)) }
+        }
         // A parent's typealiases arrive with its members; keep one of each.
         var aliases: Set<String> = []
         let ownMembers = Self.unqualifyingSelf(associatedTypeNames, in: members)
@@ -292,6 +313,10 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         } else if isolation == nil || isIsolationDefault,
                   let parentIsolation = parents.first(where: { $0.globalActor != nil && !$0.isIsolationDefault })?.isolation {
             protocolDeclaration.isolation = parentIsolation
+            protocolDeclaration.isIsolationDefault = false
+        } else if isIsolationDefault, parents.contains(where: { $0.isolation == .nonisolated }) {
+            // A parent's stated `nonisolated` replaces the module's default isolation, as a global actor does.
+            protocolDeclaration.isolation = .nonisolated
             protocolDeclaration.isIsolationDefault = false
         }
         return protocolDeclaration
