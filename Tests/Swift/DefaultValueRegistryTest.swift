@@ -72,6 +72,13 @@ struct DefaultValueRegistryTest {
         #expect(value.3 == false)
     }
 
+    /// A tuple's elements get their defaults as any generic type does, which can't name a nested tuple's elements.
+    @Test
+    func aNestedTupleHasNoDefault() {
+        #expect(DefaultValueRegistry.unstubbedValue(for: ((Int, Int), String).self) == nil)
+        #expect(MockManager.unstubbedTupleValue(for: ((Int, Int), String).self) == nil)
+    }
+
     @Test
     func genericTypesGetEmptyValues() {
         func defaultValue<T>(of _: T.Type) -> T {

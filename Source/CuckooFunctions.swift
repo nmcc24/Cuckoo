@@ -23,6 +23,10 @@ public func verify<M: Mock>(_ mock: M, _ callMatcher: CallMatcher = times(1), fi
 }
 
 /// Clears the stubs and the recorded calls of `mocks`.
+///
+/// It runs from any isolation, for a mock of a global-actor type too: unlike
+/// ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)``, it reads none of the
+/// recorded arguments. It releases them, and the stubs, where it's called.
 public func reset(_ mocks: any Mock...) {
     mocks.forEach { mock in
         mock.cuckooManager.reset()
@@ -30,6 +34,8 @@ public func reset(_ mocks: any Mock...) {
 }
 
 /// Clears the stubs of `mocks`, keeping their recorded calls. The mocks may be of different types.
+///
+/// Like ``reset(_:)-(Mock...)``, it runs from any isolation, and releases the stubs where it's called.
 public func clearStubs(_ mocks: any Mock...) {
     mocks.forEach { mock in
         mock.cuckooManager.clearStubs()
@@ -37,6 +43,8 @@ public func clearStubs(_ mocks: any Mock...) {
 }
 
 /// Clears the recorded calls of `mocks`, keeping their stubs. The mocks may be of different types.
+///
+/// Like ``reset(_:)-(Mock...)``, it runs from any isolation, and releases the recorded arguments where it's called.
 public func clearInvocations(_ mocks: any Mock...) {
     mocks.forEach { mock in
         mock.cuckooManager.clearInvocations()

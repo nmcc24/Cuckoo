@@ -16,8 +16,12 @@ verify(greeter).greet(name: "Ann".or("Bob"))                 // either name
 
 ### Values
 
-Strings, characters, `Bool`, the integer and floating-point types, and arrays, sets and dictionaries of them stand
-for an equality matcher, and so do their optionals: `"Ann"` matches a `String?` parameter that holds `"Ann"`.
+Strings, characters, `Bool` and the integer and floating-point types stand for an equality matcher, and so do their
+optionals: `"Ann"` matches a `String?` parameter that holds `"Ann"`. Arrays, sets and dictionaries of them do too,
+for a parameter that isn't optional: match an optional collection with `equal(to: ["a", "b"])`.
+
+A literal has its default type, so `1.5` is a `Double`, which a `Float` parameter doesn't take: pass `Float(1.5)` or
+`equal(to: 1.5)`.
 
 For your own types, pass `equal(to:)`. It takes any `Equatable` value, so the type needs nothing else:
 
