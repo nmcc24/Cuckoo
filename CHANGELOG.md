@@ -92,9 +92,7 @@
   `Feature`. The mock and stub now declare typealiases for the ones the type uses.
 - A subscript labelled `p0` lost its label, a closure key next to a generic subscript was forwarded to the generic
   one, and a class with a sync and an async overload of the same method got two identical verification members.
-  `await verify(mock).value()` now verifies the async overload. In an async context a plain `verify(mock).value()`
-  picks the async one too: verify the sync overload from a synchronous closure. `inOrder` can't verify the async
-  one, as its block is synchronous, and stubbing either needs the stub's type spelled out, as it did before.
+  The two overloads are stubbed and verified apart now, as described below.
 - A member taking an `inout sending` or `inout some P` parameter, or a closure over a parameter pack, gave a mock
   that didn't compile. Its protocol isn't mocked, and a class's mock keeps the real implementation, with a warning
   either way.
@@ -138,16 +136,15 @@
   or an implicitly unwrapped optional, as `((Value) -> Void)!` or `Value!`, didn't compile in the type eraser of a
   protocol with an associated type.
 - Stubbing a method with a sync and an async overload of the same signature was ambiguous: `when(stub.value())`
-  needed the stub's type spelled out. The async overload's stubbing member is `async` now, as its verification
-  member is, so a call picks one as Swift picks a call's overload: `when(stub.value())` in the `stub` block stubs
-  the sync one, and `when(await mock.cuckooStubbingProxy().value())` the async one. Both async members run on
-  their caller's actor, so a test on the main actor can call them on a public mock's proxies, which aren't
-  `Sendable`. Static overloads work the same way, with the stubbing proxy made as
-  `MockLoader.CuckooStaticStubbing(manager: MockLoader.cuckooStaticManager)`. `inOrder` still can't verify the
-  async one, as its block is synchronous.
+  needed the stub's type spelled out, and nothing could verify the async one. The proxies now name the sync
+  overload as usual and the async one through an `async` member, generated only for such pairs:
+  `when(stub.value())` and `verify(mock).value()` are the sync one, `when(stub.async.value())` and
+  `verify(mock).async.value()` the async one, in synchronous and async code, `inOrder` included. Static overloads
+  work the same way, through `stub(MockLoader.self)` and `verify(MockLoader.self)`. A mocked type with a member
+  named `async` of its own keeps the name: its proxies' members for the async overload are `async` instead, named
+  with `await`, and run on their caller's actor.
   **Migration:** code that spelled out the stub's type to pick the async overload, as
-  `let stub: ProtocolStubFunction<…> = stub.value()`, now needs `await` too, in an async context. With `await`
-  the type is no longer needed.
+  `let stub: ProtocolStubFunction<…> = stub.value()`, now names it as `stub.async.value()`.
 - With `defaultIsolation = "MainActor"`, a `nonisolated` class's member that implements a requirement of a
   global-actor protocol, as `show()` of a default-isolated `Showing` in `class Screen: Plain, Showing` with a
   `nonisolated` superclass, was mocked as nonisolated. Swift gives it the requirement's actor, and so does the mock,
