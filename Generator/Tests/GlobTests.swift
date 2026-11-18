@@ -110,6 +110,10 @@ struct GlobTests {
         #expect(try warnings(sources: #"["App/Model.swift", "App/Gone.swift"]"#) == [
             "The source '\(Path("\(root)/App/Gone.swift"))' of module App matches no files.",
         ])
+        // Run by hand, an entry with no sources generates an empty file.
+        #expect(try warnings(sources: "[]") == [
+            #"Module App lists no sources, so it generates no mocks. List the files to mock in its `sources`, as `sources = ["Sources/App/**/*.swift"]`."#,
+        ])
     }
 
     /// A directory a globstar can't list is reported and skipped, and the rest of the pattern still matches. Root

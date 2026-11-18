@@ -111,12 +111,38 @@ enum Cuckoofile {
     }
 
     enum ParseError: Error, CustomStringConvertible {
+        /// The key whose value has the wrong type, as `modules.App.sources`, when that's what the error is.
+        static func mistypedKey(_ error: any Error) -> String? {
+            let context: DecodingError.Context
+            switch error as? DecodingError {
+            case .typeMismatch(_, let found)?, .valueNotFound(_, let found)?:
+                context = found
+            default:
+                return nil
+            }
+            // The path goes on past the key the value was written for, into the forms `sources` can take: it ends at
+            // the module's option.
+            let keys = context.codingPath.map(\.stringValue)
+            guard !keys.isEmpty else { return nil }
+            let end = keys.count > 2 && keys[0] == "modules" ? 3 : keys.count
+            return keys.prefix(end).joined(separator: ".")
+        }
+
         case unreadable(any Error)
         case configurationErrors(details: [String])
 
         var description: String {
             switch self {
             case .unreadable(let error):
+                // A value of the wrong type, as `sources = "Sources/*.swift"`, rather than the file's syntax.
+                if let key = Self.mistypedKey(error) {
+                    let expected = switch key.split(separator: ".").last {
+                    case "sources": " Write a list of paths, `sources = [\"Sources/App/**/*.swift\"]`, or a table of them by module."
+                    case "exclude", "imports", "testableImports", "publicImports", "globalActors": " Write a list of strings, as `[\"A\", \"B\"]`."
+                    default: ""
+                    }
+                    return "Cuckoofile can't be read: `\(key)` has a value of the wrong type.\(expected)\n\(error)"
+                }
                 return """
                 Cuckoofile can't be read. Define modules as `[modules.ModuleName]` tables with properties beneath.
                 \(error)
