@@ -27,13 +27,14 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         }
 
         private let _getter_storage$$items: () -> [Item]
-        private let _setter_storage$$items: ([Item]) -> Void
+        private let _setter_storage$$items: (inout [Item]) -> Void
         var items: [Item] {
             get {
                 return _getter_storage$$items()
             }
             set {
-                _setter_storage$$items(newValue)
+                var cuckooNewValue = newValue
+                _setter_storage$$items(&cuckooNewValue)
             }
         }
 

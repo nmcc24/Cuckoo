@@ -17,35 +17,38 @@ nonisolated final class MockObserving<Value>: Observing, nonisolated Cuckoo.Prot
         private let cuckooReference: @Sendable () -> any Observing
 
         private let _getter_storage$$onChange: @Sendable () -> (Value) -> Void
-        private let _setter_storage$$onChange: @Sendable (@escaping (Value) -> Void) -> Void
+        private let _setter_storage$$onChange: @Sendable (inout (Value) -> Void) -> Void
         var onChange: (Value) -> Void {
             get {
                 return _getter_storage$$onChange()
             }
             set {
-                _setter_storage$$onChange(newValue)
+                var cuckooNewValue = newValue
+                _setter_storage$$onChange(&cuckooNewValue)
             }
         }
 
         private let _getter_storage$$handler: @Sendable () -> @Sendable (Int) -> Void
-        private let _setter_storage$$handler: @Sendable (@escaping @Sendable (Int) -> Void) -> Void
+        private let _setter_storage$$handler: @Sendable (inout @Sendable (Int) -> Void) -> Void
         var handler: @Sendable (Int) -> Void {
             get {
                 return _getter_storage$$handler()
             }
             set {
-                _setter_storage$$handler(newValue)
+                var cuckooNewValue = newValue
+                _setter_storage$$handler(&cuckooNewValue)
             }
         }
 
         private let _subscript_getter_storage$$1: @Sendable (Int) -> (Value) -> Void
-        private let _subscript_setter_storage$$1: @Sendable (Int, @escaping (Value) -> Void) -> Void
+        private let _subscript_setter_storage$$1: @Sendable (Int, inout (Value) -> Void) -> Void
         subscript(key p0: Int) -> (Value) -> Void {
             get {
                 return _subscript_getter_storage$$1(p0)
             }
             set {
-                _subscript_setter_storage$$1(p0, newValue)
+                var cuckooNewValue = newValue
+                _subscript_setter_storage$$1(p0, &cuckooNewValue)
             }
         }
 

@@ -131,6 +131,9 @@
   `typealias ID = Int` in the protocol, a parent or an extension, gave a mock that didn't compile, as `Self.Item`
   did for an associated type. Any `Self.Name` but `Self`'s metatype is written `Name` in the mock now, in the
   typealiases it repeats too, and a function typealias named through `Self` is the closure parameter it stands for.
+- A settable property or subscript whose type is a typealias of a function type, as `var handler: Handler { get set }`,
+  or an implicitly unwrapped optional, as `((Value) -> Void)!` or `Value!`, didn't compile in the type eraser of a
+  protocol with an associated type.
 
 ### Changed
 - The argument a generated mock passes its manager for an unstubbed call's default is `unstubbedDefault`, renamed

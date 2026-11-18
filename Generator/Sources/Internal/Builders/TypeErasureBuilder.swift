@@ -172,10 +172,17 @@ enum TypeErasureBuilder {
         }
     }
 
-    /// A new value's type as a stored setter closure's parameter: a closure value escapes into the stored property,
-    /// so it's `@escaping` there. An optional closure already is.
-    private static func escapingIfClosure(_ type: ComplexType) -> String {
-        type.withoutAttributes().isClosure && !type.isOptional ? "@escaping \(type.description)" : type.description
+    /// A new value's type as a stored setter closure's parameter. It's `inout`, which makes a function value
+    /// escaping however its type is spelled: as a function type, a typealias of one, or an associated type bound to
+    /// one. The stored closure assigns it, and only a parameter written as a function type can be `@escaping`.
+    private static func newValueParameter(_ type: ComplexType) -> String {
+        "inout \(storedType(type.description))"
+    }
+
+    /// A type as a stored closure's function type spells it, where an implicitly unwrapped optional, `Value!`, isn't
+    /// allowed: it's the optional it is.
+    private static func storedType(_ type: String) -> String {
+        GeneratorHelper.genericSafeType(from: type)
     }
 
     private static func sources(of property: Variable, _ context: Context) -> [String] {
@@ -195,9 +202,9 @@ enum TypeErasureBuilder {
         // The stored closure throws untyped errors, as a method's does: the getter narrows a typed one back.
         let closureEffects = (property.effects.isAsync ? "async " : "") + (property.effects.isThrowing ? "throws " : "")
         let tryAwait = (property.effects.isThrowing ? "try " : "") + (property.effects.isAsync ? "await " : "")
-        var sources = ["private let _getter_storage$$\(storage): \(context.sendable)() \(closureEffects)-> \(type)"]
+        var sources = ["private let _getter_storage$$\(storage): \(context.sendable)() \(closureEffects)-> \(storedType(type))"]
         if !property.isReadOnly {
-            sources.append("private let _setter_storage$$\(storage): \(context.sendable)(\(escapingIfClosure(property.type))) -> Void")
+            sources.append("private let _setter_storage$$\(storage): \(context.sendable)(\(newValueParameter(property.type))) -> Void")
         }
         if let typedError = property.effects.typedError {
             declaration.append("    get \(getterEffects){")
@@ -211,7 +218,10 @@ enum TypeErasureBuilder {
             declaration.append("    get \(getterEffects){ return \(tryAwait)_getter_storage$$\(storage)() }")
         }
         if !property.isReadOnly {
-            declaration.append("    set { _setter_storage$$\(storage)(newValue) }")
+            declaration.append("    set {")
+            declaration.append("        var cuckooNewValue = newValue")
+            declaration.append("        _setter_storage$$\(storage)(&cuckooNewValue)")
+            declaration.append("    }")
         }
         declaration.append("}")
         sources.append(lines(declaration))
@@ -274,9 +284,9 @@ enum TypeErasureBuilder {
         let newValueSeparator = keyTypes.isEmpty ? "" : ", "
         var sources: [String] = []
         if !isGeneric {
-            sources.append("private let _subscript_getter_storage$$\(number): \(context.sendable)(\(keyTypes)) \(effects)-> \(returnType)")
+            sources.append("private let _subscript_getter_storage$$\(number): \(context.sendable)(\(keyTypes)) \(effects)-> \(storedType(returnType))")
             if !subscriptDeclaration.isReadOnly {
-                sources.append("private let _subscript_setter_storage$$\(number): \(context.sendable)(\(keyTypes)\(newValueSeparator)\(escapingIfClosure(subscriptDeclaration.returnType))) -> Void")
+                sources.append("private let _subscript_setter_storage$$\(number): \(context.sendable)(\(keyTypes)\(newValueSeparator)\(newValueParameter(subscriptDeclaration.returnType))) -> Void")
             }
         }
         let forwardingCall = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
@@ -339,7 +349,8 @@ enum TypeErasureBuilder {
                 declaration.append("        reference[\(forwardingCall)] = newValue")
                 declaration.append("        cuckooStore(reference)")
             } else {
-                declaration.append("        _subscript_setter_storage$$\(number)(\(getter.parameterNames)\(newValueSeparator)newValue)")
+                declaration.append("        var cuckooNewValue = newValue")
+                declaration.append("        _subscript_setter_storage$$\(number)(\(getter.parameterNames)\(newValueSeparator)&cuckooNewValue)")
             }
             declaration.append("    }")
         }

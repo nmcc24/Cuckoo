@@ -31,24 +31,26 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
 
         private let _getter_storage$$count: @Sendable () -> Int
-        private let _setter_storage$$count: @Sendable (Int) -> Void
+        private let _setter_storage$$count: @Sendable (inout Int) -> Void
         var count: Int {
             get {
                 return _getter_storage$$count()
             }
             set {
-                _setter_storage$$count(newValue)
+                var cuckooNewValue = newValue
+                _setter_storage$$count(&cuckooNewValue)
             }
         }
 
         private let _subscript_getter_storage$$1: @Sendable (Int) -> Item
-        private let _subscript_setter_storage$$1: @Sendable (Int, Item) -> Void
+        private let _subscript_setter_storage$$1: @Sendable (Int, inout Item) -> Void
         subscript(_ p0: Int) -> Item {
             get {
                 return _subscript_getter_storage$$1(p0)
             }
             set {
-                _subscript_setter_storage$$1(p0, newValue)
+                var cuckooNewValue = newValue
+                _subscript_setter_storage$$1(p0, &cuckooNewValue)
             }
         }
 
