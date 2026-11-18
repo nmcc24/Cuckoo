@@ -252,4 +252,24 @@ struct MemberShapeTests {
         #expect(mock.contains("@MainActor\n        @discardableResult\n        func refined() -> Cuckoo.VerifiedCall"))
         #expect(output.contains("nonisolated final class MockStatedRefining"))
     }
+
+    /// `Self.Key` next to a member's generic parameter `Key` is named through the mock's type, or written out in a
+    /// generic mock, whose type would bring its associated types into the member's.
+    @Test
+    func aTypealiasShadowedByAGenericParameterIsNamedThroughTheMock() async throws {
+        let source = """
+            protocol Storing {
+                typealias Key = String
+                func get<Key>(_ key: Key) -> [Self.Key]
+            }
+            protocol Caching {
+                associatedtype Item
+                typealias Key = [Int]
+                func get<Key>(_ key: Key) -> Self.Key.Element
+            }
+            """
+        let output = try await generateMocks(source: source)
+        #expect(output.contains("func get<Key> (_ p0: Key) -> [MockStoring.Key] {"))
+        #expect(output.contains("func get<Key> (_ p0: Key) -> ([Int]).Element {"))
+    }
 }
