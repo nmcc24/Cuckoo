@@ -39,9 +39,8 @@ protocol Listing {
     var keys: [Self.Key] { get set }
 }
 
-// A member's own generic parameter of the typealias's name: `Self.Key` is then the only way to name the typealias,
-// and the mock names it through its own type, `MockStoring.Key`. A generic mock's type would bring its associated
-// types into the member's types, so there the typealias is written out.
+// A member's own generic parameter of the typealias's name: `Self.Key` is then the only way to name the typealias.
+// The mock declares `__CuckooSelf_Key = Key`, which nothing shadows, and the member names that.
 protocol Storing {
     typealias Key = String
     func get<Key>(_ key: Key) -> Self.Key
@@ -55,6 +54,43 @@ protocol Caching {
     func get<Key>(_ key: Key) -> Self.Key.Element
     func run<Handler>(_ value: Handler, with handler: Self.Key?) -> Self.Key
     func item() -> Item
+}
+
+// The same for a generic typealias, a function one, which makes the parameter a closure, one an extension
+// declares and one of an associated type, in a generic mock and a nested one.
+protocol PairStoring {
+    associatedtype Item
+    typealias Pair<T> = (T, Int)
+    typealias Items = [Item]
+    typealias Handler = (Int) -> Void
+
+    func pair<Pair>(_ value: Pair) -> Self.Pair<Int>
+    func items<Items>(_ value: Items, default items: Self.Items) -> Self.Items
+    func handle<Handler>(_ value: Handler, with handler: Self.Handler)
+    func tag<Tag>(_ value: Tag) -> Self.Tag
+    func item() -> Item
+}
+
+extension PairStoring {
+    typealias Tag = String
+}
+
+enum Stores {
+    protocol Nested {
+        typealias Key = String
+        typealias Pair<T> = (T, Int)
+        func get<Key>(_ key: Key) -> Self.Key
+        func pair<Pair>(_ value: Pair) -> Self.Pair<Int>
+    }
+}
+
+struct PairStorage: PairStoring, Stores.Nested {
+    func pair<Pair>(_ value: Pair) -> (Int, Int) { (0, 0) }
+    func items<Items>(_ value: Items, default items: [Int]) -> [Int] { items }
+    func handle<Handler>(_ value: Handler, with handler: (Int) -> Void) { handler(0) }
+    func tag<Tag>(_ value: Tag) -> String { "" }
+    func item() -> Int { 0 }
+    func get<Key>(_ key: Key) -> String { "" }
 }
 
 struct Storage: Storing, Caching {
@@ -112,4 +148,20 @@ func useSelfTypealiases() {
     caching.enableDefaultImplementation(Storage())
     let element: Int = caching.get("")
     _ = caching.run(element, with: nil)
+
+    let pairs = MockPairStoring<Int>()
+    stub(pairs) { stub in
+        when(stub.handle(any(String.self), with: any())).then { _, handler in handler(1) }
+    }
+    pairs.handle("") { _ in }
+    let forwarding = MockPairStoring<Int>()
+    forwarding.enableDefaultImplementation(PairStorage())
+    let pair: (Int, Int) = forwarding.pair("")
+    let items: [Int] = forwarding.items("", default: [pair.0])
+    let tag: String = forwarding.tag(items)
+
+    let nested = Stores.MockNested()
+    nested.enableDefaultImplementation(PairStorage())
+    let nestedPair: (Int, Int) = nested.pair(tag)
+    _ = nested.get(nestedPair.0)
 }

@@ -284,10 +284,10 @@ struct MemberShapeTests {
         #expect(output.contains("nonisolated final class MockStatedRefining"))
     }
 
-    /// `Self.Key` next to a member's generic parameter `Key` is named through the mock's type, or written out in a
-    /// generic mock, whose type would bring its associated types into the member's.
+    /// `Self.Key` next to a member's generic parameter `Key` is the mock's `__CuckooSelf_Key`, a typealias of `Key`
+    /// that nothing shadows, generic like the typealias it stands for.
     @Test
-    func aTypealiasShadowedByAGenericParameterIsNamedThroughTheMock() async throws {
+    func aTypealiasShadowedByAGenericParameterIsNamedThroughATypealias() async throws {
         let source = """
             protocol Storing {
                 typealias Key = String
@@ -296,12 +296,25 @@ struct MemberShapeTests {
             protocol Caching {
                 associatedtype Item
                 typealias Key = [Int]
+                typealias Pair<T: Hashable, U> = (T, U)
                 func get<Key>(_ key: Key) -> Self.Key.Element
+                func pair<Pair>(_ pair: Pair) -> Self.Pair<Int, Item>
+                func tag<Tag>(_ tag: Tag) -> Self.Tag<Int>
+            }
+            extension Caching {
+                typealias Tag<T> = [T]
             }
             """
         let output = try await generateMocks(source: source)
-        #expect(output.contains("func get<Key> (_ p0: Key) -> [MockStoring.Key] {"))
-        #expect(output.contains("func get<Key> (_ p0: Key) -> ([Int]).Element {"))
+        #expect(output.contains("func get<Key> (_ p0: Key) -> [__CuckooSelf_Key] {"))
+        #expect(output.contains("func get<Key> (_ p0: Key) -> __CuckooSelf_Key.Element {"))
+        #expect(output.contains("func pair<Pair> (_ p0: Pair) -> __CuckooSelf_Pair<Int, Item> {"))
+        #expect(output.contains("    typealias __CuckooSelf_Key = Key\n"))
+        #expect(output.contains("    typealias __CuckooSelf_Pair<T, U> = Pair<T, U>\n"))
+        // An extension's typealias is only known by the arguments it's given.
+        #expect(output.contains("    typealias __CuckooSelf_Tag<__T1> = Tag<__T1>\n"))
+        #expect(!output.contains("Self.Key"))
+        #expect(!output.contains("Self.Pair"))
     }
 
     /// The stubbing and the verification proxy agree on which overloads are a pair: the ones a call of the proxy's
@@ -397,5 +410,28 @@ struct MemberShapeTests {
         let output = try await generateMocks(source: source)
         let child = try #require(output.firstRange(of: "class MockDynamicChild").map { String(output[$0.lowerBound...]) })
         #expect(child.contains("override func refresh()"))
+    }
+
+    /// A generic member's default implementation is called on the opened existential, where a typealias of a
+    /// non-primary associated type is another type, cast like the associated type itself. A typealias of a primary
+    /// one is the same type, and the member's own generic parameter of the name is no typealias.
+    @Test
+    func aTypealiasOfAnAssociatedTypeIsCastForTheOpenedExistential() async throws {
+        let source = """
+            protocol Keyed<Key> {
+                associatedtype Key
+                associatedtype Value
+                typealias Keys = [Key]
+                typealias Values = [Value]
+                typealias Grid = [Values]
+                func keys<T>(_ value: T) -> Keys
+                func values<T>(_ value: T, for values: Values) -> Grid
+                func shadowed<Values>(_ value: Values) -> Keys
+            }
+            """
+        let output = try await generateMocks(source: source)
+        #expect(output.contains("return opened.values(p0, for: p1 as! _CUCKOO$$GENERIC.Values) as! Grid"))
+        #expect(!output.contains("opened.keys"))
+        #expect(!output.contains("opened.shadowed"))
     }
 }

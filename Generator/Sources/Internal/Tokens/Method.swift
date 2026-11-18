@@ -218,10 +218,18 @@ extension Method {
     /// erases the non-primary associated types. Where its parameters or its return type use one, the call goes through
     /// the opened existential instead, casting between the two types the generic initializer requires to be equal.
     var usesNonPrimaryAssociatedTypes: Bool {
-        guard let parent = parent?.asProtocol else { return false }
-        let names = parent.nonPrimaryAssociatedTypes.map(\.name)
+        guard parent?.asProtocol != nil else { return false }
+        let names = erasedTypeNames
         return signature.containsTypes(named: names) || returnType?.containsTypes(named: names) == true
             || !associatedTypesInWhereClause.isEmpty
+    }
+
+    /// The protocol's ``ProtocolDeclaration/erasedTypeNames`` that mean those types in this member: its own
+    /// generic parameter of such a name shadows one, as `Items` in `func add<Items>(_ items: Items)`.
+    var erasedTypeNames: [String] {
+        guard let parent = parent?.asProtocol else { return [] }
+        let shadowed = Set(signature.genericParameters.map(\.name))
+        return parent.erasedTypeNames.filter { !shadowed.contains($0) }
     }
 
     /// The protocol's non-primary associated types the member's `where` clause names, as in `C.Element == Key`.
@@ -342,9 +350,9 @@ extension Method {
         guard let parent = parent?.asProtocol, !parent.nonPrimaryAssociatedTypes.isEmpty else {
             return "(\(call))"
         }
-        let nonPrimary = parent.nonPrimaryAssociatedTypes.map(\.name)
+        let nonPrimary = erasedTypeNames
         let staticGenericCallableParameters = signature.parameters
-            .map { $0.callAndCastTypes(named: nonPrimary, as: { GeneratedNames.staticGenericParameter + ".\($0)" }) }
+            .map { $0.callAndCastTypes(named: nonPrimary, as: { ProtocolDeclaration.openedTypeName($0, in: GeneratedNames.staticGenericParameter) }) }
             .joined(separator: ", ")
         if let returnType, returnType.containsTypes(named: nonPrimary) {
             return "(\(staticGenericCallableParameters))".forceCast(as: returnType)

@@ -623,7 +623,8 @@ final class Crawler: SyntaxVisitor {
         }
         // `Self.Completion` in a protocol: a member of the enclosing type, found as the unqualified name is.
         if let member = type.as(MemberTypeSyntax.self), member.baseType.as(IdentifierTypeSyntax.self)?.name.text == "Self" {
-            return closureTypealias(named: member.name.text, from: lookup ?? Syntax(type)).flatMap { functionType, scope in
+            // A member's generic parameter of the same name doesn't shadow it.
+            return closureTypealias(named: member.name.text, from: lookup ?? Syntax(type), throughSelf: true).flatMap { functionType, scope in
                 instance(of: functionType, in: scope, with: member.genericArgumentClause)
             }
         }
@@ -747,11 +748,11 @@ final class Crawler: SyntaxVisitor {
     /// protocol, is taken when it's the module's only one of that name. Nil when `name` isn't a typealias of a
     /// function type there; otherwise the function type with the qualified name of the type that declares it,
     /// whose names it uses.
-    private func closureTypealias(named name: String, from node: Syntax) -> (type: String, scope: [String])? {
+    private func closureTypealias(named name: String, from node: Syntax, throughSelf: Bool = false) -> (type: String, scope: [String])? {
         func components(_ name: String) -> [String] {
             name.split(separator: ".").map(String.init)
         }
-        switch closureTypealiasInScope(named: name, from: node) {
+        switch closureTypealiasInScope(named: name, from: node, throughSelf: throughSelf) {
         case .shadowed:
             return nil
         case .found(let functionType, let scope):
@@ -801,9 +802,11 @@ final class Crawler: SyntaxVisitor {
         case notFound
     }
 
-    private func closureTypealiasInScope(named name: String, from node: Syntax) -> ScopedTypealias {
+    /// - Parameter throughSelf: whether the name is written `Self.Name`, which a member's own generic parameter
+    ///   doesn't shadow.
+    private func closureTypealiasInScope(named name: String, from node: Syntax, throughSelf: Bool = false) -> ScopedTypealias {
         func declares(_ clause: GenericParameterClauseSyntax?) -> Bool {
-            clause?.parameters.contains { $0.name.text == name } == true
+            !throughSelf && clause?.parameters.contains { $0.name.text == name } == true
         }
         var ancestor = node.parent
         while let current = ancestor {

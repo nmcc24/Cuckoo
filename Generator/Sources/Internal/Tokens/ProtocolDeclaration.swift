@@ -41,6 +41,10 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// Typealiases, as `Model = Feature.Model`, for the types the scopes around the one this is nested in declare:
     /// the mock and stub sit in an extension of that type, which doesn't see them. See `Generator.outerScopeTypealiases`.
     var outerScopeTypealiases: [OuterScopeTypealias] = []
+    /// The protocol's typealiases, its parents' included, of types that name a non-primary associated type, as
+    /// `typealias Items = [Item]`, by the names the mock has for them. The members' `parent` has no members, so
+    /// it carries these for ``erasedTypeNames``.
+    var associatedTypeTypealiases: [String] = []
 
     /// The global actor the protocol is isolated to, if any.
     var globalActor: String? {
@@ -73,7 +77,8 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             inheritsActor: inheritsActor,
             inheritsSendable: inheritsSendable,
             unknownAttributes: unknownAttributes,
-            parentsOutsideSources: parentsOutsideSources
+            parentsOutsideSources: parentsOutsideSources,
+            associatedTypeTypealiases: associatedTypeTypealiases
         )
     }
 
@@ -159,12 +164,13 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         }
         // A parent's typealiases arrive with its members; keep one of each.
         var aliases: Set<String> = []
-        let ownMembers = Self.unqualifyingSelf(in: members, mockType: protocolDeclaration.mockTypeName, associatedTypes: associatedTypeNames)
+        let ownMembers = Self.unqualifyingSelf(in: members, associatedTypes: associatedTypeNames)
         protocolDeclaration.members = Self.expandingFunctionTypes(fixedTypes, in: ownMembers + fixedTypes.map { Typealias(alias: $0.name, original: $0.type) as any Token })
             .filter { member in
                 guard let typealiasToken = member as? Typealias else { return true }
                 return aliases.insert(typealiasToken.alias).inserted
             }
+        protocolDeclaration.associatedTypeTypealiases = Self.typealiases(naming: protocolDeclaration.nonPrimaryAssociatedTypes.map(\.name), in: protocolDeclaration.members)
         return protocolDeclaration
     }
 
@@ -173,21 +179,22 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// no member type, and the unqualified name finds what the protocol's `Self` has: the mock's generic parameter
     /// for an associated type, its copy of a typealias, or the typealias through its conformance. `Self.Type` and
     /// `Self.Protocol` are `Self`'s metatypes. A name a member's own generic parameter shadows, `Self.Key` in
-    /// `func get<Key>(_ key: Key) -> Self.Key`, is written through `mockType`, `MockStore.Key`, which names the same
-    /// typealias. A generic mock's type would bring its associated types into the member's types, which the type
-    /// eraser reads as a use of them, so there the typealias is written out. An associated type of that name is the
-    /// mock's generic parameter, which nothing can name there, and stays as written.
-    private static func unqualifyingSelf(in members: [any Token], mockType: String?, associatedTypes: Set<String>) -> [any Token] {
+    /// `func get<Key>(_ key: Key) -> Self.Key`, is written `__CuckooSelf_Key`, a typealias of `Key` added to the
+    /// members for the mock to declare where nothing shadows it. A generic typealias gets a generic one,
+    /// `__CuckooSelf_Pair<T> = Pair<T>`. A shadowed associated type stays as written: Swift doesn't let a member of
+    /// the generic mock shadow its generic parameter at all.
+    private static func unqualifyingSelf(in members: [any Token], associatedTypes: Set<String>) -> [any Token] {
+        /// The shadowed names the members use, with the number of generic arguments each is given.
+        final class ShadowedNames {
+            var arguments: [String: Int] = [:]
+        }
         final class Unqualifier: SyntaxRewriter {
             let shadowed: Set<String>
-            /// The mock's type, for the shadowed names it can qualify.
-            let mockType: String?
-            /// The protocol's typealiases to write out instead, for a generic mock.
-            let aliases: [String: String]
-            init(shadowing shadowed: Set<String> = [], mockType: String? = nil, aliases: [String: String] = [:]) {
+            /// Where to note a shadowed name; without it, a shadowed name stays as written.
+            let shadowedNames: ShadowedNames?
+            init(shadowing shadowed: Set<String> = [], noting shadowedNames: ShadowedNames? = nil) {
                 self.shadowed = shadowed
-                self.mockType = mockType
-                self.aliases = aliases
+                self.shadowedNames = shadowedNames
             }
             override func visit(_ node: MemberTypeSyntax) -> TypeSyntax {
                 let name = node.name.text
@@ -196,39 +203,22 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
                 }
                 // The arguments can name `Self`'s types too, as in `Self.Box<Self.Item>`.
                 let arguments = node.genericArgumentClause.map { rewrite($0).cast(GenericArgumentClauseSyntax.self) }
-                let type: TypeSyntax
-                if !shadowed.contains(name) {
-                    type = TypeSyntax(IdentifierTypeSyntax(name: node.name, genericArgumentClause: arguments))
-                } else if let mockType, aliases.isEmpty {
-                    var parser = Parser("\(mockType).\(name)\(arguments?.trimmedDescription ?? "")")
-                    type = TypeSyntax.parse(from: &parser)
-                } else if mockType != nil, arguments == nil, let original = aliases[name] {
-                    // Parenthesized, `Self.Key.Element` and `Self.Key?` keep their meaning for any type.
-                    var parser = Parser("(\(original))")
-                    type = TypeSyntax.parse(from: &parser)
-                } else {
-                    return super.visit(node)
+                var identifier = node.name
+                if shadowed.contains(name) {
+                    guard let shadowedNames else { return super.visit(node) }
+                    shadowedNames.arguments[name] = arguments?.arguments.count ?? 0
+                    identifier = .identifier(GeneratedNames.selfTypealiasPrefix + name)
                 }
-                return type.with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
+                let type = IdentifierTypeSyntax(name: identifier, genericArgumentClause: arguments)
+                return TypeSyntax(type.with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia))
             }
         }
-        // Only the typealiases whose type names nothing else of the protocol's, which a parameter could shadow too.
-        let aliases = Dictionary(
-            members.compactMap { $0 as? Typealias }
-                .filter { alias in
-                    let words = Set(alias.original.split { !($0.isLetter || $0.isNumber || $0 == "_") }.map(String.init))
-                    return !words.contains("Self") && words.isDisjoint(with: associatedTypes)
-                }
-                .map { ($0.alias, $0.original) },
-            uniquingKeysWith: { first, _ in first }
-        )
+        let shadowedNames = ShadowedNames()
         func unqualified(_ type: String, shadowing shadowed: Set<String> = []) -> String? {
             guard type.contains("Self.") else { return nil }
             var parser = Parser(type)
             let syntax = TypeSyntax.parse(from: &parser)
-            // A shadowed associated type stays as written: the mock has no member type of that name.
-            let qualifiable = shadowed.isDisjoint(with: associatedTypes) ? mockType : nil
-            let unqualifier = Unqualifier(shadowing: shadowed, mockType: qualifiable, aliases: associatedTypes.isEmpty ? [:] : aliases)
+            let unqualifier = Unqualifier(shadowing: shadowed, noting: shadowed.isDisjoint(with: associatedTypes) ? shadowedNames : nil)
             let rewritten = unqualifier.rewrite(syntax).trimmedDescription
             return rewritten == syntax.trimmedDescription ? nil : rewritten
         }
@@ -245,11 +235,28 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             guard let alias = member as? Typealias, let original = unqualified(alias.original) else { return member }
             return Typealias(parent: alias.parent, alias: alias.alias, original: original)
         }
-        return rewritingTypes(in: members, text: text) { type, shadowed in
+        let rewritten = rewritingTypes(in: members, text: text) { type, shadowed in
             guard let rewritten = unqualified(type.description, shadowing: shadowed) else { return type }
             var parser = Parser(rewritten)
             return ComplexType(syntax: TypeSyntax.parse(from: &parser))
         }
+        // A typealias the protocol declares gives its generic parameters; one from an extension is only known by
+        // the arguments it's given.
+        let declared = Dictionary(
+            members.compactMap { $0 as? Typealias }.map { alias -> (String, [String]) in
+                // `Pair<T, U: Hashable>`: the names only.
+                let clause = alias.alias.drop { $0 != "<" }.dropFirst().dropLast()
+                let parameters = clause.split(separator: ",").map { String($0.prefix { $0 != ":" }.trimmedSpaces) }
+                return (String(alias.alias.prefix { $0 != "<" }), parameters)
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+        let unshadowed = shadowedNames.arguments.sorted { $0.key < $1.key }.map { name, count -> any Token in
+            let parameters = declared[name] ?? (1...max(count, 1)).prefix(count).map { "__T\($0)" }
+            let clause = parameters.isEmpty ? "" : "<\(parameters.joined(separator: ", "))>"
+            return Typealias(alias: GeneratedNames.selfTypealiasPrefix + name + clause, original: name + clause)
+        }
+        return rewritten + unshadowed
     }
 
     /// The members with each associated type fixed to a function type, as `Transforming<(Int) -> String>` fixes
@@ -377,6 +384,40 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
         (associatedTypes + primaryAssociatedTypes).merged()
     }
     
+    /// The names whose types an existential of the protocol erases: its non-primary associated types, and its
+    /// typealiases of types that name one, as `typealias Items = [Item]`, with the mock's own names for them. A
+    /// generic member's default implementation is called on the opened existential, where these are other types.
+    var erasedTypeNames: [String] {
+        let names = nonPrimaryAssociatedTypes.map(\.name)
+        return names.isEmpty ? [] : names + associatedTypeTypealiases
+    }
+
+    /// The names of `members`' typealiases of types that name one of `associatedTypes`, directly or through
+    /// another such typealias.
+    private static func typealiases(naming associatedTypes: [String], in members: [any Token]) -> [String] {
+        let aliases = members.compactMap { $0 as? Typealias }
+        var names = associatedTypes
+        var found = true
+        while found {
+            found = false
+            for alias in aliases {
+                let name = String(alias.alias.prefix { $0 != "<" })
+                let words = Set(alias.original.split { !($0.isLetter || $0.isNumber || $0 == "_") }.map(String.init))
+                if !names.contains(name), !words.isDisjoint(with: names) {
+                    names.append(name)
+                    found = true
+                }
+            }
+        }
+        return Array(names.dropFirst(associatedTypes.count))
+    }
+
+    /// An erased type as the opened existential `opened` has it: `opened.Item`, and `opened.Items` for the
+    /// mock's `__CuckooSelf_Items` too.
+    static func openedTypeName(_ name: String, in opened: String) -> String {
+        "\(opened).\(name.hasPrefix(GeneratedNames.selfTypealiasPrefix) ? String(name.dropFirst(GeneratedNames.selfTypealiasPrefix.count)) : name)"
+    }
+
     var nonPrimaryAssociatedTypes: [GenericParameter] {
         associatedTypes.filter { !primaryAssociatedTypes.map(\.name).contains($0.name) }
     }
