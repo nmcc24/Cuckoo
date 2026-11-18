@@ -34,6 +34,8 @@ struct Variable: Token, HasAccessibility, HasAttributes {
     var isStatic = false
     /// Whether the type names `Self`; see ``Token/resolvingSelf()``.
     var mentionsSelf = false
+    /// An `@objc optional` requirement, which a default implementation may not implement.
+    var isOptional = false
 
     /// The stub type the stubbing proxy returns, such as `ProtocolToBeStubbedReadOnlyProperty`.
     var stubType: String {

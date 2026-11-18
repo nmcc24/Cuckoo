@@ -131,7 +131,7 @@ final class Generator {
                 url: file.path.url,
                 globalActors: declaredNames.globalActors.union(module.globalActors),
                 noncopyableTypes: declaredNames.unconditionallyNoncopyableTypes,
-                closureTypealiases: declaredNames.closureTypealiases,
+                closureTypealiases: declaredNames.closureTypealiasesThroughAliases,
                 nonPublicTypes: declaredNames.nonPublicTypes,
                 genericTypes: declaredNames.genericTypes,
                 qualifiedGenericTypes: declaredNames.qualifiedGenericTypes,
@@ -141,6 +141,7 @@ final class Generator {
                 actors: declaredNames.actors,
                 privateNames: declaredNames.privateNames,
                 nominalTypes: declaredNames.nominalTypes,
+                capitalizedFunctions: declaredNames.capitalizedFunctions,
                 defaultIsolation: module.options.defaultIsolation
             )
             for diagnostic in crawler.diagnostics {
@@ -216,28 +217,41 @@ final class Generator {
         return Set(["Cuckoo"] + module.testableImports + files.flatMap { $0.imports.filter(\.isPublic).map(\.description) })
     }
 
-    /// Two protocols or classes with the same qualified name, neither under `#if`, get two mocks of the same name,
-    /// which don't compile together. That happens when an entry's sources span modules or folders that each declare
-    /// the type. The warning names the files, so the build's "invalid redeclaration" has an explanation.
     /// The files without the protocols that refine an unmocked one, directly or through others: their mocks would
     /// have to implement the requirement that left it out. Each gets a warning naming the protocol it refines.
+    /// - Parameter unmocked: the unmocked protocols' qualified names.
     private static func withoutDescendants(of unmocked: Set<String>, in files: [FileRepresentation]) -> [FileRepresentation] {
         var unmocked = unmocked
+        let protocols = files.flatMap(\.tokens).compactMap { $0 as? ProtocolDeclaration }
+        let declared = Set(files.flatMap(\.tokens).compactMap { ($0 as? any Token & HasName)?.fullyQualifiedName }).union(unmocked)
+        // The qualified name a parent written in `child` refers to: the innermost enclosing scope that declares it.
+        func qualifiedName(of parent: String, in child: ProtocolDeclaration) -> String? {
+            var scopes = child.fullyQualifiedName.split(separator: ".").map(String.init).dropLast()
+            while true {
+                let candidate = (scopes + [parent]).joined(separator: ".")
+                if declared.contains(candidate) { return candidate }
+                guard !scopes.isEmpty else { return nil }
+                scopes.removeLast()
+            }
+        }
         var changed = !unmocked.isEmpty
         while changed {
             changed = false
-            for protocolToken in files.flatMap(\.tokens).compactMap({ $0 as? ProtocolDeclaration }) where !unmocked.contains(protocolToken.name) {
-                guard let parent = protocolToken.inheritedTypes.map(\.withoutGenericArguments).first(where: unmocked.contains) else { continue }
-                unmocked.insert(protocolToken.name)
+            for protocolToken in protocols where !unmocked.contains(protocolToken.fullyQualifiedName) {
+                guard let parent = protocolToken.inheritedTypes.map(\.withoutGenericArguments).first(where: { qualifiedName(of: $0, in: protocolToken).map(unmocked.contains) ?? false }) else { continue }
+                unmocked.insert(protocolToken.fullyQualifiedName)
                 changed = true
-                printToStandardError("warning: cuckoo: '\(protocolToken.name)' isn't mocked: it refines '\(parent)', which isn't mocked.\n")
+                printToStandardError("warning: cuckoo: '\(protocolToken.fullyQualifiedName)' isn't mocked: it refines '\(parent)', which isn't mocked.\n")
             }
         }
         return files.map { file in
-            file.replacing(tokens: file.tokens.filter { ($0 as? ProtocolDeclaration).map { !unmocked.contains($0.name) } ?? true })
+            file.replacing(tokens: file.tokens.filter { ($0 as? ProtocolDeclaration).map { !unmocked.contains($0.fullyQualifiedName) } ?? true })
         }
     }
 
+    /// Two protocols or classes with the same qualified name, neither under `#if`, get two mocks of the same name,
+    /// which don't compile together. That happens when an entry's sources span modules or folders that each declare
+    /// the type. The warning names the files, so the build's "invalid redeclaration" has an explanation.
     static func duplicateDeclarationWarnings(_ files: [FileRepresentation]) -> [String] {
         var firstFiles: [String: Path] = [:]
         var warnings: [String] = []

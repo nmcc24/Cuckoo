@@ -4,7 +4,9 @@ import SwiftSyntax
 /// Anything else is `nil`, so the property gets the "add a type annotation" warning instead of a wrong type that
 /// makes the mock fail to compile.
 enum TypeGuesser {
-    static func guessType(from initializer: ExprSyntax, genericTypes: Set<String> = []) -> String? {
+    /// - Parameter functions: the sources' functions and methods with a capitalized name, whose calls initialize
+    ///   nothing. One that's also a type's name isn't listed: its call may be the type's initializer.
+    static func guessType(from initializer: ExprSyntax, genericTypes: Set<String> = [], functions: Set<String> = []) -> String? {
         if let literal = literalType(of: initializer) {
             return literal
         }
@@ -15,7 +17,10 @@ enum TypeGuesser {
             return cast
         }
         if let call = initializer.as(FunctionCallExprSyntax.self) {
-            return callType(of: call, genericTypes: genericTypes)
+            let callee = call.calledExpression.as(MemberAccessExprSyntax.self)?.declName.baseName.text
+                ?? call.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
+            guard callee.map({ !functions.contains($0) }) ?? true else { return nil }
+            return callType(of: call, genericTypes: genericTypes, functions: functions)
         }
         return nil
     }
@@ -28,7 +33,7 @@ enum TypeGuesser {
     /// The type a call initializes. A call to a generic type without generic arguments, `Array(...)` or a user's
     /// `Box(1)`, is guessed only where the arguments settle it; and a labelled call may be a failable initializer,
     /// `URL(string:)` or `Int(_:)`, so only an unlabelled call, or one with labels known to be non-failable, counts.
-    private static func callType(of call: FunctionCallExprSyntax, genericTypes: Set<String>) -> String? {
+    private static func callType(of call: FunctionCallExprSyntax, genericTypes: Set<String>, functions: Set<String>) -> String? {
         guard let type = initializedType(by: call.calledExpression) else { return nil }
         let baseName = String(type.prefix { $0 != "<" }.split(separator: ".").last ?? "")
         let isGenericWithoutArguments = !type.contains("<")
@@ -37,7 +42,7 @@ enum TypeGuesser {
             // `Array(repeating: <literal>, count: n)` is `[Literal]`; anything else needs the type checker.
             if baseName == "Array", call.arguments.count == 2,
                call.arguments.first?.label?.text == "repeating", call.arguments.last?.label?.text == "count",
-               let element = call.arguments.first.flatMap({ guessType(from: $0.expression, genericTypes: genericTypes) }) {
+               let element = call.arguments.first.flatMap({ guessType(from: $0.expression, genericTypes: genericTypes, functions: functions) }) {
                 return "[\(element)]"
             }
             return nil
