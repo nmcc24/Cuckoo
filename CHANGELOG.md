@@ -138,8 +138,14 @@
 - Stubbing a method with a sync and an async overload of the same signature was ambiguous: `when(stub.value())`
   needed the stub's type spelled out. The async overload's stubbing member is `async` now, as its verification
   member is, so a call picks one as Swift picks a call's overload: `when(stub.value())` in the `stub` block stubs
-  the sync one, and `when(await mock.cuckooStubbingProxy().value())` the async one. `inOrder` still can't verify
-  the async one, as its block is synchronous.
+  the sync one, and `when(await mock.cuckooStubbingProxy().value())` the async one. Both async members run on
+  their caller's actor, so a test on the main actor can call them on a public mock's proxies, which aren't
+  `Sendable`. Static overloads work the same way, with the stubbing proxy made as
+  `MockLoader.CuckooStaticStubbing(manager: MockLoader.cuckooStaticManager)`. `inOrder` still can't verify the
+  async one, as its block is synchronous.
+  **Migration:** code that spelled out the stub's type to pick the async overload, as
+  `let stub: ProtocolStubFunction<…> = stub.value()`, now needs `await` too, in an async context. With `await`
+  the type is no longer needed.
 - With `defaultIsolation = "MainActor"`, a `nonisolated` class's member that implements a requirement of a
   global-actor protocol, as `show()` of a default-isolated `Showing` in `class Screen: Plain, Showing` with a
   `nonisolated` superclass, was mocked as nonisolated. Swift gives it the requirement's actor, and so does the mock,

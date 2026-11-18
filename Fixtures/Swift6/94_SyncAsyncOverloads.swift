@@ -29,6 +29,15 @@ protocol SharedLoading: Sendable {
     func load(_ id: Int) async -> String
 }
 
+// A public mock's proxies aren't `Sendable`, as an internal one's are implicitly: the async members run on their
+// caller's actor, so a caller on the main actor keeps the proxy there.
+public protocol PublicLoading {
+    func value() -> Int
+    func value() async -> Int
+    static func shared() -> Int
+    static func shared() async -> Int
+}
+
 func useOverloads() async throws {
     let mock = MockLoading()
     stub(mock) { stub in
@@ -69,4 +78,23 @@ func useMainOverloads() async {
     }
     when(await mock.cuckooStubbingProxy().value()).thenReturn(2)
     await verify(mock, never()).value()
+}
+
+@MainActor
+func usePublicOverloads() async {
+    let mock = MockPublicLoading()
+    stub(mock) { stub in
+        when(stub.value()).thenReturn(1)
+    }
+    when(await mock.cuckooStubbingProxy().value()).thenReturn(2)
+    await verify(mock, never()).value()
+
+    // Static members' proxies take `await` the same way; the async one's stubbing proxy is made from the manager.
+    stub(MockPublicLoading.self) { stub in
+        when(stub.shared()).thenReturn(1)
+    }
+    let staticStubbing = MockPublicLoading.CuckooStaticStubbing(manager: MockPublicLoading.cuckooStaticManager)
+    when(await staticStubbing.shared()).thenReturn(2)
+    _ = await MockPublicLoading.shared()
+    await verify(MockPublicLoading.self).shared()
 }
