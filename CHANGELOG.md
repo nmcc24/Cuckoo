@@ -84,11 +84,10 @@
   in, when called from a task outside it, such as a `Task.detached`. A default implementation runs with them now, as
   an unstubbed call does.
 - In an XCTest test on Apple platforms, a failure the mock can't go on from, such as an unstubbed call whose return
-  type has no default value, was reported twice: as an `XCTFail` and as the exception XCTest catches. Only the
-  exception is reported now. XCTest catches it only in a synchronous test on the main thread: anywhere else, such
-  as in an `async` test, the failure is reported and the process stops. Inside `inOrder`, `withStaticStubs`,
-  `createMock` or a scope that sets default values, the exception left that scope open for the thread's next tests:
-  there the process stops instead, as it does in Swift Testing.
+  type has no default value, was reported twice, as an `XCTFail` and as an Objective-C exception, and the exception
+  unwound past Swift's cleanup, leaving `inOrder`, `withStaticStubs`, `createMock` or a default-values scope open for
+  the thread's next tests. Cuckoo raises no exception now: the failure is reported once and the process stops, as it
+  does in Swift Testing. Xcode relaunches the test runner for the remaining tests.
 
 ### Changed
 - The stand-in a `verify` or an `ArgumentCaptor` gets for a closure parameter that isn't `@escaping` says, when

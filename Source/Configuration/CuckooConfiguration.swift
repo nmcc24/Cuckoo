@@ -137,25 +137,6 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?, creati
     #endif
 }
 
-/// Whether a failure the mock can't go on from can be raised as an Objective-C exception, for XCTest to record as
-/// the test's failure before it runs the next test.
-///
-/// That needs the failure to be XCTest's: no handler takes it, and Swift Testing isn't involved. It also needs the
-/// call to be outside every scope Cuckoo keeps in a task-local value: an exception unwinds past such a scope without
-/// ending it, which would leave its default values, static stubs or `inOrder` in place for the thread's next tests.
-func xctestCanRecordCrash(creatingTest: CreatingTest?) -> Bool {
-    let configuration = CuckooConfiguration.current
-    guard configuration.failureHandler == nil, configuration.defaultValues.isEmpty,
-          InOrder.current == nil, StaticStubs.current == nil, MockManager.preconfigured == nil else {
-        return false
-    }
-    #if canImport(Testing)
-    return swiftTestingIssueLocation(for: nil, creatingTest: creatingTest) == nil
-    #else
-    return true
-    #endif
-}
-
 #if canImport(Testing)
 /// Where a failure goes in Swift Testing, or `nil` when Swift Testing isn't involved and it goes to XCTest: the
 /// failure's own location, else the current test, else the test that created the mock.
