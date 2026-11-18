@@ -292,8 +292,8 @@ enum TypeErasureBuilder {
         let forwardingCall = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
         // An opened type's view of the keys, the result and the new value, which name the protocol's associated types.
         let generic = GeneratedNames.staticGenericParameter
-        let nonPrimary = getter.parent?.asProtocol?.nonPrimaryAssociatedTypes.map(\.name) ?? []
-        let opened: (String) -> String = { "\(generic).\($0)" }
+        let nonPrimary = getter.erasedTypeNames
+        let opened: (String) -> String = { ProtocolDeclaration.openedTypeName($0, in: generic) }
         let castArguments = getter.signature.parameters.map { $0.callAndCastTypes(named: nonPrimary, as: opened) }.joined(separator: ", ")
         func castResult(_ expression: String) -> String {
             subscriptDeclaration.returnType.containsTypes(named: nonPrimary) ? expression.forceCast(as: subscriptDeclaration.returnType) : expression
