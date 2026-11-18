@@ -154,7 +154,8 @@ final class Crawler: SyntaxVisitor {
     /// Members of a class that its mock can't override, each with the reason, which the mock states in a comment.
     var unmockedMembers: [String] = []
     /// A class's members the mock can't override that hide the ones it inherits; see
-    /// `ClassDeclaration.shadowedMembers`. In an extension, every member it declares for the extended type.
+    /// `ClassDeclaration.shadowedMembers`. In an extension, every member it declares for the extended type but an
+    /// `override`.
     var shadowedMembers: [any Token] = []
     /// Whether `parse` reads a member the mock can't override, to record it in `shadowedMembers`.
     private var parsesShadowedMember = false
@@ -358,6 +359,13 @@ final class Crawler: SyntaxVisitor {
         (container?.value as? NamespaceDeclaration)?.isExtension == true
     }
 
+    /// Whether an extension's member hides what the extended class inherits. An `override` doesn't: only an
+    /// `@objc dynamic` member can be overridden in an extension, and a subclass, the mock, can override it again,
+    /// as the superclass's member it is.
+    private func hidesInheritedMember(inExtension modifiers: DeclModifierListSyntax) -> Bool {
+        isInExtension && !modifiers.contains { $0.name.tokenKind == .keyword(.override) }
+    }
+
     // A type declared in a body, a closure or a macro's arguments, such as `#Preview { … }`, is local to it, so no
     // mock can name it.
     override func visit(_ node: CodeBlockSyntax) -> SyntaxVisitorContinueKind { .skipChildren }
@@ -367,7 +375,7 @@ final class Crawler: SyntaxVisitor {
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind { .skipChildren }
 
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
-        if isInExtension {
+        if hidesInheritedMember(inExtension: node.modifiers) {
             shadowedMembers.append(contentsOf: parsingShadowedMember { parse(node) })
         }
         guard let container, container.isMockable else { return .skipChildren }
@@ -400,7 +408,7 @@ final class Crawler: SyntaxVisitor {
     }
 
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
-        if isInExtension, let method = parsingShadowedMember({ parse(node) }) {
+        if hidesInheritedMember(inExtension: node.modifiers), let method = parsingShadowedMember({ parse(node) }) {
             shadowedMembers.append(method)
         }
         guard let container, container.isMockable else { return .skipChildren }
@@ -429,7 +437,7 @@ final class Crawler: SyntaxVisitor {
     }
 
     override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
-        if isInExtension, let item = parsingShadowedMember({ parse(node) }) {
+        if hidesInheritedMember(inExtension: node.modifiers), let item = parsingShadowedMember({ parse(node) }) {
             shadowedMembers.append(item)
         }
         guard let container, container.isMockable else { return .skipChildren }

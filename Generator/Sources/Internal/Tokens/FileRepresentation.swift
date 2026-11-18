@@ -76,6 +76,22 @@ struct TypeNames: Sendable {
         extensionMembers[canonical(qualifiedName)] ?? []
     }
 
+    /// The members of a class and of its superclasses in the sources that no mock can override: the `static` and
+    /// `final` ones and those their extensions declare. A superclass outside the sources ends the chain.
+    func hidingMembers(of classDeclaration: ClassDeclaration) -> [any Token] {
+        var members: [any Token] = []
+        var seen: Set<String> = []
+        var current: ClassDeclaration? = classDeclaration
+        while let declaration = current, seen.insert(declaration.fullyQualifiedName).inserted {
+            members += declaration.shadowedMembers + extensionMembers(of: declaration.fullyQualifiedName)
+            // Only the first inherited type can be the superclass; a generic one is found without its arguments.
+            current = declaration.inheritedTypes.first.flatMap {
+                resolve($0.withoutGenericArguments, from: declaration.fullyQualifiedName) as? ClassDeclaration
+            }
+        }
+        return members
+    }
+
     /// The class or protocol declared with the qualified name, as Swift reads it.
     func declaration(named qualifiedName: String) -> (any Token & HasName)? {
         declarations[canonical(qualifiedName)]
@@ -163,7 +179,7 @@ extension Token {
             .filter { !(token.isProtocol && $0.isClass) }
             .map { $0.mergingInheritance(with: files, names: names, defaultIsolation: defaultIsolation, merging: merging) }
 
-        let hidingMembers = (token as? ClassDeclaration).map { $0.shadowedMembers + names.extensionMembers(of: $0.fullyQualifiedName) } ?? []
+        let hidingMembers = (token as? ClassDeclaration).map { names.hidingMembers(of: $0) } ?? []
         let mergedTokens = inheritedRepresentations
             .compactMap { $0 as? any HasMembers }
             .flatMap { $0.members }
@@ -173,7 +189,8 @@ extension Token {
                 }
 
                 // A `final` or unavailable override hides the superclass's member as an override the mock has does,
-                // and a member an extension declares the requirement it implements.
+                // and a `static` or `final` member, or one an extension declares, the requirement it implements,
+                // whether the class or a superclass has it.
                 let isAlreadyPresent = (tokens + hidingMembers)
                     .compactMap({ $0 as? any Inheritable })
                     .contains(where: { $0.isEqual(to: inheritedInheritable) })
