@@ -112,7 +112,8 @@ A mock also builds a default itself for some types that the same Cuckoofile modu
   a default value.
 - An enum: its first case without associated values.
 
-An optional of such a type stays `nil` and a collection empty. Only a type the generator can be sure of gets such
+The members of a generated `…Stub` return the same defaults, so a stub that an unstubbed call returned can be used
+further. An optional of such a type stays `nil` and a collection empty. Only a type the generator can be sure of gets such
 a default, so these have none:
 
 - a generic type, a protocol with associated types, and a composition such as `any Engine & Sendable`;

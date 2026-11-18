@@ -114,4 +114,21 @@ struct ValueDefaultTest {
 
         #expect(mock.heading() == .south)
     }
+
+    /// A generated stub's own members answer the same way.
+    @Test
+    func aStubsMembersReturnTheValuesToo() async {
+        let console = ConsoleStub()
+        #expect(console.preferences == Preferences())
+        #expect(console.sketch().strokes.isEmpty)
+        #expect(console.heading() == .north)
+        #expect(await console.progress() == .idle)
+        #expect(CabinetStub().heading() == .north)
+
+        var configuration = CuckooConfiguration.current
+        configuration.defaultValues.register(Heading.south)
+        CuckooConfiguration.$current.withValue(configuration) {
+            #expect(console.heading() == .south)
+        }
+    }
 }

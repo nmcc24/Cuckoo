@@ -20,6 +20,9 @@
   `private` or attributed, and every initializer of a module with `defaultIsolation = "MainActor"`. An internal
   initializer counts in the mock of an internal type, or when `sources` names the type's module and
   `testableImports` lists it. See "Calls with no stub" in the stubbing guide.
+- The members of a generated `…Stub` return those defaults too, where they used to stop the process: a stub's
+  member returning a mocked protocol answers with that protocol's stub, and one returning a type of the sources
+  with a value of it. `DefaultValueRegistry.defaultValue(for:generated:)` is what they call.
 
 ### Fixed
 - A requirement naming its associated type through `Self`, as `func first() -> Self.Item?` or
