@@ -149,13 +149,19 @@ public final class MockManager: Sendable {
         return lines.joined(separator: "\n")
     }
 
+    /// The current configuration, with the default values of the scope the mock was created in for the types the
+    /// current scope doesn't register.
+    private var configurationWithCreatingDefaults: CuckooConfiguration {
+        var configuration = CuckooConfiguration.current
+        configuration.defaultValues = configuration.defaultValues.withFallback(creatingDefaultValues)
+        return configuration
+    }
+
     /// Reports `failure` and returns the default value of an unstubbed call, or, if its type has none, reports it
     /// and crashes. `tuple` is the generated mock's lookup when `OUT` is a tuple, whose elements a generic `OUT`
     /// can't name.
     private func unstubbedValue<OUT>(failure: String, tuple: () -> Any?) -> OUT {
-        var configuration = CuckooConfiguration.current
-        configuration.defaultValues = configuration.defaultValues.withFallback(creatingDefaultValues)
-        let value = CuckooConfiguration.$current.withValue(configuration) {
+        let value = CuckooConfiguration.$current.withValue(configurationWithCreatingDefaults) {
             DefaultValueRegistry.unstubbedValue(for: OUT.self) ?? tuple() as? OUT
         }
         guard let value else {
@@ -204,7 +210,19 @@ public final class MockManager: Sendable {
         case .stubbed(.callRealImplementation), .superclass:
             return try superclassCall()
         case .defaultImplementation:
-            return try defaultCall()
+            // The default implementation sees the mock's default values too: a generated `…Stub` returns them. With
+            // none, it runs in the current scope, so a crash inside it raises from no scope of Cuckoo's.
+            guard !creatingDefaultValues.isEmpty else {
+                return try defaultCall()
+            }
+            let result: Result<OUT, ERROR> = CuckooConfiguration.$current.withValue(configurationWithCreatingDefaults) {
+                do throws(ERROR) {
+                    return .success(try defaultCall())
+                } catch {
+                    return .failure(error)
+                }
+            }
+            return try result.get()
         case .unstubbed(let failure):
             if unstubbedThrows, let error = unstubbedError(method, as: ERROR.self) {
                 fail(failure)
@@ -234,7 +252,17 @@ public final class MockManager: Sendable {
         case .stubbed(.callRealImplementation), .superclass:
             return try await superclassCall()
         case .defaultImplementation:
-            return try await defaultCall()
+            guard !creatingDefaultValues.isEmpty else {
+                return try await defaultCall()
+            }
+            let result: Result<OUT, ERROR> = await CuckooConfiguration.$current.withValue(configurationWithCreatingDefaults) {
+                do throws(ERROR) {
+                    return .success(try await defaultCall())
+                } catch {
+                    return .failure(error)
+                }
+            }
+            return try result.get()
         case .unstubbed(let failure):
             if unstubbedThrows, let error = unstubbedError(method, as: ERROR.self) {
                 fail(failure)
