@@ -2138,7 +2138,7 @@ nonisolated final class MockHandling: Handling, nonisolated Cuckoo.ProtocolMock 
                 "handle(_ p0: (Int) -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (Int) -> Void)),
                 invoke: { (implementation: ((@escaping (Int) -> Void)) -> Void, arguments) in
                                 implementation(arguments)
@@ -2155,7 +2155,7 @@ nonisolated final class MockHandling: Handling, nonisolated Cuckoo.ProtocolMock 
                 "transform(_ p0: (@escaping (Int) -> Int) -> (Int) -> Int)",
                 parameters: (p0),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (@escaping (Int) -> Int) -> (Int) -> Int)),
                 invoke: { (implementation: ((@escaping (@escaping (Int) -> Int) -> (Int) -> Int)) -> Void, arguments) in
                                 implementation(arguments)
@@ -2265,7 +2265,7 @@ final class MockHandlingClass: HandlingClass, nonisolated Cuckoo.ClassMock {
                 "handle(_ p0: (Int) -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (Int) -> Void)),
                 invoke: { (implementation: ((@escaping (Int) -> Void)) -> Void, arguments) in
                                 implementation(arguments)

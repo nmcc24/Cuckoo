@@ -570,7 +570,7 @@ nonisolated final class MockAliased: Aliased, nonisolated Cuckoo.ProtocolMock {
                 "many(_ p0: (((Int) -> Void)...) -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (((Int) -> Void)...) -> Void)),
                 invoke: { (implementation: ((@escaping (((Int) -> Void)...) -> Void)) -> Void, arguments) in
                                 implementation(arguments)
@@ -587,7 +587,7 @@ nonisolated final class MockAliased: Aliased, nonisolated Cuckoo.ProtocolMock {
                 "sent(_ p0: (sending @escaping (Int) -> Void) -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (sending @escaping (Int) -> Void) -> Void)),
                 invoke: { (implementation: ((@escaping (sending @escaping (Int) -> Void) -> Void)) -> Void, arguments) in
                                 implementation(arguments)

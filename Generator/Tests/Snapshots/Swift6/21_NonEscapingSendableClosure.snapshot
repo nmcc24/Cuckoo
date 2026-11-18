@@ -25,7 +25,7 @@ nonisolated final class MockTransformer: Transformer, nonisolated Cuckoo.Protoco
                 "transform(_ p0: @Sendable (String) async -> String?) -> String?",
                 parameters: (p0),
                 escapingParameters: (({ @Sendable _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as @Sendable (String) async -> String?)),
                 invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?, arguments) in
                                 implementation(arguments)
@@ -42,7 +42,7 @@ nonisolated final class MockTransformer: Transformer, nonisolated Cuckoo.Protoco
                 "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
                 parameters: (p0),
                 escapingParameters: (({ @Sendable _ in
-                            fatalError("This is a stub! It's not supposed to be called!")
+                            fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                         } as @Sendable (String) -> String?)),
                 invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?, arguments) in
                     await implementation(arguments)
@@ -60,7 +60,7 @@ nonisolated final class MockTransformer: Transformer, nonisolated Cuckoo.Protoco
                 "forEach(_ p0: @Sendable (Int, String) -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ @Sendable _, _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as @Sendable (Int, String) -> Void)),
                 invoke: { (implementation: ((@escaping @Sendable (Int, String) -> Void)) -> Void, arguments) in
                                 implementation(arguments)
@@ -198,7 +198,7 @@ final class MockTransformingService: TransformingService, nonisolated Cuckoo.Cla
                 "transform(_ p0: @Sendable (String) async -> String?) -> String?",
                 parameters: (p0),
                 escapingParameters: (({ @Sendable _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as @Sendable (String) async -> String?)),
                 invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?, arguments) in
                                 implementation(arguments)
@@ -215,7 +215,7 @@ final class MockTransformingService: TransformingService, nonisolated Cuckoo.Cla
                 "transformAsync(_ p0: @Sendable (String) -> String?) async -> String?",
                 parameters: (p0),
                 escapingParameters: (({ @Sendable _ in
-                            fatalError("This is a stub! It's not supposed to be called!")
+                            fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                         } as @Sendable (String) -> String?)),
                 invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?, arguments) in
                     await implementation(arguments)

@@ -152,7 +152,7 @@ nonisolated final class MockObserving<Value>: Observing, nonisolated Cuckoo.Prot
                     "subscript(key p0: Int) -> (Value) -> Void#set",
                     parameters: (p0, p1),
                     escapingParameters: (p0, ({ _ in
-                                                fatalError("This is a stub! It's not supposed to be called!")
+                                                fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                             } as (Value) -> Void)),
                     invoke: { (implementation: ((Int, (Value) -> Void)) -> Void, arguments) in
                                         implementation(arguments)
@@ -358,7 +358,7 @@ nonisolated final class MockMapping<Element>: Mapping, nonisolated Cuckoo.Protoc
                 "map<T> (_ p0: (Element) -> T) -> [T]",
                 parameters: (p0),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (Element) -> T)),
                 invoke: { (implementation: ((@escaping (Element) -> T)) -> [T], arguments) in
                                 implementation(arguments)
@@ -375,7 +375,7 @@ nonisolated final class MockMapping<Element>: Mapping, nonisolated Cuckoo.Protoc
                 "each(_ p0: (Element) -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (Element) -> Void)),
                 invoke: { (implementation: ((@escaping (Element) -> Void)) -> Void, arguments) in
                                 implementation(arguments)
@@ -592,7 +592,7 @@ nonisolated final class MockKeyed: Keyed, nonisolated Cuckoo.ProtocolMock {
                     "subscript(_ p0: (Int) -> Int) -> Int#get",
                     parameters: (p0),
                     escapingParameters: (({ _ in
-                                                fatalError("This is a stub! It's not supposed to be called!")
+                                                fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                             } as (Int) -> Int)),
                     invoke: { (implementation: ((@escaping (Int) -> Int)) -> Int, arguments) in
                                         implementation(arguments)
@@ -877,7 +877,7 @@ nonisolated final class MockRunning: Running, nonisolated Cuckoo.ProtocolMock {
                 "run<T> (isolation p0: isolated (any Actor)?, _ p1: () async throws -> T) async rethrows -> T",
                 parameters: (p0, p1),
                 escapingParameters: (p0, ({ () in
-                            fatalError("This is a stub! It's not supposed to be called!")
+                            fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                         } as () async throws -> T)),
                 invoke: { (implementation: nonisolated(nonsending) (((any Actor)?, () async throws -> T)) async throws -> T, arguments) in
                     try await implementation(arguments)
@@ -895,7 +895,7 @@ nonisolated final class MockRunning: Running, nonisolated Cuckoo.ProtocolMock {
                 "run(_ p0: isolated (any Actor)?, body p1: () -> Void) async",
                 parameters: (p0, p1),
                 escapingParameters: (p0, ({ () in
-                            fatalError("This is a stub! It's not supposed to be called!")
+                            fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                         } as () -> Void)),
                 invoke: { (implementation: nonisolated(nonsending) (((any Actor)?, () -> Void)) async -> Void, arguments) in
                     await implementation(arguments)
@@ -1196,7 +1196,7 @@ nonisolated final class MockSyncRunning: SyncRunning, nonisolated Cuckoo.Protoco
                 "run(_ p0: isolated Worker, body p1: () -> Void)",
                 parameters: (p0, p1),
                 escapingParameters: (p0, ({ () in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as () -> Void)),
                 invoke: { (implementation: ((Worker, () -> Void)) -> Void, arguments) in
                                 implementation(arguments)
@@ -1282,7 +1282,7 @@ final class MockSyncRunner: SyncRunner, nonisolated Cuckoo.ClassMock {
                 "run(_ p0: isolated Worker, body p1: () -> Int) -> Int",
                 parameters: (p0, p1),
                 escapingParameters: (p0, ({ () in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as () -> Int)),
                 invoke: { (implementation: ((Worker, () -> Int)) -> Int, arguments) in
                                 implementation(arguments)

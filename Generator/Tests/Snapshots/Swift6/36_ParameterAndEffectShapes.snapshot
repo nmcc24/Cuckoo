@@ -94,7 +94,7 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 "transform(_ p0: () -> Void) throws(ShapeError) -> Int",
                 parameters: (p0),
                 escapingParameters: (({ () in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as () -> Void)),
                 errorType: (ShapeError).self,
                 invoke: { (implementation: ((@escaping () -> Void)) throws -> Int, arguments) throws(ShapeError) in
@@ -116,7 +116,7 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 "handle(_ p0: (Int) -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (Int) -> Void)),
                 invoke: { (implementation: ((@escaping (Int) -> Void)) -> Void, arguments) in
                                 implementation(arguments)

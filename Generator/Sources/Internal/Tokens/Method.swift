@@ -406,7 +406,7 @@ extension Method {
     }
 
     /// The parameters as the mock manager records them for verification: a non-escaping closure is replaced by a stub
-    /// that crashes if called.
+    /// that crashes if called, with a message for the test that captured it with an `ArgumentCaptor`.
     var escapingParameterNames: String {
         signature.parameters.map { parameter in
             if !parameter.type.containsAttribute(named: "@escaping"), let closure = parameter.type.findClosure() {
@@ -418,7 +418,7 @@ extension Method {
 
                 // Typed, so the closure's `Never` result converts to a closure result too, such as `(Int) -> Int`.
                 let type = parameter.type.withoutAttributes(except: ["@MainActor", "@Sendable"]).genericArgumentSafe
-                return "({ \(sendable)\(parameterSignature) in fatalError(\"This is a stub! It's not supposed to be called!\") } as \(type))"
+                return "({ \(sendable)\(parameterSignature) in fatalError(\"A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.\") } as \(type))"
             } else {
                 return parameter.recordedValue
             }
