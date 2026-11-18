@@ -25,9 +25,16 @@ protocol ObjcOptionalProperties {
     optional var count: Int { get set }
     @objc
     optional var title: String { get set }
+    @objc
+    optional subscript(index: Int) -> String { get set }
 }
 
 final class ObjcOptionalPropertiesImplementation: NSObject, ObjcOptionalProperties {
     var count = 5
+    var names = ["zero", "one"]
+    subscript(index: Int) -> String {
+        get { names[index] }
+        set { names[index] = newValue }
+    }
 }
 #endif
