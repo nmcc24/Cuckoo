@@ -27,6 +27,9 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var shadowedMembers: [any Token] = []
     /// A generic superclass in the sources, `Base<Int>`, whose members the mock doesn't override, with their names.
     var unmockedGenericSuperclass: (name: String, members: [String])?
+    /// Typealiases, as `Model = Feature.Model`, for the types the scopes around the one this is nested in declare:
+    /// the mock and stub sit in an extension of that type, which doesn't see them. See `Generator.outerScopeTypealiases`.
+    var outerScopeTypealiases: [OuterScopeTypealias] = []
 
     func replacing(members: [any Token]) -> ClassDeclaration {
         ClassDeclaration(
