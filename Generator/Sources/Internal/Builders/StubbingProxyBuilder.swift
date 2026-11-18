@@ -28,11 +28,11 @@ enum StubbingProxyBuilder {
         // two members differ only in the stub they return. `stub.load()` is the sync one, and the async one is a
         // member of `stub.async`, which a synchronous block can name. Where a mocked member has taken that name, the
         // async one's member is `async` instead, so a call picks one as Swift picks a call's overload.
-        let syncSignatures = Set(methods.filter { !$0.isAsync }.map { signature(of: $0) })
+        let overloads = GeneratorHelper.asyncOverloads(among: methods)
         let hasNamespace = GeneratorHelper.canDeclareAsyncNamespace(in: container, isStatic: isStatic)
         var asyncOverloads: [Method] = []
-        for method in methods {
-            let isOverload = method.isAsync && syncSignatures.contains(signature(of: method))
+        for (index, method) in methods.enumerated() {
+            let isOverload = overloads.contains(index)
             if isOverload, hasNamespace {
                 asyncOverloads.append(method)
                 continue
@@ -88,15 +88,6 @@ enum StubbingProxyBuilder {
         source.append("    return .init(manager: cuckooManager, name: \(Fragment.literal(property.name)))")
         source.append("}")
         return lines(source)
-    }
-
-    /// What tells a method's stubbing member from another's in a call: its name, generic parameters, matchers and
-    /// their constraints, but not the stub it returns.
-    private static func signature(of method: Method) -> String {
-        let sendable = method.stubIsolation.sharing == .shared
-        let generics = GeneratorHelper.matchableGenericTypes(from: method, sendable: sendable)
-        let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
-        return "\(method.proxyName)\(generics)(\(parameters))\(GeneratorHelper.matchableGenericsWhereClause(from: method))"
     }
 
     private static func source(of method: Method, mockName: String, access memberAccess: Accessibility, isAsync: Bool) -> String {
