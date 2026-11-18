@@ -13,13 +13,20 @@ struct GeneratorHelper {
     }
 
     /// The mocks and stubs of a file's mocked types, laid out.
-    static func generate(tokens: [any Token], keepDocumentation: Bool = true, mockNaming: MockNaming = .default) throws -> String {
-        // The builders name mocks through the tokens.
+    static func generate(
+        tokens: [any Token],
+        keepDocumentation: Bool = true,
+        mockNaming: MockNaming = .default,
+        defaults: GeneratedDefaults = GeneratedDefaults()
+    ) throws -> String {
+        // The builders name mocks through the tokens, and find the defaults the mocks build as they go.
         try MockNaming.$current.withValue(mockNaming) {
-            let mocks = try tokens.compactMap { $0 as? any ContainerToken }.map {
-                try MockBuilder.build($0, keepDocumentation: keepDocumentation)
+            try GeneratedDefaults.$current.withValue(defaults) {
+                let mocks = try tokens.compactMap { $0 as? any ContainerToken }.map {
+                    try MockBuilder.build($0, keepDocumentation: keepDocumentation)
+                }
+                return try format(mocks.joined())
             }
-            return try format(mocks.joined())
         }
     }
 
@@ -154,12 +161,16 @@ struct GeneratorHelper {
         return "let matchers: [\(type)<(\(genericSafeType(from: tupleType)))>] = [\(matchers)]"
     }
 
-    /// The argument that gives an unstubbed call returning a tuple its default value, or `nil` for any other return
-    /// type: the manager's generic return type can't name a tuple's elements. The tuple is named by a local
-    /// `typealias`, as `(...).self` can't spell every type: a closure element with a `borrowing` parameter, say.
-    static func unstubbedTupleArgument(for type: ComplexType?) -> String? {
-        guard case .type(let description) = type, let tuple = unlabeledTupleType(description) else { return nil }
-        return "unstubbedTuple: { \(defaultTypealias(tuple)); return Cuckoo.MockManager.unstubbedTupleValue(for: \(defaultTypealiasName).self) }()"
+    /// The argument that gives an unstubbed call of `member` a default value the manager's generic return type can't
+    /// find by itself, or `nil` when `type`, which it returns, has none. For a tuple, whose elements the manager
+    /// can't name, it's each element's default. The tuple is named by a local `typealias`, as `(...).self` can't
+    /// spell every type: a closure element with a `borrowing` parameter, say. For a type the mocks can build
+    /// themselves, it's that value; see ``GeneratedDefaults``.
+    static func unstubbedDefaultArgument(for type: ComplexType?, of member: any Token) -> String? {
+        if case .type(let description) = type, let tuple = unlabeledTupleType(description) {
+            return "unstubbedTuple: { \(defaultTypealias(tuple)); return Cuckoo.MockManager.unstubbedTupleValue(for: \(defaultTypealiasName).self) }()"
+        }
+        return GeneratedDefaults.current.expression(for: type, of: member).map { "unstubbedTuple: \($0)" }
     }
 
     /// The name `defaultTypealias(_:)` declares.

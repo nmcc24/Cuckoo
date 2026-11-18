@@ -20,6 +20,8 @@ final class Generator {
         let files: [FileRepresentation]
         /// Every type the sources of a known Swift module declare, which the generated files import by name.
         let typesByModule: [String: [TopLevelType]]
+        /// The default values the module's mocks build themselves.
+        let defaults: GeneratedDefaults
 
         /// The imports the mocks of `files` need, each once.
         func imports(for files: [FileRepresentation]) -> String {
@@ -172,7 +174,12 @@ final class Generator {
         }
         let parsedFiles = removeTypes(from: finalFiles, using: typeFilters)
         let mockableFiles = parsedFiles.map { $0.replacing(tokens: $0.tokens.filter { $0.isMockable }) }
-        return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule)
+        let defaults = GeneratedDefaults(
+            files: mockableFiles,
+            names: TypeNames(typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), files: mockableFiles),
+            declaredTypes: declaredNames.nominalTypes.union(declaredNames.typealiases.keys)
+        )
+        return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule, defaults: defaults)
     }
 
     /// - Parameter sharedImports: the imports of a single output file, which go at the top of its first file; without
@@ -188,7 +195,7 @@ final class Generator {
                     file.file.path == firstPath && sharedImports?.isEmpty == false ? sharedImports : nil,
                     FileHeaderHandler.header(for: file, relativeTo: module.projectDirectory, timestamp: timestamp),
                     sharedImports == nil ? prepared.imports(for: [file]) : nil,
-                    try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming),
+                    try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming, defaults: prepared.defaults),
                 ]
                 .compactMap { $0 }
                 .joinedByBlankLines()

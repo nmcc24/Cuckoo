@@ -87,7 +87,7 @@ enum MockMembersBuilder {
             } else if context.isActor {
                 "Cuckoo.MockManager.crashOnActorDefaultImplementationCall(\(literal))"
             } else if property.mentionsSelf {
-                selfUnforwardableCall(literal, returning: type)
+                selfUnforwardableCall(literal, returning: type, of: property)
             } else {
                 forwarding
             }
@@ -115,7 +115,7 @@ enum MockMembersBuilder {
             source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.getter))) in \(tryAwait)implementation(\(isolated ? "self" : "()")) },")
         }
         source.append("            superclassCall: \(context.isClass ? "\(tryAwait)super.\(name)" : crashOnSuperclass),")
-        if let unstubbedTuple = GeneratorHelper.unstubbedTupleArgument(for: property.type) {
+        if let unstubbedTuple = GeneratorHelper.unstubbedDefaultArgument(for: property.type, of: property) {
             source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)", returning: property.type)),")
             source.append("            \(unstubbedTuple)")
         } else {
@@ -176,8 +176,8 @@ enum MockMembersBuilder {
 
     /// The default call of a member that takes or returns `Self`, which is another type in the default implementation:
     /// it records a failure saying to stub the member and returns a default value, as the type eraser does.
-    private static func selfUnforwardableCall(_ literal: String, returning type: ComplexType?) -> String {
-        let tuple = GeneratorHelper.unstubbedTupleArgument(for: type).map { ", \($0)" } ?? ""
+    private static func selfUnforwardableCall(_ literal: String, returning type: ComplexType?, of member: any Token) -> String {
+        let tuple = GeneratorHelper.unstubbedDefaultArgument(for: type, of: member).map { ", \($0)" } ?? ""
         let reason = Fragment.literal("it names Self, which is another type in the default implementation")
         return "cuckooManager.unforwardableDefaultImplementationCall(\(literal), reason: \(reason)\(tuple))"
     }
@@ -211,7 +211,7 @@ enum MockMembersBuilder {
         let defaultCall = if context.isActor && !method.isStatic {
             "Cuckoo.MockManager.crashOnActorDefaultImplementationCall(\(literal))"
         } else if method.mentionsSelf && !method.isStatic {
-            selfUnforwardableCall(literal, returning: method.returnType)
+            selfUnforwardableCall(literal, returning: method.returnType, of: method)
         } else if method.hasNoncopyableParams && !method.isStatic {
             "Cuckoo.MockManager.crashOnNoncopyableArgumentForward(\(literal))"
         } else if method.hasVariadicParams && !method.isStatic {
@@ -242,7 +242,7 @@ enum MockMembersBuilder {
         }
         recording.append("    invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: method.stubTypes(resolvingSelfAs: nil).implementation)), arguments) \(implementationEffects)in \(prologue)\(call) },")
         recording.append("    superclassCall: \(superclassCall),")
-        if let unstubbedTuple = method.returnsSending ? nil : GeneratorHelper.unstubbedTupleArgument(for: method.returnType) {
+        if let unstubbedTuple = method.returnsSending ? nil : GeneratorHelper.unstubbedDefaultArgument(for: method.returnType, of: method) {
             recording.append("    defaultCall: \(defaultCall),")
             recording.append("    \(unstubbedTuple)")
         } else {
