@@ -172,6 +172,12 @@ enum TypeErasureBuilder {
         }
     }
 
+    /// A new value's type as a stored setter closure's parameter: a closure value escapes into the stored property,
+    /// so it's `@escaping` there. An optional closure already is.
+    private static func escapingIfClosure(_ type: ComplexType) -> String {
+        type.withoutAttributes().isClosure && !type.isOptional ? "@escaping \(type.description)" : type.description
+    }
+
     private static func sources(of property: Variable, _ context: Context) -> [String] {
         let type = property.type.description
         let storage = storageName(property.name)
@@ -191,7 +197,7 @@ enum TypeErasureBuilder {
         let tryAwait = (property.effects.isThrowing ? "try " : "") + (property.effects.isAsync ? "await " : "")
         var sources = ["private let _getter_storage$$\(storage): \(context.sendable)() \(closureEffects)-> \(type)"]
         if !property.isReadOnly {
-            sources.append("private let _setter_storage$$\(storage): \(context.sendable)(\(type)) -> Void")
+            sources.append("private let _setter_storage$$\(storage): \(context.sendable)(\(escapingIfClosure(property.type))) -> Void")
         }
         if let typedError = property.effects.typedError {
             declaration.append("    get \(getterEffects){")
@@ -270,7 +276,7 @@ enum TypeErasureBuilder {
         if !isGeneric {
             sources.append("private let _subscript_getter_storage$$\(number): \(context.sendable)(\(keyTypes)) \(effects)-> \(returnType)")
             if !subscriptDeclaration.isReadOnly {
-                sources.append("private let _subscript_setter_storage$$\(number): \(context.sendable)(\(keyTypes)\(newValueSeparator)\(returnType)) -> Void")
+                sources.append("private let _subscript_setter_storage$$\(number): \(context.sendable)(\(keyTypes)\(newValueSeparator)\(escapingIfClosure(subscriptDeclaration.returnType))) -> Void")
             }
         }
         let forwardingCall = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
