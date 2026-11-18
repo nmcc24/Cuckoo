@@ -23,8 +23,15 @@ enum StubbingProxyBuilder {
         for property in container.mockedProperties where property.isStatic == isStatic {
             try members.append(property, source: source(of: property, mockName: mockName, access: GeneratorHelper.proxyAccess(of: property, in: container)), of: "\(container.name).\(property.name)")
         }
-        for method in container.mockedMethods where method.isStatic == isStatic {
-            try members.append(method, source: source(of: method, mockName: mockName, access: GeneratorHelper.proxyAccess(of: method, in: container)), of: "\(container.name).\(method.name)")
+        let methods = container.mockedMethods.filter { $0.isStatic == isStatic }
+        // An async method with a sync overload of the same signature would make `when(stub.load())` ambiguous: the
+        // two members differ only in the stub they return. Its member is `async`, as its verification member is, so
+        // a call picks one as Swift picks a call's overload: `stub.load()` in the synchronous `stub` block is the
+        // sync one, and `await` names the async one.
+        let syncSignatures = Set(methods.filter { !$0.isAsync }.map { signature(of: $0) })
+        for method in methods {
+            let isAsync = method.isAsync && syncSignatures.contains(signature(of: method))
+            try members.append(method, source: source(of: method, mockName: mockName, access: GeneratorHelper.proxyAccess(of: method, in: container), isAsync: isAsync), of: "\(container.name).\(method.name)")
         }
         let subscripts = container.mockedSubscripts.filter { $0.isStatic == isStatic }
         for (index, subscriptDeclaration) in subscripts.enumerated() {
@@ -56,7 +63,16 @@ enum StubbingProxyBuilder {
         return lines(source)
     }
 
-    private static func source(of method: Method, mockName: String, access memberAccess: Accessibility) -> String {
+    /// What tells a method's stubbing member from another's in a call: its name, generic parameters, matchers and
+    /// their constraints, but not the stub it returns.
+    private static func signature(of method: Method) -> String {
+        let sendable = method.stubIsolation.sharing == .shared
+        let generics = GeneratorHelper.matchableGenericTypes(from: method, sendable: sendable)
+        let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
+        return "\(method.proxyName)\(generics)(\(parameters))\(GeneratorHelper.matchableGenericsWhereClause(from: method))"
+    }
+
+    private static func source(of method: Method, mockName: String, access memberAccess: Accessibility, isAsync: Bool) -> String {
         let types = method.proxyStubTypes
         var arguments = ["(\(GeneratorHelper.genericSafeType(from: types.input)))"]
         if (method.returnType?.description ?? "") != "Void" {
@@ -73,7 +89,7 @@ enum StubbingProxyBuilder {
         let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method)
         var source = method.repeatedAttributes.map(\.description)
-        source.append("\(memberAccess.spaced)func \(method.proxyName)\(generics)(\(parameters)) -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
+        source.append("\(memberAccess.spaced)func \(method.proxyName)\(generics)(\(parameters))\(isAsync ? " async" : "") -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
         source.append("    \(GeneratorHelper.parameterMatchers(for: method.signature.parameters, sendable: sendable))")
         source.append(contentsOf: createStub(for: method, mockName: mockName))
         source.append("}")
