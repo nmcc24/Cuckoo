@@ -1932,13 +1932,14 @@ public nonisolated final class MockPublicoProtocolo<InternaloTypo>: PublicoProto
         private let cuckooReference: @Sendable () -> any PublicoProtocolo
 
         private let _getter_storage$$stringoStar: @Sendable () -> String
-        private let _setter_storage$$stringoStar: @Sendable (String) -> Void
+        private let _setter_storage$$stringoStar: @Sendable (inout String) -> Void
         public var stringoStar: String {
             get {
                 return _getter_storage$$stringoStar()
             }
             set {
-                _setter_storage$$stringoStar(newValue)
+                var cuckooNewValue = newValue
+                _setter_storage$$stringoStar(&cuckooNewValue)
             }
         }
 

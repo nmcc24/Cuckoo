@@ -895,13 +895,14 @@ nonisolated final class MockListing<Item>: Listing, nonisolated Cuckoo.ProtocolM
         private let cuckooReference: @Sendable () -> any Listing
 
         private let _getter_storage$$keys: @Sendable () -> [Key]
-        private let _setter_storage$$keys: @Sendable ([Key]) -> Void
+        private let _setter_storage$$keys: @Sendable (inout [Key]) -> Void
         var keys: [Key] {
             get {
                 return _getter_storage$$keys()
             }
             set {
-                _setter_storage$$keys(newValue)
+                var cuckooNewValue = newValue
+                _setter_storage$$keys(&cuckooNewValue)
             }
         }
 
