@@ -148,4 +148,46 @@ struct GlobTests {
         let matches = Glob(pattern: "\(root)/Odd?1?.swift").map { Path($0).standardRawValue }
         #expect(matches == [Path("\(root)/Odd[1].swift").standardRawValue])
     }
+
+    /// Directory names with characters a pattern reads as wildcards, `glob [v2]` and `Feat{A}`, are matched as the
+    /// directories they are: the project's own directory, escaped where the Cuckoofile's sources are joined to it,
+    /// and each one a globstar walks into.
+    @Test
+    func directoryNamesWithPatternCharacters() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooGlob-\(UUID().uuidString)/glob [v2]")
+        defer { try? FileManager.default.removeItem(at: directory.deletingLastPathComponent()) }
+        let files = [
+            "Sources/App/A.swift",
+            "Sources/App/[Legacy]/B.swift",
+            "Sources/App/Feat{A}/C.swift",
+            "Sources/App/Feat?/D.swift",
+        ]
+        for file in files {
+            let url = directory.appending(path: file)
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try "".write(to: url, atomically: true, encoding: .utf8)
+        }
+        let root = directory.path(percentEncoded: false)
+        let pattern = Path("Sources/App/**/*.swift").relative(to: Glob.escaped(root)).rawValue
+        let matches = Glob(pattern: pattern).map { Path($0).standardRawValue }.sorted()
+        #expect(matches == files.map { Path("\(root)/\($0)").standardRawValue }.sorted())
+        let literal = Path("Sources/App/A.swift").relative(to: Glob.escaped(root)).rawValue
+        #expect(Glob(pattern: literal).map { Path($0).standardRawValue } == [Path("\(root)/Sources/App/A.swift").standardRawValue])
+    }
+
+    /// A `**` that isn't a whole path component, as in `Sources/**.swift`, is a `*`, as in a shell.
+    @Test
+    func partialGlobstarIsAStar() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooGlob-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        for file in ["Sources/Top.swift", "Sources/Nested/Deep.swift"] {
+            let url = directory.appending(path: file)
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try "".write(to: url, atomically: true, encoding: .utf8)
+        }
+        let root = directory.path(percentEncoded: false)
+        let matches = Glob(pattern: "\(root)/Sources/**.swift").map { Path($0).standardRawValue }
+        #expect(matches == [Path("\(root)/Sources/Top.swift").standardRawValue])
+    }
+
 }
