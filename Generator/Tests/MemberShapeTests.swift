@@ -333,4 +333,69 @@ struct MemberShapeTests {
             #expect(!proxy.contains("async -> Cuckoo."))
         }
     }
+
+    /// A subclass that states a protocol doesn't declare the requirements its superclass implements with members no
+    /// mock can override, in its body or in an extension. A generic superclass is found without its arguments.
+    @Test
+    func aRequirementASuperclassImplementsUnoverridablyIsNotMocked() async throws {
+        let source = """
+            protocol Resetting {
+                static func reset()
+                func ping()
+                func hello()
+                func open()
+            }
+            class Base {
+                init() {}
+                static func reset() {}
+                final func ping() {}
+                func open() {}
+            }
+            extension Base {
+                func hello() {}
+            }
+            class Child: Base, Resetting {}
+            class GenericBase<Value> {
+                init() {}
+                static func reset() {}
+                final func ping() {}
+                final func open() {}
+            }
+            extension GenericBase {
+                func hello() {}
+            }
+            class GenericChild: GenericBase<Int>, Resetting {}
+            """
+        let output = try await generateMocks(source: source)
+        let childStart = try #require(output.firstRange(of: "class MockChild"))
+        let genericBaseStart = try #require(output.firstRange(of: "class MockGenericBase"))
+        let genericChildStart = try #require(output.firstRange(of: "class MockGenericChild"))
+        let child = String(output[childStart.lowerBound..<genericBaseStart.lowerBound])
+        #expect(child.contains("override func open()"))
+        for mock in [child, String(output[genericChildStart.lowerBound...])] {
+            #expect(!mock.contains("func reset()"))
+            #expect(!mock.contains("func ping()"))
+            #expect(!mock.contains("func hello()"))
+        }
+        #expect(!output[genericChildStart.lowerBound...].contains("func open()"))
+    }
+
+    /// An `override` in an extension, which Swift allows for an `@objc dynamic` member, hides nothing: the mock
+    /// overrides the superclass's member again.
+    @Test
+    func anOverrideInAnExtensionIsStillMocked() async throws {
+        let source = """
+            import Foundation
+            class DynamicBase: NSObject {
+                @objc dynamic func refresh() {}
+            }
+            class DynamicChild: DynamicBase {}
+            extension DynamicChild {
+                override func refresh() {}
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let child = try #require(output.firstRange(of: "class MockDynamicChild").map { String(output[$0.lowerBound...]) })
+        #expect(child.contains("override func refresh()"))
+    }
 }
