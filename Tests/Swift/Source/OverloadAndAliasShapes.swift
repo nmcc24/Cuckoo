@@ -96,3 +96,47 @@ extension ExtensionWitnessFeed {
     var stamp: Int { 3 }
     func refresh() -> Int { 2 }
 }
+
+/// Overloads that differ in their result too are still a pair: a call of a proxy's member doesn't state it.
+protocol ResultOverloadedLoader {
+    func value() -> Int
+    func value() async -> String
+}
+
+/// A typealias of a type naming the associated type, in generic members, which a default implementation gets
+/// through the opened existential, and next to a generic parameter of its name.
+protocol ItemListing {
+    associatedtype Item
+    typealias Items = [Item]
+
+    func doubled<T>(_ items: Items, with value: T) -> Items
+    func each<T>(_ value: T, body: (Items) -> Void)
+    func shadowed<Items>(_ value: Items, real: Self.Items) -> Self.Items
+}
+
+struct ItemListingImplementation: ItemListing {
+    func doubled<T>(_ items: [Int], with value: T) -> [Int] { items + items }
+    func each<T>(_ value: T, body: ([Int]) -> Void) { body([1, 2]) }
+    func shadowed<Items>(_ value: Items, real: [Int]) -> [Int] { real.reversed() }
+}
+
+protocol SuperclassRequirements {
+    static func reset() -> Int
+    func ping() -> Int
+    func hello() -> Int
+    func open() -> Int
+}
+
+class SuperclassWitnessBase {
+    init() {}
+
+    static func reset() -> Int { 1 }
+    final func ping() -> Int { 2 }
+    func open() -> Int { 4 }
+}
+
+extension SuperclassWitnessBase {
+    func hello() -> Int { 3 }
+}
+
+class SuperclassWitnessChild: SuperclassWitnessBase, SuperclassRequirements {}
