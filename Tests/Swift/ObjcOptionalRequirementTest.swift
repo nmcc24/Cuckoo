@@ -43,5 +43,42 @@ struct ObjcOptionalRequirementTests {
         }
         #expect(implementation.count == 5)
     }
+
+    @Test
+    func anOptionalSubscriptIsStubbedAndVerified() {
+        let mock = MockObjcOptionalProperties()
+        stub(mock) { stub in
+            when(stub[1].get).thenReturn("stubbed")
+            when(stub[1].set(any())).thenDoNothing()
+        }
+
+        mock[1] = "written"
+        #expect(mock[1] == "stubbed")
+        verify(mock)[1].set("written")
+        verify(mock)[1].get()
+    }
+
+    /// The getter unwraps the default implementation's value, as a property's does.
+    @Test
+    func anOptionalSubscriptsGetterForwardsToTheDefaultImplementation() {
+        let mock = MockObjcOptionalProperties()
+        mock.enableDefaultImplementation(ObjcOptionalPropertiesImplementation())
+
+        #expect(mock[1] == "one")
+    }
+
+    @Test
+    func anOptionalSubscriptsSetterRecordsAFailureInsteadOfForwarding() {
+        let implementation = ObjcOptionalPropertiesImplementation()
+        let mock = MockObjcOptionalProperties()
+        mock.enableDefaultImplementation(implementation)
+
+        withKnownIssue {
+            mock[1] = "written"
+        } matching: { issue in
+            issue.description.contains("can't forward") && issue.description.contains("'@objc optional'")
+        }
+        #expect(implementation.names == ["zero", "one"])
+    }
 }
 #endif
