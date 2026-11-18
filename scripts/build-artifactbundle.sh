@@ -8,7 +8,8 @@
 #
 #   scripts/build-artifactbundle.sh merge <version> <bundle-dir> <parts-dir>...
 #       Lays the parts out as <bundle-dir> (named `CuckooGenerator.artifactbundle`), with its info.json, zips it
-#       next to it and prints the zip's checksum, which the release commit's `binaryTarget` names.
+#       next to it and prints the zip's checksum, which the release commit's `binaryTarget` names. With
+#       REQUIRED_TRIPLES set (space-separated), it fails unless a part supports each of them.
 #
 # SWIFT_BUILD_FLAGS adds flags to `swift build`, such as `--build-system native`.
 set -euo pipefail
@@ -84,6 +85,14 @@ merge() {
         echo "No parts found in: $*" >&2
         exit 1
     fi
+    # The release names every triple it ships in REQUIRED_TRIPLES, so a missing part fails here, not for its users.
+    local triple
+    for triple in ${REQUIRED_TRIPLES:-}; do
+        if [[ "${variants[*]}" != *"\"$triple\""* ]]; then
+            echo "No part supports $triple; the parts found: $*" >&2
+            exit 1
+        fi
+    done
 
     local joined
     joined="$(printf '        %s,\n' "${variants[@]}")"

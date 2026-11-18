@@ -34,6 +34,11 @@ permissions:
 env:
   VERSION: ${{ inputs.version }}
 
+# Container jobs would otherwise run `sh`, without `pipefail`: a failed command before a pipe would pass.
+defaults:
+  run:
+    shell: bash
+
 # Each job's timeout is about three times its usual run, so a hung job fails rather than running for six hours.
 jobs:
   check:
@@ -124,7 +129,19 @@ jobs:
           pattern: part-*
           path: parts
       - name: Bundle
+        env:
+          # Every platform the release ships; a missing part fails the merge.
+          REQUIRED_TRIPLES: arm64-apple-macosx x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu
         run: scripts/build-artifactbundle.sh merge "$VERSION" bundle/CuckooGenerator.artifactbundle parts/*
+      - name: The release commit's manifest
+        run: |
+          # The manifest the tag will carry, with the URL the release will have and this zip's checksum: SwiftPM must
+          # read it before anything is tagged. It can't download the zip yet, so it only loads the manifest.
+          url="https://github.com/$GITHUB_REPOSITORY/releases/download/$VERSION/CuckooGenerator.artifactbundle.zip"
+          checksum="$(shasum -a 256 bundle/CuckooGenerator.artifactbundle.zip | cut -d' ' -f1)"
+          scripts/set-prebuilt-generator.sh remote "$url" "$checksum"
+          swift package dump-package > /dev/null
+          git checkout -- Package.swift
       - name: Smoke test
         run: scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
       - name: Upload the bundle
@@ -174,7 +191,21 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: write
+      actions: read
     steps:
+      # A matrix job's result reads `success` even when some of its legs were cancelled, such as one that never got
+      # a runner, so nothing is tagged unless every build and smoke-test leg of this run succeeded.
+      - name: Every build and smoke test succeeded
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          not_passed="$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?filter=latest" \
+            --jq '.jobs[] | select(.name | startswith("Build the generator") or startswith("Bundle and smoke-test")
+              or startswith("Smoke-test the bundle")) | select(.conclusion != "success") | "\(.name): \(.conclusion // .status)"')"
+          if [[ -n "$not_passed" ]]; then
+            echo "::error::Not every leg succeeded:"$'\n'"$not_passed"
+            exit 1
+          fi
       - name: Checkout
         uses: actions/checkout@v7
       - name: Download the bundle
@@ -193,6 +224,7 @@ jobs:
           url="https://github.com/$GITHUB_REPOSITORY/releases/download/$VERSION/CuckooGenerator.artifactbundle.zip"
           # SwiftPM's checksum of a binary target is the SHA-256 of the zip, so this job needs no Swift toolchain.
           checksum="$(sha256sum bundle/CuckooGenerator.artifactbundle.zip | cut -d' ' -f1)"
+          [[ "$checksum" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::Not a SHA-256 checksum: '$checksum'."; exit 1; }
           push=(git push origin "refs/tags/$VERSION")
           if git fetch --quiet origin "refs/tags/$VERSION:refs/tags/$VERSION" 2>/dev/null; then
             if git show "$VERSION:Package.swift" | grep -qF "$checksum"; then
