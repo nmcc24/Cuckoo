@@ -182,6 +182,51 @@ struct MemberShapeTests {
         #expect(!mock.contains("var count: Int"))
     }
 
+    /// A member an extension of the class declares can't be overridden, so it hides the requirement it implements
+    /// as a `final` one does; an extension of another type doesn't.
+    @Test
+    func aRequirementImplementedInAnExtensionIsNotMocked() async throws {
+        let source = """
+            protocol Refreshing {
+                var stamp: Int { get }
+                func refresh()
+                func reload()
+                subscript(key: String) -> Int { get }
+            }
+            class Feed: Refreshing {
+                init() {}
+                func reload() {}
+            }
+            extension Feed {
+                static let cache = makeCache()
+                var stamp: Int { 0 }
+                func refresh() {}
+                subscript(key: String) -> Int { 0 }
+            }
+            class Other: Refreshing {
+                init() {}
+                var stamp: Int { 0 }
+                func refresh() {}
+                func reload() {}
+                subscript(key: String) -> Int { 0 }
+            }
+            """
+        var output = ""
+        let printed = try await capturingOutput {
+            output = try await generateMocks(source: source)
+        }
+        // The extension's members are only read for what they hide: one whose type can't be inferred doesn't warn.
+        #expect(!printed.contains("cache"))
+        let feedStart = try #require(output.firstRange(of: "class MockFeed"))
+        let otherStart = try #require(output.firstRange(of: "class MockOther"))
+        let feed = String(output[feedStart.lowerBound..<otherStart.lowerBound])
+        #expect(feed.contains("override func reload()"))
+        #expect(!feed.contains("func refresh()"))
+        #expect(!feed.contains("var stamp: Int"))
+        #expect(!feed.contains("subscript("))
+        #expect(output[otherStart.lowerBound...].contains("override func refresh()"))
+    }
+
     /// With a default isolation, a protocol refining a `nonisolated` one takes the default itself: its own
     /// requirements are isolated, and the ones it inherits aren't. Stated, `nonisolated` covers its own too.
     @Test

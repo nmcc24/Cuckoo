@@ -154,7 +154,7 @@ final class Crawler: SyntaxVisitor {
     /// Members of a class that its mock can't override, each with the reason, which the mock states in a comment.
     var unmockedMembers: [String] = []
     /// A class's members the mock can't override that hide the ones it inherits; see
-    /// `ClassDeclaration.shadowedMembers`.
+    /// `ClassDeclaration.shadowedMembers`. In an extension, every member it declares for the extended type.
     var shadowedMembers: [any Token] = []
     /// Whether `parse` reads a member the mock can't override, to record it in `shadowedMembers`.
     private var parsesShadowedMember = false
@@ -347,8 +347,15 @@ final class Crawler: SyntaxVisitor {
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: members)
         token.members = crawler.tokens
+        token.extensionMembers = crawler.shadowedMembers
         tokens.append(token)
         return .skipChildren
+    }
+
+    /// Whether the crawler is reading an extension's members, which are recorded as the ones that hide what the
+    /// extended class inherits; see `NamespaceDeclaration.extensionMembers`.
+    private var isInExtension: Bool {
+        (container?.value as? NamespaceDeclaration)?.isExtension == true
     }
 
     // A type declared in a body, a closure or a macro's arguments, such as `#Preview { … }`, is local to it, so no
@@ -360,6 +367,9 @@ final class Crawler: SyntaxVisitor {
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind { .skipChildren }
 
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
+        if isInExtension {
+            shadowedMembers.append(contentsOf: parsingShadowedMember { parse(node) })
+        }
         guard let container, container.isMockable else { return .skipChildren }
 
         // An override has to repeat the property's type, which an opaque `some` type can't be.
@@ -390,6 +400,9 @@ final class Crawler: SyntaxVisitor {
     }
 
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
+        if isInExtension, let method = parsingShadowedMember({ parse(node) }) {
+            shadowedMembers.append(method)
+        }
         guard let container, container.isMockable else { return .skipChildren }
 
         if container.isClass, let returnType = node.signature.returnClause?.type, Self.containsOpaqueType(returnType) {
@@ -416,6 +429,9 @@ final class Crawler: SyntaxVisitor {
     }
 
     override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
+        if isInExtension, let item = parsingShadowedMember({ parse(node) }) {
+            shadowedMembers.append(item)
+        }
         guard let container, container.isMockable else { return .skipChildren }
 
         if container.isClass, Self.containsOpaqueType(node.returnClause.type) {
@@ -966,7 +982,10 @@ extension Crawler {
         } else if let initializer = binding.initializer?.value, let guessedType = TypeGuesser.guessType(from: initializer, genericTypes: context.genericTypes, functions: context.capitalizedFunctions.subtracting(context.nominalTypes)) {
             type = .type(guessedType)
         } else {
-            warn(binding, "Can't infer the type of property '\(identifier)', so it isn't mocked. Add a type annotation to mock it.")
+            // An extension's property is only read for what it hides, and was never going to be mocked.
+            if !isInExtension {
+                warn(binding, "Can't infer the type of property '\(identifier)', so it isn't mocked. Add a type annotation to mock it.")
+            }
             return nil
         }
 
