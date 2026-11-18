@@ -163,8 +163,12 @@
   which no subclass can override. The same holds when a superclass in the sources has the member and a subclass
   states the protocol, as `class Child: Base, Resetting {}`; a superclass outside the sources isn't read, as
   before. An `override` in an extension, which an `@objc dynamic` member allows, is still mocked, and so is an
-  `@objc` member an extension declares: the Objective-C runtime dispatches it, so the mock overrides it, as the
-  requirement it implements.
+  `@objc` member an extension declares, every member of an `@objc extension` included: the Objective-C runtime
+  dispatches it, so the mock overrides it, as the requirement it implements. An `@objcMembers` class's extension
+  members are kept unless they say `@objc`, since only the compiler knows which of them Objective-C represents.
+- A class member implementing a requirement with fewer effects, as a `func load()` that doesn't throw does
+  `func load() throws`, or a synchronous one an `async` requirement, got a mock that also declared the requirement
+  and didn't compile. The mock overrides the class's member, `@objc` extension members included.
 - A generic requirement using a typealias of a type that names an associated type, as `func first<T>(_ value: T)
   -> Items` with `typealias Items = [Item]`, got a mock that didn't compile: forwarding it to a default
   implementation goes through the opened existential, where `Items` is another type. The type eraser casts it

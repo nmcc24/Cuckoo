@@ -37,6 +37,13 @@ named like one of those associated types, as `func convert<Item>(_ value: Item)`
 accepts it in the protocol but not in the generic mock, which already declares `Item`. Rename the member's generic
 parameter.
 
+A class's mock overrides what a subclass can: not the class's `static` or `final` members, nor those an extension
+declares, which keep the real implementation, also where they implement a protocol's requirement. An `@objc`
+member an extension declares is overridden, as every member of an `@objc extension` is, since the Objective-C
+runtime dispatches them. An `@objcMembers` class's extension members are `@objc` only when Objective-C can
+represent their types, which the generator can't tell from the sources, so they're kept too: write `@objc` on one
+to mock it.
+
 Mocks keep the isolation of the type they mock. The mock of a `@MainActor` protocol is `@MainActor`, the mock of
 an `actor` protocol is an actor, and the mock of a `Sendable` type is `Sendable`, so the compiler checks how the
 test shares it. A protocol that states no isolation of its own takes its parents', as Swift does: the mock of a

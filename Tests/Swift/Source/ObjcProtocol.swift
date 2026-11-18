@@ -53,3 +53,21 @@ protocol ObjcExtensionGreeting {
 
 class ObjcExtensionGreeter: ObjcExtensionGreeterBase, ObjcExtensionGreeting {}
 #endif
+
+#if canImport(ObjectiveC)
+/// The members of an `@objc extension`, which are all `@objc`, and a plain `@objc` member implementing a throwing
+/// requirement.
+class ObjcExtensionRingerBase: NSObject {}
+
+@objc extension ObjcExtensionRingerBase {
+    func ring() -> String { "base" }
+    func fetch() -> String { "base" }
+}
+
+protocol ObjcExtensionRinging {
+    func ring() -> String
+    func fetch() throws -> String
+}
+
+class ObjcExtensionRinger: ObjcExtensionRingerBase, ObjcExtensionRinging {}
+#endif
