@@ -131,6 +131,72 @@ struct OverloadAndAliasShapesTests {
         }
     }
 
+    /// The overloads' results differ, and each proxy still tells them apart by `async`.
+    @Test
+    func overloadsWithDifferentResultsAreStubbedAndVerifiedApart() async {
+        let mock = MockResultOverloadedLoader()
+        stub(mock) { stub in
+            when(stub.value()).thenReturn(1)
+            when(stub.async.value()).thenReturn("async")
+        }
+
+        let synchronous: Int = mock.value()
+        let asynchronous: String = await mock.value()
+        #expect(synchronous == 1)
+        #expect(asynchronous == "async")
+
+        inOrder {
+            verify(mock).value()
+            verify(mock).async.value()
+        }
+        verifyNoMoreInteractions(mock)
+    }
+
+    /// The type eraser casts a typealias of the associated type between the mock's and the default
+    /// implementation's, and leaves a generic parameter of the same name alone.
+    @Test
+    func aTypealiasOfAnAssociatedTypeForwardsToTheDefaultImplementation() {
+        let mock = MockItemListing<Int>()
+        mock.enableDefaultImplementation(ItemListingImplementation())
+
+        #expect(mock.doubled([1, 2], with: "any") == [1, 2, 1, 2])
+        var seen: [[Int]] = []
+        mock.each("any") { seen.append($0) }
+        #expect(seen == [[1, 2]])
+        #expect(mock.shadowed("not items", real: [1, 2, 3]) == [3, 2, 1])
+    }
+
+    @Test
+    func aTypealiasOfAnAssociatedTypeIsStubbedAndVerified() {
+        let mock = MockItemListing<Int>()
+        stub(mock) { stub in
+            when(stub.doubled(any(), with: any(String.self))).thenReturn([7])
+            when(stub.shadowed(any(String.self), real: any())).then { _, real in real }
+        }
+
+        #expect(mock.doubled([1], with: "any") == [7])
+        #expect(mock.shadowed("any", real: [4]) == [4])
+        verify(mock).doubled(any(), with: any(String.self))
+        verify(mock).shadowed(any(String.self), real: any())
+    }
+
+    /// The requirements a superclass implements with `static` and `final` members, or in an extension, stay the
+    /// superclass's for a subclass that states the protocol.
+    @Test
+    func aSuperclassesUnoverridableWitnessesAreNotMocked() {
+        let mock = MockSuperclassWitnessChild()
+        stub(mock) { stub in
+            when(stub.open()).thenReturn(40)
+        }
+
+        #expect(mock.open() == 40)
+        #expect(mock.ping() == 2)
+        #expect(mock.hello() == 3)
+        #expect(MockSuperclassWitnessChild.reset() == 1)
+        verify(mock).open()
+        verifyNoMoreInteractions(mock)
+    }
+
     /// Where the mocked type has a member named `async`, `await` picks the async overload, as in a call.
     @Test
     func awaitNamesTheAsyncOverloadNextToAMemberNamedAsync() async {
