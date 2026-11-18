@@ -54,24 +54,65 @@ struct OverloadAndAliasShapesTests {
         #expect(mock.implicit == "set")
     }
 
-    /// A call picks the overload as Swift does: the sync one in a synchronous context, the async one with `await`.
+    /// `stub.value()` and `verify(mock).value()` are the sync overload, and `async` names the async one, in the
+    /// `stub` block, a plain `verify` in async code and `inOrder`.
     @Test
     func aSyncAndAnAsyncOverloadAreStubbedAndVerifiedApart() async {
         let mock = MockOverloadedLoader()
         stub(mock) { stub in
             when(stub.value()).thenReturn(1)
+            when(stub.async.value()).thenReturn(2)
         }
-        when(await mock.cuckooStubbingProxy().value()).thenReturn(2)
 
         let synchronous = { mock.value() }()
         let asynchronous = await mock.value()
+        let again = await mock.value()
         #expect(synchronous == 1)
         #expect(asynchronous == 2)
+        #expect(again == 2)
 
-        await verify(mock).value()
+        verify(mock).value()
+        verify(mock, times(2)).async.value()
         inOrder {
             verify(mock).value()
+            verify(mock, times(2)).async.value()
         }
+        verifyNoMoreInteractions(mock)
+    }
+
+    /// `inOrder` tells the overloads apart: the async call came second.
+    @Test
+    func inOrderFailsWhenTheAsyncOverloadWasCalledLater() async {
+        let mock = MockOverloadedLoader()
+        stub(mock) { stub in
+            when(stub.value()).thenReturn(1)
+            when(stub.async.value()).thenReturn(2)
+        }
+        _ = { mock.value() }()
+        _ = await mock.value()
+
+        withKnownIssue {
+            inOrder {
+                verify(mock).async.value()
+                verify(mock).value()
+            }
+        }
+    }
+
+    /// Verifying one overload doesn't count the other's calls.
+    @Test
+    func verifyingOneOverloadLeavesTheOthersCalls() async {
+        let mock = MockOverloadedLoader()
+        stub(mock) { stub in
+            when(stub.async.value()).thenReturn(2)
+        }
+        _ = await mock.value()
+
+        verify(mock, never()).value()
+        withKnownIssue {
+            verifyNoMoreInteractions(mock)
+        }
+        verify(mock).async.value()
         verifyNoMoreInteractions(mock)
     }
 
@@ -88,6 +129,28 @@ struct OverloadAndAliasShapesTests {
         } matching: { issue in
             issue.description.contains("No stub for value()")
         }
+    }
+
+    /// Where the mocked type has a member named `async`, `await` picks the async overload, as in a call.
+    @Test
+    func awaitNamesTheAsyncOverloadNextToAMemberNamedAsync() async {
+        let mock = MockAsyncNamedLoader()
+        stub(mock) { stub in
+            when(stub.async.get).thenReturn(true)
+            when(stub.value()).thenReturn(1)
+        }
+        when(await mock.cuckooStubbingProxy().value()).thenReturn(2)
+
+        let synchronous = { mock.value() }()
+        let asynchronous = await mock.value()
+        #expect(synchronous == 1)
+        #expect(asynchronous == 2)
+        #expect(mock.async)
+
+        await verify(mock).value()
+        _ = { verify(mock).value() }()
+        verify(mock).async.get()
+        verifyNoMoreInteractions(mock)
     }
 
     /// The mock overrides what it can, and leaves the `final` and `static` members that implement the protocol's
@@ -140,45 +203,58 @@ struct OverloadAndAliasShapesTests {
     }
 }
 
-/// The async overload's stubbing and verification members run on their caller's actor. A public protocol's proxies
-/// aren't `Sendable`, so a test on the main actor couldn't send them to a nonisolated async member.
+/// A public protocol's proxies aren't `Sendable`, as an internal one's are implicitly: a test on the main actor
+/// stubs and verifies both overloads without sending them anywhere.
 @Suite(.cuckoo())
 @MainActor
-struct AsyncOverloadOnTheMainActorTests {
+struct OverloadsOnTheMainActorTests {
     @Test
-    func anAsyncOverloadIsStubbedAndVerifiedFromTheMainActor() async {
+    func bothOverloadsAreStubbedAndVerifiedFromTheMainActor() async {
         let mock = MockPublicOverloadedLoader()
         stub(mock) { stub in
             when(stub.value()).thenReturn(1)
+            when(stub.async.value()).thenReturn(2)
         }
-        when(await mock.cuckooStubbingProxy().value()).thenReturn(2)
 
         let synchronous = { mock.value() }()
         let asynchronous = await mock.value()
         #expect(synchronous == 1)
         #expect(asynchronous == 2)
 
-        await verify(mock).value()
-        _ = { verify(mock).value() }()
+        verify(mock).value()
+        verify(mock).async.value()
+        inOrder {
+            verify(mock).value()
+            verify(mock).async.value()
+        }
         verifyNoMoreInteractions(mock)
     }
 
-    /// A static member's proxies take `await` the same way; the stubbing one is made from the type's manager.
+    /// Static overloads are stubbed in the type's `stub` block and verified the same way, `inOrder` included.
     @Test
-    func aStaticAsyncOverloadIsStubbedAndVerifiedFromTheMainActor() async {
+    func staticOverloadsAreStubbedAndVerifiedFromTheMainActor() async {
+        let mock = MockPublicOverloadedLoader()
         stub(MockPublicOverloadedLoader.self) { stub in
             when(stub.shared()).thenReturn(1)
+            when(stub.async.shared()).thenReturn(2)
         }
-        let stubbing = MockPublicOverloadedLoader.CuckooStaticStubbing(manager: MockPublicOverloadedLoader.cuckooStaticManager)
-        when(await stubbing.shared()).thenReturn(2)
+        stub(mock) { stub in
+            when(stub.async.value()).thenReturn(3)
+        }
 
-        let synchronous = { MockPublicOverloadedLoader.shared() }()
         let asynchronous = await MockPublicOverloadedLoader.shared()
+        let synchronous = { MockPublicOverloadedLoader.shared() }()
+        let value = await mock.value()
         #expect(synchronous == 1)
         #expect(asynchronous == 2)
+        #expect(value == 3)
 
-        await verify(MockPublicOverloadedLoader.self).shared()
-        _ = { verify(MockPublicOverloadedLoader.self).shared() }()
+        verify(MockPublicOverloadedLoader.self).shared()
+        inOrder {
+            verify(MockPublicOverloadedLoader.self).async.shared()
+            verify(MockPublicOverloadedLoader.self).shared()
+            verify(mock).async.value()
+        }
         verifyNoMoreInteractions(MockPublicOverloadedLoader.self)
     }
 }
