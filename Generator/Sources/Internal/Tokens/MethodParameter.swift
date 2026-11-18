@@ -116,13 +116,49 @@ struct MethodParameter: Token {
 
     func callAndCastTypes(named typeNames: [String], as replacement: (String) -> String) -> String {
         let replaced = type.replaceTypes(named: typeNames, with: replacement)
-        
+        if replaced != nil, let adapter = closureAdapter(named: typeNames, as: replacement) {
+            return adapter
+        }
+
         let callToCast = call
         if let replaced {
             return callToCast.forceCast(as: replaced)
         } else {
             return callToCast
         }
+    }
+
+
+    /// A non-escaping closure over associated types, passed as a closure taking the opened types: casting the
+    /// closure itself always fails, as Swift can't convert a non-escaping function's type. The adapter casts each
+    /// argument, and the result, instead. Nil for a closure it can't adapt, which is cast as before.
+    private func closureAdapter(named typeNames: [String], as replacement: (String) -> String) -> String? {
+        let allowedAttributes: Set = ["@Sendable", "@MainActor"]
+        var attributes: [String] = []
+        var base = type
+        if case .attributed(let attributeList, let baseType) = type {
+            guard attributeList.allSatisfy(allowedAttributes.contains) else { return nil }
+            attributes = attributeList
+            base = baseType
+        }
+        guard case .closure(let closure) = base,
+              closure.parameters.allSatisfy({ !$0.type.containsAttribute(named: "inout") && !$0.type.description.hasSuffix("...") })
+        else { return nil }
+        let parameters = closure.parameters.enumerated().map { index, parameter in
+            "__a\(index): \((parameter.type.replaceTypes(named: typeNames, with: replacement) ?? parameter.type).description)"
+        }
+        let arguments = closure.parameters.enumerated().map { index, parameter in
+            parameter.type.containsTypes(named: typeNames) ? "__a\(index)".forceCast(as: parameter.type) : "__a\(index)"
+        }
+        let effects = closure.effects.description
+        let tryAwait = (closure.effects.throwsClause != nil ? "try " : "") + (closure.effects.isAsync ? "await " : "")
+        var call = "\(tryAwait)\(escapeReservedKeywords(for: usableName))(\(arguments.joined(separator: ", ")))"
+        if let returned = closure.returnType.replaceTypes(named: typeNames, with: replacement) {
+            call = "(\(call))".forceCast(as: returned)
+        }
+        let leading = attributes.isEmpty ? "" : attributes.joined(separator: " ") + " "
+        let adapter = "{ \(leading)(\(parameters.joined(separator: ", ")))\(effects.isEmpty ? "" : " \(effects)") in \(call) }"
+        return name == "_" ? adapter : "\(Self.argumentLabel(name)): \(adapter)"
     }
 
 }
