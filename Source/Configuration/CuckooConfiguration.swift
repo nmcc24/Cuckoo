@@ -56,6 +56,10 @@ public struct DefaultValues: Sendable {
         values[ObjectIdentifier(type)] = DefaultValueFactory(factory)
     }
 
+    var isEmpty: Bool {
+        values.isEmpty
+    }
+
     func value<T>(for type: T.Type) -> T? {
         values[ObjectIdentifier(type)]?.make(type)
     }
@@ -130,6 +134,25 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?, creati
     }
     #else
     print("Cuckoo failure:", message, sourceLocation ?? (#fileID, #filePath, #line, #column))
+    #endif
+}
+
+/// Whether a failure the mock can't go on from can be raised as an Objective-C exception, for XCTest to record as
+/// the test's failure before it runs the next test.
+///
+/// That needs the failure to be XCTest's: no handler takes it, and Swift Testing isn't involved. It also needs the
+/// call to be outside every scope Cuckoo keeps in a task-local value: an exception unwinds past such a scope without
+/// ending it, which would leave its default values, static stubs or `inOrder` in place for the thread's next tests.
+func xctestCanRecordCrash(creatingTest: CreatingTest?) -> Bool {
+    let configuration = CuckooConfiguration.current
+    guard configuration.failureHandler == nil, configuration.defaultValues.isEmpty,
+          InOrder.current == nil, StaticStubs.current == nil, MockManager.preconfigured == nil else {
+        return false
+    }
+    #if canImport(Testing)
+    return swiftTestingIssueLocation(for: nil, creatingTest: creatingTest) == nil
+    #else
+    return true
     #endif
 }
 

@@ -293,3 +293,9 @@ Swift Testing records it at its own location, such as a `verify` call's, or, for
 an unstubbed call, at the test that created the mock. The issue is tied to no test: the run fails, while the test
 itself passes. A mock created in that task belongs to no test, so its failures go to XCTest, and Swift Testing
 doesn't see them: create mocks in the test.
+
+A failure the mock can't go on from, such as an unstubbed call whose return type has no default value, is reported
+and then stops the process. A synchronous XCTest test on Apple platforms fails with an exception instead, and the
+next test runs, unless the call is on another thread or in a task, or inside `inOrder`, `withStaticStubs`, `createMock` or a scope that sets
+``CuckooConfiguration/defaultValues``: the exception would leave that scope open for the next test, so the process
+stops there too.
