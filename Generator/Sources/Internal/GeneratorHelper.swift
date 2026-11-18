@@ -205,6 +205,14 @@ struct GeneratorHelper {
         }
     }
 
+    /// Whether an async member takes an `isolated` parameter and a non-escaping closure: the local function the
+    /// closure is made escaping in isn't isolated to the parameter's actor, so it can't forward the closure to the
+    /// member's default implementation or superclass, which are. A sync member's closure isn't in a local function.
+    static func forwardsAcrossIsolation(_ method: Method) -> Bool {
+        method.isAsync && method.signature.parameters.contains { $0.type.containsAttribute(named: "isolated") }
+            && !nonEscapingClosureParameters(of: method).isEmpty
+    }
+
     /// Whether the mock's body is wrapped in local functions rather than closures; see `openNestedClosure`.
     private static func usesLocalFunctions(_ method: Method) -> Bool {
         method.isAsync
