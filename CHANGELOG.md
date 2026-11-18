@@ -21,6 +21,23 @@
   `sending Ticket?` or `inout Int?`, was constrained to the optional type rather than its wrapped type: a `Sendable`
   mock's stubbing proxy didn't compile, and neither did a value matcher such as `when(stub.update(1))`. It's matched as any
   optional parameter is now, so `nil` is matched with `isNil()`, as for a plain `Int?` parameter.
+- A member taking an `isolated` parameter and a non-escaping closure, such as
+  `func run<T>(isolation: isolated (any Actor)?, _ body: () async throws -> T) async rethrows -> T`, didn't
+  compile. A protocol's mock now stubs it and records a failure if it's forwarded to a default implementation; a
+  class's mock keeps the real implementation, with a warning.
+- A settable closure-typed property or subscript in a protocol with an associated type didn't compile in the type
+  eraser, and a generic requirement taking a non-escaping closure over an associated type, as
+  `func map<T>(_ transform: (Element) -> T) -> [T]`, got a cast that always failed.
+- A type nested two levels deep, as `Feature.Screen.ViewModel`, got a mock that couldn't name the types of
+  `Feature`. The mock and stub now declare typealiases for the ones the type uses.
+- A subscript labelled `p0` lost its label, a closure key next to a generic subscript was forwarded to the generic
+  one, and a class with a sync and an async overload of the same method got two identical verification members.
+  `await verify(mock).value()` now verifies the async overload. In an async context a plain `verify(mock).value()`
+  picks the async one too: verify the sync overload from a synchronous closure. `inOrder` can't verify the async
+  one, as its block is synchronous, and stubbing either needs the stub's type spelled out, as it did before.
+- A member taking an `inout sending` or `inout some P` parameter, or a closure over a parameter pack, gave a mock
+  that didn't compile. Its protocol isn't mocked, and a class's mock keeps the real implementation, with a warning
+  either way.
 
 ## 3.0.0-beta.5
 
