@@ -2,8 +2,14 @@ import Foundation
 import Testing
 @testable import CuckooGenerator
 
-/// Generates the mocks of `source`, as module `App`, and returns them as one text.
-func generateMocks(source: String, moduleKeys: String = "", options: String = "") async throws -> String {
+/// Generates the mocks of `source`, as module `App`, and returns them as one text. `sources` is the module's
+/// `sources` key, for a test that names the file's Swift module.
+func generateMocks(
+    source: String,
+    sources: String = #"["Source.swift"]"#,
+    moduleKeys: String = "",
+    options: String = ""
+) async throws -> String {
     let directory = FileManager.default.temporaryDirectory.appending(path: "CuckooOptions-\(UUID().uuidString)")
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: directory) }
@@ -11,7 +17,7 @@ func generateMocks(source: String, moduleKeys: String = "", options: String = ""
     let modules = try Cuckoofile.modules(
         from: """
             [modules.App]
-            sources = ["Source.swift"]
+            sources = \(sources)
             output = "Mocks.swift"
             \(moduleKeys)
 
