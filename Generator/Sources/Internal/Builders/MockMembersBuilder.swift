@@ -177,9 +177,14 @@ enum MockMembersBuilder {
     /// The default call of a member that takes or returns `Self`, which is another type in the default implementation:
     /// it records a failure saying to stub the member and returns a default value, as the type eraser does.
     private static func selfUnforwardableCall(_ literal: String, returning type: ComplexType?) -> String {
+        unforwardableCall(literal, reason: "it names Self, which is another type in the default implementation", returning: type)
+    }
+
+    /// The default call of a member the mock can't forward to a default implementation, for `reason`: it records a
+    /// failure saying to stub the member and returns a default value, as the type eraser does.
+    private static func unforwardableCall(_ literal: String, reason: String, returning type: ComplexType?) -> String {
         let tuple = GeneratorHelper.unstubbedTupleArgument(for: type).map { ", \($0)" } ?? ""
-        let reason = Fragment.literal("it names Self, which is another type in the default implementation")
-        return "cuckooManager.unforwardableDefaultImplementationCall(\(literal), reason: \(reason)\(tuple))"
+        return "cuckooManager.unforwardableDefaultImplementationCall(\(literal), reason: \(Fragment.literal(reason))\(tuple))"
     }
 
     /// The body of a mocked method or subscript accessor: it records the call and runs the stub.
@@ -212,6 +217,8 @@ enum MockMembersBuilder {
             "Cuckoo.MockManager.crashOnActorDefaultImplementationCall(\(literal))"
         } else if method.mentionsSelf && !method.isStatic {
             selfUnforwardableCall(literal, returning: method.returnType)
+        } else if GeneratorHelper.forwardsAcrossIsolation(method) && !method.isStatic {
+            unforwardableCall(literal, reason: "it takes an isolated parameter and a non-escaping closure, which the mock can't forward to the parameter's actor", returning: method.returnType)
         } else if method.hasNoncopyableParams && !method.isStatic {
             "Cuckoo.MockManager.crashOnNoncopyableArgumentForward(\(literal))"
         } else if method.hasVariadicParams && !method.isStatic {
