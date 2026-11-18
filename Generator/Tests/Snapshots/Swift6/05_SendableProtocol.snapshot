@@ -24,8 +24,8 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             "get(url p0: String, completion p1: @escaping @Sendable (Result<String, any Error>) -> Void)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: @Sendable ((String, @Sendable (Result<String, any Error>) -> Void)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @Sendable ((String, @Sendable (Result<String, any Error>) -> Void)) -> Void) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.get(url: p0, completion: p1)
@@ -38,8 +38,8 @@ nonisolated final class MockNetworking: Networking, nonisolated Cuckoo.ProtocolM
             parameters: (p0),
             escapingParameters: (p0),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: nonisolated(nonsending) @Sendable ((String)) async throws -> String, arguments) async throws(any Swift.Error) in
-                try await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) @Sendable ((String)) async throws -> String) async throws(any Swift.Error) in
+                try await implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.get(url: p0)
@@ -190,8 +190,8 @@ nonisolated final class MockKeyValueStore<Key: Hashable & Sendable>: KeyValueSto
             "value(for p0: Key) -> String?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @Sendable ((Key)) -> String?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @Sendable ((Key)) -> String?) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.value(for: p0)

@@ -350,18 +350,17 @@ extension Method {
         signature.parameters.map(\.recordedValue).joined(separator: ", ")
     }
 
-    /// The arguments the mock passes to the `then` closure. The closure reads them from the manager's `arguments`,
-    /// the recorded parameters, rather than capturing them; see `MockManager.callInternal`.
+    /// The arguments the mock's `invoke` closure passes to the `then` closure: the parameters it captures, each
+    /// as the manager records it.
     var implementationArguments: String {
-        let parameterCount = signature.parameters.count
-        // Each parameter's recorded value; an `inout` one is passed through a local variable the mock writes back.
+        // An `inout` parameter is passed on as it is, for the `then` closure to change the caller's variable.
         let separateArguments = signature.parameters.enumerated().map { index, parameter in
             if parameter.isInout {
-                "&__inout\(index)"
+                parameter.isNoncopyable ? "&__inout\(index)" : "&\(escapeReservedKeywords(for: parameter.usableName))"
             } else if passesBorrowed(parameter) {
                 escapeReservedKeywords(for: parameter.usableName)
             } else {
-                parameterCount == 1 ? "arguments" : "arguments.\(index)"
+                parameter.recordedValue
             }
         }
         if stubIsolation.isolatedParameter != nil {
@@ -370,18 +369,15 @@ extension Method {
         } else if passesSeparateArguments {
             return separateArguments.joined(separator: ", ")
         } else {
-            return "arguments"
+            // Other closures take the parameters as one tuple, the way they're recorded.
+            return "(\(recordedParameters))"
         }
     }
 
-    /// The `then` closure can change an `inout` argument; the mock writes it back to the caller's variable.
+    /// A `~Copyable` `inout` argument reaches the stub as a placeholder, a local variable the mock doesn't write back.
     var inoutPrologue: String {
-        let parameterCount = signature.parameters.count
-        return signature.parameters.enumerated().filter { $0.element.isInout }.map { index, parameter in
-            let value = parameterCount == 1 ? "arguments" : "arguments.\(index)"
-            // A `~Copyable` argument reaches the stub as a placeholder, which can't be written back to the caller's.
-            guard !parameter.isNoncopyable else { return "var __inout\(index) = \(value);" }
-            return "var __inout\(index) = \(value); defer { \(escapeReservedKeywords(for: parameter.usableName)) = __inout\(index) };"
+        signature.parameters.enumerated().filter { $0.element.isInout && $0.element.isNoncopyable }.map { index, parameter in
+            "var __inout\(index) = \(parameter.recordedValue);"
         }.joined(separator: " ")
     }
 

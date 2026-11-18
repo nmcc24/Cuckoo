@@ -24,8 +24,8 @@ nonisolated final class MockIsolatedWork: IsolatedWork, nonisolated Cuckoo.Proto
             "run(isolation p0: isolated (any Actor)?) async -> Int",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: nonisolated(nonsending) (((any Actor)?)) async -> Int, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) (((any Actor)?)) async -> Int) in
+                await implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.run(isolation: p0)

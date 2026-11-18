@@ -100,8 +100,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "convert<T> (value p0: T) -> Output",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((T)) -> Output, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((T)) -> Output) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.convert(value: p0)
@@ -113,8 +113,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "convert(input p0: Input) -> Output",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Input)) -> Output, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Input)) -> Output) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.convert(input: p0)
@@ -126,8 +126,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "wrap<T> (_ p0: T) -> [Output]",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((T)) -> [Output], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((T)) -> [Output]) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.wrap(p0)
@@ -139,8 +139,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "pair<T> (_ p0: T, input p1: Input) -> (Output, T)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((T, Input)) -> (Output, T), arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((T, Input)) -> (Output, T)) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.pair(p0, input: p1),
@@ -156,8 +156,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "merge<T> (_ p0: T, into p1: Output) -> Output",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((T, Output)) -> Output, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((T, Output)) -> Output) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.merge(p0, into: p1)
@@ -169,8 +169,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "lookup<T> (_ p0: T) -> Output?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((T)) -> Output?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((T)) -> Output?) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.lookup(p0)
@@ -182,8 +182,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "collect<T> (_ p0: [Output], tag p1: T) -> [String: Output]",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: (([Output], T)) -> [String: Output], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([Output], T)) -> [String: Output]) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.collect(p0, tag: p1)
@@ -195,8 +195,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "result<T> (_ p0: T) -> Result<Output, any Error>",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((T)) -> Result<Output, any Error>, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((T)) -> Result<Output, any Error>) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.result(p0)
@@ -208,8 +208,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "nested<T> (_ p0: T) -> Wrapper.Output",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((T)) -> Wrapper.Output, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((T)) -> Wrapper.Output) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.nested(p0)
@@ -559,8 +559,8 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
             "produce<T> (from p0: T) -> Output",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((T)) -> Output, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((T)) -> Output) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.produce(from: p0)
@@ -572,8 +572,8 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
             "consume<T> (_ p0: Output, with p1: T)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((Output, T)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Output, T)) -> Void) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.consume(p0, with: p1)
@@ -586,8 +586,8 @@ nonisolated final class MockProducer<Output>: Producer, nonisolated Cuckoo.Proto
             parameters: (p0),
             escapingParameters: (p0),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: nonisolated(nonsending) (([T])) async throws -> [Output], arguments) async throws(any Swift.Error) in
-                try await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) (([T])) async throws -> [Output]) async throws(any Swift.Error) in
+                try await implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.produceAll(from: p0)

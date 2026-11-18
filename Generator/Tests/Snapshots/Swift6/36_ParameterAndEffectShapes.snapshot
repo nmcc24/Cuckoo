@@ -26,7 +26,7 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 parameters: Void(),
                 escapingParameters: Void(),
                 errorType: (ShapeError).self,
-                invoke: { (implementation: (()) throws -> Int, _) throws(ShapeError) in
+                invoke: { (implementation: (()) throws -> Int) throws(ShapeError) in
                     do {
                         return try implementation(())
                     } catch {
@@ -46,7 +46,7 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 parameters: Void(),
                 escapingParameters: Void(),
                 errorType: (ShapeError).self,
-                invoke: { (implementation: nonisolated(nonsending) (()) async throws -> String, _) async throws(ShapeError) in
+                invoke: { (implementation: nonisolated(nonsending) (()) async throws -> String) async throws(ShapeError) in
                     do {
                         return try await implementation(())
                     } catch {
@@ -65,8 +65,8 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
             "run(_ p0: sending @escaping () -> Void)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((@escaping () -> Void)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((@escaping () -> Void)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.run(__p0.value)
@@ -80,8 +80,8 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
             "spawn(_ p0: sending @escaping @isolated(any) () async -> Int)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((@escaping @isolated(any) () async -> Int)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((@escaping @isolated(any) () async -> Int)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.spawn(__p0.value)
@@ -97,9 +97,9 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as () -> Void)),
                 errorType: (ShapeError).self,
-                invoke: { (implementation: ((@escaping () -> Void)) throws -> Int, arguments) throws(ShapeError) in
+                invoke: { (implementation: ((@escaping () -> Void)) throws -> Int) throws(ShapeError) in
                                 do {
-                                    return try implementation(arguments)
+                                    return try implementation((p0))
                                 } catch {
                                     throw Cuckoo.MockManager.typedError(error, as: (ShapeError).self, member: "transform(_ p0: () -> Void) throws(ShapeError) -> Int")
                                 }
@@ -118,8 +118,8 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
                 escapingParameters: (({ _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as (Int) -> Void)),
-                invoke: { (implementation: ((@escaping (Int) -> Void)) -> Void, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping (Int) -> Void)) -> Void) in
+                                implementation((p0))
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.handle(p0)
@@ -134,8 +134,8 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
             "store(items p0: consuming [Int], name p1: borrowing String) -> Int",
             parameters: ((copy p0), (copy p1)),
             escapingParameters: ((copy p0), (copy p1)),
-            invoke: { (implementation: (([Int], String)) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([Int], String)) -> Int) in
+                implementation(((copy p0), (copy p1)))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.store(items: copy p0, name: copy p1)
@@ -147,8 +147,8 @@ nonisolated final class MockParameterShapes: ParameterShapes, nonisolated Cuckoo
             "reset(_ p0: Int)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Int)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Int)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.reset(p0)
@@ -432,9 +432,9 @@ nonisolated final class MockTypedSequence<Element, Failure: Error>: TypedSequenc
             parameters: (),
             escapingParameters: (),
             errorType: (Failure).self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Element?, arguments) async throws(Failure) in
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Element?) async throws(Failure) in
                 do {
-                    return try await implementation(arguments)
+                    return try await implementation(())
                 } catch {
                     throw Cuckoo.MockManager.typedError(error, as: (Failure).self, member: "next() async throws(Failure) -> Element?")
                 }

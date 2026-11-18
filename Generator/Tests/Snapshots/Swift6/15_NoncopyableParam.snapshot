@@ -24,7 +24,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
             "consume(_ p0: consuming Token)",
             parameters: (Cuckoo.NoncopyableArgument(type: "Token")),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "Token")),
-            invoke: { (implementation: (borrowing Token) -> Void, arguments) in
+            invoke: { (implementation: (borrowing Token) -> Void) in
                 implementation(p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -37,7 +37,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
             "inspect(_ p0: borrowing Token) -> Int",
             parameters: (Cuckoo.NoncopyableArgument(type: "Token")),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "Token")),
-            invoke: { (implementation: (borrowing Token) -> Int, arguments) in
+            invoke: { (implementation: (borrowing Token) -> Int) in
                 implementation(p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -51,8 +51,8 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
             parameters: (Cuckoo.NoncopyableArgument(type: "Ticket?"), p1),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "Ticket?"), p1),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: nonisolated(nonsending) (borrowing Ticket?, Int) async throws -> String, arguments) async throws(any Swift.Error) in
-                try await implementation(p0, arguments.1)
+            invoke: { (implementation: nonisolated(nonsending) (borrowing Ticket?, Int) async throws -> String) async throws(any Swift.Error) in
+                try await implementation(p0, p1)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnNoncopyableArgumentForward("redeem(_ p0: consuming Ticket?, seat p1: Int) async throws -> String")
@@ -64,8 +64,8 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
             "take<T: ~Copyable> (_ p0: consuming T) -> Bool",
             parameters: (Cuckoo.NoncopyableArgument(type: "T")),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "T")),
-            invoke: { (implementation: ((Cuckoo.NoncopyableArgument)) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Cuckoo.NoncopyableArgument)) -> Bool) in
+                implementation((Cuckoo.NoncopyableArgument(type: "T")))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnNoncopyableArgumentForward("take<T: ~Copyable> (_ p0: consuming T) -> Bool")
@@ -77,8 +77,8 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
             "check<T> (_ p0: borrowing T, label p1: String) -> Bool where T: ~Copyable",
             parameters: (Cuckoo.NoncopyableArgument(type: "T"), p1),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "T"), p1),
-            invoke: { (implementation: ((Cuckoo.NoncopyableArgument, String)) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Cuckoo.NoncopyableArgument, String)) -> Bool) in
+                implementation((Cuckoo.NoncopyableArgument(type: "T"), p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnNoncopyableArgumentForward("check<T> (_ p0: borrowing T, label p1: String) -> Bool where T: ~Copyable")
@@ -93,8 +93,8 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
                 escapingParameters: (({ _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as (borrowing Token) -> Void)),
-                invoke: { (implementation: ((@escaping (borrowing Token) -> Void)) -> Void, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping (borrowing Token) -> Void)) -> Void) in
+                                implementation((p0))
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.visit(p0)
@@ -319,8 +319,8 @@ actor MockTokenVault: TokenVault, Cuckoo.ProtocolMock {
             "deposit(_ p0: consuming Token, note p1: String)",
             parameters: (Cuckoo.NoncopyableArgument(type: "Token"), p1),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "Token"), p1),
-            invoke: { (implementation: @Sendable (isolated MockTokenVault, borrowing Token, String) -> Void, arguments) in
-                implementation(self, p0, arguments.1)
+            invoke: { (implementation: @Sendable (isolated MockTokenVault, borrowing Token, String) -> Void) in
+                implementation(self, p0, p1)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("deposit(_ p0: consuming Token, note p1: String)")
@@ -397,7 +397,7 @@ final class MockShredder: Shredder, nonisolated Cuckoo.ClassMock {
             "shred(_ p0: consuming Token) -> Int",
             parameters: (Cuckoo.NoncopyableArgument(type: "Token")),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "Token")),
-            invoke: { (implementation: (borrowing Token) -> Int, arguments) in
+            invoke: { (implementation: (borrowing Token) -> Int) in
                 implementation(p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnNoncopyableArgumentForward("shred(_ p0: consuming Token) -> Int"),

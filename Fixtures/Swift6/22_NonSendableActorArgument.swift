@@ -3,8 +3,8 @@ nonisolated final class Box {
     var value = 0
 }
 
-// Each member hands a non-Sendable argument to its `then` closure, which the manager passes in rather than
-// letting the closure capture it (Swift 6.2 rejected the capture). The async member would also forward it to a
+// Each member's `invoke` closure captures a non-Sendable argument and hands it to the `then` closure, on the
+// actor (Swift 6.2 rejected the capture; 6.3 is the minimum). The async member would also forward it to a
 // default implementation, another actor, which no Swift version allows; actor mocks have none.
 protocol BoxActor: Actor {
     var current: Box { get set }

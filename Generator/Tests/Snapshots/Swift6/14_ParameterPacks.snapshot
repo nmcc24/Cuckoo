@@ -24,8 +24,8 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
             "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
             parameters: (Cuckoo.ParameterPack(repeat each p0)),
             escapingParameters: (Cuckoo.ParameterPack(repeat each p0)),
-            invoke: { (implementation: ((Cuckoo.ParameterPack)) -> (repeat each T), arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Cuckoo.ParameterPack)) -> (repeat each T)) in
+                implementation((Cuckoo.ParameterPack(repeat each p0)))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.combine(repeat each p0)
@@ -37,8 +37,8 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
             "count<each T> (_ p0: repeat each T) -> Int",
             parameters: (Cuckoo.ParameterPack(repeat each p0)),
             escapingParameters: (Cuckoo.ParameterPack(repeat each p0)),
-            invoke: { (implementation: ((Cuckoo.ParameterPack)) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Cuckoo.ParameterPack)) -> Int) in
+                implementation((Cuckoo.ParameterPack(repeat each p0)))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.count(repeat each p0)
@@ -51,8 +51,8 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
             parameters: (p0, Cuckoo.ParameterPack(repeat each p1)),
             escapingParameters: (p0, Cuckoo.ParameterPack(repeat each p1)),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: nonisolated(nonsending) ((String, Cuckoo.ParameterPack)) async throws -> Void, arguments) async throws(any Swift.Error) in
-                try await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) ((String, Cuckoo.ParameterPack)) async throws -> Void) async throws(any Swift.Error) in
+                try await implementation((p0, Cuckoo.ParameterPack(repeat each p1)))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.log(prefix: p0, repeat each p1)
@@ -64,8 +64,8 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
             "pair<each T, each U> (_ p0: repeat each T, second p1: repeat each U) -> (repeat each U)",
             parameters: (Cuckoo.ParameterPack(repeat each p0), Cuckoo.ParameterPack(repeat each p1)),
             escapingParameters: (Cuckoo.ParameterPack(repeat each p0), Cuckoo.ParameterPack(repeat each p1)),
-            invoke: { (implementation: ((Cuckoo.ParameterPack, Cuckoo.ParameterPack)) -> (repeat each U), arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Cuckoo.ParameterPack, Cuckoo.ParameterPack)) -> (repeat each U)) in
+                implementation((Cuckoo.ParameterPack(repeat each p0), Cuckoo.ParameterPack(repeat each p1)))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.pair(repeat each p0, second: repeat each p1)
@@ -239,8 +239,8 @@ final class MockMainActorCombiner: MainActorCombiner, nonisolated Cuckoo.Protoco
             "combine<each T> (_ p0: repeat each T) -> (repeat each T)",
             parameters: (Cuckoo.ParameterPack(repeat each p0)),
             escapingParameters: (Cuckoo.ParameterPack(repeat each p0)),
-            invoke: { (implementation: @MainActor @Sendable ((Cuckoo.ParameterPack)) -> (repeat each T), arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @MainActor @Sendable ((Cuckoo.ParameterPack)) -> (repeat each T)) in
+                implementation((Cuckoo.ParameterPack(repeat each p0)))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.combine(repeat each p0)
@@ -317,8 +317,8 @@ actor MockActorCombiner: ActorCombiner, Cuckoo.ProtocolMock {
             "count<each T> (_ p0: repeat each T) -> Int",
             parameters: (Cuckoo.ParameterPack(repeat each p0)),
             escapingParameters: (Cuckoo.ParameterPack(repeat each p0)),
-            invoke: { (implementation: @Sendable (isolated MockActorCombiner, Cuckoo.ParameterPack) -> Int, arguments) in
-                implementation(self, arguments)
+            invoke: { (implementation: @Sendable (isolated MockActorCombiner, Cuckoo.ParameterPack) -> Int) in
+                implementation(self, Cuckoo.ParameterPack(repeat each p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("count<each T> (_ p0: repeat each T) -> Int")

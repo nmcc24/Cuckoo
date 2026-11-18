@@ -24,8 +24,8 @@ nonisolated final class MockTracer: Tracer, nonisolated Cuckoo.ProtocolMock {
             "startSpan(_ p0: String) -> Span",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((String)) -> Span, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((String)) -> Span) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.startSpan(p0)
@@ -104,8 +104,8 @@ nonisolated final class MockBoxMaker: BoxMaker, nonisolated Cuckoo.ProtocolMock 
             "make() -> Box<Int>",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Box<Int>, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Box<Int>) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.make()
@@ -117,8 +117,8 @@ nonisolated final class MockBoxMaker: BoxMaker, nonisolated Cuckoo.ProtocolMock 
             "take(_ p0: Box<Int>)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Box<Int>)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Box<Int>)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.take(p0)
@@ -221,8 +221,8 @@ nonisolated final class MockTokens: Tokens, nonisolated Cuckoo.ProtocolMock {
             "token() -> Token",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Token, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Token) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.token()
@@ -234,8 +234,8 @@ nonisolated final class MockTokens: Tokens, nonisolated Cuckoo.ProtocolMock {
             "use(_ p0: Token) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Token)) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Token)) -> Int) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.use(p0)

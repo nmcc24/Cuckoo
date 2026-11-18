@@ -21,7 +21,7 @@ actor MockActorStore<Item>: ActorStore, Cuckoo.ProtocolMock {
             "load() -> Item",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockActorStore) -> Item, arguments) in
+            invoke: { (implementation: @Sendable (isolated MockActorStore) -> Item) in
                 implementation(self)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -130,8 +130,8 @@ nonisolated final class MockResettable<Item>: Resettable, nonisolated Cuckoo.Pro
             "static reset()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Void) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static reset()")
@@ -143,8 +143,8 @@ nonisolated final class MockResettable<Item>: Resettable, nonisolated Cuckoo.Pro
             "static make() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static make() -> Int")
@@ -157,8 +157,8 @@ nonisolated final class MockResettable<Item>: Resettable, nonisolated Cuckoo.Pro
                 "subscript<Key: Hashable>(_ p0: Key) -> Item?#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((Key)) -> Item?, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Key)) -> Item?) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0]
@@ -327,8 +327,8 @@ extension Fix {
                 "run()",
                 parameters: (),
                 escapingParameters: (),
-                invoke: { (implementation: (()) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: (()) -> Void) in
+                    implementation(())
                 },
                 superclassCall: super.run(),
                 defaultCall: cuckooDefaultImplementation.value.run()
@@ -403,8 +403,8 @@ extension Fix {
                 "hold()",
                 parameters: (),
                 escapingParameters: (),
-                invoke: { (implementation: (()) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: (()) -> Void) in
+                    implementation(())
                 },
                 superclassCall: super.hold(),
                 defaultCall: cuckooDefaultImplementation.value.hold()
@@ -478,8 +478,8 @@ final class MockDerived: Derived, nonisolated Cuckoo.ClassMock {
             "extra()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Void) in
+                implementation(())
             },
             superclassCall: super.extra(),
             defaultCall: cuckooDefaultImplementation.value.extra()
@@ -491,8 +491,8 @@ final class MockDerived: Derived, nonisolated Cuckoo.ClassMock {
             "run()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Void) in
+                implementation(())
             },
             superclassCall: super.run(),
             defaultCall: cuckooDefaultImplementation.value.run()
@@ -591,8 +591,8 @@ nonisolated final class MockR: R, nonisolated Cuckoo.ProtocolMock {
             "stubbing() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.stubbing()
@@ -667,8 +667,8 @@ nonisolated final class MockQ: Q, nonisolated Cuckoo.ProtocolMock {
             "stubbing() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.stubbing()
@@ -743,8 +743,8 @@ nonisolated final class MockPP: PP, nonisolated Cuckoo.ProtocolMock {
             "verification() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.verification()
@@ -756,8 +756,8 @@ nonisolated final class MockPP: PP, nonisolated Cuckoo.ProtocolMock {
             "stubbing() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.stubbing()
@@ -856,8 +856,8 @@ nonisolated final class MockUsesStubbing: UsesStubbing, nonisolated Cuckoo.Proto
             "value() -> Stubbing",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Stubbing, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Stubbing) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.value()

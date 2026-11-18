@@ -37,8 +37,8 @@ nonisolated final class MockNeverFailing: NeverFailing, nonisolated Cuckoo.Proto
             "run() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.run()
@@ -50,8 +50,8 @@ nonisolated final class MockNeverFailing: NeverFailing, nonisolated Cuckoo.Proto
             "load() async -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: nonisolated(nonsending) (()) async -> String, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> String) in
+                await implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.load()
@@ -163,8 +163,8 @@ final class MockNeverFailingService: NeverFailingService, nonisolated Cuckoo.Cla
             "run() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: super.run(),
             defaultCall: cuckooDefaultImplementation.value.run()

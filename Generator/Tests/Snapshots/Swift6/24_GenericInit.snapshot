@@ -31,8 +31,8 @@ nonisolated final class MockConfigurable: Configurable, nonisolated Cuckoo.Proto
             "describe() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> String) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.describe()
@@ -114,8 +114,8 @@ final class MockBox: Box, nonisolated Cuckoo.ClassMock {
             "label(prefix p0: String) -> String",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((String)) -> String, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((String)) -> String) in
+                implementation((p0))
             },
             superclassCall: super.label(prefix: p0),
             defaultCall: cuckooDefaultImplementation.value.label(prefix: p0)

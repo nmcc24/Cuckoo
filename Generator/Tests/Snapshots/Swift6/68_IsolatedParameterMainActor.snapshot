@@ -27,8 +27,8 @@ final class MockReporter: Reporter, nonisolated Cuckoo.ProtocolMock {
             "make(isolation p0: isolated (any Actor)?) async -> Report",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: nonisolated(nonsending) @Sendable (((any Actor)?)) async -> Report, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) @Sendable (((any Actor)?)) async -> Report) in
+                await implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.make(isolation: p0)
@@ -40,8 +40,8 @@ final class MockReporter: Reporter, nonisolated Cuckoo.ProtocolMock {
             "count() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @MainActor @Sendable (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @MainActor @Sendable (()) -> Int) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.count()

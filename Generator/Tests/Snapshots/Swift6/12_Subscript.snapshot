@@ -25,8 +25,8 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
                 "subscript(_ p0: String) -> Int?#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((String)) -> Int?, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((String)) -> Int?) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0]
@@ -37,8 +37,8 @@ nonisolated final class MockCache: Cache, nonisolated Cuckoo.ProtocolMock {
                 "subscript(_ p0: String) -> Int?#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
-                invoke: { (implementation: ((String, Int?)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((String, Int?)) -> Void) in
+                    implementation((p0, p1))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0] = p1
@@ -174,8 +174,8 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                 "subscript(row p0: Int, column p1: Int) -> Double#get",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
-                invoke: { (implementation: ((Int, Int)) -> Double, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Int, Int)) -> Double) in
+                    implementation((p0, p1))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[row: p0, column: p1]
@@ -186,8 +186,8 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                 "subscript(row p0: Int, column p1: Int) -> Double#set",
                 parameters: (p0, p1, p2),
                 escapingParameters: (p0, p1, p2),
-                invoke: { (implementation: ((Int, Int, Double)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Int, Int, Double)) -> Void) in
+                    implementation((p0, p1, p2))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[row: p0, column: p1] = p2
@@ -202,8 +202,8 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                 parameters: (p0),
                 escapingParameters: (p0),
                 errorType: (any Swift.Error).self,
-                invoke: { (implementation: nonisolated(nonsending) ((String)) async throws -> String, arguments) async throws(any Swift.Error) in
-                    try await implementation(arguments)
+                invoke: { (implementation: nonisolated(nonsending) ((String)) async throws -> String) async throws(any Swift.Error) in
+                    try await implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: await cuckooDefaultImplementation.value[remote: p0]
@@ -217,8 +217,8 @@ nonisolated final class MockGrid: Grid, nonisolated Cuckoo.ProtocolMock {
                 "subscript<T: Equatable>(echo p0: T) -> T#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((T)) -> T, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((T)) -> T) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[echo: p0]
@@ -461,8 +461,8 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
                 "subscript(_ p0: Int) -> String#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: @MainActor @Sendable ((Int)) -> String, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: @MainActor @Sendable ((Int)) -> String) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0]
@@ -473,8 +473,8 @@ final class MockMainActorTable: MainActorTable, nonisolated Cuckoo.ProtocolMock 
                 "subscript(_ p0: Int) -> String#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
-                invoke: { (implementation: @MainActor @Sendable ((Int, String)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: @MainActor @Sendable ((Int, String)) -> Void) in
+                    implementation((p0, p1))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0] = p1
@@ -612,8 +612,8 @@ nonisolated final class MockSendableLookup: SendableLookup, nonisolated Cuckoo.P
                 "subscript(_ p0: String) -> Int#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: @Sendable ((String)) -> Int, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: @Sendable ((String)) -> Int) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0]
@@ -711,8 +711,8 @@ actor MockActorStore: ActorStore, Cuckoo.ProtocolMock {
                 "subscript(_ p0: String) -> Int#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: @Sendable (isolated MockActorStore, String) -> Int, arguments) in
-                    implementation(self, arguments)
+                invoke: { (implementation: @Sendable (isolated MockActorStore, String) -> Int) in
+                    implementation(self, p0)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("subscript(_ p0: String) -> Int#get")

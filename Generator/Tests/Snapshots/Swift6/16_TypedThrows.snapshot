@@ -25,9 +25,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             parameters: (),
             escapingParameters: (),
             errorType: (NetErr).self,
-            invoke: { (implementation: (()) throws -> Int, arguments) throws(NetErr) in
+            invoke: { (implementation: (()) throws -> Int) throws(NetErr) in
                 do {
-                    return try implementation(arguments)
+                    return try implementation(())
                 } catch {
                     throw Cuckoo.MockManager.typedError(error, as: (NetErr).self, member: "call() throws(NetErr) -> Int")
                 }
@@ -43,9 +43,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             parameters: (),
             escapingParameters: (),
             errorType: (NetErr).self,
-            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int, arguments) async throws(NetErr) in
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Int) async throws(NetErr) in
                 do {
-                    return try await implementation(arguments)
+                    return try await implementation(())
                 } catch {
                     throw Cuckoo.MockManager.typedError(error, as: (NetErr).self, member: "callAsync() async throws(NetErr) -> Int")
                 }
@@ -61,9 +61,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             parameters: (),
             escapingParameters: (),
             errorType: (Network.Failure).self,
-            invoke: { (implementation: (()) throws -> String, arguments) throws(Network.Failure) in
+            invoke: { (implementation: (()) throws -> String) throws(Network.Failure) in
                 do {
-                    return try implementation(arguments)
+                    return try implementation(())
                 } catch {
                     throw Cuckoo.MockManager.typedError(error, as: (Network.Failure).self, member: "fetch() throws(Network.Failure) -> String")
                 }
@@ -79,9 +79,9 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             parameters: (),
             escapingParameters: (),
             errorType: (Wrapped<Int>).self,
-            invoke: { (implementation: (()) throws -> Void, arguments) throws(Wrapped<Int>) in
+            invoke: { (implementation: (()) throws -> Void) throws(Wrapped<Int>) in
                 do {
-                    return try implementation(arguments)
+                    return try implementation(())
                 } catch {
                     throw Cuckoo.MockManager.typedError(error, as: (Wrapped<Int>).self, member: "decode() throws(Wrapped<Int>)")
                 }
@@ -97,8 +97,8 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
             "retry(_ p0: @escaping () throws(NetErr) -> Int) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((@escaping () throws(NetErr) -> Int)) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((@escaping () throws(NetErr) -> Int)) -> Int) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.retry(p0)
@@ -113,8 +113,8 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 escapingParameters: (({ _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as (String...) -> Void)),
-                invoke: { (implementation: ((@escaping (String...) -> Void)) -> Void, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping (String...) -> Void)) -> Void) in
+                                implementation((p0))
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.log(p0)

@@ -28,8 +28,8 @@ final class MockCoordinator: Coordinator, nonisolated Cuckoo.ProtocolMock {
             "identifier() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (()) -> String, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @Sendable (()) -> String) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.identifier()
@@ -41,8 +41,8 @@ final class MockCoordinator: Coordinator, nonisolated Cuckoo.ProtocolMock {
             "start()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @MainActor @Sendable (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @MainActor @Sendable (()) -> Void) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.start()

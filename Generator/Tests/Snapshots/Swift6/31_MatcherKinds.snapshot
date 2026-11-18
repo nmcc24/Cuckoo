@@ -24,8 +24,8 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
             "save(_ p0: Profile, tags p1: [String]) -> Bool",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((Profile, [String])) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Profile, [String])) -> Bool) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.save(p0, tags: p1)
@@ -37,8 +37,8 @@ nonisolated final class MockProfileStore: ProfileStore, nonisolated Cuckoo.Proto
             "open(_ p0: Session)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Session)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Session)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.open(p0)
@@ -149,8 +149,8 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
             "lookup(_ p0: String, limit p1: Int?) -> Int",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: @Sendable ((String, Int?)) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @Sendable ((String, Int?)) -> Int) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.lookup(p0, limit: p1)
@@ -162,8 +162,8 @@ nonisolated final class MockProfileCache: ProfileCache, nonisolated Cuckoo.Proto
             "names(matching p0: [String]) -> [String]",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @Sendable (([String])) -> [String], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @Sendable (([String])) -> [String]) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.names(matching: p0)

@@ -27,8 +27,8 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
             "save(_ p0: String)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @DatabaseActor @Sendable ((String)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @DatabaseActor @Sendable ((String)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.save(p0)
@@ -40,8 +40,8 @@ final class MockRepository: Repository, nonisolated Cuckoo.ProtocolMock {
             "all() -> [String]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @DatabaseActor @Sendable (()) -> [String], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @DatabaseActor @Sendable (()) -> [String]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.all()

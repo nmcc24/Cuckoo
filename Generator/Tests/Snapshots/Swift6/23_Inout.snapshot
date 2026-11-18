@@ -26,12 +26,8 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
             "add(_ p0: inout Int)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (inout Int) -> Void, arguments) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
-                return implementation(&__inout0)
+            invoke: { (implementation: (inout Int) -> Void) in
+                implementation(&p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.add(&p0)
@@ -43,16 +39,8 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
             "append(_ p0: inout String, _ p1: String, count p2: inout Int) -> Bool",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
-            invoke: { (implementation: (inout String, String, inout Int) -> Bool, arguments) in
-                var __inout0 = arguments.0;
-                defer {
-                    p0 = __inout0
-                };
-                var __inout2 = arguments.2;
-                defer {
-                    p2 = __inout2
-                };
-                return implementation(&__inout0, arguments.1, &__inout2)
+            invoke: { (implementation: (inout String, String, inout Int) -> Bool) in
+                implementation(&p0, p1, &p2)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.append(&p0, p1, count: &p2)
@@ -65,12 +53,8 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
             parameters: (p0),
             escapingParameters: (p0),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: nonisolated(nonsending) (inout [UInt8]) async throws -> Int, arguments) async throws(any Swift.Error) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
-                return try await implementation(&__inout0)
+            invoke: { (implementation: nonisolated(nonsending) (inout [UInt8]) async throws -> Int) async throws(any Swift.Error) in
+                try await implementation(&p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.load(&p0)
@@ -83,13 +67,9 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
             parameters: (p0),
             escapingParameters: (p0),
             errorType: (ParseError).self,
-            invoke: { (implementation: (inout Int) throws -> String, arguments) throws(ParseError) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
+            invoke: { (implementation: (inout Int) throws -> String) throws(ParseError) in
                 do {
-                    return try implementation(&__inout0)
+                    return try implementation(&p0)
                 } catch {
                     throw Cuckoo.MockManager.typedError(error, as: (ParseError).self, member: "parse(_ p0: inout Int) throws(ParseError) -> String")
                 }
@@ -104,12 +84,8 @@ nonisolated final class MockAccumulator: Accumulator, nonisolated Cuckoo.Protoco
             "static reset(_ p0: inout Int)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (inout Int) -> Void, arguments) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
-                return implementation(&__inout0)
+            invoke: { (implementation: (inout Int) -> Void) in
+                implementation(&p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static reset(_ p0: inout Int)")
@@ -325,12 +301,8 @@ actor MockAccumulatorActor: AccumulatorActor, Cuckoo.ProtocolMock {
             "add(_ p0: inout Int, step p1: Int)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: @Sendable (isolated MockAccumulatorActor, inout Int, Int) -> Void, arguments) in
-                var __inout0 = arguments.0;
-                defer {
-                    p0 = __inout0
-                };
-                return implementation(self, &__inout0, arguments.1)
+            invoke: { (implementation: @Sendable (isolated MockAccumulatorActor, inout Int, Int) -> Void) in
+                implementation(self, &p0, p1)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("add(_ p0: inout Int, step p1: Int)")
@@ -342,12 +314,8 @@ actor MockAccumulatorActor: AccumulatorActor, Cuckoo.ProtocolMock {
             "load(_ p0: inout [UInt8]) async -> Int",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @Sendable (isolated MockAccumulatorActor, inout [UInt8]) async -> Int, arguments) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
-                return await implementation(self, &__inout0)
+            invoke: { (implementation: @Sendable (isolated MockAccumulatorActor, inout [UInt8]) async -> Int) in
+                await implementation(self, &p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("load(_ p0: inout [UInt8]) async -> Int")
@@ -455,12 +423,8 @@ final class MockMainActorAccumulator: MainActorAccumulator, nonisolated Cuckoo.P
             "add(_ p0: inout Int)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @MainActor @Sendable (inout Int) -> Void, arguments) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
-                return implementation(&__inout0)
+            invoke: { (implementation: @MainActor @Sendable (inout Int) -> Void) in
+                implementation(&p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.add(&p0)
@@ -538,12 +502,8 @@ final class MockDoubler: Doubler, nonisolated Cuckoo.ClassMock {
             "double(_ p0: inout Int)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (inout Int) -> Void, arguments) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
-                return implementation(&__inout0)
+            invoke: { (implementation: (inout Int) -> Void) in
+                implementation(&p0)
             },
             superclassCall: super.double(&p0),
             defaultCall: cuckooDefaultImplementation.value.double(&p0)
@@ -558,12 +518,8 @@ final class MockDoubler: Doubler, nonisolated Cuckoo.ClassMock {
                 escapingParameters: (p0, ({ _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as (Int) -> Int)),
-                invoke: { (implementation: (inout Int, @escaping (Int) -> Int) -> Void, arguments) in
-                                var __inout0 = arguments.0;
-                                defer {
-                                    p0 = __inout0
-                                };
-                                return implementation(&__inout0, arguments.1)
+                invoke: { (implementation: (inout Int, @escaping (Int) -> Int) -> Void) in
+                                implementation(&p0, p1)
                             },
                 superclassCall: super.apply(&p0, p1),
                 defaultCall: cuckooDefaultImplementation.value.apply(&p0, p1)

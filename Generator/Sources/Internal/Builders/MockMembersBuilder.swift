@@ -108,7 +108,7 @@ enum MockMembersBuilder {
             source.append("            parameters: Void(),")
             source.append("            escapingParameters: Void(),")
             source.append("            errorType: (\(typedError)).self,")
-            source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.getter)), _) \(property.effects.isAsync ? "async " : "")throws(\(typedError)) in do { return try \(implementationCall) } catch { throw Cuckoo.MockManager.typedError(error, as: (\(typedError)).self, member: \(literal)) } },")
+            source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.getter))) \(property.effects.isAsync ? "async " : "")throws(\(typedError)) in do { return try \(implementationCall) } catch { throw Cuckoo.MockManager.typedError(error, as: (\(typedError)).self, member: \(literal)) } },")
         } else {
             source.append("        return \(tryAwait)\(manager).getter\(property.effects.isThrowing ? "Throws" : "")(")
             source.append("            \(literal),")
@@ -128,7 +128,7 @@ enum MockMembersBuilder {
             source.append("        \(manager).setter(")
             source.append("            \(literal),")
             source.append("            value: newValue,")
-            source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.setter)), value) in implementation(\(isolated ? "self, value" : "value")) },")
+            source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.setter))) in implementation(\(isolated ? "self, newValue" : "newValue")) },")
             source.append("            superclassCall: \(context.isClass ? "super.\(name) = newValue" : crashOnSuperclass),")
             source.append("            defaultCall: \(defaultCall("cuckooDefaultImplementation.value.\(name) = newValue"))")
             source.append("        )")
@@ -240,7 +240,7 @@ enum MockMembersBuilder {
         if method.throwsOnly {
             recording.append("    errorType: (\(throwTypeError)).self,")
         }
-        recording.append("    invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: method.stubTypes(resolvingSelfAs: nil).implementation)), arguments) \(implementationEffects)in \(prologue)\(call) },")
+        recording.append("    invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: method.stubTypes(resolvingSelfAs: nil).implementation))) \(implementationEffects)in \(prologue)\(call) },")
         recording.append("    superclassCall: \(superclassCall),")
         if let unstubbedTuple = method.returnsSending ? nil : GeneratorHelper.unstubbedTupleArgument(for: method.returnType) {
             recording.append("    defaultCall: \(defaultCall),")

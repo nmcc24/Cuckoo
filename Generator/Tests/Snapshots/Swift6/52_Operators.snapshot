@@ -27,8 +27,8 @@ nonisolated final class MockVector: Vector, nonisolated Cuckoo.ProtocolMock, non
             "static +(_ p0: Self, _ p1: Self) -> Self",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((__CuckooSelf, __CuckooSelf)) -> __CuckooSelf, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((__CuckooSelf, __CuckooSelf)) -> __CuckooSelf) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static +(_ p0: Self, _ p1: Self) -> Self")
@@ -40,8 +40,8 @@ nonisolated final class MockVector: Vector, nonisolated Cuckoo.ProtocolMock, non
             "static prefix -(_ p0: Self) -> Self",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((__CuckooSelf)) -> __CuckooSelf, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((__CuckooSelf)) -> __CuckooSelf) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static prefix -(_ p0: Self) -> Self")
@@ -53,12 +53,8 @@ nonisolated final class MockVector: Vector, nonisolated Cuckoo.ProtocolMock, non
             "static postfix ++(_ p0: inout Self)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (inout __CuckooSelf) -> Void, arguments) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
-                return implementation(&__inout0)
+            invoke: { (implementation: (inout __CuckooSelf) -> Void) in
+                implementation(&p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static postfix ++(_ p0: inout Self)")
@@ -70,12 +66,8 @@ nonisolated final class MockVector: Vector, nonisolated Cuckoo.ProtocolMock, non
             "static prefix ++(_ p0: inout Self)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (inout __CuckooSelf) -> Void, arguments) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
-                return implementation(&__inout0)
+            invoke: { (implementation: (inout __CuckooSelf) -> Void) in
+                implementation(&p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static prefix ++(_ p0: inout Self)")
@@ -87,12 +79,8 @@ nonisolated final class MockVector: Vector, nonisolated Cuckoo.ProtocolMock, non
             "static +=(_ p0: inout Self, _ p1: Self)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: (inout __CuckooSelf, __CuckooSelf) -> Void, arguments) in
-                var __inout0 = arguments.0;
-                defer {
-                    p0 = __inout0
-                };
-                return implementation(&__inout0, arguments.1)
+            invoke: { (implementation: (inout __CuckooSelf, __CuckooSelf) -> Void) in
+                implementation(&p0, p1)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static +=(_ p0: inout Self, _ p1: Self)")
@@ -104,8 +92,8 @@ nonisolated final class MockVector: Vector, nonisolated Cuckoo.ProtocolMock, non
             "static <~>(_ p0: Self, _ p1: Int) -> Bool",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((__CuckooSelf, Int)) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((__CuckooSelf, Int)) -> Bool) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static <~>(_ p0: Self, _ p1: Int) -> Bool")
@@ -117,8 +105,8 @@ nonisolated final class MockVector: Vector, nonisolated Cuckoo.ProtocolMock, non
             "static prefix √(_ p0: Self) -> Double",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((__CuckooSelf)) -> Double, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((__CuckooSelf)) -> Double) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static prefix √(_ p0: Self) -> Double")
@@ -130,8 +118,8 @@ nonisolated final class MockVector: Vector, nonisolated Cuckoo.ProtocolMock, non
             "static ==(_ p0: Self, _ p1: Self) -> Bool",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((__CuckooSelf, __CuckooSelf)) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((__CuckooSelf, __CuckooSelf)) -> Bool) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static ==(_ p0: Self, _ p1: Self) -> Bool")
@@ -450,8 +438,8 @@ final class MockScore: Score, nonisolated Cuckoo.ProtocolMock, nonisolated Cucko
             "static <(_ p0: Self, _ p1: Self) -> Bool",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: @MainActor @Sendable ((__CuckooSelf, __CuckooSelf)) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @MainActor @Sendable ((__CuckooSelf, __CuckooSelf)) -> Bool) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static <(_ p0: Self, _ p1: Self) -> Bool")
@@ -555,8 +543,8 @@ final class MockMoney: Money, nonisolated Cuckoo.ClassMock {
             "amount() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: super.amount(),
             defaultCall: cuckooDefaultImplementation.value.amount()

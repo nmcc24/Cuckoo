@@ -23,8 +23,8 @@ final class MockFixedBuffer<let Count: Int>: FixedBuffer<Count>, nonisolated Cuc
             "first<let N: Int> (_ p0: InlineArray<N, Int>) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((InlineArray<N, Int>)) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((InlineArray<N, Int>)) -> Int) in
+                implementation((p0))
             },
             superclassCall: super.first(p0),
             defaultCall: cuckooDefaultImplementation.value.first(p0)

@@ -26,8 +26,8 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
                 escapingParameters: (({ () in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as () -> Void)),
-                invoke: { (implementation: ((@escaping () -> Void)) -> Void, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping () -> Void)) -> Void) in
+                                implementation((p0))
                             },
                 superclassCall: super.run(__p0.value),
                 defaultCall: cuckooDefaultImplementation.value.run(__p0.value)
@@ -42,12 +42,8 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
             escapingParameters: (({ () in
                         fatalError("This is a stub! It's not supposed to be called!")
                     } as () -> Void)),
-            invoke: { (implementation: (inout () -> Void) -> Void, arguments) in
-                var __inout0 = arguments;
-                defer {
-                    p0 = __inout0
-                };
-                return implementation(&__inout0)
+            invoke: { (implementation: (inout () -> Void) -> Void) in
+                implementation(&p0)
             },
             superclassCall: super.swap(&p0),
             defaultCall: cuckooDefaultImplementation.value.swap(&p0)
@@ -62,8 +58,8 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
                 escapingParameters: (({ () in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as () -> Int)),
-                invoke: { (implementation: ((@escaping () -> Int)) -> Int, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping () -> Int)) -> Int) in
+                                implementation(((copy p0)))
                             },
                 superclassCall: super.read(copy p0),
                 defaultCall: cuckooDefaultImplementation.value.read(copy p0)
@@ -80,8 +76,8 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
                 escapingParameters: (({ () in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as () -> Void)),
-                invoke: { (implementation: ((@escaping () -> Void)) -> Void, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping () -> Void)) -> Void) in
+                                implementation((p0))
                             },
                 superclassCall: super.aliased(__p0.value),
                 defaultCall: cuckooDefaultImplementation.value.aliased(__p0.value)
@@ -98,8 +94,8 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
                 escapingParameters: (({ _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as (Int) -> Void)),
-                invoke: { (implementation: ((@escaping (Int) -> Void)) -> Void, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping (Int) -> Void)) -> Void) in
+                                implementation((p0))
                             },
                 superclassCall: super.generic(__p0.value),
                 defaultCall: cuckooDefaultImplementation.value.generic(__p0.value)
@@ -115,8 +111,8 @@ final class MockClosureSpecifierRunner: ClosureSpecifierRunner, nonisolated Cuck
                 escapingParameters: (({ () in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as () -> Void)),
-                invoke: { (implementation: ((@escaping () -> Void)) -> Void, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping () -> Void)) -> Void) in
+                                implementation((p0))
                             },
                 superclassCall: super.plain(p0),
                 defaultCall: cuckooDefaultImplementation.value.plain(p0)

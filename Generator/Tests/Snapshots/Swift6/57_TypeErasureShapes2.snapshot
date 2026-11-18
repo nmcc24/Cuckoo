@@ -80,8 +80,8 @@ nonisolated final class MockIsolatedAsyncStore<Item>: IsolatedAsyncStore, noniso
             "onMain() async -> Item",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @MainActor @Sendable (()) async -> Item, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: @MainActor @Sendable (()) async -> Item) in
+                await implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.onMain()
@@ -94,8 +94,8 @@ nonisolated final class MockIsolatedAsyncStore<Item>: IsolatedAsyncStore, noniso
             "nonsending() async -> Item",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: nonisolated(nonsending) (()) async -> Item, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Item) in
+                await implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.nonsending()
@@ -108,8 +108,8 @@ nonisolated final class MockIsolatedAsyncStore<Item>: IsolatedAsyncStore, noniso
             "concurrent() async -> Item",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: nonisolated(nonsending) (()) async -> Item, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Item) in
+                await implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.concurrent()
@@ -121,8 +121,8 @@ nonisolated final class MockIsolatedAsyncStore<Item>: IsolatedAsyncStore, noniso
             "plain() -> Item",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Item, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Item) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.plain()
@@ -346,8 +346,8 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
                 "subscript(main p0: Int) -> Item#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: @MainActor @Sendable ((Int)) -> Item, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: @MainActor @Sendable ((Int)) -> Item) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[main: p0]
@@ -361,8 +361,8 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
                 "subscript(same p0: Self) -> Item#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((__CuckooSelf)) -> Item, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((__CuckooSelf)) -> Item) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooManager.unforwardableDefaultImplementationCall("subscript(same p0: Self) -> Item#get", reason: "it names Self, which is another type in the default implementation")
@@ -377,9 +377,9 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
                 parameters: (p0),
                 escapingParameters: (p0),
                 errorType: (StoreError).self,
-                invoke: { (implementation: ((Int)) throws -> Item, arguments) throws(StoreError) in
+                invoke: { (implementation: ((Int)) throws -> Item) throws(StoreError) in
                     do {
-                        return try implementation(arguments)
+                        return try implementation((p0))
                     } catch {
                         throw Cuckoo.MockManager.typedError(error, as: (StoreError).self, member: "subscript(typed p0: Int) -> Item#get")
                     }
@@ -396,8 +396,8 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
                 "subscript(plain p0: Int) -> Item#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((Int)) -> Item, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Int)) -> Item) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[plain: p0]
@@ -412,8 +412,8 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
                 "subscript(settable p0: Int) -> Item#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: @MainActor @Sendable ((Int)) -> Item, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: @MainActor @Sendable ((Int)) -> Item) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[settable: p0]
@@ -424,8 +424,8 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
                 "subscript(settable p0: Int) -> Item#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
-                invoke: { (implementation: @MainActor @Sendable ((Int, Item)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: @MainActor @Sendable ((Int, Item)) -> Void) in
+                    implementation((p0, p1))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[settable: p0] = p1
@@ -801,7 +801,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
             "borrow(_ p0: borrowing Ticket) -> Item",
             parameters: (Cuckoo.NoncopyableArgument(type: "Ticket")),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "Ticket")),
-            invoke: { (implementation: (borrowing Ticket) -> Item, arguments) in
+            invoke: { (implementation: (borrowing Ticket) -> Item) in
                 implementation(p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -814,7 +814,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
             "consume(_ p0: consuming Ticket) -> Item",
             parameters: (Cuckoo.NoncopyableArgument(type: "Ticket")),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "Ticket")),
-            invoke: { (implementation: (borrowing Ticket) -> Item, arguments) in
+            invoke: { (implementation: (borrowing Ticket) -> Item) in
                 implementation(p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -827,8 +827,8 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
             "generic<T: ~Copyable> (_ p0: borrowing T) -> Item",
             parameters: (Cuckoo.NoncopyableArgument(type: "T")),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "T")),
-            invoke: { (implementation: ((Cuckoo.NoncopyableArgument)) -> Item, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Cuckoo.NoncopyableArgument)) -> Item) in
+                implementation((Cuckoo.NoncopyableArgument(type: "T")))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnNoncopyableArgumentForward("generic<T: ~Copyable> (_ p0: borrowing T) -> Item")
@@ -840,8 +840,8 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
             "update(_ p0: inout Ticket)",
             parameters: (Cuckoo.NoncopyableArgument(type: "Ticket")),
             escapingParameters: (Cuckoo.NoncopyableArgument(type: "Ticket")),
-            invoke: { (implementation: (inout Cuckoo.NoncopyableArgument) -> Void, arguments) in
-                var __inout0 = arguments;
+            invoke: { (implementation: (inout Cuckoo.NoncopyableArgument) -> Void) in
+                var __inout0 = Cuckoo.NoncopyableArgument(type: "Ticket");
                 return implementation(&__inout0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -854,8 +854,8 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
             "run(isolation p0: isolated (any Actor)?) async -> Int",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: nonisolated(nonsending) (((any Actor)?)) async -> Int, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) (((any Actor)?)) async -> Int) in
+                await implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.run(isolation: p0)

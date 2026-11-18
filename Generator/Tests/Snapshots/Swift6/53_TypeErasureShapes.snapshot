@@ -21,7 +21,7 @@ actor MockItemActor<Item>: ItemActor, Cuckoo.ProtocolMock {
             "item() -> Item",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockItemActor) -> Item, arguments) in
+            invoke: { (implementation: @Sendable (isolated MockItemActor) -> Item) in
                 implementation(self)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -126,8 +126,8 @@ nonisolated final class MockStaticResetting<Value>: StaticResetting, nonisolated
             "value() -> Value",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Value, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Value) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.value()
@@ -139,8 +139,8 @@ nonisolated final class MockStaticResetting<Value>: StaticResetting, nonisolated
             "static reset()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Void) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static reset()")
@@ -304,8 +304,8 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
                 "subscript<Key: Hashable>(_ p0: Key) -> Item#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((Key)) -> Item, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Key)) -> Item) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0]
@@ -316,8 +316,8 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
                 "subscript<Key: Hashable>(_ p0: Key) -> Item#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
-                invoke: { (implementation: ((Key, Item)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Key, Item)) -> Void) in
+                    implementation((p0, p1))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0] = p1
@@ -331,8 +331,8 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
                 "subscript<Key: Hashable>(lookup p0: Key) -> Item?#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((Key)) -> Item?, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Key)) -> Item?) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[lookup: p0]
@@ -542,8 +542,8 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
                 parameters: (p0),
                 escapingParameters: (p0),
                 errorType: (any Swift.Error).self,
-                invoke: { (implementation: nonisolated(nonsending) ((Key)) async throws -> Item, arguments) async throws(any Swift.Error) in
-                    try await implementation(arguments)
+                invoke: { (implementation: nonisolated(nonsending) ((Key)) async throws -> Item) async throws(any Swift.Error) in
+                    try await implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: await cuckooDefaultImplementation.value[p0]
@@ -669,8 +669,8 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
             "count<Keys: Collection> (_ p0: Keys) -> Int where Keys.Element == Key",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Keys)) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Keys)) -> Int) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.count(p0)
@@ -683,8 +683,8 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
                 "subscript<Keys: Collection>(keys p0: Keys) -> Int where Keys.Element == Key#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((Keys)) -> Int, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Keys)) -> Int) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[keys: p0]

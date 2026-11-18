@@ -27,8 +27,8 @@ final class MockPageRenderer: PageRenderer, nonisolated Cuckoo.ProtocolMock {
             "render(_ p0: Page)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @MainActor @Sendable ((Page)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @MainActor @Sendable ((Page)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.render(p0)

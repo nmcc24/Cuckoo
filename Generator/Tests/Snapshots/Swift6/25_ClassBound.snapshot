@@ -34,8 +34,8 @@ nonisolated final class MockDelegate: Delegate, nonisolated Cuckoo.ProtocolMock 
             cuckooManager.setter(
                 "name",
                 value: newValue,
-                invoke: { (implementation: (String) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: (String) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.name = newValue
@@ -48,8 +48,8 @@ nonisolated final class MockDelegate: Delegate, nonisolated Cuckoo.ProtocolMock 
             "didFinish(result p0: Int)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Int)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Int)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.didFinish(result: p0)
@@ -145,8 +145,8 @@ nonisolated final class MockWeakObserver: WeakObserver, nonisolated Cuckoo.Proto
             "notify()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Void) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.notify()
@@ -219,8 +219,8 @@ final class MockBaseView: BaseView, nonisolated Cuckoo.ClassMock {
             "render() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> String) in
+                implementation(())
             },
             superclassCall: super.render(),
             defaultCall: cuckooDefaultImplementation.value.render()
@@ -295,8 +295,8 @@ final class MockViewModel: BaseView, ViewModel, nonisolated Cuckoo.ProtocolMock 
             "refresh() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.refresh()
@@ -371,8 +371,8 @@ final class MockScreen: BaseView, Screen, nonisolated Cuckoo.ProtocolMock {
             "title() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> String) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.title()
@@ -447,8 +447,8 @@ final class MockDetailScreen: BaseView, DetailScreen, nonisolated Cuckoo.Protoco
             "detail() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> String) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.detail()
@@ -460,8 +460,8 @@ final class MockDetailScreen: BaseView, DetailScreen, nonisolated Cuckoo.Protoco
             "title() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> String) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.title()
@@ -561,8 +561,8 @@ final class MockMainActorView: MainActorView, nonisolated Cuckoo.ClassMock {
             "layout()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @MainActor @Sendable (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @MainActor @Sendable (()) -> Void) in
+                implementation(())
             },
             superclassCall: super.layout(),
             defaultCall: cuckooDefaultImplementation.value.layout()
@@ -641,8 +641,8 @@ final class MockMainActorViewModel: MainActorView, MainActorViewModel, nonisolat
             "reload() async -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int) in
+                await implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.reload()
@@ -717,8 +717,8 @@ nonisolated final class MockObjectObserver: NSObject, ObjectObserver, nonisolate
             "observe(_ p0: Int)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Int)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Int)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.observe(p0)

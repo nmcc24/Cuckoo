@@ -62,8 +62,8 @@ final class MockWhereBox<T: Hashable, U>: WhereBox<T, U>, nonisolated Cuckoo.Cla
             "put(_ p0: U)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((U)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((U)) -> Void) in
+                implementation((p0))
             },
             superclassCall: super.put(p0),
             defaultCall: cuckooDefaultImplementation.value.put(p0)
@@ -154,8 +154,8 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
             cuckooManager.setter(
                 "items",
                 value: newValue,
-                invoke: { (implementation: ([Int]) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: ([Int]) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: super.items = newValue,
                 defaultCall: cuckooDefaultImplementation.value.items = newValue
@@ -178,8 +178,8 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
             cuckooManager.setter(
                 "list",
                 value: newValue,
-                invoke: { (implementation: ([Int]) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: ([Int]) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: super.list = newValue,
                 defaultCall: cuckooDefaultImplementation.value.list = newValue
@@ -202,8 +202,8 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
             cuckooManager.setter(
                 "table",
                 value: newValue,
-                invoke: { (implementation: ([String: Int]) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: ([String: Int]) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: super.table = newValue,
                 defaultCall: cuckooDefaultImplementation.value.table = newValue
@@ -216,8 +216,8 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
             "print(_ p0: String, terminator p1: String)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((String, String)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((String, String)) -> Void) in
+                implementation((p0, p1))
             },
             superclassCall: super.print(p0, terminator: p1),
             defaultCall: cuckooDefaultImplementation.value.print(p0, terminator: p1)
@@ -229,8 +229,8 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
             "count(level p0: ShapeLevel, times p1: Int, tags p2: [String]) -> Int",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
-            invoke: { (implementation: ((ShapeLevel, Int, [String])) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((ShapeLevel, Int, [String])) -> Int) in
+                implementation((p0, p1, p2))
             },
             superclassCall: super.count(level: p0, times: p1, tags: p2),
             defaultCall: cuckooDefaultImplementation.value.count(level: p0, times: p1, tags: p2)
@@ -242,8 +242,8 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
             "`default`(`in` p0: Int)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Int)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Int)) -> Void) in
+                implementation((p0))
             },
             superclassCall: super.`default`(in: p0),
             defaultCall: cuckooDefaultImplementation.value.`default`(in: p0)
@@ -255,8 +255,8 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
             "labelled(p0: Int, p1: String)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((Int, String)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Int, String)) -> Void) in
+                implementation((p0, p1))
             },
             superclassCall: super.labelled(p0: p0, p1: p1),
             defaultCall: cuckooDefaultImplementation.value.labelled(p0: p0, p1: p1)
@@ -268,8 +268,8 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
             "generic<M1: Equatable> (_ p0: M1, count p1: Int) -> M1",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((M1, Int)) -> M1, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((M1, Int)) -> M1) in
+                implementation((p0, p1))
             },
             superclassCall: super.generic(p0, count: p1),
             defaultCall: cuckooDefaultImplementation.value.generic(p0, count: p1)
@@ -530,8 +530,8 @@ extension ShapeStore {
                 "clear()",
                 parameters: (),
                 escapingParameters: (),
-                invoke: { (implementation: (()) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: (()) -> Void) in
+                    implementation(())
                 },
                 superclassCall: super.clear(),
                 defaultCall: cuckooDefaultImplementation.value.clear()
@@ -605,8 +605,8 @@ final class MockUncheckedCache: UncheckedCache, nonisolated Cuckoo.ClassMock, @u
             "value() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: super.value(),
             defaultCall: cuckooDefaultImplementation.value.value()
@@ -681,8 +681,8 @@ final class MockUncheckedCacheUser: UncheckedCache, UncheckedCacheUser, nonisola
             "use() -> Bool",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Bool) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.use()
@@ -755,8 +755,8 @@ final class MockLateUncheckedCache: LateUncheckedCache, nonisolated Cuckoo.Class
             "value() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: super.value(),
             defaultCall: cuckooDefaultImplementation.value.value()
@@ -829,8 +829,8 @@ final class MockGenericRepository<Item>: GenericRepository<Item>, nonisolated Cu
             "count() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: super.count(),
             defaultCall: cuckooDefaultImplementation.value.count()
@@ -905,8 +905,8 @@ final class MockIntRepositoryUser: GenericRepository<Int>, IntRepositoryUser, no
             "refresh()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Void) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.refresh()

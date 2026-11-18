@@ -28,8 +28,8 @@ final class MockRegister: Register, nonisolated Cuckoo.ClassMock {
             "total() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: super.total(),
             defaultCall: cuckooDefaultImplementation.value.total()
@@ -106,8 +106,8 @@ final class MockPool<Item: ~Copyable>: Pool<Item>, nonisolated Cuckoo.ClassMock 
             "count() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: super.count(),
             defaultCall: cuckooDefaultImplementation.value.count()
@@ -182,8 +182,8 @@ nonisolated final class MockMocked: Mocked, nonisolated Cuckoo.ProtocolMock {
             "value() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Int) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.value()

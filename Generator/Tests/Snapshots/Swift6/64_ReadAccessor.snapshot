@@ -58,8 +58,8 @@ final class MockLibrary: Library, nonisolated Cuckoo.ClassMock {
             cuckooManager.setter(
                 "name",
                 value: newValue,
-                invoke: { (implementation: (String) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: (String) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: super.name = newValue,
                 defaultCall: cuckooDefaultImplementation.value.name = newValue

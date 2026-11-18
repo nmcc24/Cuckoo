@@ -47,8 +47,8 @@ nonisolated final class MockRepository<Item, ID: Hashable>: Repository, nonisola
             "fetch(id p0: ID) -> Item?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((ID)) -> Item?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((ID)) -> Item?) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.fetch(id: p0)
@@ -166,8 +166,8 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
             "cached() -> [Item]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> [Item], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> [Item]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.cached()
@@ -179,8 +179,8 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
             "evict(id p0: ID)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((ID)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((ID)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.evict(id: p0)
@@ -192,8 +192,8 @@ nonisolated final class MockCachedRepository<Item, ID: Hashable>: CachedReposito
             "fetch(id p0: ID) -> Item?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((ID)) -> Item?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((ID)) -> Item?) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.fetch(id: p0)
@@ -324,8 +324,8 @@ nonisolated final class MockPrimaryRepository<Element>: PrimaryRepository, nonis
             "all() -> [Element]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> [Element], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> [Element]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.all()
@@ -434,8 +434,8 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
                 escapingParameters: (({ _, _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as (Element, Element) -> Bool)),
-                invoke: { (implementation: ((@escaping (Element, Element) -> Bool)) -> [Element], arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping (Element, Element) -> Bool)) -> [Element]) in
+                                implementation((p0))
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.sorted(by: p0)
@@ -448,8 +448,8 @@ nonisolated final class MockSortedRepository<Element>: SortedRepository, nonisol
             "all() -> [Element]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> [Element], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> [Element]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.all()
@@ -584,8 +584,8 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
             "joined() -> String",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> String, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> String) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.joined()
@@ -597,8 +597,8 @@ nonisolated final class MockStringRepository<ID: Hashable>: StringRepository, no
             "fetch(id p0: ID) -> Item?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((ID)) -> Item?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((ID)) -> Item?) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.fetch(id: p0)
@@ -704,8 +704,8 @@ nonisolated final class MockIntRepository: IntRepository, nonisolated Cuckoo.Pro
             "sum() -> Element",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Element, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Element) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.sum()
@@ -717,8 +717,8 @@ nonisolated final class MockIntRepository: IntRepository, nonisolated Cuckoo.Pro
             "all() -> [Element]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> [Element], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> [Element]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.all()
@@ -866,8 +866,8 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
             "uniqued() -> Set<Item>",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Set<Item>, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Set<Item>) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.uniqued()
@@ -879,8 +879,8 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
             "cached() -> [Item]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> [Item], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> [Item]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.cached()
@@ -892,8 +892,8 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
             "evict(id p0: ID)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((ID)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((ID)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.evict(id: p0)
@@ -905,8 +905,8 @@ nonisolated final class MockHashedRepository<Item: Hashable, ID: Hashable>: Hash
             "fetch(id p0: ID) -> Item?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((ID)) -> Item?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((ID)) -> Item?) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.fetch(id: p0)
@@ -1124,8 +1124,8 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             "audit() -> (Item?, [Element])",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> (Item?, [Element]), arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> (Item?, [Element])) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.audit(),
@@ -1141,8 +1141,8 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             "cached() -> [Item]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> [Item], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> [Item]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.cached()
@@ -1154,8 +1154,8 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             "evict(id p0: ID)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((ID)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((ID)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.evict(id: p0)
@@ -1167,8 +1167,8 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             "fetch(id p0: ID) -> Item?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((ID)) -> Item?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((ID)) -> Item?) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.fetch(id: p0)
@@ -1183,8 +1183,8 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
                 escapingParameters: (({ _, _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as (Element, Element) -> Bool)),
-                invoke: { (implementation: ((@escaping (Element, Element) -> Bool)) -> [Element], arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping (Element, Element) -> Bool)) -> [Element]) in
+                                implementation((p0))
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.sorted(by: p0)
@@ -1197,8 +1197,8 @@ nonisolated final class MockAuditedRepository<Item, ID: Hashable, Element>: Audi
             "all() -> [Element]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> [Element], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> [Element]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.all()

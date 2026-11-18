@@ -24,8 +24,8 @@ final class MockUploader: Uploader, nonisolated Cuckoo.ClassMock {
             "upload(_ p0: consuming sending Payload) async -> Int",
             parameters: ((copy p0)),
             escapingParameters: ((copy p0)),
-            invoke: { (implementation: nonisolated(nonsending) ((Payload)) async -> Int, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) ((Payload)) async -> Int) in
+                await implementation(((copy p0)))
             },
             superclassCall: await super.upload(__p0.value),
             defaultCall: await cuckooDefaultImplementation.value.upload(__p0.value)
@@ -106,8 +106,8 @@ nonisolated final class MockSink: Sink, nonisolated Cuckoo.ProtocolMock {
             "put(_ p0: consuming sending Payload)",
             parameters: ((copy p0)),
             escapingParameters: ((copy p0)),
-            invoke: { (implementation: ((Payload)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Payload)) -> Void) in
+                implementation(((copy p0)))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.put(__p0.value)

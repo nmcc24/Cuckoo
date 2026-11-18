@@ -24,8 +24,8 @@ nonisolated final class MockTokenCache: TokenCache, nonisolated Cuckoo.ProtocolM
             "store(_ p0: Token)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @Sendable ((Token)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @Sendable ((Token)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.store(p0)

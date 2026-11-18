@@ -138,7 +138,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                 parameters: Void(),
                 escapingParameters: Void(),
                 errorType: (ProbeError).self,
-                invoke: { (implementation: (()) throws -> Item, _) throws(ProbeError) in
+                invoke: { (implementation: (()) throws -> Item) throws(ProbeError) in
                     do {
                         return try implementation(())
                     } catch {
@@ -166,8 +166,8 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
             cuckooManager.setter(
                 "count",
                 value: newValue,
-                invoke: { (implementation: (Int) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: (Int) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.count = newValue
@@ -190,8 +190,8 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
             cuckooStaticManager.setter(
                 "shared",
                 value: newValue,
-                invoke: { (implementation: (Int) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: (Int) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("shared")
@@ -204,8 +204,8 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
             "put(_ p0: Item...)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (([Item])) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([Item])) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("put(_ p0: Item...)")
@@ -218,8 +218,8 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                 "subscript(_ p0: Int) -> Item#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((Int)) -> Item, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Int)) -> Item) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0]
@@ -230,8 +230,8 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                 "subscript(_ p0: Int) -> Item#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
-                invoke: { (implementation: ((Int, Item)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Int, Item)) -> Void) in
+                    implementation((p0, p1))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0] = p1
@@ -245,8 +245,8 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                 "subscript<Key: Hashable>(key p0: Key) -> Item?#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((Key)) -> Item?, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Key)) -> Item?) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[key: p0]
@@ -257,8 +257,8 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                 "subscript<Key: Hashable>(key p0: Key) -> Item?#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
-                invoke: { (implementation: ((Key, Item?)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Key, Item?)) -> Void) in
+                    implementation((p0, p1))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[key: p0] = p1
@@ -272,8 +272,8 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                 "static subscript(_ p0: String) -> Int#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((String)) -> Int, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((String)) -> Int) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static subscript(_ p0: String) -> Int#get")
@@ -284,8 +284,8 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                 "static subscript(_ p0: String) -> Int#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
-                invoke: { (implementation: ((String, Int)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((String, Int)) -> Void) in
+                    implementation((p0, p1))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static subscript(_ p0: String) -> Int#set")

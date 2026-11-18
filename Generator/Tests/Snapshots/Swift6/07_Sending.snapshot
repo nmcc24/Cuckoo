@@ -32,8 +32,8 @@ final class MockNonSendableBox: NonSendableBox, nonisolated Cuckoo.ClassMock {
             cuckooManager.setter(
                 "v",
                 value: newValue,
-                invoke: { (implementation: (Int) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: (Int) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: super.v = newValue,
                 defaultCall: cuckooDefaultImplementation.value.v = newValue
@@ -103,8 +103,8 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
             "take(_ p0: sending NonSendableBox)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((NonSendableBox)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((NonSendableBox)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.take(__p0.value)
@@ -116,8 +116,8 @@ nonisolated final class MockTransfer: Transfer, nonisolated Cuckoo.ProtocolMock 
             "make() -> sending NonSendableBox",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> NonSendableBox, arguments) in
-                            implementation(arguments)
+            invoke: { (implementation: (()) -> NonSendableBox) in
+                            implementation(())
                         },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.make()
@@ -243,8 +243,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             "convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
-            invoke: { (implementation: nonisolated(nonsending) ((T, Input, Output)) async -> Output, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) ((T, Input, Output)) async -> Output) in
+                await implementation((p0, p1, p2))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: await cuckooDefaultImplementation.value.convert(value: __p0.value, input: __p1.value, fallback: p2)

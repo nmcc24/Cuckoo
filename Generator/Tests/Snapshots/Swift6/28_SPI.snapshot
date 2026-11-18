@@ -37,8 +37,8 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
             cuckooManager.setter(
                 "token",
                 value: newValue,
-                invoke: { (implementation: (Token) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: (Token) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.token = newValue
@@ -51,8 +51,8 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
             "open()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Void) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.open()
@@ -65,8 +65,8 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
             "secret(_ p0: Token) -> Token",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Token)) -> Token, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Token)) -> Token) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.secret(p0)
@@ -194,8 +194,8 @@ public nonisolated final class MockAdminService: AdminService, nonisolated Cucko
             "reset(_ p0: Token)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Token)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Token)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.reset(p0)
@@ -312,8 +312,8 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
             "fetch() -> Item?",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Item?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Item?) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.fetch()
@@ -326,8 +326,8 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
             "secret(_ p0: Token)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Token)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Token)) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.secret(p0)
@@ -432,8 +432,8 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
             "start()",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Void) in
+                implementation(())
             },
             superclassCall: super.start(),
             defaultCall: cuckooDefaultImplementation.value.start()
@@ -446,8 +446,8 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
             "resume(with p0: Token)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Token)) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Token)) -> Void) in
+                implementation((p0))
             },
             superclassCall: super.resume(with: p0),
             defaultCall: cuckooDefaultImplementation.value.resume(with: p0)
@@ -550,8 +550,8 @@ extension Admin {
                 "run(_ p0: Token)",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((Token)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Token)) -> Void) in
+                    implementation((p0))
                 },
                 superclassCall: super.run(p0),
                 defaultCall: cuckooDefaultImplementation.value.run(p0)

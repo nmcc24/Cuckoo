@@ -34,7 +34,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
             "increment() -> Int",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockStore) -> Int, arguments) in
+            invoke: { (implementation: @Sendable (isolated MockStore) -> Int) in
                 implementation(self)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -47,7 +47,7 @@ actor MockStore: Store, Cuckoo.ProtocolMock {
             "fetch() async -> [String]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockStore) async -> [String], arguments) in
+            invoke: { (implementation: @Sendable (isolated MockStore) async -> [String]) in
                 await implementation(self)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),

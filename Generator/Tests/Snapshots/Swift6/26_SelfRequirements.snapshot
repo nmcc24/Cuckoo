@@ -50,8 +50,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             cuckooManager.setter(
                 "next",
                 value: newValue,
-                invoke: { (implementation: (__CuckooSelf?) -> Void, value) in
-                    implementation(value)
+                invoke: { (implementation: (__CuckooSelf?) -> Void) in
+                    implementation(newValue)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooManager.unforwardableDefaultImplementationCall("next", reason: "it names Self, which is another type in the default implementation")
@@ -64,8 +64,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             "copy() -> Self",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> __CuckooSelf, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> __CuckooSelf) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("copy() -> Self", reason: "it names Self, which is another type in the default implementation")
@@ -77,8 +77,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             "merged(with p0: Self) -> Self",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((__CuckooSelf)) -> __CuckooSelf, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((__CuckooSelf)) -> __CuckooSelf) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("merged(with p0: Self) -> Self", reason: "it names Self, which is another type in the default implementation")
@@ -90,8 +90,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             "isSame(as p0: Self) -> Bool",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((__CuckooSelf)) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((__CuckooSelf)) -> Bool) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("isSame(as p0: Self) -> Bool", reason: "it names Self, which is another type in the default implementation")
@@ -103,8 +103,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             "sibling() -> Self?",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> __CuckooSelf?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> __CuckooSelf?) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("sibling() -> Self?", reason: "it names Self, which is another type in the default implementation")
@@ -116,8 +116,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             "children() -> [Self]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> [__CuckooSelf], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> [__CuckooSelf]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("children() -> [Self]", reason: "it names Self, which is another type in the default implementation")
@@ -129,8 +129,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             "indexed() -> [String: Self]",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> [String: __CuckooSelf], arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> [String: __CuckooSelf]) in
+                implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("indexed() -> [String: Self]", reason: "it names Self, which is another type in the default implementation")
@@ -145,8 +145,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 escapingParameters: (({ _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as (__CuckooSelf) -> Void)),
-                invoke: { (implementation: ((@escaping (__CuckooSelf) -> Void)) -> Void, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping (__CuckooSelf) -> Void)) -> Void) in
+                                implementation((p0))
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooManager.unforwardableDefaultImplementationCall("visit(_ p0: (Self) -> Void)", reason: "it names Self, which is another type in the default implementation")
@@ -159,8 +159,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
             "static combine(_ p0: Self, _ p1: Self) -> Self",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: ((__CuckooSelf, __CuckooSelf)) -> __CuckooSelf, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((__CuckooSelf, __CuckooSelf)) -> __CuckooSelf) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static combine(_ p0: Self, _ p1: Self) -> Self")
@@ -173,8 +173,8 @@ nonisolated final class MockDuplicable: Duplicable, nonisolated Cuckoo.ProtocolM
                 "subscript(_ p0: Int) -> Self#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: ((Int)) -> __CuckooSelf, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: ((Int)) -> __CuckooSelf) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooManager.unforwardableDefaultImplementationCall("subscript(_ p0: Int) -> Self#get", reason: "it names Self, which is another type in the default implementation")
@@ -544,8 +544,8 @@ nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.Protoco
             parameters: (),
             escapingParameters: (),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: nonisolated(nonsending) @Sendable (()) async throws -> __CuckooSelf, arguments) async throws(any Swift.Error) in
-                try await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) @Sendable (()) async throws -> __CuckooSelf) async throws(any Swift.Error) in
+                try await implementation(())
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("clone() async throws -> Self", reason: "it names Self, which is another type in the default implementation")
@@ -557,8 +557,8 @@ nonisolated final class MockAsyncCloner: AsyncCloner, nonisolated Cuckoo.Protoco
             "compare(with p0: Self) async -> Bool",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: nonisolated(nonsending) @Sendable ((__CuckooSelf)) async -> Bool, arguments) in
-                await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) @Sendable ((__CuckooSelf)) async -> Bool) in
+                await implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("compare(with p0: Self) async -> Bool", reason: "it names Self, which is another type in the default implementation")
@@ -665,8 +665,8 @@ final class MockMainActorPeer: MainActorPeer, nonisolated Cuckoo.ProtocolMock {
             "pair(with p0: Self) -> Self",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @MainActor @Sendable ((__CuckooSelf)) -> __CuckooSelf, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @MainActor @Sendable ((__CuckooSelf)) -> __CuckooSelf) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("pair(with p0: Self) -> Self", reason: "it names Self, which is another type in the default implementation")
@@ -749,8 +749,8 @@ nonisolated final class MockStack<Element>: Stack, nonisolated Cuckoo.ProtocolMo
             "pushing(_ p0: Element) -> Self",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Element)) -> __CuckooSelf, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Element)) -> __CuckooSelf) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("pushing(_ p0: Element) -> Self", reason: "it names Self, which is another type in the default implementation")
@@ -762,8 +762,8 @@ nonisolated final class MockStack<Element>: Stack, nonisolated Cuckoo.ProtocolMo
             "appending(_ p0: Self) -> Self",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((__CuckooSelf)) -> __CuckooSelf, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((__CuckooSelf)) -> __CuckooSelf) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("appending(_ p0: Self) -> Self", reason: "it names Self, which is another type in the default implementation")
@@ -869,7 +869,7 @@ actor MockActorPeer: ActorPeer, Cuckoo.ProtocolMock {
             "peer() -> Self",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: @Sendable (isolated MockActorPeer) -> Self, arguments) in
+            invoke: { (implementation: @Sendable (isolated MockActorPeer) -> Self) in
                 implementation(self)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -943,8 +943,8 @@ final class MockNode: Node, nonisolated Cuckoo.ClassMock {
             "copy() -> Self",
             parameters: (),
             escapingParameters: (),
-            invoke: { (implementation: (()) -> Self, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (()) -> Self) in
+                implementation(())
             },
             superclassCall: super.copy(),
             defaultCall: cuckooManager.unforwardableDefaultImplementationCall("copy() -> Self", reason: "it names Self, which is another type in the default implementation")
@@ -956,8 +956,8 @@ final class MockNode: Node, nonisolated Cuckoo.ClassMock {
             "compare(to p0: Node) -> Bool",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: ((Node)) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Node)) -> Bool) in
+                implementation((p0))
             },
             superclassCall: super.compare(to: p0),
             defaultCall: cuckooDefaultImplementation.value.compare(to: p0)

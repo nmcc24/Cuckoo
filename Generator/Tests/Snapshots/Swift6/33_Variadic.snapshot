@@ -26,8 +26,8 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
             "log(_ p0: String...)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (([String])) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([String])) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("log(_ p0: String...)")
@@ -39,8 +39,8 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
             "log(level p0: Int, _ p1: Any..., separator p2: String) -> Bool",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
-            invoke: { (implementation: ((Int, [Any], String)) -> Bool, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: ((Int, [Any], String)) -> Bool) in
+                implementation((p0, p1, p2))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("log(level p0: Int, _ p1: Any..., separator p2: String) -> Bool")
@@ -53,8 +53,8 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
             parameters: (p0),
             escapingParameters: (p0),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: nonisolated(nonsending) (([Int])) async throws -> Int, arguments) async throws(any Swift.Error) in
-                try await implementation(arguments)
+            invoke: { (implementation: nonisolated(nonsending) (([Int])) async throws -> Int) async throws(any Swift.Error) in
+                try await implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("sum(_ p0: Int...) async throws -> Int")
@@ -66,8 +66,8 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
             "first<T: Equatable> (of p0: T...) -> T?",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (([T])) -> T?, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([T])) -> T?) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("first<T: Equatable> (of p0: T...) -> T?")
@@ -79,8 +79,8 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
             "handlers(_ p0: () -> Void...)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (([() -> Void])) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([() -> Void])) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("handlers(_ p0: () -> Void...)")
@@ -92,8 +92,8 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
             "static reset(_ p0: String...)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (([String])) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([String])) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnStaticDefaultImplementationCall("static reset(_ p0: String...)")
@@ -106,8 +106,8 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
                 "subscript(_ p0: String...) -> Int#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: (([String])) -> Int, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: (([String])) -> Int) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("subscript(_ p0: String...) -> Int#get")
@@ -118,8 +118,8 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
                 "subscript(_ p0: String...) -> Int#set",
                 parameters: (p0, p1),
                 escapingParameters: (p0, p1),
-                invoke: { (implementation: (([String], Int)) -> Void, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: (([String], Int)) -> Void) in
+                    implementation((p0, p1))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("subscript(_ p0: String...) -> Int#set")
@@ -447,8 +447,8 @@ actor MockLoggerActor: LoggerActor, Cuckoo.ProtocolMock {
             "log(_ p0: String...)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @Sendable (isolated MockLoggerActor, [String]) -> Void, arguments) in
-                implementation(self, arguments)
+            invoke: { (implementation: @Sendable (isolated MockLoggerActor, [String]) -> Void) in
+                implementation(self, p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("log(_ p0: String...)")
@@ -528,8 +528,8 @@ final class MockMainActorLogger: MainActorLogger, nonisolated Cuckoo.ProtocolMoc
             "log(_ p0: String...)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @MainActor @Sendable (([String])) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: @MainActor @Sendable (([String])) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("log(_ p0: String...)")
@@ -650,8 +650,8 @@ nonisolated final class MockStore<Item>: Store, nonisolated Cuckoo.ProtocolMock 
             "save(_ p0: Item...)",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (([Item])) -> Void, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([Item])) -> Void) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("save(_ p0: Item...)")
@@ -663,8 +663,8 @@ nonisolated final class MockStore<Item>: Store, nonisolated Cuckoo.ProtocolMock 
             "count(of p0: Int...) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: (([Int])) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([Int])) -> Int) in
+                implementation((p0))
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("count(of p0: Int...) -> Int")
@@ -677,8 +677,8 @@ nonisolated final class MockStore<Item>: Store, nonisolated Cuckoo.ProtocolMock 
                 "subscript(_ p0: Item...) -> Int#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: (([Item])) -> Int, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: (([Item])) -> Int) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("subscript(_ p0: Item...) -> Int#get")
@@ -834,8 +834,8 @@ final class MockPrinter: Printer, nonisolated Cuckoo.ClassMock {
             "print(_ p0: String..., terminator p1: String) -> Int",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
-            invoke: { (implementation: (([String], String)) -> Int, arguments) in
-                implementation(arguments)
+            invoke: { (implementation: (([String], String)) -> Int) in
+                implementation((p0, p1))
             },
             superclassCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("print(_ p0: String..., terminator p1: String) -> Int"),
             defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("print(_ p0: String..., terminator p1: String) -> Int")
@@ -848,8 +848,8 @@ final class MockPrinter: Printer, nonisolated Cuckoo.ClassMock {
                 "subscript(_ p0: Int...) -> String#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: (([Int])) -> String, arguments) in
-                    implementation(arguments)
+                invoke: { (implementation: (([Int])) -> String) in
+                    implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("subscript(_ p0: Int...) -> String#get"),
                 defaultCall: Cuckoo.MockManager.crashOnVariadicArgumentForward("subscript(_ p0: Int...) -> String#get")

@@ -27,8 +27,8 @@ nonisolated final class MockTransformer: Transformer, nonisolated Cuckoo.Protoco
                 escapingParameters: (({ @Sendable _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as @Sendable (String) async -> String?)),
-                invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?) in
+                                implementation((p0))
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.transform(p0)
@@ -44,8 +44,8 @@ nonisolated final class MockTransformer: Transformer, nonisolated Cuckoo.Protoco
                 escapingParameters: (({ @Sendable _ in
                             fatalError("This is a stub! It's not supposed to be called!")
                         } as @Sendable (String) -> String?)),
-                invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?, arguments) in
-                    await implementation(arguments)
+                invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?) in
+                    await implementation((p0))
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: await cuckooDefaultImplementation.value.transformAsync(p0)
@@ -62,8 +62,8 @@ nonisolated final class MockTransformer: Transformer, nonisolated Cuckoo.Protoco
                 escapingParameters: (({ @Sendable _, _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as @Sendable (Int, String) -> Void)),
-                invoke: { (implementation: ((@escaping @Sendable (Int, String) -> Void)) -> Void, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping @Sendable (Int, String) -> Void)) -> Void) in
+                                implementation((p0))
                             },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value.forEach(p0)
@@ -200,8 +200,8 @@ final class MockTransformingService: TransformingService, nonisolated Cuckoo.Cla
                 escapingParameters: (({ @Sendable _ in
                                         fatalError("This is a stub! It's not supposed to be called!")
                                     } as @Sendable (String) async -> String?)),
-                invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?, arguments) in
-                                implementation(arguments)
+                invoke: { (implementation: ((@escaping @Sendable (String) async -> String?)) -> String?) in
+                                implementation((p0))
                             },
                 superclassCall: super.transform(p0),
                 defaultCall: cuckooDefaultImplementation.value.transform(p0)
@@ -217,8 +217,8 @@ final class MockTransformingService: TransformingService, nonisolated Cuckoo.Cla
                 escapingParameters: (({ @Sendable _ in
                             fatalError("This is a stub! It's not supposed to be called!")
                         } as @Sendable (String) -> String?)),
-                invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?, arguments) in
-                    await implementation(arguments)
+                invoke: { (implementation: nonisolated(nonsending) ((@escaping @Sendable (String) -> String?)) async -> String?) in
+                    await implementation((p0))
                 },
                 superclassCall: await super.transformAsync(p0),
                 defaultCall: await cuckooDefaultImplementation.value.transformAsync(p0)

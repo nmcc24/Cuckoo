@@ -31,8 +31,8 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
             cuckooManager.setter(
                 "current",
                 value: newValue,
-                invoke: { (implementation: @Sendable (isolated MockBoxActor, Box) -> Void, value) in
-                    implementation(self, value)
+                invoke: { (implementation: @Sendable (isolated MockBoxActor, Box) -> Void) in
+                    implementation(self, newValue)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("current")
@@ -45,8 +45,8 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
             "take(_ p0: Box) -> Int",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @Sendable (isolated MockBoxActor, Box) -> Int, arguments) in
-                implementation(self, arguments)
+            invoke: { (implementation: @Sendable (isolated MockBoxActor, Box) -> Int) in
+                implementation(self, p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("take(_ p0: Box) -> Int")
@@ -59,8 +59,8 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             errorType: (any Swift.Error).self,
-            invoke: { (implementation: @Sendable (isolated MockBoxActor, Box, Box) throws -> Box, arguments) throws(any Swift.Error) in
-                try implementation(self, arguments.0, arguments.1)
+            invoke: { (implementation: @Sendable (isolated MockBoxActor, Box, Box) throws -> Box) throws(any Swift.Error) in
+                try implementation(self, p0, p1)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("swap(_ p0: Box, _ p1: Box) throws -> Box")
@@ -72,8 +72,8 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
             "load(_ p0: Box) async -> Int",
             parameters: (p0),
             escapingParameters: (p0),
-            invoke: { (implementation: @Sendable (isolated MockBoxActor, Box) async -> Int, arguments) in
-                await implementation(self, arguments)
+            invoke: { (implementation: @Sendable (isolated MockBoxActor, Box) async -> Int) in
+                await implementation(self, p0)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("load(_ p0: Box) async -> Int")
@@ -86,8 +86,8 @@ actor MockBoxActor: BoxActor, Cuckoo.ProtocolMock {
                 "subscript(_ p0: Box) -> Int#get",
                 parameters: (p0),
                 escapingParameters: (p0),
-                invoke: { (implementation: @Sendable (isolated MockBoxActor, Box) -> Int, arguments) in
-                    implementation(self, arguments)
+                invoke: { (implementation: @Sendable (isolated MockBoxActor, Box) -> Int) in
+                    implementation(self, p0)
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("subscript(_ p0: Box) -> Int#get")
