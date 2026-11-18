@@ -85,6 +85,10 @@
   member is, so a call picks one as Swift picks a call's overload: `when(stub.value())` in the `stub` block stubs
   the sync one, and `when(await mock.cuckooStubbingProxy().value())` the async one. `inOrder` still can't verify
   the async one, as its block is synchronous.
+- With `defaultIsolation = "MainActor"`, a `nonisolated` class's member that implements a requirement of a
+  global-actor protocol, as `show()` of a default-isolated `Showing` in `class Screen: Plain, Showing` with a
+  `nonisolated` superclass, was mocked as nonisolated. Swift gives it the requirement's actor, and so does the mock,
+  which didn't compile before.
 
 ## 3.0.0-beta.5
 
