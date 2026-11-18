@@ -158,12 +158,12 @@ public final class MockManager: Sendable {
     }
 
     /// Reports `failure` and returns the default value of an unstubbed call, or, if its type has none, reports it
-    /// and crashes. `tuple` is the generated mock's own default, for a type with no registered one: the lookup of a
+    /// and crashes. `generated` is the generated mock's own default, for a type with no registered one: the lookup of a
     /// tuple's elements, which a generic `OUT` can't name, a new `…Stub` of a mocked protocol, or a value of one of
     /// the sources' own types.
-    private func unstubbedValue<OUT>(failure: String, tuple: () -> Any?) -> OUT {
+    private func unstubbedValue<OUT>(failure: String, generated: () -> Any?) -> OUT {
         let value = CuckooConfiguration.$current.withValue(configurationWithCreatingDefaults) {
-            DefaultValueRegistry.unstubbedValue(for: OUT.self) ?? tuple() as? OUT
+            DefaultValueRegistry.unstubbedValue(for: OUT.self) ?? generated() as? OUT
         }
         guard let value else {
             failAndCrash("\(failure)\nIts return type, \(OUT.self), has no default value. Stub it, or register one with `DefaultValueRegistry` or the `.cuckoo(defaultValues:)` trait.")
@@ -175,10 +175,10 @@ public final class MockManager: Sendable {
     /// Stands in for forwarding `member` to a default implementation that a protocol mock's type eraser can't
     /// forward it to, for `reason`, such as an `inout` parameter: it records a failure saying to stub the member, for
     /// the test that created the mock, and returns the default value an unstubbed call would, even for a member that
-    /// throws, so the test goes on. Generated mocks pass `unstubbedTuple` for a member returning a tuple, or a type
+    /// throws, so the test goes on. Generated mocks pass `unstubbedDefault` for a member returning a tuple, or a type
     /// they build a default of themselves: a mocked protocol's stub, or a value of one of the sources' own types.
-    public func unforwardableDefaultImplementationCall<OUT>(_ member: String, reason: String, unstubbedTuple: @autoclosure () -> Any? = nil) -> OUT {
-        unstubbedValue(failure: "Cuckoo can't forward \(member) to the default implementation: \(reason). Stub it instead.", tuple: unstubbedTuple)
+    public func unforwardableDefaultImplementationCall<OUT>(_ member: String, reason: String, unstubbedDefault: @autoclosure () -> Any? = nil) -> OUT {
+        unstubbedValue(failure: "Cuckoo can't forward \(member) to the default implementation: \(reason). Stub it instead.", generated: unstubbedDefault)
     }
 
     /// The error an unstubbed throwing call throws, if its error type can hold `CuckooError`.
@@ -191,7 +191,7 @@ public final class MockManager: Sendable {
     // The manager hands `invoke` the call's arguments, so the closure captures none of them. Capturing a
     // non-Sendable argument in an actor mock's closure is a "sending ... risks causing data races" error on
     // Swift 6.2.
-    // `unstubbedTuple` is the default the mock builds for a return type the registry has none for: a tuple's, from
+    // `unstubbedDefault` is the default the mock builds for a return type the registry has none for: a tuple's, from
     // its elements' defaults, a new `…Stub` of a protocol the module mocks, or a value of one of the sources' own
     // types. It runs in the mock's isolation too, and only for a call that nothing else answers.
 
@@ -202,7 +202,7 @@ public final class MockManager: Sendable {
         invoke: (IMPL, IN) throws(ERROR) -> OUT,
         superclassCall: () throws(ERROR) -> OUT,
         defaultCall: () throws(ERROR) -> OUT,
-        unstubbedTuple: () -> Any?,
+        unstubbedDefault: () -> Any?,
         unstubbedThrows: Bool = true
     ) throws(ERROR) -> OUT {
         switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
@@ -233,7 +233,7 @@ public final class MockManager: Sendable {
                 fail(failure)
                 throw error
             }
-            return unstubbedValue(failure: failure, tuple: unstubbedTuple)
+            return unstubbedValue(failure: failure, generated: unstubbedDefault)
         }
     }
 
@@ -244,7 +244,7 @@ public final class MockManager: Sendable {
         invoke: nonisolated(nonsending) (IMPL, IN) async throws(ERROR) -> OUT,
         superclassCall: () async throws(ERROR) -> OUT,
         defaultCall: () async throws(ERROR) -> OUT,
-        unstubbedTuple: () -> Any?,
+        unstubbedDefault: () -> Any?,
         unstubbedThrows: Bool = true
     ) async throws(ERROR) -> OUT {
         switch resolve(method, parameters: parameters, escapingParameters: escapingParameters, as: (OUT, ERROR, IMPL).self) {
@@ -273,7 +273,7 @@ public final class MockManager: Sendable {
                 fail(failure)
                 throw error
             }
-            return unstubbedValue(failure: failure, tuple: unstubbedTuple)
+            return unstubbedValue(failure: failure, generated: unstubbedDefault)
         }
     }
 
@@ -604,9 +604,9 @@ extension MockManager {
         invoke: (IMPL) -> T,
         superclassCall: @autoclosure () -> T,
         defaultCall: @autoclosure () -> T,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) -> T {
-        call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: { implementation, _ in invoke(implementation) }, superclassCall: superclassCall(), defaultCall: defaultCall(), unstubbedTuple: unstubbedTuple())
+        call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: { implementation, _ in invoke(implementation) }, superclassCall: superclassCall(), defaultCall: defaultCall(), unstubbedDefault: unstubbedDefault())
     }
 
     /// Records a read of an async `property` and answers it from a stub, the superclass or the default implementation.
@@ -615,9 +615,9 @@ extension MockManager {
         invoke: nonisolated(nonsending) (IMPL) async -> T,
         superclassCall: @autoclosure () async -> T,
         defaultCall: @autoclosure () async -> T,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) async -> T {
-        await call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: { implementation, _ in await invoke(implementation) }, superclassCall: await superclassCall(), defaultCall: await defaultCall(), unstubbedTuple: unstubbedTuple())
+        await call(getterName(property), parameters: Void(), escapingParameters: Void(), invoke: { implementation, _ in await invoke(implementation) }, superclassCall: await superclassCall(), defaultCall: await defaultCall(), unstubbedDefault: unstubbedDefault())
     }
 
     /// Records an assignment to `property` and answers it from a stub, the superclass or the default implementation.
@@ -640,9 +640,9 @@ extension MockManager {
         invoke: (IMPL) throws -> T,
         superclassCall: @autoclosure () throws -> T,
         defaultCall: @autoclosure () throws -> T,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) throws -> T {
-        try callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: { implementation, _ in try invoke(implementation) }, superclassCall: try superclassCall(), defaultCall: try defaultCall(), unstubbedTuple: unstubbedTuple())
+        try callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: { implementation, _ in try invoke(implementation) }, superclassCall: try superclassCall(), defaultCall: try defaultCall(), unstubbedDefault: unstubbedDefault())
     }
 
     /// Records a read of an async throwing `property` and answers it from a stub, the superclass or the default
@@ -652,9 +652,9 @@ extension MockManager {
         invoke: nonisolated(nonsending) (IMPL) async throws -> T,
         superclassCall: @autoclosure () async throws -> T,
         defaultCall: @autoclosure () async throws -> T,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) async throws -> T {
-        try await callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: { implementation, _ in try await invoke(implementation) }, superclassCall: try await superclassCall(), defaultCall: try await defaultCall(), unstubbedTuple: unstubbedTuple())
+        try await callThrows(getterName(property), parameters: Void(), escapingParameters: Void(), errorType: (any Error).self, invoke: { implementation, _ in try await invoke(implementation) }, superclassCall: try await superclassCall(), defaultCall: try await defaultCall(), unstubbedDefault: unstubbedDefault())
     }
 }
 
@@ -667,9 +667,9 @@ extension MockManager {
         invoke: (IMPL, IN) -> OUT,
         superclassCall: @autoclosure () -> OUT,
         defaultCall: @autoclosure () -> OUT,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) -> OUT {
-        callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedTuple: unstubbedTuple)
+        callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedDefault: unstubbedDefault)
     }
 
     /// Records a call of an async `method` and answers it from a stub, the superclass or the default implementation.
@@ -680,9 +680,9 @@ extension MockManager {
         invoke: nonisolated(nonsending) (IMPL, IN) async -> OUT,
         superclassCall: @autoclosure () async -> OUT,
         defaultCall: @autoclosure () async -> OUT,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) async -> OUT {
-        await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedTuple: unstubbedTuple)
+        await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedDefault: unstubbedDefault)
     }
 }
 
@@ -696,9 +696,9 @@ extension MockManager {
         invoke: (IMPL, IN) throws(ERROR) -> OUT,
         superclassCall: @autoclosure () throws(ERROR) -> OUT,
         defaultCall: @autoclosure () throws(ERROR) -> OUT,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) throws(ERROR) -> OUT {
-        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedTuple: unstubbedTuple)
+        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedDefault: unstubbedDefault)
     }
 
     /// Records a call of an async throwing `method` and answers it from a stub, the superclass or the default
@@ -711,9 +711,9 @@ extension MockManager {
         invoke: nonisolated(nonsending) (IMPL, IN) async throws(ERROR) -> OUT,
         superclassCall: @autoclosure () async throws(ERROR) -> OUT,
         defaultCall: @autoclosure () async throws(ERROR) -> OUT,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) async throws(ERROR) -> OUT {
-        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedTuple: unstubbedTuple)
+        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedDefault: unstubbedDefault)
     }
 }
 
@@ -730,9 +730,9 @@ extension MockManager {
         invoke: (IMPL, IN) throws -> OUT,
         superclassCall: @autoclosure () throws -> OUT,
         defaultCall: @autoclosure () throws -> OUT,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) rethrows -> OUT {
-        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedTuple: unstubbedTuple, unstubbedThrows: false)
+        try callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedDefault: unstubbedDefault, unstubbedThrows: false)
     }
 
     /// Records a call of an async rethrowing `method` and answers it from a stub, the superclass or the default
@@ -746,8 +746,8 @@ extension MockManager {
         invoke: nonisolated(nonsending) (IMPL, IN) async throws -> OUT,
         superclassCall: @autoclosure () async throws -> OUT,
         defaultCall: @autoclosure () async throws -> OUT,
-        unstubbedTuple: @autoclosure () -> Any? = nil
+        unstubbedDefault: @autoclosure () -> Any? = nil
     ) async rethrows -> OUT {
-        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedTuple: unstubbedTuple, unstubbedThrows: false)
+        try await callInternal(method, parameters: parameters, escapingParameters: escapingParameters, invoke: invoke, superclassCall: superclassCall, defaultCall: defaultCall, unstubbedDefault: unstubbedDefault, unstubbedThrows: false)
     }
 }

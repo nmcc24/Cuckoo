@@ -115,9 +115,9 @@ enum MockMembersBuilder {
             source.append("            invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: types.getter))) in \(tryAwait)implementation(\(isolated ? "self" : "()")) },")
         }
         source.append("            superclassCall: \(context.isClass ? "\(tryAwait)super.\(name)" : crashOnSuperclass),")
-        if let unstubbedTuple = GeneratorHelper.unstubbedDefaultArgument(for: property.type, of: property) {
+        if let unstubbedDefault = GeneratorHelper.unstubbedDefaultArgument(for: property.type, of: property) {
             source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)", returning: property.type)),")
-            source.append("            \(unstubbedTuple)")
+            source.append("            \(unstubbedDefault)")
         } else {
             source.append("            defaultCall: \(defaultCall("\(tryAwait)cuckooDefaultImplementation.value.\(name)", returning: property.type))")
         }
@@ -177,9 +177,9 @@ enum MockMembersBuilder {
     /// The default call of a member that takes or returns `Self`, which is another type in the default implementation:
     /// it records a failure saying to stub the member and returns a default value, as the type eraser does.
     private static func selfUnforwardableCall(_ literal: String, returning type: ComplexType?, of member: any Token) -> String {
-        let tuple = GeneratorHelper.unstubbedDefaultArgument(for: type, of: member).map { ", \($0)" } ?? ""
+        let unstubbedDefault = GeneratorHelper.unstubbedDefaultArgument(for: type, of: member).map { ", \($0)" } ?? ""
         let reason = Fragment.literal("it names Self, which is another type in the default implementation")
-        return "cuckooManager.unforwardableDefaultImplementationCall(\(literal), reason: \(reason)\(tuple))"
+        return "cuckooManager.unforwardableDefaultImplementationCall(\(literal), reason: \(reason)\(unstubbedDefault))"
     }
 
     /// The body of a mocked method or subscript accessor: it records the call and runs the stub.
@@ -242,9 +242,9 @@ enum MockMembersBuilder {
         }
         recording.append("    invoke: { (implementation: \(GeneratorHelper.genericSafeType(from: method.stubTypes(resolvingSelfAs: nil).implementation)), arguments) \(implementationEffects)in \(prologue)\(call) },")
         recording.append("    superclassCall: \(superclassCall),")
-        if let unstubbedTuple = method.returnsSending ? nil : GeneratorHelper.unstubbedDefaultArgument(for: method.returnType, of: method) {
+        if let unstubbedDefault = method.returnsSending ? nil : GeneratorHelper.unstubbedDefaultArgument(for: method.returnType, of: method) {
             recording.append("    defaultCall: \(defaultCall),")
-            recording.append("    \(unstubbedTuple)")
+            recording.append("    \(unstubbedDefault)")
         } else {
             recording.append("    defaultCall: \(defaultCall)")
         }

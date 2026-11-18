@@ -11,7 +11,7 @@ struct GeneratedDefaultsTests {
         moduleKeys: String = "",
         options: String = ""
     ) async throws -> [String] {
-        let argument = "unstubbedTuple: "
+        let argument = "unstubbedDefault: "
         return try await generateMocks(source: source, sources: sources, moduleKeys: moduleKeys, options: options).lines
             .map(\.trimmed)
             .filter { $0.hasPrefix(argument) && !$0.hasSuffix("{") }

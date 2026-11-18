@@ -168,9 +168,9 @@ struct GeneratorHelper {
     /// themselves, it's that value; see ``GeneratedDefaults``.
     static func unstubbedDefaultArgument(for type: ComplexType?, of member: any Token) -> String? {
         if case .type(let description) = type, let tuple = unlabeledTupleType(description) {
-            return "unstubbedTuple: { \(defaultTypealias(tuple)); return Cuckoo.MockManager.unstubbedTupleValue(for: \(defaultTypealiasName).self) }()"
+            return "unstubbedDefault: { \(defaultTypealias(tuple)); return Cuckoo.MockManager.unstubbedTupleValue(for: \(defaultTypealiasName).self) }()"
         }
-        return GeneratedDefaults.current.expression(for: type, of: member).map { "unstubbedTuple: \($0)" }
+        return GeneratedDefaults.current.expression(for: type, of: member).map { "unstubbedDefault: \($0)" }
     }
 
     /// The name `defaultTypealias(_:)` declares.
