@@ -117,6 +117,17 @@ struct GeneratorHelper {
             .joined(separator: ", ")
     }
 
+    /// The type of a proxy's `async` member, which holds the async overloads of the methods with a sync one too.
+    static let asyncNamespaceType = "__Async"
+
+    /// Whether a proxy can declare `async`: a mocked property or method of that name takes it, and the async
+    /// overloads' own members are then `async`, named with `await`.
+    static func canDeclareAsyncNamespace(in container: any ContainerToken, isStatic: Bool) -> Bool {
+        let names = container.mockedProperties.filter { $0.isStatic == isStatic }.map(\.name)
+            + container.mockedMethods.filter { $0.isStatic == isStatic }.map(\.proxyName)
+        return !names.contains { $0 == "async" || $0 == "`async`" }
+    }
+
     /// The name of a proxy member's matcher generics, `__M1`, `__M2` and so on, which no name of the mocked code
     /// shadows or is shadowed by, as `M1` could be: a generic parameter of the member or a type it names.
     static let matcherPrefix = "__M"
