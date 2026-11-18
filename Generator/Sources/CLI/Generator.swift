@@ -21,6 +21,8 @@ final class Generator {
         let files: [FileRepresentation]
         /// Every type the sources of a known Swift module declare, which the generated files import by name.
         let typesByModule: [String: [TopLevelType]]
+        /// The default values the module's mocks build themselves.
+        let defaults: GeneratedDefaults
 
         /// The imports the mocks of `files` need, each once.
         func imports(for files: [FileRepresentation]) -> String {
@@ -196,7 +198,12 @@ final class Generator {
             guard let superclass = classToken.unmockedGenericSuperclass else { continue }
             printToStandardError("warning: cuckoo: '\(classToken.fullyQualifiedName)' inherits from the generic class '\(superclass.name)', so its mock doesn't override what it inherits, which runs the real implementation: \(superclass.members.map { "'\($0)'" }.joined(separator: ", ")).\n")
         }
-        return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule)
+        let defaults = GeneratedDefaults(
+            files: mockableFiles,
+            names: TypeNames(typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), files: mockableFiles),
+            declaredTypes: declaredNames.nominalTypes.union(declaredNames.typealiases.keys)
+        )
+        return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule, defaults: defaults)
     }
 
     /// The container with a typealias for each type its parent's enclosing scopes declare, `Model = Feature.Model`
@@ -289,7 +296,7 @@ final class Generator {
                     file.file.path == firstPath && sharedImports?.isEmpty == false ? sharedImports : nil,
                     FileHeaderHandler.header(for: file, relativeTo: module.projectDirectory, timestamp: timestamp),
                     sharedImports == nil ? prepared.imports(for: [file]) : nil,
-                    try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming),
+                    try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming, defaults: prepared.defaults),
                 ]
                 .compactMap { $0 }
                 .joinedByBlankLines()
