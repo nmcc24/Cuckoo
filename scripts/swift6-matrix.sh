@@ -84,12 +84,27 @@ EOF
     status=1
     continue
   fi
-  "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" \
+  # A fixture that must fail keeps its failing code under `#if CUCKOO_MUST_FAIL`. Without it, the fixture and its
+  # mock must compile cleanly first: a type error stops swiftc before its SIL passes, so the mock's region-isolation
+  # errors would otherwise never be checked. (That pass skips the `-D DEBUG` one and the per-version expected-failure
+  # lists: no must-fail fixture needs them.)
+  must_fail=()
+  if grep -qE '^[[:space:]]*#if CUCKOO_MUST_FAIL' "$f"; then
+    must_fail=(-D CUCKOO_MUST_FAIL)
+    if ! "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" \
+      "$f" "$WORK/gen/$n.mock.swift" > "$WORK/logs/$n.clean.log" 2>&1 \
+      || grep -qF "$WORK/gen/$n.mock.swift:" "$WORK/logs/$n.clean.log"; then
+      printf "%-5s %-36s %s\n" "FAIL" "$n" "doesn't compile cleanly without CUCKOO_MUST_FAIL: $(grep -m1 -E ': (error|warning): ' "$WORK/logs/$n.clean.log" | sed -E 's/.*(error|warning): //' | cut -c1-60)"
+      status=1
+      continue
+    fi
+  fi
+  "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" ${must_fail[@]+"${must_fail[@]}"} \
     "$f" "$WORK/gen/$n.mock.swift" > "$WORK/logs/$n.tc.log" 2>&1
   exit_code=$?
   # A fixture with `#if DEBUG` branches compiles a second time with DEBUG defined, so both branches of the mock do.
   if grep -qE '^[[:space:]]*#(if|elseif).*DEBUG' "$f"; then
-    "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" -D DEBUG \
+    "${SWIFTC[@]}" -wmo -emit-sil -o /dev/null -swift-version 6 "${MOD_FLAGS[@]}" -module-name Fix "$@" ${must_fail[@]+"${must_fail[@]}"} -D DEBUG \
       "$f" "$WORK/gen/$n.mock.swift" >> "$WORK/logs/$n.tc.log" 2>&1 || exit_code=$?
   fi
   # swiftc's diagnostics, `path:line:column: error: …`, not the lines that quote them under the source.
