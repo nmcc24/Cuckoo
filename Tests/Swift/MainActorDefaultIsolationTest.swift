@@ -52,4 +52,31 @@ struct MainActorDefaultIsolationTests {
         #expect(now == 42)
         verify(mock).now()
     }
+
+    /// In a class that's nonisolated through its superclass, the member implementing a default-isolated protocol's
+    /// requirement is on the main actor, as Swift infers it, and the others aren't.
+    @Test
+    @MainActor
+    func aWitnessInANonisolatedClassIsMockedOnItsRequirementsActor() {
+        let mock = MockWitnessingScreen()
+        stub(mock) { stub in
+            when(stub.show()).then {
+                MainActor.assertIsolated()
+                return "stubbed"
+            }
+            when(stub.describe()).thenReturn("mock")
+            when(stub.own()).thenReturn(2)
+        }
+
+        #expect(mock.show() == "stubbed")
+        #expect(Self.callingOffTheMainActor(mock) == "mock2")
+        verify(mock).show()
+        verify(mock).describe()
+        verify(mock).own()
+    }
+
+    /// Compiles only while these members are nonisolated.
+    private nonisolated static func callingOffTheMainActor(_ mock: MockWitnessingScreen) -> String {
+        mock.describe() + String(mock.own())
+    }
 }

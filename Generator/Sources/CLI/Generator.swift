@@ -165,7 +165,7 @@ final class Generator {
         for warning in duplicateDeclarationWarnings(flatMappedFiles) {
             printToStandardError("warning: cuckoo: \(warning)\n")
         }
-        let inheritedFiles = mergingAndBinding(flatMappedFiles, typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), nominalTypes: declaredNames.nominalTypes, sourceModules: Set(swiftModules.values))
+        let inheritedFiles = mergingAndBinding(flatMappedFiles, defaultIsolation: module.options.defaultIsolation, typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), nominalTypes: declaredNames.nominalTypes, sourceModules: Set(swiftModules.values))
         let finalFiles = inheritedFiles.map { file in file.replacing(tokens: file.tokens.map { $0.resolvingSelf() }) }
 
         // filter classes/protocols based on the settings passed to the generator
@@ -378,10 +378,10 @@ final class Generator {
 
     /// The files with each protocol and class merged with what it inherits, then each protocol bound to the class
     /// it requires, both resolved by scope as Swift does.
-    private static func mergingAndBinding(_ files: [FileRepresentation], typealiases: [String: String], types: Set<String>, nominalTypes: Set<String>, sourceModules: Set<String>) -> [FileRepresentation] {
+    private static func mergingAndBinding(_ files: [FileRepresentation], defaultIsolation: Isolation?, typealiases: [String: String], types: Set<String>, nominalTypes: Set<String>, sourceModules: Set<String>) -> [FileRepresentation] {
         let names = TypeNames(typealiases: typealiases, types: types, files: files, sourceModules: sourceModules)
         let merged = Method.Signature.$declaredTypes.withValue(nominalTypes) {
-            files.map { $0.mergingInheritance(with: files, names: names) }
+            files.map { $0.mergingInheritance(with: files, names: names, defaultIsolation: defaultIsolation) }
         }
         return bindingSuperclasses(merged, names: TypeNames(typealiases: typealiases, types: types, files: merged, sourceModules: sourceModules), nominalTypes: nominalTypes)
     }
