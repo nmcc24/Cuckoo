@@ -89,7 +89,9 @@ enum StubbingProxyBuilder {
         let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method)
         var source = method.repeatedAttributes.map(\.description)
-        source.append("\(memberAccess.spaced)func \(method.proxyName)\(generics)(\(parameters))\(isAsync ? " async" : "") -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
+        // The async member runs on its caller's actor: a plain `async` one would send the proxy, which isn't
+        // `Sendable`, off a caller on the main actor.
+        source.append("\(memberAccess.spaced)\(isAsync ? "nonisolated(nonsending) " : "")func \(method.proxyName)\(generics)(\(parameters))\(isAsync ? " async" : "") -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
         source.append("    \(GeneratorHelper.parameterMatchers(for: method.signature.parameters, sendable: sendable))")
         source.append(contentsOf: createStub(for: method, mockName: mockName))
         source.append("}")
