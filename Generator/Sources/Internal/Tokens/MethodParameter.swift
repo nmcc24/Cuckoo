@@ -14,6 +14,8 @@ struct MethodParameter: Token {
     /// The default value, as written: a class mock's override repeats it, or a call through the mock's type would
     /// have to pass the argument.
     var defaultValue: String? = nil
+    /// A subscript's key, whose lone name is a parameter name, not a label.
+    var isSubscriptKey = false
 
     var isVariadic: Bool {
         variadicElement != nil
@@ -24,9 +26,10 @@ struct MethodParameter: Token {
     }
 
     /// The label and the parameter name, or the label alone when they're the same: a label that's literally `p0`,
-    /// the name the mock gives the first parameter, would otherwise read `p0 p0`, which warns.
+    /// the name the mock gives the first parameter, would otherwise read `p0 p0`, which warns. A subscript's key
+    /// keeps both, since a lone name there isn't a label.
     var nameAndInnerName: String {
-        guard let innerName, innerName != name else { return name }
+        guard let innerName, innerName != name || isSubscriptKey else { return name }
         return "\(name) \(innerName)"
     }
 
