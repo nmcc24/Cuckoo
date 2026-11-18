@@ -12,6 +12,10 @@
 ///
 /// Inside ``inOrder(strict:fileID:filePath:line:column:_:)``, the `verify` calls are checked when the block ends,
 /// so the captor fills only then: read it after `inOrder` returns.
+///
+/// It can't capture a closure parameter that isn't `@escaping`, which can't outlive the call it was passed to. A
+/// `verify` captures a stand-in that crashes when called, and a stub's captor crashes when the stubbed call returns.
+/// Call such a closure from the stub's `then` closure instead.
 public final class ArgumentCaptor<T> {
     private let values = Locked<[T]>([])
 

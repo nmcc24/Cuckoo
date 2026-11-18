@@ -111,7 +111,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
                 "log(_ p0: (String...) -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (String...) -> Void)),
                 invoke: { (implementation: ((@escaping (String...) -> Void)) -> Void, arguments) in
                                 implementation(arguments)

@@ -275,6 +275,10 @@ A captor captures only the calls a passing `verify` matched, or, in a stub, the 
 another matcher rejected isn't captured. Give a stub and a `verify` captors of their own: one captor in both records
 each call twice, once when the stub answers it and once when the `verify` matches it.
 
+A captor can keep a closure argument only if the parameter is `@escaping`. Any other closure can't outlive the call
+it was passed to: a `verify` captures a stand-in that crashes when called, and a stub's captor crashes when the
+stubbed call returns. Call such a closure from the stub's `then` closure instead.
+
 ### Reset a mock
 
 - ``reset(_:)-(Mock...)`` clears a mock's stubs and recorded calls.

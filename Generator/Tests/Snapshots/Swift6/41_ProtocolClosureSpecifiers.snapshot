@@ -26,7 +26,7 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
                 "run(_ p0: sending () -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ () in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as () -> Void)),
                 invoke: { (implementation: ((@escaping () -> Void)) -> Void, arguments) in
                                 implementation(arguments)
@@ -42,7 +42,7 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
             "swap(_ p0: inout () -> Void)",
             parameters: (p0),
             escapingParameters: (({ () in
-                        fatalError("This is a stub! It's not supposed to be called!")
+                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                     } as () -> Void)),
             invoke: { (implementation: (inout () -> Void) -> Void, arguments) in
                 var __inout0 = arguments;
@@ -62,7 +62,7 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
                 "read(_ p0: borrowing () -> Int) -> Int",
                 parameters: ((copy p0)),
                 escapingParameters: (({ () in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as () -> Int)),
                 invoke: { (implementation: ((@escaping () -> Int)) -> Int, arguments) in
                                 implementation(arguments)
@@ -80,7 +80,7 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
                 "aliased(_ p0: sending () -> Void)",
                 parameters: (p0),
                 escapingParameters: (({ () in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as () -> Void)),
                 invoke: { (implementation: ((@escaping () -> Void)) -> Void, arguments) in
                                 implementation(arguments)
@@ -97,7 +97,7 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
                 "generic(_ p0: borrowing (any Sendable) -> Void)",
                 parameters: ((copy p0)),
                 escapingParameters: (({ _ in
-                                        fatalError("This is a stub! It's not supposed to be called!")
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                                     } as (any Sendable) -> Void)),
                 invoke: { (implementation: ((@escaping (any Sendable) -> Void)) -> Void, arguments) in
                                 implementation(arguments)
@@ -115,7 +115,7 @@ nonisolated final class MockClosureSpecifierService: ClosureSpecifierService, no
                 "asyncRun(_ p0: sending () async -> Void) async",
                 parameters: (p0),
                 escapingParameters: (({ () in
-                            fatalError("This is a stub! It's not supposed to be called!")
+                            fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
                         } as () async -> Void)),
                 invoke: { (implementation: nonisolated(nonsending) ((@escaping () async -> Void)) async -> Void, arguments) in
                     await implementation(arguments)
