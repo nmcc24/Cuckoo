@@ -221,8 +221,8 @@ enum TypeErasureBuilder {
     /// The manager call that stands in for forwarding `member`: it records a failure on the mock's manager and returns
     /// the default an unstubbed call would.
     private static func unforwardableCall(_ member: String, reason: String, returning type: ComplexType?, of token: any Token) -> String {
-        let tuple = GeneratorHelper.unstubbedDefaultArgument(for: type, of: token).map { ", \($0)" } ?? ""
-        return "cuckooManager.unforwardableDefaultImplementationCall(\(Fragment.literal(member)), reason: \(Fragment.literal(reason))\(tuple))"
+        let unstubbedDefault = GeneratorHelper.unstubbedDefaultArgument(for: type, of: token).map { ", \($0)" } ?? ""
+        return "cuckooManager.unforwardableDefaultImplementationCall(\(Fragment.literal(member)), reason: \(Fragment.literal(reason))\(unstubbedDefault))"
     }
 
     private static func unforwardableReason(of property: Variable, _ context: Context) -> String? {
