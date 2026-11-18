@@ -11,7 +11,8 @@ extension ComplexType {
         description.contains(/\bSelf\b/.wordBoundaryKind(.simple))
     }
 
-    /// The type with `Self` replaced by `name`, except where it's qualified, as in `Self.Element`.
+    /// The type with `Self` replaced by `name`, except where it's qualified, as in `Self.Element`. `Self.Type` and
+    /// `Self.Protocol` are `Self`'s metatypes, so they're replaced too.
     func resolvingSelf(as name: String) -> ComplexType {
         switch self {
         case .attributed(let attributes, let baseType):
@@ -27,7 +28,7 @@ extension ComplexType {
                 )
             )
         case .type(let typeName):
-            .type(typeName.replacing(/\bSelf\b(?!\.)/.wordBoundaryKind(.simple), with: name))
+            .type(typeName.replacing(/\bSelf\b(?!\.(?!(?:Type|Protocol)\b))/.wordBoundaryKind(.simple), with: name))
         }
     }
 }

@@ -26,6 +26,7 @@ final class Crawler: SyntaxVisitor {
         actors: Set<String> = [],
         privateNames: Set<String> = [],
         nominalTypes: Set<String> = [],
+        capitalizedFunctions: Set<String> = [],
         defaultIsolation: Isolation? = nil
     ) -> Crawler {
         let syntaxTree = Parser.parse(source: source)
@@ -46,6 +47,7 @@ final class Crawler: SyntaxVisitor {
             actors: actors.union(local.actors),
             privateNames: privateNames.union(local.privateNames),
             nominalTypes: nominalTypes.union(local.nominalTypes),
+            capitalizedFunctions: capitalizedFunctions.union(local.capitalizedFunctions),
             defaultIsolation: defaultIsolation
         )
         let crawler = Self(container: nil, context: context)
@@ -80,6 +82,8 @@ final class Crawler: SyntaxVisitor {
         let privateNames: Set<String>
         /// The names of the module's structs, classes, enums, actors and protocols.
         let nominalTypes: Set<String>
+        /// See ``DeclaredNames/capitalizedFunctions``.
+        let capitalizedFunctions: Set<String>
         /// The module's `defaultIsolation` option: the isolation of the protocols and classes that state none.
         let defaultIsolation: Isolation?
         var diagnostics: [Diagnostic] = []
@@ -102,6 +106,7 @@ final class Crawler: SyntaxVisitor {
             actors: Set<String> = [],
             privateNames: Set<String> = [],
             nominalTypes: Set<String> = [],
+            capitalizedFunctions: Set<String> = [],
             defaultIsolation: Isolation?
         ) {
             self.url = url
@@ -118,6 +123,7 @@ final class Crawler: SyntaxVisitor {
             self.actors = actors
             self.privateNames = privateNames
             self.nominalTypes = nominalTypes
+            self.capitalizedFunctions = capitalizedFunctions
             self.defaultIsolation = defaultIsolation
         }
     }
@@ -147,6 +153,11 @@ final class Crawler: SyntaxVisitor {
     var tokens: [any Token] = []
     /// Members of a class that its mock can't override, each with the reason, which the mock states in a comment.
     var unmockedMembers: [String] = []
+    /// A class's `final` and unavailable overrides, which hide the superclass's members; see
+    /// `ClassDeclaration.shadowedMembers`.
+    var shadowedMembers: [any Token] = []
+    /// Whether `parse` reads a member the mock can't override, to record it in `shadowedMembers`.
+    private var parsesShadowedMember = false
     /// The conditions of the `#if` clauses the crawler is currently inside.
     private var compilationConditions: [String] = []
 
@@ -185,8 +196,12 @@ final class Crawler: SyntaxVisitor {
     override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
         debug(node)
 
-        // Skip `final` classes.
-        guard !node.modifiers.isFinal else { return .skipChildren }
+        // Invalid source can declare a type without a name, which nothing can mock or extend.
+        guard node.name.isPresent else { return .skipChildren }
+        // A `final` class can't be mocked, but the types nested in it can.
+        guard !node.modifiers.isFinal else {
+            return crawlNamespace(node, name: node.name.filteredDescription, members: node.memberBlock)
+        }
 
         var token = ClassDeclaration(
             parent: container,
@@ -198,8 +213,12 @@ final class Crawler: SyntaxVisitor {
             inheritedTypes: inheritedTypes(from: node.inheritanceClause?.inheritedTypes),
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions,
-            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers) ?? defaultIsolationOfNestedType
+            isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
         )
+        if token.isolation == nil, let defaultIsolation = defaultIsolationOfNestedType {
+            token.isolation = defaultIsolation
+            token.isIsolationDefault = true
+        }
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
@@ -207,6 +226,7 @@ final class Crawler: SyntaxVisitor {
         crawler.walk(members: node.memberBlock)
         token.members = crawler.tokens
         token.unmockedMembers = crawler.unmockedMembers
+        token.shadowedMembers = crawler.shadowedMembers
         token.unknownAttributes = unknownAttributes(node.attributes, declaration: token.name)
         token.isUncheckedSendable = node.inheritanceClause?.inheritedTypes.contains(where: { Self.isUncheckedSendable($0.type) }) == true
             || context.uncheckedSendableTypes.contains(DeclaredNameCollector.qualifiedName(of: token.name, at: Syntax(node)))
@@ -222,6 +242,7 @@ final class Crawler: SyntaxVisitor {
 
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
         debug(node)
+        guard node.name.isPresent else { return .skipChildren }
         // `where Self: Base` binds conforming types as `: Base` does.
         // A parent's function typealias arguments are found as Swift finds them from the inheritance clause: in the
         // scopes around the protocol, not among its own members.
@@ -263,7 +284,7 @@ final class Crawler: SyntaxVisitor {
         // A protocol's mock has to implement every requirement, so one it can't return leaves the protocol unmocked.
         guard crawler.unmockedMembers.isEmpty else {
             warn(node, "'\(token.name)' isn't mocked: " + crawler.unmockedMembers.joined(separator: " "))
-            context.unmockedProtocols.insert(token.name)
+            context.unmockedProtocols.insert(token.fullyQualifiedName)
             return .skipChildren
         }
         token.members = crawler.tokens
@@ -271,92 +292,72 @@ final class Crawler: SyntaxVisitor {
         return .skipChildren
     }
 
-    // Enum mocking is not supported, this is used to parse nested classes.
+    // Enums, structs and extensions aren't mocked: this parses the types nested in them.
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-        debug(node)
-        var token = NamespaceDeclaration(
-            parent: container,
-            attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
-            name: node.name.filteredDescription,
-            members: [],
-            enclosingCompilationConditions: enclosingCompilationConditions
-        )
-
-        guard token.accessibility.isAccessible else { return .skipChildren }
-
-        let crawler = Crawler(container: Reference(token), context: context)
-        crawler.walk(members: node.memberBlock)
-        token.members = crawler.tokens
-        tokens.append(token)
-        return .skipChildren
+        crawlNamespace(node, name: node.name.filteredDescription, members: node.memberBlock)
     }
 
-    // Extension mocking is not supported, this is used to parse nested classes.
+    override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
+        crawlNamespace(node, name: node.name.filteredDescription, members: node.memberBlock)
+    }
+
     override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
-        debug(node)
-        var token = NamespaceDeclaration(
-            parent: container,
-            attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
+        crawlNamespace(
+            node,
             name: node.extendedType.filteredDescription,
-            members: [],
-            enclosingCompilationConditions: enclosingCompilationConditions,
-            isExtension: true
+            members: node.memberBlock,
+            isExtension: true,
+            genericRequirements: genericRequirements(from: node.genericWhereClause?.requirements)
         )
-
-        guard token.accessibility.isAccessible else { return .skipChildren }
-
-        let crawler = Crawler(container: Reference(token), context: context)
-        crawler.walk(members: node.memberBlock)
-        token.members = crawler.tokens
-        tokens.append(token)
-        return .skipChildren
     }
 
     // Actors are final, so they aren't mocked; this parses the types nested in them, which would otherwise be
     // taken for top-level types.
     override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
+        crawlNamespace(node, name: node.name.filteredDescription, members: node.memberBlock, isActor: true)
+    }
+
+    /// A type that isn't mocked, crawled for the types nested in it.
+    private func crawlNamespace(
+        _ node: some DeclSyntaxProtocol & WithAttributesSyntax & WithModifiersSyntax,
+        name: String,
+        members: MemberBlockSyntax,
+        isExtension: Bool = false,
+        isActor: Bool = false,
+        genericRequirements: [String] = []
+    ) -> SyntaxVisitorContinueKind {
         debug(node)
+        guard !name.isEmpty else { return .skipChildren }
         var token = NamespaceDeclaration(
             parent: container,
             attributes: attributes(from: node.attributes),
             accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
-            name: node.name.filteredDescription,
+            name: name,
             members: [],
             enclosingCompilationConditions: enclosingCompilationConditions,
-            isActor: true
+            isExtension: isExtension,
+            isActor: isActor,
+            // A `nonisolated` extension makes its members nonisolated, not the types it declares.
+            statedIsolation: isExtension ? nil : isolation(attributes: node.attributes, modifiers: node.modifiers),
+            genericRequirements: genericRequirements
         )
 
         guard token.accessibility.isAccessible else { return .skipChildren }
 
         let crawler = Crawler(container: Reference(token), context: context)
-        crawler.walk(members: node.memberBlock)
+        crawler.walk(members: members)
         token.members = crawler.tokens
         tokens.append(token)
         return .skipChildren
     }
 
-    // Struct mocking is not supported, this is used to parse nested classes.
-    override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
-        debug(node)
-        var token = NamespaceDeclaration(
-            parent: container,
-            attributes: attributes(from: node.attributes),
-            accessibility: accessibility(from: node.modifiers) ?? nestedTypeDefaultAccessibility,
-            name: node.name.filteredDescription,
-            members: [],
-            enclosingCompilationConditions: enclosingCompilationConditions
-        )
-
-        guard token.accessibility.isAccessible else { return .skipChildren }
-
-        let crawler = Crawler(container: Reference(token), context: context)
-        crawler.walk(members: node.memberBlock)
-        token.members = crawler.tokens
-        tokens.append(token)
-        return .skipChildren
-    }
+    // A type declared in a body, a closure or a macro's arguments, such as `#Preview { … }`, is local to it, so no
+    // mock can name it.
+    override func visit(_ node: CodeBlockSyntax) -> SyntaxVisitorContinueKind { .skipChildren }
+    override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind { .skipChildren }
+    override func visit(_ node: DeinitializerDeclSyntax) -> SyntaxVisitorContinueKind { .skipChildren }
+    override func visit(_ node: MacroExpansionDeclSyntax) -> SyntaxVisitorContinueKind { .skipChildren }
+    override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind { .skipChildren }
 
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
         guard let container, container.isMockable else { return .skipChildren }
@@ -371,7 +372,11 @@ final class Crawler: SyntaxVisitor {
                 return .skipChildren
             }
         }
-        tokens.append(contentsOf: parse(node))
+        let variables = parse(node)
+        tokens.append(contentsOf: variables)
+        if variables.isEmpty, node.modifiers.isOverride {
+            shadowedMembers.append(contentsOf: parsingShadowedMember { parse(node) })
+        }
         return .skipChildren
     }
 
@@ -398,6 +403,8 @@ final class Crawler: SyntaxVisitor {
         }
         if let method = parse(node) {
             tokens.append(method)
+        } else if node.modifiers.isOverride, let method = parsingShadowedMember({ parse(node) }) {
+            shadowedMembers.append(method)
         }
         return .skipChildren
     }
@@ -416,8 +423,18 @@ final class Crawler: SyntaxVisitor {
 
         if let item = parse(node) {
             tokens.append(item)
+        } else if node.modifiers.isOverride, let item = parsingShadowedMember({ parse(node) }) {
+            shadowedMembers.append(item)
         }
         return .skipChildren
+    }
+
+    /// `parse` reading a `final` or unavailable override, which the mock doesn't override but which hides the
+    /// superclass's member.
+    private func parsingShadowedMember<T>(_ parse: () -> T) -> T {
+        parsesShadowedMember = true
+        defer { parsesShadowedMember = false }
+        return parse()
     }
 
     override func visit(_ node: IfConfigDeclSyntax) -> SyntaxVisitorContinueKind {
@@ -483,17 +500,31 @@ final class Crawler: SyntaxVisitor {
     }
 
     /// The module's default isolation for a type declared here: none inside an actor, whose nested types Swift
-    /// leaves nonisolated.
+    /// leaves nonisolated, and `nonisolated` inside a type declared `nonisolated`, stated because the mock, in an
+    /// extension of that type, would take the default.
     private var defaultIsolationOfNestedType: Isolation? {
+        guard let defaultIsolation = context.defaultIsolation else { return nil }
         var ancestor = container?.value
+        // The nearest enclosing type that states an isolation decides: `nonisolated` carries over to the types nested
+        // in it, a global actor doesn't, so they take the default.
         while let current = ancestor {
-            if let namespace = current as? NamespaceDeclaration,
-               namespace.isActor || (namespace.isExtension && Self.namesAnActor(namespace.name, actors: context.actors, types: context.nominalTypes)) {
-                return nil
+            if let namespace = current as? NamespaceDeclaration {
+                if namespace.isActor || (namespace.isExtension && Self.namesAnActor(namespace.name, actors: context.actors, types: context.nominalTypes)) {
+                    return nil
+                }
+                if let stated = namespace.statedIsolation {
+                    return stated == .nonisolated ? .nonisolated : defaultIsolation
+                }
+            }
+            if let classToken = current as? ClassDeclaration, let isolation = classToken.isolation {
+                return isolation == .nonisolated ? .nonisolated : defaultIsolation
+            }
+            if let protocolToken = current as? ProtocolDeclaration, let isolation = protocolToken.isolation {
+                return isolation == .nonisolated ? .nonisolated : defaultIsolation
             }
             ancestor = current.parent?.value
         }
-        return context.defaultIsolation
+        return defaultIsolation
     }
 
     /// Whether an extension's type, `Worker`, `Outer.Worker` or `App.Outer.Worker`, is one of the module's actors,
@@ -566,6 +597,13 @@ final class Crawler: SyntaxVisitor {
     /// since its names are the scope's, then given the arguments, which are written where it's used.
     private func instance(of functionType: String, in scope: [String], with arguments: GenericArgumentClauseSyntax?) -> TypeSyntax? {
         let (parameters, body) = Self.genericParameters(of: functionType)
+        // An argument that's a closure typealias itself, as in `Gen<Gen<Int>>`, is substituted as its function type.
+        let arguments = arguments.map { clause in
+            clause.with(\.arguments, GenericArgumentListSyntax(clause.arguments.map { argument in
+                guard let type = argument.argument.as(TypeSyntax.self), let expanded = expandedClosureTypealias(type) else { return argument }
+                return argument.with(\.argument, .init(expanded))
+            }))
+        }
         let qualified = qualifying(body, in: scope, excluding: Set(parameters)).trimmedDescription
         guard let instance = Self.instantiating(qualified, parameters: parameters, with: arguments) else { return nil }
         var parser = Parser(instance)
@@ -603,7 +641,17 @@ final class Crawler: SyntaxVisitor {
                     return super.visit(node)
                 }
                 var parser = Parser(argument)
-                return TypeSyntax.parse(from: &parser).with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
+                var type = TypeSyntax.parse(from: &parser)
+                // A generic parameter is escaping, so a function type it stands for is too, as a parameter, or as the
+                // base of a parameter's specifier, as in `sending T`. A variadic one, `T...`, can't be marked.
+                let base = node.parent?.as(AttributedTypeSyntax.self).map(Syntax.init) ?? Syntax(node)
+                let element = base.parent?.as(TupleTypeElementSyntax.self)
+                let isParameter = element?.ellipsis == nil && element?.parent?.parent?.is(FunctionTypeSyntax.self) == true
+                if isParameter, type.as(TupleTypeSyntax.self)?.elements.first?.type.is(FunctionTypeSyntax.self) == true {
+                    var escaping = Parser("@escaping \(argument)")
+                    type = TypeSyntax.parse(from: &escaping)
+                }
+                return type.with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
             }
         }
         var parser = Parser(functionType)
@@ -834,7 +882,7 @@ extension Crawler {
 
         let attributes = attributes(from: variableGroup.attributes)
         // An unavailable member can't be overridden or called.
-        guard !attributes.contains(where: \.isUnavailableEverywhere) else { return [] }
+        guard parsesShadowedMember || !attributes.contains(where: \.isUnavailableEverywhere) else { return [] }
 
         var accessibility = Accessibility.internal
         var setterAccessibility: Accessibility?
@@ -884,7 +932,8 @@ extension Crawler {
                     compilationConditions: compilationConditions,
                     isolation: isolation(attributes: variableGroup.attributes, modifiers: variableGroup.modifiers),
                     isConstant: isConstant,
-                    isStatic: isStatic
+                    isStatic: isStatic,
+                    isOptional: variableGroup.modifiers.contains { $0.name.tokenKind == .keyword(.optional) }
                 )
             }
     }
@@ -895,7 +944,7 @@ extension Crawler {
         let type: ComplexType
         if let explicitType = declaredType {
             type = ComplexType(syntax: explicitType)
-        } else if let initializer = binding.initializer?.value, let guessedType = TypeGuesser.guessType(from: initializer, genericTypes: context.genericTypes) {
+        } else if let initializer = binding.initializer?.value, let guessedType = TypeGuesser.guessType(from: initializer, genericTypes: context.genericTypes, functions: context.capitalizedFunctions.subtracting(context.nominalTypes)) {
             type = .type(guessedType)
         } else {
             warn(binding, "Can't infer the type of property '\(identifier)', so it isn't mocked. Add a type annotation to mock it.")
@@ -906,13 +955,7 @@ extension Crawler {
         let effects: Variable.Effects
         switch binding.accessorBlock?.accessors {
         case .accessors(let accessors):
-            // Settable with a setter, or as a stored property with observers; read-only with only reading accessors,
-            // `get`, `_read` or `unsafeAddress`.
-            let writing: Set = [
-                "set", "_modify", "modify", "mutate", "unsafeMutableAddress", "mutableAddressWithOwner",
-                "mutableAddressWithNativeOwner", "willSet", "didSet",
-            ]
-            isReadOnly = !accessors.contains { writing.contains($0.accessorSpecifier.text) }
+            isReadOnly = !accessors.contains { Self.writingAccessors.contains($0.accessorSpecifier.text) }
 
             let getAccessor = accessors.first { $0.accessorSpecifier.tokenKind == .keyword(.get) }
             effects = Variable.Effects(
@@ -979,7 +1022,7 @@ extension Crawler {
 
         let attributes = attributes(from: node.attributes)
         // An unavailable member can't be overridden or called.
-        guard !attributes.contains(where: \.isUnavailableEverywhere) else { return nil }
+        guard parsesShadowedMember || !attributes.contains(where: \.isUnavailableEverywhere) else { return nil }
 
         var accessibility = Accessibility.internal
         var setterAccessibility: Accessibility?
@@ -998,7 +1041,7 @@ extension Crawler {
         switch node.accessorBlock?.accessors {
         case .accessors(let accessors):
             getter = accessors.first { $0.accessorSpecifier.tokenKind == .keyword(.get) }
-            isReadOnly = !accessors.contains { $0.accessorSpecifier.tokenKind == .keyword(.set) }
+            isReadOnly = !accessors.contains { Self.writingAccessors.contains($0.accessorSpecifier.text) }
         case .getter, nil:
             isReadOnly = true
         }
@@ -1066,7 +1109,7 @@ extension Crawler {
 
         let attributes = attributes(from: method.attributes)
         // An unavailable member can't be overridden or called.
-        guard !attributes.contains(where: \.isUnavailableEverywhere) else { return nil }
+        guard parsesShadowedMember || !attributes.contains(where: \.isUnavailableEverywhere) else { return nil }
 
         // Swift can't override a method with a parameter pack (it reports that the override overrides nothing), so a
         // class mock leaves such a method to the real implementation.
@@ -1340,8 +1383,15 @@ extension Crawler {
 
     /// Whether a member is static (`static`, or `class`), or `nil` when the mock can't override it: a `final` member, or
     /// a class's `static` one, which is final too.
+    /// The accessors that make a property or subscript settable: a setter, or a stored property's observers. One
+    /// with only reading accessors, `get`, `_read` or `unsafeAddress`, is read-only.
+    private static let writingAccessors: Set = [
+        "set", "_modify", "modify", "mutate", "unsafeMutableAddress", "mutableAddressWithOwner",
+        "mutableAddressWithNativeOwner", "willSet", "didSet",
+    ]
+
     private func staticness(of modifiers: DeclModifierListSyntax) -> Bool? {
-        if modifiers.isFinal || (modifiers.isStatic && container?.isClass == true) {
+        if !parsesShadowedMember, modifiers.isFinal || (modifiers.isStatic && container?.isClass == true) {
             return nil
         }
         return modifiers.isStatic || modifiers.isClassMember
@@ -1451,11 +1501,9 @@ extension Crawler {
         if case .identifier(let identifier) = attribute.attributeName.as(IdentifierTypeSyntax.self)?.name.tokenKind {
             switch identifier {
             case "available":
-                return .available(
-                    arguments: attribute.arguments?.description
-                        .split(separator: ",")
-                        .map { String($0).trimmed } ?? []
-                )
+                // One argument per list element, so a comma in a message doesn't split it.
+                guard case .availability(let list) = attribute.arguments else { return .available(arguments: []) }
+                return .available(arguments: list.map(\.argument.trimmedDescription))
             case "_spi":
                 guard let group = attribute.arguments?.trimmedDescription, !group.isEmpty else { return nil }
                 return .spi(group: group)
@@ -1642,6 +1690,36 @@ extension Crawler {
         var privateNames: Set<String> = []
         /// The structs, classes, enums, actors and protocols, by name.
         var nominalTypes: Set<String> = []
+        /// The functions and methods with a capitalized name, which a call such as `Factory()` or `Kind.Make()`
+        /// would otherwise be read as initializing.
+        var capitalizedFunctions: Set<String> = []
+
+        /// ``closureTypealiases`` with the typealiases of them, `typealias Chain = Handler`, which stand for the same
+        /// function type. A typealias's target is looked up from its scope outwards, as Swift does.
+        var closureTypealiasesThroughAliases: [String: String] {
+            var result = closureTypealiases
+            // Each pass follows one more link of a chain.
+            for _ in 0..<8 {
+                var changed = false
+                for (alias, target) in typealiases where result[alias] == nil {
+                    var scope = alias.split(separator: ".").map(String.init).dropLast()
+                    while true {
+                        let candidate = (scope + [target]).joined(separator: ".")
+                        if let functionType = result[candidate] {
+                            result[alias] = functionType
+                            changed = true
+                            break
+                        }
+                        // The innermost scope that declares the name decides, even when it's another type.
+                        if typealiases[candidate] != nil || nominalTypes.contains(candidate) { break }
+                        guard !scope.isEmpty else { break }
+                        scope.removeLast()
+                    }
+                }
+                if !changed { break }
+            }
+            return result
+        }
 
         /// The entry in ``privateNames`` for a type with a `private` or `fileprivate` initializer: a call of the
         /// type, `Name(…)` or `Name.init(…)`, may need it.
@@ -1654,6 +1732,7 @@ extension Crawler {
             typealiases.merge(other.typealiases) { first, _ in first }
             privateNames.formUnion(other.privateNames)
             nominalTypes.formUnion(other.nominalTypes)
+            capitalizedFunctions.formUnion(other.capitalizedFunctions)
             globalActors.formUnion(other.globalActors)
             noncopyableTypes.formUnion(other.noncopyableTypes)
             conditionallyCopyableTypes.formUnion(other.conditionallyCopyableTypes)
@@ -1785,6 +1864,9 @@ extension Crawler {
 
         override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
             collectPrivate(node.modifiers, names: [node.name], at: node)
+            if node.name.text.first?.isUppercase == true {
+                names.capitalizedFunctions.insert(node.name.text)
+            }
             return .skipChildren
         }
 
