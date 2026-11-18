@@ -72,6 +72,24 @@ extension Method.Signature {
     /// when the sources declare a `Result` of their own.
     @TaskLocal static var declaredTypes: Set<String> = []
 
+    /// Whether a member with this signature implements a requirement with `requirement`'s: the same signature, with
+    /// the same effects or fewer. A member that doesn't throw implements one that throws or rethrows, and a
+    /// synchronous one an `async` one.
+    func implements(_ requirement: Method.Signature) -> Bool {
+        let throwsFewer = throwType == nil || throwType == requirement.throwType
+        let isFewerAsync = asyncType == nil || asyncType == requirement.asyncType
+        guard throwsFewer, isFewerAsync else { return false }
+        let withRequirementsEffects = Method.Signature(
+            genericParameters: genericParameters,
+            parameters: parameters,
+            asyncType: requirement.asyncType,
+            throwType: requirement.throwType,
+            returnType: returnType,
+            whereConstraints: whereConstraints
+        )
+        return withRequirementsEffects.isApiEqual(to: requirement)
+    }
+
     /// Whether the two declare the same requirement, however they spell it: generic parameters named differently,
     /// a constraint written in the parameter list or in a `where` clause, or a standard type qualified as `Swift.Int`.
     func isApiEqual(to other: Method.Signature) -> Bool {

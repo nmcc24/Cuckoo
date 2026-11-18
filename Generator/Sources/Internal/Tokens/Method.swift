@@ -49,6 +49,12 @@ extension Method: Inheritable {
         return name == other.name && isStatic == other.isStatic && operatorFixity == other.operatorFixity
             && signature.isApiEqual(to: other.signature)
     }
+
+    func implements(_ requirement: any Inheritable) -> Bool {
+        guard let requirement = requirement as? Method else { return false }
+        return name == requirement.name && isStatic == requirement.isStatic && operatorFixity == requirement.operatorFixity
+            && signature.implements(requirement.signature)
+    }
 }
 
 extension Method {

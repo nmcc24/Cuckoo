@@ -205,4 +205,9 @@ extension Subscript: Inheritable {
         guard let other = other as? Subscript else { return false }
         return isStatic == other.isStatic && getter.signature.isApiEqual(to: other.getter.signature)
     }
+
+    func implements(_ requirement: any Inheritable) -> Bool {
+        guard let requirement = requirement as? Subscript else { return false }
+        return isStatic == requirement.isStatic && getter.signature.implements(requirement.getter.signature)
+    }
 }
