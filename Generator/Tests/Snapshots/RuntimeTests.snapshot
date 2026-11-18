@@ -180,6 +180,7 @@ import Combine
 @testable public import protocol CuckooTestSources.UnavailablePlatformProtocol
 @testable public import protocol CuckooTestSources.UnicodeTest
 @testable public import protocol CuckooTestSources.UnicodeNameTest_トř🦅
+@testable public import protocol CuckooTestSources.ValueMatching
 @testable public import protocol CuckooTestSources.VariadicLogger
 @testable public import class CuckooTestSources.VariadicFormatter
 
@@ -46565,6 +46566,129 @@ nonisolated final class MockUnicodeNameTest_トř🦅: UnicodeNameTest_トř🦅
 
 nonisolated final class UnicodeNameTest_トř🦅Stub: UnicodeNameTest_トř🦅 {
     func doSomething(🛳 p0: String) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+// MARK: - Mocks generated from file: 'Tests/Swift/Source/ValueMatchingTypes.swift'
+
+nonisolated final class MockValueMatching: ValueMatching, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any ValueMatching
+    typealias CuckooStubbing = __StubbingProxy_ValueMatching
+    typealias CuckooVerification = __VerificationProxy_ValueMatching
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockValueMatching.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ValueMatching>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ValueMatching) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func scale(by p0: Float) {
+        return cuckooManager.call(
+            "scale(by p0: Float)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((Float)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.scale(by: p0)
+        )
+    }
+
+    func tag(_ p0: [String]?) {
+        return cuckooManager.call(
+            "tag(_ p0: [String]?)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: (([String]?)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.tag(p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ValueMatching: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func scale<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Float), ((Float)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Float {
+            let matchers: [Cuckoo.ParameterMatcher<(Float)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockValueMatching.self,
+                method: "scale(by p0: Float)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func tag<__M1: Cuckoo._OptionalMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<([String]?), (([String]?)) -> Void, Cuckoo.StubSharing.Confined> where __M1.OptionalMatchedType == [String] {
+            let matchers: [Cuckoo.ParameterMatcher<([String]?)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockValueMatching.self,
+                method: "tag(_ p0: [String]?)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ValueMatching: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func scale<__M1: Cuckoo._Matchable>(by p0: __M1) -> Cuckoo.VerifiedCall<(Float), Void> where __M1.MatchedType == Float {
+            let matchers: [Cuckoo.ParameterMatcher<(Float)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "scale(by p0: Float)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func tag<__M1: Cuckoo._OptionalMatchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<([String]?), Void> where __M1.OptionalMatchedType == [String] {
+            let matchers: [Cuckoo.ParameterMatcher<([String]?)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "tag(_ p0: [String]?)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ValueMatchingStub: ValueMatching {
+    func scale(by p0: Float) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func tag(_ p0: [String]?) {
         typealias __CuckooDefault = Void
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }

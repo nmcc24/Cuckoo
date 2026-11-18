@@ -238,6 +238,31 @@ struct IsolationTests {
         #expect(message?.contains("must run on MainActor") == true)
     }
 
+    /// The reset functions read no recorded argument, so they don't need the mock's actor.
+    @Test
+    func resetClearsAMainActorMockFromAnyIsolation() async {
+        let mock = await MainActor.run {
+            let mock = MockMainActorService()
+            stub(mock) { stub in
+                when(stub.load(id: any())).thenReturn("")
+            }
+            _ = mock.load(id: 1)
+            return mock
+        }
+
+        clearInvocations(mock)
+        await MainActor.run {
+            verify(mock, never()).load(id: any())
+            #expect(mock.load(id: 2) == "")
+        }
+
+        reset(mock)
+        await MainActor.run {
+            verify(mock, never()).load(id: any())
+            verifyNoMoreInteractions(mock)
+        }
+    }
+
     @Test
     func verifyNoMoreInteractionsRefusesToReadACustomGlobalActorMockElsewhere() async {
         let mock = await Self.databaseStoreWithACall()
