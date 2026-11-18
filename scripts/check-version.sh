@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Checks that the sources are ready to release a version: Generator/Sources/CLI/Version.swift holds it, Getting
-# Started installs it (exactly, for a pre-release, since a range never picks one; a release leaves no pre-release
-# pin behind), and CHANGELOG.md has its section. With no argument it checks the version Version.swift holds.
+# Started installs it (exactly, for a pre-release, since a range never picks one; with `from:` for a release, which
+# leaves no pre-release pin behind), and CHANGELOG.md has its section. With no argument it checks the version
+# Version.swift holds.
 #
 # CI runs it on every pull request, so a version bump that misses one of them fails there, not in the Release
 # workflow, which runs it before it builds anything.
@@ -28,5 +29,7 @@ if [[ "$version" == *-* ]]; then
   grep -qF "exact: \"$version\"" "$guide" || fail "$guide doesn't install $version."
 elif grep -qE 'exact: "[0-9]+\.[0-9]+\.[0-9]+-' "$guide"; then
   fail "$guide still installs a pre-release."
+else
+  grep -qE "\.package\(url: .*, from: \"${version//./\\.}\"\)" "$guide" || fail "$guide doesn't install $version with from:."
 fi
 scripts/release-notes.sh "$version" >/dev/null || fail "CHANGELOG.md has no section '## $version'."
