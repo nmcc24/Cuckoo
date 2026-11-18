@@ -7,6 +7,7 @@ public protocol HasGlobalActor {
 }
 
 public extension HasGlobalActor {
+    /// `nil`: the mocked type isn't isolated to a global actor. A generated mock of one that is returns its actor.
     static var cuckooGlobalActor: (any Actor)? { nil }
 }
 
