@@ -38,6 +38,9 @@ struct TypeNames: Sendable {
     /// The modules the sources import, and Swift's own, but not the sources' own modules: a name qualified with one,
     /// as `Swift.Error`, is declared outside the sources, even when the sources declare a type of the same name.
     private var importedModules: Set<String> = ["Swift", "_Concurrency"]
+    /// What the sources' extensions declare for each type, by its canonical qualified name; see
+    /// `NamespaceDeclaration.extensionMembers`.
+    private var extensionMembers: [String: [any Token]] = [:]
 
     /// The names, with the classes and protocols of `files`, flattened so nested ones are listed, indexed for
     /// ``declaration(named:)`` and ``resolve(_:from:)``.
@@ -63,6 +66,14 @@ struct TypeNames: Sendable {
                 declarations[name] = named
             }
         }
+        for case let namespace as NamespaceDeclaration in files.flatMap(\.tokens) where !namespace.extensionMembers.isEmpty {
+            extensionMembers[canonical(namespace.fullyQualifiedName), default: []] += namespace.extensionMembers
+        }
+    }
+
+    /// The members the sources' extensions declare for the type with the qualified name.
+    func extensionMembers(of qualifiedName: String) -> [any Token] {
+        extensionMembers[canonical(qualifiedName)] ?? []
     }
 
     /// The class or protocol declared with the qualified name, as Swift reads it.
@@ -152,6 +163,7 @@ extension Token {
             .filter { !(token.isProtocol && $0.isClass) }
             .map { $0.mergingInheritance(with: files, names: names, defaultIsolation: defaultIsolation, merging: merging) }
 
+        let hidingMembers = (token as? ClassDeclaration).map { $0.shadowedMembers + names.extensionMembers(of: $0.fullyQualifiedName) } ?? []
         let mergedTokens = inheritedRepresentations
             .compactMap { $0 as? any HasMembers }
             .flatMap { $0.members }
@@ -160,8 +172,9 @@ extension Token {
                     return tokens + [inheritedToken]
                 }
 
-                // A `final` or unavailable override hides the superclass's member as an override the mock has does.
-                let isAlreadyPresent = (tokens + ((token as? ClassDeclaration)?.shadowedMembers ?? []))
+                // A `final` or unavailable override hides the superclass's member as an override the mock has does,
+                // and a member an extension declares the requirement it implements.
+                let isAlreadyPresent = (tokens + hidingMembers)
                     .compactMap({ $0 as? any Inheritable })
                     .contains(where: { $0.isEqual(to: inheritedInheritable) })
 

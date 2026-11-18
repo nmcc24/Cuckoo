@@ -17,6 +17,9 @@ struct NamespaceDeclaration: Token, HasAttributes, HasAccessibility, HasName, Ha
     var statedIsolation: Isolation?
     /// An extension's `where` requirements, which the extension a mock is declared in repeats.
     var genericRequirements: [String] = []
+    /// The methods, properties and subscripts an extension declares for the type it extends. A class's mock can't
+    /// override them, and they hide the requirements of the class's protocols that they implement.
+    var extensionMembers: [any Token] = []
 
     func replacing(members: [any Token]) -> NamespaceDeclaration {
         NamespaceDeclaration(
@@ -29,7 +32,8 @@ struct NamespaceDeclaration: Token, HasAttributes, HasAccessibility, HasName, Ha
             isExtension: isExtension,
             isActor: isActor,
             statedIsolation: statedIsolation,
-            genericRequirements: genericRequirements
+            genericRequirements: genericRequirements,
+            extensionMembers: extensionMembers
         )
     }
 }
