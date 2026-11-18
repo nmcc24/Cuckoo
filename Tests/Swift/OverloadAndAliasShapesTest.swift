@@ -89,4 +89,20 @@ struct OverloadAndAliasShapesTests {
             issue.description.contains("No stub for value()")
         }
     }
+
+    /// The mock overrides what it can, and leaves the `final` and `static` members that implement the protocol's
+    /// requirements to the class.
+    @Test
+    func aClassesFinalAndStaticWitnessesAreNotMocked() {
+        let mock = MockFinalWitnessCounter()
+        stub(mock) { stub in
+            when(stub.decrement()).thenReturn(5)
+        }
+
+        #expect(mock.decrement() == 5)
+        #expect(mock.increment() == 1)
+        MockFinalWitnessCounter.reset()
+        verify(mock).decrement()
+        verifyNoMoreInteractions(mock)
+    }
 }

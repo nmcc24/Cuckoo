@@ -22,8 +22,9 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// Whether the class, or an extension of it, is declared `@unchecked Sendable`, which a subclass, its mock and
     /// stub, has to restate.
     var isUncheckedSendable = false
-    /// Overrides the mock can't override, `final` or unavailable ones: they hide the superclass's member, which
-    /// the mock would otherwise override.
+    /// Members the mock can't override that hide inherited ones: a `final` or unavailable override hides the
+    /// superclass's member, which the mock would otherwise override, and a `final` or `static` member the requirement
+    /// of a protocol it implements, which the mock would otherwise declare.
     var shadowedMembers: [any Token] = []
     /// A generic superclass in the sources, `Base<Int>`, whose members the mock doesn't override, with their names.
     var unmockedGenericSuperclass: (name: String, members: [String])?
