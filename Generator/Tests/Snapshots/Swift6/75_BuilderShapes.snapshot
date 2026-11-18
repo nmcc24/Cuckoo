@@ -802,7 +802,7 @@ final class MockOverloads: Overloads, nonisolated Cuckoo.ClassMock {
             ))
         }
 
-        func value() -> Cuckoo.ClassStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
+        func value() async -> Cuckoo.ClassStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckooManager.createStub(for: MockOverloads.self,
                 method: "value() async -> Int",

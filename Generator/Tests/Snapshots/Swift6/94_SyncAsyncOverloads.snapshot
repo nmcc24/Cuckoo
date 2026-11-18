@@ -1,0 +1,584 @@
+import Cuckoo
+import Foundation
+
+// MARK: - Mocks generated from file: 'Fixtures/Swift6/94_SyncAsyncOverloads.swift'
+
+nonisolated final class MockLoading: Loading, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any Loading
+    typealias CuckooStubbing = __StubbingProxy_Loading
+    typealias CuckooVerification = __VerificationProxy_Loading
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLoading.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Loading>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any Loading) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func value() -> Int {
+        return cuckooManager.call(
+            "value() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.value()
+        )
+    }
+
+    func value() async -> Int {
+        return await cuckooManager.call(
+            "value() async -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int, arguments) in
+                await implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await cuckooDefaultImplementation.value.value()
+        )
+    }
+
+    func load(_ p0: Int) throws -> String {
+        return try cuckooManager.callThrows(
+            "load(_ p0: Int) throws -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: ((Int)) throws -> String, arguments) throws(any Swift.Error) in
+                try implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.load(p0)
+        )
+    }
+
+    func load(_ p0: Int) async throws -> String {
+        return try await cuckooManager.callThrows(
+            "load(_ p0: Int) async throws -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: nonisolated(nonsending) ((Int)) async throws -> String, arguments) async throws(any Swift.Error) in
+                try await implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await cuckooDefaultImplementation.value.load(p0)
+        )
+    }
+
+    func refresh() async {
+        return await cuckooManager.call(
+            "refresh() async",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Void, arguments) in
+                await implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await cuckooDefaultImplementation.value.refresh()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Loading: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func value() -> Cuckoo.ProtocolStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockLoading.self,
+                method: "value() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func value() async -> Cuckoo.ProtocolStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockLoading.self,
+                method: "value() async -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubThrowingFunction<(Int), String, any Swift.Error, ((Int)) throws -> String, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockLoading.self,
+                method: "load(_ p0: Int) throws -> String",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) async -> Cuckoo.ProtocolStubThrowingFunction<(Int), String, any Swift.Error, nonisolated(nonsending) ((Int)) async throws -> String, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockLoading.self,
+                method: "load(_ p0: Int) async throws -> String",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func refresh() -> Cuckoo.ProtocolStubNoReturnFunction<(), nonisolated(nonsending) (()) async -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockLoading.self,
+                method: "refresh() async",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Loading: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func value() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "value() -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func value() async -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "value() async -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Int), String> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "load(_ p0: Int) throws -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) async -> Cuckoo.VerifiedCall<(Int), String> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "load(_ p0: Int) async throws -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func refresh() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "refresh() async",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class LoadingStub: Loading {
+    func value() -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func value() async -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func load(_ p0: Int) throws -> String {
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func load(_ p0: Int) async throws -> String {
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func refresh() async {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockLoader: Loader, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = Loader
+    typealias CuckooStubbing = __StubbingProxy_Loader
+    typealias CuckooVerification = __VerificationProxy_Loader
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLoader.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Loader>()
+
+    nonisolated func enableDefaultImplementation(_ stub: Loader) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func value() -> Int {
+        return cuckooManager.call(
+            "value() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.value(),
+            defaultCall: cuckooDefaultImplementation.value.value()
+        )
+    }
+
+    override func value() async -> Int {
+        return await cuckooManager.call(
+            "value() async -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: nonisolated(nonsending) (()) async -> Int, arguments) in
+                await implementation(arguments)
+            },
+            superclassCall: await super.value(),
+            defaultCall: await cuckooDefaultImplementation.value.value()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Loader: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func value() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockLoader.self,
+                method: "value() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func value() async -> Cuckoo.ClassStubFunction<(), Int, nonisolated(nonsending) (()) async -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockLoader.self,
+                method: "value() async -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Loader: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func value() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "value() -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func value() async -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "value() async -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class LoaderStub: Loader {
+    override func value() -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    override func value() async -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockMainLoading: MainLoading, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any MainLoading
+    typealias CuckooStubbing = __StubbingProxy_MainLoading
+    typealias CuckooVerification = __VerificationProxy_MainLoading
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMainLoading.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated static var cuckooGlobalActor: (any Actor)? {
+        MainActor.shared
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any MainLoading>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any MainLoading) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func value() -> Int {
+        return cuckooManager.call(
+            "value() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: @MainActor @Sendable (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.value()
+        )
+    }
+
+    func value() async -> Int {
+        return await cuckooManager.call(
+            "value() async -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: @MainActor @Sendable (()) async -> Int, arguments) in
+                await implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await cuckooDefaultImplementation.value.value()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_MainLoading: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func value() -> Cuckoo.ProtocolStubFunction<(), Int, @MainActor @Sendable (()) -> Int, Cuckoo.StubSharing.Isolated> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockMainLoading.self,
+                method: "value() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func value() async -> Cuckoo.ProtocolStubFunction<(), Int, @MainActor @Sendable (()) async -> Int, Cuckoo.StubSharing.Isolated> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockMainLoading.self,
+                method: "value() async -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_MainLoading: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @MainActor
+        @discardableResult
+        func value() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "value() -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @MainActor
+        @discardableResult
+        func value() async -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "value() async -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class MainLoadingStub: MainLoading {
+    func value() -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func value() async -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+nonisolated final class MockSharedLoading: SharedLoading, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any SharedLoading
+    typealias CuckooStubbing = __StubbingProxy_SharedLoading
+    typealias CuckooVerification = __VerificationProxy_SharedLoading
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSharedLoading.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any SharedLoading>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any SharedLoading) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func load(_ p0: Int) -> String {
+        return cuckooManager.call(
+            "load(_ p0: Int) -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: @Sendable ((Int)) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.load(p0)
+        )
+    }
+
+    func load(_ p0: Int) async -> String {
+        return await cuckooManager.call(
+            "load(_ p0: Int) async -> String",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: nonisolated(nonsending) @Sendable ((Int)) async -> String, arguments) in
+                await implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await cuckooDefaultImplementation.value.load(p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_SharedLoading: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func load<__M1: Cuckoo._SendableMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Int), String, @Sendable ((Int)) -> String, Cuckoo.StubSharing.Shared> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.SendableMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckooManager.createStub(for: MockSharedLoading.self,
+                method: "load(_ p0: Int) -> String",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func load<__M1: Cuckoo._SendableMatchable>(_ p0: __M1) async -> Cuckoo.ProtocolStubFunction<(Int), String, nonisolated(nonsending) @Sendable ((Int)) async -> String, Cuckoo.StubSharing.Shared> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.SendableMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckooManager.createStub(for: MockSharedLoading.self,
+                method: "load(_ p0: Int) async -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_SharedLoading: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Int), String> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "load(_ p0: Int) -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) async -> Cuckoo.VerifiedCall<(Int), String> where __M1.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "load(_ p0: Int) async -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class SharedLoadingStub: SharedLoading {
+    func load(_ p0: Int) -> String {
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func load(_ p0: Int) async -> String {
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}

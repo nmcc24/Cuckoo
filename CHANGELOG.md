@@ -80,6 +80,11 @@
 - A settable property or subscript whose type is a typealias of a function type, as `var handler: Handler { get set }`,
   or an implicitly unwrapped optional, as `((Value) -> Void)!` or `Value!`, didn't compile in the type eraser of a
   protocol with an associated type.
+- Stubbing a method with a sync and an async overload of the same signature was ambiguous: `when(stub.value())`
+  needed the stub's type spelled out. The async overload's stubbing member is `async` now, as its verification
+  member is, so a call picks one as Swift picks a call's overload: `when(stub.value())` in the `stub` block stubs
+  the sync one, and `when(await mock.cuckooStubbingProxy().value())` the async one. `inOrder` still can't verify
+  the async one, as its block is synchronous.
 
 ## 3.0.0-beta.5
 

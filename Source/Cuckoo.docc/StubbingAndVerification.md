@@ -88,6 +88,19 @@ when(stub.greet(name: any())).thenReturn("Hi")
 when(stub.greet(name: "Ann")).thenReturn("Hello, Ann") // Ann gets this one; anyone else gets "Hi".
 ```
 
+A method with a sync and an async overload of the same signature has two stubs. As in a call of the method, the
+synchronous `stub` block names the sync one, and `await` names the async one, on the proxy the block would get:
+
+```swift
+stub(loader) { stub in
+    when(stub.value()).thenReturn(1)                         // func value() -> Int
+}
+when(await loader.cuckooStubbingProxy().value()).thenReturn(2) // func value() async -> Int
+```
+
+`await verify(loader).value()` verifies the async overload likewise, and a `verify` in a synchronous closure the
+sync one. ``inOrder(strict:fileID:filePath:line:column:_:)``'s block is synchronous, so it verifies the sync one.
+
 What `thenReturn` accepts follows from the mocked type's isolation, which ``StubSharing`` describes. The mock of a
 `Sendable` type can be called from any task, so its stubs return `Sendable` values; a `@MainActor` mock's
 closures run on the main actor and can use its state directly. A `nonisolated` member of a `@MainActor` or other
