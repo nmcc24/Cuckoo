@@ -131,7 +131,8 @@
   did for an associated type. Any `Self.Name` but `Self`'s metatype is written `Name` in the mock now, in the
   typealiases it repeats too, and a function typealias named through `Self` is the closure parameter it stands for.
   Next to a member's generic parameter of the same name, as in `func get<Key>(_ key: Key) -> Self.Key`, the
-  typealias is named through the mock's type, `MockStore.Key`, or written out in a generic mock.
+  mock declares `__CuckooSelf_Key`, a typealias of `Key` that nothing shadows, and the member names that; a
+  generic typealias, as `Self.Pair<Int>`, gets a generic one.
 - A settable property or subscript whose type is a typealias of a function type, as `var handler: Handler { get set }`,
   or an implicitly unwrapped optional, as `((Value) -> Void)!` or `Value!`, didn't compile in the type eraser of a
   protocol with an associated type.
@@ -141,8 +142,12 @@
   `when(stub.value())` and `verify(mock).value()` are the sync one, `when(stub.async.value())` and
   `verify(mock).async.value()` the async one, in synchronous and async code, `inOrder` included. Static overloads
   work the same way, through `stub(MockLoader.self)` and `verify(MockLoader.self)`. A mocked type with a member
-  named `async` of its own keeps the name: its proxies' members for the async overload are `async` instead, named
-  with `await`, and run on their caller's actor.
+  named `async` of its own keeps the name and gets no such member. There the proxies' members for the async
+  overload are `async` themselves and run on their caller's actor, so `await` picks them, as Swift picks a call's
+  overload: `when(await mock.cuckooStubbingProxy().value())` and `await verify(mock).value()`. In an async
+  function a plain `verify(mock).value()` then means the async one and needs `await`, the sync one is verified
+  from a synchronous closure, and `inOrder`, whose block is synchronous, can't verify the async one. The
+  overloads are a pair whatever they return and whatever their access or isolation, for both proxies alike.
   **Migration:** code that spelled out the stub's type to pick the async overload, as
   `let stub: ProtocolStubFunction<…> = stub.value()`, now names it as `stub.async.value()`.
 - With `defaultIsolation = "MainActor"`, a `nonisolated` class's member that implements a requirement of a
@@ -155,7 +160,13 @@
 - A class that implements a protocol's requirement with a `static` or `final` member, as `static func reset()`
   for `static func reset()` of a protocol in the sources, got a mock that declared the requirement again and didn't
   compile. The mock leaves such a member to the class, and one declared in an extension of the class likewise,
-  which no subclass can override.
+  which no subclass can override. The same holds when a superclass in the sources has the member and a subclass
+  states the protocol, as `class Child: Base, Resetting {}`; a superclass outside the sources isn't read, as
+  before. An `override` in an extension, which an `@objc dynamic` member allows, is still mocked.
+- A generic requirement using a typealias of a type that names an associated type, as `func first<T>(_ value: T)
+  -> Items` with `typealias Items = [Item]`, got a mock that didn't compile: forwarding it to a default
+  implementation goes through the opened existential, where `Items` is another type. The type eraser casts it
+  now, as it does the associated type itself.
 
 ### Changed
 - The argument a generated mock passes its manager for an unstubbed call's default is `unstubbedDefault`, renamed

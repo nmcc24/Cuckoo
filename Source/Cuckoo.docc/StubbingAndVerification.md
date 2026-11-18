@@ -104,13 +104,21 @@ inOrder {
 }
 ```
 
-`stub.value()` and `verify(loader).value()` are always the sync overload, in async code too, and the `async`
-member exists only where a method has both. Static overloads work the same way, as
+With the `async` member, `stub.value()` and `verify(loader).value()` are always the sync overload, in async
+code too. The member exists only where a method has both, whatever the two return. Static overloads work the same way, as
 `stub(MockLoader.self) { stub in when(stub.async.shared())… }` and `verify(MockLoader.self).async.shared()`.
 
-A mocked type with a member named `async` of its own keeps that name. Its proxies name the async overload with
-`await` instead, as a call of the method does: `when(await loader.cuckooStubbingProxy().value())` and
-`await verify(loader).value()`.
+A mocked type with a member named `async` of its own keeps that name, and its proxies have no `async` member
+for the overloads. There the two are told apart as a call of the method tells them apart, by `await`:
+
+```swift
+when(await loader.cuckooStubbingProxy().value()).thenReturn(2) // func value() async -> Int
+await verify(loader).value()                                   // the async overload
+```
+
+So for such a type, a plain `verify(loader).value()` in an async function means the async overload and needs
+`await`. Verify the sync one from a synchronous closure, as `_ = { verify(loader).value() }()`. `inOrder`'s block
+is synchronous, so it can verify only the sync overload of such a type.
 
 What `thenReturn` accepts follows from the mocked type's isolation, which ``StubSharing`` describes. The mock of a
 `Sendable` type can be called from any task, so its stubs return `Sendable` values; a `@MainActor` mock's
