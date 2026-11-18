@@ -221,6 +221,8 @@ that `verify` returns:
 verify(cache).value(forKey: "a").with(returnType: Int?.self)
 ```
 
+The `verify` counts only the calls made with that return type, as a stub answers only the calls of its own.
+
 ### Order and timing
 
 ``inOrder(strict:fileID:filePath:line:column:_:)`` checks that calls happened in the order of the `verify`
