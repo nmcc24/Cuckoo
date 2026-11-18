@@ -102,17 +102,33 @@ struct CuckoofileScanTests {
         #expect(warning?.contains("direct dependency of the test target") == true)
     }
 
-    /// The test target's own entry without `sources` mocks only its package's targets: the other packages' modules
-    /// it leaves out are named, unless they have entries of their own.
+    /// The whole `modules` table on one line, quoted keys with escaped quotes, and three quotes inside a one-line
+    /// string, which open no multi-line string.
     @Test
-    func selfEntryWithoutSourcesNamesTheModulesItLeavesOut() {
-        let warning = selfEntryLeavesOutWarning(target: "AppTests", entries: ["AppTests", "Kit"], listsSources: false, leftOut: ["Kit", "Network"])
-        #expect(warning?.contains("[modules.AppTests] lists no sources") == true)
-        #expect(warning?.contains("'Network'") == true)
-        #expect(warning?.contains("'Kit'") == false)
-        #expect(warning?.contains("[modules.Network]") == true)
-        #expect(selfEntryLeavesOutWarning(target: "AppTests", entries: ["AppTests"], listsSources: true, leftOut: ["Network"]) == nil)
-        #expect(selfEntryLeavesOutWarning(target: "AppTests", entries: ["Network"], listsSources: false, leftOut: ["Network"]) == nil)
-        #expect(selfEntryLeavesOutWarning(target: "AppTests", entries: ["AppTests"], listsSources: false, leftOut: []) == nil)
+    func inlineModulesTablesEscapedKeysAndQuotesInStrings() {
+        let configuration = #"""
+            modules = { App = { sources = ["App/*.swift"] }, "My App" = { imports = ["Foundation"] } }
+            [modules."Shop \"Tests\""]
+            note = '"""'
+            [modules.After]
+            """#
+        #expect(cuckoofileModuleNames(in: configuration) == ["App", "My App", #"Shop "Tests""#, "After"])
+        #expect(cuckoofileEntry(named: "App", listsSourcesIn: configuration))
+        // A comment after the table, and a `#` inside a multi-line string's first line, are neither entries nor
+        // comments that hide the string's end.
+        #expect(cuckoofileModuleNames(in: "modules = {} # { X = 1 }") == [])
+        #expect(cuckoofileModuleNames(in: #"""
+            x = """a" # """
+            [modules.H]
+            """#) == ["H"])
     }
+
+    /// An entry named after a target whose module has another name, as `My-Core`'s is `My_Core`, is told the name.
+    @Test
+    func entryNamedAfterARenamedTargetIsToldTheModuleName() throws {
+        let warning = try #require(unusedCuckoofileEntriesWarning(entries: ["My-Core"], usableNames: ["My_Core", "AppTests"], moduleNames: ["My-Core": "My_Core"]))
+        #expect(warning.contains("[modules.My_Core]"))
+        #expect(!warning.contains("names no target"))
+    }
+
 }
