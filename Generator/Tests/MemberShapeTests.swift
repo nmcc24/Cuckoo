@@ -7,6 +7,30 @@ import Testing
 struct MemberShapeTests {
     private static let mainActor = #"defaultIsolation = "MainActor""#
 
+    /// Swift gives a type declared in an extension the module's default isolation, even when the extended type is
+    /// `nonisolated`; only a type declared in that type's body is nonisolated with it.
+    @Test
+    func aTypeInAnExtensionOfANonisolatedTypeTakesTheDefaultIsolation() async throws {
+        let source = """
+            nonisolated struct Holder {
+                class InBody {
+                    init() {}
+                    func x() {}
+                }
+            }
+            extension Holder {
+                class InExtension {
+                    init() {}
+                    func x() {}
+                }
+            }
+            """
+        let output = try await generateMocks(source: source, options: Self.mainActor)
+        #expect(output.contains("nonisolated final class MockInBody: InBody,"))
+        #expect(output.contains("    final class MockInExtension: InExtension,"))
+        #expect(!output.contains("nonisolated final class MockInExtension"))
+    }
+
     /// With a default isolation, a `nonisolated` class's member takes the global actor of the requirement it
     /// implements, as Swift infers it.
     @Test
