@@ -1019,7 +1019,8 @@ extension Crawler {
                     innerName: nil,
                     type: isVariadic ? .type("[\(type)]") : type,
                     variadicElement: isVariadic ? type : nil,
-                    defaultValue: parameter.defaultValue.flatMap { mockableDefaultValue($0, of: parameter.type) }
+                    defaultValue: parameter.defaultValue.flatMap { mockableDefaultValue($0, of: parameter.type) },
+                    isSubscriptKey: true
                 )
             },
             returnType: ComplexType(syntax: node.returnClause.type),

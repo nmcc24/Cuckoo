@@ -24,7 +24,8 @@ extension Method {
                     type: parameter.type,
                     isNoncopyable: parameter.isNoncopyable,
                     variadicElement: parameter.variadicElement,
-                    defaultValue: parameter.defaultValue
+                    defaultValue: parameter.defaultValue,
+                    isSubscriptKey: parameter.isSubscriptKey
                 )
             }
             self.asyncType = asyncType

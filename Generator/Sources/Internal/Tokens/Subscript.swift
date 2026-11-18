@@ -102,10 +102,26 @@ extension Subscript {
         whereConstraints.isEmpty ? "" : " where \(whereConstraints.joined(separator: ", "))"
     }
 
+    /// The keys as the forwarded subscript calls take them. A non-escaping closure key is passed as a closure literal
+    /// calling it: passed as it is, inside `withoutActuallyEscaping`, it's escaping, which ranks a generic overload,
+    /// `subscript<T>(t: T)`, above the subscript it's forwarded to.
+    private var forwardedKeys: String {
+        getter.signature.parameters.map { key in
+            guard case .closure(let closure) = key.type,
+                  closure.parameters.allSatisfy({ !$0.type.containsAttribute(named: "inout") && !$0.type.description.hasPrefix("repeat ") }) else {
+                return key.forwardingCall
+            }
+            let arguments = closure.parameters.indices.map { "$\($0)" }.joined(separator: ", ")
+            let tryAwait = (closure.effects.throwsClause != nil ? "try " : "") + (closure.effects.isAsync ? "await " : "")
+            let literal = "{ \(closure.parameters.isEmpty ? "() in " : "")\(tryAwait)\(escapeReservedKeywords(for: key.usableName))(\(arguments)) }"
+            return key.name == "_" ? literal : "\(MethodParameter.argumentLabel(key.name)): \(literal)"
+        }.joined(separator: ", ")
+    }
+
     /// The getter as the mock's subscript calls it: it forwards to `super[...]` and the default implementation's subscript.
     var mockedGetter: Method {
         var getter = getter
-        let keyArguments = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
+        let keyArguments = forwardedKeys
         getter.superclassCallOverride = "super[\(keyArguments)]"
         getter.defaultCallOverride = "cuckooDefaultImplementation.value[\(keyArguments)]"
         getter.mentionsSelf = mentionsSelf
@@ -116,7 +132,7 @@ extension Subscript {
     /// implementation's subscript.
     var mockedSetter: Method {
         var setter = setter
-        let keyArguments = getter.signature.parameters.map(\.forwardingCall).joined(separator: ", ")
+        let keyArguments = forwardedKeys
         setter.superclassCallOverride = "super[\(keyArguments)] = \(newValueName)"
         setter.defaultCallOverride = "cuckooDefaultImplementation.value[\(keyArguments)] = \(newValueName)"
         setter.mentionsSelf = mentionsSelf
