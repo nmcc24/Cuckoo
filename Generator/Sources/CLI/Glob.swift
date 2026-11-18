@@ -91,7 +91,70 @@ final class Glob: Collection {
         return 0 == glob(pattern, globalFlags, nil, gt)
     }
 
+    /// The characters `glob(3)` reads as a pattern's, which a path names literally when each is escaped.
+    private static let patternCharacters: Set<Character> = ["*", "?", "[", "]", "{", "}", "\\"]
+
+    /// `path` as a pattern matching only itself: a directory named `glob [v2]` or `Feature{A}` is a real one.
+    static func escaped(_ path: String) -> String {
+        path.reduce(into: "") { result, character in
+            if patternCharacters.contains(character) { result.append("\\") }
+            result.append(character)
+        }
+    }
+
+    /// The path a pattern without wildcards names: its escapes removed.
+    static func unescaped(_ pattern: String) -> String {
+        var result = ""
+        var isEscaped = false
+        for character in pattern {
+            if !isEscaped, character == "\\" {
+                isEscaped = true
+                continue
+            }
+            isEscaped = false
+            result.append(character)
+        }
+        return result
+    }
+
+    /// Whether a pattern has a wildcard that isn't escaped.
+    private static func hasWildcard(_ pattern: String) -> Bool {
+        var isEscaped = false
+        for character in pattern {
+            if isEscaped {
+                isEscaped = false
+            } else if character == "\\" {
+                isEscaped = true
+            } else if "*?[{".contains(character) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /// The pattern with each `**` that isn't a whole path component, as in `Sources/**.swift`, read as `*`, as a
+    /// shell reads it.
+    private static func partialGlobstarsAsStars(_ pattern: String) -> String {
+        let characters = Array(pattern)
+        var result = ""
+        var index = 0
+        while index < characters.count {
+            if characters[index] == "*", index + 1 < characters.count, characters[index + 1] == "*",
+               index == 0 || characters[index - 1] != "\\" {
+                let startsComponent = index == 0 || characters[index - 1] == "/"
+                let endsComponent = index + 2 == characters.count || characters[index + 2] == "/"
+                result += startsComponent && endsComponent ? "**" : "*"
+                index += 2
+                continue
+            }
+            result.append(characters[index])
+            index += 1
+        }
+        return result
+    }
+
     private func expandGlobstar(pattern: String) -> [String] {
+        let pattern = Self.partialGlobstarsAsStars(pattern)
         guard pattern.contains("**") else {
             return [pattern]
         }
@@ -101,14 +164,16 @@ final class Glob: Collection {
         let lastPart = parts.joined(separator: "**")
 
         // A wildcard before the globstar, as in `Modules/*/Sources/**/*.swift`, picks several roots to recurse into.
-        guard !firstPart.contains(where: { "*?[{".contains($0) }) else {
+        guard !Self.hasWildcard(firstPart) else {
             return matchingDirectories(of: firstPart).flatMap { root in
-                expandGlobstar(pattern: root + "**" + lastPart)
+                expandGlobstar(pattern: Self.escaped(root) + "**" + lastPart)
             }
         }
 
+        // The patterns for the directories the globstar searches: real paths, escaped.
+        let root = Self.unescaped(firstPart)
         var results = [String]()
-        var directories = Self.directories(under: firstPart, globstarRoot: Self.resolvingLinks(firstPart))
+        var directories = Self.directories(under: root, globstarRoot: Self.resolvingLinks(root)).map(Self.escaped)
 
         if behavior.includesFilesFromRootOfGlobstar {
             // Check the base directory for the glob star as well.

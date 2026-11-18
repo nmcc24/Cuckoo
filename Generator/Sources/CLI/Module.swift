@@ -49,8 +49,10 @@ final class Module: Sendable {
         self.imports = dto.imports?.map(\.trimmed) ?? []
         self.publicImports = dto.publicImports?.map(\.trimmed) ?? []
         self.testableImports = dto.testableImports?.map(\.trimmed) ?? []
+        // A relative source is a pattern under the Cuckoofile's directory, whose own name may have characters a
+        // pattern reads as wildcards, as `glob [v2]` does: it's escaped, so only the source's own are.
         func path(_ source: String) -> Path {
-            Path(source.trimmed, expandingTilde: true).relative(to: configurationPath.parent)
+            Path(source.trimmed, expandingTilde: true).relative(to: Glob.escaped(configurationPath.parent.rawValue))
         }
         self.sourcesAreFromPlugin = dto.sources == nil && pluginSources != nil
         switch dto.sources {
