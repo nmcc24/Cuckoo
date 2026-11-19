@@ -201,3 +201,15 @@ protocol ReviewNamedUserRepository: ReviewUserRepository {
     func register(_ callback: @convention(c) (Int32) -> Int32)
 }
 #endif
+
+// An associated type constrained through `Self` would make the mock's generic parameter name the mock itself:
+// the protocol isn't mocked, with a warning. A plain recursive constraint is.
+protocol ReviewTree {
+    associatedtype Node: ReviewTree where Node.Node == Self
+    func children() -> [Node]
+}
+
+protocol ReviewChain {
+    associatedtype Next: ReviewChain
+    func next() -> Next?
+}
