@@ -500,7 +500,8 @@ struct MemberShapeTests {
         #expect(classMock.contains("    func h(_ p0: (Output) -> Void) {"))
         #expect(classMock.contains("    func k(_ p0: Output, _ p1: Output) {"))
         #expect(classMock.contains("    func m(_ p0: Output) {"))
-        #expect(classMock.contains("    func same(_ p0: Self) -> Bool {"))
+        // `Int` isn't the class: the requirement, which the mock can't declare, is left out.
+        #expect(classMock.contains("    // - 'same(_:)' names `Self` and is left to the protocol's default implementation, which calls run."))
     }
 
     /// A `where` clause naming an associated type is matched as the member's types are, the same type for each use.
@@ -562,6 +563,36 @@ struct MemberShapeTests {
         #expect(!classMock.contains("func pair(_ p0: Item, _ p1: Item) {"))
         // `String` isn't `Int.Type`: the requirement is declared next to the class's member.
         #expect(classMock.contains("    func accept(_ p0: Item.Type) {"))
+    }
+
+    /// A requirement naming `Self` that the class leaves to the protocol's default implementation isn't declared in
+    /// the class's mock, which says so; one the class implements is overridden.
+    @Test
+    func aSelfRequirementLeftToADefaultIsntMocked() async throws {
+        let source = """
+            protocol Merging {
+                func merged(with other: Self) -> Bool
+                func copy() -> Self
+                func describe(_ value: Self.Type) -> String
+            }
+            extension Merging {
+                func merged(with other: Self) -> Bool { false }
+                func copy() -> Self { self }
+            }
+            class OwnMerger: Merging {
+                init() {}
+                func merged(with other: OwnMerger) -> Bool { true }
+                func describe(_ value: OwnMerger.Type) -> String { "" }
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockOwnMerger:")).lowerBound
+        let end = try #require(output.firstRange(of: "class OwnMergerStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(classMock.contains("override func merged(with p0: OwnMerger) -> Bool {"))
+        #expect(classMock.contains("override func describe(_ p0: OwnMerger.Type) -> String {"))
+        #expect(classMock.contains("    // - 'copy()' names `Self` and is left to the protocol's default implementation, which calls run."))
+        #expect(!classMock.contains("func copy() -> Self {"))
     }
 
     /// With a default isolation, a `nonisolated` class's member takes its requirement's actor only when it's the

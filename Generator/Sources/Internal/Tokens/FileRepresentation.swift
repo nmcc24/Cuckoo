@@ -240,6 +240,8 @@ extension Token {
             }
             return types
         } ?? [:]
+        // Requirements a class's mock can't declare, left to the protocol's default implementation.
+        var undeclarableRequirements: [String] = []
         let mergedTokens = Method.Signature.$placeholderTypes.withValue(placeholderTypes) {
             inheritedRepresentations
                 .compactMap { $0 as? any HasMembers }
@@ -274,6 +276,12 @@ extension Token {
                         overridable.parent = classReference
                         return tokens + [overridable]
                     }
+                    // A requirement the class doesn't implement that takes `Self` can't be declared in its mock: calls
+                    // run the protocol's default implementation, as for a member the mock can't override.
+                    if token is ClassDeclaration, isRequirement, let description = inheritedToken.selfOnlyAProtocolCanName {
+                        undeclarableRequirements.append(description)
+                        return tokens
+                    }
                     return tokens + [inheritedToken]
                 }
         }
@@ -281,6 +289,7 @@ extension Token {
         switch token {
         case let classToken as ClassDeclaration:
             var merged = classToken.replacing(members: mergedTokens)
+            merged.unmockedMembers += undeclarableRequirements
             // A generic superclass's members name its generic parameters, which the mock would have to replace with
             // the arguments the class gives them: they're left to the real implementation, and the mock says so.
             if let superclassName = classToken.inheritedTypes.first(where: { $0.contains("<") }),
@@ -436,5 +445,33 @@ extension Token {
         default:
             return self
         }
+    }
+}
+
+extension Token {
+    /// How the mock's comment names this requirement, when it names `Self`, as `func merged(with other: Self)` or
+    /// `func copy() -> Self`: a class's mock can't declare one the class leaves to the protocol's default
+    /// implementation, which it would have to write with the class's type, not `Self`.
+    fileprivate var selfOnlyAProtocolCanName: String? {
+        func mentionsSelf(_ type: String?) -> Bool {
+            type?.contains(/\bSelf\b(?!\.)/) ?? false
+        }
+        let name: String
+        switch self {
+        case let method as Method:
+            let signature = method.signature
+            guard signature.parameters.contains(where: { mentionsSelf($0.type.description) }) || mentionsSelf(signature.returnType?.description) else { return nil }
+            name = "\(method.name)(\(signature.parameters.map { "\($0.name):" }.joined()))"
+        case let subscriptToken as Subscript:
+            let signature = subscriptToken.getter.signature
+            guard signature.parameters.contains(where: { mentionsSelf($0.type.description) }) || mentionsSelf(signature.returnType?.description) else { return nil }
+            name = "subscript"
+        case let variable as Variable:
+            guard mentionsSelf(variable.type.description) else { return nil }
+            name = variable.name
+        default:
+            return nil
+        }
+        return "'\(name)' names `Self` and is left to the protocol's default implementation, which calls run."
     }
 }

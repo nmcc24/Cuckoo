@@ -294,6 +294,31 @@ class MetaTyper: MetaTyping {
     func accept(_ type: String) {}
 }
 
+// A requirement naming `Self` that the class leaves to the protocol's default implementation isn't mocked: the mock
+// would have to write it with the class's type.
+protocol Merging {
+    func merged(with other: Self) -> Bool
+    func copy() -> Self
+    var me: Self { get }
+    subscript(other: Self) -> Int { get }
+}
+
+extension Merging {
+    func merged(with other: Self) -> Bool { false }
+    func copy() -> Self { self }
+    var me: Self { self }
+    subscript(other: Self) -> Int { 0 }
+}
+
+class Merger: Merging {
+    init() {}
+}
+
+class OwnMerger: Merging {
+    init() {}
+    func merged(with other: OwnMerger) -> Bool { true }
+}
+
 // With a default isolation, only the member Swift takes for the requirement's witness takes its actor.
 @MainActor protocol Displaying {
     associatedtype Value

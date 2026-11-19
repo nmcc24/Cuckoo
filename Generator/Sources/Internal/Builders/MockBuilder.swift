@@ -78,7 +78,7 @@ enum MockBuilder {
             lines.append("")
         }
         if let unmockedMembers = container.asClass?.unmockedMembers, !unmockedMembers.isEmpty {
-            lines.append("    // Not mocked, so calls run the class's own implementation:")
+            lines.append("    // Not mocked, so calls run the real implementation:")
             lines.append(contentsOf: unmockedMembers.map { "    // - \($0)" })
             lines.append("")
         }

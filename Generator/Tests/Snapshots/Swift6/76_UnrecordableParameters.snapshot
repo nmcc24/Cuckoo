@@ -8,7 +8,7 @@ final class MockMixed: Mixed, nonisolated Cuckoo.ClassMock {
     typealias CuckooStubbing = __StubbingProxy_Mixed
     typealias CuckooVerification = __VerificationProxy_Mixed
 
-    // Not mocked, so calls run the class's own implementation:
+    // Not mocked, so calls run the real implementation:
     // - 'fill(_ value: inout some Sendable)' takes an 'inout some' parameter, which a stub can't write back to.
     // - 'apply(_ values: repeat each T, to body: (repeat each T) -> Void)' takes a closure over a parameter pack, which Swift can't store.
     // - 'isolated(_ actor: isolated (any Actor)?, body: () -> Void)' takes an isolated parameter and the non-escaping closure 'body', which the mock can't forward to the parameter's actor.

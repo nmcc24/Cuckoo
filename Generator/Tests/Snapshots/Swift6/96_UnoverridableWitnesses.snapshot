@@ -4733,6 +4733,346 @@ final class MetaTyperStub: MetaTyper {
     }
 }
 
+nonisolated final class MockMerging: Merging, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any Merging
+    typealias CuckooStubbing = __StubbingProxy_Merging
+    typealias CuckooVerification = __VerificationProxy_Merging
+    typealias __CuckooSelf = MockMerging
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMerging.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Merging>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any Merging) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    var me: __CuckooSelf {
+        get {
+            return cuckooManager.getter(
+                "me",
+                invoke: { (implementation: (()) -> __CuckooSelf) in
+                    implementation(())
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("me", reason: "it names Self, which is another type in the default implementation")
+            )
+        }
+    }
+
+    func merged(with p0: __CuckooSelf) -> Bool {
+        return cuckooManager.call(
+            "merged(with p0: Self) -> Bool",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((__CuckooSelf)) -> Bool, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("merged(with p0: Self) -> Bool", reason: "it names Self, which is another type in the default implementation")
+        )
+    }
+
+    func copy() -> __CuckooSelf {
+        return cuckooManager.call(
+            "copy() -> Self",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> __CuckooSelf, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("copy() -> Self", reason: "it names Self, which is another type in the default implementation")
+        )
+    }
+
+    subscript(_ p0: __CuckooSelf) -> Int {
+        get {
+            return cuckooManager.call(
+                "subscript(_ p0: Self) -> Int#get",
+                parameters: (p0),
+                escapingParameters: (p0),
+                invoke: { (implementation: ((__CuckooSelf)) -> Int, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooManager.unforwardableDefaultImplementationCall("subscript(_ p0: Self) -> Int#get", reason: "it names Self, which is another type in the default implementation")
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_Merging: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        var me: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockMerging, __CuckooSelf, (()) -> __CuckooSelf, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "me")
+        }
+
+        func merged<__M1: Cuckoo._Matchable>(with p0: __M1) -> Cuckoo.ProtocolStubFunction<(__CuckooSelf), Bool, ((__CuckooSelf)) -> Bool, Cuckoo.StubSharing.Confined> where __M1.MatchedType == __CuckooSelf {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockMerging.self,
+                method: "merged(with p0: Self) -> Bool",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func copy() -> Cuckoo.ProtocolStubFunction<(), __CuckooSelf, (()) -> __CuckooSelf, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockMerging.self,
+                method: "copy() -> Self",
+                parameterMatchers: matchers
+            ))
+        }
+
+        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == __CuckooSelf {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>]
+
+            var get: Cuckoo.ProtocolStubFunction<(__CuckooSelf), Int, ((__CuckooSelf)) -> Int, Cuckoo.StubSharing.Confined> {
+                return .init(stub: cuckooManager.createStub(for: MockMerging.self,
+                    method: "subscript(_ p0: Self) -> Int#get",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Merging: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        var me: Cuckoo.VerifyReadOnlyProperty<__CuckooSelf> {
+            return .init(manager: cuckooManager, name: "me", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+
+        @discardableResult
+        func merged<__M1: Cuckoo._Matchable>(with p0: __M1) -> Cuckoo.VerifiedCall<(__CuckooSelf), Bool> where __M1.MatchedType == __CuckooSelf {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "merged(with p0: Self) -> Bool",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func copy() -> Cuckoo.VerifiedCall<(), __CuckooSelf> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "copy() -> Self",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == __CuckooSelf {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
+        }
+
+        nonisolated struct __Subscript1 {
+            fileprivate let cuckooManager: Cuckoo.MockManager
+            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
+            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
+            fileprivate let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>]
+
+            @discardableResult
+            func get() -> Cuckoo.VerifiedCall<(__CuckooSelf), Int> {
+                return cuckooManager.verify(
+                    "subscript(_ p0: Self) -> Int#get",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+}
+
+nonisolated final class MergingStub: Merging {
+    typealias __CuckooSelf = MergingStub
+
+    var me: __CuckooSelf {
+        get {
+            typealias __CuckooDefault = __CuckooSelf
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+
+    func merged(with p0: __CuckooSelf) -> Bool {
+        typealias __CuckooDefault = Bool
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func copy() -> __CuckooSelf {
+        typealias __CuckooDefault = __CuckooSelf
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    subscript(_ p0: __CuckooSelf) -> Int {
+        get {
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+}
+
+final class MockMerger: Merger, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = Merger
+    typealias CuckooStubbing = __StubbingProxy_Merger
+    typealias CuckooVerification = __VerificationProxy_Merger
+
+    // Not mocked, so calls run the real implementation:
+    // - 'merged(with:)' names `Self` and is left to the protocol's default implementation, which calls run.
+    // - 'copy()' names `Self` and is left to the protocol's default implementation, which calls run.
+    // - 'me' names `Self` and is left to the protocol's default implementation, which calls run.
+    // - 'subscript' names `Self` and is left to the protocol's default implementation, which calls run.
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMerger.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Merger>()
+
+    nonisolated func enableDefaultImplementation(_ stub: Merger) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    nonisolated struct __StubbingProxy_Merger: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Merger: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+    }
+}
+
+final class MergerStub: Merger {
+}
+
+final class MockOwnMerger: OwnMerger, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = OwnMerger
+    typealias CuckooStubbing = __StubbingProxy_OwnMerger
+    typealias CuckooVerification = __VerificationProxy_OwnMerger
+
+    // Not mocked, so calls run the real implementation:
+    // - 'copy()' names `Self` and is left to the protocol's default implementation, which calls run.
+    // - 'me' names `Self` and is left to the protocol's default implementation, which calls run.
+    // - 'subscript' names `Self` and is left to the protocol's default implementation, which calls run.
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockOwnMerger.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<OwnMerger>()
+
+    nonisolated func enableDefaultImplementation(_ stub: OwnMerger) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func merged(with p0: OwnMerger) -> Bool {
+        return cuckooManager.call(
+            "merged(with p0: OwnMerger) -> Bool",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((OwnMerger)) -> Bool, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.merged(with: p0),
+            defaultCall: cuckooDefaultImplementation.value.merged(with: p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_OwnMerger: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func merged<__M1: Cuckoo._Matchable>(with p0: __M1) -> Cuckoo.ClassStubFunction<(OwnMerger), Bool, ((OwnMerger)) -> Bool, Cuckoo.StubSharing.Confined> where __M1.MatchedType == OwnMerger {
+            let matchers: [Cuckoo.ParameterMatcher<(OwnMerger)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockOwnMerger.self,
+                method: "merged(with p0: OwnMerger) -> Bool",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_OwnMerger: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func merged<__M1: Cuckoo._Matchable>(with p0: __M1) -> Cuckoo.VerifiedCall<(OwnMerger), Bool> where __M1.MatchedType == OwnMerger {
+            let matchers: [Cuckoo.ParameterMatcher<(OwnMerger)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "merged(with p0: OwnMerger) -> Bool",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class OwnMergerStub: OwnMerger {
+    override func merged(with p0: OwnMerger) -> Bool {
+        typealias __CuckooDefault = Bool
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
 final class MockDisplaying<Value>: Displaying, nonisolated Cuckoo.ProtocolMock {
     typealias CuckooMocksType = __DefaultImplCaller
     typealias CuckooStubbing = __StubbingProxy_Displaying
