@@ -1,4 +1,5 @@
 import Cuckoo
+import Foundation
 
 // Shapes from the final review of the generator, one section per finding.
 
@@ -118,4 +119,15 @@ func useReviewReadWriting() {
     }
     mock.value = 1
     verify(mock).value.set(1)
+}
+
+// A class conforming to an error protocol is nonisolated with a default isolation, as Swift makes it.
+class ReviewFailure: Error, @unchecked Sendable {
+    init() {}
+    func describe() -> String { "" }
+}
+
+class ReviewLocalizedFailure: LocalizedError, @unchecked Sendable {
+    init() {}
+    func describe() -> String { "" }
 }

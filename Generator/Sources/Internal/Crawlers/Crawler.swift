@@ -218,7 +218,14 @@ final class Crawler: SyntaxVisitor {
             enclosingCompilationConditions: enclosingCompilationConditions,
             isolation: isolation(attributes: node.attributes, modifiers: node.modifiers)
         )
-        if token.isolation == nil, let defaultIsolation = defaultIsolationOfNestedType {
+        // Swift makes a class conforming to `Error` nonisolated, whatever the default isolation.
+        // Swift's own protocols, by their names: a type of the sources named `Error` isn't one.
+        let isError = token.inheritedTypes.contains { name in
+            Self.errorProtocols.contains(name) && (name.contains(".") || !context.nominalTypes.contains(name))
+        }
+        if token.isolation == nil, isError, defaultIsolationOfNestedType != nil {
+            token.isolation = .nonisolated
+        } else if token.isolation == nil, let defaultIsolation = defaultIsolationOfNestedType {
             token.isolation = defaultIsolation
             token.isIsolationDefault = true
         }
@@ -542,6 +549,12 @@ final class Crawler: SyntaxVisitor {
             walk(member)
         }
     }
+
+    /// The error protocols, whose conforming classes Swift makes nonisolated under a default isolation.
+    static let errorProtocols: Set<String> = [
+        "Error", "Swift.Error", "LocalizedError", "Foundation.LocalizedError", "CustomNSError", "Foundation.CustomNSError",
+        "RecoverableError", "Foundation.RecoverableError",
+    ]
 
     /// Parents without requirements a mock would have to implement, which it can inherit without knowing them.
     static let parentsWithoutRequirements: Set<String> = [
