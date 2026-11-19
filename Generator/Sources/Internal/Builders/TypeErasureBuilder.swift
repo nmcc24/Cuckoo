@@ -109,7 +109,8 @@ enum TypeErasureBuilder {
             execution: String? = nil,
             hasTypedThrows: Bool = false,
             isRethrowing: Bool = false,
-            hasUnadaptableClosure: Bool = false
+            hasUnadaptableClosure: Bool = false,
+            crossesDefaultIsolation: Bool = false
         ) -> String? {
             if hasInout {
                 return "it takes an inout argument"
@@ -137,6 +138,9 @@ enum TypeErasureBuilder {
             }
             if hasUnadaptableClosure {
                 return "it takes a closure over an associated type that can't be passed on"
+            }
+            if crossesDefaultIsolation {
+                return "it's async and rethrows or throws a typed error, which the eraser can't pass across the default isolation"
             }
             return nil
         }
@@ -260,7 +264,11 @@ enum TypeErasureBuilder {
             execution: method.executionAttribute,
             // A generic member calls the opened default implementation directly, which can rethrow.
             isRethrowing: !method.hasGenericParams && method.signature.throwType?.isRethrowing == true,
-            hasUnadaptableClosure: method.signature.parameters.contains { $0.isUnadaptableClosure(named: method.erasedTypeNames) }
+            hasUnadaptableClosure: method.signature.parameters.contains { $0.isUnadaptableClosure(named: method.erasedTypeNames) },
+            // With a default isolation, forwarding a generic async rethrowing member, or an async member with a typed
+            // throw, sends its arguments across isolations, which Swift rejects.
+            crossesDefaultIsolation: GeneratorHelper.defaultIsolation != nil && method.isAsync
+                && (method.hasGenericParams && method.signature.throwType?.isRethrowing == true || method.signature.throwType?.isTyped == true)
         )
     }
 
