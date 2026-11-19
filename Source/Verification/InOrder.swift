@@ -59,7 +59,7 @@ struct InOrderStep {
     /// The mock's calls that match the verified member and arguments.
     let matching: [SequencedCall]
     let callMatcher: CallMatcher
-    let sourceLocation: SourceLocation
+    let sourceLocation: CuckooSourceLocation
     /// Marks the calls with these sequence numbers as verified, which the step took.
     let take: (Set<Int>) -> Void
 }
@@ -105,7 +105,7 @@ final class InOrder: Sendable {
     }
 
     /// Adds a check that must wait for the block's earlier `verify` calls, such as `verifyNoMoreInteractions`.
-    func addDeferred(at sourceLocation: SourceLocation, creatingTest: CreatingTest?, _ check: @escaping @Sendable () -> Void) {
+    func addDeferred(at sourceLocation: CuckooSourceLocation, creatingTest: CreatingTest?, _ check: @escaping @Sendable () -> Void) {
         let isChecked = state.withLock { state in
             guard !state.isChecked else {
                 return true
@@ -118,7 +118,7 @@ final class InOrder: Sendable {
         }
     }
 
-    private static func reportLate(_ check: String, at sourceLocation: SourceLocation, creatingTest: CreatingTest?) {
+    private static func reportLate(_ check: String, at sourceLocation: CuckooSourceLocation, creatingTest: CreatingTest?) {
         reportFailure(
             "\(check) ran after its inOrder block ended, so it wasn't checked. Wait for the task that runs it inside the block.",
             at: sourceLocation,
@@ -200,7 +200,7 @@ final class InOrder: Sendable {
 
     /// Reports the calls to the verified mocks that came between the first and the last verified call but weren't
     /// verified themselves.
-    func checkNothingInBetween(at sourceLocation: SourceLocation) {
+    func checkNothingInBetween(at sourceLocation: CuckooSourceLocation) {
         let (managers, verified) = state.withLock { ($0.managers, $0.verifiedSequences) }
         guard let first = verified.min(), let last = verified.max() else {
             return

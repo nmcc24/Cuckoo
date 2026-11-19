@@ -48,7 +48,7 @@ public func wrap<M: _SendableOptionalMatchable, IN>(
 
 /// Where a check was written, so a failure is reported there: the `#fileID`, `#filePath`, `#line` and `#column` of
 /// the call. XCTest gets the full `filePath`, which Xcode needs to show the failure on the line.
-public typealias SourceLocation = (fileID: String, filePath: StaticString, line: Int, column: Int)
+public typealias CuckooSourceLocation = (fileID: String, filePath: StaticString, line: Int, column: Int)
 
 /// Used by generated mocks to pass on a `sending` value that region isolation can't prove disconnected:
 /// - a `sending` argument, which the mock keeps for verification and also passes to the default

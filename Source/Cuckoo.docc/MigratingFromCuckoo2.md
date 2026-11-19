@@ -79,6 +79,8 @@ behaviour on top.
   `.cuckoo(defaultValues:)`, which tests running in parallel don't share.
 - The checks no longer take a `file:` argument: they take `filePath:`, which defaults to `#filePath`, the full path
   Xcode needs. It's a `StaticString`, so a helper that forwards it declares `filePath: StaticString = #filePath`.
+  `SourceLocation` is ``CuckooSourceLocation``, `(fileID:filePath:line:column:)`, so it doesn't clash with Swift
+  Testing's `SourceLocation` in a test that imports both.
 - `verify`'s result, `__DoNotUse<IN, OUT>`, is ``VerifiedCall``. Code that names the type, such as a helper that
   returns a verification, changes. `with(returnType:)` now counts only the calls that returned exactly that type, as
   a stub answers only those: a test that named a supertype or an existential there, such as

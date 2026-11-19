@@ -267,7 +267,7 @@ These are public because generated mocks use them. Tests don't need them directl
 - ``VerifyReadOnlyProperty``
 - ``VerifyOptionalProperty``
 - ``CuckooOptionalType``
-- ``SourceLocation``
+- ``CuckooSourceLocation``
 - ``wrap(matchable:mapping:)-(_,(IN)->M.OptionalMatchedType?)``
 - ``wrap(matchable:mapping:)-(_,(IN)->M.MatchedType)``
 - ``wrap(matchable:at:)-804pr``

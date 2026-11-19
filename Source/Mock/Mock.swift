@@ -33,7 +33,7 @@ public protocol Mock: HasGlobalActor {
     func cuckooStubbingProxy() -> CuckooStubbing
 
     /// Returns the proxy that checks this mock's calls against `callMatcher`, reporting failures at `sourceLocation`.
-    func cuckooVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> CuckooVerification
+    func cuckooVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: CuckooSourceLocation) -> CuckooVerification
 
     /// Makes every unstubbed member forward to `stub`, so the mock behaves like that implementation while still
     /// recording calls.
@@ -50,7 +50,7 @@ public extension Mock {
     }
     
     /// Returns the proxy that checks this mock's calls against `callMatcher`, reporting failures at `sourceLocation`.
-    func cuckooVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: SourceLocation) -> CuckooVerification {
+    func cuckooVerificationProxy(_ callMatcher: CallMatcher, sourceLocation: CuckooSourceLocation) -> CuckooVerification {
         CuckooVerification(manager: cuckooManager, callMatcher: callMatcher, sourceLocation: sourceLocation)
     }
 

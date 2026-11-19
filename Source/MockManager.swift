@@ -309,7 +309,7 @@ public final class MockManager: Sendable {
     /// Only the calls that returned `OUT` count, as only the stubs returning it answer them: a generic member called
     /// with another return type is another call. A verification proxy names the same `OUT` as the stubbing proxy,
     /// or `Any`, which counts every call, for a member whose return type names a generic parameter the proxy omits.
-    public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: SourceLocation) -> VerifiedCall<IN, OUT> {
+    public func verify<IN, OUT>(_ method: String, callMatcher: CallMatcher, parameterMatchers: [ParameterMatcher<IN>], sourceLocation: CuckooSourceLocation) -> VerifiedCall<IN, OUT> {
         let recordedCalls = state.withLock { $0.calls }
         // Each call to this member with the first argument its matcher rejected, or `nil` if the call matches. Like
         // stub matching, it stops at that argument. A captor's captures wait until the `verify` passes.
@@ -485,7 +485,7 @@ public final class MockManager: Sendable {
     /// - Parameters:
     ///   - globalActor: The actor the mock records its calls on, if any.
     ///   - caller: The caller's isolation. Off `globalActor`, the calls aren't read: a failure says why.
-    func verifyNoMoreInteractions(_ sourceLocation: SourceLocation, mockType: Any.Type, globalActor: (any Actor)?, caller: (any Actor)?) {
+    func verifyNoMoreInteractions(_ sourceLocation: CuckooSourceLocation, mockType: Any.Type, globalActor: (any Actor)?, caller: (any Actor)?) {
         if let globalActor, !Self.isRunning(on: globalActor, caller: caller) {
             reportFailure(
                 "verifyNoMoreInteractions(\(mockType)) must run on \(type(of: globalActor)), where the mock records its calls: "
@@ -505,7 +505,7 @@ public final class MockManager: Sendable {
         reportUnverifiedCalls(sourceLocation)
     }
 
-    private func reportUnverifiedCalls(_ sourceLocation: SourceLocation) {
+    private func reportUnverifiedCalls(_ sourceLocation: CuckooSourceLocation) {
         let unverified = state.withLock { state in
             state.calls.filter { state.unverifiedCallIDs.contains($0.id) }.map(\.call)
         }
@@ -527,7 +527,7 @@ public final class MockManager: Sendable {
     }
 
     /// Reports a failure at `sourceLocation`, or, for a mock's call, which has no location in the test, at the test.
-    private func fail(_ message: String, at sourceLocation: SourceLocation? = nil) {
+    private func fail(_ message: String, at sourceLocation: CuckooSourceLocation? = nil) {
         reportFailure(message, at: sourceLocation, creatingTest: creatingTest)
     }
 
