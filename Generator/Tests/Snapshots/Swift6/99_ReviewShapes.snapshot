@@ -2060,3 +2060,84 @@ final class ReviewPublicSubStub: ReviewPublicSub {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+final class MockReviewCounter: ReviewCounter, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewCounter
+    typealias CuckooStubbing = __StubbingProxy_ReviewCounter
+    typealias CuckooVerification = __VerificationProxy_ReviewCounter
+
+    // Not mocked, so calls run the real implementation:
+    // - 'hits' is nonisolated(unsafe), which an override can't restate.
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewCounter.self) ?? Cuckoo.MockManager(hasParent: true)
+    nonisolated static var cuckooGlobalActor: (any Actor)? {
+        MainActor.shared
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewCounter>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewCounter) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func count() -> Int {
+        return cuckooManager.call(
+            "count() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: @MainActor @Sendable (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.count(),
+            defaultCall: cuckooDefaultImplementation.value.count()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewCounter: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func count() -> Cuckoo.ClassStubFunction<(), Int, @MainActor @Sendable (()) -> Int, Cuckoo.StubSharing.Isolated> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockReviewCounter.self,
+                method: "count() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewCounter: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @MainActor
+        @discardableResult
+        func count() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "count() -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ReviewCounterStub: ReviewCounter {
+    override func count() -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
