@@ -85,6 +85,16 @@ extension Method.Signature {
     /// without an entry stands for any type.
     @TaskLocal static var placeholderTypes: [String: Set<String>] = [:]
 
+    /// Every order of `elements`, the given one first.
+    private static func permutations(of elements: [String]) -> [[String]] {
+        guard elements.count > 1 else { return [elements] }
+        return elements.indices.flatMap { index in
+            var rest = elements
+            let first = rest.remove(at: index)
+            return permutations(of: rest).map { [first] + $0 }
+        }
+    }
+
     /// A type as `canonicalForm` writes it, without spaces and without a standard type's `Swift.`.
     static func canonicalType(_ text: String) -> String {
         let declared = declaredTypes
@@ -153,16 +163,22 @@ extension Method.Signature {
         let separator: Character = "\u{1F}"
         var budget = PlaceholderMatcher.budget
         let allowed = Self.placeholderTypes
-        return PlaceholderMatcher.matches(
-            (mine.types + ordered(mine.constraints)).joined(separator: String(separator))[...],
-            PlaceholderMatcher.pattern(
-                (theirs.types + ordered(theirs.constraints)).joined(separator: String(separator)),
-                placeholders: placeholders
-            )[...],
-            bindings: [:],
-            allowed: allowed,
-            budget: &budget
+        let pattern = PlaceholderMatcher.pattern(
+            (theirs.types + ordered(theirs.constraints)).joined(separator: String(separator)),
+            placeholders: placeholders
         )
+        // A placeholder on a constraint's left side, as `Key == T.Element`, can sort it apart from the member's: a few
+        // constraints are tried in every order.
+        let orders = mine.constraints.count <= 4 ? Self.permutations(of: ordered(mine.constraints)) : [ordered(mine.constraints)]
+        return orders.contains { constraints in
+            PlaceholderMatcher.matches(
+                (mine.types + constraints).joined(separator: String(separator))[...],
+                pattern[...],
+                bindings: [:],
+                allowed: allowed,
+                budget: &budget
+            )
+        }
     }
 
 
@@ -269,8 +285,8 @@ private enum PlaceholderMatcher {
     /// and none of the member's generic parameters, which `canonicalForm` writes `__G0`.
     ///
     /// A placeholder with `allowed` types, `Self` or an associated type the class names with a typealias, stands for
-    /// its own name or one of them, as `Output` or `Int`, and with a member path, as `Output.Type`, for one of those
-    /// followed by the path. Any other placeholder stands for the same type wherever the requirement writes it.
+    /// its own name or one of them, as `Output` or `Int`, and as a metatype, `Output.Type`, for one of those followed by
+    /// `.Type`. Any other placeholder stands for the same type wherever the requirement writes it.
     static func matches(
         _ type: Substring,
         _ pattern: ArraySlice<Part>,
@@ -290,7 +306,9 @@ private enum PlaceholderMatcher {
                 matches(type, alternative[...] + rest, bindings: bindings, allowed: allowed, budget: &budget)
             }
         case .placeholder(let root, let path):
-            if let types = allowed[root] {
+            // A metatype, `Output.Type`, is the allowed type's; another member type, as `Output.Element`, is one the
+            // generator can't work out, so it's bound as an unnamed placeholder's is.
+            if let types = allowed[root], path.isEmpty || path == ".Type" || path == ".Protocol" {
                 let spellings = Set((types + [root]).map { $0 + path })
                 return wholeTypes(at: type).contains { candidate in
                     spellings.contains(String(candidate))

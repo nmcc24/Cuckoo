@@ -301,6 +301,7 @@ protocol Merging {
     func copy() -> Self
     var me: Self { get }
     subscript(other: Self) -> Int { get }
+    func kind(_ type: Self.Type) -> Int
 }
 
 extension Merging {
@@ -308,6 +309,7 @@ extension Merging {
     func copy() -> Self { self }
     var me: Self { self }
     subscript(other: Self) -> Int { 0 }
+    func kind(_ type: Self.Type) -> Int { 0 }
 }
 
 class Merger: Merging {
@@ -317,6 +319,25 @@ class Merger: Merging {
 class OwnMerger: Merging {
     init() {}
     func merged(with other: OwnMerger) -> Bool { true }
+}
+
+// A member type of an associated type the class names, as `Output.Element`, is one the class writes as it likes, and a
+// placeholder on a constraint's left side is matched whatever order the constraints sort in.
+protocol Indexing {
+    associatedtype Output: Collection
+    associatedtype Key
+    associatedtype Value
+    func first() -> Output.Element?
+    func pair<T: Sequence, U: Sequence>(_ keys: T, _ values: U) where Value == T.Element, Key == U.Element
+}
+
+class IntIndex: Indexing {
+    typealias Output = [Int]
+    typealias Key = String
+    typealias Value = Int
+    init() {}
+    func first() -> Int? { nil }
+    func pair<T: Sequence, U: Sequence>(_ keys: T, _ values: U) where Int == T.Element, String == U.Element {}
 }
 
 // With a default isolation, only the member Swift takes for the requirement's witness takes its actor.

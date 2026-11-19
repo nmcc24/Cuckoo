@@ -574,10 +574,12 @@ struct MemberShapeTests {
                 func merged(with other: Self) -> Bool
                 func copy() -> Self
                 func describe(_ value: Self.Type) -> String
+                func kind(_ type: Self.Type) -> Int
             }
             extension Merging {
                 func merged(with other: Self) -> Bool { false }
                 func copy() -> Self { self }
+                func kind(_ type: Self.Type) -> Int { 0 }
             }
             class OwnMerger: Merging {
                 init() {}
@@ -592,7 +594,38 @@ struct MemberShapeTests {
         #expect(classMock.contains("override func merged(with p0: OwnMerger) -> Bool {"))
         #expect(classMock.contains("override func describe(_ p0: OwnMerger.Type) -> String {"))
         #expect(classMock.contains("    // - 'copy()' names `Self` and is left to the protocol's default implementation, which calls run."))
+        #expect(classMock.contains("    // - 'kind(_:)' names `Self` and is left to the protocol's default implementation, which calls run."))
         #expect(!classMock.contains("func copy() -> Self {"))
+    }
+
+    /// A member type of an associated type the class names, as `Output.Element`, is one the class writes as it likes,
+    /// and a placeholder on a constraint's left side is matched whatever order the constraints sort in.
+    @Test
+    func memberPathsAndConstraintOrderAreMatched() async throws {
+        let source = """
+            protocol Indexing {
+                associatedtype Output: Collection
+                associatedtype Key
+                associatedtype Value
+                func first() -> Output.Element?
+                func pair<T: Sequence, U: Sequence>(_ keys: T, _ values: U) where Value == T.Element, Key == U.Element
+            }
+            class IntIndex: Indexing {
+                typealias Output = [Int]
+                typealias Key = String
+                typealias Value = Int
+                init() {}
+                func first() -> Int? { nil }
+                func pair<T: Sequence, U: Sequence>(_ keys: T, _ values: U) where Int == T.Element, String == U.Element {}
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockIntIndex:")).lowerBound
+        let end = try #require(output.firstRange(of: "class IntIndexStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(classMock.contains("override func first() -> Int? {"))
+        #expect(!classMock.contains("-> Output.Element? {"))
+        #expect(!classMock.contains("where Value == T.Element, Key == U.Element {"))
     }
 
     /// With a default isolation, a `nonisolated` class's member takes its requirement's actor only when it's the
