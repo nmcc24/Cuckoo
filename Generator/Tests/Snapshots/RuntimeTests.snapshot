@@ -132,6 +132,15 @@ import Combine
 #if (canImport(ObjectiveC))
 @testable public import class CuckooTestSources.ObjcExtensionRinger
 #endif
+#if (canImport(ObjectiveC))
+@testable public import protocol CuckooTestSources.ObjcExtensionChiming
+#endif
+#if (canImport(ObjectiveC))
+@testable public import class CuckooTestSources.ObjcExtensionChimeBase
+#endif
+#if (canImport(ObjectiveC))
+@testable public import class CuckooTestSources.ObjcExtensionChimer
+#endif
 @testable public import class CuckooTestSources.OpenClass
 @testable public import protocol CuckooTestSources.Amount
 @testable public import protocol CuckooTestSources.AliasedLookup
@@ -26606,6 +26615,239 @@ final class ObjcExtensionRingerStub: ObjcExtensionRinger {
     }
 
     override func fetch() -> String {
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+#endif
+
+#if (canImport(ObjectiveC))
+nonisolated final class MockObjcExtensionChiming: ObjcExtensionChiming, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any ObjcExtensionChiming
+    typealias CuckooStubbing = __StubbingProxy_ObjcExtensionChiming
+    typealias CuckooVerification = __VerificationProxy_ObjcExtensionChiming
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockObjcExtensionChiming.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ObjcExtensionChiming>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ObjcExtensionChiming) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func chime() -> String {
+        return cuckooManager.call(
+            "chime() -> String",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.chime()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ObjcExtensionChiming: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func chime() -> Cuckoo.ProtocolStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockObjcExtensionChiming.self,
+                method: "chime() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ObjcExtensionChiming: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func chime() -> Cuckoo.VerifiedCall<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "chime() -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ObjcExtensionChimingStub: ObjcExtensionChiming {
+    func chime() -> String {
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+#endif
+
+#if (canImport(ObjectiveC))
+final class MockObjcExtensionChimeBase: ObjcExtensionChimeBase, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ObjcExtensionChimeBase
+    typealias CuckooStubbing = __StubbingProxy_ObjcExtensionChimeBase
+    typealias CuckooVerification = __VerificationProxy_ObjcExtensionChimeBase
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockObjcExtensionChimeBase.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ObjcExtensionChimeBase>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ObjcExtensionChimeBase) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func chime() -> String {
+        return cuckooManager.call(
+            "chime() -> String",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.chime(),
+            defaultCall: cuckooDefaultImplementation.value.chime()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ObjcExtensionChimeBase: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func chime() -> Cuckoo.ClassStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockObjcExtensionChimeBase.self,
+                method: "chime() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ObjcExtensionChimeBase: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func chime() -> Cuckoo.VerifiedCall<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "chime() -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ObjcExtensionChimeBaseStub: ObjcExtensionChimeBase {
+    override func chime() -> String {
+        typealias __CuckooDefault = String
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+#endif
+
+#if (canImport(ObjectiveC))
+final class MockObjcExtensionChimer: ObjcExtensionChimer, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ObjcExtensionChimer
+    typealias CuckooStubbing = __StubbingProxy_ObjcExtensionChimer
+    typealias CuckooVerification = __VerificationProxy_ObjcExtensionChimer
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockObjcExtensionChimer.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ObjcExtensionChimer>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ObjcExtensionChimer) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func chime() -> String {
+        return cuckooManager.call(
+            "chime() -> String",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> String, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.chime(),
+            defaultCall: cuckooDefaultImplementation.value.chime()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ObjcExtensionChimer: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func chime() -> Cuckoo.ClassStubFunction<(), String, (()) -> String, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockObjcExtensionChimer.self,
+                method: "chime() -> String",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ObjcExtensionChimer: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func chime() -> Cuckoo.VerifiedCall<(), String> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "chime() -> String",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ObjcExtensionChimerStub: ObjcExtensionChimer {
+    override func chime() -> String {
         typealias __CuckooDefault = String
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }

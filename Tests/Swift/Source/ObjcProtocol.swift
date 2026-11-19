@@ -71,3 +71,18 @@ protocol ObjcExtensionRinging {
 
 class ObjcExtensionRinger: ObjcExtensionRingerBase, ObjcExtensionRinging {}
 #endif
+
+#if canImport(ObjectiveC)
+/// A conformance an `@objc extension` declares, which a subclass inherits.
+protocol ObjcExtensionChiming {
+    func chime() -> String
+}
+
+class ObjcExtensionChimeBase: NSObject {}
+
+@objc extension ObjcExtensionChimeBase: ObjcExtensionChiming {
+    func chime() -> String { "base" }
+}
+
+class ObjcExtensionChimer: ObjcExtensionChimeBase {}
+#endif

@@ -43,6 +43,8 @@ struct TypeNames: Sendable {
     private var extensionMembers: [String: [any Token]] = [:]
     /// See `NamespaceDeclaration.overridableExtensionMembers`.
     private var overridableExtensionMembers: [String: [any Token]] = [:]
+    /// See `NamespaceDeclaration.extensionConformances`.
+    private var extensionConformances: [String: [String]] = [:]
 
     /// The names, with the classes and protocols of `files`, flattened so nested ones are listed, indexed for
     /// ``declaration(named:)`` and ``resolve(_:from:)``.
@@ -70,6 +72,7 @@ struct TypeNames: Sendable {
         }
         for case let namespace as NamespaceDeclaration in files.flatMap(\.tokens) {
             extensionMembers[canonical(namespace.fullyQualifiedName), default: []] += namespace.extensionMembers
+            extensionConformances[canonical(namespace.fullyQualifiedName), default: []] += namespace.extensionConformances
             // A member keeps the isolation its extension states, which the class it moves to doesn't have.
             overridableExtensionMembers[canonical(namespace.fullyQualifiedName), default: []] += namespace.overridableExtensionMembers.map { member in
                 namespace.memberIsolation.map { member.withDefaultIsolation($0) } ?? member
@@ -80,6 +83,11 @@ struct TypeNames: Sendable {
     /// The members the sources' extensions declare for the type with the qualified name.
     func extensionMembers(of qualifiedName: String) -> [any Token] {
         extensionMembers[canonical(qualifiedName)] ?? []
+    }
+
+    /// The protocols the sources' extensions of the type with the qualified name make it conform to.
+    func extensionConformances(of qualifiedName: String) -> [String] {
+        extensionConformances[canonical(qualifiedName)] ?? []
     }
 
     /// The `@objc` members the extensions of a class and of its superclasses in the sources declare,
@@ -195,10 +203,17 @@ extension Token {
 
         // A protocol bound to a class doesn't take the class's members: the mock subclasses the class instead.
         // A protocol's parent can be written with its primary associated types, as `Parent<String>`.
-        let inheritedRepresentations = token.inheritedTypes
-            .compactMap { names.resolve(token.isProtocol ? $0.withoutGenericArguments : $0, from: token.fullyQualifiedName) }
-            .filter { !(token.isProtocol && $0.isClass) }
-            .map { $0.mergingInheritance(with: files, names: names, defaultIsolation: defaultIsolation, merging: merging) }
+        // A class also adopts the protocols its `@objc` extensions declare, as `@objc extension Base: Ringing`; a
+        // subclass inherits them through its merged superclass.
+        let representations = { (types: [String]) in
+            types
+                .compactMap { names.resolve(token.isProtocol ? $0.withoutGenericArguments : $0, from: token.fullyQualifiedName) }
+                .filter { !(token.isProtocol && $0.isClass) }
+                .map { $0.mergingInheritance(with: files, names: names, defaultIsolation: defaultIsolation, merging: merging) }
+        }
+        let statedRepresentations = representations(token.inheritedTypes)
+        let inheritedRepresentations = statedRepresentations
+            + representations(token.isClass ? names.extensionConformances(of: token.fullyQualifiedName) : [])
 
         let hidingMembers = (token as? ClassDeclaration).map { names.hidingMembers(of: $0) } ?? []
         // A requirement an `@objc` extension member implements is that member, which the class's mock overrides.
@@ -279,9 +294,10 @@ extension Token {
             // With a default isolation, Swift gives a member of a `nonisolated` class the global actor of the
             // requirement it implements, for a protocol the class itself states: `show()` of a default-isolated
             // `Showing` is on the main actor in `class Child: Plain, Showing`, whatever `Plain` makes of the class.
-            // A member that states its isolation keeps it, and so does one of a `nonisolated` requirement.
+            // A member that states its isolation keeps it, and so does one of a `nonisolated` requirement. Swift
+            // infers nothing for a protocol an extension states.
             if defaultIsolation != nil, merged.isolation == .nonisolated {
-                let requirements = inheritedRepresentations
+                let requirements = statedRepresentations
                     .compactMap { $0 as? ProtocolDeclaration }
                     .flatMap { parent in
                         parent.members.compactMap { member -> (requirement: any Inheritable, isolation: Isolation)? in
