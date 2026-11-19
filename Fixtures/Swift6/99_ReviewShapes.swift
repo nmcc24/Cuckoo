@@ -28,3 +28,21 @@ func useReviewCatalog() {
     _ = mock.all()
     verify(mock).all()
 }
+
+// A `rethrows` requirement of a protocol with associated types, and a generic one whose closure takes an `inout`
+// associated type: the type eraser can't forward either to a default implementation, so they record a failure
+// saying to stub them instead. They're still mocked.
+protocol ReviewVisiting {
+    associatedtype Element
+    func each(_ body: (Element) throws -> Void) rethrows
+    func update<R>(_ body: (inout Element) throws -> R) rethrows -> R
+}
+
+func useReviewVisiting() {
+    let mock = MockReviewVisiting<Int>()
+    stub(mock) { stub in
+        when(stub.each(any())).thenDoNothing()
+    }
+    mock.each { _ in }
+    verify(mock).each(any())
+}

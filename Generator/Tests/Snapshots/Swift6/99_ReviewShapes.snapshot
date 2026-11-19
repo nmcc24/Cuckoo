@@ -221,3 +221,154 @@ final class ReviewStoreStub: ReviewStore {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+nonisolated final class MockReviewVisiting<Element>: ReviewVisiting, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = __DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_ReviewVisiting
+    typealias CuckooVerification = __VerificationProxy_ReviewVisiting
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewVisiting.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class __DefaultImplCaller: ReviewVisiting, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooReference: @Sendable () -> any ReviewVisiting
+
+        init<_CUCKOO$$GENERIC: ReviewVisiting & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            cuckooReference = {
+                box.value
+            }
+            cuckooManager = manager
+        }
+
+        func each(_ p0: (Element) throws -> Void) rethrows {
+            return cuckooManager.unforwardableDefaultImplementationCall("each(_ p0: (Element) throws -> Void) rethrows", reason: "it rethrows, which a stored closure can't")
+        }
+
+        func update<R> (_ p0: (inout Element) throws -> R) rethrows -> R {
+            return cuckooManager.unforwardableDefaultImplementationCall("update<R> (_ p0: (inout Element) throws -> R) rethrows -> R", reason: "it takes a closure over an associated type that can't be passed on")
+        }
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ReviewVisiting & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Element == Element, Element: SendableMetatype {
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func each(_ p0: (Element) throws -> Void) rethrows {
+        return try withoutActuallyEscaping(p0, do: { (p0: @escaping (Element) throws -> Void) in
+            return try cuckooManager.callRethrows(
+                "each(_ p0: (Element) throws -> Void) rethrows",
+                parameters: (p0),
+                escapingParameters: (({ _ in
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
+                                    } as (Element) throws -> Void)),
+                invoke: { (implementation: ((@escaping (Element) throws -> Void)) throws -> Void, arguments) in
+                                try implementation(arguments)
+                            },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.each(p0)
+            )
+        })
+    }
+
+    func update<R> (_ p0: (inout Element) throws -> R) rethrows -> R {
+        return try withoutActuallyEscaping(p0, do: { (p0: @escaping (inout Element) throws -> R) -> R in
+            return try cuckooManager.callRethrows(
+                "update<R> (_ p0: (inout Element) throws -> R) rethrows -> R",
+                parameters: (p0),
+                escapingParameters: (({ _ in
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
+                                    } as (inout Element) throws -> R)),
+                invoke: { (implementation: ((@escaping (inout Element) throws -> R)) throws -> R, arguments) in
+                                try implementation(arguments)
+                            },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: cuckooDefaultImplementation.value.update(p0)
+            )
+        })
+    }
+
+    nonisolated struct __StubbingProxy_ReviewVisiting: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func each<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnThrowingFunction<((Element) throws -> Void), any Swift.Error, ((@escaping (Element) throws -> Void)) throws -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (Element) throws -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((Element) throws -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockReviewVisiting.self,
+                method: "each(_ p0: (Element) throws -> Void) rethrows",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func update<__M1: Cuckoo._Matchable, R>(_ p0: __M1) -> Cuckoo.ProtocolStubThrowingFunction<((inout Element) throws -> R), R, any Swift.Error, ((@escaping (inout Element) throws -> R)) throws -> R, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (inout Element) throws -> R {
+            let matchers: [Cuckoo.ParameterMatcher<((inout Element) throws -> R)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockReviewVisiting.self,
+                method: "update<R> (_ p0: (inout Element) throws -> R) rethrows -> R",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewVisiting: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func each<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<((Element) throws -> Void), Void> where __M1.MatchedType == (Element) throws -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<((Element) throws -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "each(_ p0: (Element) throws -> Void) rethrows",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func update<__M1: Cuckoo._Matchable, R>(_ p0: __M1) -> Cuckoo.VerifiedCall<((inout Element) throws -> R), R> where __M1.MatchedType == (inout Element) throws -> R {
+            let matchers: [Cuckoo.ParameterMatcher<((inout Element) throws -> R)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "update<R> (_ p0: (inout Element) throws -> R) rethrows -> R",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ReviewVisitingStub<Element>: ReviewVisiting {
+    func each(_ p0: (Element) throws -> Void) rethrows {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func update<R> (_ p0: (inout Element) throws -> R) rethrows -> R {
+        typealias __CuckooDefault = R
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
