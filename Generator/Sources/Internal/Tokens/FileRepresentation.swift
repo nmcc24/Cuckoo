@@ -454,7 +454,8 @@ extension Token {
     /// implementation, which it would have to write with the class's type, not `Self`.
     fileprivate var selfOnlyAProtocolCanName: String? {
         func mentionsSelf(_ type: String?) -> Bool {
-            type?.contains(/\bSelf\b(?!\.)/) ?? false
+            // `Self.Item` names an associated type, but `Self.Type` is `Self`'s metatype.
+            type?.contains(/\bSelf\b(?!\.(?!Type\b|Protocol\b))/.wordBoundaryKind(.simple)) ?? false
         }
         let name: String
         switch self {

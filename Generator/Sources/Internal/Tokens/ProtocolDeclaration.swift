@@ -42,8 +42,8 @@ struct ProtocolDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     /// the mock and stub sit in an extension of that type, which doesn't see them. See `Generator.outerScopeTypealiases`.
     var outerScopeTypealiases: [OuterScopeTypealias] = []
     /// The protocol's typealiases, its parents' included, of types that name a non-primary associated type, as
-    /// `typealias Items = [Item]`, by the names the mock has for them. The members' `parent` has no members, so
-    /// it carries these for ``erasedTypeNames``.
+    /// `typealias Items = [Item]`, by the names the mock has for them. The members' `parent` keeps only the
+    /// typealiases as written, so it carries these for ``erasedTypeNames``.
     var associatedTypeTypealiases: [String] = []
 
     /// The global actor the protocol is isolated to, if any.
