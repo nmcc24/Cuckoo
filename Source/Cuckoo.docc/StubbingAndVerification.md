@@ -38,11 +38,22 @@ accepts it in the protocol but not in the generic mock, which already declares `
 parameter.
 
 A class's mock overrides what a subclass can: not the class's `static` or `final` members, nor those an extension
-declares, which keep the real implementation, also where they implement a protocol's requirement. An `@objc`
-member an extension declares is overridden, as every member of an `@objc extension` is, since the Objective-C
-runtime dispatches them. An `@objcMembers` class's extension members are `@objc` only when Objective-C can
-represent their types, which the generator can't tell from the sources, so they're kept too: write `@objc` on one
-to mock it.
+declares, which keep the real implementation, also where they implement a protocol's requirement. An `@objc` member an
+extension declares, every member of an `@objc extension` included, is overridden where it implements a protocol's
+requirement, since the Objective-C runtime dispatches it; otherwise it keeps the real implementation too. An
+`@objcMembers` class's extension members are `@objc` only when Objective-C can represent their types, which the
+generator can't tell from the sources, so they're kept too: write `@objc` on one to mock it.
+
+A stored property without a type annotation is mocked only when its initializer settles its type from the text
+alone: a literal, as `0` or `["a"]`, a cast, as `0 as Float`, or a call of a standard-library type, as `String(3)` or
+`Set<Int>()`. Any other type's call, as `Retries(3)`, may be a failable initializer, a factory or an enum case, so
+such a property needs a type annotation to be mocked; the generator warns for each one it skips. So does a generic
+type without its arguments, as `Task { … }` or `var items: Array = [1]`.
+
+Two overloads whose matchers take the same types can't both be mocked, as `f(_: [Int])` and `f(_: Int...)`, or
+`f(_: Int)` and `f(_: inout Int)`: their stubbing members would be the same, so the mock doesn't compile. Rename
+one. A member with a `Never` parameter puts a "will never be executed" warning in its mock, which generated code
+can't silence.
 
 A requirement naming `Self`, as `func merged(with other: Self) -> Bool`, that the class leaves to the protocol's default
 implementation isn't mocked either: the mock would have to write it with the class's type, and calls through the
@@ -234,11 +245,12 @@ mock's first call, or the test stops: a mock that has already answered calls can
 whose initializer calls its own members has made calls by then, so enable the spy with
 ``createMock(_:configuration:)``'s ``MockBuilder/enableSuperclassSpy()``, which applies before the initializer runs.
 
-Each generated mock `MockGreeter` comes with `GreeterStub`, a type with no stubbing or verification whose members
-return default values and do nothing else. `MockGreeter().withEnabledDefaultImplementation(GreeterStub())` makes
-every unstubbed call of a mock answer quietly, except members a mock can't forward to another implementation:
-those with a variadic or `~Copyable` parameter, or that take or return `Self`. Calling one unstubbed stops the
-test, so stub those.
+Each generated mock `MockGreeter` comes with `GreeterStub`, a type with no stubbing or verification whose members return
+default values and do nothing else. `MockGreeter().withEnabledDefaultImplementation(GreeterStub())` makes every
+unstubbed call of a mock answer quietly, except members a mock can't forward to another implementation: those with a
+variadic or `~Copyable` parameter, or that take or return `Self`; in a protocol with associated types, a `rethrows`
+member and one whose closure takes an `inout` associated type; and, with a default isolation, such a protocol's async
+member that rethrows or throws a typed error. Calling one unstubbed stops the test, so stub those.
 
 ### Static members
 
