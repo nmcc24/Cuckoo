@@ -300,11 +300,23 @@ final class Generator {
                     file.file.path == firstPath && sharedImports?.isEmpty == false ? sharedImports : nil,
                     FileHeaderHandler.header(for: file, relativeTo: module.projectDirectory, timestamp: timestamp),
                     sharedImports == nil ? prepared.imports(for: [file]) : nil,
-                    try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming, defaults: prepared.defaults, defaultIsolation: module.options.defaultIsolation),
+                    try mocks(of: file, module: module, defaults: prepared.defaults),
                 ]
                 .compactMap { $0 }
                 .joinedByBlankLines()
             )
+        }
+    }
+
+    /// The mocks of `file`'s types. A source file that isn't valid Swift, as one in the middle of an edit, can give
+    /// mocks that don't parse either: then it's left out with a warning, and the module's other files are mocked.
+    private static func mocks(of file: FileRepresentation, module: Module, defaults: GeneratedDefaults) throws -> String? {
+        do {
+            return try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming, defaults: defaults, defaultIsolation: module.options.defaultIsolation)
+        } catch {
+            guard let source = try? file.file.read(), Parser.parse(source: source).hasError else { throw error }
+            printToStandardError("\(file.file.path): warning: cuckoo: This file isn't valid Swift, so its types aren't mocked. The compiler reports what to fix.\n")
+            return nil
         }
     }
 
