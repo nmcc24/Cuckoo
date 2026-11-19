@@ -20,33 +20,7 @@ public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub, TypedStub {
     private let actions = Locked<[StubAction<OUT, ERROR, IMPL>]>([])
 
     var types: String {
-        ConcreteStub.types(in: IN.self, out: OUT.self)
-    }
-
-    /// Arguments `IN` and result `OUT` as failure messages show them, such as `(String) -> Int`.
-    static func types(in _: IN.Type, out _: OUT.Type) -> String {
-        let arguments = "\(IN.self)"
-        return (isParenthesized(arguments) ? arguments : "(\(arguments))") + " -> \(OUT.self)"
-    }
-
-    /// Whether `type` is one pair of parentheses, as a tuple or `()` is, rather than a type that starts with one,
-    /// such as `(String) -> Int`.
-    private static func isParenthesized(_ type: String) -> Bool {
-        guard type.first == "(" else {
-            return false
-        }
-        var depth = 0
-        for (offset, character) in type.enumerated() {
-            if character == "(" {
-                depth += 1
-            } else if character == ")" {
-                depth -= 1
-                if depth == 0 {
-                    return offset == type.count - 1
-                }
-            }
-        }
-        return false
+        describeTypes(arguments: IN.self, result: OUT.self)
     }
 
     init(method: String, parameterMatchers: [ParameterMatcher<IN>]) {
@@ -81,3 +55,29 @@ public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub, TypedStub {
 
 /// A stub of a class mock's member, which can also call the real implementation.
 public final class ClassConcreteStub<IN, OUT, ERROR: Error, IMPL>: ConcreteStub<IN, OUT, ERROR, IMPL> { }
+
+/// A member's argument and result types as failure messages show them, such as `(String) -> Int`.
+func describeTypes(arguments: Any.Type, result: Any.Type) -> String {
+    let arguments = "\(arguments)"
+    return (isParenthesized(arguments) ? arguments : "(\(arguments))") + " -> \(result)"
+}
+
+/// Whether `type` is one pair of parentheses, as a tuple or `()` is, rather than a type that starts with one,
+/// such as `(String) -> Int`.
+private func isParenthesized(_ type: String) -> Bool {
+    guard type.first == "(" else {
+        return false
+    }
+    var depth = 0
+    for (offset, character) in type.enumerated() {
+        if character == "(" {
+            depth += 1
+        } else if character == ")" {
+            depth -= 1
+            if depth == 0 {
+                return offset == type.count - 1
+            }
+        }
+    }
+    return false
+}

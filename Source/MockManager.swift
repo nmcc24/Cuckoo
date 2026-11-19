@@ -119,7 +119,7 @@ public final class MockManager: Sendable {
             return .unstubbed(failure: "The stub that matches \(call.memberAndArguments) has no answer. Give it one, such as thenReturn(_:), after when(_:).")
         } else {
             // A generic member's stubs made with other type arguments can't answer this call.
-            let callTypes = ConcreteStub<IN, OUT, ERROR, IMPL>.types(in: IN.self, out: OUT.self)
+            let callTypes = describeTypes(arguments: IN.self, result: OUT.self)
             let otherTypes = sameMember.compactMap { ($0 as? any TypedStub)?.types }.filter { $0 != callTypes }
             return .unstubbed(
                 failure: "No stub for \(call.memberAndArguments).\n"
@@ -342,10 +342,13 @@ public final class MockManager: Sendable {
         guard callMatcher.matches(calls) else {
             // The calls stay unverified, so `verifyNoMoreInteractions` still reports them.
             let message = "Wanted \(callMatcher.name) but \(calls.isEmpty ? "not invoked" : "invoked \(timesDescription(calls.count))")."
-            let otherReturnTypes = callsToMember.isEmpty
-                ? recordedCalls.filter { $0.call.method == method }.map { "\($0.returnType)" }
+            // A generic member's calls with other argument or return types, which this `verify` doesn't count.
+            let otherTypes = callsToMember.isEmpty
+                ? recordedCalls.filter { $0.call.method == method }.map { recorded in
+                    describeTypes(arguments: (recorded.call as? any TypedCall)?.argumentsType ?? Any.self, result: recorded.returnType)
+                }
                 : []
-            let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, otherReturnTypes: otherReturnTypes, among: recordedCalls)
+            let described = describeCalls(of: method, callsToMember: callsToMember.map { ($0.recorded, $0.mismatch) }, otherTypes: otherTypes, among: recordedCalls)
             reportFailure(message + "\n" + described, at: sourceLocation, creatingTest: creatingTest)
             return VerifiedCall()
         }
@@ -357,19 +360,19 @@ public final class MockManager: Sendable {
     }
 
     /// What a failed `verify` of `method` saw: its calls and the argument each one that didn't match got wrong, or
-    /// else the return types it was called with instead, or else every call the mock received.
-    private func describeCalls(of method: String, callsToMember: [(recorded: RecordedCall, mismatch: Int?)], otherReturnTypes: [String], among recordedCalls: [RecordedCall]) -> String {
+    /// else the argument and return types it was called with instead, or else every call the mock received.
+    private func describeCalls(of method: String, callsToMember: [(recorded: RecordedCall, mismatch: Int?)], otherTypes: [String], among recordedCalls: [RecordedCall]) -> String {
         let member = MemberSignature(method)
         guard !callsToMember.isEmpty else {
             guard !recordedCalls.isEmpty else {
                 return "The mock received no calls."
             }
-            if !otherReturnTypes.isEmpty {
+            if !otherTypes.isEmpty {
                 var unique: [String] = []
-                for type in otherReturnTypes where !unique.contains(type) {
+                for type in otherTypes where !unique.contains(type) {
                     unique.append(type)
                 }
-                return "\(member.name) was called only with other return types, which this `verify` doesn't count:\n"
+                return "\(member.name) was called only with other types, which this `verify` doesn't count:\n"
                     + numberedList(unique)
             }
             return "\(member.name) wasn't called. The mock received:\n" + numberedList(recordedCalls.map(\.call.readableDescription))

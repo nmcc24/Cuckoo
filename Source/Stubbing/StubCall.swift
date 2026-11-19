@@ -31,3 +31,14 @@ public struct ConcreteStubCall<IN>: StubCall {
         self.parameters = parameters
     }
 }
+
+/// A recorded call that knows its arguments' type, which tells a generic member's calls apart.
+protocol TypedCall {
+    var argumentsType: Any.Type { get }
+}
+
+extension ConcreteStubCall: TypedCall {
+    var argumentsType: Any.Type {
+        IN.self
+    }
+}
