@@ -2726,3 +2726,174 @@ final class ReviewLabelsStub: ReviewLabels {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+nonisolated final class MockReviewLoading<Value>: ReviewLoading, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = __DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_ReviewLoading
+    typealias CuckooVerification = __VerificationProxy_ReviewLoading
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewLoading.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class __DefaultImplCaller: ReviewLoading, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooReference: @Sendable () -> any ReviewLoading
+
+        init<_CUCKOO$$GENERIC: ReviewLoading & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Value == Value, Value: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            cuckooReference = {
+                box.value
+            }
+            cuckooManager = manager
+
+            _storage$1$load = {
+                try await box.value.load()
+            }
+        }
+
+        private let _storage$1$load: @Sendable () async throws -> Value
+        func load() async throws(ReviewLoadError) -> Value {
+            do {
+                return try await _storage$1$load()
+            } catch {
+                throw Cuckoo.MockManager.typedError(error, as: (ReviewLoadError).self, member: "load() async throws(ReviewLoadError) -> Value")
+            }
+        }
+
+        func mapped<U> (_ p0: (Value) async throws -> U) async rethrows -> [U] {
+            #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
+            nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: ReviewLoading>(_ opened: _CUCKOO$$GENERIC) async throws -> [U] {
+                return try await opened.mapped({ (__a0: _CUCKOO$$GENERIC.Value) async throws in
+                        try await p0(__a0 as! Value)
+                    })
+            }
+            #else
+            func openExistential<_CUCKOO$$GENERIC: ReviewLoading>(_ opened: _CUCKOO$$GENERIC) async throws -> [U] {
+                return try await opened.mapped({ (__a0: _CUCKOO$$GENERIC.Value) async throws in
+                        try await p0(__a0 as! Value)
+                    })
+            }
+            #endif
+            return try await openExistential(cuckooReference())
+        }
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ReviewLoading & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Value == Value, Value: SendableMetatype {
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func load() async throws(ReviewLoadError) -> Value {
+        return try await cuckooManager.callThrows(
+            "load() async throws(ReviewLoadError) -> Value",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (ReviewLoadError).self,
+            invoke: { (implementation: nonisolated(nonsending) (()) async throws -> Value, arguments) async throws(ReviewLoadError) in
+                do {
+                    return try await implementation(arguments)
+                } catch {
+                    throw Cuckoo.MockManager.typedError(error, as: (ReviewLoadError).self, member: "load() async throws(ReviewLoadError) -> Value")
+                }
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: await cuckooDefaultImplementation.value.load()
+        )
+    }
+
+    func mapped<U> (_ p0: (Value) async throws -> U) async rethrows -> [U] {
+        nonisolated(nonsending) func __cuckoo_escaping_p0(_ p0: @escaping (Value) async throws -> U) async throws -> [U] {
+            return try await cuckooManager.callRethrows(
+                "mapped<U> (_ p0: (Value) async throws -> U) async rethrows -> [U]",
+                parameters: (p0),
+                escapingParameters: (({ _ in
+                            fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
+                        } as (Value) async throws -> U)),
+                invoke: { (implementation: nonisolated(nonsending) ((@escaping (Value) async throws -> U)) async throws -> [U], arguments) in
+                    try await implementation(arguments)
+                },
+                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+                defaultCall: await cuckooDefaultImplementation.value.mapped(p0)
+            )
+        }
+        return try await withoutActuallyEscaping(p0, do: __cuckoo_escaping_p0)
+    }
+
+    nonisolated struct __StubbingProxy_ReviewLoading: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func load() -> Cuckoo.ProtocolStubThrowingFunction<(), Value, ReviewLoadError, nonisolated(nonsending) (()) async throws -> Value, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockReviewLoading.self,
+                method: "load() async throws(ReviewLoadError) -> Value",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func mapped<__M1: Cuckoo._Matchable, U>(_ p0: __M1) -> Cuckoo.ProtocolStubThrowingFunction<((Value) async throws -> U), [U], any Swift.Error, nonisolated(nonsending) ((@escaping (Value) async throws -> U)) async throws -> [U], Cuckoo.StubSharing.Confined> where __M1.MatchedType == (Value) async throws -> U {
+            let matchers: [Cuckoo.ParameterMatcher<((Value) async throws -> U)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockReviewLoading.self,
+                method: "mapped<U> (_ p0: (Value) async throws -> U) async rethrows -> [U]",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewLoading: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func load() -> Cuckoo.VerifiedCall<(), Value> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "load() async throws(ReviewLoadError) -> Value",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func mapped<__M1: Cuckoo._Matchable, U>(_ p0: __M1) -> Cuckoo.VerifiedCall<((Value) async throws -> U), [U]> where __M1.MatchedType == (Value) async throws -> U {
+            let matchers: [Cuckoo.ParameterMatcher<((Value) async throws -> U)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "mapped<U> (_ p0: (Value) async throws -> U) async rethrows -> [U]",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ReviewLoadingStub<Value>: ReviewLoading {
+    func load() async throws(ReviewLoadError) -> Value {
+        typealias __CuckooDefault = Value
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func mapped<U> (_ p0: (Value) async throws -> U) async rethrows -> [U] {
+        typealias __CuckooDefault = [U]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}

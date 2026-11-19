@@ -219,3 +219,16 @@ class ReviewLabels {
     init() {}
     func labelled(`inout`: Int, `var` value: Int, `let` other: Int) {}
 }
+
+// With a default isolation, a generic async rethrowing member and an async member with a typed throw, of a protocol
+// with associated types, aren't forwarded to a default implementation: the eraser would send their arguments
+// across isolations. They're still mocked.
+enum ReviewLoadError: Error {
+    case missing
+}
+
+protocol ReviewLoading {
+    associatedtype Value
+    func load() async throws(ReviewLoadError) -> Value
+    func mapped<U>(_ transform: (Value) async throws -> U) async rethrows -> [U]
+}
