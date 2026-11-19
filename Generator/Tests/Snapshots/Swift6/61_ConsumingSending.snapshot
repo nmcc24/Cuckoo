@@ -10,7 +10,7 @@ final class MockUploader: Uploader, nonisolated Cuckoo.ClassMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockUploader.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Uploader>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Uploader>()
 
     nonisolated func enableDefaultImplementation(_ stub: Uploader) {
         cuckooDefaultImplementation.value = stub
@@ -40,7 +40,7 @@ final class MockUploader: Uploader, nonisolated Cuckoo.ClassMock {
         }
 
         func upload<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubFunction<(Payload), Int, nonisolated(nonsending) ((Payload)) async -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Payload {
-            let matchers: [Cuckoo.ParameterMatcher<(Payload)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Payload)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockUploader.self,
@@ -63,7 +63,7 @@ final class MockUploader: Uploader, nonisolated Cuckoo.ClassMock {
 
         @discardableResult
         func upload<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Payload), Int> where __M1.MatchedType == Payload {
-            let matchers: [Cuckoo.ParameterMatcher<(Payload)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Payload)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -92,7 +92,7 @@ nonisolated final class MockSink: Sink, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSink.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Sink>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Sink>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Sink) {
         cuckooDefaultImplementation.value = stub
@@ -122,7 +122,7 @@ nonisolated final class MockSink: Sink, nonisolated Cuckoo.ProtocolMock {
         }
 
         func put<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Payload), ((Payload)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Payload {
-            let matchers: [Cuckoo.ParameterMatcher<(Payload)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Payload)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockSink.self,
@@ -145,7 +145,7 @@ nonisolated final class MockSink: Sink, nonisolated Cuckoo.ProtocolMock {
 
         @discardableResult
         func put<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Payload), Void> where __M1.MatchedType == Payload {
-            let matchers: [Cuckoo.ParameterMatcher<(Payload)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Payload)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

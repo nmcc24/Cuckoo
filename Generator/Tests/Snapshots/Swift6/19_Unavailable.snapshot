@@ -12,7 +12,7 @@ nonisolated final class MockLegacy: Legacy, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLegacy.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Legacy>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Legacy>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Legacy) {
         cuckooDefaultImplementation.value = stub
@@ -310,7 +310,7 @@ final class MockLegacyService: LegacyService, nonisolated Cuckoo.ClassMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLegacyService.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<LegacyService>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<LegacyService>()
 
     nonisolated func enableDefaultImplementation(_ stub: LegacyService) {
         cuckooDefaultImplementation.value = stub
@@ -432,7 +432,7 @@ final class MockLegacyView: LegacyView, nonisolated Cuckoo.ClassMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLegacyView.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<LegacyView>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<LegacyView>()
 
     nonisolated func enableDefaultImplementation(_ stub: LegacyView) {
         cuckooDefaultImplementation.value = stub

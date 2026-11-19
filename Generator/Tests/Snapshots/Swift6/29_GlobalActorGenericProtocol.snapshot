@@ -39,7 +39,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         }
 
         init<_CUCKOO$$GENERIC: Inventory>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -74,7 +74,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation(_ stub: __DefaultImplCaller) {
         cuckooDefaultImplementation.value = stub
@@ -166,7 +166,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         }
 
         func item<__M1: Cuckoo._Matchable>(at p0: __M1) -> Cuckoo.ProtocolStubFunction<(Int), Item?, @MainActor @Sendable ((Int)) -> Item?, Cuckoo.StubSharing.Isolated> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockInventory.self,
@@ -208,7 +208,7 @@ final class MockInventory<Item: Sendable>: Inventory, nonisolated Cuckoo.Protoco
         @MainActor
         @discardableResult
         func item<__M1: Cuckoo._Matchable>(at p0: __M1) -> Cuckoo.VerifiedCall<(Int), Item?> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -278,7 +278,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         private let cuckooReference: () -> any Ledger<Entry>
 
         init<_CUCKOO$$GENERIC: Ledger>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Entry == Entry, _CUCKOO$$GENERIC.Key == Key {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -304,7 +304,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation(_ stub: __DefaultImplCaller) {
         cuckooDefaultImplementation.value = stub
@@ -350,7 +350,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         }
 
         func entry<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.ProtocolStubFunction<(Key), Entry?, @StorageActor @Sendable ((Key)) -> Entry?, Cuckoo.StubSharing.Isolated> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockLedger.self,
@@ -360,9 +360,9 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         }
 
         func record<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, for p1: __M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Entry, Key), @StorageActor @Sendable ((Entry, Key)) -> Void, Cuckoo.StubSharing.Isolated> where __M1.MatchedType == Entry, __M2.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return .init(stub: cuckooManager.createStub(for: MockLedger.self,
@@ -386,7 +386,7 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         @StorageActor
         @discardableResult
         func entry<__M1: Cuckoo._Matchable>(for p0: __M1) -> Cuckoo.VerifiedCall<(Key), Entry?> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -400,9 +400,9 @@ final class MockLedger<Entry, Key: Hashable>: Ledger, nonisolated Cuckoo.Protoco
         @StorageActor
         @discardableResult
         func record<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, for p1: __M2) -> Cuckoo.VerifiedCall<(Entry, Key), Void> where __M1.MatchedType == Entry, __M2.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Entry, Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return cuckooManager.verify(

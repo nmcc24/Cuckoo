@@ -24,7 +24,7 @@ nonisolated final class MockSpelled<Item>: Spelled, nonisolated Cuckoo.ProtocolM
         }
 
         init<_CUCKOO$$GENERIC: Spelled & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -53,7 +53,7 @@ nonisolated final class MockSpelled<Item>: Spelled, nonisolated Cuckoo.ProtocolM
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Spelled & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)

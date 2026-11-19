@@ -72,7 +72,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
 
         init<_CUCKOO$$GENERIC: ProbeStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -126,7 +126,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ProbeStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -311,7 +311,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
 
         func put<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<([Item]), (([Item])) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == [Item] {
-            let matchers: [Cuckoo.ParameterMatcher<([Item])>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<([Item])>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockProbeStore.self,
@@ -321,7 +321,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -343,7 +343,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return .init(stub: cuckooManager.createStub(for: MockProbeStore.self,
@@ -354,7 +354,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(key p0: __M1) -> __Subscript2<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -376,7 +376,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return .init(stub: cuckooManager.createStub(for: MockProbeStore.self,
@@ -408,7 +408,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
 
         @discardableResult
         func put<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<([Item]), Void> where __M1.MatchedType == [Item] {
-            let matchers: [Cuckoo.ParameterMatcher<([Item])>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<([Item])>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -420,7 +420,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -448,7 +448,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return cuckooManager.verify(
@@ -461,7 +461,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(key p0: __M1) -> __Subscript2<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -489,7 +489,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return cuckooManager.verify(
@@ -514,7 +514,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -536,7 +536,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return .init(stub: cuckooManager.createStub(for: MockProbeStore.self,
@@ -563,7 +563,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -591,7 +591,7 @@ nonisolated final class MockProbeStore<Item>: ProbeStore, nonisolated Cuckoo.Pro
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return cuckooManager.verify(

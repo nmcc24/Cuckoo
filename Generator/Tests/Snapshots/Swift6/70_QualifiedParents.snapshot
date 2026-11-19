@@ -12,7 +12,7 @@ nonisolated final class MockError: Error, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockError.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Error>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Error>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Error) {
         cuckooDefaultImplementation.value = stub
@@ -78,7 +78,7 @@ nonisolated final class MockThread: Thread, nonisolated Cuckoo.ClassMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockThread.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Thread>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Thread>()
 
     nonisolated func enableDefaultImplementation(_ stub: Thread) {
         cuckooDefaultImplementation.value = stub
@@ -157,7 +157,7 @@ extension Net {
 
         nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockError.self) ?? Cuckoo.MockManager(hasParent: false)
 
-        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Error>()
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Error>()
 
         nonisolated func enableDefaultImplementation(_ stub: any Error) {
             cuckooDefaultImplementation.value = stub
@@ -225,7 +225,7 @@ nonisolated final class MockFailure: Failure, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockFailure.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Failure>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Failure>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Failure) {
         cuckooDefaultImplementation.value = stub

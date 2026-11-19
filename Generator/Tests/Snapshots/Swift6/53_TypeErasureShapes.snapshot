@@ -92,7 +92,7 @@ nonisolated final class MockStaticResetting<Value>: StaticResetting, nonisolated
         private let cuckooReference: @Sendable () -> any StaticResetting
 
         init<_CUCKOO$$GENERIC: StaticResetting & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Value == Value, Value: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -114,7 +114,7 @@ nonisolated final class MockStaticResetting<Value>: StaticResetting, nonisolated
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: StaticResetting & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Value == Value, Value: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -279,7 +279,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
         }
 
         init<_CUCKOO$$GENERIC: KeyedItems & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -291,7 +291,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyedItems & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -348,7 +348,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(_ p0: __M1) -> __Subscript1<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -370,7 +370,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return .init(stub: cuckooManager.createStub(for: MockKeyedItems.self,
@@ -381,7 +381,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(lookup p0: __M1) -> __Subscript2<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -412,7 +412,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(_ p0: __M1) -> __Subscript1<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -440,7 +440,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return cuckooManager.verify(
@@ -453,7 +453,7 @@ nonisolated final class MockKeyedItems<Item>: KeyedItems, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(lookup p0: __M1) -> __Subscript2<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -525,7 +525,7 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
         }
 
         init<_CUCKOO$$GENERIC: ThrowingKeyedItems & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -534,7 +534,7 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ThrowingKeyedItems & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -565,7 +565,7 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(_ p0: __M1) -> __Subscript1<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -596,7 +596,7 @@ nonisolated final class MockThrowingKeyedItems<Item>: ThrowingKeyedItems, noniso
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(_ p0: __M1) -> __Subscript1<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -650,7 +650,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
         }
 
         init<_CUCKOO$$GENERIC: KeyedCounter & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -663,7 +663,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: KeyedCounter & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Key == Key, Key: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -706,7 +706,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
         }
 
         func count<__M1: Cuckoo._Matchable, Keys: Collection>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Keys), Int, ((Keys)) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Keys, Keys.Element == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockKeyedCounter.self,
@@ -716,7 +716,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
         }
 
         subscript <__M1: Cuckoo._Matchable, Keys: Collection>(keys p0: __M1) -> __Subscript1<Keys> where __M1.MatchedType == Keys, Keys.Element == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -748,7 +748,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
 
         @discardableResult
         func count<__M1: Cuckoo._Matchable, Keys: Collection>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Keys), Int> where __M1.MatchedType == Keys, Keys.Element == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -760,7 +760,7 @@ nonisolated final class MockKeyedCounter<Key>: KeyedCounter, nonisolated Cuckoo.
         }
 
         subscript <__M1: Cuckoo._Matchable, Keys: Collection>(keys p0: __M1) -> __Subscript1<Keys> where __M1.MatchedType == Keys, Keys.Element == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Keys)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)

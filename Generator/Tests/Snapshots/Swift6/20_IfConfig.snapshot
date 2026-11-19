@@ -15,7 +15,7 @@ nonisolated final class MockPlatformed: Platformed, nonisolated Cuckoo.ProtocolM
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockPlatformed.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Platformed>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Platformed>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Platformed) {
         cuckooDefaultImplementation.value = stub
@@ -313,7 +313,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
         #endif
 
         init<_CUCKOO$$GENERIC: PlatformedStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -348,7 +348,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: PlatformedStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -420,7 +420,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
         #endif
 
         func item<__M1: Cuckoo._Matchable>(at p0: __M1) -> Cuckoo.ProtocolStubFunction<(Int), Item, ((Int)) -> Item, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockPlatformedStore.self,
@@ -462,7 +462,7 @@ nonisolated final class MockPlatformedStore<Item>: PlatformedStore, nonisolated 
 
         @discardableResult
         func item<__M1: Cuckoo._Matchable>(at p0: __M1) -> Cuckoo.VerifiedCall<(Int), Item> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -505,7 +505,7 @@ final class MockPlatformedService: PlatformedService, nonisolated Cuckoo.ClassMo
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockPlatformedService.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<PlatformedService>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<PlatformedService>()
 
     nonisolated func enableDefaultImplementation(_ stub: PlatformedService) {
         cuckooDefaultImplementation.value = stub
@@ -717,7 +717,7 @@ nonisolated final class MockPublishing: Publishing, nonisolated Cuckoo.ProtocolM
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockPublishing.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Publishing>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Publishing>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Publishing) {
         cuckooDefaultImplementation.value = stub
@@ -794,7 +794,7 @@ final class MockDebugTools: DebugTools, nonisolated Cuckoo.ClassMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockDebugTools.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<DebugTools>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<DebugTools>()
 
     nonisolated func enableDefaultImplementation(_ stub: DebugTools) {
         cuckooDefaultImplementation.value = stub
@@ -872,7 +872,7 @@ extension DebugTools {
 
         nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLinuxProbe.self) ?? Cuckoo.MockManager(hasParent: true)
 
-        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<LinuxProbe>()
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<LinuxProbe>()
 
         nonisolated func enableDefaultImplementation(_ stub: LinuxProbe) {
             cuckooDefaultImplementation.value = stub

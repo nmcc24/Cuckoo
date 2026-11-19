@@ -24,7 +24,7 @@ nonisolated final class MockContainer<Item: Sequence>: Container, nonisolated Cu
         }
 
         init<_CUCKOO$$GENERIC: Container & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -85,7 +85,7 @@ nonisolated final class MockContainer<Item: Sequence>: Container, nonisolated Cu
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Container & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -222,7 +222,7 @@ nonisolated final class MockContainer<Item: Sequence>: Container, nonisolated Cu
         }
 
         func add<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Item), ((Item)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Item {
-            let matchers: [Cuckoo.ParameterMatcher<(Item)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Item)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockContainer.self,
@@ -232,7 +232,7 @@ nonisolated final class MockContainer<Item: Sequence>: Container, nonisolated Cu
         }
 
         func addAll<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<([Item]), (([Item])) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == [Item] {
-            let matchers: [Cuckoo.ParameterMatcher<([Item])>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<([Item])>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockContainer.self,
@@ -242,7 +242,7 @@ nonisolated final class MockContainer<Item: Sequence>: Container, nonisolated Cu
         }
 
         func matching<__M1: Cuckoo._Matchable, T: Collection>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(T), Bool, ((T)) -> Bool, Cuckoo.StubSharing.Confined> where __M1.MatchedType == T, T.Element == Item.Element {
-            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockContainer.self,
@@ -302,7 +302,7 @@ nonisolated final class MockContainer<Item: Sequence>: Container, nonisolated Cu
 
         @discardableResult
         func add<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Item), Void> where __M1.MatchedType == Item {
-            let matchers: [Cuckoo.ParameterMatcher<(Item)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Item)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -315,7 +315,7 @@ nonisolated final class MockContainer<Item: Sequence>: Container, nonisolated Cu
 
         @discardableResult
         func addAll<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<([Item]), Void> where __M1.MatchedType == [Item] {
-            let matchers: [Cuckoo.ParameterMatcher<([Item])>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<([Item])>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -328,7 +328,7 @@ nonisolated final class MockContainer<Item: Sequence>: Container, nonisolated Cu
 
         @discardableResult
         func matching<__M1: Cuckoo._Matchable, T: Collection>(_ p0: __M1) -> Cuckoo.VerifiedCall<(T), Bool> where __M1.MatchedType == T, T.Element == Item.Element {
-            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(T)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

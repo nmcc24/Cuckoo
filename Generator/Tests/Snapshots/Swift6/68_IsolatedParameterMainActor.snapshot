@@ -15,7 +15,7 @@ final class MockReporter: Reporter, nonisolated Cuckoo.ProtocolMock {
         MainActor.shared
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Reporter>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Reporter>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Reporter) {
         cuckooDefaultImplementation.value = stub
@@ -56,7 +56,7 @@ final class MockReporter: Reporter, nonisolated Cuckoo.ProtocolMock {
         }
 
         func make<__M1: Cuckoo._SendableOptionalMatchable>(isolation p0: __M1) -> Cuckoo.ProtocolStubFunction<((any Actor)?), Report, nonisolated(nonsending) @Sendable (((any Actor)?)) async -> Report, Cuckoo.StubSharing.Shared> where __M1.OptionalMatchedType == (any Actor) {
-            let matchers: [Cuckoo.SendableMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
+            let matchers: [Cuckoo.SendableMatcher<((any Actor)?)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
             return .init(stub: cuckooManager.createStub(for: MockReporter.self,
                 method: "make(isolation p0: isolated (any Actor)?) async -> Report",
                 parameterMatchers: matchers
@@ -85,7 +85,7 @@ final class MockReporter: Reporter, nonisolated Cuckoo.ProtocolMock {
 
         @discardableResult
         func make<__M1: Cuckoo._OptionalMatchable>(isolation p0: __M1) -> Cuckoo.VerifiedCall<((any Actor)?), Report> where __M1.OptionalMatchedType == (any Actor) {
-            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -169,7 +169,7 @@ actor MockReportingActor: ReportingActor, Cuckoo.ProtocolMock {
         }
 
         func make<__M1: Cuckoo._SendableOptionalMatchable>(isolation p0: __M1) -> Cuckoo.ProtocolStubFunction<((any Actor)?), Report, nonisolated(nonsending) @Sendable (((any Actor)?)) async -> Report, Cuckoo.StubSharing.Shared> where __M1.OptionalMatchedType == (any Actor) {
-            let matchers: [Cuckoo.SendableMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
+            let matchers: [Cuckoo.SendableMatcher<((any Actor)?)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
             return .init(stub: cuckooManager.createStub(for: MockReportingActor.self,
                 method: "make(isolation p0: isolated (any Actor)?) async -> Report",
                 parameterMatchers: matchers
@@ -177,7 +177,7 @@ actor MockReportingActor: ReportingActor, Cuckoo.ProtocolMock {
         }
 
         func count<__M1: Cuckoo._SendableOptionalMatchable>(isolation p0: __M1) -> Cuckoo.ProtocolStubFunction<((any Actor)?), Int, nonisolated(nonsending) @Sendable (((any Actor)?)) async -> Int, Cuckoo.StubSharing.Shared> where __M1.OptionalMatchedType == (any Actor) {
-            let matchers: [Cuckoo.SendableMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
+            let matchers: [Cuckoo.SendableMatcher<((any Actor)?)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
             return .init(stub: cuckooManager.createStub(for: MockReportingActor.self,
                 method: "count(isolation p0: isolated (any Actor)?) async -> Int",
                 parameterMatchers: matchers
@@ -198,7 +198,7 @@ actor MockReportingActor: ReportingActor, Cuckoo.ProtocolMock {
 
         @discardableResult
         func make<__M1: Cuckoo._OptionalMatchable>(isolation p0: __M1) -> Cuckoo.VerifiedCall<((any Actor)?), Report> where __M1.OptionalMatchedType == (any Actor) {
-            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -211,7 +211,7 @@ actor MockReportingActor: ReportingActor, Cuckoo.ProtocolMock {
 
         @discardableResult
         func count<__M1: Cuckoo._OptionalMatchable>(isolation p0: __M1) -> Cuckoo.VerifiedCall<((any Actor)?), Int> where __M1.OptionalMatchedType == (any Actor) {
-            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -245,7 +245,7 @@ nonisolated final class MockForwarding: Forwarding, nonisolated Cuckoo.ProtocolM
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockForwarding.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Forwarding>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Forwarding>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Forwarding) {
         cuckooDefaultImplementation.value = stub
@@ -291,7 +291,7 @@ nonisolated final class MockForwarding: Forwarding, nonisolated Cuckoo.ProtocolM
         }
 
         func send<__M1: Cuckoo._SendableOptionalMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Report?), @Sendable ((Report?)) -> Void, Cuckoo.StubSharing.Shared> where __M1.OptionalMatchedType == Report {
-            let matchers: [Cuckoo.SendableMatcher<(Report?)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
+            let matchers: [Cuckoo.SendableMatcher<(Report?)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
             return .init(stub: cuckooManager.createStub(for: MockForwarding.self,
                 method: "send(_ p0: sending Report?)",
                 parameterMatchers: matchers
@@ -299,7 +299,7 @@ nonisolated final class MockForwarding: Forwarding, nonisolated Cuckoo.ProtocolM
         }
 
         func update<__M1: Cuckoo._SendableOptionalMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int?), @Sendable (inout Int?) -> Void, Cuckoo.StubSharing.Shared> where __M1.OptionalMatchedType == Int {
-            let matchers: [Cuckoo.SendableMatcher<(Int?)>] = [Cuckoo.wrap(matchable: p0, at: \.self)]
+            let matchers: [Cuckoo.SendableMatcher<(Int?)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
             return .init(stub: cuckooManager.createStub(for: MockForwarding.self,
                 method: "update(_ p0: inout Int?)",
                 parameterMatchers: matchers
@@ -320,7 +320,7 @@ nonisolated final class MockForwarding: Forwarding, nonisolated Cuckoo.ProtocolM
 
         @discardableResult
         func send<__M1: Cuckoo._OptionalMatchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Report?), Void> where __M1.OptionalMatchedType == Report {
-            let matchers: [Cuckoo.ParameterMatcher<(Report?)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Report?)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -333,7 +333,7 @@ nonisolated final class MockForwarding: Forwarding, nonisolated Cuckoo.ProtocolM
 
         @discardableResult
         func update<__M1: Cuckoo._OptionalMatchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Int?), Void> where __M1.OptionalMatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int?)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int?)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

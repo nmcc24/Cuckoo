@@ -12,7 +12,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockTypedAPI.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any TypedAPI>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any TypedAPI>()
 
     nonisolated func enableDefaultImplementation(_ stub: any TypedAPI) {
         cuckooDefaultImplementation.value = stub
@@ -163,7 +163,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
 
         @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
         func retry<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(() throws(NetErr) -> Int), Int, ((@escaping () throws(NetErr) -> Int)) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == () throws(NetErr) -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<(() throws(NetErr) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(() throws(NetErr) -> Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockTypedAPI.self,
@@ -173,7 +173,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
         }
 
         func log<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<((String...) -> Void), ((@escaping (String...) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (String...) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<((String...) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<((String...) -> Void)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockTypedAPI.self,
@@ -241,7 +241,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
         @available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)
         @discardableResult
         func retry<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(() throws(NetErr) -> Int), Int> where __M1.MatchedType == () throws(NetErr) -> Int {
-            let matchers: [Cuckoo.ParameterMatcher<(() throws(NetErr) -> Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(() throws(NetErr) -> Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -254,7 +254,7 @@ nonisolated final class MockTypedAPI: TypedAPI, nonisolated Cuckoo.ProtocolMock 
 
         @discardableResult
         func log<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<((String...) -> Void), Void> where __M1.MatchedType == (String...) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<((String...) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<((String...) -> Void)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

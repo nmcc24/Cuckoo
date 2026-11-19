@@ -12,7 +12,7 @@ nonisolated final class MockShapeProtocol: ShapeProtocol, nonisolated Cuckoo.Pro
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockShapeProtocol.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ShapeProtocol>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any ShapeProtocol>()
 
     nonisolated func enableDefaultImplementation(_ stub: any ShapeProtocol) {
         cuckooDefaultImplementation.value = stub
@@ -50,7 +50,7 @@ final class MockWhereBox<T: Hashable, U>: WhereBox<T, U>, nonisolated Cuckoo.Cla
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockWhereBox.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<WhereBox<T, U>>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<WhereBox<T, U>>()
 
     nonisolated func enableDefaultImplementation(_ stub: WhereBox<T, U>) {
         cuckooDefaultImplementation.value = stub
@@ -78,7 +78,7 @@ final class MockWhereBox<T: Hashable, U>: WhereBox<T, U>, nonisolated Cuckoo.Cla
         }
 
         func put<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(U), ((U)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == U {
-            let matchers: [Cuckoo.ParameterMatcher<(U)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(U)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockWhereBox.self,
@@ -101,7 +101,7 @@ final class MockWhereBox<T: Hashable, U>: WhereBox<T, U>, nonisolated Cuckoo.Cla
 
         @discardableResult
         func put<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(U), Void> where __M1.MatchedType == U {
-            let matchers: [Cuckoo.ParameterMatcher<(U)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(U)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -132,7 +132,7 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockShapePrinter.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ShapePrinter>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<ShapePrinter>()
 
     nonisolated func enableDefaultImplementation(_ stub: ShapePrinter) {
         cuckooDefaultImplementation.value = stub
@@ -296,9 +296,9 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
         }
 
         func print<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, terminator p1: __M2) -> Cuckoo.ClassStubNoReturnFunction<(String, String), ((String, String)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == String, __M2.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return .init(stub: cuckooManager.createStub(for: MockShapePrinter.self,
@@ -308,11 +308,11 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
         }
 
         func count<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(level p0: __M1, times p1: __M2, tags p2: __M3) -> Cuckoo.ClassStubFunction<(ShapeLevel, Int, [String]), Int, ((ShapeLevel, Int, [String])) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ShapeLevel, __M2.MatchedType == Int, __M3.MatchedType == [String] {
-            let matchers: [Cuckoo.ParameterMatcher<(ShapeLevel, Int, [String])>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(ShapeLevel, Int, [String])>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
-                }, Cuckoo.wrap(matchable: p2) {
+                }, Cuckoo.__cuckooWrap(matchable: p2) {
                     $0.2
                 }]
             return .init(stub: cuckooManager.createStub(for: MockShapePrinter.self,
@@ -322,7 +322,7 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
         }
 
         func `default`<__M1: Cuckoo._Matchable>(`in` p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(Int), ((Int)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockShapePrinter.self,
@@ -332,9 +332,9 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
         }
 
         func labelled<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(p0: __M1, p1: __M2) -> Cuckoo.ClassStubNoReturnFunction<(Int, String), ((Int, String)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int, __M2.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(Int, String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return .init(stub: cuckooManager.createStub(for: MockShapePrinter.self,
@@ -344,9 +344,9 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
         }
 
         func generic<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, M1: Equatable>(_ p0: __M1, count p1: __M2) -> Cuckoo.ClassStubFunction<(M1, Int), M1, ((M1, Int)) -> M1, Cuckoo.StubSharing.Confined> where __M1.MatchedType == M1, __M2.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(M1, Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(M1, Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return .init(stub: cuckooManager.createStub(for: MockShapePrinter.self,
@@ -381,9 +381,9 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
 
         @discardableResult
         func print<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, terminator p1: __M2) -> Cuckoo.VerifiedCall<(String, String), Void> where __M1.MatchedType == String, __M2.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return cuckooManager.verify(
@@ -396,11 +396,11 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
 
         @discardableResult
         func count<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(level p0: __M1, times p1: __M2, tags p2: __M3) -> Cuckoo.VerifiedCall<(ShapeLevel, Int, [String]), Int> where __M1.MatchedType == ShapeLevel, __M2.MatchedType == Int, __M3.MatchedType == [String] {
-            let matchers: [Cuckoo.ParameterMatcher<(ShapeLevel, Int, [String])>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(ShapeLevel, Int, [String])>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
-                }, Cuckoo.wrap(matchable: p2) {
+                }, Cuckoo.__cuckooWrap(matchable: p2) {
                     $0.2
                 }]
             return cuckooManager.verify(
@@ -413,7 +413,7 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
 
         @discardableResult
         func `default`<__M1: Cuckoo._Matchable>(`in` p0: __M1) -> Cuckoo.VerifiedCall<(Int), Void> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -426,9 +426,9 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
 
         @discardableResult
         func labelled<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(p0: __M1, p1: __M2) -> Cuckoo.VerifiedCall<(Int, String), Void> where __M1.MatchedType == Int, __M2.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(Int, String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return cuckooManager.verify(
@@ -441,9 +441,9 @@ final class MockShapePrinter: ShapePrinter, nonisolated Cuckoo.ClassMock {
 
         @discardableResult
         func generic<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, M1: Equatable>(_ p0: __M1, count p1: __M2) -> Cuckoo.VerifiedCall<(M1, Int), M1> where __M1.MatchedType == M1, __M2.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(M1, Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(M1, Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return cuckooManager.verify(
@@ -518,7 +518,7 @@ extension ShapeStore {
 
         nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockCache.self) ?? Cuckoo.MockManager(hasParent: true)
 
-        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Cache>()
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Cache>()
 
         nonisolated func enableDefaultImplementation(_ stub: Cache) {
             cuckooDefaultImplementation.value = stub
@@ -593,7 +593,7 @@ final class MockUncheckedCache: UncheckedCache, nonisolated Cuckoo.ClassMock, @u
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockUncheckedCache.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<UncheckedCache>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<UncheckedCache>()
 
     nonisolated func enableDefaultImplementation(_ stub: UncheckedCache) {
         cuckooDefaultImplementation.value = stub
@@ -669,7 +669,7 @@ final class MockUncheckedCacheUser: UncheckedCache, UncheckedCacheUser, nonisola
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockUncheckedCacheUser.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any UncheckedCacheUser>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any UncheckedCacheUser>()
 
     nonisolated func enableDefaultImplementation(_ stub: any UncheckedCacheUser) {
         cuckooDefaultImplementation.value = stub
@@ -743,7 +743,7 @@ final class MockLateUncheckedCache: LateUncheckedCache, nonisolated Cuckoo.Class
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLateUncheckedCache.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<LateUncheckedCache>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<LateUncheckedCache>()
 
     nonisolated func enableDefaultImplementation(_ stub: LateUncheckedCache) {
         cuckooDefaultImplementation.value = stub
@@ -817,7 +817,7 @@ final class MockGenericRepository<Item>: GenericRepository<Item>, nonisolated Cu
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockGenericRepository.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<GenericRepository<Item>>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<GenericRepository<Item>>()
 
     nonisolated func enableDefaultImplementation(_ stub: GenericRepository<Item>) {
         cuckooDefaultImplementation.value = stub
@@ -893,7 +893,7 @@ final class MockIntRepositoryUser: GenericRepository<Int>, IntRepositoryUser, no
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockIntRepositoryUser.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any IntRepositoryUser>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any IntRepositoryUser>()
 
     nonisolated func enableDefaultImplementation(_ stub: any IntRepositoryUser) {
         cuckooDefaultImplementation.value = stub

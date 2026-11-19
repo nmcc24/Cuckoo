@@ -13,7 +13,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
         MainActor.shared
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ViewModel>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<ViewModel>()
 
     nonisolated func enableDefaultImplementation(_ stub: ViewModel) {
         cuckooDefaultImplementation.value = stub
@@ -90,7 +90,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
         }
 
         func select<__M1: Cuckoo._Matchable>(index p0: __M1) -> Cuckoo.ClassStubFunction<(Int), Bool, @MainActor @Sendable ((Int)) -> Bool, Cuckoo.StubSharing.Isolated> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockViewModel.self,
@@ -131,7 +131,7 @@ final class MockViewModel: ViewModel, nonisolated Cuckoo.ClassMock {
         @MainActor
         @discardableResult
         func select<__M1: Cuckoo._Matchable>(index p0: __M1) -> Cuckoo.VerifiedCall<(Int), Bool> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
