@@ -8,7 +8,7 @@ final class MockDefaultsPrinter: DefaultsPrinter, nonisolated Cuckoo.ClassMock {
     typealias CuckooStubbing = __StubbingProxy_DefaultsPrinter
     typealias CuckooVerification = __VerificationProxy_DefaultsPrinter
 
-    // Not mocked, so calls run the class's own implementation:
+    // Not mocked, so calls run the real implementation:
     // - 'subscript(label: String)' returns the opaque type 'some Equatable', which an override can't repeat.
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockDefaultsPrinter.self) ?? Cuckoo.MockManager(hasParent: true)

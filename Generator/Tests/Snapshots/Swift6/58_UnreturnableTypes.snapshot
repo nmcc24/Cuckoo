@@ -9,7 +9,7 @@ final class MockRegister: Register, nonisolated Cuckoo.ClassMock {
     typealias CuckooStubbing = __StubbingProxy_Register
     typealias CuckooVerification = __VerificationProxy_Register
 
-    // Not mocked, so calls run the class's own implementation:
+    // Not mocked, so calls run the real implementation:
     // - 'receipt()' returns the ~Copyable type 'Receipt', which a mock can't return.
     // - 'make(_ make: () -> T)' returns the ~Copyable type 'T', which a mock can't return.
     // - 'maybeReceipt()' returns the ~Copyable type 'Optional<Receipt>', which a mock can't return.
@@ -89,7 +89,7 @@ final class MockPool<Item: ~Copyable>: Pool<Item>, nonisolated Cuckoo.ClassMock 
     typealias CuckooStubbing = __StubbingProxy_Pool
     typealias CuckooVerification = __VerificationProxy_Pool
 
-    // Not mocked, so calls run the class's own implementation:
+    // Not mocked, so calls run the real implementation:
     // - 'take()' returns the ~Copyable type 'Item', which a mock can't return.
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockPool.self) ?? Cuckoo.MockManager(hasParent: true)
