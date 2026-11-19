@@ -72,6 +72,27 @@ struct GenerateCommandTests {
         }
     }
 
+    /// A source file that isn't valid Swift, as one in the middle of an edit, gives mocks that don't parse: it's left
+    /// out with a warning, and the module's other files are mocked. Syntax in an inactive `#if` branch that the parser
+    /// doesn't know, as a newer Swift's, leaves the file's mocks alone.
+    @Test
+    func aSourceFileThatIsNotValidSwiftIsLeftOut() async throws {
+        try await withPackage(output: "Mocks.swift") { directory in
+            try "protocol Broken {\n    var x: { get }\n}\n"
+                .write(to: directory.appending(path: "App/Broken.swift"), atomically: true, encoding: .utf8)
+            try "#if compiler(>=99)\nfunc future() { @@unknownNewSyntax }\n#endif\nclass Kept {\n    func keep() {}\n}\n"
+                .write(to: directory.appending(path: "App/Kept.swift"), atomically: true, encoding: .utf8)
+            let printed = try await capturingOutput {
+                try await GenerateCommand.parse(["--configuration", directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)]).run(environment: [:])
+            }
+            let mocks = try String(contentsOf: directory.appending(path: "Mocks.swift"), encoding: .utf8)
+            #expect(mocks.contains("class MockGreeter"))
+            #expect(mocks.contains("class MockKept"))
+            #expect(!mocks.contains("MockBroken"))
+            #expect(printed.contains("Broken.swift: warning: cuckoo: This file isn't valid Swift"))
+        }
+    }
+
     /// Two modules that would write the same file into one directory output, even differing only in case, fail the
     /// run and leave that file unwritten instead of overwriting each other. Their other files are written.
     @Test
