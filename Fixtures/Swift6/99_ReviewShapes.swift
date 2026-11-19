@@ -213,3 +213,9 @@ protocol ReviewChain {
     associatedtype Next: ReviewChain
     func next() -> Next?
 }
+
+// Keyword argument labels: a call escapes only `inout`; escaping `var` or `let` warns.
+class ReviewLabels {
+    init() {}
+    func labelled(`inout`: Int, `var` value: Int, `let` other: Int) {}
+}

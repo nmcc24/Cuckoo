@@ -51,11 +51,12 @@ struct MethodParameter: Token {
     }
 
     /// A label as a call writes it: a keyword label is escaped in a declaration, `` `in` ``, but not in a call,
-    /// where escaping it warns, except `inout`, `var` and `let`, which a call still has to escape.
+    /// where escaping it warns, except `inout`, which a call still has to escape.
     static func argumentLabel(_ label: String) -> String {
         guard label.hasPrefix("`"), label.hasSuffix("`"), label.count > 2 else { return label }
         let bare = String(label.dropFirst().dropLast())
-        return ["inout", "var", "let"].contains(bare) ? label : bare
+        // Only `inout` needs them: Swift warns that `var` and `let` don't.
+        return bare == "inout" ? label : bare
     }
 
     var isSending: Bool {
