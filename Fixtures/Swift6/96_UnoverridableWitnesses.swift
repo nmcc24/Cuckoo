@@ -189,6 +189,35 @@ class AnyErrorChecker: AnyErrorChecking {
     func verify() throws {}
 }
 
+// A conformance a plain extension states isn't the mock's: its members can't be overridden, a `where` clause limits
+// it, and with a default isolation Swift doesn't give the class's own members its requirements' actor.
+protocol Pinging {
+    func ping() -> Int
+}
+
+extension Pinging {
+    func ping() -> Int { 1 }
+}
+
+class PingBox<T> {
+    init() {}
+}
+
+extension PingBox: Pinging where T: Equatable {}
+
+protocol Signalling {
+    func signal()
+}
+
+nonisolated class PlainSignaller {
+    init() {}
+    func signal() {}
+}
+
+extension PlainSignaller: Signalling {}
+
+class SubSignaller: PlainSignaller {}
+
 func useFewerEffects() throws {
     let mock = MockLoader()
     stub(mock) { stub in
@@ -298,6 +327,33 @@ protocol Ringing {
 
 class Ringer: ObjcExtensionBase, Ringing {}
 
+// A conformance an `@objc extension` declares itself: the class and its subclass's mocks override the members
+// implementing it.
+protocol Chiming {
+    func chime() -> String
+}
+
+class ChimeBase: NSObject {}
+
+@objc extension ChimeBase: Chiming {
+    func chime() -> String { "" }
+}
+
+class Chimer: ChimeBase {}
+
+// With a default isolation, a class's own member keeps its isolation for a protocol an `@objc extension` states.
+protocol Tolling {
+    func toll()
+}
+
+nonisolated class TollBase: NSObject {
+    func toll() {}
+}
+
+@objc extension TollBase: Tolling {}
+
+class Toller: TollBase {}
+
 // An `@objcMembers` class's extension members are `@objc` only when Objective-C can represent their types, which
 // the generator can't tell from the sources: one implementing a requirement stays the class's, unmocked, unless it
 // says `@objc` itself.
@@ -337,5 +393,6 @@ func useObjcExtensionWitness() {
     MockRinger().mute()
     MockMembersGreeter().greet()
     MockMembersGreeter().wave()
+    _ = (MockChimer() as any Chiming).chime() + MockChimeBase().chime()
 }
 #endif

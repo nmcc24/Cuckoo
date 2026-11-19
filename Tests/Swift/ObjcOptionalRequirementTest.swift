@@ -117,5 +117,16 @@ struct ObjcOptionalRequirementTests {
         verify(mock).fetch()
     }
 
+    /// A conformance an `@objc extension` declares: a subclass's mock overrides the member implementing it.
+    @Test
+    func anObjcExtensionsConformanceIsMockedForASubclass() {
+        let mock = MockObjcExtensionChimer()
+        stub(mock) { stub in
+            when(stub.chime()).thenReturn("stubbed")
+        }
+
+        #expect((mock as any ObjcExtensionChiming).chime() == "stubbed")
+        verify(mock).chime()
+    }
 }
 #endif

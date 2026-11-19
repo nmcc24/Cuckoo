@@ -351,6 +351,11 @@ final class Crawler: SyntaxVisitor {
         if isExtension {
             token.memberIsolation = isolation(attributes: node.attributes, modifiers: node.modifiers)
             token.isObjcExtension = node.attributes.contains { $0.as(AttributeSyntax.self)?.attributeName.trimmedDescription == "objc" }
+            // Only an `@objc extension`'s conformances matter to a mock, which overrides the members implementing them;
+            // any other extension's members can't be overridden, and its `where` clause would limit the conformance.
+            if token.isObjcExtension {
+                token.extensionConformances = inheritedTypes(from: (node as? ExtensionDeclSyntax)?.inheritanceClause?.inheritedTypes)
+            }
         }
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: members)

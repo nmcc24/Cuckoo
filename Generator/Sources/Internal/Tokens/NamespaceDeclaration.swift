@@ -28,6 +28,9 @@ struct NamespaceDeclaration: Token, HasAttributes, HasAccessibility, HasName, Ha
     var memberIsolation: Isolation?
     /// An `@objc extension`, whose members are all `@objc`.
     var isObjcExtension = false
+    /// The protocols an extension makes the extended type conform to, as `extension Base: Ringing`, which a class's
+    /// mock implements as it does those the class declares.
+    var extensionConformances: [String] = []
 
     func replacing(members: [any Token]) -> NamespaceDeclaration {
         NamespaceDeclaration(
@@ -44,7 +47,8 @@ struct NamespaceDeclaration: Token, HasAttributes, HasAccessibility, HasName, Ha
             extensionMembers: extensionMembers,
             overridableExtensionMembers: overridableExtensionMembers,
             memberIsolation: memberIsolation,
-            isObjcExtension: isObjcExtension
+            isObjcExtension: isObjcExtension,
+            extensionConformances: extensionConformances
         )
     }
 }
