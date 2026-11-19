@@ -291,6 +291,11 @@ final class Crawler: SyntaxVisitor {
 
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
+        // `associatedtype Node: Tree where Node.Node == Self` makes the mock's generic parameter refer to the mock
+        // itself, which a generic class can't state.
+        if token.genericRequirements.contains(where: { $0.contains(/==\s*Self\b/) }) {
+            crawler.unmockedMembers.append("an associated type's requirement names Self, which a generic mock can't state.")
+        }
         // A protocol's mock has to implement every requirement, so one it can't return leaves the protocol unmocked.
         guard crawler.unmockedMembers.isEmpty else {
             warn(node, "'\(token.name)' isn't mocked: " + crawler.unmockedMembers.joined(separator: " "))
