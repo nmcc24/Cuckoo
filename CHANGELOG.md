@@ -172,6 +172,9 @@
   `func load() throws`, a `throws(ParseError)` one an untyped `throws` or `throws(any Error)`, or a synchronous one
   an `async` requirement, got a mock that also declared the requirement and didn't compile, as did a `throws` member
   for a `throws(any Error)` requirement. The mock overrides the class's member, `@objc` extension members included.
+- A class member writing `Self` or one of the protocol's associated types as the type it is, as `func make() -> Int`
+  for `func make() -> Output` or `func same(_ other: Maker) -> Bool` for `func same(_ other: Self) -> Bool`, got a
+  mock that also declared the requirement and didn't compile. The mock overrides the class's member.
 - A generic requirement using a typealias of a type that names an associated type, as `func first<T>(_ value: T)
   -> Items` with `typealias Items = [Item]`, got a mock that didn't compile: forwarding it to a default
   implementation goes through the opened existential, where `Items` is another type. The type eraser casts it
