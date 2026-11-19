@@ -114,7 +114,8 @@ extension Method.Signature {
 
     /// Whether the two declare the same requirement, however they spell it: generic parameters named differently,
     /// a constraint written in the parameter list or in a `where` clause, or a standard type qualified as `Swift.Int`.
-    /// Each of `other`'s `placeholders`, as `Self.Output` or `Output`, stands for any type in this signature.
+    /// Each of `other`'s `placeholders`, as `Self.Output` or `Output`, stands for a type in this signature, in its
+    /// `where` clause too.
     func isApiEqual(to other: Method.Signature, placeholders: Set<String> = []) -> Bool {
         guard genericParameters.map(\.kind) == other.genericParameters.map(\.kind),
               parameters.count == other.parameters.count,
@@ -122,17 +123,28 @@ extension Method.Signature {
               throwType == other.throwType,
               parameters.elementsEqual(other.parameters, by: { $0.name == $1.name }) else { return false }
         let mine = canonicalForm, theirs = other.canonicalForm
-        guard mine.constraints == theirs.constraints else { return false }
         // A generic parameter of the requirement's own shadows a placeholder of its name.
         let placeholders = placeholders.subtracting(other.genericParameters.map(\.name))
-        guard !placeholders.isEmpty else { return mine.types == theirs.types }
+        guard !placeholders.isEmpty else { return mine.types == theirs.types && mine.constraints == theirs.constraints }
+        guard mine.constraints.count == theirs.constraints.count else { return false }
+        // The constraints are in the order of what they constrain, `__G0.Element == Key` matching
+        // `__G0.Element == String` when they're the only constraints on `__G0.Element`.
+        func ordered(_ constraints: Set<String>) -> [String] {
+            constraints.sorted { first, second in
+                let firstSide = first.prefix { $0 != ":" && $0 != "=" }, secondSide = second.prefix { $0 != ":" && $0 != "=" }
+                return firstSide == secondSide ? first < second : firstSide < secondSide
+            }
+        }
         // Matched as one text, so a placeholder stands for one type wherever the requirement writes it.
         let separator: Character = "\u{1F}"
         var budget = PlaceholderMatcher.budget
         let allowed = Self.placeholderTypes
         return PlaceholderMatcher.matches(
-            mine.types.joined(separator: String(separator))[...],
-            PlaceholderMatcher.pattern(theirs.types.joined(separator: String(separator)), placeholders: placeholders)[...],
+            (mine.types + ordered(mine.constraints)).joined(separator: String(separator))[...],
+            PlaceholderMatcher.pattern(
+                (theirs.types + ordered(theirs.constraints)).joined(separator: String(separator)),
+                placeholders: placeholders
+            )[...],
             bindings: [:],
             allowed: allowed,
             budget: &budget

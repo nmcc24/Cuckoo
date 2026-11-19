@@ -247,6 +247,17 @@ class Pairer: Pairing {
     func m(_ a: String) {}
 }
 
+// A `where` clause naming an associated type is matched as the member's types are.
+protocol Picking {
+    associatedtype Key
+    func pick<T>(_ values: T) -> Key? where T: Sequence, T.Element == Key
+}
+
+class Picker: Picking {
+    init() {}
+    func pick<T>(_ values: T) -> String? where T: Sequence, T.Element == String { nil }
+}
+
 // With a default isolation, only the member Swift takes for the requirement's witness takes its actor.
 @MainActor protocol Displaying {
     associatedtype Value
