@@ -229,10 +229,8 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 These are public because generated mocks use them. Tests don't need them directly.
 
 - ``MockManager``
-- ``HasGlobalActor``
 - ``StubbingProxy``
 - ``VerificationProxy``
-- ``DefaultImplementation``
 - ``Stub``
 - ``ConcreteStub``
 - ``ClassConcreteStub``
@@ -268,7 +266,3 @@ These are public because generated mocks use them. Tests don't need them directl
 - ``VerifyOptionalProperty``
 - ``CuckooOptionalType``
 - ``CuckooSourceLocation``
-- ``wrap(matchable:mapping:)-(_,(IN)->M.OptionalMatchedType?)``
-- ``wrap(matchable:mapping:)-(_,(IN)->M.MatchedType)``
-- ``wrap(matchable:at:)-804pr``
-- ``wrap(matchable:at:)-9e0kn``

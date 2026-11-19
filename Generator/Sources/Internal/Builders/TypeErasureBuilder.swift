@@ -2,7 +2,7 @@ import SwiftSyntax
 
 /// Builds `__DefaultImplCaller`, which erases the type of a generic protocol's default implementation.
 ///
-/// Its closures share one `Cuckoo.DefaultImplementation` box, which is `Sendable`, so the closures are `@Sendable`
+/// Its closures share one `Cuckoo.__CuckooDefaultImplementation` box, which is `Sendable`, so the closures are `@Sendable`
 /// and the caller is checked `Sendable`, as a mock of a `Sendable` generic protocol needs. A protocol isolated to a
 /// global actor gets a caller isolated to it, which is `Sendable` and can read the requirements. Every closure reads
 /// the default implementation from the box when it runs, and a mutating requirement writes it back, so a value-type
@@ -399,7 +399,7 @@ enum TypeErasureBuilder {
         let generic = GeneratedNames.staticGenericParameter
         let metatype = globalActor == nil ? " & SendableMetatype" : ""
         var body = [
-            "let box = Cuckoo.DefaultImplementation<\(generic)>()",
+            "let box = Cuckoo.__CuckooDefaultImplementation<\(generic)>()",
             "box.value = defaultImpl",
             "cuckooReference = { box.value }",
             "cuckooManager = manager",

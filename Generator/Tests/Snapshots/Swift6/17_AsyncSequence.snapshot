@@ -13,7 +13,7 @@ nonisolated final class MockEvents: Events, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockEvents.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Events>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Events>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Events) {
         cuckooDefaultImplementation.value = stub

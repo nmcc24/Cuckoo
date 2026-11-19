@@ -15,7 +15,7 @@ final class MockPageRenderer: PageRenderer, nonisolated Cuckoo.ProtocolMock {
         MainActor.shared
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any PageRenderer>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any PageRenderer>()
 
     nonisolated func enableDefaultImplementation(_ stub: any PageRenderer) {
         cuckooDefaultImplementation.value = stub
@@ -43,7 +43,7 @@ final class MockPageRenderer: PageRenderer, nonisolated Cuckoo.ProtocolMock {
         }
 
         func render<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Page), @MainActor @Sendable ((Page)) -> Void, Cuckoo.StubSharing.Isolated> where __M1.MatchedType == Page {
-            let matchers: [Cuckoo.ParameterMatcher<(Page)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Page)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockPageRenderer.self,
@@ -67,7 +67,7 @@ final class MockPageRenderer: PageRenderer, nonisolated Cuckoo.ProtocolMock {
         @MainActor
         @discardableResult
         func render<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Page), Void> where __M1.MatchedType == Page {
-            let matchers: [Cuckoo.ParameterMatcher<(Page)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Page)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

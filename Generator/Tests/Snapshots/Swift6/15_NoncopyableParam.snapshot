@@ -12,7 +12,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConsumer.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Consumer>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Consumer>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Consumer) {
         cuckooDefaultImplementation.value = stub
@@ -110,7 +110,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
         }
 
         func consume<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Cuckoo.NoncopyableArgument), (borrowing Token) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockConsumer.self,
@@ -120,7 +120,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
         }
 
         func inspect<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Cuckoo.NoncopyableArgument), Int, (borrowing Token) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockConsumer.self,
@@ -130,9 +130,9 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
         }
 
         func redeem<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, seat p1: __M2) -> Cuckoo.ProtocolStubThrowingFunction<(Cuckoo.NoncopyableArgument, Int), String, any Swift.Error, nonisolated(nonsending) (borrowing Ticket?, Int) async throws -> String, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument, __M2.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return .init(stub: cuckooManager.createStub(for: MockConsumer.self,
@@ -142,7 +142,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
         }
 
         func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Cuckoo.NoncopyableArgument), Bool, ((Cuckoo.NoncopyableArgument)) -> Bool, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockConsumer.self,
@@ -152,9 +152,9 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
         }
 
         func check<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, label p1: __M2) -> Cuckoo.ProtocolStubFunction<(Cuckoo.NoncopyableArgument, String), Bool, ((Cuckoo.NoncopyableArgument, String)) -> Bool, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument, __M2.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return .init(stub: cuckooManager.createStub(for: MockConsumer.self,
@@ -164,7 +164,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
         }
 
         func visit<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<((borrowing Token) -> Void), ((@escaping (borrowing Token) -> Void)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (borrowing Token) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<((borrowing Token) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<((borrowing Token) -> Void)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockConsumer.self,
@@ -187,7 +187,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
 
         @discardableResult
         func consume<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument), Void> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -200,7 +200,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
 
         @discardableResult
         func inspect<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument), Int> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -213,9 +213,9 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
 
         @discardableResult
         func redeem<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, seat p1: __M2) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument, Int), String> where __M1.MatchedType == Cuckoo.NoncopyableArgument, __M2.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return cuckooManager.verify(
@@ -228,7 +228,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
 
         @discardableResult
         func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument), Bool> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -241,9 +241,9 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
 
         @discardableResult
         func check<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, label p1: __M2) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument, String), Bool> where __M1.MatchedType == Cuckoo.NoncopyableArgument, __M2.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return cuckooManager.verify(
@@ -256,7 +256,7 @@ nonisolated final class MockConsumer: Consumer, nonisolated Cuckoo.ProtocolMock 
 
         @discardableResult
         func visit<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<((borrowing Token) -> Void), Void> where __M1.MatchedType == (borrowing Token) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<((borrowing Token) -> Void)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<((borrowing Token) -> Void)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -335,7 +335,7 @@ actor MockTokenVault: TokenVault, Cuckoo.ProtocolMock {
         }
 
         func deposit<__M1: Cuckoo._SendableMatchable, __M2: Cuckoo._SendableMatchable>(_ p0: __M1, note p1: __M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Cuckoo.NoncopyableArgument, String), @Sendable (isolated MockTokenVault, borrowing Token, String) -> Void, Cuckoo.StubSharing.Shared> where __M1.MatchedType == Cuckoo.NoncopyableArgument, __M2.MatchedType == String {
-            let matchers: [Cuckoo.SendableMatcher<(Cuckoo.NoncopyableArgument, String)>] = [Cuckoo.wrap(matchable: p0, at: \.0), Cuckoo.wrap(matchable: p1, at: \.1)]
+            let matchers: [Cuckoo.SendableMatcher<(Cuckoo.NoncopyableArgument, String)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.0), Cuckoo.__cuckooWrap(matchable: p1, at: \.1)]
             return .init(stub: cuckooManager.createStub(for: MockTokenVault.self,
                 method: "deposit(_ p0: consuming Token, note p1: String)",
                 parameterMatchers: matchers
@@ -356,9 +356,9 @@ actor MockTokenVault: TokenVault, Cuckoo.ProtocolMock {
 
         @discardableResult
         func deposit<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, note p1: __M2) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument, String), Void> where __M1.MatchedType == Cuckoo.NoncopyableArgument, __M2.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument, String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0.0
-                }, Cuckoo.wrap(matchable: p1) {
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
                     $0.1
                 }]
             return cuckooManager.verify(
@@ -385,7 +385,7 @@ final class MockShredder: Shredder, nonisolated Cuckoo.ClassMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockShredder.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Shredder>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Shredder>()
 
     nonisolated func enableDefaultImplementation(_ stub: Shredder) {
         cuckooDefaultImplementation.value = stub
@@ -413,7 +413,7 @@ final class MockShredder: Shredder, nonisolated Cuckoo.ClassMock {
         }
 
         func shred<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubFunction<(Cuckoo.NoncopyableArgument), Int, (borrowing Token) -> Int, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockShredder.self,
@@ -436,7 +436,7 @@ final class MockShredder: Shredder, nonisolated Cuckoo.ClassMock {
 
         @discardableResult
         func shred<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument), Int> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

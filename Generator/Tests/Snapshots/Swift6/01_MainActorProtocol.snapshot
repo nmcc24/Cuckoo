@@ -15,7 +15,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
         MainActor.shared
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any MainActorService>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any MainActorService>()
 
     nonisolated func enableDefaultImplementation(_ stub: any MainActorService) {
         cuckooDefaultImplementation.value = stub
@@ -85,7 +85,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
         }
 
         func load<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.ProtocolStubFunction<(Int), String, @MainActor @Sendable ((Int)) -> String, Cuckoo.StubSharing.Isolated> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockMainActorService.self,
@@ -122,7 +122,7 @@ final class MockMainActorService: MainActorService, nonisolated Cuckoo.ProtocolM
         @MainActor
         @discardableResult
         func load<__M1: Cuckoo._Matchable>(id p0: __M1) -> Cuckoo.VerifiedCall<(Int), String> where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

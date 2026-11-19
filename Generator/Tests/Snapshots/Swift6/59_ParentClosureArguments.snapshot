@@ -12,7 +12,7 @@ nonisolated final class MockTransforming<Output, Input>: Transforming, nonisolat
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockTransforming.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Transforming<Output, Input>>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Transforming<Output, Input>>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Transforming<Output, Input>) {
         cuckooDefaultImplementation.value = stub
@@ -61,7 +61,7 @@ nonisolated final class MockTransforming<Output, Input>: Transforming, nonisolat
         }
 
         func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Input), ((Input)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Input {
-            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockTransforming.self,
@@ -95,7 +95,7 @@ nonisolated final class MockTransforming<Output, Input>: Transforming, nonisolat
 
         @discardableResult
         func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Input), Void> where __M1.MatchedType == Input {
-            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -131,7 +131,7 @@ nonisolated final class MockFormatter: Formatter, nonisolated Cuckoo.ProtocolMoc
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockFormatter.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Formatter>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Formatter>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Formatter) {
         cuckooDefaultImplementation.value = stub
@@ -201,7 +201,7 @@ nonisolated final class MockFormatter: Formatter, nonisolated Cuckoo.ProtocolMoc
         }
 
         func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Input), ((Input)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Input {
-            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockFormatter.self,
@@ -246,7 +246,7 @@ nonisolated final class MockFormatter: Formatter, nonisolated Cuckoo.ProtocolMoc
 
         @discardableResult
         func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Input), Void> where __M1.MatchedType == Input {
-            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Input)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

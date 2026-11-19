@@ -12,7 +12,7 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockAnalytics.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Analytics>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Analytics>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Analytics) {
         cuckooDefaultImplementation.value = stub
@@ -59,7 +59,7 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
         }
 
         func track<__M1: Cuckoo._Matchable>(event p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String), @MainActor @Sendable ((String)) -> Void, Cuckoo.StubSharing.Isolated> where __M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockAnalytics.self,
@@ -88,7 +88,7 @@ nonisolated final class MockAnalytics: Analytics, nonisolated Cuckoo.ProtocolMoc
         @MainActor
         @discardableResult
         func track<__M1: Cuckoo._Matchable>(event p0: __M1) -> Cuckoo.VerifiedCall<(String), Void> where __M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

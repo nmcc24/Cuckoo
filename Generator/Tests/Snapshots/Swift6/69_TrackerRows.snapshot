@@ -101,7 +101,7 @@ nonisolated final class MockResettable<Item>: Resettable, nonisolated Cuckoo.Pro
         }
 
         init<_CUCKOO$$GENERIC: Resettable & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -118,7 +118,7 @@ nonisolated final class MockResettable<Item>: Resettable, nonisolated Cuckoo.Pro
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Resettable & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -174,7 +174,7 @@ nonisolated final class MockResettable<Item>: Resettable, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(_ p0: __M1) -> __Subscript1<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -205,7 +205,7 @@ nonisolated final class MockResettable<Item>: Resettable, nonisolated Cuckoo.Pro
         }
 
         subscript <__M1: Cuckoo._Matchable, Key: Hashable>(_ p0: __M1) -> __Subscript1<Key> where __M1.MatchedType == Key {
-            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Key)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -315,7 +315,7 @@ extension Fix {
 
         nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockBase.self) ?? Cuckoo.MockManager(hasParent: true)
 
-        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Base>()
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Base>()
 
         nonisolated func enableDefaultImplementation(_ stub: Base) {
             cuckooDefaultImplementation.value = stub
@@ -391,7 +391,7 @@ extension Fix {
 
         nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockHolder.self) ?? Cuckoo.MockManager(hasParent: true)
 
-        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Holder>()
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Holder>()
 
         nonisolated func enableDefaultImplementation(_ stub: Holder) {
             cuckooDefaultImplementation.value = stub
@@ -466,7 +466,7 @@ final class MockDerived: Derived, nonisolated Cuckoo.ClassMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockDerived.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Derived>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Derived>()
 
     nonisolated func enableDefaultImplementation(_ stub: Derived) {
         cuckooDefaultImplementation.value = stub
@@ -579,7 +579,7 @@ nonisolated final class MockR: R, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockR.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any R>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any R>()
 
     nonisolated func enableDefaultImplementation(_ stub: any R) {
         cuckooDefaultImplementation.value = stub
@@ -655,7 +655,7 @@ nonisolated final class MockQ: Q, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockQ.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Q>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Q>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Q) {
         cuckooDefaultImplementation.value = stub
@@ -731,7 +731,7 @@ nonisolated final class MockPP: PP, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockPP.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any PP>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any PP>()
 
     nonisolated func enableDefaultImplementation(_ stub: any PP) {
         cuckooDefaultImplementation.value = stub
@@ -844,7 +844,7 @@ nonisolated final class MockUsesStubbing: UsesStubbing, nonisolated Cuckoo.Proto
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockUsesStubbing.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any UsesStubbing>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any UsesStubbing>()
 
     nonisolated func enableDefaultImplementation(_ stub: any UsesStubbing) {
         cuckooDefaultImplementation.value = stub

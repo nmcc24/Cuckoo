@@ -16,7 +16,7 @@ final class MockRegister: Register, nonisolated Cuckoo.ClassMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockRegister.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Register>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Register>()
 
     nonisolated func enableDefaultImplementation(_ stub: Register) {
         cuckooDefaultImplementation.value = stub
@@ -94,7 +94,7 @@ final class MockPool<Item: ~Copyable>: Pool<Item>, nonisolated Cuckoo.ClassMock 
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockPool.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Pool<Item>>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Pool<Item>>()
 
     nonisolated func enableDefaultImplementation(_ stub: Pool<Item>) {
         cuckooDefaultImplementation.value = stub
@@ -170,7 +170,7 @@ nonisolated final class MockMocked: Mocked, nonisolated Cuckoo.ProtocolMock {
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMocked.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Mocked>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Mocked>()
 
     nonisolated func enableDefaultImplementation(_ stub: any Mocked) {
         cuckooDefaultImplementation.value = stub

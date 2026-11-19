@@ -94,9 +94,9 @@ struct CuckooFunctionsTest {
     @Test
     func replacingADefaultImplementationReleasesTheOldOneOutsideTheLock() {
         final class ReadsHolderOnDeinit {
-            weak var holder: DefaultImplementation<ReadsHolderOnDeinit>?
+            weak var holder: __CuckooDefaultImplementation<ReadsHolderOnDeinit>?
             let released: Locked<Bool>
-            init(holder: DefaultImplementation<ReadsHolderOnDeinit>, released: Locked<Bool>) {
+            init(holder: __CuckooDefaultImplementation<ReadsHolderOnDeinit>, released: Locked<Bool>) {
                 self.holder = holder
                 self.released = released
             }
@@ -105,7 +105,7 @@ struct CuckooFunctionsTest {
                 released.withLock { $0 = true }
             }
         }
-        let holder = DefaultImplementation<ReadsHolderOnDeinit>()
+        let holder = __CuckooDefaultImplementation<ReadsHolderOnDeinit>()
         let released = Locked(false)
         holder.value = ReadsHolderOnDeinit(holder: holder, released: released)
 

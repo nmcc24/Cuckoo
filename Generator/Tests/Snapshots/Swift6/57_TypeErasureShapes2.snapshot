@@ -23,7 +23,7 @@ nonisolated final class MockIsolatedAsyncStore<Item>: IsolatedAsyncStore, noniso
         }
 
         init<_CUCKOO$$GENERIC: IsolatedAsyncStore & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -53,7 +53,7 @@ nonisolated final class MockIsolatedAsyncStore<Item>: IsolatedAsyncStore, noniso
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: IsolatedAsyncStore & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -319,7 +319,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         init<_CUCKOO$$GENERIC: OddSubscripts & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -332,7 +332,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: OddSubscripts & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -441,7 +441,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(main p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -460,7 +460,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(same p0: __M1) -> __Subscript2 where __M1.MatchedType == __CuckooSelf {
-            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -479,7 +479,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(typed p0: __M1) -> __Subscript3 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -498,7 +498,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(plain p0: __M1) -> __Subscript4 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -517,7 +517,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(settable p0: __M1) -> __Subscript5 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -539,7 +539,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return .init(stub: cuckooManager.createStub(for: MockOddSubscripts.self,
@@ -562,7 +562,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(main p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -587,7 +587,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(same p0: __M1) -> __Subscript2 where __M1.MatchedType == __CuckooSelf {
-            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -611,7 +611,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(typed p0: __M1) -> __Subscript3 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -635,7 +635,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(plain p0: __M1) -> __Subscript4 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -659,7 +659,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
         }
 
         subscript <__M1: Cuckoo._Matchable>(settable p0: __M1) -> __Subscript5 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -689,7 +689,7 @@ nonisolated final class MockOddSubscripts<Item>: OddSubscripts, nonisolated Cuck
                     Cuckoo.ParameterMatcher {
                         matcher.matches($0.0)
                     }
-                } + [Cuckoo.wrap(matchable: p1) {
+                } + [Cuckoo.__cuckooWrap(matchable: p1) {
                         $0.1
                     }]
                 return cuckooManager.verify(
@@ -760,7 +760,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
         private let cuckooReference: @Sendable () -> any NoncopyableArguments
 
         init<_CUCKOO$$GENERIC: NoncopyableArguments & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -789,7 +789,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: NoncopyableArguments & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -870,7 +870,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
         }
 
         func borrow<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Cuckoo.NoncopyableArgument), Item, (borrowing Ticket) -> Item, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockNoncopyableArguments.self,
@@ -880,7 +880,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
         }
 
         func consume<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Cuckoo.NoncopyableArgument), Item, (borrowing Ticket) -> Item, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockNoncopyableArguments.self,
@@ -890,7 +890,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
         }
 
         func generic<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Cuckoo.NoncopyableArgument), Item, ((Cuckoo.NoncopyableArgument)) -> Item, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockNoncopyableArguments.self,
@@ -900,7 +900,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
         }
 
         func update<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Cuckoo.NoncopyableArgument), (inout Cuckoo.NoncopyableArgument) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockNoncopyableArguments.self,
@@ -910,7 +910,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
         }
 
         func run<__M1: Cuckoo._OptionalMatchable>(isolation p0: __M1) -> Cuckoo.ProtocolStubFunction<((any Actor)?), Int, nonisolated(nonsending) (((any Actor)?)) async -> Int, Cuckoo.StubSharing.Confined> where __M1.OptionalMatchedType == (any Actor) {
-            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockNoncopyableArguments.self,
@@ -933,7 +933,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
 
         @discardableResult
         func borrow<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument), Item> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -946,7 +946,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
 
         @discardableResult
         func consume<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument), Item> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -959,7 +959,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
 
         @discardableResult
         func generic<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument), Item> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -972,7 +972,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
 
         @discardableResult
         func update<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Cuckoo.NoncopyableArgument), Void> where __M1.MatchedType == Cuckoo.NoncopyableArgument {
-            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Cuckoo.NoncopyableArgument)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -985,7 +985,7 @@ nonisolated final class MockNoncopyableArguments<Item>: NoncopyableArguments, no
 
         @discardableResult
         func run<__M1: Cuckoo._OptionalMatchable>(isolation p0: __M1) -> Cuckoo.VerifiedCall<((any Actor)?), Int> where __M1.OptionalMatchedType == (any Actor) {
-            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<((any Actor)?)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(

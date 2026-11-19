@@ -2,7 +2,7 @@
 ///
 /// Generated mocks keep it in a `let`, so they need no mutable stored state of their own. That lets a mock of
 /// a `Sendable` type be checked `Sendable`, and lets `enableDefaultImplementation` be `nonisolated`.
-public final class DefaultImplementation<Stub>: Sendable {
+public final class __CuckooDefaultImplementation<Stub>: Sendable {
     private let stub = Locked<Stub?>(nil)
 
     /// Creates an empty holder; the generated mock sets ``value`` in `enableDefaultImplementation`.

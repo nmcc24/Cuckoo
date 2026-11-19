@@ -12,7 +12,7 @@ nonisolated final class MockSpecifierClosures: SpecifierClosures, nonisolated Cu
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSpecifierClosures.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any SpecifierClosures>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any SpecifierClosures>()
 
     nonisolated func enableDefaultImplementation(_ stub: any SpecifierClosures) {
         cuckooDefaultImplementation.value = stub
@@ -189,7 +189,7 @@ nonisolated final class MockSpecifierClosures: SpecifierClosures, nonisolated Cu
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, matchers: matchers)
@@ -290,7 +290,7 @@ nonisolated final class MockSpecifierClosures: SpecifierClosures, nonisolated Cu
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
-            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
@@ -368,7 +368,7 @@ final class MockSpecifierClosureService: SpecifierClosureService, nonisolated Cu
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSpecifierClosureService.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<SpecifierClosureService>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<SpecifierClosureService>()
 
     nonisolated func enableDefaultImplementation(_ stub: SpecifierClosureService) {
         cuckooDefaultImplementation.value = stub

@@ -1,6 +1,6 @@
 /// A mock whose type has static or class members. Their stubs and calls can't live in an instance's manager,
 /// so they live in the current task's ``StaticStubs`` registry, one manager per mock type.
-public protocol StaticMock: HasGlobalActor {
+public protocol StaticMock: __CuckooHasGlobalActor {
     /// The proxy `stub(MockX.self)` hands to its block, with one stubbing member per static member.
     associatedtype CuckooStaticStubbing: StubbingProxy
     /// The proxy `verify(MockX.self)` returns, with one verifying member per static member.

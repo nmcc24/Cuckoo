@@ -12,7 +12,7 @@ nonisolated final class MockNeverFailing: NeverFailing, nonisolated Cuckoo.Proto
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockNeverFailing.self) ?? Cuckoo.MockManager(hasParent: false)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any NeverFailing>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any NeverFailing>()
 
     nonisolated func enableDefaultImplementation(_ stub: any NeverFailing) {
         cuckooDefaultImplementation.value = stub
@@ -151,7 +151,7 @@ final class MockNeverFailingService: NeverFailingService, nonisolated Cuckoo.Cla
 
     nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockNeverFailingService.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<NeverFailingService>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<NeverFailingService>()
 
     nonisolated func enableDefaultImplementation(_ stub: NeverFailingService) {
         cuckooDefaultImplementation.value = stub

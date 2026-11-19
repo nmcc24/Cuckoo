@@ -175,9 +175,9 @@ struct GeneratorHelper {
     /// stubbing proxy, which a `@Sendable` closure can't be over a non-`Sendable` generic type, otherwise a closure.
     static func parameterMatcher(name: String, index: Int, count: Int, sendable: Bool) -> String {
         if sendable {
-            return "Cuckoo.wrap(matchable: \(name), at: \\.\(count > 1 ? "\(index)" : "self"))"
+            return "Cuckoo.__cuckooWrap(matchable: \(name), at: \\.\(count > 1 ? "\(index)" : "self"))"
         }
-        return "Cuckoo.wrap(matchable: \(name)) { $0\(count > 1 ? ".\(index)" : "") }"
+        return "Cuckoo.__cuckooWrap(matchable: \(name)) { $0\(count > 1 ? ".\(index)" : "") }"
     }
 
     static func parameterMatchers(for parameters: [MethodParameter], sendable: Bool = false) -> String {

@@ -184,7 +184,7 @@ enum MockBuilder {
             let type = container.isClass ? "\(container.name)\(container.genericArgumentsString)"
                 : "any \(container.name)\(container.genericPrimaryAssociatedTypeArguments ?? "")"
             return [
-                "    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<\(type)>()",
+                "    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<\(type)>()",
                 "",
                 "    \(access)nonisolated func enableDefaultImplementation(_ stub: \(type)) {",
             ] + enable
@@ -193,7 +193,7 @@ enum MockBuilder {
         var lines = [
             "    " + (try TypeErasureBuilder.build(container)),
             "",
-            "    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<\(caller)>()",
+            "    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<\(caller)>()",
         ]
         if let globalActor, !globalActor.isEmpty {
             // `Mock`'s requirement. Wrapping a default implementation reads it on the global actor, so the generic

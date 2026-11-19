@@ -14,7 +14,7 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
     public nonisolated init() {
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Service>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Service>()
 
     public nonisolated func enableDefaultImplementation(_ stub: any Service) {
         cuckooDefaultImplementation.value = stub
@@ -93,7 +93,7 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
         }
 
         func secret<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(Token), Token, ((Token)) -> Token, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Token {
-            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockService.self,
@@ -131,7 +131,7 @@ public nonisolated final class MockService: Service, nonisolated Cuckoo.Protocol
 
         @discardableResult
         func secret<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Token), Token> where __M1.MatchedType == Token {
-            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -182,7 +182,7 @@ public nonisolated final class MockAdminService: AdminService, nonisolated Cucko
     public nonisolated init() {
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any AdminService>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any AdminService>()
 
     public nonisolated func enableDefaultImplementation(_ stub: any AdminService) {
         cuckooDefaultImplementation.value = stub
@@ -210,7 +210,7 @@ public nonisolated final class MockAdminService: AdminService, nonisolated Cucko
         }
 
         public func reset<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Token), ((Token)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Token {
-            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockAdminService.self,
@@ -233,7 +233,7 @@ public nonisolated final class MockAdminService: AdminService, nonisolated Cucko
 
         @discardableResult
         public func reset<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Token), Void> where __M1.MatchedType == Token {
-            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -273,7 +273,7 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
         private let cuckooReference: @Sendable () -> any Repository
 
         init<_CUCKOO$$GENERIC: Repository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
-            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            let box = Cuckoo.__CuckooDefaultImplementation<_CUCKOO$$GENERIC>()
             box.value = defaultImpl
             cuckooReference = {
                 box.value
@@ -300,7 +300,7 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
         }
     }
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<__DefaultImplCaller>()
 
     public nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: Repository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
         cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
@@ -350,7 +350,7 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
         }
 
         func secret<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Token), ((Token)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Token {
-            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockRepository.self,
@@ -384,7 +384,7 @@ public nonisolated final class MockRepository<Item>: Repository, nonisolated Cuc
 
         @discardableResult
         func secret<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Token), Void> where __M1.MatchedType == Token {
-            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -420,7 +420,7 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
 
     public nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockSession.self) ?? Cuckoo.MockManager(hasParent: true)
 
-    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Session>()
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Session>()
 
     public nonisolated func enableDefaultImplementation(_ stub: Session) {
         cuckooDefaultImplementation.value = stub
@@ -470,7 +470,7 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
         }
 
         func resume<__M1: Cuckoo._Matchable>(with p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(Token), ((Token)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Token {
-            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return .init(stub: cuckooManager.createStub(for: MockSession.self,
@@ -504,7 +504,7 @@ public final class MockSession: Session, nonisolated Cuckoo.ClassMock {
 
         @discardableResult
         func resume<__M1: Cuckoo._Matchable>(with p0: __M1) -> Cuckoo.VerifiedCall<(Token), Void> where __M1.MatchedType == Token {
-            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+            let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                     $0
                 }]
             return cuckooManager.verify(
@@ -538,7 +538,7 @@ extension Admin {
 
         public nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConsole.self) ?? Cuckoo.MockManager(hasParent: true)
 
-        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Console>()
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<Console>()
 
         public nonisolated func enableDefaultImplementation(_ stub: Console) {
             cuckooDefaultImplementation.value = stub
@@ -566,7 +566,7 @@ extension Admin {
             }
 
             public func run<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(Token), ((Token)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Token {
-                let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+                let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                         $0
                     }]
                 return .init(stub: cuckooManager.createStub(for: MockConsole.self,
@@ -589,7 +589,7 @@ extension Admin {
 
             @discardableResult
             public func run<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(Token), Void> where __M1.MatchedType == Token {
-                let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.wrap(matchable: p0) {
+                let matchers: [Cuckoo.ParameterMatcher<(Token)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
                         $0
                     }]
                 return cuckooManager.verify(
