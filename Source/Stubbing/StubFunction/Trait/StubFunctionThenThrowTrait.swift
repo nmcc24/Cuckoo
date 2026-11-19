@@ -8,9 +8,7 @@ public extension StubFunctionThenThrowTrait {
     /// Makes matching calls throw `error`, then each of `errors`, one per call; the last one repeats.
     @discardableResult
     func thenThrow(_ error: ErrorType, _ errors: ErrorType...) -> Self {
-        ([error] + errors).forEach { error in
-            stub.appendAction(.throwError(error))
-        }
+        stub.appendActions(([error] + errors).map { .throwError($0) })
         return self
     }
 }

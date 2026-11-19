@@ -15,9 +15,7 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Confin
     /// Returns `outputs` in order, one per call, then repeats the last one.
     @discardableResult
     func thenReturn(inOrder outputs: [OutputType]) -> Self {
-        for output in outputs {
-            stub.appendAction(.returnValue(output))
-        }
+        stub.appendActions(outputs.map { .returnValue($0) })
         return self
     }
 }
@@ -33,9 +31,7 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Shared
     /// Returns `outputs` in order, one per call, then repeats the last one.
     @discardableResult
     func thenReturn(inOrder outputs: [OutputType]) -> Self {
-        for output in outputs {
-            stub.appendAction(.returnValue(output))
-        }
+        stub.appendActions(outputs.map { .returnValue($0) })
         return self
     }
 }
@@ -51,9 +47,7 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Isolat
     /// Returns `outputs` in order, then repeats the last one. They're sent to the mock's actor.
     @discardableResult
     func thenReturn(inOrder outputs: sending [OutputType]) -> Self {
-        for output in outputs {
-            stub.appendAction(.returnValue(output))
-        }
+        stub.appendActions(outputs.map { .returnValue($0) })
         return self
     }
 }

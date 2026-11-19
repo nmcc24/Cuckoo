@@ -58,6 +58,12 @@ public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub, TypedStub {
         actions.withLock { $0.append(action) }
     }
 
+    /// Appends `newActions` under one lock, so a call from another task can't take the first one before the rest
+    /// are in, and get it twice.
+    func appendActions(_ newActions: [StubAction<OUT, ERROR, IMPL>]) {
+        actions.withLock { $0.append(contentsOf: newActions) }
+    }
+
     /// The action for the next call. Each action is used once, in order, and the last one repeats.
     /// `nil` if the stubbing wasn't finished with a `then…` call.
     func nextAction() -> StubAction<OUT, ERROR, IMPL>? {
