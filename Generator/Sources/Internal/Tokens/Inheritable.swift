@@ -17,10 +17,13 @@ extension Inheritable {
     var isInheritable: Bool { true }
 
     /// The names a protocol's requirement uses that a class's member implementing it writes as concrete types: `Self`
-    /// and the protocol's associated types. None for a class's member.
-    var placeholders: Set<String> {
-        guard let protocolDeclaration = (self as? any Token)?.parent?.value as? ProtocolDeclaration else { return [] }
-        return Set(["Self"] + (protocolDeclaration.associatedTypes + protocolDeclaration.primaryAssociatedTypes).map(\.name))
+    /// and the protocol's associated types, and the protocol's typealiases, which the member may write as what they
+    /// stand for. None for a class's member.
+    var placeholders: Method.Signature.Placeholders {
+        guard let protocolDeclaration = (self as? any Token)?.parent?.value as? ProtocolDeclaration else { return .init() }
+        let names = Set(["Self"] + (protocolDeclaration.associatedTypes + protocolDeclaration.primaryAssociatedTypes).map(\.name))
+        let aliases = protocolDeclaration.members.compactMap { $0 as? Typealias }.filter { !$0.alias.contains("<") }
+        return .init(names: names, aliases: Dictionary(aliases.map { ($0.alias, $0.original) }, uniquingKeysWith: { first, _ in first }))
     }
 
     func implements(_ requirement: any Inheritable) -> Bool {
