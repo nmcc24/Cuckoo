@@ -680,7 +680,14 @@ final class Crawler: SyntaxVisitor {
     /// A parameter's type, with a typealias of a function type replaced by the function type: a non-escaping closure
     /// written through a typealias, `(_ handler: Handler)`, needs the same handling as one written out.
     private func parameterType(_ type: TypeSyntax) -> ComplexType {
-        let type = withGenericArguments(type)
+        var type = withGenericArguments(type)
+        // A C function pointer is a value, never a non-escaping closure: the mock records it as it is.
+        if let attributed = type.as(AttributedTypeSyntax.self),
+           attributed.attributes.contains(where: { $0.trimmedDescription == "@convention(c)" }),
+           !attributed.attributes.contains(where: { $0.trimmedDescription == "@escaping" }) {
+            var parser = Parser("@escaping \(type.trimmedDescription)")
+            type = TypeSyntax.parse(from: &parser)
+        }
         // `sending Handler`, `@Sendable Handler`: the typealias under the specifiers and attributes. An `inout` one
         // stays as written: the closure a variable holds is escaping, so the mock records it as it is.
         if let attributed = type.as(AttributedTypeSyntax.self),

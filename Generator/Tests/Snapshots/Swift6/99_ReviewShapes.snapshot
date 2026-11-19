@@ -2458,3 +2458,86 @@ nonisolated final class ReviewNamedUserRepositoryStub: ReviewNamedUserRepository
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+#if (canImport(ObjectiveC))
+nonisolated final class MockReviewCallbacks: ReviewCallbacks, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any ReviewCallbacks
+    typealias CuckooStubbing = __StubbingProxy_ReviewCallbacks
+    typealias CuckooVerification = __VerificationProxy_ReviewCallbacks
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewCallbacks.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ReviewCallbacks>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ReviewCallbacks) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func register(_ p0: @escaping @convention(c) (Int32) -> Int32) {
+        return cuckooManager.call(
+            "register(_ p0: @escaping @convention(c) (Int32) -> Int32)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((@escaping (Int32) -> Int32)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.register(p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewCallbacks: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func register<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<((Int32) -> Int32), ((@escaping (Int32) -> Int32)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (Int32) -> Int32 {
+            let matchers: [Cuckoo.ParameterMatcher<((Int32) -> Int32)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockReviewCallbacks.self,
+                method: "register(_ p0: @escaping @convention(c) (Int32) -> Int32)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewCallbacks: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func register<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<((Int32) -> Int32), Void> where __M1.MatchedType == (Int32) -> Int32 {
+            let matchers: [Cuckoo.ParameterMatcher<((Int32) -> Int32)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "register(_ p0: @escaping @convention(c) (Int32) -> Int32)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ReviewCallbacksStub: ReviewCallbacks {
+    func register(_ p0: @escaping @convention(c) (Int32) -> Int32) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+#endif
