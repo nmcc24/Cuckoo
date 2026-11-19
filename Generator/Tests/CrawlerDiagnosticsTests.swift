@@ -68,8 +68,9 @@ struct CrawlerDiagnosticsTests {
             """, url: url)
 
         let service = try #require(crawler.tokens.first as? ClassDeclaration)
-        #expect(service.members.compactMap { ($0 as? Variable)?.name } == ["name", "retries"])
+        #expect(service.members.compactMap { ($0 as? Variable)?.name } == ["name"])
         #expect(crawler.diagnostics.map(\.description) == [
+            "/project/Sources/Service.swift:3:9: warning: cuckoo: Can't infer the type of property 'retries', so it isn't mocked. Add a type annotation to mock it.",
             "/project/Sources/Service.swift:4:9: warning: cuckoo: Can't infer the type of property 'connection', so it isn't mocked. Add a type annotation to mock it.",
             "/project/Sources/Service.swift:5:9: warning: cuckoo: Can't infer the type of property 'pending', so it isn't mocked. Add a type annotation to mock it.",
         ])

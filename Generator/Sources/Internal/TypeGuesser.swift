@@ -1,8 +1,9 @@
 import SwiftSyntax
 
-/// The type of a stored property with no annotation, read from its initializer when the initializer names it.
-/// Anything else is `nil`, so the property gets the "add a type annotation" warning instead of a wrong type that
-/// makes the mock fail to compile.
+/// The type of a stored property with no annotation, read from its initializer when the text alone settles it: a
+/// literal, a cast, or a call of a standard-library type. Anything else is `nil`, so the property gets the "add a
+/// type annotation" warning instead of a type that may be wrong and make the mock fail to compile: another type's
+/// call may be a failable initializer, a factory or an enum case.
 enum TypeGuesser {
     /// - Parameter functions: the sources' functions and methods with a capitalized name, whose calls initialize
     ///   nothing. One that's also a type's name isn't listed: its call may be the type's initializer.
@@ -19,20 +20,33 @@ enum TypeGuesser {
         if let call = initializer.as(FunctionCallExprSyntax.self) {
             let callee = call.calledExpression.as(MemberAccessExprSyntax.self)?.declName.baseName.text
                 ?? call.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
-            guard callee.map({ !functions.contains($0) }) ?? true else { return nil }
-            return callType(of: call, genericTypes: genericTypes, functions: functions)
+            guard callee.map({ !functions.contains($0) }) ?? true,
+                  let type = callType(of: call, genericTypes: genericTypes, functions: functions) else { return nil }
+            // `Array(repeating: 0, count: 3)` comes back as `[Int]`.
+            let unqualified = type.hasPrefix("Swift.") ? String(type.dropFirst("Swift.".count)) : type
+            return unqualified.hasPrefix("[") || standardTypes.contains(String(unqualified.prefix { $0 != "<" })) ? type : nil
         }
         return nil
     }
 
-    /// The standard library's generic types, which a call can't name without its generic arguments as a type.
+    /// The standard library's generic types, which a call or an annotation can't name without its generic arguments.
     private static let standardGenericTypes: Set<String> = [
         "Array", "Set", "Dictionary", "Optional", "Result", "ContiguousArray", "Range", "ClosedRange",
+        "Task", "AsyncStream", "AsyncThrowingStream",
     ]
 
-    /// The type a call initializes. A call to a generic type without generic arguments, `Array(...)` or a user's
-    /// `Box(1)`, is guessed only where the arguments settle it; and a labelled call may be a failable initializer,
-    /// `URL(string:)` or `Int(_:)`, so only an unlabelled call, or one with labels known to be non-failable, counts.
+    /// The standard library's types whose call names the type it makes: any other type's may not.
+    private static let standardTypes: Set<String> = standardGenericTypes.union(numericAndBoolTypes).union([
+        "String", "Substring", "Duration", "ObjectIdentifier",
+    ])
+
+    /// Whether `name` is a generic type that needs its arguments to name a type.
+    static func isGeneric(_ name: String, genericTypes: Set<String>) -> Bool {
+        standardGenericTypes.contains(name) || genericTypes.contains(name)
+    }
+
+    /// The type a call initializes. A call to a generic type without generic arguments, `Array(...)`, is guessed
+    /// only where the arguments settle it, and a number made from a string, `Int("3")`, is optional.
     private static func callType(of call: FunctionCallExprSyntax, genericTypes: Set<String>, functions: Set<String>) -> String? {
         guard let type = initializedType(by: call.calledExpression) else { return nil }
         let baseName = String(type.prefix { $0 != "<" }.split(separator: ".").last ?? "")
@@ -47,33 +61,32 @@ enum TypeGuesser {
             }
             return nil
         }
-        // A failable initializer's result is optional, which the call doesn't show: `URL(string:)`, or a number or
-        // `Bool` made from a string, `Int("3")`. The standard ones are known; a user's own `init?` isn't seen.
+        // A labelled initializer may be failable, as `String(data:encoding:)`, and so is Foundation's
+        // `Range(_: NSRange)`: only an unlabelled call, or one of the labels known not to fail, counts.
+        let labels = call.arguments.map { $0.label?.text ?? "_" }.joined(separator: ":")
+        guard !baseName.hasSuffix("Range"), !labels.contains(where: \.isLetter) || nonFailableLabels.contains(labels) else {
+            return nil
+        }
+        // A number or `Bool` made from anything but a number literal, as `Int("3")`, is optional.
         if isFailableStandardInitializer(call, type: baseName) {
             return nil
         }
         return type
     }
 
-    private static let failableInitializerLabels: [String: Set<String>] = [
-        "URL": ["string"],
-        "UUID": ["uuidString"],
-        "Data": ["base64Encoded", "contentsOf"],
-        "Decimal": ["string"],
-    ]
+    /// The labels of standard-library initializers that don't fail: `String(describing:)`, `String(reflecting:)`
+    /// and `String(repeating:count:)` or `Array(repeating:count:)`.
+    private static let nonFailableLabels: Set<String> = ["describing", "reflecting", "repeating:count"]
 
     private static let numericAndBoolTypes: Set<String> = [
         "Int", "Int8", "Int16", "Int32", "Int64", "UInt", "UInt8", "UInt16", "UInt32", "UInt64",
         "Double", "Float", "CGFloat", "Bool", "Character",
     ]
 
-    /// Whether the call is one of the standard library's or Foundation's failable initializers: a labelled one of
-    /// `failableInitializerLabels`, or a number, `Bool` or `Character` made from anything but a number literal.
+    /// Whether the call is one of the standard library's failable initializers: a number, `Bool` or `Character`
+    /// made from anything but a number literal.
     private static func isFailableStandardInitializer(_ call: FunctionCallExprSyntax, type: String) -> Bool {
         guard let first = call.arguments.first else { return false }
-        if let label = first.label?.text, failableInitializerLabels[type]?.contains(label) == true {
-            return true
-        }
         if numericAndBoolTypes.contains(type) {
             let literal = literalType(of: first.expression)
             return !(call.arguments.count == 1 && first.label == nil && (literal == "Int" || literal == "Double"))

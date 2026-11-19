@@ -560,7 +560,6 @@ struct ClassTest {
         #expect(String(describing: type(of: mock.doublySo)) == String(describing: type(of: original.doublySo)))
         #expect(String(describing: type(of: mock.negative)) == String(describing: type(of: original.negative)))
         #expect(String(describing: type(of: mock.zero)) == String(describing: type(of: original.zero)))
-        #expect(String(describing: type(of: mock.genericClass)) == String(describing: type(of: original.genericClass)))
         #expect(String(describing: type(of: mock.genericClassAs)) == String(describing: type(of: original.genericClassAs)))
         #expect(String(describing: type(of: mock.array)) == String(describing: type(of: original.array)))
         #expect(String(describing: type(of: mock.boolNo)) == String(describing: type(of: original.boolNo)))

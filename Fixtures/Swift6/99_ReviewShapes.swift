@@ -64,3 +64,28 @@ class ReviewBox<T: Hashable, U> {
         func parent() -> ReviewBox? { nil }
     }
 }
+
+// A property's type is read from its initializer only when the text settles it: a literal, a cast, or a call of a
+// standard-library type. Anything else, as a call of a type of the sources, which may be failable or an enum case,
+// or a generic type without arguments, is left unmocked with a warning.
+enum ReviewKind: Int {
+    case one = 1
+}
+
+enum ReviewShape {
+    case Circle(Int)
+}
+
+struct ReviewWrapper {
+    init?(text: String) {}
+}
+
+class ReviewGuesses {
+    init() {}
+    var kind = ReviewKind(rawValue: 1)
+    var wrapper = ReviewWrapper(text: "x")
+    var task = Task { 1 }
+    var shape = ReviewShape.Circle(3)
+    var numbers: Array = [1, 2]
+    var count = 0
+}
