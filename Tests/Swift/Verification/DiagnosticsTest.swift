@@ -133,9 +133,9 @@ struct DiagnosticsTests {
 
     @Test
     func aSingleFunctionTypedParameterIsParenthesizedInTheStubsTypes() {
-        #expect(ConcreteStub<(String) -> Int, Void, Never, Void>.types(in: ((String) -> Int).self, out: Void.self) == "((String) -> Int) -> ()")
-        #expect(ConcreteStub<(String, Int), Int, Never, Void>.types(in: (String, Int).self, out: Int.self) == "(String, Int) -> Int")
-        #expect(ConcreteStub<Void, Int, Never, Void>.types(in: Void.self, out: Int.self) == "() -> Int")
+        #expect(describeTypes(arguments: ((String) -> Int).self, result: Void.self) == "((String) -> Int) -> ()")
+        #expect(describeTypes(arguments: (String, Int).self, result: Int.self) == "(String, Int) -> Int")
+        #expect(describeTypes(arguments: Void.self, result: Int.self) == "() -> Int")
     }
 
     @Test

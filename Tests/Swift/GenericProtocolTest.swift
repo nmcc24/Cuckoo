@@ -275,6 +275,21 @@ struct GenericProtocolTest {
         verify(mock).genericParameter(value: equal(to: expected))
     }
 
+    /// A `verify` of a generic member with other argument types than its calls had says so.
+    @Test
+    func verifyOfOtherArgumentTypesNamesTheCallsTypes() {
+        let mock = createMock(value: 10)
+        stub(mock) { mock in
+            when(mock.genericParameter(value: any(String.self))).thenDoNothing()
+        }
+        mock.genericParameter(value: "wow")
+
+        let message = TestUtils.catchCuckooFail {
+            verify(mock).genericParameter(value: equal(to: 1))
+        }
+        #expect(message?.contains("genericParameter(value:) was called only with other types, which this `verify` doesn't count:\n  1. (String) -> ()") == true, "\(message ?? "no failure")")
+    }
+
     @Test
     func genericAndAssociatedTypeParameters() {
         let expected = 2112

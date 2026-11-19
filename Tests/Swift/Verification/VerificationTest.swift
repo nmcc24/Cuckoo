@@ -83,9 +83,9 @@ struct VerificationTest {
         let otherTypes = TestUtils.catchCuckooFail {
             verify(mock).genericReturn("Foo").with(returnType: Bool?.self)
         }
-        #expect(otherTypes?.contains("genericReturn(_:) was called only with other return types") == true, "\(otherTypes ?? "no failure")")
-        #expect(otherTypes?.contains("1. Optional<String>") == true)
-        #expect(otherTypes?.contains("2. Optional<Int>") == true)
+        #expect(otherTypes?.contains("genericReturn(_:) was called only with other types") == true, "\(otherTypes ?? "no failure")")
+        #expect(otherTypes?.contains("1. (String) -> Optional<String>") == true)
+        #expect(otherTypes?.contains("2. (String) -> Optional<Int>") == true)
         #expect(otherTypes?.contains("3. ") == false)
     }
 }
