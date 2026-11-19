@@ -2640,3 +2640,89 @@ nonisolated final class ReviewChainStub<Next: ReviewChain>: ReviewChain {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+final class MockReviewLabels: ReviewLabels, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewLabels
+    typealias CuckooStubbing = __StubbingProxy_ReviewLabels
+    typealias CuckooVerification = __VerificationProxy_ReviewLabels
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewLabels.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewLabels>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewLabels) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func labelled(`inout` p0: Int, `var` p1: Int, `let` p2: Int) {
+        return cuckooManager.call(
+            "labelled(`inout` p0: Int, `var` p1: Int, `let` p2: Int)",
+            parameters: (p0, p1, p2),
+            escapingParameters: (p0, p1, p2),
+            invoke: { (implementation: ((Int, Int, Int)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.labelled(`inout`: p0, var: p1, let: p2),
+            defaultCall: cuckooDefaultImplementation.value.labelled(`inout`: p0, var: p1, let: p2)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewLabels: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func labelled<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(`inout` p0: __M1, `var` p1: __M2, `let` p2: __M3) -> Cuckoo.ClassStubNoReturnFunction<(Int, Int, Int), ((Int, Int, Int)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == Int, __M2.MatchedType == Int, __M3.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, Int, Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }, Cuckoo.wrap(matchable: p2) {
+                    $0.2
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockReviewLabels.self,
+                method: "labelled(`inout` p0: Int, `var` p1: Int, `let` p2: Int)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewLabels: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func labelled<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable, __M3: Cuckoo._Matchable>(`inout` p0: __M1, `var` p1: __M2, `let` p2: __M3) -> Cuckoo.VerifiedCall<(Int, Int, Int), Void> where __M1.MatchedType == Int, __M2.MatchedType == Int, __M3.MatchedType == Int {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, Int, Int)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.wrap(matchable: p1) {
+                    $0.1
+                }, Cuckoo.wrap(matchable: p2) {
+                    $0.2
+                }]
+            return cuckooManager.verify(
+                "labelled(`inout` p0: Int, `var` p1: Int, `let` p2: Int)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ReviewLabelsStub: ReviewLabels {
+    override func labelled(`inout` p0: Int, `var` p1: Int, `let` p2: Int) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
