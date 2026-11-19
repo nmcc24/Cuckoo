@@ -146,3 +146,11 @@ public class ReviewPublicSub: ReviewOpenBase {
         super.init()
     }
 }
+
+// A `nonisolated(unsafe)` stored property is the class's own storage: the mock leaves it alone.
+@MainActor
+class ReviewCounter {
+    init() {}
+    nonisolated(unsafe) var hits = 0
+    func count() -> Int { 0 }
+}

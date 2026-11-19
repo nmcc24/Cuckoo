@@ -418,6 +418,12 @@ final class Crawler: SyntaxVisitor {
         }
         guard let container, container.isMockable else { return .skipChildren }
 
+        // A `nonisolated(unsafe)` stored property is the class's storage, which an override can't take over.
+        if container.isClass, node.modifiers.contains(where: { $0.name.tokenKind == .keyword(.nonisolated) && $0.detail?.detail.text == "unsafe" }) {
+            let names = node.bindings.map { "'\($0.pattern.trimmedDescription)'" }.joined(separator: ", ")
+            unmockedMembers.append("\(names) is nonisolated(unsafe), which an override can't restate.")
+            return .skipChildren
+        }
         // An override has to repeat the property's type, which an opaque `some` type can't be.
         if container.isClass, let opaqueBinding = node.bindings.first(where: { $0.typeAnnotation.map { Self.containsOpaqueType($0.type) } ?? false }) {
             unmockedMembers.append("'\(opaqueBinding.pattern.trimmedDescription)' has the opaque type '\(opaqueBinding.typeAnnotation?.type.trimmedDescription ?? "")', which an override can't repeat.")
