@@ -281,6 +281,15 @@ extension Token {
                     // one a throwing one, and the class's own override a superclass's member; a superclass's `async`
                     // overload of a sync member stays its own. Among protocols, each is a requirement of its own.
                     let isRequirement = inheritedToken.parent?.value is ProtocolDeclaration
+                    // Two requirements of one property or subscript, `{ get }` and `{ get set }`, or `{ get async }` and
+                    // `{ get }`: the mock's has to satisfy both, settable and with the fewer effects.
+                    if isRequirement, let index = tokens.firstIndex(where: { existing in
+                        existing.parent?.value is ProtocolDeclaration && existing.isRequirement(sameAs: inheritedInheritable)
+                    }), let combined = tokens[index].combinedRequirement(with: inheritedToken) {
+                        var tokens = tokens
+                        tokens[index] = combined
+                        return tokens
+                    }
                     let ownMembers = token.members.compactMap { $0 as? any Inheritable }
                     let isAlreadyPresent = (tokens + hidingMembers)
                         .compactMap({ $0 as? any Inheritable })
@@ -502,5 +511,58 @@ extension Token {
             return nil
         }
         return "'\(name)' names `Self` and is left to the protocol's default implementation, which calls run."
+    }
+}
+
+extension Token {
+    /// This property or subscript requirement made to satisfy `other` too, a requirement of the same member from
+    /// another protocol: settable if either is, with only the effects both have. Nil for anything else.
+    /// Whether the two declare one property or subscript requirement, whatever effects each has, which
+    /// `combinedRequirement(with:)` merges. A property's effects already don't count.
+    fileprivate func isRequirement(sameAs other: any Inheritable) -> Bool {
+        if let subscriptDeclaration = self as? Subscript, var other = other as? Subscript {
+            other.isAsync = subscriptDeclaration.isAsync
+            other.throwType = subscriptDeclaration.throwType
+            return subscriptDeclaration.isEqual(to: other)
+        }
+        return (self as? any Inheritable)?.isEqual(to: other) == true
+    }
+
+    fileprivate func combinedRequirement(with other: any Token) -> (any Token)? {
+        if var variable = self as? Variable, let other = other as? Variable {
+            if variable.isReadOnly, !other.isReadOnly {
+                variable.setterAccessibility = other.setterAccessibility
+            }
+            variable.effects.isAsync = variable.effects.isAsync && other.effects.isAsync
+            let thrown = Self.narrowerThrows(
+                variable.effects.isThrowing ? .throws(variable.effects.typedError) : nil,
+                other.effects.isThrowing ? .throws(other.effects.typedError) : nil
+            )
+            variable.effects.isThrowing = thrown != nil
+            variable.effects.typedError = if case .throws(let typedError)? = thrown { typedError } else { nil }
+            return variable
+        }
+        if var subscriptDeclaration = self as? Subscript, let other = other as? Subscript {
+            if subscriptDeclaration.isReadOnly, !other.isReadOnly {
+                subscriptDeclaration.setterAccessibility = other.setterAccessibility
+            }
+            subscriptDeclaration.isAsync = subscriptDeclaration.isAsync && other.isAsync
+            subscriptDeclaration.throwType = Self.narrowerThrows(subscriptDeclaration.throwType, other.throwType)
+            return subscriptDeclaration
+        }
+        return nil
+    }
+
+    /// What one implementation of two merged requirements may throw: nothing if either doesn't throw,
+    /// the typed error if only one is typed, and nothing if they name different errors.
+    private static func narrowerThrows(_ first: ThrowType?, _ second: ThrowType?) -> ThrowType? {
+        switch (first, second) {
+        case (.throws(nil)?, let other), (let other, .throws(nil)?):
+            other
+        case (let first, let second) where first == second:
+            first
+        default:
+            nil
+        }
     }
 }
