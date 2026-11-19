@@ -2201,3 +2201,260 @@ final class ReviewAsyncMakerStub: ReviewAsyncMaker {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+nonisolated final class MockReviewRepository<Item>: ReviewRepository, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = __DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_ReviewRepository
+    typealias CuckooVerification = __VerificationProxy_ReviewRepository
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewRepository.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class __DefaultImplCaller: ReviewRepository, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooReference: @Sendable () -> any ReviewRepository
+
+        init<_CUCKOO$$GENERIC: ReviewRepository & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            cuckooReference = {
+                box.value
+            }
+            cuckooManager = manager
+
+            _storage$1$all = {
+                box.value.all()
+            }
+        }
+
+        private let _storage$1$all: @Sendable () -> [Item]
+        func all() -> [Item] {
+            return _storage$1$all()
+        }
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ReviewRepository & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Item == Item, Item: SendableMetatype {
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func all() -> [Item] {
+        return cuckooManager.call(
+            "all() -> [Item]",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> [Item], arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.all()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewRepository: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func all() -> Cuckoo.ProtocolStubFunction<(), [Item], (()) -> [Item], Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockReviewRepository.self,
+                method: "all() -> [Item]",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewRepository: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func all() -> Cuckoo.VerifiedCall<(), [Item]> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "all() -> [Item]",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ReviewRepositoryStub<Item>: ReviewRepository {
+    func all() -> [Item] {
+        typealias __CuckooDefault = [Item]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+nonisolated final class MockReviewUserRepository: ReviewUserRepository, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any ReviewUserRepository
+    typealias CuckooStubbing = __StubbingProxy_ReviewUserRepository
+    typealias CuckooVerification = __VerificationProxy_ReviewUserRepository
+
+    // Original typealiases
+    typealias Item = String
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewUserRepository.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ReviewUserRepository>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ReviewUserRepository) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func all() -> [Item] {
+        return cuckooManager.call(
+            "all() -> [Item]",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> [Item], arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.all()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewUserRepository: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func all() -> Cuckoo.ProtocolStubFunction<(), [Item], (()) -> [Item], Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockReviewUserRepository.self,
+                method: "all() -> [Item]",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewUserRepository: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func all() -> Cuckoo.VerifiedCall<(), [Item]> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "all() -> [Item]",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ReviewUserRepositoryStub: ReviewUserRepository {
+    typealias Item = String
+
+    func all() -> [Item] {
+        typealias __CuckooDefault = [Item]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+nonisolated final class MockReviewNamedUserRepository: ReviewNamedUserRepository, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any ReviewNamedUserRepository
+    typealias CuckooStubbing = __StubbingProxy_ReviewNamedUserRepository
+    typealias CuckooVerification = __VerificationProxy_ReviewNamedUserRepository
+
+    // Original typealiases
+    typealias Item = String
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewNamedUserRepository.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ReviewNamedUserRepository>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ReviewNamedUserRepository) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func all() -> [String] {
+        return cuckooManager.call(
+            "all() -> [String]",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> [String], arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.all()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewNamedUserRepository: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func all() -> Cuckoo.ProtocolStubFunction<(), [String], (()) -> [String], Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockReviewNamedUserRepository.self,
+                method: "all() -> [String]",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewNamedUserRepository: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func all() -> Cuckoo.VerifiedCall<(), [String]> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "all() -> [String]",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ReviewNamedUserRepositoryStub: ReviewNamedUserRepository {
+    typealias Item = String
+
+    func all() -> [String] {
+        typealias __CuckooDefault = [String]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}

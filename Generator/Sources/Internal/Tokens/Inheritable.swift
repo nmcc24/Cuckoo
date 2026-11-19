@@ -11,6 +11,10 @@ protocol Inheritable {
     /// Whether a class's member implements `requirement` with the types it's written with, `Self` and associated
     /// types included.
     func implementsAsWritten(_ requirement: any Inheritable) -> Bool
+
+    /// Whether a protocol's requirement restates a parent's `requirement` with the types the parent's typealiases
+    /// stand for, as `func a() -> String` does `func a() -> A` of a parent that fixes `A == String`.
+    func restates(_ requirement: any Inheritable) -> Bool
 }
 
 extension Inheritable {
@@ -32,5 +36,9 @@ extension Inheritable {
 
     func implementsAsWritten(_ requirement: any Inheritable) -> Bool {
         isEqual(to: requirement)
+    }
+
+    func restates(_ requirement: any Inheritable) -> Bool {
+        false
     }
 }
