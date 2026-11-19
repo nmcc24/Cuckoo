@@ -89,3 +89,33 @@ class ReviewGuesses {
     var numbers: Array = [1, 2]
     var count = 0
 }
+
+// Two parents requiring one property or subscript with different accessors: the mock's is settable and has the
+// fewer effects, so it conforms to both: an untyped `throws` and a typed one give the typed one.
+protocol ReviewReading {
+    var value: Int { get }
+    var status: String { get async }
+    var cached: Int { get throws }
+    subscript(index: Int) -> Int { get }
+    subscript(key: String) -> Int { get throws }
+}
+
+protocol ReviewWriting {
+    var value: Int { get set }
+    var status: String { get }
+    var cached: Int { get throws(ReviewLoadError) }
+    subscript(index: Int) -> Int { get set }
+    subscript(key: String) -> Int { get throws(ReviewLoadError) }
+}
+
+
+protocol ReviewReadWriting: ReviewReading, ReviewWriting {}
+
+func useReviewReadWriting() {
+    let mock = MockReviewReadWriting()
+    stub(mock) { stub in
+        when(stub.value.set(any())).thenDoNothing()
+    }
+    mock.value = 1
+    verify(mock).value.set(1)
+}
