@@ -194,3 +194,10 @@ protocol ReviewUserRepository: ReviewRepository where Item == String {}
 protocol ReviewNamedUserRepository: ReviewUserRepository {
     func all() -> [String]
 }
+
+#if canImport(ObjectiveC)
+// A C function pointer is a value, not a closure the call owns: the mock records it as it is.
+@objc protocol ReviewCallbacks {
+    func register(_ callback: @convention(c) (Int32) -> Int32)
+}
+#endif
