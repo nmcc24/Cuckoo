@@ -31,6 +31,19 @@ struct StubbingTest {
         #expect(mock.readOnlyProperty == "c")
     }
 
+    /// No values would leave the stub with no answer, which only a matching call would report: the stubbing
+    /// records a failure itself.
+    @Test
+    func returningAnEmptyArrayFails() {
+        let mock = MockTestedClass()
+        let message = TestUtils.catchCuckooFail {
+            stub(mock) { mock in
+                when(mock.readOnlyProperty.get).thenReturn(inOrder: [])
+            }
+        }
+        #expect(message == "thenReturn(inOrder:) got no values, so the stub has no answer. Give it at least one.")
+    }
+
     @Test
     func overrideStubWithMoreGeneralParameterMatcher() {
         let mock = MockTestedClass()
