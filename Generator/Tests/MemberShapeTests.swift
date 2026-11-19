@@ -656,6 +656,139 @@ struct MemberShapeTests {
         #expect(!classMock.contains("where T.Element == Key {"))
     }
 
+    /// A member spelling a type as the requirement doesn't, `Array<String>` for `[Key]`, `Optional<X>` for `X?`,
+    /// `Dictionary` for `[K: V]` or a class's typealias for what it stands for, implements it.
+    @Test
+    func aTypeSpelledAnotherWayIsTheSameType() async throws {
+        let source = """
+            struct Thing {}
+            protocol Spelling {
+                associatedtype Key
+                associatedtype Item
+                func all() -> [Key]
+                func take(_ item: Item?)
+                func put(_ name: String)
+                func table() -> [String: Int]
+            }
+            class Speller: Spelling {
+                typealias Name = String
+                init() {}
+                func all() -> Array<String> { [] }
+                func take(_ item: Optional<Thing>) {}
+                func put(_ name: Name) {}
+                func table() -> Dictionary<Name, Int> { [:] }
+            }
+            class SubSpeller: Speller {
+                override func put(_ name: String) {}
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockSpeller:")).lowerBound
+        let end = try #require(output.firstRange(of: "class SpellerStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(!classMock.contains("func all() -> [Key] {"))
+        #expect(!classMock.contains("func take(_ p0: Item?) {"))
+        #expect(!classMock.contains("func put(_ p0: String) {"))
+        #expect(!classMock.contains("func table() -> [String: Int] {"))
+        let subStart = try #require(output.firstRange(of: "class MockSubSpeller:")).lowerBound
+        let subEnd = try #require(output.firstRange(of: "class SubSpellerStub:")).lowerBound
+        #expect(output[subStart..<subEnd].ranges(of: "func put(").count == 1)
+    }
+
+    /// A generic parameter named like a class's typealias is the generic parameter, in the member and the requirement.
+    @Test
+    func aGenericParameterNamedLikeAClassTypealiasIsTheParameter() async throws {
+        let source = """
+            protocol Wrapping {
+                func wrap<Value>(_ value: Value) -> [Value]
+                func box<T>(_ value: T) -> [T]
+            }
+            class Wrapper: Wrapping {
+                typealias Value = String
+                typealias Element = Int
+                init() {}
+                func wrap<T>(_ value: T) -> [T] { [value] }
+                func box<Element>(_ value: Element) -> [Element] { [value] }
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockWrapper:")).lowerBound
+        let end = try #require(output.firstRange(of: "class WrapperStub:")).lowerBound
+        let classMock = output[start..<end]
+        // One declaration each, the class's member's override, next to the proxies' members.
+        #expect(classMock.ranges(of: "\n    override func wrap<T> (").count == 1)
+        #expect(classMock.ranges(of: "\n    override func box<Element> (").count == 1)
+        #expect(!classMock.contains("\n    func wrap<"))
+        #expect(!classMock.contains("\n    func box<"))
+    }
+
+    /// A class's typealias inside another's type is what it stands for there too, so `Array<Value>` with
+    /// `typealias Value = String` is `[String]`.
+    @Test
+    func aTypealiasInsideAnothersTypeIsExpanded() async throws {
+        let source = """
+            protocol Listed {
+                associatedtype Output
+                func list() -> Output
+            }
+            class Lists: Listed {
+                typealias Value = String
+                typealias Output = Array<Value>
+                init() {}
+                func list() -> [String] { [] }
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockLists:")).lowerBound
+        let end = try #require(output.firstRange(of: "class ListsStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(classMock.contains("\n    override func list() -> [String] {"))
+        #expect(!classMock.contains("\n    func list() -> Output {"))
+    }
+
+    /// An associated type's typealias inside another's is what it stands for there too, so `[Input]` is `[Int]`.
+    @Test
+    func anAssociatedTypesTypealiasInsideAnothersIsExpanded() async throws {
+        let source = """
+            protocol Converting {
+                associatedtype Input
+                associatedtype Output
+                func convert(_ input: Input) -> Output
+                func echo(_ input: Input) -> Output
+            }
+            class Converter: Converting {
+                typealias Input = Int
+                typealias Output = [Input]
+                init() {}
+                func convert(_ input: Int) -> [Int] { [] }
+                func echo(_ input: Input) -> [Input] { [] }
+            }
+            protocol Pairing {
+                associatedtype Input
+                associatedtype Key
+                associatedtype Output
+                func pair(_ input: Input) -> Output
+            }
+            class Pairer: Pairing {
+                typealias Input = Int
+                typealias Key = String
+                typealias Output = (Input, Key)
+                init() {}
+                func pair(_ input: Self.Input) -> (Int, Key) { (input, "") }
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockConverter:")).lowerBound
+        let end = try #require(output.firstRange(of: "class ConverterStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(classMock.contains("\n    override func convert(_ p0: Int) -> [Int] {"))
+        #expect(classMock.contains("\n    override func echo(_ p0: Input) -> [Input] {"))
+        #expect(!classMock.contains("-> Output {"))
+        let pairStart = try #require(output.firstRange(of: "class MockPairer:")).lowerBound
+        let pairEnd = try #require(output.firstRange(of: "class PairerStub:")).lowerBound
+        #expect(!output[pairStart..<pairEnd].contains("-> Output {"))
+    }
+
     /// A subclass's mock lists the `Self` requirements its superclass's mock leaves out too.
     @Test
     func aSubclassRepeatsTheSelfRequirementsLeftOut() async throws {

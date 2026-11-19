@@ -176,7 +176,8 @@
   for `func make() -> Output` or `func same(_ other: Maker) -> Bool` for `func same(_ other: Self) -> Bool`, got a
   mock that also declared the requirement and didn't compile. The mock overrides the class's member, also where it
   writes a `where` clause naming an associated type with that type, as `T.Element == String` for
-  `T.Element == Key`, or a protocol's typealias as what it stands for, as `[Int]` for `Items`.
+  `T.Element == Key`, a protocol's typealias as what it stands for, as `[Int]` for `Items`, or a type spelled
+  another way, as `Array<String>` for `[Key]`, `Optional<X>` for `X?` or a class's typealias for its type.
 - A class that leaves a requirement naming `Self`, as `func merged(with other: Self) -> Bool` or `func copy() ->
   Self`, to the protocol's default implementation got a mock declaring it with `Self`, which didn't compile. The
   mock leaves it out, as it does a member it can't override, and its comment says so, as do its subclasses' mocks.
