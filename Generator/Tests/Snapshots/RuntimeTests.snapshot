@@ -39914,30 +39914,6 @@ final class MockTypeIsRightClass: TypeIsRightClass, nonisolated Cuckoo.ClassMock
         }
     }
 
-    override var genericClass: GenericClass<Int, Int, Int> {
-        get {
-            return cuckooManager.getter(
-                "genericClass",
-                invoke: { (implementation: (()) -> GenericClass<Int, Int, Int>) in
-                    implementation(())
-                },
-                superclassCall: super.genericClass,
-                defaultCall: cuckooDefaultImplementation.value.genericClass
-            )
-        }
-        set {
-            cuckooManager.setter(
-                "genericClass",
-                value: newValue,
-                invoke: { (implementation: (GenericClass<Int, Int, Int>) -> Void, value) in
-                    implementation(value)
-                },
-                superclassCall: super.genericClass = newValue,
-                defaultCall: cuckooDefaultImplementation.value.genericClass = newValue
-            )
-        }
-    }
-
     override var genericClassAs: GenericClass<Int, Int, Int> {
         get {
             return cuckooManager.getter(
@@ -40117,10 +40093,6 @@ final class MockTypeIsRightClass: TypeIsRightClass, nonisolated Cuckoo.ClassMock
             return .init(manager: cuckooManager, name: "zero")
         }
 
-        var genericClass: Cuckoo.ClassToBeStubbedProperty<MockTypeIsRightClass, GenericClass<Int, Int, Int>, (()) -> GenericClass<Int, Int, Int>, (GenericClass<Int, Int, Int>) -> Void, Cuckoo.StubSharing.Confined> {
-            return .init(manager: cuckooManager, name: "genericClass")
-        }
-
         var genericClassAs: Cuckoo.ClassToBeStubbedProperty<MockTypeIsRightClass, GenericClass<Int, Int, Int>, (()) -> GenericClass<Int, Int, Int>, (GenericClass<Int, Int, Int>) -> Void, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckooManager, name: "genericClassAs")
         }
@@ -40183,10 +40155,6 @@ final class MockTypeIsRightClass: TypeIsRightClass, nonisolated Cuckoo.ClassMock
 
         var zero: Cuckoo.VerifyProperty<Int> {
             return .init(manager: cuckooManager, name: "zero", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
-        }
-
-        var genericClass: Cuckoo.VerifyProperty<GenericClass<Int, Int, Int>> {
-            return .init(manager: cuckooManager, name: "genericClass", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         var genericClassAs: Cuckoo.VerifyProperty<GenericClass<Int, Int, Int>> {
@@ -40273,15 +40241,6 @@ final class TypeIsRightClassStub: TypeIsRightClass {
     override var zero: Int {
         get {
             typealias __CuckooDefault = Int
-            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
-        }
-        set {
-        }
-    }
-
-    override var genericClass: GenericClass<Int, Int, Int> {
-        get {
-            typealias __CuckooDefault = GenericClass<Int, Int, Int>
             return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
         set {

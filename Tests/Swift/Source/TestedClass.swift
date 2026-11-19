@@ -518,7 +518,6 @@ class TypeIsRightClass {
     var doublySo = 0.123
     var negative = -1250
     var zero = 0
-    var genericClass = GenericClass<Int, Int, Int>(theT: 1, theU: 2, theV: 3)
     var genericClassAs = GenericClass(theT: 1, theU: 2, theV: 3) as GenericClass<Int, Int, Int>
     var array = [] as [String]
     var boolNo = false

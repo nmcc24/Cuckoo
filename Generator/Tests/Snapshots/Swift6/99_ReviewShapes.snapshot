@@ -608,3 +608,81 @@ extension ReviewBox {
         }
     }
 }
+
+final class MockReviewGuesses: ReviewGuesses, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewGuesses
+    typealias CuckooStubbing = __StubbingProxy_ReviewGuesses
+    typealias CuckooVerification = __VerificationProxy_ReviewGuesses
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewGuesses.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewGuesses>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewGuesses) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override var count: Int {
+        get {
+            return cuckooManager.getter(
+                "count",
+                invoke: { (implementation: (()) -> Int) in
+                    implementation(())
+                },
+                superclassCall: super.count,
+                defaultCall: cuckooDefaultImplementation.value.count
+            )
+        }
+        set {
+            cuckooManager.setter(
+                "count",
+                value: newValue,
+                invoke: { (implementation: (Int) -> Void, value) in
+                    implementation(value)
+                },
+                superclassCall: super.count = newValue,
+                defaultCall: cuckooDefaultImplementation.value.count = newValue
+            )
+        }
+    }
+
+    nonisolated struct __StubbingProxy_ReviewGuesses: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        var count: Cuckoo.ClassToBeStubbedProperty<MockReviewGuesses, Int, (()) -> Int, (Int) -> Void, Cuckoo.StubSharing.Confined> {
+            return .init(manager: cuckooManager, name: "count")
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewGuesses: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        var count: Cuckoo.VerifyProperty<Int> {
+            return .init(manager: cuckooManager, name: "count", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
+        }
+    }
+}
+
+final class ReviewGuessesStub: ReviewGuesses {
+    override var count: Int {
+        get {
+            typealias __CuckooDefault = Int
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+        set {
+        }
+    }
+}

@@ -1051,9 +1051,13 @@ extension Crawler {
         guard case .identifier(let identifier) = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier.tokenKind else { return nil }
 
         let type: ComplexType
-        if let explicitType = declaredType {
+        // `var items: Array = [1]` leaves the generic arguments to the type checker, which the mock can't.
+        let isBareGeneric = declaredType?.as(IdentifierTypeSyntax.self).map {
+            $0.genericArgumentClause == nil && TypeGuesser.isGeneric($0.name.text, genericTypes: context.genericTypes)
+        } == true
+        if let explicitType = declaredType, !isBareGeneric {
             type = ComplexType(syntax: withGenericArguments(explicitType))
-        } else if let initializer = binding.initializer?.value, let guessedType = TypeGuesser.guessType(from: initializer, genericTypes: context.genericTypes, functions: context.capitalizedFunctions.subtracting(context.nominalTypes)) {
+        } else if declaredType == nil, let initializer = binding.initializer?.value, let guessedType = TypeGuesser.guessType(from: initializer, genericTypes: context.genericTypes, functions: context.capitalizedFunctions.subtracting(context.nominalTypes)) {
             type = .type(guessedType)
         } else {
             // An extension's property is only read for what it hides, and was never going to be mocked.
