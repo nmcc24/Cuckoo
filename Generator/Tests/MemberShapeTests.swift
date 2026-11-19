@@ -503,6 +503,32 @@ struct MemberShapeTests {
         #expect(classMock.contains("    func same(_ p0: Self) -> Bool {"))
     }
 
+    /// A `where` clause naming an associated type is matched as the member's types are, the same type for each use.
+    @Test
+    func aWhereClauseNamingAnAssociatedTypeIsMatched() async throws {
+        let source = """
+            protocol Picking {
+                associatedtype Key
+                func pick<T>(_ values: T) -> Key? where T: Sequence, T.Element == Key
+                func first<T>(_ values: T) -> Key? where T: Sequence, T.Element == Key
+            }
+            class Picker: Picking {
+                typealias Key = String
+                init() {}
+                func pick<T>(_ values: T) -> String? where T: Sequence, T.Element == String { nil }
+                func first<T>(_ values: T) -> String? where T: Sequence, T.Element == Int { nil }
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockPicker:")).lowerBound
+        let end = try #require(output.firstRange(of: "class PickerStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(classMock.contains("override func pick<T> (_ p0: T) -> String? where T: Sequence, T.Element == String {"))
+        #expect(!classMock.contains("func pick<T> (_ p0: T) -> Key? where T: Sequence, T.Element == Key {"))
+        // `Int` isn't the `String` the class's typealias makes `Key`.
+        #expect(classMock.contains("func first<T> (_ p0: T) -> Key? where T: Sequence, T.Element == Key {"))
+    }
+
     /// With a default isolation, a `nonisolated` class's member takes its requirement's actor only when it's the
     /// requirement's witness: the overload written with the class's typealias type, not the other one.
     @Test
