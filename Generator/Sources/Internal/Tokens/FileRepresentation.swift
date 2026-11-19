@@ -321,6 +321,12 @@ extension Token {
         switch token {
         case let classToken as ClassDeclaration:
             var merged = classToken.replacing(members: mergedTokens)
+            // A public subclass inherits the members that made its superclass's mock internal, so its mock is too.
+            if merged.accessibility >= .public, merged.internalMockReason == nil,
+               let reason = inheritedRepresentations.lazy.compactMap({ ($0 as? ClassDeclaration)?.internalMockReason }).first {
+                merged.accessibility = .internal
+                merged.internalMockReason = reason
+            }
             // A superclass's are its subclasses' too: its mock leaves them out, so theirs don't have them.
             let inheritedLeftOut = inheritedRepresentations.compactMap { ($0 as? ClassDeclaration)?.selfRequirementsLeftOut }.joined()
             merged.selfRequirementsLeftOut = (inheritedLeftOut + undeclarableRequirements).reduce(into: []) { names, name in

@@ -1898,3 +1898,165 @@ final class ReviewLocalizedFailureStub: ReviewLocalizedFailure, @unchecked Senda
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+final class MockReviewOpenBase: ReviewOpenBase, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewOpenBase
+    typealias CuckooStubbing = __StubbingProxy_ReviewOpenBase
+    typealias CuckooVerification = __VerificationProxy_ReviewOpenBase
+
+    // This mock is internal: ReviewOpenBase's non-public members name 'ReviewInternalThing', which the module declares
+    // non-public, and a public override can't. Import the mocks' module with `@testable` to use it.
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewOpenBase.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewOpenBase>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewOpenBase) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func use(_ p0: ReviewInternalThing) {
+        return cuckooManager.call(
+            "use(_ p0: ReviewInternalThing)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((ReviewInternalThing)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.use(p0),
+            defaultCall: cuckooDefaultImplementation.value.use(p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewOpenBase: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func use<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(ReviewInternalThing), ((ReviewInternalThing)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ReviewInternalThing {
+            let matchers: [Cuckoo.ParameterMatcher<(ReviewInternalThing)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockReviewOpenBase.self,
+                method: "use(_ p0: ReviewInternalThing)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewOpenBase: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func use<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(ReviewInternalThing), Void> where __M1.MatchedType == ReviewInternalThing {
+            let matchers: [Cuckoo.ParameterMatcher<(ReviewInternalThing)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "use(_ p0: ReviewInternalThing)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ReviewOpenBaseStub: ReviewOpenBase {
+    override func use(_ p0: ReviewInternalThing) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockReviewPublicSub: ReviewPublicSub, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewPublicSub
+    typealias CuckooStubbing = __StubbingProxy_ReviewPublicSub
+    typealias CuckooVerification = __VerificationProxy_ReviewPublicSub
+
+    // This mock is internal: ReviewPublicSub's non-public members name 'ReviewInternalThing', which the module declares
+    // non-public, and a public override can't. Import the mocks' module with `@testable` to use it.
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewPublicSub.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewPublicSub>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewPublicSub) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func use(_ p0: ReviewInternalThing) {
+        return cuckooManager.call(
+            "use(_ p0: ReviewInternalThing)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((ReviewInternalThing)) -> Void, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.use(p0),
+            defaultCall: cuckooDefaultImplementation.value.use(p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewPublicSub: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func use<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.ClassStubNoReturnFunction<(ReviewInternalThing), ((ReviewInternalThing)) -> Void, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ReviewInternalThing {
+            let matchers: [Cuckoo.ParameterMatcher<(ReviewInternalThing)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockReviewPublicSub.self,
+                method: "use(_ p0: ReviewInternalThing)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewPublicSub: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func use<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(ReviewInternalThing), Void> where __M1.MatchedType == ReviewInternalThing {
+            let matchers: [Cuckoo.ParameterMatcher<(ReviewInternalThing)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "use(_ p0: ReviewInternalThing)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ReviewPublicSubStub: ReviewPublicSub {
+    override func use(_ p0: ReviewInternalThing) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}

@@ -131,3 +131,18 @@ class ReviewLocalizedFailure: LocalizedError, @unchecked Sendable {
     init() {}
     func describe() -> String { "" }
 }
+
+// A public subclass of a class whose mock is internal, because a member names an internal type, gets an internal
+// mock too: it inherits that member.
+struct ReviewInternalThing {}
+
+open class ReviewOpenBase {
+    public init() {}
+    func use(_ thing: ReviewInternalThing) {}
+}
+
+public class ReviewPublicSub: ReviewOpenBase {
+    public override init() {
+        super.init()
+    }
+}
