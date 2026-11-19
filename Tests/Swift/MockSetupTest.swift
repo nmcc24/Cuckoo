@@ -5,11 +5,11 @@ import Testing
 
 /// Enabling the superclass spy or a default implementation, and how a failed `verify` leaves its calls.
 struct MockSetupTest {
+    /// Before its first stub or call, a mock's default implementation can be replaced.
     @Test
-    func replacingTheDefaultImplementationAfterACallIsAllowed() {
+    func replacingTheDefaultImplementationBeforeTheFirstCallIsAllowed() {
         let mock = MockTestedProtocol()
         mock.enableDefaultImplementation(TestedProtocolStub())
-        _ = mock.count(characters: "a")
 
         let failure = TestUtils.catchCuckooFail {
             mock.enableDefaultImplementation(TestedProtocolStub())

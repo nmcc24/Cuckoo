@@ -21,6 +21,9 @@ public final class MockManager: Sendable {
         var unverifiedCallIDs: Set<Int> = []
         var nextCallID = 0
         var fallback = Fallback.none
+        /// Whether the mock has been stubbed or called, after which its fallback can't change. Neither `reset` nor
+        /// `clearInvocations` clears it: a test's mock is set up once, when it's created.
+        var isInUse = false
     }
 
     /// What answers a call that no stub matches. A mock has one at most.
@@ -80,6 +83,7 @@ public final class MockManager: Sendable {
             state.nextCallID += 1
             state.calls.append(RecordedCall(id: id, sequence: CallSequence.next(), call: call, returnType: OUT.self))
             state.unverifiedCallIDs.insert(id)
+            state.isInUse = true
             return (state.stubs, state.fallback)
         }
 
@@ -280,14 +284,20 @@ public final class MockManager: Sendable {
     /// Adds a stub of a class mock's `method` for calls whose arguments match `parameterMatchers`.
     public func createStub<MOCK: ClassMock, IN, OUT, ERROR, IMPL>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ClassConcreteStub<IN, OUT, ERROR, IMPL> {
         let stub = ClassConcreteStub<IN, OUT, ERROR, IMPL>(method: method, parameterMatchers: parameterMatchers)
-        state.withLock { $0.stubs.insert(stub, at: 0) }
+        state.withLock { state in
+            state.stubs.insert(stub, at: 0)
+            state.isInUse = true
+        }
         return stub
     }
 
     /// Adds a stub of a protocol mock's `method` for calls whose arguments match `parameterMatchers`.
     public func createStub<MOCK: ProtocolMock, IN, OUT, ERROR, IMPL>(for _: MOCK.Type, method: String, parameterMatchers: [ParameterMatcher<IN>]) -> ConcreteStub<IN, OUT, ERROR, IMPL> {
         let stub = ConcreteStub<IN, OUT, ERROR, IMPL>(method: method, parameterMatchers: parameterMatchers)
-        state.withLock { $0.stubs.insert(stub, at: 0) }
+        state.withLock { state in
+            state.stubs.insert(stub, at: 0)
+            state.isInUse = true
+        }
         return stub
     }
 
@@ -391,7 +401,8 @@ public final class MockManager: Sendable {
         state.withLock { $0.calls.map { SequencedCall(sequence: $0.sequence, call: $0.call) } }
     }
 
-    /// Makes unstubbed calls run the superclass's real implementation. Allowed only before the mock's first call.
+    /// Makes unstubbed calls run the superclass's real implementation. Allowed only before the mock's first stub or
+    /// call.
     public func enableSuperclassSpy() {
         guard hasParent else {
             fail("A protocol mock has no superclass to spy on. Use enableDefaultImplementation(_:) to forward its calls to a real implementation.")
@@ -404,8 +415,8 @@ public final class MockManager: Sendable {
             case .defaultImplementation:
                 return "Enabling superclass spy is not allowed with the default implementation enabled."
             case .none:
-                guard state.calls.isEmpty else {
-                    return "Enabling superclass spy is not allowed after the mock's first call. Enable it right after creating the mock."
+                guard !state.isInUse else {
+                    return "Enabling superclass spy is not allowed after the mock's first stub or call. Enable it right after creating the mock, or first in createMock's closure."
                 }
                 state.fallback = .superclass
                 return nil
@@ -416,8 +427,8 @@ public final class MockManager: Sendable {
         }
     }
 
-    /// Makes unstubbed calls forward to the default implementation. Allowed only before the mock's first call, except
-    /// to replace the default implementation, which a generated mock does before calling this.
+    /// Makes unstubbed calls forward to the default implementation. Allowed only before the mock's first stub or
+    /// call, as is replacing it, which a generated mock does before calling this.
     public func enableDefaultImplementation(fileID: String = #fileID, filePath: StaticString = #filePath, line: Int = #line, column: Int = #column) {
         guard !isStatic else {
             fail("Static members have no default implementation. Stub them instead.", at: (fileID, filePath, line, column))
@@ -425,14 +436,11 @@ public final class MockManager: Sendable {
         }
         let error: String? = state.withLock { state in
             switch state.fallback {
-            case .defaultImplementation:
-                // The mock has just replaced its default implementation, which is allowed at any time.
-                return nil
             case .superclass:
                 return "Enabling the default implementation is not allowed with superclass spy enabled."
-            case .none:
-                guard state.calls.isEmpty else {
-                    return "Enabling the default implementation is not allowed after the mock's first call. Enable it right after creating the mock."
+            case .none, .defaultImplementation:
+                guard !state.isInUse else {
+                    return "Enabling the default implementation is not allowed after the mock's first stub or call. Enable it right after creating the mock, or first in createMock's closure."
                 }
                 state.fallback = .defaultImplementation
                 return nil

@@ -29,7 +29,59 @@ struct CrashTest {
             late.noReturn()
             late.enableSuperclassSpy()
         })
-        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling superclass spy is not allowed after the mock's first call"))
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling superclass spy is not allowed after the mock's first stub or call"))
+    }
+
+    /// A stub sets the mock up too: the spy can't come after it.
+    @Test
+    func superclassSpyAfterTheFirstStubStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let late = MockTestedClass()
+            stub(late) { stub in
+                when(stub.noReturn()).thenDoNothing()
+            }
+            late.enableSuperclassSpy()
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling superclass spy is not allowed after the mock's first stub or call"))
+    }
+
+    /// `reset` clears a mock's stubs and calls, but doesn't make it new: the spy still can't be enabled.
+    @Test
+    func superclassSpyAfterResetStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let late = MockTestedClass()
+            stub(late) { stub in
+                when(stub.noReturn()).thenDoNothing()
+            }
+            late.noReturn()
+            reset(late)
+            late.enableSuperclassSpy()
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling superclass spy is not allowed after the mock's first stub or call"))
+    }
+
+    /// `clearInvocations` doesn't make a mock new either: the default implementation still can't be enabled.
+    @Test
+    func defaultImplementationAfterClearInvocationsStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let late = MockTestedProtocol()
+            _ = late.count(characters: "a")
+            clearInvocations(late)
+            late.enableDefaultImplementation(TestedProtocolStub())
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling the default implementation is not allowed after the mock's first stub or call"))
+    }
+
+    /// Nor can the default implementation be replaced once the mock is in use.
+    @Test
+    func replacingTheDefaultImplementationAfterTheFirstCallStopsTheProcess() async throws {
+        let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+            let late = MockTestedProtocol()
+            late.enableDefaultImplementation(TestedProtocolStub())
+            _ = late.count(characters: "a")
+            late.enableDefaultImplementation(TestedProtocolStub())
+        })
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling the default implementation is not allowed after the mock's first stub or call"))
     }
 
     @Test
@@ -129,7 +181,7 @@ struct CrashTest {
             mock.noReturn()
             mock.enableDefaultImplementation(TestedProtocolStub())
         })
-        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling the default implementation is not allowed after the mock's first call"))
+        #expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("Enabling the default implementation is not allowed after the mock's first stub or call"))
     }
 
 }
