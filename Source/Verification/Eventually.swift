@@ -55,8 +55,8 @@ private func collectingFailures(of block: () -> Void) -> [ReportedFailure] {
     }
     let collected = Locked(Collected())
     let outer = CuckooConfiguration.current
-    var configuration = outer
-    configuration.failureHandler = { failure in
+    let outerHeld = HeldFailures.handler
+    let handler: @Sendable (ReportedFailure) -> Void = { failure in
         let isLate = collected.withLock { collected in
             guard !collected.isClosed else {
                 return true
@@ -65,16 +65,24 @@ private func collectingFailures(of block: () -> Void) -> [ReportedFailure] {
             return false
         }
         if isLate {
-            CuckooConfiguration.$current.withValue(outer) {
-                reportFailure(failure.message, at: failure.sourceLocation, creatingTest: failure.creatingTest)
+            HeldFailures.$handler.withValue(outerHeld) {
+                CuckooConfiguration.$current.withValue(outer) {
+                    reportFailure(failure.message, at: failure.sourceLocation, creatingTest: failure.creatingTest)
+                }
             }
         }
     }
-    CuckooConfiguration.$current.withValue(configuration) {
+    HeldFailures.$handler.withValue(handler) {
         block()
     }
     return collected.withLock { collected in
         collected.isClosed = true
         return collected.failures
     }
+}
+
+/// Where `eventually` keeps its block's failures: a task-local apart from `CuckooConfiguration`, so a configuration
+/// the block sets, as `.cuckoo(defaultValues:)` or `CuckooConfiguration.$current.withValue(…)`, keeps it.
+enum HeldFailures {
+    @TaskLocal static var handler: (@Sendable (_ failure: ReportedFailure) -> Void)?
 }

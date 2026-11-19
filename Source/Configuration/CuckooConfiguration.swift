@@ -18,8 +18,8 @@ public struct CuckooConfiguration: Sendable {
     /// of the scope it was created in, for the types this scope doesn't register.
     public var defaultValues: DefaultValues
     /// Takes each failure instead of the test framework, with its location if it has one and the test that
-    /// created the mock: `eventually` holds failures back with it and reports them later, and Cuckoo's own tests
-    /// check them with it. `nil` reports to the framework running the test.
+    /// created the mock: Cuckoo's own tests check them with it. `nil` reports to the framework running the test.
+    /// Inside `eventually`, its block's failures are held back first.
     var failureHandler: (@Sendable (_ failure: ReportedFailure) -> Void)?
 
     /// Creates a configuration with `defaultValues`.
@@ -115,8 +115,7 @@ struct CreatingTest: Sendable {
 /// with no test at all, current or creating, goes to XCTest only: XCTest doesn't say which test is running, and
 /// Xcode's interop reports an issue recorded during an XCTest test as a second failure of that test.
 func reportFailure(_ message: String, at sourceLocation: CuckooSourceLocation?, creatingTest: CreatingTest? = nil) {
-    let configuration = CuckooConfiguration.current
-    if let handler = configuration.failureHandler {
+    if let handler = HeldFailures.handler ?? CuckooConfiguration.current.failureHandler {
         handler(ReportedFailure(message: message, sourceLocation: sourceLocation, creatingTest: creatingTest))
         return
     }
