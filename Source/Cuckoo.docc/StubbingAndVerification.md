@@ -85,6 +85,11 @@ mocks of any isolation, so it checks at run time: called off a mock's global act
 of reading that mock's calls. The compiler can't check an `actor` mock this way, since its proxy would need `await`
 on every `verify`: don't verify an actor mock while a call to it may still be running.
 
+Stubbing a mock of a global actor works from any isolation, but its matchers run on that actor, when the code
+under test calls the mock. Test a `@MainActor` mock from a `@MainActor` test, where the compiler checks everything.
+Stubbing it from another isolation and then using a non-`Sendable` value you gave a matcher, such as a captor or a
+class compared with `equal(to:)`, while the code under test runs, isn't checked by the compiler and races.
+
 ### Stub members
 
 ``stub(_:block:)-(M,_)`` hands its block a stubbing proxy with one member for each of the mock's. Pass a call on
@@ -235,15 +240,16 @@ stub(greeter) { stub in
 
 A `struct` passed in is copied once: changes made through the mock stay in the mock's copy, and later changes to
 your own variable don't reach it. Pass a class instance to share state with the test. Enable it before the mock's
-first call, as the spy below; calling it again later only replaces the implementation. A mock has either a default
-implementation or a superclass spy, not both. Actor mocks have no default implementation: forwarding a call's
+first stub or call, as the spy below; calling it again before then replaces the implementation. A mock has either a
+default implementation or a superclass spy, not both. Actor mocks have no default implementation: forwarding a call's
 arguments to another actor would race. Stub their members instead.
 
 The mock of a class can call the class itself. ``ClassMock/enableSuperclassSpy()``, or `withEnabledSuperclassSpy()`
 when creating it, makes every unstubbed member call the superclass, so the mock acts as a spy. Enable it before the
-mock's first call, or the test stops: a mock that has already answered calls can't change how it answers. A class
-whose initializer calls its own members has made calls by then, so enable the spy with
-``createMock(_:configuration:)``'s ``MockBuilder/enableSuperclassSpy()``, which applies before the initializer runs.
+mock's first stub or call, or the test stops: a mock is set up when it's created, and `reset` or
+`clearInvocations` doesn't make it new. A class whose initializer calls its own members has made calls by then, so
+enable the spy with ``createMock(_:configuration:)``'s ``MockBuilder/enableSuperclassSpy()``, which applies before
+the initializer runs. Call it first in the closure, before stubbing.
 
 Each generated mock `MockGreeter` comes with `GreeterStub`, a type with no stubbing or verification whose members return
 default values and do nothing else. `MockGreeter().withEnabledDefaultImplementation(GreeterStub())` makes every
@@ -358,7 +364,8 @@ await eventually {
 ```
 
 It checks that something becomes true. `verify(service, never())` passes on the first try, before the code under
-test has run.
+test has run. To wait for calls in an order, put `inOrder` inside `eventually`: an `eventually` inside `inOrder`
+passes at once, since the block's checks run only when `inOrder` ends.
 
 ### Capture arguments
 
@@ -381,7 +388,8 @@ stubbed call returns. Call such a closure from the stub's `then` closure instead
 
 ### Reset a mock
 
-- ``reset(_:)-(Mock...)`` clears a mock's stubs and recorded calls.
+- ``reset(_:)-(Mock...)`` clears a mock's stubs and recorded calls. A default implementation or superclass spy
+  stays, and can't be enabled afterwards.
 - ``clearStubs(_:)-(Mock...)`` clears only the stubs.
 - ``clearInvocations(_:)-(Mock...)`` clears only the recorded calls.
 
