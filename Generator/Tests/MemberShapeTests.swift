@@ -628,6 +628,55 @@ struct MemberShapeTests {
         #expect(!classMock.contains("where Value == T.Element, Key == U.Element {"))
     }
 
+    /// An associated type no typealias names stands for any type the member writes, so a same-named overload is
+    /// taken for a defaulted requirement, which the mock doesn't declare: that compiles, where narrowing the type to the
+    /// one Swift infers would reject other spellings of it.
+    @Test
+    func anUnnamedAssociatedTypeStandsForAnyType() async throws {
+        let source = """
+            protocol Keyed {
+                associatedtype Key
+                func get() -> Key
+                func over<T: Sequence>(_ values: T) where T.Element == Key
+            }
+            extension Keyed {
+                func over<T: Sequence>(_ values: T) where T.Element == Key {}
+            }
+            class KeyStore: Keyed {
+                init() {}
+                func get() -> String { "" }
+                func over<T: Sequence>(_ values: T) where T.Element == Int {}
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockKeyStore:")).lowerBound
+        let end = try #require(output.firstRange(of: "class KeyStoreStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(classMock.contains("override func over<T: Sequence> (_ p0: T) where T.Element == Int {"))
+        #expect(!classMock.contains("where T.Element == Key {"))
+    }
+
+    /// A subclass's mock lists the `Self` requirements its superclass's mock leaves out too.
+    @Test
+    func aSubclassRepeatsTheSelfRequirementsLeftOut() async throws {
+        let source = """
+            protocol Merging {
+                func merged(with other: Self) -> Bool
+            }
+            extension Merging {
+                func merged(with other: Self) -> Bool { false }
+            }
+            class Merger: Merging {
+                init() {}
+            }
+            class SubMerger: Merger {}
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockSubMerger:")).lowerBound
+        let end = try #require(output.firstRange(of: "class SubMergerStub:")).lowerBound
+        #expect(output[start..<end].contains("    // - 'merged(with:)' names `Self` and is left to the protocol's default implementation, which calls run."))
+    }
+
     /// With a default isolation, a `nonisolated` class's member takes its requirement's actor only when it's the
     /// requirement's witness: the overload written with the class's typealias type, not the other one.
     @Test

@@ -44,12 +44,20 @@ runtime dispatches them. An `@objcMembers` class's extension members are `@objc`
 represent their types, which the generator can't tell from the sources, so they're kept too: write `@objc` on one
 to mock it.
 
-A requirement naming `Self`, as `func merged(with other: Self) -> Bool`, that the class leaves to the protocol's
-default implementation isn't mocked either: the mock would have to write it with the class's type, and calls through
-the protocol reach the default implementation anyway. Implement it in the class to stub it. The generator reads only
-the sources, so it doesn't know what a superclass from another module implements, as `NSObject`'s `description` or
-`isEqual(_:)`: a requirement such a member implements is declared again in the mock, without `override`, which
-doesn't compile. Implement the requirement in the class, or leave the protocol to a protocol mock.
+A requirement naming `Self`, as `func merged(with other: Self) -> Bool`, that the class leaves to the protocol's default
+implementation isn't mocked either: the mock would have to write it with the class's type, and calls through the
+protocol reach the default implementation anyway. Implement it in the class to stub it. An associated type the class
+leaves Swift to infer stands for any type when the generator matches the class's members against the requirements, so a
+member of the same name, labels and shape counts as implementing one: with `func get() -> String` and `func over<T>(_
+values: T) where T.Element == Int`, the defaulted requirement `over(_:) where T.Element == Key` isn't declared in the
+mock, and a direct call on the mock with `String` elements runs the default implementation. Name the type with a
+typealias, `typealias Key = String`, to have it declared and stubbed. The generator compares the types as written, so a
+member spelling one differently from the requirement, as `Array<String>` for `[Key]`, `Optional<Thing>` for `Item?`, or
+a class's typealias where the requirement writes the type itself, isn't taken for its implementation: the mock declares
+the requirement too, which doesn't compile. Write such a member's types as the requirement does. The generator reads
+only the sources, so it doesn't know what a superclass from another module implements, as `NSObject`'s `description` or
+`isEqual(_:)`: a requirement such a member implements is declared again in the mock, without `override`, which doesn't
+compile. Implement the requirement in the class, or leave the protocol to a protocol mock.
 
 Mocks keep the isolation of the type they mock. The mock of a `@MainActor` protocol is `@MainActor`, the mock of
 an `actor` protocol is an actor, and the mock of a `Sendable` type is `Sendable`, so the compiler checks how the

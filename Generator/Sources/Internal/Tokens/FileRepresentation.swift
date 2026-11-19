@@ -289,7 +289,12 @@ extension Token {
         switch token {
         case let classToken as ClassDeclaration:
             var merged = classToken.replacing(members: mergedTokens)
-            merged.unmockedMembers += undeclarableRequirements
+            // A superclass's are its subclasses' too: its mock leaves them out, so theirs don't have them.
+            let inheritedLeftOut = inheritedRepresentations.compactMap { ($0 as? ClassDeclaration)?.selfRequirementsLeftOut }.joined()
+            merged.selfRequirementsLeftOut = (inheritedLeftOut + undeclarableRequirements).reduce(into: []) { names, name in
+                if !names.contains(name) { names.append(name) }
+            }
+            merged.unmockedMembers += merged.selfRequirementsLeftOut
             // A generic superclass's members name its generic parameters, which the mock would have to replace with
             // the arguments the class gives them: they're left to the real implementation, and the mock says so.
             if let superclassName = classToken.inheritedTypes.first(where: { $0.contains("<") }),
