@@ -142,28 +142,45 @@ struct GenerateCommand: AsyncParsableCommand {
         }
 
         // A failure doesn't stop the other outputs, but it fails the run, so a build doesn't go on with stale mocks.
-        let directoryFailures = await directoryOutputs.concurrentMap { output -> [String] in
+        let generated = await directoryOutputs.concurrentMap { output -> Result<[(path: Path, contents: String, module: String)], DirectoryOutputError> in
             let module = output.module
             do {
                 try output.path.createDirectory(withIntermediateDirectories: true)
                 let generatedFiles = try await Generator.generate(for: module, singleFileOutput: false, verbose: verbose)
                 let names = Self.outputNames(for: generatedFiles.map(\.path))
-                return await zip(generatedFiles, names).map { $0 }.concurrentCompactMap { generatedFile, originalFileName -> String? in
+                return .success(zip(generatedFiles, names).map { generatedFile, originalFileName in
                     let fileNameWithoutExtension = module.filenameFormat
                         .map { $0.replacing("{}", with: originalFileName) }
                         ?? originalFileName
-                    let outputFile = TextFile(path: output.path + "\(fileNameWithoutExtension).swift")
-                    do {
-                        try outputFile.write(generatedFile.contents)
-                        return nil
-                    } catch {
-                        return "Failed to write to file '\(outputFile)': \(error)"
-                    }
-                }
+                    return (output.path + "\(fileNameWithoutExtension).swift", generatedFile.contents, module.name)
+                })
             } catch {
-                return ["Failed to generate mocks for module \(module.name): \(error)"]
+                return .failure(DirectoryOutputError(message: "Failed to generate mocks for module \(module.name): \(error)"))
             }
         }
+        var directoryFailures = generated.compactMap { result -> String? in
+            if case .failure(let error) = result { return error.message }
+            return nil
+        }
+        // Two modules writing the same file in a shared directory would overwrite each other, so neither writes it and
+        // the run fails. Paths are compared ignoring case, as the default file systems on macOS and Windows do.
+        let files = generated.flatMap { (try? $0.get()) ?? [] }
+        let clashes = Dictionary(grouping: files, by: { $0.path.standardRawValue.lowercased() })
+            .filter { Set($0.value.map(\.module)).count > 1 }
+        directoryFailures += clashes.values.map { clash in
+            let modules = Set(clash.map(\.module)).sorted().joined(separator: " and ")
+            return "Modules \(modules) would both write '\(clash[0].path)': give them different output directories, or a filenameFormat."
+        }.sorted()
+        directoryFailures += await files.filter { clashes[$0.path.standardRawValue.lowercased()] == nil }
+            .concurrentCompactMap { file -> String? in
+                let outputFile = TextFile(path: file.path)
+                do {
+                    try outputFile.write(file.contents)
+                    return nil
+                } catch {
+                    return "Failed to write to file '\(outputFile)': \(error)"
+                }
+            }
 
         let fileFailures = await fileOutputs.concurrentCompactMap { output -> String? in
             let names = output.modules.map(\.name).joined(separator: ", ")
@@ -188,7 +205,7 @@ struct GenerateCommand: AsyncParsableCommand {
             }
         }
 
-        let failures = directoryFailures.flatMap(\.self) + fileFailures
+        let failures = directoryFailures + fileFailures
         guard failures.isEmpty else {
             for failure in failures {
                 printToStandardError("error: \(failure)\n")
@@ -201,14 +218,15 @@ struct GenerateCommand: AsyncParsableCommand {
     /// enough of their parent directories, joined by `_`, to tell them apart (`A/User.swift` and `B/User.swift`
     /// give `A_User` and `B_User`).
     static func outputNames(for sources: [Path]) -> [String] {
-        let groups = Dictionary(grouping: sources.indices) { sources[$0].fileNameWithoutExtension }
+        // Names differing only in case are one file on macOS's default file system.
+        let groups = Dictionary(grouping: sources.indices) { sources[$0].fileNameWithoutExtension.lowercased() }
         var names = sources.map(\.fileNameWithoutExtension)
         for indices in groups.values where indices.count > 1 {
             let directories = indices.map { sources[$0].parent.components.map(\.fileName).filter { $0 != "/" } }
             let longest = directories.map(\.count).max() ?? 0
             // The fewest parent directories that make the group's names unique; all of them when even that doesn't.
             let depth = (1...max(longest, 1)).first { depth in
-                Set(directories.map { $0.suffix(depth) }).count == indices.count
+                Set(directories.map { $0.suffix(depth).joined(separator: "/").lowercased() }).count == indices.count
             } ?? longest
             for (index, directory) in zip(indices, directories) {
                 names[index] = (directory.suffix(depth) + [names[index]]).joined(separator: "_")
@@ -259,5 +277,9 @@ struct GenerateCommand: AsyncParsableCommand {
                 return "Failed to read the Cuckoofile at '\(path)': \(error)"
             }
         }
+    }
+
+    private struct DirectoryOutputError: Error {
+        let message: String
     }
 }

@@ -46,8 +46,10 @@ struct GenerateCommandTests {
             "/p/Sources/A/Models/Item.swift",
             "/p/Sources/B/Models/Item.swift",
             "/p/Sources/Greeter.swift",
+            "/p/Sources/A/Model.swift",
+            "/p/Sources/B/model.swift",
         ].map { Path($0) })
-        #expect(names == ["A_User", "B_User", "A_Models_Item", "B_Models_Item", "Greeter"])
+        #expect(names == ["A_User", "B_User", "A_Models_Item", "B_Models_Item", "Greeter", "A_Model", "B_model"])
     }
 
     /// The header names the mocked file by its path from the Cuckoofile, wherever the generator runs.
@@ -67,6 +69,28 @@ struct GenerateCommandTests {
             try await GenerateCommand.parse(["--configuration", directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)]).run(environment: [:])
             let mocks = try String(contentsOf: directory.appending(path: "Mocks/GreeterMocks.swift"), encoding: .utf8)
             #expect(mocks.contains("class MockGreeter"))
+        }
+    }
+
+    /// Two modules that would write the same file into one directory output, even differing only in case, fail the
+    /// run and leave that file unwritten instead of overwriting each other. Their other files are written.
+    @Test
+    func modulesSharingADirectoryOutputMayNotWriteTheSameFile() async throws {
+        try await withPackage(output: "Mocks", extraKeys: """
+            [modules.Other]
+            output = "Mocks"
+            sources = ["Other/*.swift"]
+            """) { directory in
+            try FileManager.default.createDirectory(at: directory.appending(path: "Other"), withIntermediateDirectories: true)
+            try "protocol Waver {\n    func wave()\n}\n"
+                .write(to: directory.appending(path: "Other/greeter.swift"), atomically: true, encoding: .utf8)
+            try "protocol Farewell {\n    func leave()\n}\n"
+                .write(to: directory.appending(path: "Other/Farewell.swift"), atomically: true, encoding: .utf8)
+            await #expect(throws: ExitCode.failure) {
+                try await GenerateCommand.parse(["--configuration", directory.appending(path: "Cuckoofile.toml").path(percentEncoded: false)]).run(environment: [:])
+            }
+            let written = try FileManager.default.contentsOfDirectory(atPath: directory.appending(path: "Mocks").path(percentEncoded: false))
+            #expect(written == ["Farewell.swift"])
         }
     }
 
