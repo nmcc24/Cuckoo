@@ -73,10 +73,16 @@ extension Method.Signature {
     @TaskLocal static var declaredTypes: Set<String> = []
 
     /// Whether a member with this signature implements a requirement with `requirement`'s: the same signature, with
-    /// the same effects or fewer. A member that doesn't throw implements one that throws or rethrows, and a
-    /// synchronous one an `async` one.
+    /// the same effects or fewer. A member that doesn't throw implements one that throws or rethrows, one that throws
+    /// a typed error, `throws(ParseError)`, one that throws any error, and a synchronous one an `async` one.
     func implements(_ requirement: Method.Signature) -> Bool {
+        // A typed throw throws fewer errors than an untyped one, `throws(any Error)` included. A bare `Error` may name
+        // a type of the sources, so it doesn't count.
+        let untyped: [ThrowType?] = [.throws(nil), .throws("any Error"), .throws("Swift.Error"), .throws("any Swift.Error")]
+        let requirementThrowsAnyError = untyped.contains(requirement.throwType)
+        // `throws` and `throws(any Error)` are one effect, however each side spells it.
         let throwsFewer = throwType == nil || throwType == requirement.throwType
+            || (throwType?.isTyped == true || untyped.contains(throwType)) && requirementThrowsAnyError
         let isFewerAsync = asyncType == nil || asyncType == requirement.asyncType
         guard throwsFewer, isFewerAsync else { return false }
         let withRequirementsEffects = Method.Signature(

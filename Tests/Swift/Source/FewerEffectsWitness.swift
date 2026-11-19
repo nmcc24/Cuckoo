@@ -10,3 +10,17 @@ class FewerEffectsLoader: FewerEffectsLoading {
     func load() -> Int { 0 }
     func later() -> Int { 0 }
 }
+
+enum FewerEffectsError: Error {
+    case failed
+}
+
+/// A typed throw implementing an untyped one.
+protocol TypedFewerEffectsLoading {
+    func load() throws -> Int
+}
+
+class TypedFewerEffectsLoader: TypedFewerEffectsLoading {
+    init() {}
+    func load() throws(FewerEffectsError) -> Int { 0 }
+}

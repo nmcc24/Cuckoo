@@ -163,6 +163,32 @@ class Shower: PlainShower, Showing {
     func show() {}
 }
 
+// A typed throw is fewer effects than an untyped one, `throws(any Error)` included.
+enum ParseError: Error {
+    case bad
+}
+
+protocol Parsing {
+    func parse() throws -> Int
+    func check() throws(any Error)
+}
+
+class TypedParser: Parsing {
+    init() {}
+    func parse() throws(ParseError) -> Int { 0 }
+    func check() throws(ParseError) {}
+}
+
+// `throws` and `throws(any Error)` are one effect, however each side spells it.
+protocol AnyErrorChecking {
+    func verify() throws(any Error)
+}
+
+class AnyErrorChecker: AnyErrorChecking {
+    init() {}
+    func verify() throws {}
+}
+
 func useFewerEffects() throws {
     let mock = MockLoader()
     stub(mock) { stub in

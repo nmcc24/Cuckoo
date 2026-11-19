@@ -31,6 +31,9 @@ import Combine
 @testable public import protocol CuckooTestSources.ExcludedProtocol
 @testable public import protocol CuckooTestSources.FewerEffectsLoading
 @testable public import class CuckooTestSources.FewerEffectsLoader
+@testable public import enum CuckooTestSources.FewerEffectsError
+@testable public import protocol CuckooTestSources.TypedFewerEffectsLoading
+@testable public import class CuckooTestSources.TypedFewerEffectsLoader
 @testable public import enum CuckooTestSources.ShapeFailure
 @testable public import protocol CuckooTestSources.TypedThrowingStore
 @testable public import protocol CuckooTestSources.MainActorIdentified
@@ -3717,6 +3720,162 @@ final class FewerEffectsLoaderStub: FewerEffectsLoader {
     }
 
     override func later() -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+nonisolated final class MockTypedFewerEffectsLoading: TypedFewerEffectsLoading, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any TypedFewerEffectsLoading
+    typealias CuckooStubbing = __StubbingProxy_TypedFewerEffectsLoading
+    typealias CuckooVerification = __VerificationProxy_TypedFewerEffectsLoading
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockTypedFewerEffectsLoading.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any TypedFewerEffectsLoading>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any TypedFewerEffectsLoading) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func load() throws -> Int {
+        return try cuckooManager.callThrows(
+            "load() throws -> Int",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: (()) throws -> Int, arguments) throws(any Swift.Error) in
+                try implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.load()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_TypedFewerEffectsLoading: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func load() -> Cuckoo.ProtocolStubThrowingFunction<(), Int, any Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockTypedFewerEffectsLoading.self,
+                method: "load() throws -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_TypedFewerEffectsLoading: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func load() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "load() throws -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class TypedFewerEffectsLoadingStub: TypedFewerEffectsLoading {
+    func load() throws -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockTypedFewerEffectsLoader: TypedFewerEffectsLoader, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = TypedFewerEffectsLoader
+    typealias CuckooStubbing = __StubbingProxy_TypedFewerEffectsLoader
+    typealias CuckooVerification = __VerificationProxy_TypedFewerEffectsLoader
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockTypedFewerEffectsLoader.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<TypedFewerEffectsLoader>()
+
+    nonisolated func enableDefaultImplementation(_ stub: TypedFewerEffectsLoader) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func load() throws(FewerEffectsError) -> Int {
+        return try cuckooManager.callThrows(
+            "load() throws(FewerEffectsError) -> Int",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (FewerEffectsError).self,
+            invoke: { (implementation: (()) throws -> Int, arguments) throws(FewerEffectsError) in
+                do {
+                    return try implementation(arguments)
+                } catch {
+                    throw Cuckoo.MockManager.typedError(error, as: (FewerEffectsError).self, member: "load() throws(FewerEffectsError) -> Int")
+                }
+            },
+            superclassCall: super.load(),
+            defaultCall: cuckooDefaultImplementation.value.load()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_TypedFewerEffectsLoader: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func load() -> Cuckoo.ClassStubThrowingFunction<(), Int, FewerEffectsError, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockTypedFewerEffectsLoader.self,
+                method: "load() throws(FewerEffectsError) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_TypedFewerEffectsLoader: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func load() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "load() throws(FewerEffectsError) -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class TypedFewerEffectsLoaderStub: TypedFewerEffectsLoader {
+    override func load() throws(FewerEffectsError) -> Int {
         typealias __CuckooDefault = Int
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
