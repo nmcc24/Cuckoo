@@ -2,5 +2,5 @@
 /// returns. It has one verifying member per mocked member.
 public protocol VerificationProxy {
     /// Creates the proxy that checks the calls `manager` recorded against `callMatcher`.
-    init(manager: MockManager, callMatcher: CallMatcher, sourceLocation: SourceLocation)
+    init(manager: MockManager, callMatcher: CallMatcher, sourceLocation: CuckooSourceLocation)
 }

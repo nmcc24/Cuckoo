@@ -14,10 +14,10 @@ enum VerificationProxyBuilder {
 
         try members.append("private let cuckooManager: Cuckoo.MockManager", of: name)
         try members.append("private let cuckooCallMatcher: Cuckoo.CallMatcher", of: name)
-        try members.append("private let cuckooSourceLocation: Cuckoo.SourceLocation", of: name)
+        try members.append("private let cuckooSourceLocation: Cuckoo.CuckooSourceLocation", of: name)
         members.separate()
         try members.append(lines([
-            "\(access)init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {",
+            "\(access)init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.CuckooSourceLocation) {",
             "    self.cuckooManager = manager",
             "    self.cuckooCallMatcher = callMatcher",
             "    self.cuckooSourceLocation = sourceLocation",
@@ -50,7 +50,7 @@ enum VerificationProxyBuilder {
             var overloads = MemberList()
             try overloads.append("fileprivate let cuckooManager: Cuckoo.MockManager", of: name)
             try overloads.append("fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher", of: name)
-            try overloads.append("fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation", of: name)
+            try overloads.append("fileprivate let cuckooSourceLocation: Cuckoo.CuckooSourceLocation", of: name)
             for method in asyncOverloads {
                 overloads.separate()
                 try overloads.append(overloads.conditional(method, source(of: method, access: GeneratorHelper.proxyAccess(of: method, in: container), isAsync: false)), of: "\(container.name).\(method.name)")
@@ -149,7 +149,7 @@ enum VerificationProxyBuilder {
         type.append("\(memberAccess.spaced)nonisolated struct __Subscript\(number)\(subscriptDeclaration.genericParametersClause)\(subscriptDeclaration.whereClause) {")
         type.append("    fileprivate let cuckooManager: Cuckoo.MockManager")
         type.append("    fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher")
-        type.append("    fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation")
+        type.append("    fileprivate let cuckooSourceLocation: Cuckoo.CuckooSourceLocation")
         type.append("    fileprivate let matchers: [Cuckoo.ParameterMatcher<(\(getterInput))>]")
         type.append("")
         type.append(contentsOf: actor)

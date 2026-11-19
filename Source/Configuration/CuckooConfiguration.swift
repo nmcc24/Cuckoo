@@ -81,7 +81,7 @@ public enum CuckooError: Error, Sendable, Equatable {
 /// A failure as `reportFailure` receives it, which a configuration's `failureHandler` takes.
 struct ReportedFailure: Sendable {
     let message: String
-    let sourceLocation: SourceLocation?
+    let sourceLocation: CuckooSourceLocation?
     let creatingTest: CreatingTest?
 }
 
@@ -114,7 +114,7 @@ struct CreatingTest: Sendable {
 /// created the mock. Swift Testing ties that issue to no test: the run fails, while the test itself passes. A failure
 /// with no test at all, current or creating, goes to XCTest only: XCTest doesn't say which test is running, and
 /// Xcode's interop reports an issue recorded during an XCTest test as a second failure of that test.
-func reportFailure(_ message: String, at sourceLocation: SourceLocation?, creatingTest: CreatingTest? = nil) {
+func reportFailure(_ message: String, at sourceLocation: CuckooSourceLocation?, creatingTest: CreatingTest? = nil) {
     let configuration = CuckooConfiguration.current
     if let handler = configuration.failureHandler {
         handler(ReportedFailure(message: message, sourceLocation: sourceLocation, creatingTest: creatingTest))
@@ -140,14 +140,14 @@ func reportFailure(_ message: String, at sourceLocation: SourceLocation?, creati
 #if canImport(Testing)
 /// Where a failure goes in Swift Testing, or `nil` when Swift Testing isn't involved and it goes to XCTest: the
 /// failure's own location, else the current test, else the test that created the mock.
-func swiftTestingIssueLocation(for sourceLocation: SourceLocation?, creatingTest: CreatingTest?) -> Testing.SourceLocation? {
+func swiftTestingIssueLocation(for sourceLocation: CuckooSourceLocation?, creatingTest: CreatingTest?) -> Testing.SourceLocation? {
     guard let test = Test.current.map({ CreatingTest(sourceLocation: $0.sourceLocation) }) ?? creatingTest else {
         return nil
     }
     return sourceLocation.map(testingSourceLocation) ?? test.sourceLocation
 }
 
-private func testingSourceLocation(_ sourceLocation: SourceLocation) -> Testing.SourceLocation {
+private func testingSourceLocation(_ sourceLocation: CuckooSourceLocation) -> Testing.SourceLocation {
     Testing.SourceLocation(
         fileID: sourceLocation.fileID,
         filePath: "\(sourceLocation.filePath)",

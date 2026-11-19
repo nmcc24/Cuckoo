@@ -3,7 +3,7 @@ public struct VerifyProperty<T> {
     private let manager: MockManager
     private let name: String
     private let callMatcher: CallMatcher
-    private let sourceLocation: SourceLocation
+    private let sourceLocation: CuckooSourceLocation
 
     /// Checks the property's reads against the call matcher `verify` was given.
     @discardableResult
@@ -19,7 +19,7 @@ public struct VerifyProperty<T> {
     }
     
     /// Creates the handle of the property `name`. The generated verification proxy creates it.
-    public init(manager: MockManager, name: String, callMatcher: CallMatcher, sourceLocation: SourceLocation) {
+    public init(manager: MockManager, name: String, callMatcher: CallMatcher, sourceLocation: CuckooSourceLocation) {
         self.manager = manager
         self.name = name
         self.callMatcher = callMatcher
@@ -32,7 +32,7 @@ public struct VerifyOptionalProperty<T> {
     private let manager: MockManager
     private let name: String
     private let callMatcher: CallMatcher
-    private let sourceLocation: SourceLocation
+    private let sourceLocation: CuckooSourceLocation
 
     /// Checks the property's reads against the call matcher `verify` was given.
     @discardableResult
@@ -48,7 +48,7 @@ public struct VerifyOptionalProperty<T> {
     }
 
     /// Creates the handle of the property `name`. The generated verification proxy creates it.
-    public init(manager: MockManager, name: String, callMatcher: CallMatcher, sourceLocation: SourceLocation) {
+    public init(manager: MockManager, name: String, callMatcher: CallMatcher, sourceLocation: CuckooSourceLocation) {
         self.manager = manager
         self.name = name
         self.callMatcher = callMatcher
