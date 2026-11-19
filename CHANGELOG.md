@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Breaking changes
+- `SourceLocation` is `CuckooSourceLocation`, so it no longer clashes with Swift Testing's `SourceLocation` in a
+  test that imports both. Code that names it changes.
+- `enableSuperclassSpy()` and `enableDefaultImplementation(_:)` work only before the mock's first stub or call; after
+  it they stop the test, also after `reset` or `clearInvocations`, which no longer let a mock that has answered calls
+  change how it answers. The default implementation can be replaced only before then too. Enable them right after
+  creating the mock.
+- `DefaultImplementation`, `HasGlobalActor` and `wrap(matchable:)`, which only generated mocks use, are
+  `__CuckooDefaultImplementation`, `__CuckooHasGlobalActor` and `__cuckooWrap(matchable:)`, in the names reserved for
+  mocks. The build plugin regenerates mocks, so only code that names them changes.
+
 ### Added
 - An unstubbed call returning a protocol that the same Cuckoofile module mocks, `any Engine` or a bare `Engine`,
   records its failure and answers with a new `EngineStub`, the generated do-nothing implementation, so the test goes
@@ -226,8 +237,22 @@
   -> Items` with `typealias Items = [Item]`, got a mock that didn't compile: forwarding it to a default
   implementation goes through the opened existential, where `Items` is another type. The type eraser casts it
   now, as it does the associated type itself.
+- `eventually` reported its block's first failure at once, and returned as if it had passed, when the block set a
+  configuration of its own, as `CuckooConfiguration.$current.withValue(CuckooConfiguration(defaultValues: …))`. It
+  keeps holding the failures back and retrying.
+- `eventually` with a zero or negative `pollingInterval` ran its block back to back for the whole timeout. It waits
+  at least a millisecond between runs.
+- `thenReturn(inOrder: [])` left the stub with no answer, which only a matching call reported. It records a failure
+  itself.
+- `thenReturn(a, b, c)` and `thenThrow(a, b)` added their answers one at a time, so a call from another task could
+  get the first answer twice. The batch is added at once.
+- A failed `verify` of a generic member whose calls had other argument types said it "was called only with other
+  return types". It says "other types", and lists each call's argument and return types.
 
 ### Changed
+- Documentation: put `inOrder` inside `eventually` to wait for calls in an order; an `eventually` inside `inOrder`
+  passes at once. Test a `@MainActor` mock from a `@MainActor` test: a matcher runs on the mock's actor, so using a
+  non-`Sendable` value you gave it from another isolation isn't checked by the compiler.
 - The argument a generated mock passes its manager for an unstubbed call's default is `unstubbedDefault`, renamed
   from `unstubbedTuple`: it carries a stub or a value as well as a tuple's default. Regenerate the mocks with this
   version's generator, as for any release.

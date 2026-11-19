@@ -148,6 +148,10 @@ behaviour on top.
   them.
 - `MockBuilder.enableSuperclassSpy()` in `createMock` for a protocol mock, which has no superclass, records a
   failure.
+- `enableSuperclassSpy()` and `enableDefaultImplementation(_:)` work only before the mock's first stub or call, and
+  stop the test after it, `reset` and `clearInvocations` included: enable them right after creating the mock, or
+  with `withEnabledSuperclassSpy()` and `withEnabledDefaultImplementation(_:)`. A test that switched a mock to a
+  spy or a real implementation halfway creates a second mock instead.
 - An ``ArgumentCaptor`` captures only from the calls a passing `verify` matched, or that its stub answered. Cuckoo 2
   captured every argument its matcher saw, also from a failing `verify` and from calls another matcher rejected, so
   a test that read `allValues` after those may see fewer values.
