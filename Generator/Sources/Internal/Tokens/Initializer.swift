@@ -9,6 +9,10 @@ struct Initializer: Token, HasAttributes, HasAccessibility {
     var isOptional: Bool
     /// The `#if` conditions the declaration is nested in.
     var compilationConditions: [String] = []
+    /// A class's `nonisolated init`, which a subclass under a default isolation has to override as nonisolated.
+    var isNonisolated = false
+    /// A `convenience init`, which a subclass doesn't override.
+    var isConvenience = false
 }
 
 extension Initializer: Inheritable {

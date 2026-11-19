@@ -742,26 +742,6 @@ nonisolated final class MockReviewReading: ReviewReading, nonisolated Cuckoo.Pro
         }
     }
 
-    var decoded: Int {
-        get throws(ReviewLoadError) {
-            return try cuckooManager.callThrows(
-                "decoded#get",
-                parameters: Void(),
-                escapingParameters: Void(),
-                errorType: (ReviewLoadError).self,
-                invoke: { (implementation: (()) throws -> Int, _) throws(ReviewLoadError) in
-                    do {
-                        return try implementation(())
-                    } catch {
-                        throw Cuckoo.MockManager.typedError(error, as: (ReviewLoadError).self, member: "decoded")
-                    }
-                },
-                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: try cuckooDefaultImplementation.value.decoded
-            )
-        }
-    }
-
     subscript(_ p0: Int) -> Int {
         get {
             return cuckooManager.call(
@@ -810,10 +790,6 @@ nonisolated final class MockReviewReading: ReviewReading, nonisolated Cuckoo.Pro
 
         var cached: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockReviewReading, Int, any Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckooManager, name: "cached")
-        }
-
-        var decoded: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockReviewReading, Int, ReviewLoadError, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
-            return .init(manager: cuckooManager, name: "decoded")
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
@@ -876,10 +852,6 @@ nonisolated final class MockReviewReading: ReviewReading, nonisolated Cuckoo.Pro
 
         var cached: Cuckoo.VerifyReadOnlyProperty<Int> {
             return .init(manager: cuckooManager, name: "cached", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
-        }
-
-        var decoded: Cuckoo.VerifyReadOnlyProperty<Int> {
-            return .init(manager: cuckooManager, name: "decoded", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
@@ -949,13 +921,6 @@ nonisolated final class ReviewReadingStub: ReviewReading {
 
     var cached: Int {
         get throws {
-            typealias __CuckooDefault = Int
-            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
-        }
-    }
-
-    var decoded: Int {
-        get throws(ReviewLoadError) {
             typealias __CuckooDefault = Int
             return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
@@ -1049,26 +1014,6 @@ nonisolated final class MockReviewWriting: ReviewWriting, nonisolated Cuckoo.Pro
         }
     }
 
-    var decoded: Int {
-        get throws(ReviewMergeError) {
-            return try cuckooManager.callThrows(
-                "decoded#get",
-                parameters: Void(),
-                escapingParameters: Void(),
-                errorType: (ReviewMergeError).self,
-                invoke: { (implementation: (()) throws -> Int, _) throws(ReviewMergeError) in
-                    do {
-                        return try implementation(())
-                    } catch {
-                        throw Cuckoo.MockManager.typedError(error, as: (ReviewMergeError).self, member: "decoded")
-                    }
-                },
-                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: try cuckooDefaultImplementation.value.decoded
-            )
-        }
-    }
-
     subscript(_ p0: Int) -> Int {
         get {
             return cuckooManager.call(
@@ -1133,10 +1078,6 @@ nonisolated final class MockReviewWriting: ReviewWriting, nonisolated Cuckoo.Pro
 
         var cached: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockReviewWriting, Int, ReviewLoadError, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckooManager, name: "cached")
-        }
-
-        var decoded: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockReviewWriting, Int, ReviewMergeError, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
-            return .init(manager: cuckooManager, name: "decoded")
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
@@ -1213,10 +1154,6 @@ nonisolated final class MockReviewWriting: ReviewWriting, nonisolated Cuckoo.Pro
 
         var cached: Cuckoo.VerifyReadOnlyProperty<Int> {
             return .init(manager: cuckooManager, name: "cached", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
-        }
-
-        var decoded: Cuckoo.VerifyReadOnlyProperty<Int> {
-            return .init(manager: cuckooManager, name: "decoded", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
@@ -1305,13 +1242,6 @@ nonisolated final class ReviewWritingStub: ReviewWriting {
 
     var cached: Int {
         get throws(ReviewLoadError) {
-            typealias __CuckooDefault = Int
-            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
-        }
-    }
-
-    var decoded: Int {
-        get throws(ReviewMergeError) {
             typealias __CuckooDefault = Int
             return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
@@ -1407,19 +1337,6 @@ nonisolated final class MockReviewReadWriting: ReviewReadWriting, nonisolated Cu
         }
     }
 
-    var decoded: Int {
-        get {
-            return cuckooManager.getter(
-                "decoded",
-                invoke: { (implementation: (()) -> Int) in
-                    implementation(())
-                },
-                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: cuckooDefaultImplementation.value.decoded
-            )
-        }
-    }
-
     subscript(_ p0: Int) -> Int {
         get {
             return cuckooManager.call(
@@ -1443,22 +1360,6 @@ nonisolated final class MockReviewReadWriting: ReviewReadWriting, nonisolated Cu
                 },
                 superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
                 defaultCall: cuckooDefaultImplementation.value[p0] = p1
-            )
-        }
-    }
-
-    subscript(_ p0: String) -> Int {
-        get throws {
-            return try cuckooManager.callThrows(
-                "subscript(_ p0: String) -> Int#get",
-                parameters: (p0),
-                escapingParameters: (p0),
-                errorType: (any Swift.Error).self,
-                invoke: { (implementation: ((String)) throws -> Int, arguments) throws(any Swift.Error) in
-                    try implementation(arguments)
-                },
-                superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-                defaultCall: cuckooDefaultImplementation.value[p0]
             )
         }
     }
@@ -1500,10 +1401,6 @@ nonisolated final class MockReviewReadWriting: ReviewReadWriting, nonisolated Cu
 
         var cached: Cuckoo.ProtocolToBeStubbedThrowingProperty<MockReviewReadWriting, Int, ReviewLoadError, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
             return .init(manager: cuckooManager, name: "cached")
-        }
-
-        var decoded: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockReviewReadWriting, Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
-            return .init(manager: cuckooManager, name: "decoded")
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
@@ -1550,25 +1447,6 @@ nonisolated final class MockReviewReadWriting: ReviewReadWriting, nonisolated Cu
             fileprivate let cuckooManager: Cuckoo.MockManager
             fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
 
-            var get: Cuckoo.ProtocolStubThrowingFunction<(String), Int, any Swift.Error, ((String)) throws -> Int, Cuckoo.StubSharing.Confined> {
-                return .init(stub: cuckooManager.createStub(for: MockReviewReadWriting.self,
-                    method: "subscript(_ p0: String) -> Int#get",
-                    parameterMatchers: matchers
-                ))
-            }
-        }
-
-        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript3 where __M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
-                    $0
-                }]
-            return .init(cuckooManager: cuckooManager, matchers: matchers)
-        }
-
-        nonisolated struct __Subscript3 {
-            fileprivate let cuckooManager: Cuckoo.MockManager
-            fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
-
             var get: Cuckoo.ProtocolStubThrowingFunction<(String), Int, ReviewLoadError, ((String)) throws -> Int, Cuckoo.StubSharing.Confined> {
                 return .init(stub: cuckooManager.createStub(for: MockReviewReadWriting.self,
                     method: "subscript(_ p0: String) -> Int#get",
@@ -1599,10 +1477,6 @@ nonisolated final class MockReviewReadWriting: ReviewReadWriting, nonisolated Cu
 
         var cached: Cuckoo.VerifyReadOnlyProperty<Int> {
             return .init(manager: cuckooManager, name: "cached", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
-        }
-
-        var decoded: Cuckoo.VerifyReadOnlyProperty<Int> {
-            return .init(manager: cuckooManager, name: "decoded", callMatcher: cuckooCallMatcher, sourceLocation: cuckooSourceLocation)
         }
 
         subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript1 where __M1.MatchedType == Int {
@@ -1669,30 +1543,6 @@ nonisolated final class MockReviewReadWriting: ReviewReadWriting, nonisolated Cu
                 )
             }
         }
-
-        subscript <__M1: Cuckoo._Matchable>(_ p0: __M1) -> __Subscript3 where __M1.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String)>] = [Cuckoo.wrap(matchable: p0) {
-                    $0
-                }]
-            return .init(cuckooManager: cuckooManager, cuckooCallMatcher: cuckooCallMatcher, cuckooSourceLocation: cuckooSourceLocation, matchers: matchers)
-        }
-
-        nonisolated struct __Subscript3 {
-            fileprivate let cuckooManager: Cuckoo.MockManager
-            fileprivate let cuckooCallMatcher: Cuckoo.CallMatcher
-            fileprivate let cuckooSourceLocation: Cuckoo.SourceLocation
-            fileprivate let matchers: [Cuckoo.ParameterMatcher<(String)>]
-
-            @discardableResult
-            func get() -> Cuckoo.VerifiedCall<(String), Int> {
-                return cuckooManager.verify(
-                    "subscript(_ p0: String) -> Int#get",
-                    callMatcher: cuckooCallMatcher,
-                    parameterMatchers: matchers,
-                    sourceLocation: cuckooSourceLocation
-                )
-            }
-        }
     }
 }
 
@@ -1720,26 +1570,12 @@ nonisolated final class ReviewReadWritingStub: ReviewReadWriting {
         }
     }
 
-    var decoded: Int {
-        get {
-            typealias __CuckooDefault = Int
-            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
-        }
-    }
-
     subscript(_ p0: Int) -> Int {
         get {
             typealias __CuckooDefault = Int
             return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
         set {
-        }
-    }
-
-    subscript(_ p0: String) -> Int {
-        get throws {
-            typealias __CuckooDefault = Int
-            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
         }
     }
 
@@ -2137,6 +1973,230 @@ final class MockReviewCounter: ReviewCounter, nonisolated Cuckoo.ClassMock {
 
 final class ReviewCounterStub: ReviewCounter {
     override func count() -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockReviewPlainMaker: ReviewPlainMaker, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewPlainMaker
+    typealias CuckooStubbing = __StubbingProxy_ReviewPlainMaker
+    typealias CuckooVerification = __VerificationProxy_ReviewPlainMaker
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewPlainMaker.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewPlainMaker>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewPlainMaker) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func make() -> Int {
+        return cuckooManager.call(
+            "make() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.make(),
+            defaultCall: cuckooDefaultImplementation.value.make()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewPlainMaker: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func make() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockReviewPlainMaker.self,
+                method: "make() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewPlainMaker: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func make() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "make() -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ReviewPlainMakerStub: ReviewPlainMaker {
+    override func make() -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockReviewBaseMaker: ReviewBaseMaker, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewBaseMaker
+    typealias CuckooStubbing = __StubbingProxy_ReviewBaseMaker
+    typealias CuckooVerification = __VerificationProxy_ReviewBaseMaker
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewBaseMaker.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewBaseMaker>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewBaseMaker) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    nonisolated struct __StubbingProxy_ReviewBaseMaker: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewBaseMaker: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+    }
+}
+
+final class ReviewBaseMakerStub: ReviewBaseMaker {
+}
+
+final class MockReviewSubMaker: ReviewSubMaker, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewSubMaker
+    typealias CuckooStubbing = __StubbingProxy_ReviewSubMaker
+    typealias CuckooVerification = __VerificationProxy_ReviewSubMaker
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewSubMaker.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewSubMaker>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewSubMaker) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    nonisolated struct __StubbingProxy_ReviewSubMaker: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewSubMaker: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+    }
+}
+
+final class ReviewSubMakerStub: ReviewSubMaker {
+}
+
+final class MockReviewAsyncMaker: ReviewAsyncMaker, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewAsyncMaker
+    typealias CuckooStubbing = __StubbingProxy_ReviewAsyncMaker
+    typealias CuckooVerification = __VerificationProxy_ReviewAsyncMaker
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewAsyncMaker.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewAsyncMaker>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewAsyncMaker) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func make() -> Int {
+        return cuckooManager.call(
+            "make() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.make(),
+            defaultCall: cuckooDefaultImplementation.value.make()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ReviewAsyncMaker: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func make() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockReviewAsyncMaker.self,
+                method: "make() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewAsyncMaker: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func make() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "make() -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ReviewAsyncMakerStub: ReviewAsyncMaker {
+    override func make() -> Int {
         typealias __CuckooDefault = Int
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
