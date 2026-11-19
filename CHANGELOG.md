@@ -27,6 +27,47 @@
   with a value of it. `DefaultValueRegistry.defaultValue(for:generated:)` is what they call.
 
 ### Fixed
+- With `defaultIsolation = "MainActor"`, a member using a module type as a `Set` element or a dictionary key, as
+  `func all() -> Set<Item>`, gave a stubbing proxy that didn't compile: `Item`'s `Hashable` conformance is isolated
+  to the main actor. A stubbing proxy's member stubs on its member's actor in that mode, as verification does, so a
+  test stubbing such a member runs on that actor: mark the test `@MainActor`, or give the test target the same
+  default isolation.
+- With `defaultIsolation = "MainActor"`, a class conforming to `Error`, `LocalizedError`, `CustomNSError` or
+  `RecoverableError` got a main-actor mock, but Swift makes such a class nonisolated, and the mock didn't compile.
+  So did a mock of a class with an explicit `nonisolated init()`: the mock and the stub override the class's
+  designated initializers, the nonisolated ones as nonisolated.
+- A `rethrows` requirement of a protocol with associated types made the whole mock file fail to compile, and a
+  generic member whose closure takes an `inout` associated type was forwarded with a cast that always fails. Both
+  are still mocked, and record a failure saying to stub them when a default implementation would run them, as an
+  `inout` member already did. With a default isolation, so do such a protocol's async members that rethrow or throw
+  a typed error.
+- A generic class naming itself without its arguments inside it, as `func merged(with other: Box) -> Box` or
+  `[Box.Entry]` in `class Box<T, U>`, gave a mock that didn't compile: the mock writes `Box<T, U>`.
+- A property's guessed type no longer makes a mock fail to compile. A property without a type annotation is
+  mocked only when its initializer is a literal, a cast, or a call of a standard-library type. **A property
+  initialized by any other type's call, as `var retries = Retries(3)`, now needs a type annotation to be mocked**:
+  the call may be a failable initializer, a factory or an enum case. The generator warns for each property it skips,
+  as for a generic type without its arguments, `Task { … }` or `var items: Array = [1]`.
+- Two parent protocols requiring one property or subscript with different accessors, `{ get }` and `{ get set }`,
+  or `{ get async }` and `{ get }`, gave a mock with the first one's, which didn't conform to the other. It has both.
+- A public subclass of a class whose mock is internal, because a member names an internal type, got a public mock,
+  which didn't compile. It's internal too.
+- A `nonisolated(unsafe)` property of a `@MainActor` class gave a mock that didn't compile: the mock leaves it to
+  the class and lists it as not mocked.
+- A child protocol restating a parent's requirement with the type the parent fixes its associated type to, as
+  `func a() -> String` for `func a() -> A` with `where A == String`, got the requirement twice in its mock.
+- A `@convention(c)` parameter was treated as a non-escaping closure, and the mock didn't compile: it's recorded as
+  the value it is.
+- A protocol whose associated type is constrained through `Self`, as `associatedtype Node: Tree where Node.Node ==
+  Self`, gave a mock that didn't compile. It's left unmocked with a warning.
+- A parameter labelled `` `var` `` or `` `let` `` put a warning in the mock: a call escapes only `inout`.
+- Modules sharing a directory `output` overwrote each other's files of the same name, whichever finished last.
+  Neither writes it now, and the run fails, naming the modules and the file. Names differing only in case clash too,
+  as they do on macOS.
+- A class whose initializers are all private gets a warning: no test can create its mock.
+- A source file that isn't valid Swift, such as one in the middle of an edit, could fail the module's generation as
+  a Cuckoo bug. When generating its mocks fails, it's left out with a warning, and the other files are mocked; the
+  compiler reports what to fix.
 - A requirement naming its associated type through `Self`, as `func first() -> Self.Item?` or
   `Self.Item.Element`, in a parameter, a result, an initializer, a variadic parameter or a constraint, gave a mock
   that didn't compile: inside the mock, which is generic over `Item`, `Self.Item` names nothing. It's written `Item`

@@ -113,11 +113,13 @@ Globs select files by folder, not by target membership. If a folder also holds f
 narrow the glob or list those types in `exclude`. In a package, the build plugin can leave `sources` out instead,
 to mock the files of the target.
 
-A mock also overrides the members its type inherits from the other protocols and classes in `sources`. A parent is
-found as Swift finds it: in the type's own scope and the enclosing ones, written qualified or through a typealias in
-`sources`. A parent found nowhere in `sources`, such as Swift's `Error`, or one named through a typealias declared
-in another module, is declared outside them: the mock implements only the requirements that have default
-implementations, and says so in a comment.
+A mock also overrides the members its type inherits from the other protocols and classes in `sources`. A parent is found
+as Swift finds it: in the type's own scope and the enclosing ones, written qualified or through a typealias in
+`sources`. A parent found nowhere in `sources`, such as Swift's `Error`, or one named through a typealias declared in
+another module, is declared outside them: the mock implements only the requirements that have default implementations,
+and says so in a comment. A protocol refining one of the standard library's with requirements of its own, such as
+`Identifiable`, `Comparable`, `Codable`, `Sequence` or `RawRepresentable`, gets a mock that doesn't conform: leave it
+out with `exclude`, or mock a protocol that doesn't refine it.
 
 ### Imports
 
@@ -140,6 +142,10 @@ The generated file always imports `Cuckoo`.
 - term `filenameFormat`: For a directory `output`, the name of each file, with `{}` where the source file's name
   goes, such as `"{}Mocks"`. It must contain `{}`.
 
+Two modules can't write the same file into one directory, even with names differing only in case: the run fails
+and names them, and neither writes it. A directory output keeps the files of sources that were renamed or deleted,
+so give the mocks a folder of their own, and clear it when sources move.
+
 ### Options
 
 The `[modules.<Name>.options]` table:
@@ -154,7 +160,12 @@ The `[modules.<Name>.options]` table:
 - term `defaultIsolation`: The module's default actor isolation, `"MainActor"` or `"nonisolated"` (the default).
   The generator can't read build settings, so set this when the module builds with
   `.defaultIsolation(MainActor.self)` in SwiftPM, or Xcode's Default Actor Isolation setting: the mocks of types
-  that state no isolation are then `@MainActor`, as the types are.
+  that state no isolation are then `@MainActor`, as the types are, and their stubbing proxies stub on the main
+  actor, as verification does. A class conforming to `Error` is nonisolated, as Swift makes it. Swift also makes a
+  class conforming to an imported protocol that refines `Sendable`, such as `URLSessionDelegate`, nonisolated,
+  which the generator can't see: declare it `nonisolated class`. A module type used as a `Set` element or a
+  dictionary key in a `nonisolated` or actor protocol needs a nonisolated conformance, `struct Item: nonisolated
+  Hashable`, as any implementation of that protocol does.
 
 ### Running the generator yourself
 
