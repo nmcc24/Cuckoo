@@ -372,3 +372,239 @@ nonisolated final class ReviewVisitingStub<Element>: ReviewVisiting {
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
+
+final class MockReviewBox<T: Hashable, U>: ReviewBox<T, U>, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ReviewBox<T, U>
+    typealias CuckooStubbing = __StubbingProxy_ReviewBox
+    typealias CuckooVerification = __VerificationProxy_ReviewBox
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReviewBox.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ReviewBox<T, U>>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ReviewBox<T, U>) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func merged(with p0: ReviewBox<T, U>) -> ReviewBox<T, U> {
+        return cuckooManager.call(
+            "merged(with p0: ReviewBox<T, U>) -> ReviewBox<T, U>",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((ReviewBox<T, U>)) -> ReviewBox<T, U>, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.merged(with: p0),
+            defaultCall: cuckooDefaultImplementation.value.merged(with: p0)
+        )
+    }
+
+    override func entries() -> [ReviewBox<T, U>.Entry] {
+        return cuckooManager.call(
+            "entries() -> [ReviewBox<T, U>.Entry]",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> [ReviewBox<T, U>.Entry], arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.entries(),
+            defaultCall: cuckooDefaultImplementation.value.entries()
+        )
+    }
+
+    override func mapped<V: Hashable> (_ p0: (T) -> V) -> ReviewBox<V, U>? {
+        return withoutActuallyEscaping(p0, do: { (p0: @escaping (T) -> V) -> ReviewBox<V, U>? in
+            return cuckooManager.call(
+                "mapped<V: Hashable> (_ p0: (T) -> V) -> ReviewBox<V, U>?",
+                parameters: (p0),
+                escapingParameters: (({ _ in
+                                        fatalError("A non-escaping closure can't be called after the call it was passed to, so a verify or an ArgumentCaptor gets this stand-in. Call the closure from a then closure instead.")
+                                    } as (T) -> V)),
+                invoke: { (implementation: ((@escaping (T) -> V)) -> ReviewBox<V, U>?, arguments) in
+                                implementation(arguments)
+                            },
+                superclassCall: super.mapped(p0),
+                defaultCall: cuckooDefaultImplementation.value.mapped(p0)
+            )
+        })
+    }
+
+    nonisolated struct __StubbingProxy_ReviewBox: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func merged<__M1: Cuckoo._Matchable>(with p0: __M1) -> Cuckoo.ClassStubFunction<(ReviewBox<T, U>), ReviewBox<T, U>, ((ReviewBox<T, U>)) -> ReviewBox<T, U>, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ReviewBox<T, U> {
+            let matchers: [Cuckoo.ParameterMatcher<(ReviewBox<T, U>)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockReviewBox.self,
+                method: "merged(with p0: ReviewBox<T, U>) -> ReviewBox<T, U>",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func entries() -> Cuckoo.ClassStubFunction<(), [ReviewBox<T, U>.Entry], (()) -> [ReviewBox<T, U>.Entry], Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockReviewBox.self,
+                method: "entries() -> [ReviewBox<T, U>.Entry]",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func mapped<__M1: Cuckoo._Matchable, V: Hashable>(_ p0: __M1) -> Cuckoo.ClassStubFunction<((T) -> V), ReviewBox<V, U>?, ((@escaping (T) -> V)) -> ReviewBox<V, U>?, Cuckoo.StubSharing.Confined> where __M1.MatchedType == (T) -> V {
+            let matchers: [Cuckoo.ParameterMatcher<((T) -> V)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockReviewBox.self,
+                method: "mapped<V: Hashable> (_ p0: (T) -> V) -> ReviewBox<V, U>?",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ReviewBox: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func merged<__M1: Cuckoo._Matchable>(with p0: __M1) -> Cuckoo.VerifiedCall<(ReviewBox<T, U>), ReviewBox<T, U>> where __M1.MatchedType == ReviewBox<T, U> {
+            let matchers: [Cuckoo.ParameterMatcher<(ReviewBox<T, U>)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "merged(with p0: ReviewBox<T, U>) -> ReviewBox<T, U>",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func entries() -> Cuckoo.VerifiedCall<(), [ReviewBox<T, U>.Entry]> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "entries() -> [ReviewBox<T, U>.Entry]",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func mapped<__M1: Cuckoo._Matchable, V: Hashable>(_ p0: __M1) -> Cuckoo.VerifiedCall<((T) -> V), ReviewBox<V, U>?> where __M1.MatchedType == (T) -> V {
+            let matchers: [Cuckoo.ParameterMatcher<((T) -> V)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "mapped<V: Hashable> (_ p0: (T) -> V) -> ReviewBox<V, U>?",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ReviewBoxStub<T: Hashable, U>: ReviewBox<T, U> {
+    override func merged(with p0: ReviewBox<T, U>) -> ReviewBox<T, U> {
+        typealias __CuckooDefault = ReviewBox<T, U>
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    override func entries() -> [ReviewBox<T, U>.Entry] {
+        typealias __CuckooDefault = [ReviewBox<T, U>.Entry]
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    override func mapped<V: Hashable> (_ p0: (T) -> V) -> ReviewBox<V, U>? {
+        typealias __CuckooDefault = ReviewBox<V, U>?
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+extension ReviewBox {
+    final class MockChild: Child, nonisolated Cuckoo.ClassMock {
+        typealias CuckooMocksType = Child
+        typealias CuckooStubbing = __StubbingProxy_Child
+        typealias CuckooVerification = __VerificationProxy_Child
+
+        nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockChild.self) ?? Cuckoo.MockManager(hasParent: true)
+
+        nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<Child>()
+
+        nonisolated func enableDefaultImplementation(_ stub: Child) {
+            cuckooDefaultImplementation.value = stub
+            cuckooManager.enableDefaultImplementation()
+        }
+
+        override func parent() -> ReviewBox<T, U>? {
+            return cuckooManager.call(
+                "parent() -> ReviewBox<T, U>?",
+                parameters: (),
+                escapingParameters: (),
+                invoke: { (implementation: (()) -> ReviewBox<T, U>?, arguments) in
+                    implementation(arguments)
+                },
+                superclassCall: super.parent(),
+                defaultCall: cuckooDefaultImplementation.value.parent()
+            )
+        }
+
+        nonisolated struct __StubbingProxy_Child: Cuckoo.StubbingProxy {
+            private let cuckooManager: Cuckoo.MockManager
+
+            init(manager: Cuckoo.MockManager) {
+                self.cuckooManager = manager
+            }
+
+            func parent() -> Cuckoo.ClassStubFunction<(), ReviewBox<T, U>?, (()) -> ReviewBox<T, U>?, Cuckoo.StubSharing.Confined> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return .init(stub: cuckooManager.createStub(for: MockChild.self,
+                    method: "parent() -> ReviewBox<T, U>?",
+                    parameterMatchers: matchers
+                ))
+            }
+        }
+
+        nonisolated struct __VerificationProxy_Child: Cuckoo.VerificationProxy {
+            private let cuckooManager: Cuckoo.MockManager
+            private let cuckooCallMatcher: Cuckoo.CallMatcher
+            private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+            init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+                self.cuckooManager = manager
+                self.cuckooCallMatcher = callMatcher
+                self.cuckooSourceLocation = sourceLocation
+            }
+
+            @discardableResult
+            func parent() -> Cuckoo.VerifiedCall<(), ReviewBox<T, U>?> {
+                let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+                return cuckooManager.verify(
+                    "parent() -> ReviewBox<T, U>?",
+                    callMatcher: cuckooCallMatcher,
+                    parameterMatchers: matchers,
+                    sourceLocation: cuckooSourceLocation
+                )
+            }
+        }
+    }
+
+    final class ChildStub: Child {
+        override func parent() -> ReviewBox<T, U>? {
+            typealias __CuckooDefault = ReviewBox<T, U>?
+            return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        }
+    }
+}

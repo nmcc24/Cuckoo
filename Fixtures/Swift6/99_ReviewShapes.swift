@@ -46,3 +46,21 @@ func useReviewVisiting() {
     mock.each { _ in }
     verify(mock).each(any())
 }
+
+// A generic class naming itself without its arguments, as Swift allows inside it: the mock is another class, so it
+// writes `ReviewBox<T, U>`, nested types and a nested class included.
+class ReviewBox<T: Hashable, U> {
+    struct Entry {
+        var key: T
+    }
+
+    init() {}
+    func merged(with other: ReviewBox) -> ReviewBox { self }
+    func entries() -> [ReviewBox.Entry] { [] }
+    func mapped<V: Hashable>(_ transform: (T) -> V) -> ReviewBox<V, U>? { nil }
+
+    class Child {
+        init() {}
+        func parent() -> ReviewBox? { nil }
+    }
+}

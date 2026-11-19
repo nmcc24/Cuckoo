@@ -631,9 +631,37 @@ final class Crawler: SyntaxVisitor {
         return identifiers.lazy.map(String.init).first { context.nonPublicTypes.contains($0) }
     }
 
+    /// `type` with the bare name of an enclosing generic class, `Box` or `Box.Entry` in `class Box<T, U>`, written
+    /// with its generic parameters, `Box<T, U>`, as Swift reads it there: the mock is another class, where the bare
+    /// name would need arguments.
+    private func withGenericArguments(_ type: TypeSyntax) -> TypeSyntax {
+        var genericClasses: [String: String] = [:]
+        var current = container?.value
+        while let token = current {
+            if let classToken = token as? ClassDeclaration, !classToken.genericParameters.isEmpty, genericClasses[classToken.name] == nil {
+                genericClasses[classToken.name] = "\(classToken.name)<\(classToken.genericParameters.map(\.name).joined(separator: ", "))>"
+            }
+            current = token.parent?.value
+        }
+        guard !genericClasses.isEmpty else { return type }
+        final class Rewriter: SyntaxRewriter {
+            let genericClasses: [String: String]
+            init(_ genericClasses: [String: String]) {
+                self.genericClasses = genericClasses
+            }
+            override func visit(_ node: IdentifierTypeSyntax) -> TypeSyntax {
+                guard node.genericArgumentClause == nil, let written = genericClasses[node.name.text] else { return super.visit(node) }
+                var parser = Parser(written)
+                return TypeSyntax.parse(from: &parser).with(\.leadingTrivia, node.leadingTrivia).with(\.trailingTrivia, node.trailingTrivia)
+            }
+        }
+        return Rewriter(genericClasses).rewrite(type).cast(TypeSyntax.self)
+    }
+
     /// A parameter's type, with a typealias of a function type replaced by the function type: a non-escaping closure
     /// written through a typealias, `(_ handler: Handler)`, needs the same handling as one written out.
     private func parameterType(_ type: TypeSyntax) -> ComplexType {
+        let type = withGenericArguments(type)
         // `sending Handler`, `@Sendable Handler`: the typealias under the specifiers and attributes. An `inout` one
         // stays as written: the closure a variable holds is escaping, so the mock records it as it is.
         if let attributed = type.as(AttributedTypeSyntax.self),
@@ -1024,7 +1052,7 @@ extension Crawler {
 
         let type: ComplexType
         if let explicitType = declaredType {
-            type = ComplexType(syntax: explicitType)
+            type = ComplexType(syntax: withGenericArguments(explicitType))
         } else if let initializer = binding.initializer?.value, let guessedType = TypeGuesser.guessType(from: initializer, genericTypes: context.genericTypes, functions: context.capitalizedFunctions.subtracting(context.nominalTypes)) {
             type = .type(guessedType)
         } else {
@@ -1150,7 +1178,7 @@ extension Crawler {
                     isSubscriptKey: true
                 )
             },
-            returnType: ComplexType(syntax: node.returnClause.type),
+            returnType: ComplexType(syntax: withGenericArguments(node.returnClause.type)),
             whereConstraints: genericRequirements(from: node.genericWhereClause?.requirements),
             isAsync: getter?.effectSpecifiers?.asyncSpecifier?.isPresent == true,
             throwType: ThrowType(syntax: getter?.effectSpecifiers?.throwsClause),
@@ -1215,7 +1243,7 @@ extension Crawler {
                 parameters[index].name = "_"
             }
         }
-        let returnType = method.signature.returnClause.flatMap { ComplexType(syntax: $0.type) }
+        let returnType = method.signature.returnClause.flatMap { ComplexType(syntax: withGenericArguments($0.type)) }
 
         return Method(
             parent: container,
