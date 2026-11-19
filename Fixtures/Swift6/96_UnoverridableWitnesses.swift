@@ -189,6 +189,77 @@ class AnyErrorChecker: AnyErrorChecking {
     func verify() throws {}
 }
 
+// A class's member writing `Self` or an associated type as a concrete type implements the requirement; a requirement
+// the class leaves to a default implementation is still mocked, through the class's typealias.
+protocol Producing {
+    associatedtype Output
+    func make() -> Output
+    func makeAll(_ count: Int) -> [Output]
+    func combine(_ other: Self, with value: Output) -> Output?
+}
+
+extension Producing {
+    func makeAll(_ count: Int) -> [Output] { [] }
+}
+
+class Maker: Producing {
+    typealias Output = Int
+    init() {}
+    func make() -> Int { 0 }
+    func make() -> String { "" }
+    func combine(_ other: Maker, with value: Int) -> Int? { nil }
+}
+
+class SubMaker: Maker {}
+
+protocol Same {
+    func same(_ other: Self) -> Bool
+}
+
+class SameBase: Same {
+    init() {}
+    func same(_ other: SameBase) -> Bool { true }
+}
+
+// A placeholder stands for one whole type, the same one wherever the requirement writes it, and the type the class's
+// typealias gives it: these members don't implement the requirements, which default implementations do.
+protocol Pairing {
+    associatedtype Output
+    func f(_ a: (Output, Int))
+    func h(_ c: (Output) -> Void)
+    func k(_ a: Output, _ b: Output)
+    func m(_ a: Output)
+}
+
+extension Pairing {
+    func f(_ a: (Output, Int)) {}
+    func h(_ c: (Output) -> Void) {}
+    func k(_ a: Output, _ b: Output) {}
+    func m(_ a: Output) {}
+}
+
+class Pairer: Pairing {
+    typealias Output = Int
+    init() {}
+    func f(_ a: (Int, String, Int)) {}
+    func h(_ c: (Int, Int) -> Void) {}
+    func k(_ a: Int, _ b: String) {}
+    func m(_ a: String) {}
+}
+
+// With a default isolation, only the member Swift takes for the requirement's witness takes its actor.
+@MainActor protocol Displaying {
+    associatedtype Value
+    func display(_ value: Value)
+}
+
+nonisolated class PlainDisplay: Displaying {
+    typealias Value = Int
+    init() {}
+    func display(_ value: Int) {}
+    func display(_ value: String) {}
+}
+
 // A conformance a plain extension states isn't the mock's: its members can't be overridden, a `where` clause limits
 // it, and with a default isolation Swift doesn't give the class's own members its requirements' actor.
 protocol Pinging {

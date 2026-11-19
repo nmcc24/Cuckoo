@@ -434,4 +434,94 @@ struct MemberShapeTests {
         #expect(!output.contains("opened.keys"))
         #expect(!output.contains("opened.shadowed"))
     }
+
+    /// A class's member that writes `Self` or an associated type as a concrete type implements the requirement, so
+    /// the class's mock overrides it and doesn't declare the requirement again; one that differs elsewhere doesn't.
+    @Test
+    func aMemberWritingAPlaceholderAsAConcreteTypeImplementsTheRequirement() async throws {
+        let source = """
+            protocol Producing {
+                associatedtype Output: Collection
+                func make() -> Output
+                func first(of output: Self.Output) -> Output.Element?
+                func same(_ other: Self) -> Bool
+                func put(_ value: Output, count: Int)
+            }
+            class Maker: Producing {
+                init() {}
+                func make() -> [Int] { [] }
+                func first(of output: [Int]) -> Int? { nil }
+                func same(_ other: Maker) -> Bool { true }
+                func put(_ value: [Int], count: String) {}
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockMaker:")).lowerBound
+        let end = try #require(output.firstRange(of: "class MakerStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(classMock.contains("override func make() -> [Int] {"))
+        #expect(classMock.contains("override func first(of p0: [Int]) -> Int? {"))
+        #expect(classMock.contains("override func same(_ p0: Maker) -> Bool {"))
+        #expect(!classMock.contains("func make() -> Output {"))
+        #expect(!classMock.contains("-> Output.Element? {"))
+        #expect(!classMock.contains("func same(_ p0: __CuckooSelf)"))
+        // `count: String` isn't `count: Int`: the requirement is declared next to the class's member.
+        #expect(classMock.contains("func put(_ p0: Output, count p1: Int) {"))
+    }
+
+    /// A placeholder stands for one whole type, the same one wherever the requirement writes it, `Self` for the class
+    /// and an associated type for the type the class's typealias gives it.
+    @Test
+    func aPlaceholderStandsForOneWholeType() async throws {
+        let source = """
+            protocol Pairing {
+                associatedtype Output
+                func f(_ a: (Output, Int))
+                func h(_ c: (Output) -> Void)
+                func k(_ a: Output, _ b: Output)
+                func m(_ a: Output)
+                func same(_ other: Self) -> Bool
+            }
+            class Pairer: Pairing {
+                typealias Output = Int
+                init() {}
+                func f(_ a: (Int, String, Int)) {}
+                func h(_ c: (Int, Int) -> Void) {}
+                func k(_ a: Int, _ b: String) {}
+                func m(_ a: String) {}
+                func same(_ other: Int) -> Bool { true }
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockPairer:")).lowerBound
+        let end = try #require(output.firstRange(of: "class PairerStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(classMock.contains("    func f(_ p0: (Output, Int)) {"))
+        #expect(classMock.contains("    func h(_ p0: (Output) -> Void) {"))
+        #expect(classMock.contains("    func k(_ p0: Output, _ p1: Output) {"))
+        #expect(classMock.contains("    func m(_ p0: Output) {"))
+        #expect(classMock.contains("    func same(_ p0: Self) -> Bool {"))
+    }
+
+    /// With a default isolation, a `nonisolated` class's member takes its requirement's actor only when it's the
+    /// requirement's witness: the overload written with the class's typealias type, not the other one.
+    @Test
+    func onlyTheWitnessTakesTheRequirementsActor() async throws {
+        let source = """
+            @MainActor protocol Displaying {
+                associatedtype Value
+                func display(_ value: Value)
+            }
+            nonisolated class PlainDisplay: Displaying {
+                typealias Value = Int
+                init() {}
+                func display(_ value: Int) {}
+                func display(_ value: String) {}
+            }
+            """
+        let output = try await generateMocks(source: source, options: Self.mainActor)
+        #expect(output.contains("    @MainActor\n    override func display(_ p0: Int) {"))
+        #expect(output.contains("    override func display(_ p0: String) {"))
+        #expect(!output.contains("    @MainActor\n    override func display(_ p0: String) {"))
+    }
 }

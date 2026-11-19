@@ -208,6 +208,12 @@ extension Subscript: Inheritable {
 
     func implements(_ requirement: any Inheritable) -> Bool {
         guard let requirement = requirement as? Subscript else { return false }
+        return isStatic == requirement.isStatic
+            && getter.signature.implements(requirement.getter.signature, placeholders: requirement.placeholders)
+    }
+
+    func implementsAsWritten(_ requirement: any Inheritable) -> Bool {
+        guard let requirement = requirement as? Subscript else { return false }
         return isStatic == requirement.isStatic && getter.signature.implements(requirement.getter.signature)
     }
 }

@@ -219,41 +219,58 @@ extension Token {
         // A requirement an `@objc` extension member implements is that member, which the class's mock overrides.
         let classReference = (token as? ClassDeclaration).map { Reference<any Token>($0.replacing(members: [])) }
         let overridableMembers = (token as? ClassDeclaration).map { names.overridableExtensionMembers(of: $0) } ?? []
-        let mergedTokens = inheritedRepresentations
-            .compactMap { $0 as? any HasMembers }
-            .flatMap { $0.members }
-            .reduce(token.members) { tokens, inheritedToken in
-                guard let inheritedInheritable = inheritedToken as? any Inheritable else {
+        // What `Self` and the associated types the class names with a typealias stand for in its members.
+        let placeholderTypes: [String: Set<String>] = (token as? ClassDeclaration).map { classDeclaration -> [String: Set<String>] in
+            var chain = [classDeclaration]
+            var seen: Set<String> = []
+            while let last = chain.last, seen.insert(last.fullyQualifiedName).inserted,
+                  let superclass = last.inheritedTypes.lazy
+                      .compactMap({ names.resolve($0, from: last.fullyQualifiedName) as? ClassDeclaration }).first {
+                chain.append(superclass)
+            }
+            var types: [String: Set<String>] = ["Self": Set(chain.flatMap { [$0.name, $0.fullyQualifiedName] }.map(Method.Signature.canonicalType))]
+            for case let alias as Typealias in chain.flatMap(\.members) where !alias.alias.contains("<") {
+                types[alias.alias, default: []].insert(Method.Signature.canonicalType(alias.original))
+            }
+            return types
+        } ?? [:]
+        let mergedTokens = Method.Signature.$placeholderTypes.withValue(placeholderTypes) {
+            inheritedRepresentations
+                .compactMap { $0 as? any HasMembers }
+                .flatMap { $0.members }
+                .reduce(token.members) { tokens, inheritedToken in
+                    guard let inheritedInheritable = inheritedToken as? any Inheritable else {
+                        return tokens + [inheritedToken]
+                    }
+
+                    // A `final` or unavailable override hides the superclass's member as an override the mock has does,
+                    // and a `static` or `final` member, or one an extension declares, the requirement it implements,
+                    // whether the class or a superclass has it.
+                    // In a class, a member implements a protocol's requirement with more effects too, as a non-throwing
+                    // one a throwing one, and the class's own override a superclass's member; a superclass's `async`
+                    // overload of a sync member stays its own. Among protocols, each is a requirement of its own.
+                    let isRequirement = inheritedToken.parent?.value is ProtocolDeclaration
+                    let ownMembers = token.members.compactMap { $0 as? any Inheritable }
+                    let isAlreadyPresent = (tokens + hidingMembers)
+                        .compactMap({ $0 as? any Inheritable })
+                        .contains(where: { candidate in
+                            if candidate.isEqual(to: inheritedInheritable) { return true }
+                            guard token is ClassDeclaration, candidate.implements(inheritedInheritable) else { return false }
+                            let candidateIsRequirement = (candidate as? any Token)?.parent?.value is ProtocolDeclaration
+                            if isRequirement { return !candidateIsRequirement }
+                            return ownMembers.contains { $0.isEqual(to: candidate) }
+                                && !inheritedRepresentations.compactMap({ $0 as? any HasMembers }).flatMap(\.members)
+                                    .contains { ($0 as? any Inheritable)?.isEqual(to: candidate) == true }
+                        })
+
+                    guard !isAlreadyPresent, inheritedInheritable.isInheritable else { return tokens }
+                    if var overridable = overridableMembers.first(where: { ($0 as? any Inheritable)?.implements(inheritedInheritable) == true }) {
+                        overridable.parent = classReference
+                        return tokens + [overridable]
+                    }
                     return tokens + [inheritedToken]
                 }
-
-                // A `final` or unavailable override hides the superclass's member as an override the mock has does,
-                // and a `static` or `final` member, or one an extension declares, the requirement it implements,
-                // whether the class or a superclass has it.
-                // In a class, a member implements a protocol's requirement with more effects too, as a non-throwing
-                // one a throwing one, and the class's own override a superclass's member; a superclass's `async`
-                // overload of a sync member stays its own. Among protocols, each is a requirement of its own.
-                let isRequirement = inheritedToken.parent?.value is ProtocolDeclaration
-                let ownMembers = token.members.compactMap { $0 as? any Inheritable }
-                let isAlreadyPresent = (tokens + hidingMembers)
-                    .compactMap({ $0 as? any Inheritable })
-                    .contains(where: { candidate in
-                        if candidate.isEqual(to: inheritedInheritable) { return true }
-                        guard token is ClassDeclaration, candidate.implements(inheritedInheritable) else { return false }
-                        let candidateIsRequirement = (candidate as? any Token)?.parent?.value is ProtocolDeclaration
-                        if isRequirement { return !candidateIsRequirement }
-                        return ownMembers.contains { $0.isEqual(to: candidate) }
-                            && !inheritedRepresentations.compactMap({ $0 as? any HasMembers }).flatMap(\.members)
-                                .contains { ($0 as? any Inheritable)?.isEqual(to: candidate) == true }
-                    })
-
-                guard !isAlreadyPresent, inheritedInheritable.isInheritable else { return tokens }
-                if var overridable = overridableMembers.first(where: { ($0 as? any Inheritable)?.implements(inheritedInheritable) == true }) {
-                    overridable.parent = classReference
-                    return tokens + [overridable]
-                }
-                return tokens + [inheritedToken]
-            }
+        }
 
         switch token {
         case let classToken as ClassDeclaration:
@@ -307,13 +324,30 @@ extension Token {
                             return (requirement, isolation)
                         }
                     }
-                merged = merged.replacing(members: merged.members.map { member in
-                    guard (member.parent?.value as? any HasName)?.fullyQualifiedName == classToken.fullyQualifiedName,
-                          member.memberIsolation == nil,
-                          let inheritable = member as? any Inheritable,
-                          let witnessed = requirements.first(where: { inheritable.implements($0.requirement) }) else { return member }
-                    return member.withDefaultIsolation(witnessed.isolation)
-                })
+                func isOwn(_ member: any Token) -> Bool {
+                    (member.parent?.value as? any HasName)?.fullyQualifiedName == classToken.fullyQualifiedName
+                }
+                let ownMembers = merged.members.filter(isOwn).compactMap { $0 as? any Inheritable }
+                // The member Swift takes for a requirement's witness: one written as the requirement is, or else the
+                // only one that writes `Self` or an associated type as a type, as `show(_ v: Int)` for `show(_ v: V)`.
+                // Of several, Swift picks by types the generator can't infer, so none takes the actor.
+                func witnesses(of requirement: any Inheritable) -> [any Inheritable] {
+                    let asWritten = ownMembers.filter { $0.implementsAsWritten(requirement) }
+                    guard asWritten.isEmpty else { return asWritten }
+                    let concrete = ownMembers.filter { $0.implements(requirement) }
+                    return concrete.count == 1 ? concrete : []
+                }
+                merged = Method.Signature.$placeholderTypes.withValue(placeholderTypes) {
+                    merged.replacing(members: merged.members.map { member in
+                        guard isOwn(member),
+                              member.memberIsolation == nil,
+                              let inheritable = member as? any Inheritable,
+                              let witnessed = requirements.first(where: { requirement in
+                                  witnesses(of: requirement.requirement).contains { $0.isEqual(to: inheritable) }
+                              }) else { return member }
+                        return member.withDefaultIsolation(witnessed.isolation)
+                    })
+                }
             }
             return merged
         case let protocolToken as ProtocolDeclaration:

@@ -22,6 +22,10 @@ import Combine
 @testable public import typealias CuckooTestSources.SpecifiedHandler
 @testable public import protocol CuckooTestSources.ClosureSpecifierService
 @testable public import class CuckooTestSources.ClosureSpecifierRunner
+@testable public import protocol CuckooTestSources.ConcreteWitnessProducing
+@testable public import class CuckooTestSources.ConcreteWitnessMaker
+@testable public import protocol CuckooTestSources.ConcreteWitnessComparing
+@testable public import class CuckooTestSources.ConcreteWitnessComparer
 @testable public import protocol CuckooTestSources.ConstrainedAssociatedTypes
 @testable public import class CuckooTestSources.Canvas
 @testable public import protocol CuckooTestSources.DefaultValueSource
@@ -2996,6 +3000,342 @@ final class ClosureSpecifierRunnerStub: ClosureSpecifierRunner {
 
     override func aliased(_ p0: sending () -> Void) {
         typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+// MARK: - Mocks generated from file: 'Tests/Swift/Source/ConcreteWitness.swift'
+
+nonisolated final class MockConcreteWitnessProducing<Output>: ConcreteWitnessProducing, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = __DefaultImplCaller
+    typealias CuckooStubbing = __StubbingProxy_ConcreteWitnessProducing
+    typealias CuckooVerification = __VerificationProxy_ConcreteWitnessProducing
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConcreteWitnessProducing.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated final class __DefaultImplCaller: ConcreteWitnessProducing, Sendable {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooReference: @Sendable () -> any ConcreteWitnessProducing
+
+        init<_CUCKOO$$GENERIC: ConcreteWitnessProducing & SendableMetatype>(_ defaultImpl: _CUCKOO$$GENERIC, manager: Cuckoo.MockManager) where _CUCKOO$$GENERIC.Output == Output, Output: SendableMetatype {
+            let box = Cuckoo.DefaultImplementation<_CUCKOO$$GENERIC>()
+            box.value = defaultImpl
+            cuckooReference = {
+                box.value
+            }
+            cuckooManager = manager
+
+            _storage$1$make = {
+                box.value.make()
+            }
+        }
+
+        private let _storage$1$make: @Sendable () -> Output
+        func make() -> Output {
+            return _storage$1$make()
+        }
+    }
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<__DefaultImplCaller>()
+
+    nonisolated func enableDefaultImplementation<_CUCKOO$$GENERIC: ConcreteWitnessProducing & SendableMetatype>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.Output == Output, Output: SendableMetatype {
+        cuckooDefaultImplementation.value = __DefaultImplCaller(stub, manager: cuckooManager)
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func make() -> Output {
+        return cuckooManager.call(
+            "make() -> Output",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Output, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.make()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ConcreteWitnessProducing: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func make() -> Cuckoo.ProtocolStubFunction<(), Output, (()) -> Output, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockConcreteWitnessProducing.self,
+                method: "make() -> Output",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ConcreteWitnessProducing: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func make() -> Cuckoo.VerifiedCall<(), Output> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "make() -> Output",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ConcreteWitnessProducingStub<Output>: ConcreteWitnessProducing {
+    func make() -> Output {
+        typealias __CuckooDefault = Output
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockConcreteWitnessMaker: ConcreteWitnessMaker, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ConcreteWitnessMaker
+    typealias CuckooStubbing = __StubbingProxy_ConcreteWitnessMaker
+    typealias CuckooVerification = __VerificationProxy_ConcreteWitnessMaker
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConcreteWitnessMaker.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ConcreteWitnessMaker>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ConcreteWitnessMaker) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func make() -> Int {
+        return cuckooManager.call(
+            "make() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            invoke: { (implementation: (()) -> Int, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.make(),
+            defaultCall: cuckooDefaultImplementation.value.make()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ConcreteWitnessMaker: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func make() -> Cuckoo.ClassStubFunction<(), Int, (()) -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockConcreteWitnessMaker.self,
+                method: "make() -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ConcreteWitnessMaker: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func make() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "make() -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ConcreteWitnessMakerStub: ConcreteWitnessMaker {
+    override func make() -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+nonisolated final class MockConcreteWitnessComparing: ConcreteWitnessComparing, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any ConcreteWitnessComparing
+    typealias CuckooStubbing = __StubbingProxy_ConcreteWitnessComparing
+    typealias CuckooVerification = __VerificationProxy_ConcreteWitnessComparing
+    typealias __CuckooSelf = MockConcreteWitnessComparing
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConcreteWitnessComparing.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any ConcreteWitnessComparing>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any ConcreteWitnessComparing) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func isSame(as p0: __CuckooSelf) -> Bool {
+        return cuckooManager.call(
+            "isSame(as p0: Self) -> Bool",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((__CuckooSelf)) -> Bool, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooManager.unforwardableDefaultImplementationCall("isSame(as p0: Self) -> Bool", reason: "it names Self, which is another type in the default implementation")
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ConcreteWitnessComparing: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func isSame<__M1: Cuckoo._Matchable>(as p0: __M1) -> Cuckoo.ProtocolStubFunction<(__CuckooSelf), Bool, ((__CuckooSelf)) -> Bool, Cuckoo.StubSharing.Confined> where __M1.MatchedType == __CuckooSelf {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockConcreteWitnessComparing.self,
+                method: "isSame(as p0: Self) -> Bool",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ConcreteWitnessComparing: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func isSame<__M1: Cuckoo._Matchable>(as p0: __M1) -> Cuckoo.VerifiedCall<(__CuckooSelf), Bool> where __M1.MatchedType == __CuckooSelf {
+            let matchers: [Cuckoo.ParameterMatcher<(__CuckooSelf)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "isSame(as p0: Self) -> Bool",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ConcreteWitnessComparingStub: ConcreteWitnessComparing {
+    typealias __CuckooSelf = ConcreteWitnessComparingStub
+
+    func isSame(as p0: __CuckooSelf) -> Bool {
+        typealias __CuckooDefault = Bool
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockConcreteWitnessComparer: ConcreteWitnessComparer, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = ConcreteWitnessComparer
+    typealias CuckooStubbing = __StubbingProxy_ConcreteWitnessComparer
+    typealias CuckooVerification = __VerificationProxy_ConcreteWitnessComparer
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockConcreteWitnessComparer.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<ConcreteWitnessComparer>()
+
+    nonisolated func enableDefaultImplementation(_ stub: ConcreteWitnessComparer) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func isSame(as p0: ConcreteWitnessComparer) -> Bool {
+        return cuckooManager.call(
+            "isSame(as p0: ConcreteWitnessComparer) -> Bool",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: ((ConcreteWitnessComparer)) -> Bool, arguments) in
+                implementation(arguments)
+            },
+            superclassCall: super.isSame(as: p0),
+            defaultCall: cuckooDefaultImplementation.value.isSame(as: p0)
+        )
+    }
+
+    nonisolated struct __StubbingProxy_ConcreteWitnessComparer: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func isSame<__M1: Cuckoo._Matchable>(as p0: __M1) -> Cuckoo.ClassStubFunction<(ConcreteWitnessComparer), Bool, ((ConcreteWitnessComparer)) -> Bool, Cuckoo.StubSharing.Confined> where __M1.MatchedType == ConcreteWitnessComparer {
+            let matchers: [Cuckoo.ParameterMatcher<(ConcreteWitnessComparer)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return .init(stub: cuckooManager.createStub(for: MockConcreteWitnessComparer.self,
+                method: "isSame(as p0: ConcreteWitnessComparer) -> Bool",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_ConcreteWitnessComparer: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func isSame<__M1: Cuckoo._Matchable>(as p0: __M1) -> Cuckoo.VerifiedCall<(ConcreteWitnessComparer), Bool> where __M1.MatchedType == ConcreteWitnessComparer {
+            let matchers: [Cuckoo.ParameterMatcher<(ConcreteWitnessComparer)>] = [Cuckoo.wrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "isSame(as p0: ConcreteWitnessComparer) -> Bool",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class ConcreteWitnessComparerStub: ConcreteWitnessComparer {
+    override func isSame(as p0: ConcreteWitnessComparer) -> Bool {
+        typealias __CuckooDefault = Bool
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }
