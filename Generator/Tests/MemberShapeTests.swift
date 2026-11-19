@@ -831,4 +831,27 @@ struct MemberShapeTests {
         #expect(output.contains("    override func display(_ p0: String) {"))
         #expect(!output.contains("    @MainActor\n    override func display(_ p0: String) {"))
     }
+
+    /// With a default isolation, a class's explicit `nonisolated init` is overridden as nonisolated in the mock and
+    /// the stub, which would otherwise inherit it as an initializer of the default actor.
+    @Test
+    func aNonisolatedInitIsOverriddenAsNonisolated() async throws {
+        let source = """
+            class Maker {
+                nonisolated init() {}
+                nonisolated init(seed: Int) throws {}
+                init(name: String) {}
+                nonisolated convenience init(other: Int) { self.init() }
+                func make() -> Int { 0 }
+            }
+            """
+        let output = try await generateMocks(source: source, options: Self.mainActor)
+        #expect(output.ranges(of: "nonisolated override init() {\n        super.init()\n    }").count == 2)
+        #expect(output.ranges(of: "nonisolated override init(seed p0: Int) throws {\n        try super.init(seed: p0)\n    }").count == 2)
+        // The other designated initializer is overridden too, as it is; the convenience one is inherited.
+        #expect(output.ranges(of: "    override init(name p0: String) {\n        super.init(name: p0)\n    }").count == 2)
+        #expect(!output.contains("init(other"))
+        let plain = try await generateMocks(source: source)
+        #expect(!plain.contains("nonisolated override init"))
+    }
 }

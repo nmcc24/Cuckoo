@@ -98,6 +98,9 @@ enum MockBuilder {
         if let initializer = container.crossModuleInitializer(isActor: isActor) {
             lines.append("    \(initializer)")
         }
+        for initializer in container.nonisolatedInitializerOverrides {
+            lines.append(contentsOf: initializer.split(separator: "\n").map { "    \($0)" })
+        }
         if case .globalActor(let name)? = container.declaredIsolation, !isActor {
             // Checks that read the recorded calls of several mocks at once, such as `verifyNoMoreInteractions`,
             // can't take one mock's isolation, so they ask for it at run time.

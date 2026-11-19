@@ -154,3 +154,30 @@ class ReviewCounter {
     nonisolated(unsafe) var hits = 0
     func count() -> Int { 0 }
 }
+
+// A class's explicit `nonisolated init`: with a default isolation, the mock and stub override it as nonisolated,
+// since the one they'd inherit takes the default actor, and its other designated initializers too, which an override
+// would otherwise stop them inheriting. A convenience initializer is inherited.
+class ReviewPlainMaker {
+    nonisolated init() {}
+    nonisolated init(seed: Int) throws {}
+    init(name: String) {}
+    nonisolated convenience init(other: Int) { self.init() }
+    func make() -> Int { 0 }
+}
+
+// A subclass declaring a designated initializer has only its own, so only those are overridden.
+class ReviewBaseMaker {
+    nonisolated init() {}
+    init(name: String) {}
+}
+
+class ReviewSubMaker: ReviewBaseMaker {
+    nonisolated override init() { super.init() }
+    init(count: Int) { super.init(name: "") }
+}
+
+class ReviewAsyncMaker {
+    nonisolated init() async {}
+    func make() -> Int { 0 }
+}

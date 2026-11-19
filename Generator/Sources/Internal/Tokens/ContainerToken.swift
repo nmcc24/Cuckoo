@@ -47,6 +47,25 @@ extension ContainerToken {
         isClass ? [] : accessibilityAdjustedMembers.compactMap { $0 as? Initializer }
     }
 
+    /// With a default isolation, a class's mock or stub would inherit its `nonisolated init` as an initializer of
+    /// the default actor, which can't override it: it overrides it as nonisolated instead. An override stops the
+    /// class's other designated initializers from being inherited, so they're overridden too, as they are. A class
+    /// declaring a designated initializer has only its own; otherwise it has its superclass's.
+    var nonisolatedInitializerOverrides: [String] {
+        guard isClass, GeneratorHelper.defaultIsolation != nil else { return [] }
+        let inherited = accessibilityAdjustedMembers.compactMap { $0 as? Initializer }.filter { !$0.isConvenience }
+        let own = inherited.filter { ($0.parent?.value as? any HasName)?.fullyQualifiedName == fullyQualifiedName }
+        let designated = own.isEmpty ? inherited : own
+        guard designated.contains(where: \.isNonisolated) else { return [] }
+        return designated.map { initializer in
+            let access = min(initializer.accessibility, accessibility).spaced
+            let effects = (initializer.signature.throwType == nil ? "" : "try ") + (initializer.signature.asyncType == nil ? "" : "await ")
+            let call = effects + "super.init(\(initializer.signature.parameters.map(\.call).joined(separator: ", ")))"
+            let modifiers = (initializer.isNonisolated ? "nonisolated " : "") + (initializer.isRequired ? "required" : "override")
+            return "\(access)\(modifiers) init\(initializer.isOptional ? "?" : "")\(initializer.signature.description) {\n    \(call)\n}"
+        }
+    }
+
     /// `, @unchecked Sendable` when the mock and stub subclass an `@unchecked Sendable` class, which a subclass has
     /// to restate, or nothing.
     var restatedUncheckedSendable: String {

@@ -1138,14 +1138,16 @@ extension Crawler {
             signature: Method.Signature(
                 genericParameters: genericParameters(from: initializer.genericParameterClause?.parameters),
                 parameters: parameters,
-                asyncType: nil,
+                asyncType: initializer.signature.effectSpecifiers?.asyncSpecifier.flatMap { AsyncType(rawValue: $0.filteredDescription) },
                 throwType: ThrowType(syntax: initializer.signature.effectSpecifiers?.throwsClause),
                 returnType: nil,
                 whereConstraints: genericRequirements(from: initializer.genericWhereClause?.requirements)
             ),
             isRequired: initializer.modifiers.contains { $0.name == .keyword(.required) },
             isOptional: initializer.optionalMark?.isPresent == true,
-            compilationConditions: compilationConditions
+            compilationConditions: compilationConditions,
+            isNonisolated: initializer.modifiers.contains { $0.name.tokenKind == .keyword(.nonisolated) },
+            isConvenience: initializer.modifiers.contains { $0.name.tokenKind == .keyword(.convenience) }
         )
     }
 }
