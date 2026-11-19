@@ -66,10 +66,6 @@ public class ConcreteStub<IN, OUT, ERROR: Error, IMPL>: Stub, TypedStub {
         }
     }
 
-    func matches(_ parameters: IN) -> Bool {
-        firstMismatch(in: parameters) == nil
-    }
-
     /// The index of the first argument whose matcher rejects `parameters`, or `nil` if they all accept it. Like
     /// matching, it stops at that argument, so a capturing matcher after it doesn't run.
     func firstMismatch(in parameters: IN) -> Int? {
