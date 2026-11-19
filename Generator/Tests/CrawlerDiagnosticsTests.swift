@@ -33,6 +33,29 @@ struct CrawlerDiagnosticsTests {
         ])
     }
 
+    /// A class whose initializers are all private is mocked with a warning: no test can create its mock. One with
+    /// an accessible initializer gets none.
+    @Test
+    func aClassWithOnlyPrivateInitializersWarns() throws {
+        let crawler = Crawler.crawl(source: """
+            class Singleton {
+                static let shared: Singleton = Singleton()
+                private init() {}
+                func load() {}
+            }
+
+            class Service {
+                private init(secret: Int) {}
+                init() {}
+            }
+            """, url: url)
+
+        #expect(crawler.tokens.count == 2)
+        #expect(crawler.diagnostics.map(\.description) == [
+            "/project/Sources/Service.swift:1:1: warning: cuckoo: 'Singleton' is mocked, but its initializers are private, so no test can create its mock.",
+        ])
+    }
+
     /// A protocol refining one that isn't mocked isn't mocked either, as its mock would need the same requirement.
     @Test
     func protocolsRefiningAnUnmockedOneAreSkippedWithAWarning() async throws {

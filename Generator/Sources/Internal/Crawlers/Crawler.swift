@@ -234,6 +234,14 @@ final class Crawler: SyntaxVisitor {
 
         let crawler = Crawler(container: Reference(token), context: context)
         crawler.walk(members: node.memberBlock)
+        // A mock inherits the class's initializers, so a class whose initializers are all private gives a mock that
+        // no test can create.
+        let initializers = node.memberBlock.members.compactMap { $0.decl.as(InitializerDeclSyntax.self) }
+        if !initializers.isEmpty, initializers.allSatisfy({ initializer in
+            initializer.modifiers.contains { [.keyword(.private), .keyword(.fileprivate)].contains($0.name.tokenKind) }
+        }) {
+            warn(node, "'\(token.name)' is mocked, but its initializers are private, so no test can create its mock.")
+        }
         token.members = crawler.tokens
         token.unmockedMembers = crawler.unmockedMembers
         token.shadowedMembers = crawler.shadowedMembers
