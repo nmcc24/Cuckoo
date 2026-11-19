@@ -72,6 +72,14 @@ extension Method.Signature {
     /// when the sources declare a `Result` of their own.
     @TaskLocal static var declaredTypes: Set<String> = []
 
+    /// The names of a requirement that a class's member may write as other types. See `Inheritable.placeholders`.
+    struct Placeholders: Sendable {
+        /// `Self` and the protocol's associated types.
+        var names: Set<String> = []
+        /// The protocol's typealiases, by name, with the types they stand for.
+        var aliases: [String: String] = [:]
+    }
+
     /// The types a placeholder can stand for in the class whose requirements are being matched: `Self` is the class or
     /// a superclass, and an associated type the class names with a typealias is that typealias's type. A placeholder
     /// without an entry stands for any type.
@@ -91,7 +99,7 @@ extension Method.Signature {
     /// a typed error, `throws(ParseError)`, one that throws any error, and a synchronous one an `async` one.
     /// `placeholders` are the requirement's names that the member writes as concrete types, `Self` and the protocol's
     /// associated types: `func make() -> Int` implements `func make() -> Output`.
-    func implements(_ requirement: Method.Signature, placeholders: Set<String> = []) -> Bool {
+    func implements(_ requirement: Method.Signature, placeholders: Placeholders = .init()) -> Bool {
         // A typed throw throws fewer errors than an untyped one, `throws(any Error)` included. A bare `Error` may name
         // a type of the sources, so it doesn't count.
         let untyped: [ThrowType?] = [.throws(nil), .throws("any Error"), .throws("Swift.Error"), .throws("any Swift.Error")]
@@ -116,7 +124,7 @@ extension Method.Signature {
     /// a constraint written in the parameter list or in a `where` clause, or a standard type qualified as `Swift.Int`.
     /// Each of `other`'s `placeholders`, as `Self.Output` or `Output`, stands for a type in this signature, in its
     /// `where` clause too.
-    func isApiEqual(to other: Method.Signature, placeholders: Set<String> = []) -> Bool {
+    func isApiEqual(to other: Method.Signature, placeholders: Placeholders = .init()) -> Bool {
         guard genericParameters.map(\.kind) == other.genericParameters.map(\.kind),
               parameters.count == other.parameters.count,
               asyncType == other.asyncType,
@@ -124,8 +132,14 @@ extension Method.Signature {
               parameters.elementsEqual(other.parameters, by: { $0.name == $1.name }) else { return false }
         let mine = canonicalForm, theirs = other.canonicalForm
         // A generic parameter of the requirement's own shadows a placeholder of its name.
-        let placeholders = placeholders.subtracting(other.genericParameters.map(\.name))
-        guard !placeholders.isEmpty else { return mine.types == theirs.types && mine.constraints == theirs.constraints }
+        let shadowed = Set(other.genericParameters.map(\.name))
+        let placeholders = Placeholders(
+            names: placeholders.names.subtracting(shadowed),
+            aliases: placeholders.aliases.filter { !shadowed.contains($0.key) }
+        )
+        guard !placeholders.names.isEmpty || !placeholders.aliases.isEmpty else {
+            return mine.types == theirs.types && mine.constraints == theirs.constraints
+        }
         guard mine.constraints.count == theirs.constraints.count else { return false }
         // The constraints are in the order of what they constrain, `__G0.Element == Key` matching
         // `__G0.Element == String` when they're the only constraints on `__G0.Element`.
@@ -192,23 +206,27 @@ extension Method.Signature {
 }
 
 /// Matches a class member's types against a requirement's, where `Self` and the protocol's associated types stand for
-/// the types the member writes.
+/// the types the member writes, and the protocol's typealiases for what they stand for.
 private enum PlaceholderMatcher {
     enum Part: Equatable {
         case literal(Character)
-        case placeholder(String)
+        /// A placeholder, with the member types it names after it, as `.Element` in `Output.Element`.
+        case placeholder(root: String, path: String)
+        /// A typealias written as it is or as what it stands for.
+        case choice([[Part]])
     }
 
     /// The most steps a match takes before it gives up, so a contrived signature can't stall the generator: a
     /// requirement the match misses is declared again, as before placeholders were matched.
     static let budget = 10_000
 
-    /// `pattern` as literal characters and a slot for each of `placeholders`, written alone or after `Self.`, with
-    /// the member types it names, as `Output.Element`. A name after another type's, as `Other.Output`, is literal.
-    static func pattern(_ pattern: String, placeholders: Set<String>) -> [Part] {
+    /// `text` as literal characters, a slot for each placeholder, written alone or after `Self.`, with the member
+    /// types it names, and a choice for each typealias. A name after another type's, as `Other.Output`, is literal.
+    static func pattern(_ text: String, placeholders: Method.Signature.Placeholders, depth: Int = 0) -> [Part] {
         func isIdentifier(_ character: Character) -> Bool { character.isLetter || character.isNumber || character == "_" }
+        let names = placeholders.names
         var parts: [Part] = []
-        var rest = pattern[...]
+        var rest = text[...]
         while let first = rest.first {
             guard first.isLetter || first == "_" else {
                 parts.append(.literal(first))
@@ -218,32 +236,41 @@ private enum PlaceholderMatcher {
             let word = rest.prefix(while: isIdentifier)
             rest = rest.dropFirst(word.count)
             var name = String(word)
+            var written = name
             let isMemberType = parts.last == .literal(".")
-            if name == "Self", rest.first == ".", case let next = rest.dropFirst().prefix(while: isIdentifier),
-               next != "Self", placeholders.contains(String(next)) {
-                name = String(next)
+            if name == "Self", rest.first == ".", case let next = String(rest.dropFirst().prefix(while: isIdentifier)),
+               next != "Self", names.contains(next) || placeholders.aliases[next] != nil {
+                name = next
+                written = "Self." + next
                 rest = rest.dropFirst(next.count + 1)
             }
-            guard !isMemberType, placeholders.contains(name) else {
-                parts += name.map(Part.literal)
+            if !isMemberType, let original = placeholders.aliases[name], !names.contains(name), depth < 4 {
+                // Written as the protocol writes it, or as what it stands for, itself matched with the placeholders.
+                let expansion = pattern(Method.Signature.canonicalType(original), placeholders: placeholders, depth: depth + 1)
+                parts.append(.choice([written.map(Part.literal), name.map(Part.literal), expansion]))
                 continue
             }
-            // A member type of a placeholder's is a type the member writes as it likes too.
-            var path = name
+            guard !isMemberType, names.contains(name) else {
+                parts += written.map(Part.literal)
+                continue
+            }
+            var path = ""
             while rest.first == ".", let next = rest.dropFirst().first, next.isLetter || next == "_" {
                 let member = rest.dropFirst().prefix(while: isIdentifier)
                 path += "." + member
                 rest = rest.dropFirst(member.count + 1)
             }
-            parts.append(.placeholder(path))
+            parts.append(.placeholder(root: name, path: path))
         }
         return parts
     }
 
-    /// Whether `type` is `pattern` with one whole type in each slot, the same one for each placeholder: balanced
-    /// brackets, no `,` or `:` outside them, and none of the member's generic parameters, which `canonicalForm` writes
-    /// `__G0`.
-    /// A placeholder with `allowed` types stands only for one of them, or for its own name.
+    /// Whether `type` is `pattern` with one whole type in each slot: balanced brackets, no `,` or `:` outside them,
+    /// and none of the member's generic parameters, which `canonicalForm` writes `__G0`.
+    ///
+    /// A placeholder with `allowed` types, `Self` or an associated type the class names with a typealias, stands for
+    /// its own name or one of them, as `Output` or `Int`, and with a member path, as `Output.Type`, for one of those
+    /// followed by the path. Any other placeholder stands for the same type wherever the requirement writes it.
     static func matches(
         _ type: Substring,
         _ pattern: ArraySlice<Part>,
@@ -254,23 +281,32 @@ private enum PlaceholderMatcher {
         budget -= 1
         guard budget > 0 else { return false }
         guard let first = pattern.first else { return type.isEmpty }
+        let rest = pattern.dropFirst()
         switch first {
         case .literal(let character):
-            return type.first == character && matches(type.dropFirst(), pattern.dropFirst(), bindings: bindings, allowed: allowed, budget: &budget)
-        case .placeholder(let name):
-            if let bound = bindings[name] {
-                return type.hasPrefix(bound)
-                    && matches(type.dropFirst(bound.count), pattern.dropFirst(), bindings: bindings, allowed: allowed, budget: &budget)
+            return type.first == character && matches(type.dropFirst(), rest, bindings: bindings, allowed: allowed, budget: &budget)
+        case .choice(let alternatives):
+            return alternatives.contains { alternative in
+                matches(type, alternative[...] + rest, bindings: bindings, allowed: allowed, budget: &budget)
             }
-            for candidate in wholeTypes(at: type) {
-                if let types = allowed[name], candidate != name, !types.contains(String(candidate)) { continue }
-                var bindings = bindings
-                bindings[name] = candidate
-                if matches(type.dropFirst(candidate.count), pattern.dropFirst(), bindings: bindings, allowed: allowed, budget: &budget) {
-                    return true
+        case .placeholder(let root, let path):
+            if let types = allowed[root] {
+                let spellings = Set((types + [root]).map { $0 + path })
+                return wholeTypes(at: type).contains { candidate in
+                    spellings.contains(String(candidate))
+                        && matches(type.dropFirst(candidate.count), rest, bindings: bindings, allowed: allowed, budget: &budget)
                 }
             }
-            return false
+            let key = root + path
+            if let bound = bindings[key] {
+                return type.hasPrefix(bound)
+                    && matches(type.dropFirst(bound.count), rest, bindings: bindings, allowed: allowed, budget: &budget)
+            }
+            return wholeTypes(at: type).contains { candidate in
+                var bindings = bindings
+                bindings[key] = candidate
+                return matches(type.dropFirst(candidate.count), rest, bindings: bindings, allowed: allowed, budget: &budget)
+            }
         }
     }
 

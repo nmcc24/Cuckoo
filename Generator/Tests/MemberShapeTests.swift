@@ -529,6 +529,41 @@ struct MemberShapeTests {
         #expect(classMock.contains("func first<T> (_ p0: T) -> Key? where T: Sequence, T.Element == Key {"))
     }
 
+    /// A protocol's typealias is matched as what it stands for, and a class's typealiases, one of another too, narrow
+    /// what a placeholder stands for, with a member path as `Output.Type`.
+    @Test
+    func typealiasesAreMatchedAsWhatTheyStandFor() async throws {
+        let source = """
+            protocol Listing {
+                associatedtype Item
+                typealias Items = [Item]
+                func all() -> Items
+                func first(_ items: Self.Items) -> Item?
+                func pair(_ first: Item, _ second: Item)
+                func accept(_ type: Item.Type)
+            }
+            class Lister: Listing {
+                typealias Number = Int
+                typealias Item = Number
+                init() {}
+                func all() -> [Int] { [] }
+                func first(_ items: [Item]) -> Int? { nil }
+                func pair(_ first: Item, _ second: Int) {}
+                func accept(_ type: String) {}
+            }
+            """
+        let output = try await generateMocks(source: source)
+        let start = try #require(output.firstRange(of: "class MockLister:")).lowerBound
+        let end = try #require(output.firstRange(of: "class ListerStub:")).lowerBound
+        let classMock = output[start..<end]
+        #expect(classMock.contains("override func all() -> [Int] {"))
+        #expect(!classMock.contains("func all() -> Items {"))
+        #expect(!classMock.contains("func first(_ p0: Self.Items) -> Item? {"))
+        #expect(!classMock.contains("func pair(_ p0: Item, _ p1: Item) {"))
+        // `String` isn't `Int.Type`: the requirement is declared next to the class's member.
+        #expect(classMock.contains("    func accept(_ p0: Item.Type) {"))
+    }
+
     /// With a default isolation, a `nonisolated` class's member takes its requirement's actor only when it's the
     /// requirement's witness: the overload written with the class's typealias type, not the other one.
     @Test

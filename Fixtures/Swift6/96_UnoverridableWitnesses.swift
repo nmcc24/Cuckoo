@@ -258,6 +258,42 @@ class Picker: Picking {
     func pick<T>(_ values: T) -> String? where T: Sequence, T.Element == String { nil }
 }
 
+// A protocol's typealias is matched as what it stands for, a class's typealias of another as what that one stands
+// for, and a member may write a placeholder both ways.
+protocol Listing {
+    associatedtype Item
+    typealias Items = [Item]
+    func all() -> Items
+    func first(_ items: Self.Items) -> Item?
+    func pair(_ first: Item, _ second: Item)
+}
+
+class Lister: Listing {
+    typealias Number = Int
+    typealias Item = Number
+    init() {}
+    func all() -> [Int] { [] }
+    func first(_ items: [Item]) -> Int? { nil }
+    func pair(_ first: Item, _ second: Int) {}
+}
+
+// A member type of a placeholder the class names, as `Output.Type`, is that type's.
+protocol MetaTyping {
+    associatedtype Output
+    func accept(_ type: Output.Type)
+}
+
+extension MetaTyping {
+    func accept(_ type: Output.Type) {}
+}
+
+class MetaTyper: MetaTyping {
+    typealias Output = Int
+    init() {}
+    func accept(_ type: Int.Type) {}
+    func accept(_ type: String) {}
+}
+
 // With a default isolation, only the member Swift takes for the requirement's witness takes its actor.
 @MainActor protocol Displaying {
     associatedtype Value

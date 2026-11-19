@@ -232,6 +232,12 @@ extension Token {
             for case let alias as Typealias in chain.flatMap(\.members) where !alias.alias.contains("<") {
                 types[alias.alias, default: []].insert(Method.Signature.canonicalType(alias.original))
             }
+            // A typealias of another, `typealias Output = Number`, stands for what that one does too.
+            for _ in 0..<4 {
+                for (name, originals) in types where name != "Self" {
+                    types[name] = originals.union(originals.flatMap { types[$0] ?? [] })
+                }
+            }
             return types
         } ?? [:]
         let mergedTokens = Method.Signature.$placeholderTypes.withValue(placeholderTypes) {
@@ -375,8 +381,9 @@ extension Token {
                 return nonisolatedRequirements.contains { $0.isEqual(to: member) } && !ownRequirements.contains { $0.isEqual(to: member) }
             }
             // Every member, inherited ones included, belongs to this protocol now: its mock is the one they're
-            // generated into, and its isolation, which may come from a parent, is the one they take.
-            let reference = Reference<any Token>(merged.replacing(members: []))
+            // generated into, and its isolation, which may come from a parent, is the one they take. It keeps its
+            // typealiases, which a class's member implementing a requirement may write as what they stand for.
+            let reference = Reference<any Token>(merged.replacing(members: merged.members.filter { $0 is Typealias }))
             return merged.replacing(members: merged.members.map { member in
                 var member = isNonisolatedRequirement(member) ? member.withDefaultIsolation(.nonisolated) : member
                 member.parent = reference
