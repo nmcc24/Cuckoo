@@ -161,7 +161,6 @@ extension Method.Signature {
         }
         // Matched as one text, so a placeholder stands for one type wherever the requirement writes it.
         let separator: Character = "\u{1F}"
-        var budget = PlaceholderMatcher.budget
         let allowed = Self.placeholderTypes
         let pattern = PlaceholderMatcher.pattern(
             (theirs.types + ordered(theirs.constraints)).joined(separator: String(separator)),
@@ -170,8 +169,10 @@ extension Method.Signature {
         // A placeholder on a constraint's left side, as `Key == T.Element`, can sort it apart from the member's: a few
         // constraints are tried in every order.
         let orders = mine.constraints.count <= 4 ? Self.permutations(of: ordered(mine.constraints)) : [ordered(mine.constraints)]
+        // Each order has a budget of its own, so the ones that fail don't use up the right one's.
         return orders.contains { constraints in
-            PlaceholderMatcher.matches(
+            var budget = PlaceholderMatcher.budget
+            return PlaceholderMatcher.matches(
                 (mine.types + constraints).joined(separator: String(separator))[...],
                 pattern[...],
                 bindings: [:],

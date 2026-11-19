@@ -321,6 +321,8 @@ class OwnMerger: Merging {
     func merged(with other: OwnMerger) -> Bool { true }
 }
 
+class SubMerger: Merger {}
+
 // A member type of an associated type the class names, as `Output.Element`, is one the class writes as it likes, and a
 // placeholder on a constraint's left side is matched whatever order the constraints sort in.
 protocol Indexing {
@@ -338,6 +340,27 @@ class IntIndex: Indexing {
     init() {}
     func first() -> Int? { nil }
     func pair<T: Sequence, U: Sequence>(_ keys: T, _ values: U) where Int == T.Element, String == U.Element {}
+}
+
+// An associated type no typealias names stands for any type, so a same-named overload, written with `Int` where Swift
+// infers `String`, is taken for the defaulted requirement, which the mock leaves to the protocol: it compiles.
+protocol Keyed {
+    associatedtype Key
+    func get() -> Key
+    func over<T: Sequence>(_ values: T) where T.Element == Key
+    func pairs(_ first: Key, _ second: Key) -> Int
+}
+
+extension Keyed {
+    func over<T: Sequence>(_ values: T) where T.Element == Key {}
+    func pairs(_ first: Key, _ second: Key) -> Int { 0 }
+}
+
+class KeyStore: Keyed {
+    init() {}
+    func get() -> String { "" }
+    func over<T: Sequence>(_ values: T) where T.Element == Int {}
+    func pairs(_ first: String, _ second: Int) -> Int { 1 }
 }
 
 // With a default isolation, only the member Swift takes for the requirement's witness takes its actor.

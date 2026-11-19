@@ -15,6 +15,9 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
     var isIsolationDefault = false
     /// Members the mock can't override, each with the reason, stated in a comment in the mock.
     var unmockedMembers: [String] = []
+    /// The requirements naming `Self` that the class leaves to a protocol's default implementation, which its mock and
+    /// its subclasses' mocks leave out; among `unmockedMembers`, for a subclass to repeat.
+    var selfRequirementsLeftOut: [String] = []
     /// Attributes the generator couldn't classify, which the mock names in a comment; see `Crawler.unknownAttributes`.
     var unknownAttributes: [String] = []
     /// The non-public type whose use by a non-public member made a public class's mock internal, if any.
@@ -46,6 +49,7 @@ struct ClassDeclaration: ContainerToken, HasEnclosingCompilationConditions {
             isolation: isolation,
             isIsolationDefault: isIsolationDefault,
             unmockedMembers: unmockedMembers,
+            selfRequirementsLeftOut: selfRequirementsLeftOut,
             unknownAttributes: unknownAttributes,
             internalMockReason: internalMockReason,
             isUncheckedSendable: isUncheckedSendable,
