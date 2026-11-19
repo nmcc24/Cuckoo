@@ -30,6 +30,28 @@ struct EventuallyTests {
         await task.value
     }
 
+    /// A configuration the block sets, as the documentation shows for default values, doesn't stop its failures
+    /// being held back and retried.
+    @Test
+    func retriesWithAConfigurationSetInsideTheBlock() async {
+        let mock = stubbedCounter()
+
+        let task = Task {
+            try? await Task.sleep(for: .milliseconds(50))
+            _ = mock.count(characters: "a")
+        }
+
+        let messages = await collectingMessages {
+            await eventually(timeout: .seconds(10)) {
+                CuckooConfiguration.$current.withValue(CuckooConfiguration(defaultValues: DefaultValues())) {
+                    _ = verify(mock).count(characters: "a")
+                }
+            }
+        }
+        #expect(messages.isEmpty)
+        await task.value
+    }
+
     @Test
     func returnsAtOnceWhenTheBlockAlreadyPasses() async {
         let mock = stubbedCounter()
