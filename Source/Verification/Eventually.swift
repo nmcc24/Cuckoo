@@ -1,6 +1,7 @@
 /// Runs `block` until it records no failure, for code that calls a mock from another task.
 ///
-/// The block's failures are held back while it's retried: every `pollingInterval`, until `timeout` runs out. If it
+/// The block's failures are held back while it's retried: every `pollingInterval`, at least a millisecond, until
+/// `timeout` runs out. If it
 /// still fails then, or the waiting task is cancelled, the last run's failures are reported at their own source
 /// locations. Only Cuckoo's failures are retried; an `#expect` or `XCTAssert` in the block reports at once.
 ///
@@ -21,6 +22,8 @@ public nonisolated(nonsending) func eventually(
 ) async {
     let clock = ContinuousClock()
     let deadline = clock.now.advanced(by: timeout)
+    // A zero or negative interval would run the block back to back for the whole timeout.
+    let pollingInterval = max(pollingInterval, .milliseconds(1))
     while true {
         let failures = collectingFailures(of: block)
         guard !failures.isEmpty else {

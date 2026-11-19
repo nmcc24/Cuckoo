@@ -94,6 +94,22 @@ struct EventuallyTests {
         #expect((2...4).contains(runs.withLock { $0 }))
     }
 
+    /// A zero or negative interval waits a millisecond between runs instead of running the block back to back.
+    @Test(arguments: [Duration.zero, .milliseconds(-5)])
+    func pollsAtMostEveryMillisecond(pollingInterval: Duration) async {
+        let mock = stubbedCounter()
+        let runs = Locked(0)
+
+        _ = await collectingMessages {
+            await eventually(timeout: .milliseconds(50), pollingInterval: pollingInterval) {
+                runs.withLock { $0 += 1 }
+                verify(mock).count(characters: "a")
+            }
+        }
+        // A sleep lasts at least its duration, so 50 ms has room for 51 runs at most.
+        #expect(runs.withLock { $0 } <= 51)
+    }
+
     @Test
     func reportsEveryFailureOfTheLastRun() async {
         let mock = stubbedCounter()
