@@ -84,6 +84,7 @@ enum StubbingProxyBuilder {
     private static func source(of property: Variable, mockName: String, access memberAccess: Accessibility) -> String {
         var source = property.repeatedAttributes.map(\.description)
         let arguments = GeneratorHelper.genericSafeType(from: property.stubGenericArguments)
+        source.append(contentsOf: isolation(property.stubIsolation))
         source.append("\(memberAccess.spaced)var \(property.name): Cuckoo.\(property.stubType)<\(mockName), \(arguments)> {")
         source.append("    return .init(manager: cuckooManager, name: \(Fragment.literal(property.name)))")
         source.append("}")
@@ -107,6 +108,9 @@ enum StubbingProxyBuilder {
         let parameters = GeneratorHelper.matchableParameterSignature(with: method.signature.parameters, of: method)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: method)
         var source = method.repeatedAttributes.map(\.description)
+        if !isAsync {
+            source.append(contentsOf: isolation(method.stubIsolation))
+        }
         // The async member runs on its caller's actor: a plain `async` one would send the proxy, which isn't
         // `Sendable`, off a caller on the main actor.
         source.append("\(memberAccess.spaced)\(isAsync ? "nonisolated(nonsending) " : "")func \(method.proxyName)\(generics)(\(parameters))\(isAsync ? " async" : "") -> \(method.stubFunction)<\(arguments.joined(separator: ", "))>\(whereClause) {")
@@ -130,6 +134,7 @@ enum StubbingProxyBuilder {
         let parameters = GeneratorHelper.matchableParameterSignature(with: keys, of: getter)
         let whereClause = GeneratorHelper.matchableGenericsWhereClause(from: getter)
         var accessor = attributes
+        accessor.append(contentsOf: isolation(getter.stubIsolation))
         accessor.append("\(memberAccess.spaced)subscript\(generics)(\(parameters)) -> __Subscript\(number)\(subscriptDeclaration.genericArgumentsClause)\(whereClause) {")
         accessor.append("    \(GeneratorHelper.parameterMatchers(for: keys, sendable: sendable))")
         accessor.append("    return .init(cuckooManager: cuckooManager, matchers: matchers)")
@@ -147,6 +152,7 @@ enum StubbingProxyBuilder {
         type.append("    fileprivate let cuckooManager: Cuckoo.MockManager")
         type.append("    fileprivate let matchers: [\(GeneratorHelper.matcherType(sendable: sendable))<(\(getterInput))>]")
         type.append("")
+        type.append(contentsOf: isolation(getter.stubIsolation).map { "    \($0)" })
         type.append("    \(memberAccess.spaced)var get: \(getter.stubFunction)<\(getterArguments.joined(separator: ", "))> {")
         type.append(contentsOf: createStub(for: getter, mockName: mockName).map { "    \($0)" })
         type.append("    }")
@@ -161,6 +167,7 @@ enum StubbingProxyBuilder {
             ]
             let index = subscriptDeclaration.newValueMatcherIndex
             type.append("")
+            type.append(contentsOf: isolation(setter.stubIsolation).map { "    \($0)" })
             type.append("    \(memberAccess.spaced)func set<\(subscriptDeclaration.newValueMatcherGeneric(sendable: sendable))>(_ \(subscriptDeclaration.newValueName): \(GeneratorHelper.matcherPrefix)\(index)) -> \(setter.stubFunction)<\(setterArguments.joined(separator: ", "))> where \(subscriptDeclaration.newValueMatcherConstraint) {")
             type.append("        let matchers: [\(GeneratorHelper.matcherType(sendable: sendable))<(\(setterInput))>] = \(subscriptDeclaration.keyMatchers(sendable: sendable))[\(subscriptDeclaration.newValueMatcher(sendable: sendable))]")
             type.append(contentsOf: createStub(for: setter, mockName: mockName).map { "    \($0)" })
@@ -182,5 +189,15 @@ enum StubbingProxyBuilder {
 
     private static func lines(_ lines: [String]) -> String {
         lines.joined(separator: "\n")
+    }
+
+    /// With a default isolation, a synchronous member stubs on the member's global actor, as the verification proxy's
+    /// member verifies there: the module's types are isolated to it, so `Set<Item>` needs `Item`'s `Hashable`
+    /// conformance on that actor. A nonisolated member stays nonisolated, so a nonisolated test can stub it, and an
+    /// async member runs on its caller's actor already. Without a default isolation, stubbing stays nonisolated, so a
+    /// nonisolated test can stub a `@MainActor` mock.
+    private static func isolation(_ stubIsolation: StubIsolation) -> [String] {
+        guard GeneratorHelper.defaultIsolation != nil, let actor = stubIsolation.globalActor else { return [] }
+        return ["@\(actor)"]
     }
 }

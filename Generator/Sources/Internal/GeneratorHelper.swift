@@ -17,18 +17,24 @@ struct GeneratorHelper {
         tokens: [any Token],
         keepDocumentation: Bool = true,
         mockNaming: MockNaming = .default,
-        defaults: GeneratedDefaults = GeneratedDefaults()
+        defaults: GeneratedDefaults = GeneratedDefaults(),
+        defaultIsolation: Isolation? = nil
     ) throws -> String {
         // The builders name mocks through the tokens, and find the defaults the mocks build as they go.
         try MockNaming.$current.withValue(mockNaming) {
             try GeneratedDefaults.$current.withValue(defaults) {
-                let mocks = try tokens.compactMap { $0 as? any ContainerToken }.map {
-                    try MockBuilder.build($0, keepDocumentation: keepDocumentation)
+                try $defaultIsolation.withValue(defaultIsolation) {
+                    let mocks = try tokens.compactMap { $0 as? any ContainerToken }.map {
+                        try MockBuilder.build($0, keepDocumentation: keepDocumentation)
+                    }
+                    return try format(mocks.joined())
                 }
-                return try format(mocks.joined())
             }
         }
     }
+
+    /// The module's default isolation, `defaultIsolation` in its Cuckoofile options, while its mocks are built.
+    @TaskLocal static var defaultIsolation: Isolation?
 
     /// Lays `source` out with swift-syntax's formatter. Output that doesn't parse is a generator bug, which would
     /// format into something worse, so it fails generation with the line the parser stopped at.
