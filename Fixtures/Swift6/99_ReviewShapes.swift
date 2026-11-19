@@ -181,3 +181,16 @@ class ReviewAsyncMaker {
     nonisolated init() async {}
     func make() -> Int { 0 }
 }
+
+// A child restating a parent's requirement with the type the parent fixes its associated type to is one
+// requirement, not two.
+protocol ReviewRepository {
+    associatedtype Item
+    func all() -> [Item]
+}
+
+protocol ReviewUserRepository: ReviewRepository where Item == String {}
+
+protocol ReviewNamedUserRepository: ReviewUserRepository {
+    func all() -> [String]
+}

@@ -295,6 +295,7 @@ extension Token {
                         .compactMap({ $0 as? any Inheritable })
                         .contains(where: { candidate in
                             if candidate.isEqual(to: inheritedInheritable) { return true }
+                            if token is ProtocolDeclaration { return candidate.restates(inheritedInheritable) }
                             guard token is ClassDeclaration, candidate.implements(inheritedInheritable) else { return false }
                             let candidateIsRequirement = (candidate as? any Token)?.parent?.value is ProtocolDeclaration
                             if isRequirement { return !candidateIsRequirement }

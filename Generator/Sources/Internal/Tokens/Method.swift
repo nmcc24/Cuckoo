@@ -56,6 +56,12 @@ extension Method: Inheritable {
             && signature.implements(requirement.signature, placeholders: requirement.placeholders)
     }
 
+    func restates(_ requirement: any Inheritable) -> Bool {
+        guard let requirement = requirement as? Method, !requirement.placeholders.aliases.isEmpty else { return false }
+        return name == requirement.name && isStatic == requirement.isStatic && operatorFixity == requirement.operatorFixity
+            && signature.isApiEqual(to: requirement.signature, placeholders: .init(aliases: requirement.placeholders.aliases))
+    }
+
     func implementsAsWritten(_ requirement: any Inheritable) -> Bool {
         guard let requirement = requirement as? Method else { return false }
         return name == requirement.name && isStatic == requirement.isStatic && operatorFixity == requirement.operatorFixity
