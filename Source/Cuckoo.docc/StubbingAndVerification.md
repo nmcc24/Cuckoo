@@ -44,6 +44,13 @@ runtime dispatches them. An `@objcMembers` class's extension members are `@objc`
 represent their types, which the generator can't tell from the sources, so they're kept too: write `@objc` on one
 to mock it.
 
+A requirement naming `Self`, as `func merged(with other: Self) -> Bool`, that the class leaves to the protocol's
+default implementation isn't mocked either: the mock would have to write it with the class's type, and calls through
+the protocol reach the default implementation anyway. Implement it in the class to stub it. The generator reads only
+the sources, so it doesn't know what a superclass from another module implements, as `NSObject`'s `description` or
+`isEqual(_:)`: a requirement such a member implements is declared again in the mock, without `override`, which
+doesn't compile. Implement the requirement in the class, or leave the protocol to a protocol mock.
+
 Mocks keep the isolation of the type they mock. The mock of a `@MainActor` protocol is `@MainActor`, the mock of
 an `actor` protocol is an actor, and the mock of a `Sendable` type is `Sendable`, so the compiler checks how the
 test shares it. A protocol that states no isolation of its own takes its parents', as Swift does: the mock of a

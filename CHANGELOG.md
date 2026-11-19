@@ -174,7 +174,12 @@
   for a `throws(any Error)` requirement. The mock overrides the class's member, `@objc` extension members included.
 - A class member writing `Self` or one of the protocol's associated types as the type it is, as `func make() -> Int`
   for `func make() -> Output` or `func same(_ other: Maker) -> Bool` for `func same(_ other: Self) -> Bool`, got a
-  mock that also declared the requirement and didn't compile. The mock overrides the class's member.
+  mock that also declared the requirement and didn't compile. The mock overrides the class's member, also where it
+  writes a `where` clause naming an associated type with that type, as `T.Element == String` for
+  `T.Element == Key`, or a protocol's typealias as what it stands for, as `[Int]` for `Items`.
+- A class that leaves a requirement naming `Self`, as `func merged(with other: Self) -> Bool` or `func copy() ->
+  Self`, to the protocol's default implementation got a mock declaring it with `Self`, which didn't compile. The
+  mock leaves it out, as it does a member it can't override, and its comment says so.
 - A generic requirement using a typealias of a type that names an associated type, as `func first<T>(_ value: T)
   -> Items` with `typealias Items = [Item]`, got a mock that didn't compile: forwarding it to a default
   implementation goes through the opened existential, where `Items` is another type. The type eraser casts it
