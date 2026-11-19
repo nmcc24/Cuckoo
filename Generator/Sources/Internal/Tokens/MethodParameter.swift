@@ -132,6 +132,18 @@ struct MethodParameter: Token {
     }
 
 
+    /// A non-escaping closure over the erased types that ``closureAdapter(named:as:)`` can't pass on, as one taking an
+    /// `inout` or variadic argument: casting it always fails at run time, so its member isn't forwarded.
+    func isUnadaptableClosure(named typeNames: [String]) -> Bool {
+        var base = type
+        if case .attributed(let attributes, let baseType) = type {
+            guard !attributes.contains("@escaping") else { return false }
+            base = baseType
+        }
+        guard case .closure = base, type.containsTypes(named: typeNames) else { return false }
+        return closureAdapter(named: typeNames, as: { $0 }) == nil
+    }
+
     /// A non-escaping closure over associated types, passed as a closure taking the opened types: casting the
     /// closure itself always fails, as Swift can't convert a non-escaping function's type. The adapter casts each
     /// argument, and the result, instead. Nil for a closure it can't adapt, which is cast as before.

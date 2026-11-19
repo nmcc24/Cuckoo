@@ -107,7 +107,9 @@ enum TypeErasureBuilder {
             hasNoncopyable: Bool = false,
             hasIsolatedParameter: Bool = false,
             execution: String? = nil,
-            hasTypedThrows: Bool = false
+            hasTypedThrows: Bool = false,
+            isRethrowing: Bool = false,
+            hasUnadaptableClosure: Bool = false
         ) -> String? {
             if hasInout {
                 return "it takes an inout argument"
@@ -129,6 +131,12 @@ enum TypeErasureBuilder {
             }
             if hasTypedThrows {
                 return "it throws a typed error, which a stored closure can't pass on"
+            }
+            if isRethrowing {
+                return "it rethrows, which a stored closure can't"
+            }
+            if hasUnadaptableClosure {
+                return "it takes a closure over an associated type that can't be passed on"
             }
             return nil
         }
@@ -249,7 +257,10 @@ enum TypeErasureBuilder {
             hasSending: !method.hasGenericParams && method.signature.parameters.contains(where: \.isSending),
             hasNoncopyable: method.hasNoncopyableParams,
             hasIsolatedParameter: method.signature.parameters.contains { $0.type.containsAttribute(named: "isolated") },
-            execution: method.executionAttribute
+            execution: method.executionAttribute,
+            // A generic member calls the opened default implementation directly, which can rethrow.
+            isRethrowing: !method.hasGenericParams && method.signature.throwType?.isRethrowing == true,
+            hasUnadaptableClosure: method.signature.parameters.contains { $0.isUnadaptableClosure(named: method.erasedTypeNames) }
         )
     }
 
