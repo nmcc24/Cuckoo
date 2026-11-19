@@ -20,4 +20,16 @@ struct FewerEffectsWitnessTests {
         verify(mock).load()
         verify(mock).later()
     }
+
+    @Test
+    func aTypedThrowIsMockedForAnUntypedRequirement() throws {
+        let mock = MockTypedFewerEffectsLoader()
+        stub(mock) { stub in
+            when(stub.load()).thenThrow(FewerEffectsError.failed)
+        }
+
+        let loading: any TypedFewerEffectsLoading = mock
+        #expect(throws: FewerEffectsError.failed) { try loading.load() }
+        verify(mock).load()
+    }
 }

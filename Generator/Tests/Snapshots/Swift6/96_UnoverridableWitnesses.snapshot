@@ -2180,6 +2180,402 @@ final class ShowerStub: Shower {
     }
 }
 
+nonisolated final class MockParsing: Parsing, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any Parsing
+    typealias CuckooStubbing = __StubbingProxy_Parsing
+    typealias CuckooVerification = __VerificationProxy_Parsing
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockParsing.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any Parsing>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any Parsing) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func parse() throws -> Int {
+        return try cuckooManager.callThrows(
+            "parse() throws -> Int",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: (()) throws -> Int, arguments) throws(any Swift.Error) in
+                try implementation(arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.parse()
+        )
+    }
+
+    func check() throws(any Error) {
+        return try cuckooManager.callThrows(
+            "check() throws(any Error)",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (any Error).self,
+            invoke: { (implementation: (()) throws -> Void, arguments) throws(any Error) in
+                do {
+                    return try implementation(arguments)
+                } catch {
+                    throw Cuckoo.MockManager.typedError(error, as: (any Error).self, member: "check() throws(any Error)")
+                }
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.check()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_Parsing: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func parse() -> Cuckoo.ProtocolStubThrowingFunction<(), Int, any Swift.Error, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockParsing.self,
+                method: "parse() throws -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func check() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(), any Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockParsing.self,
+                method: "check() throws(any Error)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_Parsing: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func parse() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "parse() throws -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func check() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "check() throws(any Error)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class ParsingStub: Parsing {
+    func parse() throws -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func check() throws(any Error) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockTypedParser: TypedParser, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = TypedParser
+    typealias CuckooStubbing = __StubbingProxy_TypedParser
+    typealias CuckooVerification = __VerificationProxy_TypedParser
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockTypedParser.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<TypedParser>()
+
+    nonisolated func enableDefaultImplementation(_ stub: TypedParser) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func parse() throws(ParseError) -> Int {
+        return try cuckooManager.callThrows(
+            "parse() throws(ParseError) -> Int",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (ParseError).self,
+            invoke: { (implementation: (()) throws -> Int, arguments) throws(ParseError) in
+                do {
+                    return try implementation(arguments)
+                } catch {
+                    throw Cuckoo.MockManager.typedError(error, as: (ParseError).self, member: "parse() throws(ParseError) -> Int")
+                }
+            },
+            superclassCall: super.parse(),
+            defaultCall: cuckooDefaultImplementation.value.parse()
+        )
+    }
+
+    override func check() throws(ParseError) {
+        return try cuckooManager.callThrows(
+            "check() throws(ParseError)",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (ParseError).self,
+            invoke: { (implementation: (()) throws -> Void, arguments) throws(ParseError) in
+                do {
+                    return try implementation(arguments)
+                } catch {
+                    throw Cuckoo.MockManager.typedError(error, as: (ParseError).self, member: "check() throws(ParseError)")
+                }
+            },
+            superclassCall: super.check(),
+            defaultCall: cuckooDefaultImplementation.value.check()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_TypedParser: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func parse() -> Cuckoo.ClassStubThrowingFunction<(), Int, ParseError, (()) throws -> Int, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockTypedParser.self,
+                method: "parse() throws(ParseError) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func check() -> Cuckoo.ClassStubNoReturnThrowingFunction<(), ParseError, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockTypedParser.self,
+                method: "check() throws(ParseError)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_TypedParser: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func parse() -> Cuckoo.VerifiedCall<(), Int> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "parse() throws(ParseError) -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func check() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "check() throws(ParseError)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class TypedParserStub: TypedParser {
+    override func parse() throws(ParseError) -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    override func check() throws(ParseError) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+nonisolated final class MockAnyErrorChecking: AnyErrorChecking, nonisolated Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any AnyErrorChecking
+    typealias CuckooStubbing = __StubbingProxy_AnyErrorChecking
+    typealias CuckooVerification = __VerificationProxy_AnyErrorChecking
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockAnyErrorChecking.self) ?? Cuckoo.MockManager(hasParent: false)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<any AnyErrorChecking>()
+
+    nonisolated func enableDefaultImplementation(_ stub: any AnyErrorChecking) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    func verify() throws(any Error) {
+        return try cuckooManager.callThrows(
+            "verify() throws(any Error)",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (any Error).self,
+            invoke: { (implementation: (()) throws -> Void, arguments) throws(any Error) in
+                do {
+                    return try implementation(arguments)
+                } catch {
+                    throw Cuckoo.MockManager.typedError(error, as: (any Error).self, member: "verify() throws(any Error)")
+                }
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: cuckooDefaultImplementation.value.verify()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_AnyErrorChecking: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func verify() -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(), any Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockAnyErrorChecking.self,
+                method: "verify() throws(any Error)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_AnyErrorChecking: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func verify() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "verify() throws(any Error)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+nonisolated final class AnyErrorCheckingStub: AnyErrorChecking {
+    func verify() throws(any Error) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+final class MockAnyErrorChecker: AnyErrorChecker, nonisolated Cuckoo.ClassMock {
+    typealias CuckooMocksType = AnyErrorChecker
+    typealias CuckooStubbing = __StubbingProxy_AnyErrorChecker
+    typealias CuckooVerification = __VerificationProxy_AnyErrorChecker
+
+    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockAnyErrorChecker.self) ?? Cuckoo.MockManager(hasParent: true)
+
+    nonisolated private let cuckooDefaultImplementation = Cuckoo.DefaultImplementation<AnyErrorChecker>()
+
+    nonisolated func enableDefaultImplementation(_ stub: AnyErrorChecker) {
+        cuckooDefaultImplementation.value = stub
+        cuckooManager.enableDefaultImplementation()
+    }
+
+    override func verify() throws {
+        return try cuckooManager.callThrows(
+            "verify() throws",
+            parameters: (),
+            escapingParameters: (),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: (()) throws -> Void, arguments) throws(any Swift.Error) in
+                try implementation(arguments)
+            },
+            superclassCall: super.verify(),
+            defaultCall: cuckooDefaultImplementation.value.verify()
+        )
+    }
+
+    nonisolated struct __StubbingProxy_AnyErrorChecker: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func verify() -> Cuckoo.ClassStubNoReturnThrowingFunction<(), any Swift.Error, (()) throws -> Void, Cuckoo.StubSharing.Confined> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckooManager.createStub(for: MockAnyErrorChecker.self,
+                method: "verify() throws",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_AnyErrorChecker: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.SourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func verify() -> Cuckoo.VerifiedCall<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckooManager.verify(
+                "verify() throws",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+final class AnyErrorCheckerStub: AnyErrorChecker {
+    override func verify() throws {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
 #if (canImport(ObjectiveC))
 final class MockDynamicBase: DynamicBase, nonisolated Cuckoo.ClassMock {
     typealias CuckooMocksType = DynamicBase
