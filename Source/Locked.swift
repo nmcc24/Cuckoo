@@ -2,8 +2,8 @@ import Foundation
 
 /// A value that is only ever read or written while holding a lock.
 ///
-/// This is the runtime's one documented `@unchecked Sendable` box. It's sound because `withLock` is the only
-/// way to reach the value. The value itself may hold non-`Sendable` things (stub actions, recorded arguments),
+/// It's the runtime's `@unchecked Sendable` box for mutable state, sound because `withLock` is the only way to
+/// reach the value. The value itself may hold non-`Sendable` things (stub actions, recorded arguments),
 /// which is why the conformance can't be checked by the compiler.
 ///
 /// It uses `NSLock` so it works on Linux and on the iOS 17 / macOS 14 floor. `Synchronization.Mutex` would
