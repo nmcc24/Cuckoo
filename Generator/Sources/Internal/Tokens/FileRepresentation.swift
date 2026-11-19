@@ -219,6 +219,19 @@ extension Token {
         // A requirement an `@objc` extension member implements is that member, which the class's mock overrides.
         let classReference = (token as? ClassDeclaration).map { Reference<any Token>($0.replacing(members: [])) }
         let overridableMembers = (token as? ClassDeclaration).map { names.overridableExtensionMembers(of: $0) } ?? []
+        // The class's typealiases, a superclass's too, which its members may write as the types they stand for.
+        let classTypealiases: [String: String] = (token as? ClassDeclaration).map { classDeclaration -> [String: String] in
+            var chain = [classDeclaration]
+            var seen: Set<String> = []
+            while let last = chain.last, seen.insert(last.fullyQualifiedName).inserted,
+                  let superclass = last.inheritedTypes.lazy
+                      .compactMap({ names.resolve($0, from: last.fullyQualifiedName) as? ClassDeclaration }).first {
+                chain.append(superclass)
+            }
+            // One naming an associated type too: the placeholder stands for its name or for its type written out.
+            let aliases = chain.flatMap(\.members).compactMap { $0 as? Typealias }.filter { !$0.alias.contains("<") }
+            return Dictionary(aliases.map { ($0.alias, $0.original) }, uniquingKeysWith: { first, _ in first })
+        } ?? [:]
         // What `Self` and the associated types the class names with a typealias stand for in its members.
         let placeholderTypes: [String: Set<String>] = (token as? ClassDeclaration).map { classDeclaration -> [String: Set<String>] in
             var chain = [classDeclaration]
@@ -228,9 +241,14 @@ extension Token {
                       .compactMap({ names.resolve($0, from: last.fullyQualifiedName) as? ClassDeclaration }).first {
                 chain.append(superclass)
             }
-            var types: [String: Set<String>] = ["Self": Set(chain.flatMap { [$0.name, $0.fullyQualifiedName] }.map(Method.Signature.canonicalType))]
+            var types: [String: Set<String>] = ["Self": Set(chain.flatMap { [$0.name, $0.fullyQualifiedName] }.map { Method.Signature.canonicalType($0) })]
             for case let alias as Typealias in chain.flatMap(\.members) where !alias.alias.contains("<") {
-                types[alias.alias, default: []].insert(Method.Signature.canonicalType(alias.original))
+                // Written out as the class's members are, its other typealiases included: `Array<Value>` is `[String]`,
+                // and `[Input]` is `[Int]`.
+                let original = Method.Signature.$classTypealiases.withValue(classTypealiases.filter { $0.key != alias.alias }) {
+                    Method.Signature.canonicalType(alias.original)
+                }
+                types[alias.alias, default: []].insert(original)
             }
             // A typealias of another, `typealias Output = Number`, stands for what that one does too.
             for _ in 0..<4 {
@@ -240,9 +258,14 @@ extension Token {
             }
             return types
         } ?? [:]
+        func inClassScope<Result>(_ body: () -> Result) -> Result {
+            Method.Signature.$classTypealiases.withValue(classTypealiases) {
+                Method.Signature.$placeholderTypes.withValue(placeholderTypes, operation: body)
+            }
+        }
         // Requirements a class's mock can't declare, left to the protocol's default implementation.
         var undeclarableRequirements: [String] = []
-        let mergedTokens = Method.Signature.$placeholderTypes.withValue(placeholderTypes) {
+        let mergedTokens = inClassScope {
             inheritedRepresentations
                 .compactMap { $0 as? any HasMembers }
                 .flatMap { $0.members }
@@ -357,7 +380,7 @@ extension Token {
                     let concrete = ownMembers.filter { $0.implements(requirement) }
                     return concrete.count == 1 ? concrete : []
                 }
-                merged = Method.Signature.$placeholderTypes.withValue(placeholderTypes) {
+                merged = inClassScope {
                     merged.replacing(members: merged.members.map { member in
                         guard isOwn(member),
                               member.memberIsolation == nil,

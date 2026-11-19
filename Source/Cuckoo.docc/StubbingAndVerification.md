@@ -51,13 +51,13 @@ leaves Swift to infer stands for any type when the generator matches the class's
 member of the same name, labels and shape counts as implementing one: with `func get() -> String` and `func over<T>(_
 values: T) where T.Element == Int`, the defaulted requirement `over(_:) where T.Element == Key` isn't declared in the
 mock, and a direct call on the mock with `String` elements runs the default implementation. Name the type with a
-typealias, `typealias Key = String`, to have it declared and stubbed. The generator compares the types as written, so a
-member spelling one differently from the requirement, as `Array<String>` for `[Key]`, `Optional<Thing>` for `Item?`, or
-a class's typealias where the requirement writes the type itself, isn't taken for its implementation: the mock declares
-the requirement too, which doesn't compile. Write such a member's types as the requirement does. The generator reads
-only the sources, so it doesn't know what a superclass from another module implements, as `NSObject`'s `description` or
-`isEqual(_:)`: a requirement such a member implements is declared again in the mock, without `override`, which doesn't
-compile. Implement the requirement in the class, or leave the protocol to a protocol mock.
+typealias, `typealias Key = String`, to have it declared and stubbed. A member may spell a type as the requirement
+doesn't, `Array<String>` for `[Key]`, `Optional<Thing>` for `Item?` or a class's typealias for what it stands for, but a
+module's name, `Shop.Item` for `Item`, or a typealias declared outside the class isn't taken for the same type: the mock
+declares the requirement too, which doesn't compile. Write such a member's types as the requirement does. The generator
+reads only the sources, so it doesn't know what a superclass from another module implements, as `NSObject`'s
+`description` or `isEqual(_:)`: a requirement such a member implements is declared again in the mock, without
+`override`, which doesn't compile. Implement the requirement in the class, or leave the protocol to a protocol mock.
 
 Mocks keep the isolation of the type they mock. The mock of a `@MainActor` protocol is `@MainActor`, the mock of
 an `actor` protocol is an actor, and the mock of a `Sendable` type is `Sendable`, so the compiler checks how the

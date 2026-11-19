@@ -95,13 +95,101 @@ extension Method.Signature {
         }
     }
 
-    /// A type as `canonicalForm` writes it, without spaces and without a standard type's `Swift.`.
-    static func canonicalType(_ text: String) -> String {
+    /// A type as `canonicalForm` writes it, without spaces and without a standard type's `Swift.`, and, in a class's
+    /// merge, with the class's typealiases written as what they stand for unless `expandingClassTypealiases` is false,
+    /// as for a protocol's requirement, whose names aren't the class's.
+    static func canonicalType(_ text: String, expandingClassTypealiases: Bool = true) -> String {
         let declared = declaredTypes
-        return text.replacing(/\bSwift\.(\w+)/.wordBoundaryKind(.simple)) { match in
+        let text = text.replacing(/\bSwift\.(\w+)/.wordBoundaryKind(.simple)) { match in
             declared.contains(String(match.output.1)) ? String(match.output.0) : String(match.output.1)
         }
         .filter { !$0.isWhitespace }
+        return normalized(text, aliases: expandingClassTypealiases ? classTypealiases : [:])
+    }
+
+    /// The typealiases of the class whose members are being matched, and of its superclasses, with the types they
+    /// stand for: `put(_ k: Name)` with `typealias Name = String` is `put(_ k: String)`. Empty outside a class's merge.
+    @TaskLocal static var classTypealiases: [String: String] = [:]
+
+    /// `text`, without spaces, with `Optional<X>`, `Array<X>` and `Dictionary<K, V>` written `X?`, `[X]` and `[K: V]`,
+    /// and each of `aliases`, not after a `.`, written as what it stands for.
+    private static func normalized(_ text: String, aliases: [String: String], depth: Int = 0) -> String {
+        func isIdentifier(_ character: Character) -> Bool { character.isLetter || character.isNumber || character == "_" }
+        var result = ""
+        var index = text.startIndex
+        while index < text.endIndex {
+            let character = text[index]
+            guard character.isLetter || character == "_", result.last.map({ $0 != "." && !isIdentifier($0) }) ?? true else {
+                result.append(character)
+                index = text.index(after: index)
+                continue
+            }
+            var word = String(text[index...].prefix(while: isIdentifier))
+            index = text.index(index, offsetBy: word.count)
+            // `Self.Output` names the class's typealias as `Output` does.
+            if word == "Self", index < text.endIndex, text[index] == ".",
+               case let next = String(text[text.index(after: index)...].prefix(while: isIdentifier)), aliases[next] != nil {
+                word = next
+                index = text.index(index, offsetBy: next.count + 1)
+            }
+            let isGeneric = index < text.endIndex && text[index] == "<"
+            if !isGeneric, depth < 4, let original = aliases[word] {
+                result += normalized(original.filter { !$0.isWhitespace }, aliases: aliases, depth: depth + 1)
+                continue
+            }
+            // A type of the sources' named like one of them isn't the standard library's.
+            guard isGeneric, ["Optional", "Array", "Dictionary"].contains(word), !declaredTypes.contains(word),
+                  let (arguments, end) = genericArguments(in: text, opening: index) else {
+                result += word
+                continue
+            }
+            let parts = arguments.map { normalized($0, aliases: aliases, depth: depth) }
+            switch (word, parts.count) {
+            case ("Optional", 1):
+                // A function, composed or existential type is wrapped, as `(() -> Void)?`.
+                let wrapped = parts[0].contains("->") || parts[0].contains("&") || parts[0].hasPrefix("any") || parts[0].hasPrefix("some")
+                result += wrapped ? "(\(parts[0]))?" : "\(parts[0])?"
+            case ("Array", 1):
+                result += "[\(parts[0])]"
+            case ("Dictionary", 2):
+                result += "[\(parts[0]):\(parts[1])]"
+            default:
+                result += word + "<" + parts.joined(separator: ",") + ">"
+            }
+            index = end
+        }
+        return result
+    }
+
+    /// The top-level generic arguments of the `<` at `opening`, and the index after its `>`.
+    private static func genericArguments(in text: String, opening: String.Index) -> (arguments: [String], end: String.Index)? {
+        var depth = 0
+        var arguments: [String] = []
+        var current = ""
+        var index = opening
+        while index < text.endIndex {
+            let character = text[index]
+            let isArrow = character == ">" && index > text.startIndex && text[text.index(before: index)] == "-"
+            switch character {
+            case "<", "(", "[":
+                depth += 1
+                if depth > 1 { current.append(character) }
+            case ">" where !isArrow, ")", "]":
+                depth -= 1
+                if depth == 0 {
+                    arguments.append(current)
+                    return (arguments, text.index(after: index))
+                }
+                current.append(character)
+            case "," where depth == 1:
+                arguments.append(current)
+                current = ""
+            default:
+                current.append(character)
+            }
+            index = text.index(after: index)
+        }
+        return nil
     }
 
     /// Whether a member with this signature implements a requirement with `requirement`'s: the same signature, with
@@ -140,7 +228,9 @@ extension Method.Signature {
               asyncType == other.asyncType,
               throwType == other.throwType,
               parameters.elementsEqual(other.parameters, by: { $0.name == $1.name }) else { return false }
-        let mine = canonicalForm, theirs = other.canonicalForm
+        // A protocol's requirement, with its placeholders, is written with the protocol's names, not the class's.
+        let mine = canonicalForm(expandingClassTypealiases: true)
+        let theirs = other.canonicalForm(expandingClassTypealiases: placeholders.names.isEmpty)
         // A generic parameter of the requirement's own shadows a placeholder of its name.
         let shadowed = Set(other.genericParameters.map(\.name))
         let placeholders = Placeholders(
@@ -185,7 +275,7 @@ extension Method.Signature {
 
     /// The parameters' and result's types and the generic constraints, with the generic parameters renamed by
     /// position and `Swift.` left out, and without spaces.
-    private var canonicalForm: (types: [String], constraints: Set<String>) {
+    private func canonicalForm(expandingClassTypealiases: Bool) -> (types: [String], constraints: Set<String>) {
         // Renamed in the order the parameters' and result's types first use them, so `h<U, T>(a: T, b: U)` is
         // `h<T, U>(a: T, b: U)`; one they don't use keeps its place after them.
         let signatureText = (parameters.map(\.type.description) + [returnType?.description ?? ""]).joined(separator: ",")
@@ -198,12 +288,13 @@ extension Method.Signature {
             default: return false
             }
         }
+        // The generic parameters first, so a class's typealias of a generic parameter's name doesn't replace it.
         func canonical(_ text: String) -> String {
-            var text = Self.canonicalType(text)
+            var text = text
             for (index, name) in names.enumerated() {
                 text = text.replacing(Regex { Anchor.wordBoundary; name; Anchor.wordBoundary }.wordBoundaryKind(.simple), with: "__G\(index)")
             }
-            return text
+            return Self.canonicalType(text, expandingClassTypealiases: expandingClassTypealiases)
         }
         let types = parameters.map { canonical($0.type.description) } + [returnType.map { canonical($0.description) } ?? "Void"]
         let constraints = genericParameters.flatMap { parameter in parameter.inheritedTypes.map { "\(parameter.name): \($0)" } } + whereConstraints
@@ -263,7 +354,11 @@ private enum PlaceholderMatcher {
             }
             if !isMemberType, let original = placeholders.aliases[name], !names.contains(name), depth < 4 {
                 // Written as the protocol writes it, or as what it stands for, itself matched with the placeholders.
-                let expansion = pattern(Method.Signature.canonicalType(original), placeholders: placeholders, depth: depth + 1)
+                let expansion = pattern(
+                    Method.Signature.canonicalType(original, expandingClassTypealiases: false),
+                    placeholders: placeholders,
+                    depth: depth + 1
+                )
                 parts.append(.choice([written.map(Part.literal), name.map(Part.literal), expansion]))
                 continue
             }

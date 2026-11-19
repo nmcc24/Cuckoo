@@ -363,6 +363,73 @@ class KeyStore: Keyed {
     func pairs(_ first: String, _ second: Int) -> Int { 1 }
 }
 
+// A member may spell a type as the requirement doesn't: `Array<String>` for `[Key]`, `Optional<Thing>` for `Item?`,
+// or a class's typealias for what it stands for, a superclass's included.
+struct SpelledThing {}
+
+protocol Spelling {
+    associatedtype Key
+    associatedtype Item
+    func all() -> [Key]
+    func take(_ item: Item?)
+    func put(_ name: String)
+    func table() -> [String: Int]
+}
+
+class Speller: Spelling {
+    typealias Name = String
+    init() {}
+    func all() -> Array<String> { [] }
+    func take(_ item: Optional<SpelledThing>) {}
+    func put(_ name: Name) {}
+    func table() -> Dictionary<Name, Int> { [:] }
+}
+
+class SubSpeller: Speller {
+    override func put(_ name: String) {}
+}
+
+// A generic parameter named like a class's typealias is the generic parameter, in the member and the requirement.
+protocol Wrapping {
+    func wrap<Value>(_ value: Value) -> [Value]
+    func box<T>(_ value: T) -> [T]
+}
+
+class Wrapper: Wrapping {
+    typealias Value = String
+    typealias Element = Int
+    init() {}
+    func wrap<T>(_ value: T) -> [T] { [value] }
+    func box<Element>(_ value: Element) -> [Element] { [value] }
+}
+
+// A class's typealias inside another's type is what it stands for there too: `Array<Value>` is `[String]`.
+protocol Listed {
+    associatedtype Output
+    func list() -> Output
+}
+
+class Lists: Listed {
+    typealias Value = String
+    typealias Output = Array<Value>
+    init() {}
+    func list() -> [String] { [] }
+}
+
+// An associated type's typealias inside another's is what it stands for there too, so `[Input]` is `[Int]`.
+protocol Converting {
+    associatedtype Input
+    associatedtype Output
+    func convert(_ input: Input) -> Output
+}
+
+class Converter: Converting {
+    typealias Input = Int
+    typealias Output = [Input]
+    init() {}
+    func convert(_ input: Int) -> [Int] { [] }
+}
+
 // With a default isolation, only the member Swift takes for the requirement's witness takes its actor.
 @MainActor protocol Displaying {
     associatedtype Value
