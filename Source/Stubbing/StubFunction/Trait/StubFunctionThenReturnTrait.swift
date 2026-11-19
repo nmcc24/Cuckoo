@@ -15,8 +15,7 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Confin
     /// Returns `outputs` in order, one per call, then repeats the last one.
     @discardableResult
     func thenReturn(inOrder outputs: [OutputType]) -> Self {
-        stub.appendActions(outputs.map { .returnValue($0) })
-        return self
+        appendReturns(outputs)
     }
 }
 
@@ -31,8 +30,7 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Shared
     /// Returns `outputs` in order, one per call, then repeats the last one.
     @discardableResult
     func thenReturn(inOrder outputs: [OutputType]) -> Self {
-        stub.appendActions(outputs.map { .returnValue($0) })
-        return self
+        appendReturns(outputs)
     }
 }
 
@@ -47,8 +45,7 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Isolat
     /// Returns `outputs` in order, then repeats the last one. They're sent to the mock's actor.
     @discardableResult
     func thenReturn(inOrder outputs: sending [OutputType]) -> Self {
-        stub.appendActions(outputs.map { .returnValue($0) })
-        return self
+        appendReturns(outputs)
     }
 }
 
@@ -57,5 +54,18 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Isolat
     @discardableResult
     func thenReturn(_ output: OutputType, _ outputs: OutputType...) -> Self {
         thenReturn(inOrder: [output] + outputs)
+    }
+}
+
+extension StubFunctionThenReturnTrait {
+    /// Adds `outputs` as the stub's answers. No outputs would leave it with none, which a matching call only reports
+    /// later, so it records a failure now.
+    fileprivate func appendReturns(_ outputs: [OutputType]) -> Self {
+        guard !outputs.isEmpty else {
+            reportFailure("thenReturn(inOrder:) got no values, so the stub has no answer. Give it at least one.", at: nil)
+            return self
+        }
+        stub.appendActions(outputs.map { .returnValue($0) })
+        return self
     }
 }
