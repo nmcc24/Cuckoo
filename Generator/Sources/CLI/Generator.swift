@@ -21,6 +21,8 @@ final class Generator {
         let files: [FileRepresentation]
         /// Every type the sources of a known Swift module declare, which the generated files import by name.
         let typesByModule: [String: [TopLevelType]]
+        /// The default values the module's mocks build themselves.
+        let defaults: GeneratedDefaults
 
         /// The imports the mocks of `files` need, each once.
         func imports(for files: [FileRepresentation]) -> String {
@@ -119,9 +121,9 @@ final class Generator {
 
         // An attribute isolates a declaration only if it names a global actor, and an argument is recorded as a
         // placeholder if its type is `~Copyable`. Either may be declared in another file.
-        let scannedFiles = await inputFiles.concurrentMap { file, source -> (names: Crawler.DeclaredNames, swiftModule: String?, types: [TopLevelType]) in
+        let scannedFiles = await inputFiles.concurrentMap { file, source -> (names: Crawler.DeclaredNames, swiftModule: String?, types: [TopLevelType], values: Crawler.ValueDefaults) in
             let swiftModule = swiftModules[file.path.standardRawValue]
-            return (Crawler.declaredNames(in: source), swiftModule, swiftModule.map { _ in Crawler.topLevelTypes(in: source) } ?? [])
+            return (Crawler.declaredNames(in: source), swiftModule, swiftModule.map { _ in Crawler.topLevelTypes(in: source) } ?? [], Crawler.valueDefaults(in: source))
         }
         let declaredNames = scannedFiles.reduce(into: Crawler.DeclaredNames()) { $0.formUnion($1.names) }
         // Every type the sources of a known module declare, which the generated files import by name.
@@ -196,7 +198,16 @@ final class Generator {
             guard let superclass = classToken.unmockedGenericSuperclass else { continue }
             printToStandardError("warning: cuckoo: '\(classToken.fullyQualifiedName)' inherits from the generic class '\(superclass.name)', so its mock doesn't override what it inherits, which runs the real implementation: \(superclass.members.map { "'\($0)'" }.joined(separator: ", ")).\n")
         }
-        return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule)
+        let defaults = GeneratedDefaults(
+            files: mockableFiles,
+            names: TypeNames(typealiases: declaredNames.typealiases, types: declaredNames.publicTypes.union(declaredNames.nonPublicTypes), files: mockableFiles),
+            declaredTypes: declaredNames.nominalTypes.union(declaredNames.typealiases.keys),
+            moduleNames: Set(swiftModules.values).union([module.name]),
+            genericTypes: declaredNames.qualifiedGenericTypes,
+            fileValues: scannedFiles.map { file in (file.values, file.swiftModule.map(module.testableImports.contains)) },
+            defaultIsolation: module.options.defaultIsolation
+        )
+        return PreparedModule(module: module, files: mockableFiles, typesByModule: typesByModule, defaults: defaults)
     }
 
     /// The container with a typealias for each type its parent's enclosing scopes declare, `Model = Feature.Model`
@@ -289,7 +300,7 @@ final class Generator {
                     file.file.path == firstPath && sharedImports?.isEmpty == false ? sharedImports : nil,
                     FileHeaderHandler.header(for: file, relativeTo: module.projectDirectory, timestamp: timestamp),
                     sharedImports == nil ? prepared.imports(for: [file]) : nil,
-                    try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming),
+                    try GeneratorHelper.generate(tokens: file.tokens, keepDocumentation: module.options.keepDocumentation, mockNaming: module.options.mockNaming, defaults: prepared.defaults),
                 ]
                 .compactMap { $0 }
                 .joinedByBlankLines()

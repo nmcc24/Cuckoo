@@ -144,7 +144,7 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: cuckooDefaultImplementation.value.pair(p0, input: p1),
-            unstubbedTuple: {
+            unstubbedDefault: {
                 typealias __CuckooDefault = (Output, T);
                 return Cuckoo.MockManager.unstubbedTupleValue(for: __CuckooDefault.self)
             }()
@@ -212,7 +212,8 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
                 implementation(arguments)
             },
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: cuckooDefaultImplementation.value.nested(p0)
+            defaultCall: cuckooDefaultImplementation.value.nested(p0),
+            unstubbedDefault: Wrapper.Output()
         )
     }
 
@@ -499,7 +500,7 @@ nonisolated final class ConverterStub<Input, Output>: Converter {
 
     func nested<T> (_ p0: T) -> Wrapper.Output {
         typealias __CuckooDefault = Wrapper.Output
-        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self, generated: Wrapper.Output())
     }
 }
 
