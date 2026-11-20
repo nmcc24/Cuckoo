@@ -18,9 +18,10 @@ protocol Greeter {
 ### Create a mock
 
 A mock has the initializers of the type it mocks: `MockGreeter()` for a protocol, and the class's own
-initializers for a class. A mock whose initializer calls its own members needs those stubbed before it exists;
-``createMock(_:configuration:)`` stubs it first, and its ``MockBuilder``
-enables a superclass spy before the initializer runs:
+initializers for a class. A protocol mock's initializer calls none of its members, so create it and stub it
+afterwards. A class whose initializer calls its own members needs those stubbed before its mock exists:
+``createMock(_:configuration:)``, which takes class mocks only, stubs it first, and its ``MockBuilder`` enables a
+superclass spy before the initializer runs:
 
 ```swift
 let store = createMock(MockSettingsStore.self) { builder, stub in
@@ -29,7 +30,9 @@ let store = createMock(MockSettingsStore.self) { builder, stub in
 }
 ```
 
-Only mocks of the requested type pick up those stubs; other mocks created in the closure are separate.
+Only mocks of the requested type pick up those stubs; other mocks created in the closure are separate. The mock of
+a class-bound protocol, `protocol Store: Database`, inherits `Database`'s initializer: if that initializer calls one
+of the protocol's members, the mock can't be stubbed before it runs.
 
 The mock of a protocol with associated types is generic over them, as `MockStore<String>` for
 `protocol Store { associatedtype Item }`. So a method, subscript or initializer that declares a generic parameter

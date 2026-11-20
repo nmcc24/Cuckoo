@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Breaking changes
+- `createMock(_:configuration:)` takes class mocks only. It's for a class whose initializer calls its own members,
+  which a protocol mock's initializer never does; create a protocol mock and stub it instead,
+  `let greeter = MockGreeter(); stub(greeter) { … }`. Only class mocks look for `createMock`'s manager when created.
 - `eventually` is removed: make the work the code under test starts awaitable, and verify once it's done. See
   "Removed".
 - `SourceLocation` is `CuckooSourceLocation`, so it no longer clashes with Swift Testing's `SourceLocation` in a
