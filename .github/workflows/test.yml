@@ -301,6 +301,29 @@ jobs:
           set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme XApp \
             -skipPackagePluginValidation -destination "platform=macOS" ARCHS=arm64 \
             | xcbeautify --renderer github-actions
+      # A synchronized folder's new file reaches the build without regenerating the project: Xcode passes it to the
+      # plugin, whose next build mocks it.
+      - name: Add a file to the Xcode project's synchronized folders and build again
+        working-directory: Fixtures/XcodeProject
+        run: |
+          printf 'protocol Auditor {\n    func approve(_ amount: Int) -> Bool\n}\n' > Ledger/Auditor.swift
+          cat > LedgerTests/AuditorTests.swift <<'SWIFT'
+          import Cuckoo
+          import Testing
+          @testable import Ledger
+
+          @Test(.cuckoo())
+          func aFileAddedToTheSynchronizedFolderIsMocked() {
+              let auditor = MockAuditor()
+              stub(auditor) { stub in
+                  when(stub.approve(any())).thenReturn(true)
+              }
+              #expect(auditor.approve(5))
+          }
+          SWIFT
+          set -o pipefail && xcodebuild test -project XApp.xcodeproj -scheme XApp -only-testing LedgerTests \
+            -skipPackagePluginValidation -destination "platform=macOS" ARCHS=arm64 \
+            | xcbeautify --renderer github-actions
 
   # The single check that master's ruleset requires. It depends on every other job, so
   # adding or removing matrix entries never leaves the ruleset requiring a stale check name.
