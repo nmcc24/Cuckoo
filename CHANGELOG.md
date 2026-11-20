@@ -1,6 +1,20 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-beta.6
+
+Fixes from three independent reviews of the whole codebase, and the last API decisions before 3.0.0: an unstubbed
+call returning a mocked protocol, or a struct or enum of the sources, answers with a generated default instead of
+stopping the run; a property's type is guessed only where its initializer settles it; the spy and the default
+implementation are enabled only when a mock is created; `eventually` is removed in favour of awaitable work;
+`thenReturn(contentsOf:)` replaces `thenReturn(inOrder:)`; and `createMock` takes class mocks only. Release zips carry
+a build-provenance attestation. Breaking changes are listed first; the
+[migration guide](Source/Cuckoo.docc/MigratingFromCuckoo2.md) covers each.
+
+To try it:
+
+```swift
+.package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.6"),
+```
 
 ### Breaking changes
 - `createMock(_:configuration:)` takes class mocks only. It's for a class whose initializer calls its own members,
