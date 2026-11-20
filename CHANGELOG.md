@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Breaking changes
+- `eventually` is removed: make the work the code under test starts awaitable, and verify once it's done. See
+  "Removed".
 - `SourceLocation` is `CuckooSourceLocation`, so it no longer clashes with Swift Testing's `SourceLocation` in a
   test that imports both. Code that names it changes.
 - `enableSuperclassSpy()` and `enableDefaultImplementation(_:)` work only before the mock's first stub or call; after
@@ -237,11 +239,6 @@
   -> Items` with `typealias Items = [Item]`, got a mock that didn't compile: forwarding it to a default
   implementation goes through the opened existential, where `Items` is another type. The type eraser casts it
   now, as it does the associated type itself.
-- `eventually` reported its block's first failure at once, and returned as if it had passed, when the block set a
-  configuration of its own, as `CuckooConfiguration.$current.withValue(CuckooConfiguration(defaultValues: …))`. It
-  keeps holding the failures back and retrying.
-- `eventually` with a zero or negative `pollingInterval` ran its block back to back for the whole timeout. It waits
-  at least a millisecond between runs.
 - `thenReturn(inOrder: [])` left the stub with no answer, which only a matching call reported. It records a failure
   itself.
 - `thenReturn(a, b, c)` and `thenThrow(a, b)` added their answers one at a time, so a call from another task could
@@ -250,8 +247,7 @@
   return types". It says "other types", and lists each call's argument and return types.
 
 ### Changed
-- Documentation: put `inOrder` inside `eventually` to wait for calls in an order; an `eventually` inside `inOrder`
-  passes at once. Test a `@MainActor` mock from a `@MainActor` test: a matcher runs on the mock's actor, so using a
+- Documentation: test a `@MainActor` mock from a `@MainActor` test: a matcher runs on the mock's actor, so using a
   non-`Sendable` value you gave it from another isolation isn't checked by the compiler.
 - The argument a generated mock passes its manager for an unstubbed call's default is `unstubbedDefault`, renamed
   from `unstubbedTuple`: it carries a stub or a value as well as a tuple's default. Regenerate the mocks with this
@@ -264,6 +260,10 @@
   `clearInvocations` run from any isolation.
 
 ### Removed
+- `eventually(timeout:pollingInterval:_:)`, which retried a block of `verify` calls until they passed. Make the work
+  the code under test starts awaitable instead, by returning its `Task` or making the method `async`, and verify once
+  it's done; in XCTest, a `then` closure can fulfil an expectation to wait for. The Cookbook shows both. It was new
+  in Cuckoo 3, so no Cuckoo 2 test uses it.
 - The build warning that the test target's entry without `sources` mocks only its own package's targets: every
   test that depended on another package's library got it. The documentation says how to mock those.
 

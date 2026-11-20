@@ -67,7 +67,6 @@ protocol an `actor` mock, and a `Sendable` one a checked `Sendable` mock. They w
 - ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)``
 - ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(StaticMock....,_,_,_,_,_)``
 - ``inOrder(strict:fileID:filePath:line:column:_:)``
-- ``eventually(timeout:pollingInterval:_:)``
 - ``ArgumentCaptor``
 - ``reset(_:)-(Mock...)``
 - ``reset(_:)-f6hy``

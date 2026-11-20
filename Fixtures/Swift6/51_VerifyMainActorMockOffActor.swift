@@ -14,9 +14,7 @@ protocol PageRenderer {
 }
 
 #if CUCKOO_MUST_FAIL
-nonisolated func verifyRendering(renderer: MockPageRenderer) async {
-    await eventually {
-        verify(renderer).render(ParameterMatcher { $0.lines.count > 3 })
-    }
+nonisolated func verifyRendering(renderer: MockPageRenderer) {
+    verify(renderer).render(ParameterMatcher { $0.lines.count > 3 })
 }
 #endif
