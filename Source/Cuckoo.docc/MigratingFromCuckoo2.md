@@ -104,7 +104,8 @@ behaviour on top.
   | `getStubbingProxy()`, `getVerificationProxy(_:sourceLocation:)` | `cuckooStubbingProxy()`, `cuckooVerificationProxy(_:sourceLocation:)` |
 - `Mocked` and `createMock(for:configuration:)` are removed: they only saved naming the mock. Call
   ``createMock(_:configuration:)`` with the mock's type, `createMock(MockPerson.self) { builder, stub in … }`, and
-  drop the `Mocked` conformance.
+  drop the `Mocked` conformance. It takes class mocks only, whose class's initializer may call its own members; for
+  a protocol mock, create it and stub it: `let greeter = MockGreeter(); stub(greeter) { … }`.
 - `enableDefaultImplementation(mutating:)` is removed: it kept a pointer to your variable after the call returned.
   A `struct` default implementation is copied once and keeps the changes made through the mock; pass a class
   instance to share state with the test.
@@ -148,8 +149,6 @@ behaviour on top.
   Cuckoo 2 reported each failure to both.
 - A failed `verify` leaves the calls it looked at unverified, so a later `verifyNoMoreInteractions` still reports
   them.
-- `MockBuilder.enableSuperclassSpy()` in `createMock` for a protocol mock, which has no superclass, records a
-  failure.
 - `enableSuperclassSpy()` and `enableDefaultImplementation(_:)` work only before the mock's first stub or call, and
   stop the test after it, `reset` and `clearInvocations` included: enable them right after creating the mock, or
   with `withEnabledSuperclassSpy()` and `withEnabledDefaultImplementation(_:)`. A test that switched a mock to a
