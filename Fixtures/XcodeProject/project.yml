@@ -1,5 +1,6 @@
-# The Xcode project CI builds to cover the plugin's Xcode entry point: two frameworks, each with a test target whose
-# Cuckoofile entry lists its sources, one of them named with a space. XApp.xcodeproj is generated from this file
+# The Xcode project CI builds to cover the plugin's Xcode entry point: three frameworks, each with a test target whose
+# Cuckoofile entry lists its sources, one of them named with a space. Ledger and LedgerTests use synchronized folders,
+# the default for a new Xcode project, whose files Xcode reads from disk: CI adds a file to each and builds again. XApp.xcodeproj is generated from this file
 # with XcodeGen (`xcodegen` in this folder); regenerate it after changing this file.
 name: XApp
 options:
@@ -23,6 +24,23 @@ targets:
     platform: macOS
     sources: [Core]
     settings: {base: {PRODUCT_BUNDLE_IDENTIFIER: org.cuckoo.fixture.core, ENABLE_TESTABILITY: "YES"}}
+  Ledger:
+    type: framework
+    platform: macOS
+    sources: [{path: Ledger, type: syncedFolder}]
+    settings: {base: {PRODUCT_BUNDLE_IDENTIFIER: org.cuckoo.fixture.ledger, ENABLE_TESTABILITY: "YES"}}
+  LedgerTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [{path: LedgerTests, type: syncedFolder}]
+    settings: {base: {PRODUCT_BUNDLE_IDENTIFIER: org.cuckoo.fixture.ledgertests}}
+    dependencies:
+      - target: Ledger
+      - package: Cuckoo
+        product: Cuckoo
+    buildToolPlugins:
+      - plugin: CuckooPlugin
+        package: Cuckoo
   CoreTests:
     type: bundle.unit-test
     platform: macOS
@@ -49,8 +67,8 @@ targets:
         package: Cuckoo
 schemes:
   XApp:
-    build: {targets: {Shop: all, Shop Tests: [test], Core: all, CoreTests: [test]}}
-    test: {targets: [Shop Tests, CoreTests]}
+    build: {targets: {Shop: all, Shop Tests: [test], Core: all, CoreTests: [test], Ledger: all, LedgerTests: [test]}}
+    test: {targets: [Shop Tests, CoreTests, LedgerTests]}
   # Builds one framework and its tests alone, so a test target that got another's mocks fails to build.
   ShopOnly:
     build: {targets: {Shop: all, Shop Tests: [test]}}
