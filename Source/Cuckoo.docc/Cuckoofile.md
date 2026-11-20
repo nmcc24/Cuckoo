@@ -67,7 +67,9 @@ the plugin with no entry it can generate fails with a message saying so, and so 
   targets; another package's modules get an entry of their own, or are listed in `sources`. The plugin lists the target's own files, so this follows the target's membership, and
   tells the generator which module the files belong to, as the table form does. An Xcode project's entries list
   their `sources`. An entry that sets `sources` is regenerated when any source file of the package or Xcode
-  project, or of the test target's dependencies, changes, since its patterns may match any of them.
+  project, or of the test target's dependencies, changes, since its patterns may match any of them. A file they
+  don't include, such as one in a folder or package outside them that a pattern reaches, isn't an input of the
+  build: editing it leaves the mocks stale until another change regenerates them.
 - term `exclude`: Names of types not to mock, such as `["AppDelegate", "LegacyService"]`.
 - term `regex`: Mock only the protocols and classes whose name matches one of these regular expressions:
   `regex = ["Service$", "^Repository"]`. A single pattern needs no array: `regex = "Service$"`.

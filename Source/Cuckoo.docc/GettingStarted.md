@@ -12,7 +12,8 @@ the mocks always match the code.
 
 - Swift 6.2 or later (Xcode 26 or later). The Swift 6 language mode is recommended; the mocks also compile in
   the Swift 5 mode, which CI doesn't test.
-- iOS 17, macOS 14, tvOS 17 or watchOS 10, or Linux.
+- iOS 17, macOS 14, tvOS 17 or watchOS 10, or Linux. CI runs the tests on the macOS and iOS simulator of its
+  Xcode images, the current releases, and builds for tvOS and watchOS; it doesn't run the oldest versions.
 
 ### Add the package
 
@@ -45,12 +46,13 @@ the plugin the first time it runs; on CI, pass `-skipPackagePluginValidation` to
 
 `CuckooPlugin` generates one file of mocks per module the test target depends on, from the Cuckoofile entry with
 that module's name, plus one from the entry named after the test target itself. Each file is its own build step, so
-a change in one module regenerates and recompiles only that module's mocks, and the steps run in parallel.
+a change in one module regenerates and recompiles only that module's mocks, and the steps run in parallel. An entry
+that lists its own `sources` is the exception: it may read any file, so a change to any of them regenerates it.
 
 A release's plugin runs a prebuilt generator, on macOS and on Linux (x86_64 and arm64), so your build doesn't compile
 swift-syntax: a release doesn't even declare the generator's dependencies, so its swift-syntax doesn't constrain the
-version your other packages, such as macro packages, resolve. A dependency on a branch or a commit instead builds
-the generator from source with the plugin, with swift-syntax `602.0.0..<605.0.0`.
+version your other packages, such as macro packages, resolve. A dependency on a branch, or on a commit other than a
+release tag's, instead builds the generator from source with the plugin, with swift-syntax `602.0.0..<605.0.0`.
 
 On Linux the prebuilt generator needs glibc 2.35 or newer: Ubuntu 22.04, Debian 12, RHEL 10 or later. On an older
 distribution, such as Amazon Linux 2023, it fails to start with "version `GLIBC_2.35' not found"; depend on a
