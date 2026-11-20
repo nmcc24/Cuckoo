@@ -9,3 +9,8 @@ class Uploader {
 protocol Sink {
     func put(_ payload: consuming sending Payload)
 }
+
+// In an actor mock, the `then` closure gets the argument from the manager instead of capturing it.
+protocol SinkActor: Actor {
+    func put(_ payload: consuming sending Payload)
+}

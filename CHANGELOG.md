@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Breaking changes
+- Cuckoo needs Xcode 27 or later, on an Apple silicon Mac, or Swift 6.3 or later on Linux. Swift 6.2 and Xcode 26 are
+  no longer supported.
+- The generator built from source needs swift-syntax `603.0.0..<605.0.0`, raised from 602.0.0, Swift 6.2's release.
+  A release's prebuilt generator declares no swift-syntax dependency, so this constrains only a dependency on a branch
+  or a commit.
+- The prebuilt macOS generator is arm64 only: Xcode 27 doesn't run on Intel Macs.
+
+### Fixed
+- A `sending` parameter gave the mock an "initialization of immutable value '__p0' was never used" warning when the
+  member forwards no call: in an `Actor` protocol, or with a `~Copyable` or variadic parameter alongside it.
+
 ## 3.0.0-beta.6
 
 Fixes from three independent reviews of the whole codebase, and the last API decisions before 3.0.0: an unstubbed

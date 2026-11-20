@@ -222,15 +222,9 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
         }
 
         func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
-            #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
-            nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC, _ p0: sending T, _ p1: sending Input) async -> Output {
-                return await opened.convert(value: p0, input: p1, fallback: p2 as! _CUCKOO$$GENERIC.Output) as! Output
-            }
-            #else
             func openExistential<_CUCKOO$$GENERIC: Converter<Input>>(_ opened: _CUCKOO$$GENERIC, _ p0: sending T, _ p1: sending Input) async -> Output {
                 return await opened.convert(value: p0, input: p1, fallback: p2 as! _CUCKOO$$GENERIC.Output) as! Output
             }
-            #endif
             return await openExistential(cuckooReference(), p0, p1)
         }
     }
@@ -312,6 +306,283 @@ nonisolated final class MockConverter<Input, Output>: Converter, nonisolated Cuc
 nonisolated final class ConverterStub<Input, Output>: Converter {
     func convert<T> (value p0: sending T, input p1: sending Input, fallback p2: Output) async -> Output {
         typealias __CuckooDefault = Output
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+}
+
+actor MockSendingActor: SendingActor, Cuckoo.ProtocolMock {
+    typealias CuckooMocksType = any SendingActor
+    typealias CuckooStubbing = __StubbingProxy_SendingActor
+    typealias CuckooVerification = __VerificationProxy_SendingActor
+
+    // Original typealiases
+
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
+
+    nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
+        cuckooManager.refuseActorDefaultImplementation()
+    }
+
+    func take(_ p0: sending NonSendableBox) {
+        return cuckooManager.call(
+            "take(_ p0: sending NonSendableBox)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: @Sendable (isolated MockSendingActor, NonSendableBox) -> Void, arguments) in
+                implementation(self, arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("take(_ p0: sending NonSendableBox)")
+        )
+    }
+
+    func load(_ p0: sending NonSendableBox) async -> Int {
+        return await cuckooManager.call(
+            "load(_ p0: sending NonSendableBox) async -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: @Sendable (isolated MockSendingActor, NonSendableBox) async -> Int, arguments) in
+                await implementation(self, arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("load(_ p0: sending NonSendableBox) async -> Int")
+        )
+    }
+
+    func update(_ p0: inout Int, box p1: sending NonSendableBox) -> Int {
+        return cuckooManager.call(
+            "update(_ p0: inout Int, box p1: sending NonSendableBox) -> Int",
+            parameters: (p0, p1),
+            escapingParameters: (p0, p1),
+            invoke: { (implementation: @Sendable (isolated MockSendingActor, inout Int, NonSendableBox) -> Int, arguments) in
+                var __inout0 = arguments.0;
+                defer {
+                    p0 = __inout0
+                };
+                return implementation(self, &__inout0, arguments.1)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("update(_ p0: inout Int, box p1: sending NonSendableBox) -> Int")
+        )
+    }
+
+    func maybe(_ p0: sending NonSendableBox?) {
+        return cuckooManager.call(
+            "maybe(_ p0: sending NonSendableBox?)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: @Sendable (isolated MockSendingActor, NonSendableBox?) -> Void, arguments) in
+                implementation(self, arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("maybe(_ p0: sending NonSendableBox?)")
+        )
+    }
+
+    func all(_ p0: sending [NonSendableBox]) async throws -> Int {
+        return try await cuckooManager.callThrows(
+            "all(_ p0: sending [NonSendableBox]) async throws -> Int",
+            parameters: (p0),
+            escapingParameters: (p0),
+            errorType: (any Swift.Error).self,
+            invoke: { (implementation: @Sendable (isolated MockSendingActor, [NonSendableBox]) async throws -> Int, arguments) async throws(any Swift.Error) in
+                try await implementation(self, arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("all(_ p0: sending [NonSendableBox]) async throws -> Int")
+        )
+    }
+
+    func run(_ p0: sending @escaping () -> Void) {
+        return cuckooManager.call(
+            "run(_ p0: sending @escaping () -> Void)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            invoke: { (implementation: @Sendable (isolated MockSendingActor, @escaping () -> Void) -> Void, arguments) in
+                implementation(self, arguments)
+            },
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: Cuckoo.MockManager.crashOnActorDefaultImplementationCall("run(_ p0: sending @escaping () -> Void)")
+        )
+    }
+
+    nonisolated struct __StubbingProxy_SendingActor: Cuckoo.StubbingProxy {
+        private let cuckooManager: Cuckoo.MockManager
+
+        init(manager: Cuckoo.MockManager) {
+            self.cuckooManager = manager
+        }
+
+        func take<__M1: Cuckoo._SendableMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(NonSendableBox), @Sendable (isolated MockSendingActor, NonSendableBox) -> Void, Cuckoo.StubSharing.Shared> where __M1.MatchedType == NonSendableBox {
+            let matchers: [Cuckoo.SendableMatcher<(NonSendableBox)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckooManager.createStub(for: MockSendingActor.self,
+                method: "take(_ p0: sending NonSendableBox)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func load<__M1: Cuckoo._SendableMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubFunction<(NonSendableBox), Int, @Sendable (isolated MockSendingActor, NonSendableBox) async -> Int, Cuckoo.StubSharing.Shared> where __M1.MatchedType == NonSendableBox {
+            let matchers: [Cuckoo.SendableMatcher<(NonSendableBox)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckooManager.createStub(for: MockSendingActor.self,
+                method: "load(_ p0: sending NonSendableBox) async -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func update<__M1: Cuckoo._SendableMatchable, __M2: Cuckoo._SendableMatchable>(_ p0: __M1, box p1: __M2) -> Cuckoo.ProtocolStubFunction<(Int, NonSendableBox), Int, @Sendable (isolated MockSendingActor, inout Int, NonSendableBox) -> Int, Cuckoo.StubSharing.Shared> where __M1.MatchedType == Int, __M2.MatchedType == NonSendableBox {
+            let matchers: [Cuckoo.SendableMatcher<(Int, NonSendableBox)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.0), Cuckoo.__cuckooWrap(matchable: p1, at: \.1)]
+            return .init(stub: cuckooManager.createStub(for: MockSendingActor.self,
+                method: "update(_ p0: inout Int, box p1: sending NonSendableBox) -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func maybe<__M1: Cuckoo._SendableOptionalMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(NonSendableBox?), @Sendable (isolated MockSendingActor, NonSendableBox?) -> Void, Cuckoo.StubSharing.Shared> where __M1.OptionalMatchedType == NonSendableBox {
+            let matchers: [Cuckoo.SendableMatcher<(NonSendableBox?)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckooManager.createStub(for: MockSendingActor.self,
+                method: "maybe(_ p0: sending NonSendableBox?)",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func all<__M1: Cuckoo._SendableMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubThrowingFunction<([NonSendableBox]), Int, any Swift.Error, @Sendable (isolated MockSendingActor, [NonSendableBox]) async throws -> Int, Cuckoo.StubSharing.Shared> where __M1.MatchedType == [NonSendableBox] {
+            let matchers: [Cuckoo.SendableMatcher<([NonSendableBox])>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckooManager.createStub(for: MockSendingActor.self,
+                method: "all(_ p0: sending [NonSendableBox]) async throws -> Int",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func run<__M1: Cuckoo._SendableMatchable>(_ p0: __M1) -> Cuckoo.ProtocolStubNoReturnFunction<(() -> Void), @Sendable (isolated MockSendingActor, @escaping () -> Void) -> Void, Cuckoo.StubSharing.Shared> where __M1.MatchedType == () -> Void {
+            let matchers: [Cuckoo.SendableMatcher<(() -> Void)>] = [Cuckoo.__cuckooWrap(matchable: p0, at: \.self)]
+            return .init(stub: cuckooManager.createStub(for: MockSendingActor.self,
+                method: "run(_ p0: sending @escaping () -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
+    }
+
+    nonisolated struct __VerificationProxy_SendingActor: Cuckoo.VerificationProxy {
+        private let cuckooManager: Cuckoo.MockManager
+        private let cuckooCallMatcher: Cuckoo.CallMatcher
+        private let cuckooSourceLocation: Cuckoo.CuckooSourceLocation
+
+        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.CuckooSourceLocation) {
+            self.cuckooManager = manager
+            self.cuckooCallMatcher = callMatcher
+            self.cuckooSourceLocation = sourceLocation
+        }
+
+        @discardableResult
+        func take<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(NonSendableBox), Void> where __M1.MatchedType == NonSendableBox {
+            let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "take(_ p0: sending NonSendableBox)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func load<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(NonSendableBox), Int> where __M1.MatchedType == NonSendableBox {
+            let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "load(_ p0: sending NonSendableBox) async -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func update<__M1: Cuckoo._Matchable, __M2: Cuckoo._Matchable>(_ p0: __M1, box p1: __M2) -> Cuckoo.VerifiedCall<(Int, NonSendableBox), Int> where __M1.MatchedType == Int, __M2.MatchedType == NonSendableBox {
+            let matchers: [Cuckoo.ParameterMatcher<(Int, NonSendableBox)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
+                    $0.0
+                }, Cuckoo.__cuckooWrap(matchable: p1) {
+                    $0.1
+                }]
+            return cuckooManager.verify(
+                "update(_ p0: inout Int, box p1: sending NonSendableBox) -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func maybe<__M1: Cuckoo._OptionalMatchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(NonSendableBox?), Void> where __M1.OptionalMatchedType == NonSendableBox {
+            let matchers: [Cuckoo.ParameterMatcher<(NonSendableBox?)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "maybe(_ p0: sending NonSendableBox?)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func all<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<([NonSendableBox]), Int> where __M1.MatchedType == [NonSendableBox] {
+            let matchers: [Cuckoo.ParameterMatcher<([NonSendableBox])>] = [Cuckoo.__cuckooWrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "all(_ p0: sending [NonSendableBox]) async throws -> Int",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+
+        @discardableResult
+        func run<__M1: Cuckoo._Matchable>(_ p0: __M1) -> Cuckoo.VerifiedCall<(() -> Void), Void> where __M1.MatchedType == () -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(() -> Void)>] = [Cuckoo.__cuckooWrap(matchable: p0) {
+                    $0
+                }]
+            return cuckooManager.verify(
+                "run(_ p0: sending @escaping () -> Void)",
+                callMatcher: cuckooCallMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: cuckooSourceLocation
+            )
+        }
+    }
+}
+
+actor SendingActorStub: SendingActor {
+    func take(_ p0: sending NonSendableBox) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func load(_ p0: sending NonSendableBox) async -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func update(_ p0: inout Int, box p1: sending NonSendableBox) -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func maybe(_ p0: sending NonSendableBox?) {
+        typealias __CuckooDefault = Void
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func all(_ p0: sending [NonSendableBox]) async throws -> Int {
+        typealias __CuckooDefault = Int
+        return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
+    }
+
+    func run(_ p0: sending @escaping () -> Void) {
+        typealias __CuckooDefault = Void
         return DefaultValueRegistry.defaultValue(for: __CuckooDefault.self)
     }
 }

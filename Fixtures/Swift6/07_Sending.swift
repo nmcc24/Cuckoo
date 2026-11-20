@@ -14,3 +14,14 @@ protocol Converter<Input> {
     associatedtype Output
     func convert<T>(value: sending T, input: sending Input, fallback: Output) async -> Output
 }
+
+// An actor mock hands its `then` closure the `sending` arguments: a closure that captured one would be a
+// "sending ... risks causing data races" error.
+protocol SendingActor: Actor {
+    func take(_ box: sending NonSendableBox)
+    func load(_ box: sending NonSendableBox) async -> Int
+    func update(_ count: inout Int, box: sending NonSendableBox) -> Int
+    func maybe(_ box: sending NonSendableBox?)
+    func all(_ boxes: sending [NonSendableBox]) async throws -> Int
+    func run(_ work: sending @escaping () -> Void)
+}

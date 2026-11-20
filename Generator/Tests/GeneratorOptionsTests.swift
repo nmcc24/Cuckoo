@@ -153,9 +153,6 @@ struct GeneratorOptionsTests {
             }
             """
         let isolated = try await generate(source: source, options: #"defaultIsolation = "MainActor""#)
-        // The members see their protocol's isolation too: a MainActor member's local function is isolated to it,
-        // so it doesn't get Swift 6.2's `nonisolated(nonsending)` workaround.
-        #expect(!isolated.contains("nonisolated(nonsending) func openExistential"))
         #expect(isolated.contains("@MainActor final class __DefaultImplCaller: Store {"))
         #expect(isolated.contains("@MainActor func enableDefaultImplementation<"))
         #expect(isolated.contains("final class MockStore<Key: Hashable>: Store,"))
@@ -166,7 +163,6 @@ struct GeneratorOptionsTests {
         let plain = try await generate(source: source, options: #"defaultIsolation = "nonisolated""#)
         #expect(plain == (try await generate(source: source)))
         #expect(plain.contains("nonisolated final class __DefaultImplCaller: Store, Sendable {"))
-        #expect(plain.contains("nonisolated(nonsending) func openExistential"))
     }
 
     @Test

@@ -20,11 +20,11 @@ concurrency:
 permissions:
   contents: read
 
-# Every macOS job uses its image's default Xcode, so each image covers one Swift version.
-# macos-15 isn't used: its default is Xcode 16.4 / Swift 6.1, below the Swift 6.2 minimum.
-# Swift 6.4 made swiftbuild the default build system; older toolchains use the native one.
-# SwiftPM 6.4 deprecates native, so Linux tests 6.4 with swiftbuild only. On macOS each image runs only its
-# default build system, because macOS runners queue far longer than Linux ones.
+# The macOS jobs run on the xcode-27 image with its default Xcode: Xcode 27 is the minimum on Apple platforms, and
+# Swift 6.3 is the minimum toolchain, tested on Linux.
+# Swift 6.4 made swiftbuild the default build system; Swift 6.3 uses the native one.
+# SwiftPM 6.4 deprecates native, so Linux tests 6.4 with swiftbuild only. macOS runs only its image's default build
+# system, because macOS runners queue far longer than Linux ones.
 # Package.resolved pins the newest swift-syntax; Linux jobs also pin the first release of every older major
 # Package.swift allows, so each one the generator can build with stays tested.
 # Each job's timeout is about three times its usual run, so a hung job fails rather than running for six hours.
@@ -68,8 +68,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { swift: "6.2", build-system: native }
-          - { swift: "6.2", build-system: native, swift-syntax: "602.0.0" }
           - { swift: "6.3", build-system: native, swift-syntax: "603.0.0" }
           - { swift: "6.3", build-system: native }
           - { swift: "6.4", build-system: swiftbuild }
@@ -95,8 +93,8 @@ jobs:
 
   # The Swift 7 language mode's upcoming features, which projects can already turn on. Our targets adopt the ones
   # that only change what compiles (Package.swift); this job adds the rest. Generated mocks build in the user's
-  # module with the user's settings, so the fixtures also build with every feature on, and the way a new Xcode 26
-  # project builds its code (default MainActor isolation plus Approachable Concurrency). Each list of expected
+  # module with the user's settings, so the fixtures also build with every feature on, and the way a new Xcode project
+  # (since Xcode 26) builds its code (default MainActor isolation plus Approachable Concurrency). Each list of expected
   # failures is the one its configuration shares with the generator_linux job.
   swift7_linux:
     name: Swift 7 upcoming features on Linux (Swift ${{ matrix.swift }}, ${{ matrix.build-system }})
@@ -107,7 +105,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { swift: "6.2", build-system: native }
+          - { swift: "6.3", build-system: native }
           - { swift: "6.4", build-system: swiftbuild }
     env:
       SWIFT_BUILD_FLAGS: --build-system ${{ matrix.build-system }}
@@ -121,7 +119,7 @@ jobs:
         run: CUCKOO_UPCOMING_FEATURES="$(echo $FEATURES | tr ' ' ',')" swift test $SWIFT_BUILD_FLAGS
       - name: Swift 6 matrix with every feature on
         run: scripts/swift6-matrix.sh $(printf -- '-enable-upcoming-feature %s ' $FEATURES)
-      - name: Swift 6 matrix as a new Xcode 26 project
+      - name: Swift 6 matrix as a new Xcode project
         run: |
           scripts/swift6-matrix.sh -default-isolation MainActor \
             -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault
@@ -131,10 +129,10 @@ jobs:
   # The runtime's DocC documentation, built with the toolchain's docc. Any docc warning (a broken symbol link, a
   # documented parameter that doesn't exist) fails the job.
   docs_linux:
-    name: Documentation (Swift 6.3)
+    name: Documentation (Swift 6.4)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    container: swift:6.3
+    container: swift:6.4
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -202,20 +200,12 @@ jobs:
         run: swift test -c release --build-system swiftbuild --filter CuckooTests
 
   generator_macOS:
-    name: SwiftPM tests and Swift 6 matrix on ${{ matrix.runner }} (${{ matrix.build-system }})
+    name: SwiftPM tests and Swift 6 matrix on xcode-27 (swiftbuild)
     needs: changes
     if: needs.changes.outputs.code == 'true'
-    runs-on: ${{ matrix.runner }}
+    runs-on: xcode-27
     # Master's runs also build the generator bundle (below), which takes about as long again.
     timeout-minutes: ${{ github.event_name == 'pull_request' && 30 || 60 }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { runner: macos-26, build-system: native }
-          - { runner: xcode-27, build-system: swiftbuild }
-    env:
-      SWIFT_BUILD_FLAGS: --build-system ${{ matrix.build-system }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -224,33 +214,29 @@ jobs:
           ls -d /Applications/Xcode*.app
           echo "::notice title=Toolchain::$(xcodebuild -version | tr '\n' ' ')/ $(swift --version 2>&1 | head -1) / SDKROOT=${SDKROOT:-unset}"
       - name: Generator and runtime tests
-        run: swift test $SWIFT_BUILD_FLAGS
+        run: swift test
       - name: Swift 6 matrix
         run: scripts/swift6-matrix.sh
       - name: Swift 6 matrix with default MainActor isolation
         run: scripts/swift6-matrix.sh -default-isolation MainActor
         env:
           SWIFT6_MATRIX_EXPECTED: Fixtures/Swift6/expected-failures-default-mainactor.txt
-      # The macOS generator bundle, built as Release builds it: universal, so the Intel slice users on Intel Macs get
-      # is built somewhere before release day. It's slow, so only master's runs and manual ones build it; a pull
-      # request that breaks it shows up on master right after it merges.
+      # The macOS generator bundle, built as Release builds it, so a break in it shows up before release day. It's
+      # slow, so only master's runs and manual ones build it; a pull request that breaks it shows up on master right
+      # after it merges.
       - name: Build and smoke-test the generator bundle
-        if: github.event_name != 'pull_request' && matrix.runner == 'macos-26'
+        if: github.event_name != 'pull_request'
         run: |
           scripts/build-artifactbundle.sh build parts
           scripts/build-artifactbundle.sh merge "$(sed -nE 's/^let version = "(.*)"$/\1/p' Generator/Sources/CLI/Version.swift)" bundle/CuckooGenerator.artifactbundle parts
           scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
 
   test_iOS:
-    name: Build and Test on Apple simulators (${{ matrix.runner }})
+    name: Build and Test on Apple simulators (xcode-27)
     needs: changes
     if: needs.changes.outputs.code == 'true'
-    runs-on: ${{ matrix.runner }}
+    runs-on: xcode-27
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        runner: [macos-26, xcode-27]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -267,11 +253,9 @@ jobs:
       # The CuckooTests scheme (scripts/install-scheme.sh) builds only the runtime side for the simulator; the
       # generator is built for macOS, as the mock plugin's tool. tvOS and watchOS are build-only: the runtime is plain
       # Swift, so what can break there is compile-time (APIs, availability, imports).
-      # Xcode 26.6 also builds the generator's dependencies for the destination, so they all have to build
-      # for tvOS and watchOS too. Every step builds the arm64 slice only, the plugin's tool included, which would
-      # otherwise build universal: the runners are Apple Silicon, and Xcode 27.2's linker warns on x86_64 objects
-      # that prelink an @objc protocol with a Swift protocol inheriting an Objective-C one (roadmap item 11). The
-      # Intel slice users get is built by the generator bundle step, on master.
+      # Every step builds the arm64 slice only, the plugin's tool included, which would otherwise build universal:
+      # Xcode 27 runs only on Apple Silicon, and Xcode 27.2's linker warns on x86_64 objects that prelink an @objc
+      # protocol with a Swift protocol inheriting an Objective-C one (roadmap item 11).
       - name: Install the CuckooTests scheme
         run: scripts/install-scheme.sh
       - name: Test the package on iOS

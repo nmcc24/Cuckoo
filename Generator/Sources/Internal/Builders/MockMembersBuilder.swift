@@ -241,7 +241,12 @@ enum MockMembersBuilder {
             .map { "let \($0.usableName) = copy \($0.usableName)" }
         let opening = GeneratorHelper.openNestedClosure(for: method)
         var body = copies + opening
-        body.append(contentsOf: method.sendingParameterNames.map { "\(GeneratorHelper.indentation(opening.count))let __\($0) = Cuckoo.__SendingArgument(\($0))" })
+        // Only a forward reads a `sending` argument's box: an actor's members, and those that crash instead of
+        // forwarding, have none to declare.
+        let forwards = superclassCall + defaultCall
+        body.append(contentsOf: method.sendingParameterNames
+            .filter { forwards.contains("__\($0).value") }
+            .map { "\(GeneratorHelper.indentation(opening.count))let __\($0) = Cuckoo.__SendingArgument(\($0))" })
         // The call sits inside the innermost closure or local function.
         let callIndentation = GeneratorHelper.indentation(opening.count)
         var recording: [String] = []

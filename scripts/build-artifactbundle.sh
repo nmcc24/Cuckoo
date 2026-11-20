@@ -3,7 +3,7 @@
 #
 #   scripts/build-artifactbundle.sh build <parts-dir>
 #       Builds CuckooGenerator in release mode for this machine's platform and puts it in <parts-dir>, with the
-#       target triples it runs on: macOS as a universal binary (arm64 and x86_64), Linux for this machine's
+#       target triples it runs on: macOS for arm64 (Xcode 27 and Cuckoo 3 need Apple silicon), Linux for this machine's
 #       architecture with the Swift runtime linked statically, so it needs no toolchain to run.
 #
 #   scripts/build-artifactbundle.sh merge <version> <bundle-dir> <parts-dir>...
@@ -22,8 +22,8 @@ build() {
     case "$(uname -s)" in
         Darwin)
             name=macos
-            triples='"arm64-apple-macosx", "x86_64-apple-macosx"'
-            arch_flags=(--arch arm64 --arch x86_64)
+            triples='"arm64-apple-macosx"'
+            arch_flags=(--arch arm64)
             strip_flags=(-x)
             ;;
         Linux)

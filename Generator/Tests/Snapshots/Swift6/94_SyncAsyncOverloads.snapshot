@@ -390,15 +390,9 @@ nonisolated final class MockGenericLoading<Item>: GenericLoading, nonisolated Cu
         }
 
         func convert<T> (_ p0: T) async -> Item {
-            #if compiler(<6.3) && hasFeature(NonisolatedNonsendingByDefault)
-            nonisolated(nonsending) func openExistential<_CUCKOO$$GENERIC: GenericLoading>(_ opened: _CUCKOO$$GENERIC) async -> Item {
-                return await opened.convert(p0) as! Item
-            }
-            #else
             func openExistential<_CUCKOO$$GENERIC: GenericLoading>(_ opened: _CUCKOO$$GENERIC) async -> Item {
                 return await opened.convert(p0) as! Item
             }
-            #endif
             return await openExistential(cuckooReference())
         }
     }

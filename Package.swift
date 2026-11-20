@@ -1,4 +1,4 @@
-// swift-tools-version:6.2
+// swift-tools-version:6.3
 
 import PackageDescription
 
@@ -61,7 +61,7 @@ let package = Package(
     dependencies: !buildsGenerator ? [] : [
         // Up to the next major release, so Cuckoo resolves alongside users' other packages. Packages still
         // at 0.x may break in a minor release, so they stop at the next minor one. The lockfiles pin exact revisions.
-        .package(url: "https://github.com/swiftlang/swift-syntax", "602.0.0"..<"605.0.0"),
+        .package(url: "https://github.com/swiftlang/swift-syntax", "603.0.0"..<"605.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2"),
         .package(url: "https://github.com/dduan/TOMLDecoder", .upToNextMinor(from: "0.4.5")),
     ],

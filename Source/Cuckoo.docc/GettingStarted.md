@@ -10,8 +10,8 @@ the mocks always match the code.
 
 ### Requirements
 
-- Swift 6.2 or later (Xcode 26 or later). The Swift 6 language mode is recommended; the mocks also compile in
-  the Swift 5 mode, which CI doesn't test.
+- Xcode 27 or later on an Apple silicon Mac, or Swift 6.3 or later on Linux. The Swift 6 language mode is
+  recommended; the mocks also compile in the Swift 5 mode, which CI doesn't test.
 - iOS 17, macOS 14, tvOS 17 or watchOS 10, or Linux. CI runs the tests on the macOS and iOS simulator of its
   Xcode images, the current releases, and builds for tvOS and watchOS; it doesn't run the oldest versions.
 
@@ -49,10 +49,11 @@ that module's name, plus one from the entry named after the test target itself. 
 a change in one module regenerates and recompiles only that module's mocks, and the steps run in parallel. An entry
 that lists its own `sources` is the exception: it may read any file, so a change to any of them regenerates it.
 
-A release's plugin runs a prebuilt generator, on macOS and on Linux (x86_64 and arm64), so your build doesn't compile
-swift-syntax: a release doesn't even declare the generator's dependencies, so its swift-syntax doesn't constrain the
-version your other packages, such as macro packages, resolve. A dependency on a branch, or on a commit other than a
-release tag's, instead builds the generator from source with the plugin, with swift-syntax `602.0.0..<605.0.0`.
+A release's plugin runs a prebuilt generator, on macOS (arm64) and on Linux (x86_64 and arm64), so your build
+doesn't compile swift-syntax: a release doesn't even declare the generator's dependencies, so its swift-syntax
+doesn't constrain the version your other packages, such as macro packages, resolve. A dependency on a branch, or on
+a commit other than a release tag's, instead builds the generator from source with the plugin, with swift-syntax
+`603.0.0..<605.0.0`.
 
 Each release's zip carries a build-provenance attestation, so
 `gh attestation verify CuckooGenerator.artifactbundle.zip --repo nmcc24/Cuckoo` checks that the release workflow built

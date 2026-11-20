@@ -192,9 +192,11 @@ public final class MockManager: Sendable {
 
     // The `call` variants below differ only in effects. `invoke` runs a `then` closure: the generated mock
     // passes it, so the closure runs in the mock's isolation and the manager never calls user code itself.
-    // The manager hands `invoke` the call's arguments, so the closure captures none of them. Capturing a
-    // non-Sendable argument in an actor mock's closure is a "sending ... risks causing data races" error on
-    // Swift 6.2.
+    // The manager hands `invoke` the call's recorded arguments instead of letting the closure capture the
+    // parameters. In an actor mock the closure is actor-isolated, and capturing a `sending` parameter, or building
+    // a parameter pack from captured parameters, is a "sending ... risks causing data races" error on Swift 6.3 and
+    // 6.4, as capturing any non-Sendable argument was on 6.2. Fixtures 07 (`SendingActor`), 14 (`ActorCombiner`)
+    // and 61 (`SinkActor`) cover those shapes.
     // `unstubbedDefault` is the default the mock builds for a return type the registry has none for: a tuple's, from
     // its elements' defaults, a new `…Stub` of a protocol the module mocks, or a value of one of the sources' own
     // types. It runs in the mock's isolation too, and only for a call that nothing else answers.
