@@ -144,6 +144,20 @@ jobs:
           git checkout -- Package.swift
       - name: Smoke test
         run: scripts/smoke-test-artifactbundle.sh bundle/CuckooGenerator.artifactbundle
+      # Most Apple users run the plugin from an Xcode project on a release, whose plugin runs the bundle: the Xcode
+      # fixture builds and tests with it, and fails if swift-syntax was resolved, which the bundle is there to avoid.
+      - name: Test the Xcode project with the bundle
+        run: |
+          cp -R bundle/CuckooGenerator.artifactbundle CuckooGenerator.artifactbundle
+          scripts/set-prebuilt-generator.sh local CuckooGenerator.artifactbundle
+          set -o pipefail && xcodebuild test -project Fixtures/XcodeProject/XApp.xcodeproj -scheme XApp \
+            -skipPackagePluginValidation -destination "platform=macOS" ARCHS=arm64 -derivedDataPath build/xcode \
+            | xcbeautify --renderer github-actions
+          if [[ -e build/xcode/SourcePackages/checkouts/swift-syntax ]]; then
+            echo "::error::The Xcode project resolved swift-syntax, so its plugin built the generator from source."
+            exit 1
+          fi
+          git checkout -- Package.swift
       - name: Upload the bundle
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
