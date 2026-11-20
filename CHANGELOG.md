@@ -252,6 +252,16 @@
   `inOrder:` still works, with a deprecation warning and a fix-it, and goes away in 4.0.
 
 ### Changed
+- The build plugin warns when the Cuckoofile entry named after a SwiftPM test target has no `sources` and the target
+  depends on no target of its own package: the entry mocked nothing, silently. Xcode's plugin already failed for it.
+- swift-argument-parser is required from 1.4.0 up to the next major release, down from 1.8.2, so Cuckoo resolves
+  alongside a package that needs an older one.
+- A release's `CuckooGenerator.artifactbundle.zip` carries a build-provenance attestation:
+  `gh attestation verify CuckooGenerator.artifactbundle.zip --repo nmcc24/Cuckoo` checks that the release workflow
+  built it. A release's tag is pushed only once the release and its zip are ready.
+- Documentation: an entry with `sources` regenerates on any change; a file outside the package or project that a
+  `sources` pattern reaches isn't a build input; a release tag's commit uses the prebuilt generator; CI runs the
+  current OS releases, not the minimum versions.
 - Documentation: test a `@MainActor` mock from a `@MainActor` test: a matcher runs on the mock's actor, so using a
   non-`Sendable` value you gave it from another isolation isn't checked by the compiler.
 - The argument a generated mock passes its manager for an unstubbed call's default is `unstubbedDefault`, renamed
