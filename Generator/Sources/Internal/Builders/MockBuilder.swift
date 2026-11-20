@@ -94,7 +94,11 @@ enum MockBuilder {
             lines.append(contentsOf: container.outerScopeTypealiases.flatMap { $0.source(access: access).split(separator: "\n").map { "    \($0)" } })
             lines.append("")
         }
-        lines.append("    \(access)nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: \(container.isClass))")
+        // Only a class mock can be created by `createMock`, whose manager it picks up: a class's initializer may call
+        // its members before a test could stub them.
+        lines.append(container.isClass
+            ? "    \(access)nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: \(container.mockName).self) ?? Cuckoo.MockManager(hasParent: true)"
+            : "    \(access)nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)")
         if let initializer = container.crossModuleInitializer(isActor: isActor) {
             lines.append("    \(initializer)")
         }

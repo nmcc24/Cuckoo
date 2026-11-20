@@ -21,18 +21,16 @@ struct MockSetupTest {
 
     @Test
     func superclassSpyOnAProtocolMockIsAFailureNotACrash() {
-        var mock: MockTestedProtocol?
+        // `createMock` takes class mocks only, so only a call on the manager reaches this.
+        let mock = MockTestedProtocol()
         let failure = TestUtils.catchCuckooFail {
-            mock = createMock(MockTestedProtocol.self) { builder, _ in
-                builder.enableSuperclassSpy()
-                return MockTestedProtocol()
-            }
+            mock.cuckooManager.enableSuperclassSpy()
         }
 
         #expect(failure?.hasPrefix("A protocol mock has no superclass to spy on.") == true)
         // The spy wasn't enabled, so the call is unstubbed rather than a crash.
         let unstubbed = TestUtils.catchCuckooFail {
-            _ = mock?.count(characters: "a")
+            _ = mock.count(characters: "a")
         }
         #expect(unstubbed?.hasPrefix("No stub for count(characters:)") == true)
     }

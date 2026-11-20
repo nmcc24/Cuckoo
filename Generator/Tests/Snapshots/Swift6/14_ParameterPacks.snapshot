@@ -10,7 +10,7 @@ nonisolated final class MockCombiner: Combiner, nonisolated Cuckoo.ProtocolMock 
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockCombiner.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Combiner>()
 
@@ -222,7 +222,7 @@ final class MockMainActorCombiner: MainActorCombiner, nonisolated Cuckoo.Protoco
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorCombiner.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
     nonisolated static var cuckooGlobalActor: (any Actor)? {
         MainActor.shared
     }
@@ -306,7 +306,7 @@ actor MockActorCombiner: ActorCombiner, Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockActorCombiner.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
 
     nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckooManager.refuseActorDefaultImplementation()

@@ -11,9 +11,9 @@ extension MockManager {
     /// Task-local, so a mock created in a task `createMock` didn't start never sees it.
     @TaskLocal static var preconfigured: Preconfigured?
 
-    /// The manager `createMock` prepared for a mock of `mockType`, if one is being created. A generated mock picks
-    /// it up as its `cuckooManager`. Other mocks created inside `createMock`'s closure, such as the mock's
-    /// arguments, get managers of their own.
+    /// The manager `createMock` prepared for a class mock of `mockType`, if one is being created. A generated class
+    /// mock picks it up as its `cuckooManager`; a protocol mock creates its own. Other mocks created inside
+    /// `createMock`'s closure, such as the mock's arguments, get managers of their own.
     public static func preconfiguredManager(for mockType: Any.Type) -> MockManager? {
         guard let preconfigured, preconfigured.mockType == ObjectIdentifier(mockType),
               preconfigured.isOpen.withLock({ $0 }) else {

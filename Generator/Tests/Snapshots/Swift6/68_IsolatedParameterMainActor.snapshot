@@ -10,7 +10,7 @@ final class MockReporter: Reporter, nonisolated Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReporter.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
     nonisolated static var cuckooGlobalActor: (any Actor)? {
         MainActor.shared
     }
@@ -129,7 +129,7 @@ actor MockReportingActor: ReportingActor, Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockReportingActor.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
 
     nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckooManager.refuseActorDefaultImplementation()
@@ -243,7 +243,7 @@ nonisolated final class MockForwarding: Forwarding, nonisolated Cuckoo.ProtocolM
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockForwarding.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Forwarding>()
 
