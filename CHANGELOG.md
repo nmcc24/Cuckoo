@@ -254,8 +254,6 @@
 ### Changed
 - The build plugin warns when the Cuckoofile entry named after a SwiftPM test target has no `sources` and the target
   depends on no target of its own package: the entry mocked nothing, silently. Xcode's plugin already failed for it.
-- swift-argument-parser is required from 1.4.0 up to the next major release, down from 1.8.2, so Cuckoo resolves
-  alongside a package that needs an older one.
 - A release's `CuckooGenerator.artifactbundle.zip` carries a build-provenance attestation:
   `gh attestation verify CuckooGenerator.artifactbundle.zip --repo nmcc24/Cuckoo` checks that the release workflow
   built it. A release's tag is pushed only once the release and its zip are ready.
