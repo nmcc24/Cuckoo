@@ -440,7 +440,7 @@ public final class MockManager: Sendable {
                 return "Enabling the default implementation is not allowed with superclass spy enabled."
             case .none, .defaultImplementation:
                 guard !state.isInUse else {
-                    return "Enabling the default implementation is not allowed after the mock's first stub or call. Enable it right after creating the mock, or first in createMock's closure."
+                    return "Enabling the default implementation is not allowed after the mock's first stub or call. Enable it right after creating the mock."
                 }
                 state.fallback = .defaultImplementation
                 return nil

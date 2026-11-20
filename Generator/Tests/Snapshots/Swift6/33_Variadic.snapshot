@@ -12,7 +12,7 @@ nonisolated final class MockLogger: Logger, nonisolated Cuckoo.ProtocolMock, non
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLogger.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
 
     nonisolated private let cuckooDefaultImplementation = Cuckoo.__CuckooDefaultImplementation<any Logger>()
 
@@ -436,7 +436,7 @@ actor MockLoggerActor: LoggerActor, Cuckoo.ProtocolMock {
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockLoggerActor.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
 
     nonisolated func enableDefaultImplementation(_ stub: CuckooMocksType) {
         cuckooManager.refuseActorDefaultImplementation()
@@ -511,7 +511,7 @@ final class MockMainActorLogger: MainActorLogger, nonisolated Cuckoo.ProtocolMoc
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockMainActorLogger.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
     nonisolated static var cuckooGlobalActor: (any Actor)? {
         MainActor.shared
     }
@@ -595,7 +595,7 @@ nonisolated final class MockStore<Item>: Store, nonisolated Cuckoo.ProtocolMock 
 
     // Original typealiases
 
-    nonisolated let cuckooManager = Cuckoo.MockManager.preconfiguredManager(for: MockStore.self) ?? Cuckoo.MockManager(hasParent: false)
+    nonisolated let cuckooManager = Cuckoo.MockManager(hasParent: false)
 
     nonisolated final class __DefaultImplCaller: Store, Sendable {
         private let cuckooManager: Cuckoo.MockManager
