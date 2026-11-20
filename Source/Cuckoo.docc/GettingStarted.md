@@ -54,6 +54,10 @@ swift-syntax: a release doesn't even declare the generator's dependencies, so it
 version your other packages, such as macro packages, resolve. A dependency on a branch, or on a commit other than a
 release tag's, instead builds the generator from source with the plugin, with swift-syntax `602.0.0..<605.0.0`.
 
+Each release's zip carries a build-provenance attestation, so
+`gh attestation verify CuckooGenerator.artifactbundle.zip --repo nmcc24/Cuckoo` checks that the release workflow built
+it.
+
 On Linux the prebuilt generator needs glibc 2.35 or newer: Ubuntu 22.04, Debian 12, RHEL 10 or later. On an older
 distribution, such as Amazon Linux 2023, it fails to start with "version `GLIBC_2.35' not found"; depend on a
 commit instead, which builds the generator from source.
