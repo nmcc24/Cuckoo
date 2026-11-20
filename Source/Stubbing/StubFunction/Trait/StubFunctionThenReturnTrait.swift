@@ -9,13 +9,20 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Confin
     /// Returns `output`, then each of `outputs`, one per call; the last one repeats.
     @discardableResult
     func thenReturn(_ output: OutputType, _ outputs: OutputType...) -> Self {
-        thenReturn(inOrder: [output] + outputs)
+        thenReturn(contentsOf: [output] + outputs)
+    }
+
+    /// Returns each of `outputs`, an array built at run time, one per call; the last one repeats.
+    @discardableResult
+    func thenReturn(contentsOf outputs: [OutputType]) -> Self {
+        appendReturns(outputs)
     }
 
     /// Returns `outputs` in order, one per call, then repeats the last one.
+    @available(*, deprecated, renamed: "thenReturn(contentsOf:)")
     @discardableResult
     func thenReturn(inOrder outputs: [OutputType]) -> Self {
-        appendReturns(outputs)
+        thenReturn(contentsOf: outputs)
     }
 }
 
@@ -24,13 +31,20 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Shared
     /// so the values must be `Sendable`.
     @discardableResult
     func thenReturn(_ output: OutputType, _ outputs: OutputType...) -> Self {
-        thenReturn(inOrder: [output] + outputs)
+        thenReturn(contentsOf: [output] + outputs)
+    }
+
+    /// Returns each of `outputs`, an array built at run time, one per call; the last one repeats.
+    @discardableResult
+    func thenReturn(contentsOf outputs: [OutputType]) -> Self {
+        appendReturns(outputs)
     }
 
     /// Returns `outputs` in order, one per call, then repeats the last one.
+    @available(*, deprecated, renamed: "thenReturn(contentsOf:)")
     @discardableResult
     func thenReturn(inOrder outputs: [OutputType]) -> Self {
-        appendReturns(outputs)
+        thenReturn(contentsOf: outputs)
     }
 }
 
@@ -42,10 +56,18 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Isolat
         return self
     }
 
-    /// Returns `outputs` in order, then repeats the last one. They're sent to the mock's actor.
+    /// Returns each of `outputs`, an array built at run time, one per call; the last one repeats. They're sent to the
+    /// mock's actor.
+    @discardableResult
+    func thenReturn(contentsOf outputs: sending [OutputType]) -> Self {
+        appendReturns(outputs)
+    }
+
+    /// Returns `outputs` in order, one per call, then repeats the last one.
+    @available(*, deprecated, renamed: "thenReturn(contentsOf:)")
     @discardableResult
     func thenReturn(inOrder outputs: sending [OutputType]) -> Self {
-        appendReturns(outputs)
+        thenReturn(contentsOf: outputs)
     }
 }
 
@@ -53,7 +75,7 @@ public extension StubFunctionThenReturnTrait where Sharing == StubSharing.Isolat
     /// Returns `output`, then each of `outputs`, one per call; the last one repeats.
     @discardableResult
     func thenReturn(_ output: OutputType, _ outputs: OutputType...) -> Self {
-        thenReturn(inOrder: [output] + outputs)
+        thenReturn(contentsOf: [output] + outputs)
     }
 }
 
@@ -62,7 +84,7 @@ extension StubFunctionThenReturnTrait {
     /// later, so it records a failure now.
     fileprivate func appendReturns(_ outputs: [OutputType]) -> Self {
         guard !outputs.isEmpty else {
-            reportFailure("thenReturn(inOrder:) got no values, so the stub has no answer. Give it at least one.", at: nil)
+            reportFailure("thenReturn(contentsOf:) got no values, so the stub has no answer. Give it at least one.", at: nil)
             return self
         }
         stub.appendActions(outputs.map { .returnValue($0) })

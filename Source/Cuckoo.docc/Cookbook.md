@@ -52,7 +52,7 @@ func showsTheProfileName() async {
 A `@MainActor` mock's `thenReturn(_:)` also takes a value that isn't `Sendable`, as long as it can be sent to the
 main actor, where every call runs: one the test creates for the stub and doesn't use again. A value the test keeps
 using needs to be `Sendable`, or returned from a `then` closure that makes it. Several values at once,
-`thenReturn(a, b)`, need `Sendable`; `thenReturn(inOrder:)` sends them as one array.
+`thenReturn(a, b)`, need `Sendable`; `thenReturn(contentsOf:)` sends them as one array.
 
 ### Wait for work the code under test starts
 

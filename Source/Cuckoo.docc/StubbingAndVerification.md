@@ -105,8 +105,8 @@ stub(greeter) { stub in
 }
 ```
 
-- `thenReturn(_:_:)` returns its values one per call; the last one repeats. `thenReturn(inOrder:)` takes them as
-  an array.
+- `thenReturn(_:_:)` returns its values one per call; the last one repeats. `thenReturn(contentsOf:)` takes them
+  as an array built at run time, which must not be empty.
 - `then(_:)` runs a closure with the call's arguments and returns its result.
 - `thenThrow(_:_:)` throws, for members that throw.
 - `thenDoNothing()` returns, for members that return `Void`.
