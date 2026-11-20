@@ -169,8 +169,7 @@ Once the suite compiles, these can replace workarounds:
 
 - Static and class members can be mocked: `stub(MockClock.self) { … }`, inside a `.cuckoo()` test or
   `withStaticStubs { }`.
-- ``inOrder(strict:fileID:filePath:line:column:_:)`` and ``eventually(timeout:pollingInterval:_:)`` verify
-  call order and calls made from another task.
+- ``inOrder(strict:fileID:filePath:line:column:_:)`` verifies call order.
 - Typed throws, `inout`, `~Copyable` arguments and parameter packs can be stubbed. On Apple platforms, a
   closure parameter with typed throws, `(Int) throws(LoadError) -> Void`, can only be mocked from macOS 15, iOS 18,
   tvOS 18 or watchOS 11: the mock keeps the closure's type at runtime, which older runtimes don't support. Mark the

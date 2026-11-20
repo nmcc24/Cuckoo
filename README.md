@@ -38,7 +38,7 @@ put a protocol in front of them.
 - Swift Testing and XCTest, with a `.cuckoo()` trait for per-test configuration.
 - Async and throwing members, typed throws, `inout`, `~Copyable` arguments and parameter packs.
 - Generics, associated types, inheritance, static and class members, and subscripts.
-- Spies, default implementations, argument captors, in-order verification and `eventually` for asynchronous code.
+- Spies, default implementations, argument captors and in-order verification.
 - Failure messages that show each call a member received and the argument that didn't match.
 
 ## Requirements

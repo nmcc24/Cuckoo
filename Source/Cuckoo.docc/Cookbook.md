@@ -56,10 +56,20 @@ using needs to be `Sendable`, or returned from a `then` closure that makes it. S
 
 ### Wait for work the code under test starts
 
-When the code starts a `Task` and returns, the test can't await the call it makes. Wrap the `verify` in
-``eventually(timeout:pollingInterval:_:)``, which retries it until it passes or the timeout runs out:
+When the code starts a `Task` and returns, the test has nothing to wait for, so a `verify` right after it runs before
+the call does. Make the work awaitable: return the `Task`, or make the method `async`, and the test awaits it before
+verifying, `never()` included:
 
 ```swift
+@MainActor final class FeedViewModel {
+    let service: any FeedService
+
+    @discardableResult
+    func pullToRefresh() -> Task<Void, Never> {
+        Task { await service.refresh() }
+    }
+}
+
 @Test @MainActor
 func refreshesInTheBackground() async {
     let service = MockFeedService()
@@ -68,16 +78,14 @@ func refreshesInTheBackground() async {
     }
     let viewModel = FeedViewModel(service: service)
 
-    viewModel.pullToRefresh() // starts a Task and returns
+    await viewModel.pullToRefresh().value
 
-    await eventually {
-        verify(service).refresh()
-    }
+    verify(service).refresh()
 }
 ```
 
-`eventually` waits for something to become true. To check that a call never happens, let the work finish first,
-then `verify(service, never())` outside it.
+When the work can't be awaited, an XCTest test can wait for the call itself: fulfil an `XCTestExpectation` from the
+stub's `then` closure, and `await fulfillment(of: [refreshed], timeout: 1)` before verifying.
 
 ### Mock an actor
 

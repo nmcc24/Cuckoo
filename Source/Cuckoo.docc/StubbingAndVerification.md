@@ -79,8 +79,7 @@ generator doesn't read, can't pass its isolation on; state it on the protocol yo
 Verifying reads the arguments a mock recorded, so it runs where the mock does. The verification proxy of a
 `@MainActor` mock is `@MainActor`, and so is the proxy of a mock of another global actor: verify such a mock from a
 test on that actor, or inside `await MainActor.run { }`. Otherwise a test could read an argument while the mock's
-actor still changes it, for example in ``eventually(timeout:pollingInterval:_:)`` while the code under test is
-still running. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)`` takes
+actor still changes it, while the code under test is still running. ``verifyNoMoreInteractions(_:fileID:filePath:line:column:isolation:)-(Mock...,_,_,_,_,_)`` takes
 mocks of any isolation, so it checks at run time: called off a mock's global actor, it records a failure instead
 of reading that mock's calls. The compiler can't check an `actor` mock this way, since its proxy would need `await`
 on every `verify`: don't verify an actor mock while a call to it may still be running.
@@ -353,19 +352,8 @@ the `verify` calls before it took. Keep every `verify` inside the block itself: 
 runs after the block ends records a failure, since it can no longer be checked. A `Task.detached` or a dispatch
 queue isn't part of the block: a `verify` there is checked on its own, outside the order.
 
-``eventually(timeout:pollingInterval:_:)`` retries its block until its `verify` calls pass, for code that calls a
-mock from a task it starts:
-
-```swift
-viewModel.refresh()
-await eventually {
-    verify(service).fetch(any())
-}
-```
-
-It checks that something becomes true. `verify(service, never())` passes on the first try, before the code under
-test has run. To wait for calls in an order, put `inOrder` inside `eventually`: an `eventually` inside `inOrder`
-passes at once, since the block's checks run only when `inOrder` ends.
+For code that calls a mock from a task it starts, wait for that task before verifying: see "Wait for work the code
+under test starts" in <doc:Cookbook>.
 
 ### Capture arguments
 
