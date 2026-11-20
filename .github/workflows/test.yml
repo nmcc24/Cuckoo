@@ -313,11 +313,15 @@ jobs:
     permissions:
       actions: read
     steps:
-      # A job skips only when the change touches no code (the changes job); any other skip is a failure.
+      # Only the jobs the changes job gates (TSan, macOS and the Apple simulators) skip, and only when the change
+      # touches no code; any other skip is a failure.
       - name: Fail unless every job succeeded
         if: >-
           contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') ||
-          (needs.changes.outputs.code != 'false' && contains(needs.*.result, 'skipped'))
+          (needs.changes.outputs.code != 'false' && contains(needs.*.result, 'skipped')) ||
+          needs.changes.result != 'success' || needs.generator_linux.result != 'success' ||
+          needs.swift7_linux.result != 'success' || needs.docs_linux.result != 'success' ||
+          needs.bundle_linux.result != 'success' || needs.release_linux.result != 'success'
         run: |
           echo '${{ toJSON(needs) }}'
           exit 1
@@ -330,7 +334,10 @@ jobs:
         run: |
           not_passed="$(gh api --paginate "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs?filter=latest" \
             --jq '.jobs[] | select(.name != "CI passed" and .conclusion != "success")
-              | select(.conclusion != "skipped" or env.SKIPS_ALLOWED != "true") | "\(.name): \(.conclusion // .status)"')"
+              | select(.conclusion != "skipped" or env.SKIPS_ALLOWED != "true"
+                or ((.name | startswith("Runtime tests under the Thread Sanitizer") or startswith("Build and Test on Apple simulators")
+                  or (startswith("SwiftPM tests and Swift 6 matrix on ") and (startswith("SwiftPM tests and Swift 6 matrix on Linux") | not))) | not))
+              | "\(.name): \(.conclusion // .status)"')"
           if [ -n "$not_passed" ]; then
             echo "$not_passed"
             exit 1
