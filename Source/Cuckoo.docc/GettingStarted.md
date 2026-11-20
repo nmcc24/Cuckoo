@@ -23,7 +23,7 @@ In `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.5"),
+    .package(url: "https://github.com/nmcc24/Cuckoo.git", exact: "3.0.0-beta.6"),
 ],
 targets: [
     .testTarget(
