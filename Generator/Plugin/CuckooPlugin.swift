@@ -62,6 +62,14 @@ struct CuckooPlugin: BuildToolPlugin {
                     + "so it gets no mocks. Its entries: \(entries.sorted().joined(separator: ", ")). Name an entry after one of them."
             )
         }
+        // The entry named after the target mocks its own package's targets, or the files it lists: with neither, it
+        // would generate an empty file.
+        if entries.contains(target.name), ownModules.isEmpty, !cuckoofileEntry(named: target.name, listsSourcesIn: configuration) {
+            Diagnostics.warning(
+                "The Cuckoofile entry '\(target.name)' has no `sources`, and the target depends on no target of this package, "
+                    + "so the entry mocks nothing. List the files to mock in its `sources`, as for another package's products."
+            )
+        }
 
         return try commandsPerModule(
             sourceModules: sourceModules + [selfModule],
