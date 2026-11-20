@@ -262,7 +262,8 @@ private func commandsPerModule(
             // module would get one command between them without the target's name here.
             displayName: "Generate Cuckoo mocks for \(sourceModule.name) in \(targetName)",
             executable: executable,
-            arguments: listing.arguments,
+            // The Cuckoofile is named outright, so the generator doesn't depend on finding it through `PROJECT_DIR`.
+            arguments: ["--configuration", configurationURL.path(percentEncoded: false)] + listing.arguments,
             environment: [
                 "PROJECT_DIR": projectDir.path(percentEncoded: false),
                 "CUCKOO_OVERRIDE_OUTPUT": outputURL.path(percentEncoded: false),
