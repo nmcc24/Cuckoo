@@ -213,11 +213,32 @@ jobs:
         with:
           name: bundle
           path: bundle
+      # The draft holds the bundle before the tag exists, so the tag is public only for the moment before publishing,
+      # and an `exact:` pin of it doesn't resolve to a missing zip. A draft isn't public or immutable yet.
+      - name: Draft the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          draft="$(gh release view "$VERSION" --json isDraft --jq .isDraft 2>/dev/null || true)"
+          if [[ "$draft" == false ]]; then
+            echo "The release $VERSION is already published."
+            exit 0
+          elif [[ "$draft" == true ]]; then
+            # A failed run left a draft, maybe with another bundle: replace it.
+            echo "::notice::Replacing the draft release $VERSION a previous run left."
+            gh release delete "$VERSION" --yes
+          fi
+          # The notes are the version's section of the changelog, which the check job already found.
+          scripts/release-notes.sh "$VERSION" > notes.md
+          prerelease=()
+          [[ "$VERSION" == *-* ]] && prerelease=(--prerelease)
+          gh release create "$VERSION" bundle/CuckooGenerator.artifactbundle.zip \
+            --draft --title "$VERSION" --notes-file notes.md "${prerelease[@]}"
       - name: Release commit and tag
-        # The tagged commit is master plus this one change; it isn't pushed to any branch. The tag goes up before the
-        # release exists, so a run can fail in between. Re-running the failed jobs finds the tag naming this bundle
-        # and keeps it; a new run, with a new bundle, moves the tag, which no published release holds yet (the check
-        # job made sure). Once the release is published, immutability locks the tag.
+        # The tagged commit is master plus this one change; it isn't pushed to any branch. A run can fail between
+        # tagging and publishing. Re-running the failed jobs finds the tag naming this bundle and keeps it; a new run,
+        # with a new bundle, moves the tag, which no published release holds yet (the check job made sure). Once the
+        # release is published, immutability locks the tag.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -248,21 +269,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          draft="$(gh release view "$VERSION" --json isDraft --jq .isDraft 2>/dev/null || true)"
-          if [[ "$draft" == false ]]; then
+          if [[ "$(gh release view "$VERSION" --json isDraft --jq .isDraft)" == false ]]; then
             echo "The release $VERSION is already published."
             exit 0
-          elif [[ "$draft" == true ]]; then
-            # A run interrupted while publishing left a draft, which isn't immutable yet: replace it, keeping the tag.
-            echo "::notice::Replacing the draft release $VERSION a previous run left."
-            gh release delete "$VERSION" --yes
           fi
-          # The notes are the version's section of the changelog, which the check job already found.
-          scripts/release-notes.sh "$VERSION" > notes.md
-          prerelease=()
-          [[ "$VERSION" == *-* ]] && prerelease=(--prerelease)
-          gh release create "$VERSION" bundle/CuckooGenerator.artifactbundle.zip \
-            --verify-tag --title "$VERSION" --notes-file notes.md "${prerelease[@]}"
+          gh release edit "$VERSION" --draft=false --verify-tag
 
   immutable:
     name: The release is immutable
