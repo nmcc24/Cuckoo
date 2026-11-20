@@ -239,12 +239,17 @@
   -> Items` with `typealias Items = [Item]`, got a mock that didn't compile: forwarding it to a default
   implementation goes through the opened existential, where `Items` is another type. The type eraser casts it
   now, as it does the associated type itself.
-- `thenReturn(inOrder: [])` left the stub with no answer, which only a matching call reported. It records a failure
-  itself.
+- `thenReturn(contentsOf: [])`, `thenReturn(inOrder: [])` before, left the stub with no answer, which only a
+  matching call reported. It records a failure itself.
 - `thenReturn(a, b, c)` and `thenThrow(a, b)` added their answers one at a time, so a call from another task could
   get the first answer twice. The batch is added at once.
 - A failed `verify` of a generic member whose calls had other argument types said it "was called only with other
   return types". It says "other types", and lists each call's argument and return types.
+
+### Deprecated
+- `thenReturn(inOrder:)` is `thenReturn(contentsOf:)`, like `append(contentsOf:)`: the values are returned one per
+  call, the last one repeating, as they always were, and `inOrder:` read as if the variadic form weren't in order.
+  `inOrder:` still works, with a deprecation warning and a fix-it, and goes away in 4.0.
 
 ### Changed
 - Documentation: test a `@MainActor` mock from a `@MainActor` test: a matcher runs on the mock's actor, so using a

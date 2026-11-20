@@ -22,7 +22,7 @@ struct StubbingTest {
     func returningArray() {
         let mock = MockTestedClass()
         stub(mock) { mock in
-            when(mock.readOnlyProperty.get).thenReturn(inOrder: ["a", "b", "c"])
+            when(mock.readOnlyProperty.get).thenReturn(contentsOf: ["a", "b", "c"])
         }
 
         #expect(mock.readOnlyProperty == "a")
@@ -38,10 +38,10 @@ struct StubbingTest {
         let mock = MockTestedClass()
         let message = TestUtils.catchCuckooFail {
             stub(mock) { mock in
-                when(mock.readOnlyProperty.get).thenReturn(inOrder: [])
+                when(mock.readOnlyProperty.get).thenReturn(contentsOf: [])
             }
         }
-        #expect(message == "thenReturn(inOrder:) got no values, so the stub has no answer. Give it at least one.")
+        #expect(message == "thenReturn(contentsOf:) got no values, so the stub has no answer. Give it at least one.")
     }
 
     @Test

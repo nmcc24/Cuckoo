@@ -91,7 +91,7 @@ struct ConcurrencyStressTests {
         let mock = MockConcurrentCounter()
         let answers = Array(1...Self.iterations)
         stub(mock) { stub in
-            when(stub.count(characters: any())).thenReturn(inOrder: answers)
+            when(stub.count(characters: any())).thenReturn(contentsOf: answers)
         }
 
         let received = await withTaskGroup(of: Int.self) { group in
